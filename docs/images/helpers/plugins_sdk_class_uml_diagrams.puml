@@ -1,0 +1,66 @@
+
+@startuml
+Context "1" *-- "many" Model : contains
+Model "1" *-- "many" Worker : contains
+Endpoint o-- EndpointTypes
+
+ModelServerEndpoint <.. Endpoint
+ModelServerEndpoint <.. Context
+ModelServerEndpoint <.. Request
+ModelServerEndpoint <.. Response
+
+interface Context {
+  +Properties getConfig()
+  +Map<String, Model> getModels()
+}
+
+interface Request {
+  +List<String> getHeaderNames()
+  +String getRequestURI()
+  +Map<String, List<String>> getParameterMap()
+  +List<String> getParameter(String k)
+  +String getContentType()
+  +InputStream getInputStream()
+}
+
+interface Response {
+  +void setStatus(int sc)
+  +void setStatus(int sc, String phrase)
+  +void setHeader(String k, String v)
+  +void addHeader(String k, String v)
+  +void setContentType(String ct)
+  +OutputStream getOutputStream()
+}
+
+interface Model {
+  +String getModelName()
+  +String getModelUrl()
+  +String getModelHandler()
+  +List<Worker> getModelWorkers()
+}
+
+interface Worker {
+  +boolean isRunning()
+  +long getWorkerMemory()
+}
+
+interface ModelServerEndpoint {
+  +void doGet(Request req, Response rsp, Context ctx)
+  +void doPost(Request req, Response rsp, Context ctx)
+  +void doDelete(Request req, Response rsp, Context ctx)
+  +void doPut(Request req, Response rsp, Context ctx)
+}
+
+annotation Endpoint
+Endpoint : +String urlPattern()
+Endpoint : +EndpointTypes endpointType()
+Endpoint : +String description()
+
+
+enum EndpointTypes {
+  NONE, 
+  INFERENCE, 
+  MANAGEMENT
+}
+
+@enduml

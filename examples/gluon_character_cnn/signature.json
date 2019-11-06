@@ -1,0 +1,16 @@
+{
+  "inputs": [
+    {
+      "data_name": "data",
+      "data_shape": [1,1014]
+    }
+  ],
+  "input_type": "application/json",
+  "outputs": [
+    {
+      "data_name": "softmax",
+      "data_shape": [0, 7]
+    }
+  ],
+  "output_type": "application/json"
+}

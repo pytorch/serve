@@ -1,0 +1,3 @@
+include mms/frontend/model-server.jar
+include PyPiDescription.rst
+include mms/configs/*

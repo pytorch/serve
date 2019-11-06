@@ -1,0 +1,18 @@
+{
+  "specificationVersion": "1.0",
+  "implementationVersion": "1.0",
+  "description": "invalid model",
+  "modelServerVersion": "1.0",
+  "license": "Apache 2.0",
+  "runtime": "python",
+  "model": {
+    "modelName": "err_batch",
+    "description": "batch error model",
+    "modelVersion": "1.0",
+    "handler": "service:handle"
+  },
+  "publisher": {
+    "author": "PyTorch Serving team",
+    "email": "noreply@noreply.com"
+  }
+}

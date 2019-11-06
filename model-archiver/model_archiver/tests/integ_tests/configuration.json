@@ -1,0 +1,74 @@
+  [{
+    "name": "packaging_mar",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/regular_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "default",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_noarchive",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/regular_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "no-archive",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_tgz",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/regular_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "tgz",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_mar",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/regular_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "default",
+    "iterations": 2,
+    "expectError": true
+  },
+  {
+    "name": "packaging_onnx_mar",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/onnx_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "default",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_onnx_tgz",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/onnx_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "tgz",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_onnx_no_archive",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/onnx_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "no-archive",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_mar",
+    "modelName": "model",
+    "modelPath": "model_archiver/tests/integ_tests/resources/regular_model",
+    "handler": "service:handle",
+    "exportPath": "/tmp/model",
+    "archiveFormat": "default",
+    "iterations": 2,
+    "force": true
+  }  ]

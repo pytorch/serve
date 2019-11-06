@@ -1,0 +1,29 @@
+dependencies {
+    compile "io.netty:netty-all:${netty_version}"
+    compile project(":modelarchive")
+    compile "commons-cli:commons-cli:${commons_cli_version}"
+    compile "software.amazon.ai:mms-plugins-sdk:${mms_server_sdk_version}"
+    testCompile "org.testng:testng:${testng_version}"
+}
+
+apply from: file("${project.rootProject.projectDir}/tools/gradle/launcher.gradle")
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.amazonaws.ml.mms.ModelServer'
+    }
+    includeEmptyDirs = false
+    from configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+
+    exclude "META-INF/maven/**"
+    exclude "META-INF/INDEX.LIST"
+    exclude "META-INF/MANIFEST*"
+    exclude "META-INF//LICENSE*"
+    exclude "META-INF//NOTICE*"
+}
+
+test.doFirst {
+    systemProperty "mmsConfigFile", 'src/test/resources/config.properties'
+    systemProperty "METRICS_LOCATION","build/logs"
+    systemProperty "LOG_LOCATION","build/logs"
+}

@@ -1,0 +1,9 @@
+dependencies {
+    compile "commons-io:commons-io:2.6"
+    compile "org.slf4j:slf4j-api:${slf4j_api_version}"
+    compile "org.slf4j:slf4j-log4j12:${slf4j_log4j12_version}"
+    compile "com.google.code.gson:gson:${gson_version}"
+
+    testCompile "commons-cli:commons-cli:${commons_cli_version}"
+    testCompile "org.testng:testng:${testng_version}"
+}

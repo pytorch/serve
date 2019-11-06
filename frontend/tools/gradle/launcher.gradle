@@ -1,0 +1,109 @@
+apply plugin: LauncherPlugin
+
+clean.dependsOn killServer
+
+import org.gradle.internal.jvm.Jvm
+
+class LauncherPlugin implements Plugin<Project> {
+    void apply(Project project) {
+        project.task('startServer') {
+            dependsOn project.jar
+            doLast {
+                def pidFile = getPidFile()
+                if (pidFile.exists()) {
+                    throw new GradleException("Server already running!")
+                }
+
+                def list = []
+                list.addAll(project.configurations.runtime.getFiles())
+                list.add(project.jar.outputs.files.singleFile)
+                String cp = CollectionUtils.join(File.pathSeparator, list)
+                String jvmPath = Jvm.current().getJavaExecutable()
+
+                def cmd = [jvmPath, "-agentlib:jdwp=transport=dt_socket,address=0.0.0.0:4000,server=y,suspend=n",
+                           "-DmmsConfigFile=${project.projectDir}/src/test/resources/config.properties",
+                           "-DLOG_LOCATION=${project.buildDir}/logs",
+                           "-DMETRICS_LOCATION=${project.buildDir}/logs",
+                           "-cp", cp, "com.amazonaws.ml.mms.ModelServer"] as String[]
+
+                def builder = new ProcessBuilder(cmd)
+                builder.redirectErrorStream(true)
+                builder.directory(project.projectDir)
+                Process process = builder.start()
+
+                ReaderThread rt = new ReaderThread(process.getInputStream())
+                rt.start()
+                new ReaderThread(process.getErrorStream()).start()
+
+                try {
+                    while (!rt.done) {
+                        try {
+                            process.exitValue();
+                            throw new GradleException("MMS stop unexpectedly.")
+                        } catch(IllegalThreadStateException ex) {
+                            Thread.sleep(500);
+                        }
+                    }
+
+                    def pidField = process.class.getDeclaredField('pid')
+                    pidField.accessible = true
+
+                    pidFile << pidField.getInt(process)
+
+                    logger.quiet "MMS service started."
+                } catch (IllegalThreadStateException ignored) {
+                }
+            }
+        }
+
+        project.task('killServer') {
+            doLast {
+                def pidFile = getPidFile()
+                if(!pidFile.exists()) {
+                    logger.quiet "No server running!"
+                    return
+                }
+
+                def pid = pidFile.text
+                def process = "kill $pid".execute()
+
+                try {
+                    process.waitFor()
+                } finally {
+                    pidFile.delete()
+                }
+            }
+        }
+
+        project.task('restartServer') {
+            dependsOn project.killServer
+            dependsOn project.startServer
+        }
+    }
+
+    private File getPidFile() {
+        return new File("build/server.pid")
+    }
+}
+
+class ReaderThread extends Thread {
+
+    private InputStream is
+    private boolean done;
+
+    public ReaderThread(InputStream is) {
+        this.is = is
+    }
+
+    public void run() {
+        long begin = System.currentTimeMillis()
+        def line
+        def reader = new BufferedReader(new InputStreamReader(is))
+        while ((line = reader.readLine()) != null) {
+            if (!done) {
+                done = line.matches("Model server started.*")
+                println line
+            }
+        }
+    }
+}

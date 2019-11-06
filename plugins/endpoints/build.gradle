@@ -1,0 +1,19 @@
+dependencies {
+    compile "com.google.code.gson:gson:${gson_version}"
+    compile "software.amazon.ai:mms-plugins-sdk:${mms_server_sdk_version}"
+}
+
+project.ext{
+    sagemaker = true
+}
+
+jar {
+    includeEmptyDirs = false
+
+    exclude "META-INF/maven/**"
+    exclude "META-INF/INDEX.LIST"
+    exclude "META-INF/MANIFEST*"
+    exclude "META-INF//LICENSE*"
+    exclude "META-INF//NOTICE*"
+}
+

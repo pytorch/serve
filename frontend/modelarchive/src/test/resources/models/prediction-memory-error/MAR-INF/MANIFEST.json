@@ -1,0 +1,18 @@
+{
+  "specificationVersion": "1.0",
+  "implementationVersion": "1.0",
+  "description": "noop v1.0",
+  "modelServerVersion": "1.0",
+  "license": "Apache 2.0",
+  "runtime": "python",
+  "model": {
+    "modelName": "pred-mem-err",
+    "description": "Tests for memory error",
+    "modelVersion": "1.0",
+    "handler": "service:handle"
+  },
+  "publisher": {
+    "author": "PyTorch Serving Team",
+    "email": "noreply@noreply.com"
+  }
+}
