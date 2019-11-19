@@ -129,7 +129,7 @@ class TorchModelServiceWorker(object):
 
         self.sock.listen(1)
         logging.info("[PID]%d", os.getpid())
-        logging.info("Torch service worker started.")
+        logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
 
         while True:
