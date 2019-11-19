@@ -19,7 +19,7 @@ class ArgParser(object):
         """
         Argument parser for torchserve start service
         """
-        parser = argparse.ArgumentParser(prog='torchserve', description='MXNet Model Server')
+        parser = argparse.ArgumentParser(prog='torchserve', description='Torchserve')
 
         sub_parse = parser.add_mutually_exclusive_group(required=False)
         sub_parse.add_argument('--start', action='store_true', help='Start the model-server')
