@@ -1,7 +1,7 @@
 
 
 """
-This module parses the arguments given through the mxnet-model-server command-line. This is used by model-server
+This module parses the arguments given through the torchserve command-line. This is used by model-server
 at runtime.
 """
 
@@ -11,15 +11,15 @@ import argparse
 # noinspection PyTypeChecker
 class ArgParser(object):
     """
-    Argument parser for mxnet-model-server and mxnet-model-export commands
-    More detailed example is available at https://github.com/awslabs/mxnet-model-server/blob/master/README.md
+    Argument parser for torchserve and torchserve-export commands
+    TODO : Add readme url
     """
     @staticmethod
     def mms_parser():
         """
-        Argument parser for mxnet-model-server start service
+        Argument parser for torchserve start service
         """
-        parser = argparse.ArgumentParser(prog='mxnet-model-server', description='MXNet Model Server')
+        parser = argparse.ArgumentParser(prog='torchserve', description='MXNet Model Server')
 
         sub_parse = parser.add_mutually_exclusive_group(required=False)
         sub_parse.add_argument('--start', action='store_true', help='Start the model-server')

@@ -11,7 +11,7 @@ import mock
 import pytest
 from mock import Mock
 
-from mms.model_service_worker import MXNetModelServiceWorker
+from mms.model_service_worker import TorchModelServiceWorker
 from mms.service import Service
 
 
@@ -32,7 +32,7 @@ def socket_patches(mocker):
 
 @pytest.fixture()
 def model_service_worker(socket_patches):
-    model_service_worker = MXNetModelServiceWorker('unix', 'my-socket', None, None)
+    model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None)
     model_service_worker.sock = socket_patches.socket
     model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
     return model_service_worker
@@ -44,7 +44,7 @@ class TestInit:
 
     def test_missing_socket_name(self):
         with pytest.raises(ValueError, match="Incomplete data provided.*"):
-            MXNetModelServiceWorker()
+            TorchModelServiceWorker()
 
     def test_socket_in_use(self, mocker):
         remove = mocker.patch('os.remove')
@@ -53,7 +53,7 @@ class TestInit:
         path_exists.return_value = True
 
         with pytest.raises(Exception, match=r".*socket already in use: sampleSocketName.*"):
-            MXNetModelServiceWorker('unix', self.socket_name)
+            TorchModelServiceWorker('unix', self.socket_name)
 
     @pytest.fixture()
     def patches(self, mocker):
@@ -65,7 +65,7 @@ class TestInit:
         return patches
 
     def test_success(self, patches):
-        MXNetModelServiceWorker('unix', self.socket_name)
+        TorchModelServiceWorker('unix', self.socket_name)
         patches.remove.assert_called_once_with(self.socket_name)
         patches.socket.assert_called_once_with(socket.AF_UNIX, socket.SOCK_STREAM)
 

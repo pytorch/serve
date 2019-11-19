@@ -188,7 +188,7 @@ class LegacyModelLoader(ModelLoader):
         if module is None:
             raise ValueError("Unable to load module {}".format(service_file))
 
-        from mms.model_service.mxnet_model_service import SingleNodeService
+        from mms.model_service.model_service import SingleNodeService
 
         model_class_definitions = ModelLoader.list_model_services(module, SingleNodeService)
         module_class = model_class_definitions[0]

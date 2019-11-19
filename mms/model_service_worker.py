@@ -23,17 +23,11 @@ SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
 
 
-class MXNetModelServiceWorker(object):
+class TorchModelServiceWorker(object):
     """
     Backend worker to handle Model Server's python service code
     """
     def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
-        if os.environ.get("OMP_NUM_THREADS") is None:
-            os.environ["OMP_NUM_THREADS"] = "1"
-        if os.environ.get("MXNET_USE_OPERATOR_TUNING") is None:
-            # work around issue: https://github.com/apache/incubator-mxnet/issues/12255
-            os.environ["MXNET_USE_OPERATOR_TUNING"] = "0"
-
         self.sock_type = s_type
         if s_type == "unix":
             if s_name is None:
@@ -135,7 +129,7 @@ class MXNetModelServiceWorker(object):
 
         self.sock.listen(1)
         logging.info("[PID]%d", os.getpid())
-        logging.info("MXNet worker started.")
+        logging.info("Torch service worker started.")
         logging.info("Python runtime: %s", platform.python_version())
 
         while True:
@@ -165,7 +159,7 @@ if __name__ == "__main__":
         host = args.host
         port = args.port
 
-        worker = MXNetModelServiceWorker(sock_type, socket_name, host, port)
+        worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
         worker.run_server()
     except socket.timeout:
         logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)

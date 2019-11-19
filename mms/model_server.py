@@ -44,7 +44,7 @@ def start():
         if pid is not None:
             try:
                 psutil.Process(pid)
-                print("Model server is already running, please use mxnet-model-server --stop to stop MMS.")
+                print("Model server is already running, please use torchserve --stop to stop MMS.")
                 exit(1)
             except psutil.Error:
                 print("Removing orphan pid file.")
@@ -74,9 +74,6 @@ def start():
         mms_config = args.mms_config
         mms_conf_file = None
         if mms_config:
-            if mms_config == "sagemaker":
-                mms_config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                          "configs", "sagemaker_config.properties")
             if not os.path.isfile(mms_config):
                 print("--mms-config file not found: {}".format(mms_config))
                 exit(1)
