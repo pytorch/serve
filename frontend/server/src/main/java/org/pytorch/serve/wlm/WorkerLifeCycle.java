@@ -92,7 +92,7 @@ public class WorkerLifeCycle {
         } else {
             args[0] = runtime.getValue();
         }
-        args[1] = new File(workingDir, "mms/model_service_worker.py").getAbsolutePath();
+        args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
         args[2] = "--sock-type";
         args[3] = connector.getSocketType();
         args[4] = connector.isUds() ? "--sock-name" : "--port";

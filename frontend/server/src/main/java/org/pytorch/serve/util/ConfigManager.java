@@ -522,7 +522,7 @@ public final class ConfigManager {
         File cwd = new File(getCanonicalPath("."));
         File file = cwd;
         while (file != null) {
-            File mms = new File(file, "mms");
+            File mms = new File(file, "ts");
             if (mms.exists()) {
                 return file;
             }

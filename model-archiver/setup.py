@@ -4,7 +4,7 @@
 # Notes:
 # - this is a "Universal Wheels" package that is pure Python and supports both Python2 and Python3
 # - Twine is a secure PyPi upload package
-# - Make sure you have bumped the version! at mms/version.py
+# - Make sure you have bumped the version! at ts/version.py
 # $ pip install twine
 # $ pip install wheel
 # $ python setup.py bdist_wheel --universal
