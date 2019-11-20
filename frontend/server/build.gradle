@@ -10,7 +10,7 @@ apply from: file("${project.rootProject.projectDir}/tools/gradle/launcher.gradle
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.amazonaws.ml.mms.ModelServer'
+        attributes 'Main-Class': 'org.pytorch.serve.ModelServer'
     }
     includeEmptyDirs = false
     from configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
@@ -23,7 +23,7 @@ jar {
 }
 
 test.doFirst {
-    systemProperty "mmsConfigFile", 'src/test/resources/config.properties'
+    systemProperty "tsConfigFile", 'src/test/resources/config.properties'
     systemProperty "METRICS_LOCATION","build/logs"
     systemProperty "LOG_LOCATION","build/logs"
 }

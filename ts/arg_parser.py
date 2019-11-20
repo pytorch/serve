@@ -15,7 +15,7 @@ class ArgParser(object):
     TODO : Add readme url
     """
     @staticmethod
-    def mms_parser():
+    def ts_parser():
         """
         Argument parser for torchserve start service
         """
@@ -25,8 +25,8 @@ class ArgParser(object):
         sub_parse.add_argument('--start', action='store_true', help='Start the model-server')
         sub_parse.add_argument('--stop', action='store_true', help='Stop the model-server')
 
-        parser.add_argument('--mms-config',
-                            dest='mms_config',
+        parser.add_argument('--ts-config',
+                            dest='ts_config',
                             help='Configuration file for model server')
         parser.add_argument('--model-store',
                             dest='model_store',
@@ -82,5 +82,5 @@ class ArgParser(object):
 
     @staticmethod
     def extract_args(args=None):
-        parser = ArgParser.mms_parser()
+        parser = ArgParser.ts_parser()
         return parser.parse_args(args) if args else parser.parse_args()

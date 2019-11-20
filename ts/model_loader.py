@@ -27,11 +27,11 @@ class ModelLoaderFactory(object):
     def get_model_loader(model_dir):
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         if os.path.exists(manifest_file):
-            return MmsModelLoader()
+            return TsModelLoader()
         elif os.path.exists(os.path.join(model_dir, "MANIFEST.json")):
             return LegacyModelLoader()
         else:
-            return MmsModelLoader()
+            return TsModelLoader()
 
 
 class ModelLoader(object):
@@ -75,14 +75,14 @@ class ModelLoader(object):
         return classes
 
 
-class MmsModelLoader(ModelLoader):
+class TsModelLoader(ModelLoader):
     """
-    MMS 1.0 Model Loader
+    TS 1.0 Model Loader
     """
 
     def load(self, model_name, model_dir, handler, gpu_id, batch_size):
         """
-        Load MMS 1.0 model from file.
+        Load TS 1.0 model from file.
 
         :param model_name:
         :param model_dir:
@@ -147,15 +147,15 @@ class MmsModelLoader(ModelLoader):
 
         return service
 
-
+#TODO Shall we remove this?
 class LegacyModelLoader(ModelLoader):
     """
-    MMS 0.4 Model Loader
+    TS 0.4 Model Loader
     """
 
     def load(self, model_name, model_dir, handler, gpu_id, batch_size):
         """
-        Load MMS 0.3 model from file.
+        Load TS 0.3 model from file.
 
         :param model_name:
         :param model_dir:

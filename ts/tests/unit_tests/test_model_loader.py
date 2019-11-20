@@ -11,7 +11,7 @@ import mock
 import pytest
 
 from ts.model_loader import LegacyModelLoader
-from ts.model_loader import MmsModelLoader
+from ts.model_loader import TsModelLoader
 from ts.model_loader import ModelLoaderFactory
 from ts.model_service.model_service import SingleNodeService
 
@@ -30,7 +30,7 @@ class TestModelFactory:
         model_loader = ModelLoaderFactory.get_model_loader(
             os.path.abspath('ts/tests/unit_tests/test_utils/'))
 
-        assert isinstance(model_loader, MmsModelLoader)
+        assert isinstance(model_loader, TsModelLoader)
 
 
 # noinspection PyClassHasNoInit

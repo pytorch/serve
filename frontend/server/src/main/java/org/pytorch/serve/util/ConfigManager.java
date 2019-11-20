@@ -44,35 +44,35 @@ import org.apache.log4j.Logger;
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
     // NOTE: Variables which can be configured through environment variables **SHOULD** have a
-    // "MMS_" prefix
+    // "TS_" prefix
 
-    private static final String MMS_DEBUG = "debug";
-    private static final String MMS_INFERENCE_ADDRESS = "inference_address";
-    private static final String MMS_MANAGEMENT_ADDRESS = "management_address";
-    private static final String MMS_LOAD_MODELS = "load_models";
-    private static final String MMS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
-    private static final String MMS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
-    private static final String MMS_DEFAULT_RESPONSE_TIMEOUT = "default_response_timeout";
-    private static final String MMS_UNREGISTER_MODEL_TIMEOUT = "unregister_model_timeout";
-    private static final String MMS_NUMBER_OF_NETTY_THREADS = "number_of_netty_threads";
-    private static final String MMS_NETTY_CLIENT_THREADS = "netty_client_threads";
-    private static final String MMS_JOB_QUEUE_SIZE = "job_queue_size";
-    private static final String MMS_NUMBER_OF_GPU = "number_of_gpu";
-    private static final String MMS_ASYNC_LOGGING = "async_logging";
-    private static final String MMS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
-    private static final String MMS_CORS_ALLOWED_METHODS = "cors_allowed_methods";
-    private static final String MMS_CORS_ALLOWED_HEADERS = "cors_allowed_headers";
-    private static final String MMS_DECODE_INPUT_REQUEST = "decode_input_request";
-    private static final String MMS_KEYSTORE = "keystore";
-    private static final String MMS_KEYSTORE_PASS = "keystore_pass";
-    private static final String MMS_KEYSTORE_TYPE = "keystore_type";
-    private static final String MMS_CERTIFICATE_FILE = "certificate_file";
-    private static final String MMS_PRIVATE_KEY_FILE = "private_key_file";
-    private static final String MMS_MAX_REQUEST_SIZE = "max_request_size";
-    private static final String MMS_MAX_RESPONSE_SIZE = "max_response_size";
-    private static final String MMS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
+    private static final String TS_DEBUG = "debug";
+    private static final String TS_INFERENCE_ADDRESS = "inference_address";
+    private static final String TS_MANAGEMENT_ADDRESS = "management_address";
+    private static final String TS_LOAD_MODELS = "load_models";
+    private static final String TS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
+    private static final String TS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
+    private static final String TS_DEFAULT_RESPONSE_TIMEOUT = "default_response_timeout";
+    private static final String TS_UNREGISTER_MODEL_TIMEOUT = "unregister_model_timeout";
+    private static final String TS_NUMBER_OF_NETTY_THREADS = "number_of_netty_threads";
+    private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
+    private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
+    private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+    private static final String TS_ASYNC_LOGGING = "async_logging";
+    private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
+    private static final String TS_CORS_ALLOWED_METHODS = "cors_allowed_methods";
+    private static final String TS_CORS_ALLOWED_HEADERS = "cors_allowed_headers";
+    private static final String TS_DECODE_INPUT_REQUEST = "decode_input_request";
+    private static final String TS_KEYSTORE = "keystore";
+    private static final String TS_KEYSTORE_PASS = "keystore_pass";
+    private static final String TS_KEYSTORE_TYPE = "keystore_type";
+    private static final String TS_CERTIFICATE_FILE = "certificate_file";
+    private static final String TS_PRIVATE_KEY_FILE = "private_key_file";
+    private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
+    private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
+    private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String MODEL_SERVER_HOME = "model_server_home";
-    private static final String MMS_MODEL_STORE = "model_store";
+    private static final String TS_MODEL_STORE = "model_store";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -83,7 +83,7 @@ public final class ConfigManager {
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
-    public static final String MODEL_SERVER_METRICS_LOGGER = "MMS_METRICS";
+    public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
 
     private Pattern blacklistPattern;
     private Properties prop;
@@ -96,11 +96,11 @@ public final class ConfigManager {
     private ConfigManager(Arguments args) {
         prop = new Properties();
 
-        String filePath = System.getenv("MMS_CONFIG_FILE");
+        String filePath = System.getenv("TS_CONFIG_FILE");
         if (filePath == null) {
-            filePath = args.getMmsConfigFile();
+            filePath = args.getTsConfigFile();
             if (filePath == null) {
-                filePath = System.getProperty("mmsConfigFile", "config.properties");
+                filePath = System.getProperty("tsConfigFile", "config.properties");
             }
         }
 
@@ -108,7 +108,7 @@ public final class ConfigManager {
         if (file.exists()) {
             try (FileInputStream stream = new FileInputStream(file)) {
                 prop.load(stream);
-                prop.put("mmsConfigFile", filePath);
+                prop.put("tsConfigFile", filePath);
             } catch (IOException e) {
                 throw new IllegalStateException("Unable to read configuration file", e);
             }
@@ -131,20 +131,20 @@ public final class ConfigManager {
 
         String modelStore = args.getModelStore();
         if (modelStore != null) {
-            prop.setProperty(MMS_MODEL_STORE, modelStore);
+            prop.setProperty(TS_MODEL_STORE, modelStore);
         }
 
         String[] models = args.getModels();
         if (models != null) {
-            prop.setProperty(MMS_LOAD_MODELS, String.join(",", models));
+            prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
         }
 
         prop.setProperty(
-                MMS_NUMBER_OF_GPU,
+                TS_NUMBER_OF_GPU,
                 String.valueOf(
                         Integer.min(
                                 getAvailableGpu(),
-                                getIntProperty(MMS_NUMBER_OF_GPU, Integer.MAX_VALUE))));
+                                getIntProperty(TS_NUMBER_OF_GPU, Integer.MAX_VALUE))));
 
         String pythonExecutable = args.getPythonExecutable();
         if (pythonExecutable != null) {
@@ -158,7 +158,7 @@ public final class ConfigManager {
             hostName = "Unknown";
         }
 
-        if (Boolean.parseBoolean(prop.getProperty(MMS_ASYNC_LOGGING))) {
+        if (Boolean.parseBoolean(prop.getProperty(TS_ASYNC_LOGGING))) {
             enableAsyncLogging();
         }
 
@@ -193,7 +193,7 @@ public final class ConfigManager {
         Class<ConfigManager> configClass = ConfigManager.class;
         Field[] fields = configClass.getDeclaredFields();
         for (Field f : fields) {
-            if (f.getName().startsWith("MMS_")) {
+            if (f.getName().startsWith("TS_")) {
                 String val = System.getenv(f.getName());
                 if (val != null) {
                     try {
@@ -223,38 +223,38 @@ public final class ConfigManager {
     }
 
     public boolean isDebug() {
-        return Boolean.getBoolean("MMS_DEBUG")
-                || Boolean.parseBoolean(prop.getProperty(MMS_DEBUG, "false"));
+        return Boolean.getBoolean("TS_DEBUG")
+                || Boolean.parseBoolean(prop.getProperty(TS_DEBUG, "false"));
     }
 
     public Connector getListener(boolean management) {
         String binding;
         if (management) {
-            binding = prop.getProperty(MMS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+            binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
         } else {
-            binding = prop.getProperty(MMS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+            binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
         return Connector.parse(binding, management);
     }
 
     public int getNettyThreads() {
-        return getIntProperty(MMS_NUMBER_OF_NETTY_THREADS, 0);
+        return getIntProperty(TS_NUMBER_OF_NETTY_THREADS, 0);
     }
 
     public int getNettyClientThreads() {
-        return getIntProperty(MMS_NETTY_CLIENT_THREADS, 0);
+        return getIntProperty(TS_NETTY_CLIENT_THREADS, 0);
     }
 
     public int getJobQueueSize() {
-        return getIntProperty(MMS_JOB_QUEUE_SIZE, 100);
+        return getIntProperty(TS_JOB_QUEUE_SIZE, 100);
     }
 
     public int getNumberOfGpu() {
-        return getIntProperty(MMS_NUMBER_OF_GPU, 0);
+        return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
-    public String getMmsDefaultServiceHandler() {
-        return getProperty(MMS_DEFAULT_SERVICE_HANDLER, null);
+    public String getTsDefaultServiceHandler() {
+        return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
     }
 
     public Properties getConfiguration() {
@@ -262,7 +262,7 @@ public final class ConfigManager {
     }
 
     public int getConfiguredDefaultWorkersPerModel() {
-        return getIntProperty(MMS_DEFAULT_WORKERS_PER_MODEL, 0);
+        return getIntProperty(TS_DEFAULT_WORKERS_PER_MODEL, 0);
     }
 
     public int getDefaultWorkers() {
@@ -290,24 +290,24 @@ public final class ConfigManager {
     }
 
     public String getModelServerHome() {
-        String mmsHome = System.getenv("MODEL_SERVER_HOME");
-        if (mmsHome == null) {
-            mmsHome = System.getProperty(MODEL_SERVER_HOME);
-            if (mmsHome == null) {
-                mmsHome = getProperty(MODEL_SERVER_HOME, null);
-                if (mmsHome == null) {
-                    mmsHome = getCanonicalPath(findMmsHome());
-                    return mmsHome;
+        String tsHome = System.getenv("MODEL_SERVER_HOME");
+        if (tsHome == null) {
+            tsHome = System.getProperty(MODEL_SERVER_HOME);
+            if (tsHome == null) {
+                tsHome = getProperty(MODEL_SERVER_HOME, null);
+                if (tsHome == null) {
+                    tsHome = getCanonicalPath(findTsHome());
+                    return tsHome;
                 }
             }
         }
 
-        File dir = new File(mmsHome);
+        File dir = new File(tsHome);
         if (!dir.exists()) {
-            throw new IllegalArgumentException("Model server home not exist: " + mmsHome);
+            throw new IllegalArgumentException("Model server home not exist: " + tsHome);
         }
-        mmsHome = getCanonicalPath(dir);
-        return mmsHome;
+        tsHome = getCanonicalPath(dir);
+        return tsHome;
     }
 
     public String getPythonExecutable() {
@@ -315,11 +315,11 @@ public final class ConfigManager {
     }
 
     public String getModelStore() {
-        return getCanonicalPath(prop.getProperty(MMS_MODEL_STORE));
+        return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
     public String getLoadModels() {
-        return prop.getProperty(MMS_LOAD_MODELS);
+        return prop.getProperty(TS_LOAD_MODELS);
     }
 
     public Pattern getBlacklistPattern() {
@@ -327,15 +327,15 @@ public final class ConfigManager {
     }
 
     public String getCorsAllowedOrigin() {
-        return prop.getProperty(MMS_CORS_ALLOWED_ORIGIN);
+        return prop.getProperty(TS_CORS_ALLOWED_ORIGIN);
     }
 
     public String getCorsAllowedMethods() {
-        return prop.getProperty(MMS_CORS_ALLOWED_METHODS);
+        return prop.getProperty(TS_CORS_ALLOWED_METHODS);
     }
 
     public String getCorsAllowedHeaders() {
-        return prop.getProperty(MMS_CORS_ALLOWED_HEADERS);
+        return prop.getProperty(TS_CORS_ALLOWED_HEADERS);
     }
 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
@@ -346,12 +346,12 @@ public final class ConfigManager {
 
         PrivateKey privateKey;
         X509Certificate[] chain;
-        String keyStoreFile = prop.getProperty(MMS_KEYSTORE);
-        String privateKeyFile = prop.getProperty(MMS_PRIVATE_KEY_FILE);
-        String certificateFile = prop.getProperty(MMS_CERTIFICATE_FILE);
+        String keyStoreFile = prop.getProperty(TS_KEYSTORE);
+        String privateKeyFile = prop.getProperty(TS_PRIVATE_KEY_FILE);
+        String certificateFile = prop.getProperty(TS_CERTIFICATE_FILE);
         if (keyStoreFile != null) {
-            char[] keystorePass = getProperty(MMS_KEYSTORE_PASS, "changeit").toCharArray();
-            String keystoreType = getProperty(MMS_KEYSTORE_TYPE, "PKCS12");
+            char[] keystorePass = getProperty(TS_KEYSTORE_PASS, "changeit").toCharArray();
+            String keystoreType = getProperty(TS_KEYSTORE_TYPE, "PKCS12");
             KeyStore keyStore = KeyStore.getInstance(keystoreType);
             try (InputStream is = new FileInputStream(keyStoreFile)) {
                 keyStore.load(is, keystorePass);
@@ -430,7 +430,7 @@ public final class ConfigManager {
     }
 
     public void validateConfigurations() throws InvalidPropertiesFormatException {
-        String blacklistVars = prop.getProperty(MMS_BLACKLIST_ENV_VARS, "");
+        String blacklistVars = prop.getProperty(TS_BLACKLIST_ENV_VARS, "");
         try {
             blacklistPattern = Pattern.compile(blacklistVars);
         } catch (PatternSyntaxException e) {
@@ -440,7 +440,7 @@ public final class ConfigManager {
 
     public String dumpConfigurations() {
         Runtime runtime = Runtime.getRuntime();
-        return "\nMMS Home: "
+        return "\nTS Home: "
                 + getModelServerHome()
                 + "\nCurrent directory: "
                 + getCanonicalPath(".")
@@ -455,7 +455,7 @@ public final class ConfigManager {
                 + " M\nPython executable: "
                 + (getPythonExecutable() == null ? "N/A" : getPythonExecutable())
                 + "\nConfig file: "
-                + prop.getProperty("mmsConfigFile", "N/A")
+                + prop.getProperty("tsConfigFile", "N/A")
                 + "\nInference address: "
                 + getListener(false)
                 + "\nManagement address: "
@@ -475,11 +475,11 @@ public final class ConfigManager {
                 + "\nDefault workers per model: "
                 + getDefaultWorkers()
                 + "\nBlacklist Regex: "
-                + prop.getProperty(MMS_BLACKLIST_ENV_VARS, "N/A")
+                + prop.getProperty(TS_BLACKLIST_ENV_VARS, "N/A")
                 + "\nMaximum Response Size: "
-                + prop.getProperty(MMS_MAX_RESPONSE_SIZE, "6553500")
+                + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
-                + prop.getProperty(MMS_MAX_REQUEST_SIZE, "6553500");
+                + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500");
     }
 
     public boolean useNativeIo() {
@@ -491,11 +491,11 @@ public final class ConfigManager {
     }
 
     public int getMaxResponseSize() {
-        return getIntProperty(MMS_MAX_RESPONSE_SIZE, 6553500);
+        return getIntProperty(TS_MAX_RESPONSE_SIZE, 6553500);
     }
 
     public int getMaxRequestSize() {
-        return getIntProperty(MMS_MAX_REQUEST_SIZE, 6553500);
+        return getIntProperty(TS_MAX_REQUEST_SIZE, 6553500);
     }
 
     void setProperty(String key, String value) {
@@ -511,19 +511,19 @@ public final class ConfigManager {
     }
 
     public int getDefaultResponseTimeout() {
-        return Integer.parseInt(prop.getProperty(MMS_DEFAULT_RESPONSE_TIMEOUT, "120"));
+        return Integer.parseInt(prop.getProperty(TS_DEFAULT_RESPONSE_TIMEOUT, "120"));
     }
 
     public int getUnregisterModelTimeout() {
-        return Integer.parseInt(prop.getProperty(MMS_UNREGISTER_MODEL_TIMEOUT, "120"));
+        return Integer.parseInt(prop.getProperty(TS_UNREGISTER_MODEL_TIMEOUT, "120"));
     }
 
-    private File findMmsHome() {
+    private File findTsHome() {
         File cwd = new File(getCanonicalPath("."));
         File file = cwd;
         while (file != null) {
-            File mms = new File(file, "ts");
-            if (mms.exists()) {
+            File ts = new File(file, "ts");
+            if (ts.exists()) {
                 return file;
             }
             file = file.getParentFile();
@@ -537,7 +537,7 @@ public final class ConfigManager {
         enableAsyncLogging(Logger.getLogger(MODEL_LOGGER));
         enableAsyncLogging(Logger.getLogger(MODEL_SERVER_METRICS_LOGGER));
         enableAsyncLogging(Logger.getLogger("ACCESS_LOG"));
-        enableAsyncLogging(Logger.getLogger("com.amazonaws.ml.mms"));
+        enableAsyncLogging(Logger.getLogger("org.pytorch.serve"));
     }
 
     private void enableAsyncLogging(Logger logger) {
@@ -561,7 +561,7 @@ public final class ConfigManager {
     public HashMap<String, String> getBackendConfiguration() {
         HashMap<String, String> config = new HashMap<>();
         // Append properties used by backend worker here
-        config.put("MMS_DECODE_INPUT_REQUEST", prop.getProperty(MMS_DECODE_INPUT_REQUEST, "true"));
+        config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
 
         return config;
     }
@@ -601,7 +601,7 @@ public final class ConfigManager {
 
     public static final class Arguments {
 
-        private String mmsConfigFile;
+        private String tsConfigFile;
         private String pythonExecutable;
         private String modelStore;
         private String[] models;
@@ -609,7 +609,7 @@ public final class ConfigManager {
         public Arguments() {}
 
         public Arguments(CommandLine cmd) {
-            mmsConfigFile = cmd.getOptionValue("mms-config-file");
+            tsConfigFile = cmd.getOptionValue("ts-config-file");
             pythonExecutable = cmd.getOptionValue("python");
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
@@ -619,9 +619,9 @@ public final class ConfigManager {
             Options options = new Options();
             options.addOption(
                     Option.builder("f")
-                            .longOpt("mms-config-file")
+                            .longOpt("ts-config-file")
                             .hasArg()
-                            .argName("MMS-CONFIG-FILE")
+                            .argName("TS-CONFIG-FILE")
                             .desc("Path to the configuration properties file.")
                             .build());
             options.addOption(
@@ -648,16 +648,16 @@ public final class ConfigManager {
             return options;
         }
 
-        public String getMmsConfigFile() {
-            return mmsConfigFile;
+        public String getTsConfigFile() {
+            return tsConfigFile;
         }
 
         public String getPythonExecutable() {
             return pythonExecutable;
         }
 
-        public void setMmsConfigFile(String mmsConfigFile) {
-            this.mmsConfigFile = mmsConfigFile;
+        public void setTsConfigFile(String tsConfigFile) {
+            this.tsConfigFile = tsConfigFile;
         }
 
         public String getModelStore() {

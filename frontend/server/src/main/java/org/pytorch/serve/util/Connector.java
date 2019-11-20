@@ -52,7 +52,7 @@ public class Connector {
         this.uds = uds;
         if (uds) {
             bindIp = "";
-            socketPath = System.getProperty("java.io.tmpdir") + "/.mms.sock." + port;
+            socketPath = System.getProperty("java.io.tmpdir") + "/.ts.sock." + port;
         } else {
             bindIp = "127.0.0.1";
             socketPath = String.valueOf(port);

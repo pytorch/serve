@@ -19,7 +19,7 @@ def start():
     This is the entry point for model server
     :return:
     """
-    args = ArgParser.mms_parser().parse_args()
+    args = ArgParser.ts_parser().parse_args()
     pid_file = os.path.join(tempfile.gettempdir(), ".model_server.pid")
     pid = None
     if os.path.isfile(pid_file):
@@ -44,7 +44,7 @@ def start():
         if pid is not None:
             try:
                 psutil.Process(pid)
-                print("Model server is already running, please use torchserve --stop to stop MMS.")
+                print("Model server is already running, please use torchserve --stop to stop TS.")
                 exit(1)
             except psutil.Error:
                 print("Removing orphan pid file.")
@@ -53,8 +53,8 @@ def start():
         java_home = os.environ.get("JAVA_HOME")
         java = "java" if not java_home else "{}/bin/java".format(java_home)
 
-        mms_home = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        cmd = [java, "-Dmodel_server_home={}".format(mms_home)]
+        ts_home = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        cmd = [java, "-Dmodel_server_home={}".format(ts_home)]
         if args.log_config:
             log_config = os.path.realpath(args.log_config)
             if not os.path.isfile(log_config):
@@ -71,21 +71,21 @@ def start():
 
             cmd.append("-Djava.io.tmpdir={}".format(tmp_dir))
 
-        mms_config = args.mms_config
-        mms_conf_file = None
-        if mms_config:
-            if not os.path.isfile(mms_config):
-                print("--ts-config file not found: {}".format(mms_config))
+        ts_config = args.ts_config
+        ts_conf_file = None
+        if ts_config:
+            if not os.path.isfile(ts_config):
+                print("--ts-config file not found: {}".format(ts_config))
                 exit(1)
-            mms_conf_file = mms_config
+            ts_conf_file = ts_config
         else:
-            mms_conf_file = "config.properties"
+            ts_conf_file = "config.properties"
 
         class_path = \
-            ".:{}".format(os.path.join(mms_home, "ts/frontend/*"))
+            ".:{}".format(os.path.join(ts_home, "ts/frontend/*"))
 
-        if os.path.isfile(mms_conf_file):
-            props = load_properties(mms_conf_file)
+        if os.path.isfile(ts_conf_file):
+            props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
                 arg_list = vm_args.split()
@@ -101,15 +101,15 @@ def start():
         cmd.append("-cp")
         cmd.append(class_path)
 
-        cmd.append("com.amazonaws.ml.ts.ModelServer")
+        cmd.append("org.pytorch.serve.ModelServer")
 
         # model-server.jar command line parameters
         cmd.append("--python")
         cmd.append(sys.executable)
 
-        if mms_conf_file is not None:
+        if ts_conf_file is not None:
             cmd.append("-f")
-            cmd.append(mms_conf_file)
+            cmd.append(ts_conf_file)
 
         if args.model_store:
             if not os.path.isdir(args.model_store):

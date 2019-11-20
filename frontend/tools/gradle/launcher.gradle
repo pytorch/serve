@@ -21,10 +21,10 @@ class LauncherPlugin implements Plugin<Project> {
                 String jvmPath = Jvm.current().getJavaExecutable()
 
                 def cmd = [jvmPath, "-agentlib:jdwp=transport=dt_socket,address=0.0.0.0:4000,server=y,suspend=n",
-                           "-DmmsConfigFile=${project.projectDir}/src/test/resources/config.properties",
+                           "-DtsConfigFile=${project.projectDir}/src/test/resources/config.properties",
                            "-DLOG_LOCATION=${project.buildDir}/logs",
                            "-DMETRICS_LOCATION=${project.buildDir}/logs",
-                           "-cp", cp, "com.amazonaws.ml.mms.ModelServer"] as String[]
+                           "-cp", cp, "org.pytorch.serve.ModelServer"] as String[]
 
                 def builder = new ProcessBuilder(cmd)
                 builder.redirectErrorStream(true)
@@ -39,7 +39,7 @@ class LauncherPlugin implements Plugin<Project> {
                     while (!rt.done) {
                         try {
                             process.exitValue();
-                            throw new GradleException("MMS stop unexpectedly.")
+                            throw new GradleException("TS stop unexpectedly.")
                         } catch(IllegalThreadStateException ex) {
                             Thread.sleep(500);
                         }
@@ -50,7 +50,7 @@ class LauncherPlugin implements Plugin<Project> {
 
                     pidFile << pidField.getInt(process)
 
-                    logger.quiet "MMS service started."
+                    logger.quiet "TS service started."
                 } catch (IllegalThreadStateException ignored) {
                 }
             }

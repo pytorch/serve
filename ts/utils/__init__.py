@@ -1,6 +1,6 @@
 
 
 """
-Util files for MMS
+Util files for TS
 """
 from . import timeit_decorator

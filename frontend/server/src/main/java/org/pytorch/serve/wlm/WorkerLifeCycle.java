@@ -82,7 +82,7 @@ public class WorkerLifeCycle {
         try {
             modelPath = model.getModelDir().getCanonicalFile();
         } catch (IOException e) {
-            throw new WorkerInitializationException("Failed get MMS home directory", e);
+            throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
         String[] args = new String[6];
