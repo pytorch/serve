@@ -84,6 +84,8 @@ public final class ConfigManager {
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
+    
+    public static final String PYTHON_EXECUTABLE = "python";
 
     private Pattern blacklistPattern;
     private Properties prop;
@@ -148,7 +150,7 @@ public final class ConfigManager {
 
         String pythonExecutable = args.getPythonExecutable();
         if (pythonExecutable != null) {
-            prop.setProperty("PYTHON_EXECUTABLE", pythonExecutable);
+            prop.setProperty(PYTHON_EXECUTABLE, pythonExecutable);
         }
 
         try {
@@ -311,7 +313,7 @@ public final class ConfigManager {
     }
 
     public String getPythonExecutable() {
-        return prop.getProperty("PYTHON_EXECUTABLE", "python");
+        return prop.getProperty(PYTHON_EXECUTABLE, "python");
     }
 
     public String getModelStore() {
