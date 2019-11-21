@@ -1,13 +1,13 @@
 # Management API
 
-MMS provides a set of API allow user to manage models at runtime:
+TS provides a set of API allow user to manage models at runtime:
 1. [Register a model](#register-a-model)
 2. [Increase/decrease number of workers for specific model](#scale-workers)
 3. [Describe a model's status](#describe-model)
 4. [Unregister a model](#unregister-a-model)
 5. [List registered models](#list-models)
 
-Management API is listening on port 8081 and only accessible from localhost by default. To change the default setting, see [MMS Configuration](configuration.md).
+Management API is listening on port 8081 and only accessible from localhost by default. To change the default setting, see [TS Configuration](configuration.md).
 
 Similar as [Inference API](inference_api.md), Management API also provide a [API description](#api-description) to describe management APIs with OpenAPI 3.0 specification.
 
@@ -18,15 +18,15 @@ Similar as [Inference API](inference_api.md), Management API also provide a [API
 `POST /models`
 * url - Model archive download url. Supports the following locations:
     * a local model archive (.mar); the file must be directly in model_store folder.
-    * a local model directory; the directory must be directly in model_store folder. This option can avoid MMS extracting .mar file to temporary folder, which will improve load time and reduce disk space usage.
-    * a URI using the HTTP(s) protocol. MMS can download .mar files from the Internet.
+    * a local model directory; the directory must be directly in model_store folder. This option can avoid TS extracting .mar file to temporary folder, which will improve load time and reduce disk space usage.
+    * a URI using the HTTP(s) protocol. TS can download .mar files from the Internet.
 * model_name - the name of the model; this name will be used as {model_name} in other API as path. If this parameter is not present, modelName in MANIFEST.json will be used.
 * handler - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
 * runtime - the runtime for the model custom service code. This value will override runtime in MANIFEST.json if present. The default value is `PYTHON`.
 * batch_size - the inference batch size. The default value is `1`.
 * max_batch_delay - the maximum delay for batch aggregation. The default value is 100 milliseconds.
-* initial_workers - the number of initial workers to create. The default value is `0`. MMS will not run inference until there is at least one work assigned.
-* synchronous - whether or not the creation of worker is synchronous. The default value is false. MMS will create new workers without waiting for acknowledgement that the previous worker is online.
+* initial_workers - the number of initial workers to create. The default value is `0`. TS will not run inference until there is at least one work assigned.
+* synchronous - whether or not the creation of worker is synchronous. The default value is false. TS will create new workers without waiting for acknowledgement that the previous worker is online.
 * response_timeout - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
 
 ```bash
@@ -75,8 +75,8 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 ### Scale workers
 
 `PUT /models/{model_name}`
-* min_worker - (optional) the minimum number of worker processes. MMS will try to maintain this minimum for specified model. The default value is `1`.
-* max_worker - (optional) the maximum number of worker processes. MMS will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
+* min_worker - (optional) the minimum number of worker processes. TS will try to maintain this minimum for specified model. The default value is `1`.
+* max_worker - (optional) the maximum number of worker processes. TS will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
 * number_gpu - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
 * synchronous - whether or not the call is synchronous. The default value is `false`.
 * timeout - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
@@ -131,7 +131,7 @@ curl http://localhost:8081/models/noop
   "modelName": "noop",
   "modelVersion": "snapshot",
   "modelUrl": "noop.mar",
-  "engine": "MXNet",
+  "engine": "Torch",
   "runtime": "python",
   "minWorkers": 1,
   "maxWorkers": 1,

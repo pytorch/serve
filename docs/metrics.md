@@ -7,13 +7,13 @@
 * [Custom Metrics API](#custom-metrics-api)
 
 ## Introduction
-MMS collects system level metrics in regular intervals, and also provides an API for custom metrics to be collected. Metrics collected by metrics are logged and can be aggregated by metric agents.
-The system level metrics are collected every minute. Metrics defined by the custom service code, can be collected per request or a batch of requests. MMS logs these two sets of metrics to different log files.
+TS collects system level metrics in regular intervals, and also provides an API for custom metrics to be collected. Metrics collected by metrics are logged and can be aggregated by metric agents.
+The system level metrics are collected every minute. Metrics defined by the custom service code, can be collected per request or a batch of requests. TS logs these two sets of metrics to different log files.
 Metrics are collected by default at:
-* System metrics - log_directory/mms_metrics.log
+* System metrics - log_directory/ts_metrics.log
 * Custom metrics - log directory/model_metrics.log
 
-The location of log files and metric files can be configured at [log4j.properties](https://github.com/awslabs/mxnet-model-server/blob/master/frontend/server/src/main/resources/log4j.properties) file.
+The location of log files and metric files can be configured at [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.
 
 
 ## System Metrics
@@ -41,12 +41,12 @@ CPUUtilization.Percent:0.0|#Level:Host|#hostname:my_machine_name
 MemoryUsed.Megabytes:13840.328125|#Level:Host|#hostname:my_machine_name    
 ```
 
-To enable metric logging in JSON format, we can modify the log formatter in [log4j.properties](https://github.com/awslabs/mxnet-model-server/blob/master/frontend/server/src/main/resources/log4j.properties), This is explained in the logging [document](https://github.com/awslabs/mxnet-model-server/blob/master/docs/logging.md).
+To enable metric logging in JSON format, we can modify the log formatter in [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties), This is explained in the logging [document](https://github.com/pytorch/serve/blob/master/docs/logging.md).
 
 to enable JSON formatting for metrics change it to 
 
 ```properties
-log4j.appender.mms_metrics.layout = com.amazonaws.ml.mms.util.logging.JSONLayout
+log4j.appender.ts_metrics.layout = org.pytorch.serve.util.logging.JSONLayout
 ```
 
 Once enabled the format emitted to logs, will look as follows
@@ -81,9 +81,9 @@ Once enabled the format emitted to logs, will look as follows
 
 ## Custom Metrics API
 
-MMS enables the custom service code to emit metrics, that are then logged by the system
+TS enables the custom service code to emit metrics, that are then logged by the system
 
-The custom service code is provided with a [context](https://github.com/awslabs/mxnet-model-server/blob/master/mms/context.py) of the current request.
+The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request.
 
 Which has metrics object.
 
@@ -98,7 +98,7 @@ All metrics collected with in the context
 Dimensions for metrics can be defined as objects
 
 ```python
-from mms.metrics import dimension
+from ts.metrics import dimension
 
 # Dimensions are name value pairs
 dim1 = Dimension(name, value)
