@@ -9,23 +9,23 @@
 
 ## Overview
 
-MXNet Model Server can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  [REST based APIs](rest_api.md) handle state prediction requests. Support for models from a wide range of deep learning frameworks is achieved through its [ONNX model](https://onnx.ai) export feature.
+Torchserve can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  [REST based APIs](rest_api.md) handle state prediction requests. Support for models from a wide range of deep learning frameworks is achieved through its [ONNX model](https://onnx.ai) export feature.
 
-For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use MMS to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify MMS behavior with custom services and run multiple models. There are examples of custom services in the [examples](../examples) folder.
+For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TS to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TS behavior with custom services and run multiple models. There are examples of custom services in the [examples](../examples) folder.
 
 ## Technical Details
 
-Now that you have a high level view of MMS, let's get a little into the weeds. MMS takes a deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. MMS supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
+Now that you have a high level view of TS, let's get a little into the weeds. TS takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TS supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
 
-To try out MMS serving now, you can load the SqueezeNet model, which is under 5 MB, with this example:
+To try out TS serving now, you can load the SqueezeNet model, which is under 5 MB, with this example:
 
 ```bash
-mxnet-model-server --start --models squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
+torchserve --start --models squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
 ```
 
-With the command above executed, you have MMS running on your host, listening for inference requests.
+With the command above executed, you have TS running on your host, listening for inference requests.
 
-To test it out, you will need to open a new terminal window next to the one running MMS. Then we will use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for us. Then we will `curl` a `POST` to the MMS predictions endpoint with the kitten's image. In the example below, both of these steps are provided.
+To test it out, you will need to open a new terminal window next to the one running TS. Then we will use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for us. Then we will `curl` a `POST` to the TS predictions endpoint with the kitten's image. In the example below, both of these steps are provided.
 
 ```bash
 curl -o kitten.jpg \
@@ -62,7 +62,7 @@ The predict endpoint will return a prediction response in JSON. Each of the prob
   }
 ]
 ```
-You will see this result in the response to your `curl` call to the predict endpoint, in the terminal window running MMS and log files.
+You will see this result in the response to your `curl` call to the predict endpoint, in the terminal window running TS and log files.
 
 After this deep dive, you might also be interested in:
 * [Logging](logging.md): logging options that are available
@@ -70,8 +70,6 @@ After this deep dive, you might also be interested in:
 * [Metrics](metrics.md): details on metrics collection 
 
 * [REST API Description](rest_api.md): more detail about the server's endpoints
-
-* [Model Zoo](model_zoo.md): try serving different models
 
 * [Custom Services](custom_service.md): learn about serving different kinds of model and inference types
 
@@ -83,21 +81,21 @@ The rest of this topic focus on serving of model files without much discussion o
 ## Command Line Interface
 
 ```bash
-$ mxnet-model-server --help
-usage: mxnet-model-server [-h] [--start]
+$ torchserve --help
+usage: torechserve [-h] [--start]
                           [--stop]
-                          [--mms-config MMS_CONFIG]
+                          [--ts-config TS_CONFIG]
                           [--model-store MODEL_STORE]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
-MXNet Model Server
+Torchserve
 
 optional arguments:
   -h, --help            show this help message and exit
   --start               Start the model-server
   --stop                Stop the model-server
-  --mms-config MMS_CONFIG
+  --ts-config TS_CONFIG
                         Configuration file for model server
   --model-store MODEL_STORE
                         Model store location where models can be loaded
@@ -114,7 +112,7 @@ optional arguments:
 Example where no models are loaded at start time:
 
 ```bash
-mxnet-model-server
+torchserve
 ```
 
 There are no default required arguments to start the server
@@ -130,7 +128,7 @@ There are no default required arguments to start the server
 
     c) Multiple models loading are also supported by specifying multiple name path pairs.
 1. **model-store**: optional, A location where models are stored by default, all models in this location are loaded, the model name is same as archive or folder name.
-1. **mms-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
+1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
 1. **start**: optional, A more descriptive way to start the server.
 1. **stop**: optional, Stop the server if it is already running.
@@ -139,33 +137,33 @@ There are no default required arguments to start the server
 
 ### Custom Services
 
-This topic is covered in much more detail on the [custom service documentation page](custom_service.md), but let's talk about how you start up your MMS server using a custom service and why you might want one.
-Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke MMS like this:
+This topic is covered in much more detail on the [custom service documentation page](custom_service.md), but let's talk about how you start up your TS server using a custom service and why you might want one.
+Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TS like this:
 
 ```bash
-mxnet-model-server --start  --model-store /models --models not-hot-dog=super-fancy-net.mar
+torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.mar
 ```
 
 This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
 
-### Serving Multiple Models with MMS
+### Serving Multiple Models with TS
 
 Example multiple model usage:
 
 ```bash
-mxnet-model-server --start --model-store /models --models name=model_location name2=model_location2
+torchserve --start --model-store /models --models name=model_location name2=model_location2
 ```
 
 Here's an example for running the resnet-18 and the vgg16 models using local model files.
 
 ```bash
-mxnet-model-server --start --model-store /models --models resnet-18=resnet-18.mar squeezenet=squeezenet_v1.1.mar
+torchserve --start --model-store /models --models resnet-18=resnet-18.mar squeezenet=squeezenet_v1.1.mar
 ```
 
-If you don't have the model files locally, then you can call MMS using URLs to the model files.
+If you don't have the model files locally, then you can call TS using URLs to the model files.
 
 ```bash
-mxnet-model-server --models resnet=https://s3.amazonaws.com/model-server/model_archive_1.0/resnet-18.mar squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
+torchserve --models resnet=https://s3.amazonaws.com/model-server/model_archive_1.0/resnet-18.mar squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
 ```
 
 This will setup a local host serving resnet-18 model and squeezenet model on the same port, using the default 8080. Check http://127.0.0.1:8081/models to see that each model has an endpoint for prediction. In this case you would see `predictions/resnet` and `predictions/squeezenet`

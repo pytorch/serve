@@ -1,4 +1,4 @@
-# Testing MMS
+# Testing TS
 
 ## Pre-requisites
 
@@ -11,8 +11,8 @@ pip install mock pytest pylint
 You will also need the source for the project, so clone the project first.
 
 ```bash
-git clone https://github.com/awslabs/mxnet-model-server.git
-cd mxnet-model-server
+git clone https://github.com/pytorch/serve.git
+cd serve
 ```
 
 ## Unit Tests
@@ -20,19 +20,19 @@ cd mxnet-model-server
 You can run the unit tests with the following:
 
 ```bash
-python -m pytest mms/tests/unit_tests/
+python -m pytest ts/tests/unit_tests/
 ```
 
 To get the coverage report of unit tests, you can run :
 
 ```bash
-python -m pytest --cov-report term-missing --cov=mms/ mms/tests/unit_tests/
+python -m pytest --cov-report term-missing --cov=ts/ ts/tests/unit_tests/
 ```
 
 or:
 
 ```bash
-python -m pytest --cov-report html:htmlcov --cov=mms/ mms/tests/unit_tests/
+python -m pytest --cov-report html:htmlcov --cov=ts/ ts/tests/unit_tests/
 ```
 
 ## Lint test
@@ -40,5 +40,5 @@ python -m pytest --cov-report html:htmlcov --cov=mms/ mms/tests/unit_tests/
 You can run the lint tests with the following:
 
 ```bash
-pylint -rn --rcfile=./mms/tests/pylintrc mms/.
+pylint -rn --rcfile=./ts/tests/pylintrc ts/.
 ```
