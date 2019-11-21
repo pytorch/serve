@@ -89,7 +89,7 @@ usage: torechserve [-h] [--start]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
-MXNet Model Server
+Torchserve
 
 optional arguments:
   -h, --help            show this help message and exit
