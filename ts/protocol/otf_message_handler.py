@@ -276,7 +276,7 @@ def _retrieve_input_data(conn):
     | content_type |
     | input data in bytes |
     """
-    decode_req = os.environ.get("MMS_DECODE_INPUT_REQUEST")
+    decode_req = os.environ.get("TS_DECODE_INPUT_REQUEST")
     length = _retrieve_int(conn)
     if length == -1:
         return None
