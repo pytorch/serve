@@ -1,6 +1,6 @@
 
 """
-This is the current version of MMS
+This is the current version of TS
 """
 
-__version__ = '1.0.8'
+__version__ = '0.1.0'
