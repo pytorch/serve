@@ -7,7 +7,6 @@
 * [Serving Models](server.md) - Explains how to use `torchserve`.
   * [REST API](rest_api.md) - Specification on the API endpoint for TorchServe
 * [Packaging Model Archive](../model-archiver/README.md) - Explains how to package model archive file, use `model-archiver`.
-* [Docker](../docker/README.md) - How to use TorchServe with Docker and cloud services
 * [Logging](logging.md) - How to configure logging
 * [Metrics](metrics.md) - How to configure metrics
 

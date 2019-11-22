@@ -1,4 +1,4 @@
-# Batch Inference with Model Server
+# Batch Inference with TorchServe
 
 ## Contents of this Document
 * [Introduction](#introduction)

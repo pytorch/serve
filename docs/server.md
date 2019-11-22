@@ -1,4 +1,4 @@
-# Running the Model Server
+# Running the TorchServe
 
 ## Contents of this Document
 * [Overview](#overview)
@@ -96,7 +96,7 @@ optional arguments:
   --start               Start the model-server
   --stop                Stop the model-server
   --ts-config TS_CONFIG
-                        Configuration file for model server
+                        Configuration file for TorchServe
   --model-store MODEL_STORE
                         Model store location where models can be loaded
   --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
@@ -105,7 +105,7 @@ optional arguments:
                         file or directory contains model archive files in
                         MODEL_STORE.
   --log-config LOG_CONFIG
-                        Log4j configuration file for model server
+                        Log4j configuration file for TorchServe
 ```
 
 #### Arguments:

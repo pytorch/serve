@@ -11,7 +11,7 @@ TorchServe.
 # Types of logs
 Torchserve currently provides three types of logs.
 1. Access Logs.
-1. Model Server Logs.
+1. TorchServe Logs.
 
 ## Access Logs:
 These logs collect the access pattern to Torchserve. The configuration pertaining to access logs are as follows,
@@ -27,7 +27,7 @@ log4j.appender.access_log.layout = org.apache.log4j.PatternLayout
 log4j.appender.access_log.layout.ConversionPattern = %d{ISO8601} - %m%n
 ```
 
-As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file. When we load the model server
+As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file. When we load the TorchServe
 with a model and run inference against the server, the following logs are collected into the access_log.log
 ```text
 2018-10-15 13:56:18,976 [INFO ] BackendWorker-9000 ACCESS_LOG - /127.0.0.1:64003 "POST /predictions/resnet-18 HTTP/1.1" 200 118
@@ -36,8 +36,8 @@ The above log tells us that a successful `POST` call to `/predictions/resnet-18`
 
 These logs are useful to determine the current performance of the model-server as well as understand the requests received by model-server.
 
-## Model Server Logs
-These logs collect all the logs from Model Server and from the backend workers (the custom model code).
+## TorchServe Logs
+These logs collect all the logs from TorchServe and from the backend workers (the custom model code).
 The default configuration pertaining to ts logs are as follows:
 ```properties
 log4j.logger.com.amazonaws.ml.ts = DEBUG, ts_log
@@ -74,7 +74,7 @@ e...
 
 # Modifying the behavior of the logs
 In order to modify the default behavior of the logging, you could define `log4j.properties` file. There are two ways of starting
-model server with custom logs
+TorchServe with custom logs
 
 ### Provide with config.properties
  Once you define custom `log4j.properties`, add this to the 
@@ -83,12 +83,12 @@ model server with custom logs
 ```properties
 vmargs=-Dlog4j.configuration=file:///path/to/custom/log4j.properties
 ```
-Then start the model server as follows
+Then start the TorchServe as follows
 ```bash
 $ torchserve --start --ts-config /path/to/config.properties
 ```
 ### Provide with CLI 
-Alternatively, you could start the model server with the following command as well
+Alternatively, you could start the TorchServe with the following command as well
 
 ```bash
 $ torchserve --start --log-config /path/to/custom/log4j.properties

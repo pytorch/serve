@@ -1,4 +1,4 @@
-Model Server REST API endpoint
+TorchServe REST API endpoint
 ==============================
 
 ## Quick Start

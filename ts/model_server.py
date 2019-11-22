@@ -29,22 +29,22 @@ def start():
     # pylint: disable=too-many-nested-blocks
     if args.stop:
         if pid is None:
-            print("Model server is not currently running.")
+            print("TorchServe is not currently running.")
         else:
             try:
                 parent = psutil.Process(pid)
                 for child in parent.children(recursive=True):
                     child.kill()
                 parent.kill()
-                print("Model server stopped.")
+                print("TorchServe has stopped.")
             except (OSError, psutil.Error):
-                print("Model server already stopped.")
+                print("TorchServe already stopped.")
             os.remove(pid_file)
     else:
         if pid is not None:
             try:
                 psutil.Process(pid)
-                print("Model server is already running, please use torchserve --stop to stop TS.")
+                print("TorchServe is already running, please use torchserve --stop to stop TS.")
                 exit(1)
             except psutil.Error:
                 print("Removing orphan pid file.")

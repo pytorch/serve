@@ -16,9 +16,9 @@ A quick overview and examples for both serving and packaging are provided below.
 ### Prerequisites
 Before proceeding further with this document, make sure you have the following prerequisites.
 1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
-1. Python     - Multi Model Server requires python to run the workers.
+1. Python     - TorchServe requires python to run the workers.
 1. pip        - Pip is a python package management system.
-1. Java 8     - Multi Model Server requires Java 8 to start. You have the following options for installing Java 8:
+1. Java 8     - TorchServe requires Java 8 to start. You have the following options for installing Java 8:
 
     For Ubuntu:
     ```bash
@@ -37,13 +37,13 @@ Before proceeding further with this document, make sure you have the following p
     brew cask install java8
     ```
 
-### Installing Multi Model Server with pip
+### Installing TorchServe with pip
 
 #### Setup
 
 **Step 1:** Setup a Virtual Environment
 
-We recommend installing and running Multi Model Server in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
+We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
 
 One option is to use Virtualenv. This is used to create virtual Python environments. You may install and activate a virtualenv for Python 2.7 as follows:
 
@@ -82,7 +82,7 @@ python setup.py install
 
 ### Serve a Model
 
-Once installed, you can get MMS model server up and running very quickly. Try out `--help` to see all the CLI options available.
+Once installed, you can get TS model server up and running very quickly. Try out `--help` to see all the CLI options available.
 
 ```bash
 torchserve --help
@@ -97,7 +97,7 @@ torchserve --start --models squeezenet=https://s3.amazonaws.com/model-server/mod
 
 With the command above executed, you have TS running on your host, listening for inference requests. **Please note, that if you specify model(s) during TS start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TS start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
 
-To test it out, you can open a new terminal window next to the one running TS. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the MMS predict endpoint with the kitten's image.
+To test it out, you can open a new terminal window next to the one running TS. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the TS predict endpoint with the kitten's image.
 
 ![kitten](docs/images/kitten_small.jpg)
 
@@ -139,12 +139,12 @@ You will see this result in the response to your `curl` call to the predict endp
 
 Now you've seen how easy it can be to serve a deep learning model with TS! [Would you like to know more?](docs/server.md)
 
-### Stopping the running model server
-To stop the current running model-server instance, run the following command:
+### Stopping the running TorchServe
+To stop the current running TorchServe instance, run the following command:
 ```bash
 $ torchserve --stop
 ```
-You would see output specifying that multi-model-server has stopped.
+You would see output specifying that TorchServe has stopped.
 
 ### Create a Model Archive
 
@@ -155,10 +155,9 @@ To package a model, check out [model archiver documentation](model-archiver/READ
 
 * TS doesn't provide authentication. You have to have your own authentication proxy in front of TS.
 * TS doesn't provide throttling, it's vulnerable to DDoS attack. It's recommended to running TS behind a firewall.
-* TS only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-mms-listening-port) for detail.
+* TS only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-ts-listening-port) for detail.
 * SSL is not enabled by default, see [Enable SSL](docs/configuration.md#enable-ssl) for detail.
-* TS use a config.properties file to configure TS's behavior, see [Manage MMS](docs/configuration.md) page for detail of how to configure TS.
-* For better security, we recommend running TS inside docker container. This project includes Dockerfiles to build containers recommended for production deployments. These containers demonstrate how to customize your own production TS deployment. The basic usage can be found on the [Docker readme](docker/README.md).
+* TS use a config.properties file to configure TS's behavior, see [Manage TS](docs/configuration.md) page for detail of how to configure TS.
 
 ## Other Features
 

@@ -21,10 +21,10 @@ User can following parameters to start TS, those parameters will override defaul
 * **--model-store** This parameter will override `model_store` property in config.properties file.
 * **--models** This parameter will override `load_models' property in config.properties.
 * **--log-config** This parameter will override default log4j.properties.
-* **--foreground** This parameter will run the model server in foreground. If this option is
-                        disabled, the model server will run in the background.
+* **--foreground** This parameter will run the TorchServe in foreground. If this option is
+                        disabled, the TorchServe will run in the background.
 
-See [Running the Model Server](server.md) for detail.
+See [Running the TorchServe](server.md) for detail.
 
 ## config.properties file
 
@@ -34,14 +34,11 @@ TS use a `config.properties` file to store configurations. TS use following orde
 3. if there is a `config.properties` in current folder where user start the `torchserve`, TS will load the `config.properties` file form current working directory.
 4. If none of above is specified, TS will load built-in configuration with default values.
 
-**Note:** Docker image that TS provided has slightly different default value.
-
 ### Customize JVM options
 
 The restrict TS frontend memory footprint, certain JVM options is set via **vmargs** property in `config.properties` file
 
 * default: N/A, use JVM default options
-* docker default: -Xmx128m -XX:-UseLargePages -XX:+UseG1GC -XX:MaxMetaspaceSize=32M -XX:MaxDirectMemorySize=10m -XX:OnOutOfMemoryError='kill -9 %p'
 
 User can adjust those JVM options for fit their memory requirement if needed.
 
@@ -51,11 +48,9 @@ User can configure load models while TS startup. TS can load models from `model_
 
 * model_store
 	* standalone: default: N/A, load models from local disk is disabled.
-	* docker: default model_store location is set to: /opt/ml/model
 
 * load_models
 	* standalone: default: N/A, no models will be load on startup.
-	* docker: default: ALL, all model archives in /opt/ml/model will be loadded on startup.
 
 **Note:** `model_store` and `load_models` property can be override by command line parameters.
 
@@ -166,8 +161,3 @@ Most of those properties are designed for performance tuning. Adjusting those nu
 * decode_input_request: Configuration to let backend workers to decode requests, when the content type is known. 
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and 
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". default: true  
-
-### config.properties Example
-
-See [config.properties for docker](https://github.com/pytorch/serve/blob/master/docker/config.properties)
-

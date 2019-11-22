@@ -1,4 +1,4 @@
-# Metrics on Model Server
+# Metrics on TorchServe
 
 ## Contents of this Document
 * [Introduction](#introduction)
