@@ -84,7 +84,7 @@ public final class ConfigManager {
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
-    
+
     public static final String PYTHON_EXECUTABLE = "python";
 
     private Pattern blacklistPattern;
