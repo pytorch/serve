@@ -62,7 +62,7 @@ public final class NettyUtils {
                     ConfigManager.getInstance().getHostName(),
                     DIMENSION);
 
-    private static final org.apache.log4j.Logger loggerMmsMetrics =
+    private static final org.apache.log4j.Logger loggerTsMetrics =
             org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
     private NettyUtils() {}
@@ -149,11 +149,11 @@ public final class NettyUtils {
         }
         int code = resp.status().code();
         if (code >= 200 && code < 300) {
-            loggerMmsMetrics.info(REQUESTS_2_XX);
+            loggerTsMetrics.info(REQUESTS_2_XX);
         } else if (code >= 400 && code < 500) {
-            loggerMmsMetrics.info(REQUESTS_4_XX);
+            loggerTsMetrics.info(REQUESTS_4_XX);
         } else {
-            loggerMmsMetrics.info(REQUESTS_5_XX);
+            loggerTsMetrics.info(REQUESTS_5_XX);
         }
 
         String allowedOrigin = configManager.getCorsAllowedOrigin();

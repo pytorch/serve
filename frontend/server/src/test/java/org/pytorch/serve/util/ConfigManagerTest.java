@@ -71,7 +71,7 @@ public class ConfigManagerTest {
     public void test()
             throws IOException, GeneralSecurityException, IllegalAccessException,
                     NoSuchFieldException, ClassNotFoundException {
-        modifyEnv("MMS_DEFAULT_RESPONSE_TIMEOUT", "130");
+        modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
         args.setModels(new String[] {"noop_v0.1"});
         ConfigManager.init(args);
@@ -89,7 +89,7 @@ public class ConfigManagerTest {
         org.apache.log4j.Logger logger =
                 org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
         logger.debug(metrics);
-        Assert.assertTrue(new File("build/logs/mms_metrics.log").exists());
+        Assert.assertTrue(new File("build/logs/ts_metrics.log").exists());
 
         logger = org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
         logger.debug(metrics);
@@ -106,8 +106,8 @@ public class ConfigManagerTest {
     @Test
     public void testNoEnvVars()
             throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
-        System.setProperty("mmsConfigFile", "src/test/resources/config_test_env.properties");
-        modifyEnv("MMS_DEFAULT_RESPONSE_TIMEOUT", "130");
+        System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
+        modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
         args.setModels(new String[] {"noop_v0.1"});
         ConfigManager.init(args);

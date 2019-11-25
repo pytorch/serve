@@ -82,7 +82,7 @@ public class WorkerLifeCycle {
         try {
             modelPath = model.getModelDir().getCanonicalFile();
         } catch (IOException e) {
-            throw new WorkerInitializationException("Failed get MMS home directory", e);
+            throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
         String[] args = new String[6];
@@ -92,7 +92,7 @@ public class WorkerLifeCycle {
         } else {
             args[0] = runtime.getValue();
         }
-        args[1] = new File(workingDir, "mms/model_service_worker.py").getAbsolutePath();
+        args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
         args[2] = "--sock-type";
         args[3] = connector.getSocketType();
         args[4] = connector.isUds() ? "--sock-name" : "--port";
@@ -195,7 +195,7 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    if ("MXNet worker started.".equals(result)) {
+                    if ("Torch worker started.".equals(result)) {
                         lifeCycle.setSuccess(true);
                     } else if (result.startsWith("[PID]")) {
                         lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));

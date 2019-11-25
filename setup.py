@@ -4,7 +4,7 @@
 # Notes:
 # - this is a "Universal Wheels" package that is pure Python and supports both Python2 and Python3
 # - Twine is a secure PyPi upload package
-# - Make sure you have bumped the version! at mms/version.py
+# - Make sure you have bumped the version! at ts/version.py
 # $ pip install twine
 # $ pip install wheel
 # $ python setup.py bdist_wheel --universal
@@ -30,7 +30,7 @@ from shutil import copy2, rmtree
 import setuptools.command.build_py
 from setuptools import setup, find_packages, Command
 
-import mms
+import ts
 
 pkgs = find_packages()
 
@@ -43,12 +43,12 @@ def pypi_description():
 
 
 def detect_model_server_version():
-    sys.path.append(os.path.abspath("mms"))
+    sys.path.append(os.path.abspath("ts"))
     if "--release" in sys.argv:
         sys.argv.remove("--release")
-        return mms.__version__.strip()
+        return ts.__version__.strip()
 
-    return mms.__version__.strip() + 'b' + str(date.today()).replace('-', '')
+    return ts.__version__.strip() + 'b' + str(date.today()).replace('-', '')
 
 
 class BuildFrontEnd(setuptools.command.build_py.build_py):
@@ -57,7 +57,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
     """
     description = 'Build Model Server Frontend'
     source_server_file = os.path.abspath('frontend/server/build/libs/server-1.0.jar')
-    dest_file_name = os.path.abspath('mms/frontend/model-server.jar')
+    dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -65,7 +65,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         Actual method called to run the build command
         :return:
         """
-        front_end_bin_dir = os.path.abspath('.') + '/mms/frontend'
+        front_end_bin_dir = os.path.abspath('.') + '/ts/frontend'
         try:
             os.mkdir(front_end_bin_dir)
         except OSError as exc:
@@ -152,8 +152,8 @@ if __name__ == '__main__':
         install_requires=requirements,
         entry_points={
             'console_scripts': [
-                'torchserve=mms.model_server:start',
-                'torchserve-export=mms.export_model:main'
+                'torchserve=ts.model_server:start',
+                'torchserve-export=ts.export_model:main'
             ]
         },
         include_package_data=True,

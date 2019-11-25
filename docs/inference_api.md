@@ -1,12 +1,12 @@
 # Inference API
 
-Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see [MMS Configuration](configuration.md).
+Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see [TS Configuration](configuration.md).
 
 There are three type of APIs:
 
-1. [API description](#api-description) - Describe MMS inference APIs with OpenAPI 3.0 specification
-2. [Health check API](#health-check-api) - Check MMS health status
-3. [Predictions API](#predictions-api) - Make predictions API call to MMS
+1. [API description](#api-description) - Describe TS inference APIs with OpenAPI 3.0 specification
+2. [Health check API](#health-check-api) - Check TS health status
+3. [Predictions API](#predictions-api) - Make predictions API call to TS
 
 ## API Description
 
@@ -22,7 +22,7 @@ The out is OpenAPI 3.0.1 json format. You can use it to generate client code, se
 
 ## Health check API
 
-MMS support a `ping` API that user can check MMS health status:
+TS support a `ping` API that user can check TS health status:
 
 ```bash
 curl http://localhost:8080/ping
@@ -38,7 +38,7 @@ Your response, if the server is running should be:
 
 ## Predictions API
 
-MMS 1.0 support 0.4 style API calls, those APIs are deprecated, they will be removed in future release. See [Deprecated APIs](#deprecated-api) for detail.
+TS 1.0 support 0.4 style API calls, those APIs are deprecated, they will be removed in future release. See [Deprecated APIs](#deprecated-api) for detail.
 
 For each loaded model, user can make REST call to URI: /predictions/{model_name}
 
@@ -68,7 +68,7 @@ The result was some JSON that told us our image likely held a tabby cat. The hig
 
 ## Deprecated API
 
-MMS 0.4 style predict API is kept for backward compatible purpose, and will be removed in future release.
+TS 0.4 style predict API is kept for backward compatible purpose, and will be removed in future release.
 
 * POST /{model_name}/predict
 

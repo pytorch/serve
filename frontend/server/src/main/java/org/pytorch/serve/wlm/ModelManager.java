@@ -94,9 +94,7 @@ public final class ModelManager {
         if (handler != null) {
             archive.getManifest().getModel().setHandler(handler);
         } else if (archive.getHandler() == null || archive.getHandler().isEmpty()) {
-            archive.getManifest()
-                    .getModel()
-                    .setHandler(configManager.getMmsDefaultServiceHandler());
+            archive.getManifest().getModel().setHandler(configManager.getTsDefaultServiceHandler());
         }
 
         archive.validate();

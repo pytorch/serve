@@ -94,7 +94,7 @@ public class ModelServer {
             logger.error("Invalid configuration", e);
         } finally {
             serverGroups.shutdown(true);
-            logger.info("Model server stopped.");
+            logger.info("Torchserve stopped.");
         }
     }
 
