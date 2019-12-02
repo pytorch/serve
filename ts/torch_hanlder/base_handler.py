@@ -1,0 +1,2 @@
+class BaseHandler(object):
+    pass
