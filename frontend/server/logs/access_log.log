@@ -1,5 +1,0 @@
-2019-11-19 15:39:37,432 - /127.0.0.1:54770 "POST /predictions/squeezenet HTTP/1.1" 200 126
-2019-11-20 14:21:51,050 - /127.0.0.1:63811 "POST /predictions/squeezenet HTTP/1.1" 200 143
-2019-11-29 14:48:14,455 - /127.0.0.1:65504 "POST /predictions/squeeznet HTTP/1.1" 404 18
-2019-11-29 14:48:23,237 - /127.0.0.1:65505 "POST /predictions/squeeznet-1.1 HTTP/1.1" 404 1
-2019-11-29 14:49:06,718 - /127.0.0.1:65517 "POST /predictions/squeezenet HTTP/1.1" 200 116
