@@ -100,13 +100,19 @@ class TsModelLoader(ModelLoader):
             with open(manifest_file) as f:
                 manifest = json.load(f)
 
-        temp = handler.split(":", 1)
-        module_name = temp[0]
-        function_name = None if len(temp) == 1 else temp[1]
-        if module_name.endswith(".py"):
-            module_name = module_name[:-3]
-        module_name = module_name.split("/")[-1]
-        module = importlib.import_module(module_name)
+        if ':' in handler:
+            temp = handler.split(":", 1)
+            module_name = temp[0]
+            function_name = None if len(temp) == 1 else temp[1]
+            if module_name.endswith(".py"):
+                module_name = module_name[:-3]
+            module_name = module_name.split("/")[-1]
+            module = importlib.import_module(module_name)
+        else: #TODO need to make it more generic
+            from ts.torch_hanlder import image_classifier
+            module = image_classifier
+            function_name = None
+
         if module is None:
             raise ValueError("Unable to load module {}, make sure it is added to python path".format(module_name))
         if function_name is None:

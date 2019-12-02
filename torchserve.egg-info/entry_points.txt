@@ -1,0 +1,4 @@
+[console_scripts]
+torchserve = ts.model_server:start
+torchserve-export = ts.export_model:main
+

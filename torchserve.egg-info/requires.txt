@@ -1,0 +1,5 @@
+Pillow
+psutil
+future
+model-archiver
+torch

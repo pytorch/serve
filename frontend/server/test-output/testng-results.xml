@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="4" passed="4">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="36084" started-at="2019-11-22T14:56:58Z" finished-at="2019-11-22T14:57:34Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="36084" started-at="2019-11-22T14:56:58Z" finished-at="2019-11-22T14:57:34Z">
+      <class name="org.pytorch.serve.util.ConfigManagerTest">
+        <test-method status="PASS" signature="test()[pri:0, instance:org.pytorch.serve.util.ConfigManagerTest@4ae82894]" name="test" duration-ms="301" started-at="2019-11-22T20:26:58Z" finished-at="2019-11-22T20:26:58Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- test -->
+        <test-method status="PASS" signature="testNoEnvVars()[pri:0, instance:org.pytorch.serve.util.ConfigManagerTest@4ae82894]" name="testNoEnvVars" duration-ms="13" started-at="2019-11-22T20:26:58Z" finished-at="2019-11-22T20:26:58Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testNoEnvVars -->
+      </class> <!-- org.pytorch.serve.util.ConfigManagerTest -->
+      <class name="org.pytorch.serve.CoverageTest">
+        <test-method status="PASS" signature="test()[pri:0, instance:org.pytorch.serve.CoverageTest@587c290d]" name="test" duration-ms="76" started-at="2019-11-22T20:27:34Z" finished-at="2019-11-22T20:27:34Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- test -->
+      </class> <!-- org.pytorch.serve.CoverageTest -->
+      <class name="org.pytorch.serve.ModelServerTest">
+        <test-method status="PASS" signature="beforeSuite()[pri:0, instance:org.pytorch.serve.ModelServerTest@5579bb86]" name="beforeSuite" is-config="true" duration-ms="833" started-at="2019-11-22T20:26:57Z" finished-at="2019-11-22T20:26:58Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeSuite -->
+        <test-method status="PASS" signature="test()[pri:0, instance:org.pytorch.serve.ModelServerTest@5579bb86]" name="test" duration-ms="35668" started-at="2019-11-22T20:26:58Z" finished-at="2019-11-22T20:27:34Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- test -->
+        <test-method status="PASS" signature="afterSuite()[pri:0, instance:org.pytorch.serve.ModelServerTest@5579bb86]" name="afterSuite" is-config="true" duration-ms="2225" started-at="2019-11-22T20:27:34Z" finished-at="2019-11-22T20:27:36Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterSuite -->
+      </class> <!-- org.pytorch.serve.ModelServerTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
