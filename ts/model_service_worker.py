@@ -69,7 +69,6 @@ class TorchModelServiceWorker(object):
         """
         try:
             model_dir = load_model_request["modelPath"].decode("utf-8")
-            logging.debug('model pathddddd - '+str(model_dir))
             model_name = load_model_request["modelName"].decode("utf-8")
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
             batch_size = None
