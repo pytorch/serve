@@ -1,5 +1,0 @@
-2019-11-21 18:21:55,739 - /127.0.0.1:59544 "POST /predictions/squeezenet HTTP/1.1" 200 145
-2019-11-21 18:22:08,383 - /127.0.0.1:59546 "POST /predictions/squeezenet HTTP/1.1" 200 53
-2019-11-22 12:42:58,250 - /127.0.0.1:61421 "POST /predictions/densenet161_pytorch HTTP/1.1" 503 232
-2019-11-22 12:43:48,160 - /127.0.0.1:61424 "POST /predictions/densenet161_pytorch HTTP/1.1" 503 125
-2019-11-22 12:47:56,590 - /127.0.0.1:61500 "POST /predictions/densenet161_pytorch HTTP/1.1" 503 92
