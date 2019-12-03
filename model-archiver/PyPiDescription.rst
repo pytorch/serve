@@ -1,29 +1,15 @@
 Project Description
 ===================
 
-Model Archiver is a tool used for creating archives of trained neural
-net models that can be consumed by MXNet-Model-Server inference.
+Torch Model Archiver is a tool used for creating archives of trained neural net models that can be consumed by TorchServe inference.
 
-Use the Model Archiver CLI to start create a ``.mar`` file.
+Use the Torch Model Archiver CLI to start create a ``.mar`` file.
 
-Model Archiver is part of `MMS <https://pypi.org/project/mxnet-model-server/>`__.
-However,you ca install Model Archiver stand alone.
+Torch Model Archiver is part of `TS <https://pypi.org/project/torchserve/>`__.
+However,you ca install Torch Model Archiver stand alone.
 
 Detailed documentation and examples are provided in the `README
-<https://github.com/awslabs/mxnet-model-server/model-archiver/README.md>`__.
-
-Prerequisites
--------------
-
-ONNX support is optional in `model-archiver` tool. It's not installed
-by default with `model-archiver`.
-
-If you wish to package a ONNX model, you will need to first install a
-``protobuf`` compiler, ``onnx`` and ``mxnet`` manually.
-
-`Instructions for installing Model Archiver with
-ONNX <https://github.com/awslabs/mxnet-model-server/blob/master/model-archiver/docs/convert_from_onnx.md#install-model-archiver-with-onnx-support>`__.
-
+<https://github.com/pytorch/serve/model-archiver/README.md>`__.
 
 
 Installation
@@ -31,24 +17,24 @@ Installation
 
 ::
 
-    pip install model-archiver
+    pip install torch-model-archiver
 
 Development
 -----------
 
 We welcome new contributors of all experience levels. For information on
-how to install MMS for development, refer to the `MMS
-docs <https://github.com/awslabs/mxnet-model-server/blob/master/docs/install.md>`__.
+how to install MMS for development, refer to the `TS
+docs <https://github.com/pytorch/serve/blob/master/docs/install.md>`__.
 
 Important links
 ---------------
 
 -  `Official source code
-   repo <https://github.com/awslabs/mxnet-model-server>`__
+   repo <https://github.com/pytorch/serve>`__
 -  `Download
-   releases <https://pypi.org/project/mxnet-model-server/#files>`__
+   releases <https://pypi.org/project/torchserve/#files>`__
 -  `Issue
-   tracker <https://github.com/awslabs/mxnet-model-server/issues>`__
+   tracker <https://github.com/pytorch/serve/issues>`__
 
 Source code
 -----------
@@ -57,21 +43,21 @@ You can check the latest source code as follows:
 
 ::
 
-    git clone https://github.com/awslabs/mxnet-model-server.git
+    git clone https://github.com/pytorch/serve.git
 
 Testing
 -------
 
 After installation, try out the MMS Quickstart for `Create a
-model archive <https://github.com/awslabs/mxnet-model-server/blob/master/README.md#model-archive>`__
+model archive <https://github.com/pytorch/serve/blob/serve/README.md#model-archive>`__
 and `Serving a
-Model <https://github.com/awslabs/mxnet-model-server/blob/master/README.md#serve-a-model>`__.
+Model <https://github.com/pytorch/serve/blob/serve/model-archiver/README.md#serve-a-model>`__.
 
 
 Help and Support
 ----------------
 
--  `Documentation <https://github.com/awslabs/mxnet-model-server/blob/master/docs/README.md>`__
+-  `Documentation <https://github.com/pytorch/serve/blob/serve/docs/README.md>`__
 -  `Forum <https://discuss.mxnet.io/latest>`__
 
 Citation

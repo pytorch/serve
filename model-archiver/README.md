@@ -1,4 +1,4 @@
-# Model archiver for MMS
+# Torch Model archiver for TS
 
 ## Contents of this Document
 * [Overview](#overview)
@@ -10,22 +10,18 @@
     * [Handler](#handler)
 * [Quick Start: Creating a Model Archive](#creating-a-model-archive)
 
-## Other Relevant Documents
-* [Model Archive Examples](../examples/README.md)
-* [Packaging an ONNX Model](docs/convert_from_onnx.md)
-
 ## Overview
 
-A key feature of MMS is the ability to package all model artifacts into a single model archive file. It is a separate command line interface (CLI), `model-archiver`, that can take model checkpoints and package them into a `.mar` file. This file can then be redistributed and served by anyone using MMS. It takes in the following model artifacts: a model composed of one or more files, the description of the model's inputs in the form of a signature file, a service file describing how to handle inputs and outputs, and other optional assets that may be required to serve the model. The CLI creates a `.mar` file that MMS's server CLI uses to serve the models.
+A key feature of TS is the ability to package all model artifacts into a single model archive file. It is a separate command line interface (CLI), `torch-model-archiver`, that can take model checkpoints and package them into a `.mar` file. This file can then be redistributed and served by anyone using TS. It takes in the following model artifacts: a model composed of one or more files, the description of the model's inputs in the form of a signature file, a service file describing how to handle inputs and outputs, and other optional assets that may be required to serve the model. The CLI creates a `.mar` file that TS's server CLI uses to serve the models.
 
-**Important**: Make sure you try the [Quick Start: Creating a Model Archive](#creating-a-model-archive) tutorial for a short example of using `model-archiver`.
+**Important**: Make sure you try the [Quick Start: Creating a Model Archive](#creating-a-model-archive) tutorial for a short example of using `torch-model-archiver`.
 
-MMS can support any arbitrary model file. It is the custom service code's responsibility to locate and load the model files. The following information is required to create a standalone model archive:
+TS can support any arbitrary model file. It is the custom service code's responsibility to locate and load the model files. The following information is required to create a standalone model archive:
 1. [Model name](#model-name)
 2. [Model path](#model-path)
 3. [Handler](#handler)
 
-## Model Archiver Command Line Interface
+## Torch Model Archiver Command Line Interface
 
 Now let's cover the details on using the CLI tool: `model-archiver`.
 
@@ -33,7 +29,7 @@ Here is an example usage with the squeezenet_v1.1 model archive which you can do
 
 ```bash
 
-model-archiver --model-name squeezenet_v1.1 --model-path squeezenet --handler mxnet_vision_service:handle
+torch-model-archiver --model-name squeezenet_v1.1 --model-path squeezenet --handler mxnet_vision_service:handle
 
 ```
 
@@ -41,7 +37,7 @@ model-archiver --model-name squeezenet_v1.1 --model-path squeezenet --handler mx
 
 ```
 $ model-archiver -h
-usage: model-archiver [-h] --model-name MODEL_NAME --model-path MODEL_PATH
+usage: torch-model-archiver [-h] --model-name MODEL_NAME --model-path MODEL_PATH
                       --handler HANDLER [--runtime {python,python2,python3}]
                       [--export-path EXPORT_PATH] [-f]
 
