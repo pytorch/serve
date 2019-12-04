@@ -296,10 +296,6 @@ public class ModelArchive {
                 throw new InvalidModelException("Model name is not defined.");
             }
 
-//            if (model.getHandler() == null) {
-//                throw new InvalidModelException("Model handler is not defined.");
-//            }
-
             if (manifest.getRuntime() == null) {
                 throw new InvalidModelException("Runtime is not defined or invalid.");
             }

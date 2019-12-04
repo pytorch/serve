@@ -4,7 +4,6 @@
 Model loader.
 """
 import importlib
-import inspect
 import json
 import logging
 import os
@@ -55,25 +54,6 @@ class ModelLoader(object):
         # pylint: disable=unnecessary-pass
         pass
 
-    @staticmethod
-    def list_model_services(module, parent_class=None):
-        """
-        Parse user defined module to get all model service classes in it.
-
-        :param module:
-        :param parent_class:
-        :return: List of model service class definitions
-        """
-
-        # Parsing the module to get all defined classes
-        classes = [cls[1] for cls in inspect.getmembers(module, lambda member: inspect.isclass(member) and
-                                                        member.__module__ == module.__name__)]
-        # filter classes that is subclass of parent_class
-        if parent_class is not None:
-            return [c for c in classes if issubclass(c, parent_class)]
-
-        return classes
-
 
 class TsModelLoader(ModelLoader):
     """
@@ -108,7 +88,7 @@ class TsModelLoader(ModelLoader):
                 module_name = module_name[:-3]
             module_name = module_name.split("/")[-1]
             module = importlib.import_module(module_name)
-        else: #TODO need to make it more generic
+        else:
             from ts.torch_hanlder import image_classifier
             module = image_classifier
             function_name = None
@@ -125,7 +105,8 @@ class TsModelLoader(ModelLoader):
             # initialize model at load time
             entry_point(None, service.context)
         else:
-            model_class_definitions = ModelLoader.list_model_services(module)
+            from .utils import list_classes_from_module
+            model_class_definitions = list_classes_from_module(module)
             if len(model_class_definitions) != 1:
                 raise ValueError("Expected only one class in custom service code or a function entry point {}".format(
                     model_class_definitions))
