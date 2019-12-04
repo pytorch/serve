@@ -52,8 +52,8 @@ if __name__ == '__main__':
     setup(
         name='torch-model-archiver',
         version=version,
-        description='Model Archiver is used for creating archives of trained neural net models that can be consumed '
-                    'by TorchServe inference',
+        description='Torch Model Archiver is used for creating archives of trained neural net models '
+                    'that can be consumed by TorchServe inference',
         long_description=pypi_description(),
         author='PyTorch Serving team',
         author_email='noreply@noreply.com',
@@ -61,8 +61,6 @@ if __name__ == '__main__':
         keywords='TorchServe Torch Model Archive Archiver TS Server Serving Deep Learning Inference AI',
         packages=pkgs,
         install_requires=requirements,
-        extras_require={
-        },
         entry_points={
             'console_scripts': ['torch-model-archiver=model_archiver.model_packaging:generate_model_archive']
         },

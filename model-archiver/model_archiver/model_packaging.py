@@ -29,7 +29,7 @@ def package_model(args, manifest):
                                                                      args.force, args.archive_format)
 
         # Step 2 : Copy all artifacts for temp directory
-        model_path = ModelExportUtils.copy_artifacts(model_name, **{'model.py': model_file, 'model.py': serialized_file,
+        model_path = ModelExportUtils.copy_artifacts(model_name, **{'model.py': model_file, 'model.pt': serialized_file,
                                                                   'handler.py': handler, 'extra_files': extra_files})
 
         # Step 2 : Zip 'em all up

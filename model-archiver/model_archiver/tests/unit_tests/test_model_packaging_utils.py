@@ -90,27 +90,6 @@ class TestExportModelUtils:
             patch.listdir.return_value = {'a', 'b', 'c'}
             return patch
 
-        def test_onnx_file_is_none(self, patches):
-            patches.utils.find_unique.return_value = None
-            ModelExportUtils.check_custom_model_types(model_path=self.model_path, model_name=None)
-
-            patches.utils.find_unique.assert_called()
-            patches.utils.convert_onnx_model.assert_not_called()
-
-        def test_onnx_file_is_not_none(self, patches):
-            onnx_file = 'some-file.onnx'
-            patches.utils.find_unique.return_value = onnx_file
-            patches.utils.convert_onnx_model.return_value = ('sym', 'param')
-
-            temp, exclude = ModelExportUtils.check_custom_model_types(self.model_path)
-            patches.utils.convert_onnx_model.assert_called_once_with(self.model_path, onnx_file, None)
-
-            assert len(temp) == 2
-            assert len(exclude) == 1
-            assert temp[0] == os.path.join(self.model_path, 'sym')
-            assert temp[1] == os.path.join(self.model_path, 'param')
-            assert exclude[0] == onnx_file
-
     # noinspection PyClassHasNoInit
     class TestFindUnique:
 
