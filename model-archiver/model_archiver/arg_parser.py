@@ -54,6 +54,13 @@ class ArgParser(object):
                                    default=None,
                                    help='Handler path to handle custom TS inference logic.')
 
+        parser_export.add_argument('--extra-files',
+                                   required=False,
+                                   dest="handler",
+                                   type=str,
+                                   default=None,
+                                   help='Comma separated path to extra dependency files.')
+
         parser_export.add_argument('--runtime',
                                    required=False,
                                    type=str,

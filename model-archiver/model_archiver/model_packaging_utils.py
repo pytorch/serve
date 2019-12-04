@@ -205,12 +205,18 @@ class ModelExportUtils(object):
             os.makedirs(d)
 
     @staticmethod
-    def copy_artifacts(model_name, *args):
+    def copy_artifacts(model_name, **kwargs):
         model_path = '/tmp/{0}'.format(model_name)
+        if os.path.exists(model_path):
+            shutil.rmtree(model_path)
         ModelExportUtils.make_dir(model_path)
-        for file in args:
-            if file:
-                shutil.copy(file, model_path)
+        for filename, path in kwargs.items():
+            if path:
+                if filename == "extra_files":
+                    for file in path.split(","):
+                        shutil.copy(file, model_path)
+                else:
+                    shutil.copy(path, '{0}/{1}'.format(model_path, filename))
 
         return model_path
 
