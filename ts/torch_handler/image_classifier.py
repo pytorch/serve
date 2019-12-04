@@ -70,7 +70,7 @@ class ImageClassifier(BaseHandler):
 
                 results.append(tmp)
             else:
-                results.append({str(classes[i]), probs[i]})
+                results.append({str(classes[i]):str(probs[i])})
 
         return [results]
 

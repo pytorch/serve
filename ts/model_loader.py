@@ -89,7 +89,7 @@ class TsModelLoader(ModelLoader):
             module_name = module_name.split("/")[-1]
             module = importlib.import_module(module_name)
         else:
-            from ts.torch_hanlder import image_classifier
+            from ts.torch_handler import image_classifier
             module = image_classifier
             function_name = None
 
