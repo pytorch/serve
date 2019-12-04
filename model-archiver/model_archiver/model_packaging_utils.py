@@ -55,12 +55,12 @@ class ModelExportUtils(object):
 
         if os.path.exists(export_file):
             if overwrite:
-                logging.warning("Overwriting %s ...", export_file)
+                logging.warning("Overwriting {0} ...".format(export_file))
             else:
-                raise ModelArchiverError("%s already exists.\n"
+                raise ModelArchiverError("{0} already exists.\n"
                                          "Please specify --force/-f option to overwrite the model archive "
                                          "output file.\n"
-                                         "See -h/--help for more details." + export_file)
+                                         "See -h/--help for more details.".format(export_file))
 
         return export_file_path
 
