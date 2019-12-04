@@ -19,30 +19,7 @@ class ImageClassifier(BaseHandler):
     """
 
     def __init__(self):
-        self.checkpoint_file_path = None
-        self.mapping = None
-        self.initialized = False
-
-    def initialize(self, context):
-        """
-            Load the model and mapping file to perform infernece.
-        """
-
-        # Initialize model
-        super(ImageClassifier, self).initialize(context)
-
-        properties = context.system_properties
-        model_dir = properties.get("model_dir")
-
-        # Read the mapping file, index to object name
-        mapping_file_path = os.path.join(model_dir, "index_to_name.json")
-        if not os.path.isfile(mapping_file_path):
-            raise RuntimeError("Missing the mapping file")
-        with open(mapping_file_path) as f:
-            self.mapping = json.load(f)
-
-        self.initialized = True
-
+        super(ImageClassifier, self).__init__()
 
     def preprocess(self, data):
         """
@@ -69,25 +46,50 @@ class ImageClassifier(BaseHandler):
         '''
         # Convert 2D image to 1D vector
         img = np.expand_dims(img, 0)
-
         img = torch.from_numpy(img)
 
         self.model.eval()
         inputs = Variable(img).to(self.device)
-        logits = self.model.forward(inputs)
+        outputs = self.model.forward(inputs)
 
-        ps = F.softmax(logits, dim=1)
+        ps = F.softmax(outputs, dim=1)
         topk = ps.cpu().topk(topk)
 
         probs, classes = (e.data.numpy().squeeze().tolist() for e in topk)
 
         results = []
         for i in range(len(probs)):
-            tmp = dict()
-            tmp[self.mapping[str(classes[i])][1]] = probs[i]
-            # tmp[self.mapping[str(classes[i])]] = probs[i]
-            results.append(tmp)
+            if self.mapping:
+                tmp = dict()
+                if isinstance(self.mapping, dict) and isinstance(list(self.mapping.values())[0], list):
+                    tmp[self.mapping[str(classes[i])][1]] = probs[i]
+                elif isinstance(self.mapping, dict) and isinstance(list(self.mapping.values())[0], str):
+                    tmp[self.mapping[str(classes[i])]] = probs[i]
+                else:
+                    raise Exception('index_to_name mapping should be in "class":"label" json format')
+
+                results.append(tmp)
+            else:
+                results.append({str(classes[i]), probs[i]})
+
         return [results]
 
     def postprocess(self, inference_output):
         return inference_output
+
+
+_service = ImageClassifier()
+
+
+def handle(data, context):
+    if not _service.initialized:
+        _service.initialize(context)
+
+    if data is None:
+        return None
+
+    data = _service.preprocess(data)
+    data = _service.inference(data)
+    data = _service.postprocess(data)
+
+    return data

@@ -43,21 +43,20 @@ public class WorkerLifeCycle {
         ArrayList<String> envList = new ArrayList<>();
         Pattern blackList = configManager.getBlacklistPattern();
         StringBuilder pythonPath = new StringBuilder();
-        
+
         if (handler != null && handler.contains(":")) {
-        	String handlerFile = handler;
+            String handlerFile = handler;
             handlerFile = handler.split(":")[0];
             if (handlerFile.contains("/")) {
                 handlerFile = handlerFile.substring(0, handlerFile.lastIndexOf('/'));
             }
-            
+
             pythonPath.append(handlerFile).append(File.pathSeparatorChar);
         }
 
-        
         HashMap<String, String> environment = new HashMap<>(System.getenv());
         environment.putAll(configManager.getBackendConfiguration());
-        
+
         if (System.getenv("PYTHONPATH") != null) {
             pythonPath.append(System.getenv("PYTHONPATH")).append(File.pathSeparatorChar);
         }

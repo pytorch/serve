@@ -34,12 +34,12 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
                 batchSize = 1;
             }
             out.writeInt(batchSize);
-            
+
             String handler = request.getHandler();
-            if (handler != null){
-            	buf = handler.getBytes(StandardCharsets.UTF_8);
+            if (handler != null) {
+                buf = handler.getBytes(StandardCharsets.UTF_8);
             }
-            
+
             out.writeInt(buf.length);
             out.writeBytes(buf);
 

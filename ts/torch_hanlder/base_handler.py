@@ -1,3 +1,5 @@
+
+
 """
 Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification
@@ -5,6 +7,7 @@ Also, provides handle method per torch serve custom model specification
 import abc
 import logging
 import os
+import json
 
 import torch
 
@@ -14,9 +17,10 @@ logger = logging.getLogger(__name__)
 class BaseHandler(abc.ABC):
     def __init__(self):
         self.model = None
+        self.mapping = None
         self.device = "cpu"
+        self.initialized = False
 
-    @abc.abstractmethod
     def initialize(self, ctx):
         """First try to load torchscript else load eager mode state_dict based model"""
 
@@ -26,7 +30,7 @@ class BaseHandler(abc.ABC):
         # Read model serialize/pt file
         model_pt_path = os.path.join(model_dir, "model.pt")
         if not os.path.isfile(model_pt_path):
-            raise RuntimeError("Missing model.pt file")
+            raise RuntimeError("Missing the model.pt file")
 
         try:
             logger.debug('Loading torchscript model')
@@ -35,7 +39,7 @@ class BaseHandler(abc.ABC):
             # Read model definition file
             model_def_path = os.path.join(model_dir, "model.py")
             if not os.path.isfile(model_def_path):
-                raise RuntimeError("Missing model.py file")
+                raise RuntimeError("Missing the model.py file")
 
             import importlib
             from ..utils import list_classes_from_module
@@ -53,6 +57,17 @@ class BaseHandler(abc.ABC):
 
         logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
 
+        # Read the mapping file, index to object name
+        mapping_file_path = os.path.join(model_dir, "index_to_name.json")
+
+        if os.path.isfile(mapping_file_path):
+            with open(mapping_file_path) as f:
+                self.mapping = json.load(f)
+        else:
+            logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
+
+        self.initialized = True
+
     @abc.abstractmethod
     def preprocess(self, data):
         pass
@@ -64,15 +79,3 @@ class BaseHandler(abc.ABC):
     @abc.abstractmethod
     def postprocess(self, data):
         pass
-
-    def handle(self, data, context):
-        if not self.initialized:
-            self.initialize(context)
-
-        if data is None:
-            return None
-
-        data = self.preprocess(data)
-        data = self.inference(data)
-        data = self.postprocess(data)
-        return data
