@@ -27,13 +27,11 @@ MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'
 MANIFEST_FILE_NAME = 'MANIFEST.json'
 MAR_INF = 'MAR-INF'
-ONNX_TYPE = '.onnx'
-
 
 class ModelExportUtils(object):
     """
     Helper utils for Model Archiver tool.
-    This class lists out all the methods such as validations for model archiving, ONNX model checking etc.
+    This class lists out all the methods such as validations for model archiving.
     """
 
     @staticmethod
@@ -57,39 +55,15 @@ class ModelExportUtils(object):
 
         if os.path.exists(export_file):
             if overwrite:
-                logging.warning("Overwriting %s ...", export_file)
+                logging.warning("Overwriting {0} ...".format(export_file))
             else:
-                raise ModelArchiverError("%s already exists.\n"
+                raise ModelArchiverError("{0} already exists.\n"
                                          "Please specify --force/-f option to overwrite the model archive "
                                          "output file.\n"
-                                         "See -h/--help for more details." + export_file)
+                                         "See -h/--help for more details.".format(export_file))
 
         return export_file_path
 
-    @staticmethod
-    def check_custom_model_types(model_path, model_name=None):
-        """
-        This functions checks whether any special handling is required for custom model extensions such as
-        .onnx, or in the future, for Tensorflow and PyTorch extensions.
-        :param model_path:
-        :param model_name:
-        :return:
-        """
-        temp_files = []  # List of temp files added to handle custom models
-        files_to_exclude = []  # List of files to be excluded from .mar packaging.
-
-        files_set = set(os.listdir(model_path))
-        onnx_file = ModelExportUtils.find_unique(files_set, ONNX_TYPE)
-        if onnx_file is not None:
-            logging.debug("Found ONNX files. Converting ONNX file to model archive...")
-            symbol_file, params_file = ModelExportUtils.convert_onnx_model(model_path, onnx_file, model_name)
-            files_to_exclude.append(onnx_file)
-            temp_files.append(os.path.join(model_path, symbol_file))
-            temp_files.append(os.path.join(model_path, params_file))
-
-        # More cases will go here as an if-else block
-
-        return temp_files, files_to_exclude
 
     @staticmethod
     def find_unique(files, suffix):
@@ -109,76 +83,6 @@ class ModelExportUtils(object):
         else:
             raise ModelArchiverError("model-archiver expects only one {} file in the folder."
                                      " Found {} files {} in model-path.".format(suffix, count, match))
-
-    @staticmethod
-    def convert_onnx_model(model_path, onnx_file, model_name):
-        """
-        Util to convert onnx model to MXNet model
-        :param model_name:
-        :param model_path:
-        :param onnx_file:
-        :return:
-        """
-        try:
-            import mxnet as mx
-            from mxnet.contrib import onnx as onnx_mxnet
-        except ImportError:
-            raise ModelArchiverError("MXNet package is not installed. Run command: pip install mxnet to install it.")
-
-        try:
-            import onnx
-        except ImportError:
-            raise ModelArchiverError("Onnx package is not installed. Run command: pip install onnx to install it.")
-
-        symbol_file = '%s-symbol.json' % model_name
-        params_file = '%s-0000.params' % model_name
-        signature_file = 'signature.json'
-        # Find input symbol name and shape
-        try:
-            model_proto = onnx.load(os.path.join(model_path, onnx_file))
-        except:
-            logging.error("Failed to load the %s model. Verify if the model file is valid", onnx_file)
-            raise
-
-        graph = model_proto.graph
-        _params = set()
-        for tensor_vals in graph.initializer:
-            _params.add(tensor_vals.name)
-
-        input_data = []
-        for graph_input in graph.input:
-            shape = []
-            if graph_input.name not in _params:
-                for val in graph_input.type.tensor_type.shape.dim:
-                    shape.append(val.dim_value)
-                input_data.append((graph_input.name, tuple(shape)))
-
-        try:
-            sym, arg_params, aux_params = onnx_mxnet.import_model(os.path.join(model_path, onnx_file))
-            # UNION of argument and auxillary parameters
-            params = dict(arg_params, **aux_params)
-        except:
-            logging.error("Failed to import %s file to onnx. Verify if the model file is valid", onnx_file)
-            raise
-
-        try:
-            # rewrite input data_name correctly
-            with open(os.path.join(model_path, signature_file), 'r') as f:
-                data = json.loads(f.read())
-                data['inputs'][0]['data_name'] = input_data[0][0]
-                data['inputs'][0]['data_shape'] = [int(i) for i in input_data[0][1]]
-            with open(os.path.join(model_path, signature_file), 'w') as f:
-                f.write(json.dumps(data, indent=2))
-
-            with open(os.path.join(model_path, symbol_file), 'w') as f:
-                f.write(sym.tojson())
-        except:
-            logging.error("Failed to write the signature or symbol files for %s model", onnx_file)
-            raise
-
-        save_dict = {('arg:%s' % k): v.as_in_context(mx.cpu()) for k, v in params.items()}
-        mx.nd.save(os.path.join(model_path, params_file), save_dict)
-        return symbol_file, params_file
 
     @staticmethod
     def generate_publisher(publisherargs):
@@ -202,6 +106,7 @@ class ModelExportUtils(object):
         :param args:
         :return:
         """
+
         arg_dict = vars(args)
 
         publisher = ModelExportUtils.generate_publisher(args) if 'author' in arg_dict and 'email' in arg_dict else None
@@ -225,14 +130,29 @@ class ModelExportUtils(object):
             os.makedirs(d)
 
     @staticmethod
-    def archive(export_file, model_name, model_path, files_to_exclude, manifest, archive_format="default"):
+    def copy_artifacts(model_name, **kwargs):
+        model_path = '/tmp/{0}'.format(model_name)
+        if os.path.exists(model_path):
+            shutil.rmtree(model_path)
+        ModelExportUtils.make_dir(model_path)
+        for filename, path in kwargs.items():
+            if path:
+                if filename == "extra_files":
+                    for file in path.split(","):
+                        shutil.copy(file, model_path)
+                else:
+                    shutil.copy(path, '{0}/{1}'.format(model_path, filename))
+
+        return model_path
+
+    @staticmethod
+    def archive(export_file, model_name, model_path, manifest, archive_format="default"):
         """
         Create a model-archive
         :param archive_format:
         :param export_file:
         :param model_name:
-        :param model_path:
-        :param files_to_exclude:
+        :param model_path
         :param manifest:
         :return:
         """
@@ -242,7 +162,7 @@ class ModelExportUtils(object):
                 import tarfile
                 from io import BytesIO
                 with tarfile.open(mar_path, 'w:gz') as z:
-                    ModelExportUtils.archive_dir(model_path, z, set(files_to_exclude), archive_format, model_name)
+                    ModelExportUtils.archive_dir(model_path, z, archive_format, model_name)
                     # Write the manifest here now as a json
                     tar_manifest = tarfile.TarInfo(name=os.path.join(model_name, MAR_INF, MANIFEST_FILE_NAME))
                     tar_manifest.size = len(manifest.encode('utf-8'))
@@ -251,8 +171,7 @@ class ModelExportUtils(object):
             elif archive_format == "no-archive":
                 if model_path != mar_path:
                     # Copy files to export path if
-                    ModelExportUtils.archive_dir(model_path, mar_path,
-                                                 set(files_to_exclude), archive_format, model_name)
+                    ModelExportUtils.archive_dir(model_path, mar_path, archive_format, model_name)
                 # Write the MANIFEST in place
                 manifest_path = os.path.join(mar_path, MAR_INF)
                 ModelExportUtils.make_dir(manifest_path)
@@ -260,7 +179,7 @@ class ModelExportUtils(object):
                     f.write(manifest)
             else:
                 with zipfile.ZipFile(mar_path, 'w', zipfile.ZIP_DEFLATED) as z:
-                    ModelExportUtils.archive_dir(model_path, z, set(files_to_exclude), archive_format, model_name)
+                    ModelExportUtils.archive_dir(model_path, z, archive_format, model_name)
                     # Write the manifest here now as a json
                     z.writestr(os.path.join(MAR_INF, MANIFEST_FILE_NAME), manifest)
         except IOError:
@@ -272,7 +191,7 @@ class ModelExportUtils(object):
             raise
 
     @staticmethod
-    def archive_dir(path, dst, files_to_exclude, archive_format, model_name):
+    def archive_dir(path, dst, archive_format, model_name):
 
         """
         This method zips the dir and filters out some files based on a expression
@@ -280,7 +199,6 @@ class ModelExportUtils(object):
         :param path:
         :param dst:
         :param model_name:
-        :param files_to_exclude:
         :return:
         """
         unwanted_dirs = {'__MACOSX', '__pycache__'}
@@ -288,8 +206,6 @@ class ModelExportUtils(object):
         for root, directories, files in os.walk(path):
             # Filter directories
             directories[:] = [d for d in directories if ModelExportUtils.directory_filter(d, unwanted_dirs)]
-            # Filter files
-            files[:] = [f for f in files if ModelExportUtils.file_filter(f, files_to_exclude)]
             for f in files:
                 file_path = os.path.join(root, f)
                 if archive_format == "tgz":
@@ -347,12 +263,12 @@ class ModelExportUtils(object):
                                      "name is: ^[A-Za-z0-9][A-Za-z0-9_\\-.]*$")
 
     @staticmethod
-    def validate_inputs(model_path, model_name, export_path):
+    def validate_inputs(model_name, export_path):
         ModelExportUtils.check_model_name_regex_or_exit(model_name)
         if not os.path.isdir(os.path.abspath(export_path)):
             raise ModelArchiverError("Given export-path {} is not a directory. "
                                      "Point to a valid export-path directory.".format(export_path))
 
-        if not os.path.isdir(os.path.abspath(model_path)):
-            raise ModelArchiverError("Given model-path {} is not a valid directory. "
-                                     "Point to a valid model-path directory.".format(model_path))
+
+if __name__ == "__main__":
+    ModelExportUtils.copy_artifacts('mera_model', '/Users/harsh_bafna/flower.jpg', '/Users/harsh_bafna/kitten.jpg')

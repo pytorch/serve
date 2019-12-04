@@ -10,7 +10,7 @@ class Model(object):
     as the entry point into the service code through the handler property
     """
 
-    def __init__(self, model_name, handler, description=None, model_version=None, extensions=None):
+    def __init__(self, model_name, handler=None, description=None, model_version=None, extensions=None):
         self.model_name = model_name
         self.description = description
         self.model_version = model_version
@@ -23,7 +23,8 @@ class Model(object):
 
         model_dict['modelName'] = self.model_name
 
-        model_dict['handler'] = self.handler
+        if self.handler is not None:
+            model_dict['handler'] = self.handler
 
         if self.description is not None:
             model_dict['description'] = self.description

@@ -24,13 +24,14 @@ class TestModelPackaging:
     email = 'ABC@XYZ.com'
     engine = EngineType.MXNET.value
     model_name = 'my-model'
-    model_path = 'my-model/'
+    model_file = 'my-model/'
+    serialized_file = 'my-model/'
     handler = 'a.py::my-awesome-func'
     export_path = '/Users/dummyUser/'
 
     args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
-                     runtime=RuntimeType.PYTHON.value, model_path=model_path, export_path=export_path, force=False,
-                     archive_format="default", convert=False)
+                     runtime=RuntimeType.PYTHON.value, model_file=model_file, serialized_file=serialized_file,
+                     extra_files=None, export_path=export_path, force=False, archive_format="default", convert=False)
 
     @pytest.fixture()
     def patches(self, mocker):
