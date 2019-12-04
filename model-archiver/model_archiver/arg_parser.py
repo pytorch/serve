@@ -56,7 +56,6 @@ class ArgParser(object):
 
         parser_export.add_argument('--extra-files',
                                    required=False,
-                                   dest="handler",
                                    type=str,
                                    default=None,
                                    help='Comma separated path to extra dependency files.')
