@@ -3,9 +3,9 @@
 
 ## Prerequisites
 
-* **Python**: Required. Model Server for PyTorch (TS) works with Python 2 or 3.  When installing TS, we recommend that you use a Python and Conda environment to avoid conflicts with your other Torch or Open Neural Network Exchange (ONNX) installations.
+* **Python**: Required. Model Server for PyTorch (TS) works with Python 2 or 3.  When installing TS, we recommend that you use a Python and Conda environment to avoid conflicts with your other Torch installations.
 
-* **java 8**: Required. TS use java to serve HTTP requests. You must install java 8 (or later) and make sure java is on available in $PATH environment variable *before* installing TS. If you have multiple java installed, you can use $JAVA_HOME environment vairable to control which java to use.
+* **java 8**: Required. TS use java to serve HTTP requests. You must install java 8 (or later) and make sure java is on available in $PATH environment variable *before* installing TS. If you have multiple java installed, you can use $JAVA_HOME environment variable to control which java to use.
 
 For ubuntu:
 ```bash
