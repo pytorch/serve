@@ -105,7 +105,7 @@ class TsModelLoader(ModelLoader):
             # initialize model at load time
             entry_point(None, service.context)
         else:
-            from .utils import list_classes_from_module
+            from .utils.util import list_classes_from_module
             model_class_definitions = list_classes_from_module(module)
             if len(model_class_definitions) != 1:
                 raise ValueError("Expected only one class in custom service code or a function entry point {}".format(

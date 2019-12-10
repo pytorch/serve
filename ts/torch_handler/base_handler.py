@@ -42,7 +42,7 @@ class BaseHandler(abc.ABC):
                 raise RuntimeError("Missing the model.py file")
 
             import importlib
-            from ..utils import list_classes_from_module
+            from ..utils.util import list_classes_from_module
 
             module = importlib.import_module('model')
             model_class_definitions = list_classes_from_module(module)
