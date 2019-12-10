@@ -18,7 +18,7 @@ class BaseHandler(abc.ABC):
     def __init__(self):
         self.model = None
         self.mapping = None
-        self.device = "cpu"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.initialized = False
 
     def initialize(self, ctx):
