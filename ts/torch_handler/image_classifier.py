@@ -53,7 +53,7 @@ class ImageClassifier(BaseHandler):
         outputs = self.model.forward(inputs)
 
         ps = F.softmax(outputs, dim=1)
-        topk = ps.cpu().topk(topk)
+        topk = getattr(ps, self.device.type)().topk(topk)
 
         probs, classes = (e.data.numpy().squeeze().tolist() for e in topk)
 
