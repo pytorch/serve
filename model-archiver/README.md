@@ -25,11 +25,11 @@ The following information is required to create a standalone model archive:
 
 Now let's cover the details on using the CLI tool: `model-archiver`.
 
-Here is an example usage with the squeezenet_v1.1 model archive which you can download or create by following the example in the [main README](../README.md):
+Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](../examples/README.md):
 
 ```bash
 
-torch-model-archiver --model-name squeezenet_v1.1 --model-path squeezenet --handler mxnet_vision_service:handle
+torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
 
 ```
 
@@ -56,7 +56,9 @@ optional arguments:
                         in case of TorchScript.
   --model-file MODEL_FILE
                         Path to python file containing model architecture.
-                        This parameter is mandatory for eager mode models
+                        This parameter is mandatory for eager mode models.
+                        The model architecture file must contain only one
+                        class definition extended from torch.nn.modules.
   --handler HANDLER     Handler path to handle custom TS inference logic.
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.

@@ -45,7 +45,9 @@ class ArgParser(object):
                                    type=str,
                                    default=None,
                                    help='Path to python file containing model architecture.\n'
-                                        'This parameter is mandatory for eager mode models.')
+                                        'This parameter is mandatory for eager mode models.\n'
+                                        'The model architecture file must contain only one\n'
+                                        'class definition extended from torch.nn.modules.')
 
         parser_export.add_argument('--handler',
                                    required=False,
