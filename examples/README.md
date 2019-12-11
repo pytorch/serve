@@ -60,15 +60,30 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 #### TorchScript example using DenseNet161 image classifier:
 
-* Save the Densenet161 model in as an executable script module :
+* Save the Densenet161 model in as an executable script module or a traced script:
+
+1. Save model using scripting
 
     ```python
+    #scripted mode
     from torchvision import models
     import torch
     model = models.densenet161(pretrained=True)
     sm = torch.jit.script(model)
     sm.save("densenet161.pt")
     ```
+
+2. Save model using tracing
+    ```python
+    #traced mode
+    from torchvision import models
+    import torch
+    model = models.densenet161(pretrained=True)
+    example_input = torch.rand(1, 3, 224, 224)
+    traced_script_module = torch.jit.trace(model, example_input)
+    traced_script_module.save("dense161.pt")
+    ```  
+ 
 * Use following commands to register Densenet161 torchscript model on TS and run image prediction
 
     ```bash
@@ -78,3 +93,8 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
     curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/kitten.jpg
     ```
+#### TorchScript example using custom model and custom handler:
+
+Following example demonstrates how to create and serve a custom NN model with custom handler archives in TS :
+
+* [Digit recognition with MNIST](mnist)

@@ -17,52 +17,9 @@ For example, you want to make an app that lets your users snap a picture, and it
 
 Now that you have a high level view of TS, let's get a little into the weeds. TS takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TS supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
 
-To try out TS serving now, you can load the SqueezeNet model, which is under 5 MB, with this example:
+To try out TS serving now, you can load the custom MNIST model, with this example:
 
-```bash
-torchserve --start --models squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
-```
-
-With the command above executed, you have TS running on your host, listening for inference requests.
-
-To test it out, you will need to open a new terminal window next to the one running TS. Then we will use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for us. Then we will `curl` a `POST` to the TS predictions endpoint with the kitten's image. In the example below, both of these steps are provided.
-
-```bash
-curl -o kitten.jpg \
-  https://upload.wikimedia.org/wikipedia/commons/8/8f/Cute-kittens-12929201-1600-1200.jpg
-curl -X POST http://127.0.0.1:8080/predictions/squeezenet -T kitten.jpg
-```
-
-![kitten](https://upload.wikimedia.org/wikipedia/commons/8/8f/Cute-kittens-12929201-1600-1200.jpg)
-
-The predict endpoint will return a prediction response in JSON. Each of the probabilities are percentages, and the classes are coming from a `synset` file included inside the model archive which holds the thousand ImageNet classes this model is matching against. It will look something like the following result, where the 0.94 result is a 94% probable match with an Egyptian cat:
-
-
-```json
-[
-  {
-    "probability": 0.8582232594490051,
-    "class": "n02124075 Egyptian cat"
-  },
-  {
-    "probability": 0.09159987419843674,
-    "class": "n02123045 tabby, tabby cat"
-  },
-  {
-    "probability": 0.0374876894056797,
-    "class": "n02123159 tiger cat"
-  },
-  {
-    "probability": 0.006165083032101393,
-    "class": "n02128385 leopard, Panthera pardus"
-  },
-  {
-    "probability": 0.0031716004014015198,
-    "class": "n02127052 lynx, catamount"
-  }
-]
-```
-You will see this result in the response to your `curl` call to the predict endpoint, in the terminal window running TS and log files.
+* [Digit recognition with MNIST](../examples/mnist)
 
 After this deep dive, you might also be interested in:
 * [Logging](logging.md): logging options that are available
@@ -163,7 +120,7 @@ torchserve --start --model-store /models --models resnet-18=resnet-18.mar squeez
 If you don't have the model files locally, then you can call TS using URLs to the model files.
 
 ```bash
-torchserve --models resnet=https://s3.amazonaws.com/model-server/model_archive_1.0/resnet-18.mar squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
+torchserve --models resnet=https://<s3_path>/resnet-18.mar squeezenet=https://<s3_path>/squeezenet_v1.1.mar
 ```
 
 This will setup a local host serving resnet-18 model and squeezenet model on the same port, using the default 8080. Check http://127.0.0.1:8081/models to see that each model has an endpoint for prediction. In this case you would see `predictions/resnet` and `predictions/squeezenet`

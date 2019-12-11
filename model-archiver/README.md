@@ -157,4 +157,4 @@ For eagermode:
 torch-model-archiver --model-name densenet_161 --model-flie model.py --serialized-file model.pt
 ```
 
-This will package all the model artifacts files and output `squeezenet_v1.1.mar` in the current working directory. This `.mar` file is all you need to run TS, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!
+This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TS, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!

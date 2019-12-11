@@ -126,7 +126,7 @@ TS, identifies the entry point to the custom service, from the manifest file. Th
 The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables the create to an archive understood by TS.
 
 ```python
-model-archiver --model-name <model-name> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
+torch-model-archiver --model-name <model-name> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
 ```
 
 This will create file ```<model-name>.mar``` in the directory ```<output-dir>```
