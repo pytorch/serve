@@ -80,7 +80,7 @@ class TsModelLoader(ModelLoader):
             with open(manifest_file) as f:
                 manifest = json.load(f)
 
-        if ':' in handler:
+        if handler:
             temp = handler.split(":", 1)
             module_name = temp[0]
             function_name = None if len(temp) == 1 else temp[1]

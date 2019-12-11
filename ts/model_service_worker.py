@@ -143,9 +143,9 @@ class TorchModelServiceWorker(object):
 
 if __name__ == "__main__":
     # Remove ts dir from python path to avoid module name conflict.
-    mms_path = os.path.dirname(os.path.realpath(__file__))
-    while mms_path in sys.path:
-        sys.path.remove(mms_path)
+    ts_path = os.path.dirname(os.path.realpath(__file__))
+    while ts_path in sys.path:
+        sys.path.remove(ts_path)
 
     sock_type = None
     socket_name = None
