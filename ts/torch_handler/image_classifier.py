@@ -80,14 +80,17 @@ _service = ImageClassifier()
 
 
 def handle(data, context):
-    if not _service.initialized:
-        _service.initialize(context)
+    try:
+        if not _service.initialized:
+            _service.initialize(context)
 
-    if data is None:
-        return None
+        if data is None:
+            return None
 
-    data = _service.preprocess(data)
-    data = _service.inference(data)
-    data = _service.postprocess(data)
+        data = _service.preprocess(data)
+        data = _service.inference(data)
+        data = _service.postprocess(data)
 
-    return data
+        return data
+    except Exception as e:
+        raise Exception("Model not supported with the default torchserve handlers. Please provide a custom handler.")

@@ -176,8 +176,8 @@ class LegacyModelLoader(ModelLoader):
             raise ValueError("Unable to load module {}".format(service_file))
 
         from ts.model_service.model_service import SingleNodeService
-
-        model_class_definitions = ModelLoader.list_model_services(module, SingleNodeService)
+        from .utils.util import list_classes_from_module
+        model_class_definitions = list_classes_from_module(module, SingleNodeService)
         module_class = model_class_definitions[0]
 
         module = module_class(model_name, model_dir, manifest, gpu_id)
