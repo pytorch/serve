@@ -29,11 +29,11 @@ class MNISTDigitClassifier(object):
         model_dir = properties.get("model_dir")
 
         # Read model serialize/pt file
-        model_pt_path = os.path.join(model_dir, "model.pt")
+        model_pt_path = os.path.join(model_dir, "mnist_cnn.pt")
         # Read model definition file
-        model_def_path = os.path.join(model_dir, "model.py")
+        model_def_path = os.path.join(model_dir, "mnist.py")
         if not os.path.isfile(model_def_path):
-            raise RuntimeError("Missing the model.py file")
+            raise RuntimeError("Missing the model definition file")
 
         from mnist import Net
         state_dict = torch.load(model_pt_path, map_location=self.device)

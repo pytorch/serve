@@ -145,6 +145,15 @@ public class ModelServerTest {
         testDescribeApi(channel);
         testUnregisterModel(managementChannel);
         testLoadModel(managementChannel);
+        testLoadModelEager(managementChannel);
+        testLoadModelTorchScripted(managementChannel);
+        testLoadModelTorchTraced(managementChannel);
+        //testScaleModelEager(managementChannel);
+        //testScaleModelTorchScripted(managementChannel);
+        //testScaleModelTorchTraced(managementChannel);
+        //testPredictionsEager(channel);
+        //testPredictionsTorchScripted(channel);
+        //testPredictionsTorchTraced(channel);
         testSyncScaleModel(managementChannel);
         testScaleModel(managementChannel);
         testListModels(managementChannel);
@@ -260,6 +269,51 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getStatus(), "Model \"noop_v1.0\" registered");
     }
 
+    private void testLoadModelEager(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/models?url=noop.mar&model_name=mnist&runtime=python&synchronous=false");
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Model \"mnist\" registered");
+    }
+
+    private void testLoadModelTorchScripted(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/models?url=noop.mar&model_name=mnist_scripted&runtime=python&synchronous=false");
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Model \"mnist_scripted\" registered");
+    }
+
+    private void testLoadModelTorchTraced(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/models?url=noop.mar&model_name=mnist_traced&runtime=python&synchronous=false");
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Model \"mnist_traced\" registered");
+    }
+
     private void testLoadModelWithInitialWorkers(Channel channel) throws InterruptedException {
 
         result = null;
@@ -309,6 +363,46 @@ public class ModelServerTest {
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), "Processing worker updates...");
     }
+
+    private void testScaleModelEager(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.PUT, "/models/mnist?min_worker=1");
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Processing worker updates...");
+    }
+
+    private void testScaleModelTorchScripted(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.PUT, "/models/mnist_scripted?min_worker=1");
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Processing worker updates...");
+    }
+
+    private void testScaleModelTorchTraced(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.PUT, "/models/mnist_traced?min_worker=1");
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Processing worker updates...");
+    }
+
 
     private void testSyncScaleModel(Channel channel) throws InterruptedException {
         result = null;
@@ -369,6 +463,60 @@ public class ModelServerTest {
         DefaultFullHttpRequest req =
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        latch.await();
+        Assert.assertEquals(result, "OK");
+    }
+
+    private void testPredictionsEager(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/mnist");
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        latch.await();
+        Assert.assertEquals(result, "OK");
+    }
+
+    private void testPredictionsTorchScripted(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/mnist_scripted");
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        latch.await();
+        Assert.assertEquals(result, "OK");
+    }
+
+    private void testPredictionsTorchTraced(Channel channel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/mnist_traced");
         req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers()
