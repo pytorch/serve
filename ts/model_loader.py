@@ -88,7 +88,8 @@ class TsModelLoader(ModelLoader):
                 module_name = module_name[:-3]
             module_name = module_name.split("/")[-1]
             module = importlib.import_module(module_name)
-        except:
+        except Exception as e:
+            print(str(e))
             from ts.torch_handler import image_classifier
             module = image_classifier
             function_name = None

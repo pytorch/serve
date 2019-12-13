@@ -48,7 +48,7 @@ class BaseHandler(abc.ABC):
             import importlib
             from ..utils.util import list_classes_from_module
 
-            module = importlib.import_module('model')
+            module = importlib.import_module(model_file.split(".")[0])
             model_class_definitions = list_classes_from_module(module)
             if len(model_class_definitions) != 1:
                 raise ValueError("Expected only one class as model definition. {}".format(
