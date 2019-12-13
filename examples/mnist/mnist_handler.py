@@ -35,7 +35,7 @@ class MNISTDigitClassifier(object):
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
 
-        from model import Net
+        from mnist import Net
         state_dict = torch.load(model_pt_path, map_location=self.device)
         self.model = Net()
         self.model.load_state_dict(state_dict)

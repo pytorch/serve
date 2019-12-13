@@ -93,4 +93,5 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("Model not supported with the default torchserve handlers. Please provide a custom handler.")
+        raise Exception("Only image classification models are supported w/o a handler."
+                        " Please provide a custom handler in the model archive.")

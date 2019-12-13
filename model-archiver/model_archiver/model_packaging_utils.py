@@ -96,7 +96,8 @@ class ModelExportUtils(object):
 
     @staticmethod
     def generate_model(modelargs):
-        model = Model(model_name=modelargs.model_name, handler=modelargs.handler)
+        model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
+                      model_file=modelargs.model_file, handler=modelargs.handler)
         return model
 
     @staticmethod
@@ -135,13 +136,13 @@ class ModelExportUtils(object):
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
         ModelExportUtils.make_dir(model_path)
-        for filename, path in kwargs.items():
+        for file_type, path in kwargs.items():
             if path:
-                if filename == "extra_files":
+                if file_type == "extra_files":
                     for file in path.split(","):
                         shutil.copy(file, model_path)
                 else:
-                    shutil.copy(path, '{0}/{1}'.format(model_path, filename))
+                    shutil.copy(path, model_path)
 
         return model_path
 
@@ -268,7 +269,3 @@ class ModelExportUtils(object):
         if not os.path.isdir(os.path.abspath(export_path)):
             raise ModelArchiverError("Given export-path {} is not a directory. "
                                      "Point to a valid export-path directory.".format(export_path))
-
-
-if __name__ == "__main__":
-    ModelExportUtils.copy_artifacts('mera_model', '/Users/harsh_bafna/flower.jpg', '/Users/harsh_bafna/kitten.jpg')

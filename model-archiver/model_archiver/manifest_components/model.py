@@ -10,18 +10,25 @@ class Model(object):
     as the entry point into the service code through the handler property
     """
 
-    def __init__(self, model_name, handler=None, description=None, model_version=None, extensions=None):
+    def __init__(self, model_name, serialized_file, model_file=None, handler=None, description=None, model_version=None, extensions=None):
         self.model_name = model_name
+        self.serialized_file = serialized_file.split("/")[-1]
+        self.model_file = model_file.split("/")[-1]
         self.description = description
         self.model_version = model_version
         self.extensions = extensions
-        self.handler = handler
+        self.handler = handler.split("/")[-1]
         self.model_dict = self.__to_dict__()
 
     def __to_dict__(self):
         model_dict = dict()
 
         model_dict['modelName'] = self.model_name
+
+        model_dict['serializedFile'] = self.serialized_file
+
+        if self.model_file is not None:
+            model_dict['modelFile'] = self.model_file
 
         if self.handler is not None:
             model_dict['handler'] = self.handler
