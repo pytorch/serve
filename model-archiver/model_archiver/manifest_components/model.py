@@ -30,8 +30,7 @@ class Model(object):
         if self.model_file is not None:
             model_dict['modelFile'] = self.model_file
 
-        if self.handler is not None:
-            model_dict['handler'] = self.handler
+        model_dict['handler'] = self.handler if self.handler else ""
 
         if self.description is not None:
             model_dict['description'] = self.description
