@@ -145,15 +145,6 @@ public class ModelServerTest {
         testDescribeApi(channel);
         testUnregisterModel(managementChannel);
         testLoadModel(managementChannel);
-        testLoadModelEager(managementChannel);
-        testPredictionsEager(channel);
-        testUnregisterModelEager(managementChannel);
-        testLoadModelTorchScripted(managementChannel);
-        testPredictionsTorchScripted(channel);
-        testUnregisterModelTorchScripted(managementChannel);
-        testLoadModelTorchTraced(managementChannel);
-        testPredictionsTorchTraced(channel);
-        testUnregisterModelTorchTraced(managementChannel);
         testSyncScaleModel(managementChannel);
         testScaleModel(managementChannel);
         testListModels(managementChannel);
@@ -206,6 +197,45 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
+    }
+
+    @Test
+    public void testTS()
+            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
+                    IOException, NoSuchFieldException, IllegalAccessException {
+        Channel channel = null;
+        Channel managementChannel = null;
+        for (int i = 0; i < 5; ++i) {
+            channel = connect(false);
+            if (channel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            managementChannel = connect(true);
+            if (managementChannel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        Assert.assertNotNull(channel, "Failed to connect to inference port.");
+        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
+
+        testLoadModelEager(managementChannel);
+        testPredictionsEager(channel);
+        testUnregisterModelEager(managementChannel);
+        testLoadModelTorchScripted(managementChannel);
+        testPredictionsTorchScripted(channel);
+        testUnregisterModelTorchScripted(managementChannel);
+        testLoadModelTorchTraced(managementChannel);
+        testPredictionsTorchTraced(channel);
+        testUnregisterModelTorchTraced(managementChannel);
+
+        channel.close();
+        managementChannel.close();
     }
 
     private void testRoot(Channel channel, String expected) throws InterruptedException {
@@ -395,7 +425,8 @@ public class ModelServerTest {
         result = null;
         latch = new CountDownLatch(1);
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -407,7 +438,8 @@ public class ModelServerTest {
         result = null;
         latch = new CountDownLatch(1);
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist_scripted");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist_scripted");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -419,7 +451,8 @@ public class ModelServerTest {
         result = null;
         latch = new CountDownLatch(1);
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist_traced");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist_traced");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -486,7 +519,7 @@ public class ModelServerTest {
         channel.writeAndFlush(req);
 
         latch.await();
-        Assert.assertEquals(result, "0");
+        Assert.assertEquals(result, "OK");
     }
 
     private void testPredictionsTorchScripted(Channel channel) throws InterruptedException {
@@ -504,7 +537,7 @@ public class ModelServerTest {
         channel.writeAndFlush(req);
 
         latch.await();
-        Assert.assertEquals(result, "0");
+        Assert.assertEquals(result, "OK");
     }
 
     private void testPredictionsTorchTraced(Channel channel) throws InterruptedException {
@@ -522,7 +555,7 @@ public class ModelServerTest {
         channel.writeAndFlush(req);
 
         latch.await();
-        Assert.assertEquals(result, "0");
+        Assert.assertEquals(result, "OK");
     }
 
     private void testPredictionsJson(Channel channel) throws InterruptedException {
