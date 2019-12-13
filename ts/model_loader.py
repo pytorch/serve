@@ -80,7 +80,9 @@ class TsModelLoader(ModelLoader):
             with open(manifest_file) as f:
                 manifest = json.load(f)
 
-        if handler:
+        print("handler is : " + handler)
+
+        try:
             temp = handler.split(":", 1)
             module_name = temp[0]
             function_name = None if len(temp) == 1 else temp[1]
@@ -88,7 +90,7 @@ class TsModelLoader(ModelLoader):
                 module_name = module_name[:-3]
             module_name = module_name.split("/")[-1]
             module = importlib.import_module(module_name)
-        else:
+        except Exception as e:
             from ts.torch_handler import image_classifier
             module = image_classifier
             function_name = None

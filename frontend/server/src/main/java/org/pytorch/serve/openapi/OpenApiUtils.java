@@ -226,8 +226,7 @@ public final class OpenApiUtils {
     }
 
     private static Operation getListModelsOperation() {
-        Operation operation =
-                new Operation("listModels", "List registered models in TorchServe.");
+        Operation operation = new Operation("listModels", "List registered models in TorchServe.");
 
         operation.addParameter(
                 new QueryParameter(
@@ -273,8 +272,7 @@ public final class OpenApiUtils {
     }
 
     private static Operation getRegisterOperation() {
-        Operation operation =
-                new Operation("registerModel", "Register a new model in TorchServe.");
+        Operation operation = new Operation("registerModel", "Register a new model in TorchServe.");
 
         operation.addParameter(
                 new QueryParameter(
