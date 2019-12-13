@@ -197,7 +197,6 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
-        testInvalidModel();
     }
 
     private void testRoot(Channel channel, String expected) throws InterruptedException {
@@ -253,7 +252,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=noop-v1.0&model_name=noop_v1.0&runtime=python&synchronous=false");
+                        "/models?url=noop.mar&model_name=noop_v1.0&runtime=python&synchronous=false");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -269,7 +268,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=noop-v1.0&model_name=noop&initial_workers=1&synchronous=true");
+                        "/models?url=noop.mar&model_name=noop&initial_workers=1&synchronous=true");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -288,7 +287,7 @@ public class ModelServerTest {
         req.headers().add("Content-Type", "application/json");
         req.content()
                 .writeCharSequence(
-                        "{'url':'noop-v1.0', 'model_name':'noop', 'initial_workers':'1', 'synchronous':'true'}",
+                        "{'url':'noop.mar', 'model_name':'noop', 'initial_workers':'1', 'synchronous':'true'}",
                         CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         channel.writeAndFlush(req);
@@ -565,7 +564,7 @@ public class ModelServerTest {
     private void testModelRegisterWithDefaultWorkers(Channel mgmtChannel)
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         setConfiguration("default_workers_per_model", "1");
-        loadTests(mgmtChannel, "noop-v1.0", "noop_default_model_workers");
+        loadTests(mgmtChannel, "noop.mar", "noop_default_model_workers");
 
         result = null;
         latch = new CountDownLatch(1);
@@ -585,7 +584,7 @@ public class ModelServerTest {
     private void testPredictionsDecodeRequest(Channel inferChannel, Channel mgmtChannel)
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("decode_input_request", "true");
-        loadTests(mgmtChannel, "noop-v1.0-config-tests", "noop-config");
+        loadTests(mgmtChannel, "noop-v1.0-config-tests.mar", "noop-config");
 
         result = null;
         latch = new CountDownLatch(1);
@@ -607,7 +606,7 @@ public class ModelServerTest {
     private void testPredictionsDoNotDecodeRequest(Channel inferChannel, Channel mgmtChannel)
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("decode_input_request", "false");
-        loadTests(mgmtChannel, "noop-v1.0-config-tests", "noop-config");
+        loadTests(mgmtChannel, "noop-v1.0-config-tests.mar", "noop-config");
 
         result = null;
         latch = new CountDownLatch(1);
@@ -630,7 +629,7 @@ public class ModelServerTest {
             Channel inferChannel, Channel managementChannel)
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         setConfiguration("decode_input_request", "false");
-        loadTests(managementChannel, "respheader-test", "respheader");
+        loadTests(managementChannel, "respheader-test.mar", "respheader");
         result = null;
         latch = new CountDownLatch(1);
         DefaultFullHttpRequest req =
@@ -654,7 +653,7 @@ public class ModelServerTest {
     private void testPredictionsNoManifest(Channel inferChannel, Channel mgmtChannel)
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("default_service_handler", "service:handle");
-        loadTests(mgmtChannel, "noop-no-manifest", "nomanifest");
+        loadTests(mgmtChannel, "noop-no-manifest.mar", "nomanifest");
 
         result = null;
         latch = new CountDownLatch(1);
@@ -880,7 +879,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=noop-v1.0&model_name=noop_v1.0&runtime=python&synchronous=false");
+                        "/models?url=noop.mar&model_name=noop_v1.0&runtime=python&synchronous=false");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -888,7 +887,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=noop-v1.0&model_name=noop_v1.0&runtime=python&synchronous=false");
+                        "/models?url=noop.mar&model_name=noop_v1.0&runtime=python&synchronous=false");
         channel.writeAndFlush(req);
         channel.closeFuture().sync();
 
@@ -1041,7 +1040,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=init-error&model_name=init-error&synchronous=false");
+                        "/models?url=init-error.mar&model_name=init-error&synchronous=false");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -1065,51 +1064,6 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getMessage(), "Failed to start workers");
     }
 
-    private void testInvalidModel() throws InterruptedException {
-        Channel channel = connect(true);
-        Assert.assertNotNull(channel);
-
-        httpStatus = null;
-        result = null;
-        latch = new CountDownLatch(1);
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.POST,
-                        "/models?url=invalid&model_name=invalid&initial_workers=1&synchronous=true");
-        channel.writeAndFlush(req);
-        latch.await();
-
-        StatusResponse status = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(status.getStatus(), "Workers scaled");
-
-        channel.close();
-
-        channel = connect(false);
-        Assert.assertNotNull(channel);
-
-        result = null;
-        latch = new CountDownLatch(1);
-        req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/invalid");
-        req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
-        HttpUtil.setContentLength(req, req.content().readableBytes());
-        req.headers()
-                .set(
-                        HttpHeaderNames.CONTENT_TYPE,
-                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        channel.writeAndFlush(req);
-
-        latch.await();
-
-        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
-
-        Assert.assertEquals(httpStatus, HttpResponseStatus.SERVICE_UNAVAILABLE);
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.SERVICE_UNAVAILABLE.code());
-        Assert.assertEquals(resp.getMessage(), "Invalid model predict output");
-    }
-
     private void testLoadingMemoryError() throws InterruptedException {
         Channel channel = connect(true);
         Assert.assertNotNull(channel);
@@ -1119,7 +1073,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=loading-memory-error&model_name=memory_error&runtime=python&initial_workers=1&synchronous=true");
+                        "/models?url=loading-memory-error.mar&model_name=memory_error&runtime=python&initial_workers=1&synchronous=true");
         channel.writeAndFlush(req);
         latch.await();
 
@@ -1137,7 +1091,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=prediction-memory-error&model_name=pred-err&runtime=python&initial_workers=1&synchronous=true");
+                        "/models?url=prediction-memory-error.mar&model_name=pred-err&runtime=python&initial_workers=1&synchronous=true");
         channel.writeAndFlush(req);
         latch.await();
         Assert.assertEquals(httpStatus, HttpResponseStatus.OK);
@@ -1183,7 +1137,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=error_batch&model_name=err_batch&initial_workers=1&synchronous=true");
+                        "/models?url=error_batch.mar&model_name=err_batch&initial_workers=1&synchronous=true");
         channel.writeAndFlush(req);
         latch.await();
 

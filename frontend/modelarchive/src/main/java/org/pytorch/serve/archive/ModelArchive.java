@@ -2,13 +2,9 @@ package org.pytorch.serve.archive;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,13 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Enumeration;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,56 +70,7 @@ public class ModelArchive {
                 return load(url, unzipDir, true);
             }
         }
-        return load(url, modelLocation, false);
-    }
-
-    public static void migrate(File legacyModelFile, File destination)
-            throws InvalidModelException, IOException {
-        boolean failed = true;
-        try (ZipFile zip = new ZipFile(legacyModelFile);
-                ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destination))) {
-
-            ZipEntry manifestEntry = zip.getEntry(MANIFEST_FILE);
-            if (manifestEntry == null) {
-                throw new InvalidModelException("Missing manifest file in model archive.");
-            }
-
-            InputStream is = zip.getInputStream(manifestEntry);
-            Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-
-            JsonParser parser = new JsonParser();
-            JsonObject json = (JsonObject) parser.parse(reader);
-            JsonPrimitive version = json.getAsJsonPrimitive("specificationVersion");
-            Manifest manifest;
-            if (version != null && "1.0".equals(version.getAsString())) {
-                throw new InvalidModelException("model archive is already in 1.0 version.");
-            }
-
-            LegacyManifest legacyManifest = GSON.fromJson(json, LegacyManifest.class);
-            manifest = legacyManifest.migrate();
-
-            zos.putNextEntry(new ZipEntry("MAR-INF/"));
-            zos.putNextEntry(new ZipEntry("MAR-INF/" + MANIFEST_FILE));
-            zos.write(GSON.toJson(manifest).getBytes(StandardCharsets.UTF_8));
-
-            Enumeration<? extends ZipEntry> en = zip.entries();
-            while (en.hasMoreElements()) {
-                ZipEntry entry = en.nextElement();
-                String name = entry.getName();
-                if (MANIFEST_FILE.equalsIgnoreCase(name) || name.startsWith(".")) {
-                    continue;
-                }
-                zos.putNextEntry(new ZipEntry(name));
-                if (!entry.isDirectory()) {
-                    IOUtils.copy(zip.getInputStream(entry), zos);
-                }
-            }
-            failed = false;
-        } finally {
-            if (failed) {
-                FileUtils.deleteQuietly(destination);
-            }
-        }
+        throw new ModelNotFoundException("Model not found at: " + url);
     }
 
     private static File download(String path) throws ModelException, IOException {
@@ -177,32 +119,12 @@ public class ModelArchive {
         boolean failed = true;
         try {
             File manifestFile = new File(dir, "MAR-INF/" + MANIFEST_FILE);
-            Manifest manifest;
+            Manifest manifest = null;
             if (manifestFile.exists()) {
-                // Must be MMS 1.0 or later
                 manifest = readFile(manifestFile, Manifest.class);
             } else {
-                manifestFile = new File(dir, MANIFEST_FILE);
-                boolean nested = false;
-                if (!manifestFile.exists()) {
-                    // Found MANIFEST.json in top level;
-                    manifestFile = findFile(dir, MANIFEST_FILE, true); // for 0.1 model archive
-                    nested = true;
-                }
 
-                if (manifestFile == null) {
-                    // Must be 1.0
-                    manifest = new Manifest();
-                } else {
-                    // 0.1 model may have extra parent directory
-                    LegacyManifest legacyManifest = readFile(manifestFile, LegacyManifest.class);
-                    manifest = legacyManifest.migrate();
-                    File modelDir = manifestFile.getParentFile();
-                    if (extracted && nested) {
-                        // Move all file to top level, so we can clean up properly.
-                        moveToTopLevel(modelDir, dir);
-                    }
-                }
+                manifest = new Manifest();
             }
 
             failed = false;
@@ -220,37 +142,6 @@ public class ModelArchive {
             return GSON.fromJson(r, type);
         } catch (JsonParseException e) {
             throw new InvalidModelException("Failed to parse signature.json.", e);
-        }
-    }
-
-    private static File findFile(File dir, String fileName, boolean recursive) {
-        File[] list = dir.listFiles();
-        if (list == null) {
-            return null;
-        }
-        for (File file : list) {
-            if (recursive && file.isDirectory()) {
-                File f = findFile(file, fileName, false);
-                if (f != null) {
-                    return f;
-                }
-            } else if (file.getName().equalsIgnoreCase(fileName)) {
-                return file;
-            }
-        }
-        return null;
-    }
-
-    private static void moveToTopLevel(File from, File to) throws IOException {
-        File[] list = from.listFiles();
-        if (list != null) {
-            for (File file : list) {
-                if (file.isDirectory()) {
-                    FileUtils.moveDirectoryToDirectory(file, to, false);
-                } else {
-                    FileUtils.moveFileToDirectory(file, to, false);
-                }
-            }
         }
     }
 
