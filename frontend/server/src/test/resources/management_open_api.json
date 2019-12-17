@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Model Server APIs",
-    "description": "Model Server is a flexible and easy to use tool for serving deep learning models",
+    "title": "TorchServe APIs",
+    "description": "TorchServe is a flexible and easy to use tool for serving deep learning models",
     "version": "1.0.0"
   },
   "paths": {
@@ -71,13 +71,13 @@
     },
     "/models": {
       "get": {
-        "description": "List registered models in Model Server.",
+        "description": "List registered models in TorchServe.",
         "operationId": "listModels",
         "parameters": [
           {
             "in": "query",
             "name": "limit",
-            "description": "Use this parameter to specify the maximum number of items to return. When this value is present, Model Server does not return more than the specified number of items, but it might return fewer. This value is optional. If you include a value, it must be between 1 and 1000, inclusive. If you do not include a value, it defaults to 100.",
+            "description": "Use this parameter to specify the maximum number of items to return. When this value is present, TorchServe does not return more than the specified number of items, but it might return fewer. This value is optional. If you include a value, it must be between 1 and 1000, inclusive. If you do not include a value, it defaults to 100.",
             "required": false,
             "schema": {
               "type": "integer",
@@ -87,7 +87,7 @@
           {
             "in": "query",
             "name": "next_page_token",
-            "description": "The token to retrieve the next set of results. Model Server provides the token when the response from a previous call has more results than the maximum page size.",
+            "description": "The token to retrieve the next set of results. TorchServe provides the token when the response from a previous call has more results than the maximum page size.",
             "required": false,
             "schema": {
               "type": "string"
@@ -176,7 +176,7 @@
         }
       },
       "post": {
-        "description": "Register a new model in Model Server.",
+        "description": "Register a new model in TorchServe.",
         "operationId": "registerModel",
         "parameters": [
           {
@@ -243,7 +243,7 @@
           {
             "in": "query",
             "name": "response_timeout",
-            "description": "Maximum time, in seconds, the Model Server waits for a response from the model inference code, default: 120.",
+            "description": "Maximum time, in seconds, the TorchServe waits for a response from the model inference code, default: 120.",
             "required": false,
             "schema": {
               "type": "integer",
@@ -818,7 +818,7 @@
         }
       },
       "delete": {
-        "description": "Unregister a model from Model Server. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.",
+        "description": "Unregister a model from TorchServe. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.",
         "operationId": "unregisterModel",
         "parameters": [
           {

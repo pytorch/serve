@@ -1,0 +1,14 @@
+{
+  "Engine": {
+    "torch": "1.3.1"
+  },
+  "Model-Archive-Description": "dummy",
+  "License": "Apache 2.0",
+  "Model-Archive-Version": 0.1,
+  "Model-Server": 0.1,
+  "Model": {
+    "Description": "dummy model",
+    "Service": "dummy_model_service.py",
+    "Model-Name": "dummy"
+  }
+}

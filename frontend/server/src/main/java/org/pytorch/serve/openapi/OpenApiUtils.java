@@ -15,9 +15,9 @@ public final class OpenApiUtils {
     public static String listApis(ConnectorType type) {
         OpenApi openApi = new OpenApi();
         Info info = new Info();
-        info.setTitle("Model Server APIs");
+        info.setTitle("TorchServe APIs");
         info.setDescription(
-                "Model Server is a flexible and easy to use tool for serving deep learning models");
+                "TorchServe is a flexible and easy to use tool for serving deep learning models");
         info.setVersion("1.0.0");
         openApi.setInfo(info);
 
@@ -83,11 +83,11 @@ public final class OpenApiUtils {
     private static Path getPingPath() {
         Schema schema = new Schema("object");
         schema.addProperty(
-                "status", new Schema("string", "Overall status of the Model Server."), true);
+                "status", new Schema("string", "Overall status of the TorchServe."), true);
         MediaType mediaType = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
 
         Operation operation = new Operation("ping");
-        operation.addResponse(new Response("200", "Model server status", mediaType));
+        operation.addResponse(new Response("200", "TorchServe status", mediaType));
         operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
 
         Path path = new Path();
@@ -226,8 +226,7 @@ public final class OpenApiUtils {
     }
 
     private static Operation getListModelsOperation() {
-        Operation operation =
-                new Operation("listModels", "List registered models in Model Server.");
+        Operation operation = new Operation("listModels", "List registered models in TorchServe.");
 
         operation.addParameter(
                 new QueryParameter(
@@ -235,14 +234,14 @@ public final class OpenApiUtils {
                         "integer",
                         "100",
                         "Use this parameter to specify the maximum number of items to return. When"
-                                + " this value is present, Model Server does not return more than the specified"
+                                + " this value is present, TorchServe does not return more than the specified"
                                 + " number of items, but it might return fewer. This value is optional. If you"
                                 + " include a value, it must be between 1 and 1000, inclusive. If you do not"
                                 + " include a value, it defaults to 100."));
         operation.addParameter(
                 new QueryParameter(
                         "next_page_token",
-                        "The token to retrieve the next set of results. Model Server provides the"
+                        "The token to retrieve the next set of results. TorchServe provides the"
                                 + " token when the response from a previous call has more results than the"
                                 + " maximum page size."));
         operation.addParameter(
@@ -273,8 +272,7 @@ public final class OpenApiUtils {
     }
 
     private static Operation getRegisterOperation() {
-        Operation operation =
-                new Operation("registerModel", "Register a new model in Model Server.");
+        Operation operation = new Operation("registerModel", "Register a new model in TorchServe.");
 
         operation.addParameter(
                 new QueryParameter(
@@ -312,7 +310,7 @@ public final class OpenApiUtils {
                         "response_timeout",
                         "integer",
                         "2",
-                        "Maximum time, in seconds, the Model Server waits for a response from the model inference code, default: 120."));
+                        "Maximum time, in seconds, the TorchServe waits for a response from the model inference code, default: 120."));
         operation.addParameter(
                 new QueryParameter(
                         "initial_workers",
@@ -351,7 +349,7 @@ public final class OpenApiUtils {
         Operation operation =
                 new Operation(
                         "unregisterModel",
-                        "Unregister a model from Model Server. This is an asynchronous call by default."
+                        "Unregister a model from TorchServe. This is an asynchronous call by default."
                                 + " Caller can call listModels to confirm if all the works has be terminated.");
 
         operation.addParameter(new PathParameter("model_name", "Name of model to unregister."));

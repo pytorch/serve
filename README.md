@@ -92,7 +92,11 @@ For this quick start, we'll skip over most of the features, but be sure to take 
 
 Here is an easy example for serving an object classification model:
 ```bash
-torchserve --start --models squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
+wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+mkdir model_store
+mv densenet161.mar model_store/
+torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
 
 With the command above executed, you have TS running on your host, listening for inference requests. **Please note, that if you specify model(s) during TS start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TS start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
@@ -105,7 +109,7 @@ In the example below, we provide a shortcut for these steps.
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl -X POST http://127.0.0.1:8080/predictions/squeezenet -T kitten.jpg
+curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
 The predict endpoint will return a prediction response in JSON. It will look something like the following result:
@@ -168,3 +172,25 @@ Browse over to the [Docs readme](docs/README.md) for the full index of documenta
 We welcome all contributions!
 
 To file a bug or request a feature, please file a GitHub issue. Pull requests are welcome.
+
+## Experimental Release Roadmap
+
+Below, in order, is a prioritized list of tasks for this repository.
+
+### v0.1 Plan
+
+- [x] Port over MMS
+- [ ] CI (initially AWS CodeBuild)
+- [x] Default handler
+    - [x] Handle eager-mode and TorchScript (tracing and scripting)
+    - [x] Add zero-code pre and post-processing for Image Classification
+- [x] Basic examples
+    - [x] Eager-mode image classifier
+    - [x] TorchScript image classifier
+    - [x] Custom neural network 
+- [x] Basic docs (install, serve a model and use it for inference)
+
+### v0.2 Plan
+
+- [ ] Basic unit tests
+- [ ] Versioning

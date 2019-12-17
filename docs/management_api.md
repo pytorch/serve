@@ -30,7 +30,7 @@ Similar as [Inference API](inference_api.md), Management API also provide a [API
 * response_timeout - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
 
 ```bash
-curl -X POST "http://localhost:8081/models?url=https%3A%2F%2Fs3.amazonaws.com%2Fmodel-server%2Fmodel_archive_1.0%2Fsqueezenet_v1.1.mar"
+curl -X POST "http://localhost:8081/models?url=https://<s3_path>/squeezenet_v1.1.mar"
 
 {
   "status": "Model \"squeezenet_v1.1\" registered"
@@ -42,7 +42,7 @@ User may want to create workers while register, creating initial workers may tak
 The asynchronous call will return before trying to create workers with HTTP code 202:
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https%3A%2F%2Fs3.amazonaws.com%2Fmodel-server%2Fmodel_archive_1.0%2Fsqueezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_path>/squeezenet_v1.1.mar"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
@@ -58,7 +58,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=fals
 The synchronous call will return after all workers has be adjusted with HTTP code 200.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https%3A%2F%2Fs3.amazonaws.com%2Fmodel-server%2Fmodel_archive_1.0%2Fsqueezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/squeezenet_v1.1.mar"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
