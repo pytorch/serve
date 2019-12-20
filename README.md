@@ -138,24 +138,19 @@ The predict endpoint will return a prediction response in JSON. It will look som
 ```json
 [
   {
-    "probability": 0.8582232594490051,
-    "class": "n02124075 Egyptian cat"
+    "tiger_cat": 0.46933549642562866
   },
   {
-    "probability": 0.09159987419843674,
-    "class": "n02123045 tabby, tabby cat"
+    "tabby": 0.4633878469467163
   },
   {
-    "probability": 0.0374876894056797,
-    "class": "n02123159 tiger cat"
+    "Egyptian_cat": 0.06456148624420166
   },
   {
-    "probability": 0.006165083032101393,
-    "class": "n02128385 leopard, Panthera pardus"
+    "lynx": 0.0012828214094042778
   },
   {
-    "probability": 0.0031716004014015198,
-    "class": "n02127052 lynx, catamount"
+    "plastic_bag": 0.00023323034110944718
   }
 ]
 ```
