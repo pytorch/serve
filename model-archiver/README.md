@@ -2,6 +2,7 @@
 
 ## Contents of this Document
 * [Overview](#overview)
+* [Installation](#installation)
 * [Torch Model Archiver CLI](#torch-model-archiver-command-line-interface)
 * [Artifact Details](#artifact-details)
     * [MAR-INFO](#mar-inf)
@@ -20,6 +21,16 @@ The following information is required to create a standalone model archive:
 1. [Model name](#model-name)
 2. [Model file](#model-file)
 2. [Serialized file](#serialized-file)
+
+## Installation
+
+Install torch-model-archiver as follows:
+
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve/model-archiver
+pip install .
+```
 
 ## Torch Model Archiver Command Line Interface
 

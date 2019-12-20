@@ -45,7 +45,7 @@ Before proceeding further with this document, make sure you have the following p
 
 We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
 
-One option is to use Virtualenv. This is used to create virtual Python environments. You may install and activate a virtualenv for Python 2.7 as follows:
+* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 2.7 as follows:
 
 ```bash
 pip install virtualenv
@@ -53,13 +53,17 @@ pip install virtualenv
 
 Then create a virtual environment:
 ```bash
-# Assuming we want to run python2.7 in /usr/local/bin/python2.7
-virtualenv -p /usr/local/bin/python2.7 /tmp/pyenv2
+# Assuming we want to run python3.7 in /usr/local/bin/python3.7
+virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
 # Enter this virtual environment as follows
-source /tmp/pyenv2/bin/activate
+source /tmp/pyenv3/bin/activate
 ```
 
 Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
+
+* **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
+
+[Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
 
 **Step 2:** Install torch
 TS won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
@@ -68,18 +72,35 @@ TS won't install the PyTorch engine by default. If it isn't already installed in
 pip install torch torchvision
 ```
 
+For conda
+
+```bash
+conda install pytorch torchvision -c pytorch
+```
+
 **Step 3:** Install TorchServe as follows:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
 cd serve
-python setup.py install
+pip install .
 ```
 
 **Notes:**
-* A minimal version of `model-archiver` will be installed with TS as dependency. See [model-archiver](model-archiver/README.md) for more options and details.
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
+### Installing torch-model-archiver
+
+*Install torch-model-archiver as follows:
+
+```bash
+cd serve/model-archiver
+pip install .
+```
+
+**Note** 
+* Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TS installation.
+* See the [detailed documentation](model-archiver/README.md) page for more options and troubleshooting.
 ### Serve a Model
 
 Once installed, you can get TS model server up and running very quickly. Try out `--help` to see all the CLI options available.
