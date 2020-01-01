@@ -50,8 +50,20 @@ def generate_model_archive():
     Generate a model archive file
     :return:
     """
+    model_types = {
+        'text': ['text_classifier', 'language_translator'],
+        'vision': ['image_classifier', 'object_detector']
+    }
+
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
+
+    if args.model_type not in model_types.keys():
+        raise Exception("Invalid model type. Can be one of [text, vision]")
+    if args.model_sub_type not in model_types[args.model_type]:
+        raise Exception("Invalid subtype for {0} model type. Can be one of {1}".
+                        format(args.model_type, str(model_types[args.model_type])))
+
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)
 

@@ -90,8 +90,8 @@ class TsModelLoader(ModelLoader):
             module = importlib.import_module(module_name)
         except Exception as e:
             print(str(e))
-            from ts.torch_handler import text_classifier
-            module = text_classifier
+            model_name = ".{0}".format(manifest['model']['modelSubType'])
+            module = importlib.import_module(module_name, 'ts.torch_handler')
             function_name = None
 
         if module is None:

@@ -33,6 +33,24 @@ class ArgParser(object):
                                         'model-name.mar and saved in current working directory if no --export-path is\n'
                                         'specified, else it will be saved under the export path')
 
+        parser_export.add_argument('--model-type',
+                                   required=True,
+                                   type=str,
+                                   default=None,
+                                   help='Base model type.',
+                                   choices=['text', 'vision'])
+
+        parser_export.add_argument('--model-sub-type',
+                                   required=True,
+                                   type=str,
+                                   default=None,
+                                   help='For text models, subtype can be one of\n'
+                                        ' text_classifier or language_translator.\n'
+                                        'For vision models, subtype can be one of\n'
+                                        'image_classifier or object_detector',
+                                   choices=['text_classifier', 'language_translator', 'image_classifier',
+                                            'object_detector'])
+        
         parser_export.add_argument('--serialized-file',
                                    required=True,
                                    type=str,

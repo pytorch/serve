@@ -10,8 +10,11 @@ class Model(object):
     as the entry point into the service code through the handler property
     """
 
-    def __init__(self, model_name, serialized_file, model_file=None, handler=None, description=None, model_version=None, extensions=None):
+    def __init__(self, model_name, serialized_file, model_type, model_sub_type, model_file=None,
+                 handler=None, description=None, model_version=None, extensions=None,):
         self.model_name = model_name
+        self.model_type = model_type
+        self.model_sub_type = model_sub_type
         self.serialized_file = serialized_file.split("/")[-1]
         self.model_file = model_file
         self.description = description
@@ -24,6 +27,12 @@ class Model(object):
         model_dict = dict()
 
         model_dict['modelName'] = self.model_name
+
+        model_dict['serializedFile'] = self.serialized_file
+
+        model_dict['modelType'] = self.model_type
+
+        model_dict['modelSubType'] = self.model_sub_type
 
         model_dict['serializedFile'] = self.serialized_file
 
