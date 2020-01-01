@@ -7,10 +7,10 @@ from PIL import Image
 from torch.autograd import Variable
 from torchvision import transforms
 
-from .base_handler import BaseHandler
+from .vision_handler import VisionHandler
 
 
-class ImageClassifier(BaseHandler):
+class ImageClassifier(VisionHandler):
     """
     ImageClassifier handler class. This handler takes an image
     and returns the name of object in that image.
