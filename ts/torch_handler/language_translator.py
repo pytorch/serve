@@ -3,6 +3,7 @@ from torch.autograd import Variable
 from torchtext.data.utils import ngrams_iterator
 import torch
 
+
 class LanguageTranslator(TextHandler):
     """
     LanguageTranslator handler class. This handler takes a text (string)
@@ -24,13 +25,13 @@ class LanguageTranslator(TextHandler):
 
         ngrams = 2
 
-        #expand contraxtions
+        # expand contraxtions
         text = self._expand_contactions(text)
 
         # TODO : use spacy or torchtext's inbuilt tokenizer? `spacy` supports multiple languages.
         text = [tok.text for tok in self._tokenize(text)]
 
-        text = torch.tensor([self.dictionary[token] for token in ngrams_iterator(text, ngrams)])
+        text = torch.tensor([self.source_vocab[token] for token in ngrams_iterator(text, ngrams)])
 
         return text
 
@@ -47,7 +48,7 @@ class LanguageTranslator(TextHandler):
 
         if self.mapping:
             output = self.mapping[output]
-
+        # TODO : Add logic to convert output tensor back to source text.
         return [output]
 
     def postprocess(self, inference_output):

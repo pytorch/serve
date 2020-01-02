@@ -10,16 +10,18 @@ import torch
 class TextHandler(BaseHandler, ABC):
     def __init__(self):
         super(TextHandler, self).__init__()
-        self.dictionary = None
+        self.source_vocab = None
+        self.destination_vocab = None
         self.source_language = 'en'
         self.spacy_model = spacy.load(self.source_language)
 
     def initialize(self, ctx):
         super(TextHandler, self).initialize(ctx)
         self.initialized = False
-        vocab_file = self.manifest['model']['vocabFile']
         self.source_language = self.manifest['model']['source_language'] if 'source_language' in self.manifest['model'] else 'en'
-        self.dictionary = torch.load(vocab_file)
+        self.source_vocab = torch.load(self.manifest['model']['sourceVocabFile'])
+        if 'destinationVocabFile' in self.manifest['model']:
+            self.destination_vocab = torch.load(self.manifest['model']['destinationVocabFile'])
         self.initialized = True
 
     def _expand_contactions(self, text):
@@ -66,7 +68,7 @@ class TextHandler(BaseHandler, ABC):
         text = [tok.text for tok in tokens]
         filtered_sentence = []
         for word in text:
-            lexeme = self.spacy_model.vocab[word]
+            lexeme = self.source_vocab[word]
             if not lexeme.is_stop:
                 filtered_sentence.append(word)
         return " ".join(filtered_sentence)

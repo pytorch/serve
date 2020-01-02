@@ -41,16 +41,14 @@ class ArgParser(object):
                                    choices=['text', 'vision'])
 
         parser_export.add_argument('--model-sub-type',
-                                   required=True,
+                                   required=False,
                                    type=str,
                                    default=None,
                                    help='For text models, subtype can be one of\n'
                                         ' text_classifier or language_translator.\n'
                                         'For vision models, subtype can be one of\n'
-                                        'image_classifier or object_detector',
-                                   choices=['text_classifier', 'language_translator', 'image_classifier',
-                                            'object_detector'])
-        
+                                        'image_classifier or object_detector')
+
         parser_export.add_argument('--serialized-file',
                                    required=True,
                                    type=str,
@@ -73,6 +71,24 @@ class ArgParser(object):
                                    type=str,
                                    default=None,
                                    help='Handler path to handle custom TS inference logic.')
+
+        parser_export.add_argument('--source-language',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Source language code for text model')
+
+        parser_export.add_argument('--source-vocab',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Vocab file for destination language')
+
+        parser_export.add_argument('--destination-vocab',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Vocab file for destination language')
 
         parser_export.add_argument('--extra-files',
                                    required=False,

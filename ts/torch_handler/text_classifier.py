@@ -47,7 +47,7 @@ class TextClassifier(TextHandler):
         # TODO : use spacy or torchtext's inbuilt tokenizer? `spacy` supports multiple languages.
         text = [tok.text for tok in self._tokenize(text)]
 
-        text = torch.tensor([self.dictionary[token] for token in ngrams_iterator(text, ngrams)])
+        text = torch.tensor([self.source_vocab[token] for token in ngrams_iterator(text, ngrams)])
 
         return text
 
