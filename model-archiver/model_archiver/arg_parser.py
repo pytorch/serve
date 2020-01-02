@@ -33,22 +33,6 @@ class ArgParser(object):
                                         'model-name.mar and saved in current working directory if no --export-path is\n'
                                         'specified, else it will be saved under the export path')
 
-        parser_export.add_argument('--model-type',
-                                   required=True,
-                                   type=str,
-                                   default=None,
-                                   help='Base model type.',
-                                   choices=['text', 'vision'])
-
-        parser_export.add_argument('--model-sub-type',
-                                   required=False,
-                                   type=str,
-                                   default=None,
-                                   help='For text models, subtype can be one of\n'
-                                        ' text_classifier or language_translator.\n'
-                                        'For vision models, subtype can be one of\n'
-                                        'image_classifier or object_detector')
-
         parser_export.add_argument('--serialized-file',
                                    required=True,
                                    type=str,
@@ -66,23 +50,24 @@ class ArgParser(object):
                                         'class definition extended from torch.nn.modules.')
 
         parser_export.add_argument('--handler',
-                                   required=False,
+                                   required=True,
                                    dest="handler",
                                    type=str,
                                    default=None,
-                                   help='Handler path to handle custom TS inference logic.')
+                                   help="TorchServe's default handler name.\n"
+                                        " or handler python file path to handle custom TS inference logic.")
 
         parser_export.add_argument('--source-language',
                                    required=False,
                                    type=str,
                                    default=None,
-                                   help='Source language code for text model')
+                                   help='Source language code for text model. Refer documentation for language codes.')
 
         parser_export.add_argument('--source-vocab',
                                    required=False,
                                    type=str,
                                    default=None,
-                                   help='Vocab file for destination language')
+                                   help='Vocab file for source language')
 
         parser_export.add_argument('--destination-vocab',
                                    required=False,

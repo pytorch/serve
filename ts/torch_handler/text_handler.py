@@ -12,16 +12,17 @@ class TextHandler(BaseHandler, ABC):
         super(TextHandler, self).__init__()
         self.source_vocab = None
         self.destination_vocab = None
-        self.source_language = 'en'
-        self.spacy_model = spacy.load(self.source_language)
+        self.source_language = None
+        self.spacy_model = None
 
     def initialize(self, ctx):
         super(TextHandler, self).initialize(ctx)
         self.initialized = False
-        self.source_language = self.manifest['model']['source_language'] if 'source_language' in self.manifest['model'] else 'en'
-        self.source_vocab = torch.load(self.manifest['model']['sourceVocabFile'])
-        if 'destinationVocabFile' in self.manifest['model']:
-            self.destination_vocab = torch.load(self.manifest['model']['destinationVocabFile'])
+        self.source_language = self.manifest['model']['sourceLanguage'] if 'sourceLanguage' in self.manifest['model'] else 'en'
+        self.source_vocab = torch.load(self.manifest['model']['sourceVocab'])
+        self.spacy_model = spacy.load(self.source_language)
+        if 'destinationVocab' in self.manifest['model']:
+            self.destination_vocab = torch.load(self.manifest['model']['destinationVocab'])
         self.initialized = True
 
     def _expand_contactions(self, text):

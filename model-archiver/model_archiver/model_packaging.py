@@ -50,10 +50,12 @@ def generate_model_archive():
     Generate a model archive file
     :return:
     """
+
     model_handlers = {
-        'text': ['text_classifier', 'language_translator'],
-        'vision': ['image_classifier', 'object_detector'],
-        'audio': []
+        'text_classifier': 'text',
+        'language_translator':  'text',
+        'image_classifier': 'vision',
+        'object_detector': 'vision'
     }
 
     requires_destination_vocab = ['language_translator']
@@ -61,18 +63,15 @@ def generate_model_archive():
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
 
-    args_dict = vars(args)
-
-    subtype_not_present = 'model_sub_type' not in args_dict or \
-                          args_dict['model_sub_type'] not in model_handlers[args_dict['model_type']]
-
-    if args.model_type in model_handlers.keys():
-        if subtype_not_present and 'handler' not in args_dict:
-            raise Exception("Unsupported model subtype for {0} models. Can be one of {1}. Or provide a custom handler"
-                            .format(args['model_type'], str(model_handlers[args['model_type']])))
-
-        if args.model_sub_type in requires_destination_vocab and 'destination_vocab' not in vars(args):
-            raise Exception("Please provide the destination language vocab for {0} model.".format(args.model_sub_type))
+    if args.handler in model_handlers.keys():
+        if model_handlers[args.handler] == "text":
+            if not args.source_language:
+                raise Exception("Please provide the source language code for {0} model."
+                                " Refer documentation for language codes".format(args.handler))
+            if not args.source_vocab:
+                raise Exception("Please provide the source language vocab for {0} model.".format(args.handler))
+            if args.handler in requires_destination_vocab and not args.destination_vocab:
+                raise Exception("Please provide the destination language vocab for {0} model.".format(args.handler))
 
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)
