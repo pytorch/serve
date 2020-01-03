@@ -64,15 +64,5 @@ class TextHandler(BaseHandler, ABC):
                 filtered_tokens.append(token)
         return " ".join([tok.text for tok in filtered_tokens])
 
-    def _remove_stopwords(self, text):
-        tokens = self._tokenize(text)
-        text = [tok.text for tok in tokens]
-        filtered_sentence = []
-        for word in text:
-            lexeme = self.source_vocab[word]
-            if not lexeme.is_stop:
-                filtered_sentence.append(word)
-        return " ".join(filtered_sentence)
-
     def _tokenize(self, text):
         return self.spacy_model.tokenizer(text)

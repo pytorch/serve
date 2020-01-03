@@ -18,10 +18,11 @@ class TextClassifier(TextHandler):
          Normalizes the input text for PyTorch model,
          returns an Numpy array
         """
-
         text = data[0].get("data")
         if text is None:
             text = data[0].get("body")
+
+        text = text.decode('utf-8')
 
         ngrams = 2
 
@@ -34,9 +35,6 @@ class TextClassifier(TextHandler):
 
         # Strip all punctuation from each article
         text = self._remove_punctuations(text)
-
-        # remove the stopwords from input text
-        text = self._remove_stopwords(text)
 
         # remove accented characters
         text = self._remove_accented_characters(text)
@@ -58,12 +56,12 @@ class TextClassifier(TextHandler):
 
         self.model.eval()
         inputs = Variable(text).to(self.device)
-        output = self.model.forward(inputs)
+        output = self.model.forward(inputs, torch.tensor([0]))
 
         output = output.argmax(1).item() + 1
 
         if self.mapping:
-            output = self.mapping[output]
+            output = self.mapping[str(output)]
 
         return [output]
 
@@ -88,5 +86,4 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("The default handler could not classify the input text using the provided model."
-                        " Please provide a custom handler in the model archive.")
+        raise e
