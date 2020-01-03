@@ -7,8 +7,9 @@
 * [Artifact Details](#artifact-details)
     * [MAR-INFO](#mar-inf)
     * [Model name](#model-name)
-    * [Runtime](#runtime)
-    * [Handler](#handler)
+    * [Model File](#model-file)
+    * [Serialized File](#serialized-file)
+    * [handler](#handler)
 * [Quick Start: Creating a Model Archive](#creating-a-model-archive)
 
 ## Overview
@@ -40,7 +41,7 @@ Here is an example usage with the squeezenet_v1.1 model archive following the ex
 
 ```bash
 
-torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json --handler image_classifier
 
 ```
 
@@ -70,7 +71,8 @@ optional arguments:
                         This parameter is mandatory for eager mode models.
                         The model architecture file must contain only one
                         class definition extended from torch.nn.modules.
-  --handler HANDLER     Handler path to handle custom TS inference logic.
+  --handler HANDLER     TorchServe's default handler name  or handler python 
+                        file path to handle custom TS inference logic.
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.
   --runtime {python,python2,python3}
@@ -122,6 +124,13 @@ A model file should contain the model architecture. This file is mandatory in ca
 
 A serialized file (.pt or .pth) should be a checkpoint in case of torchscript and state_dict in case of eager mode.
 
+### Handler
+
+Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TS inference logic. TorchServe supports following handlers out or box:
+1. image_classifier
+2. object_detector
+3. text_classifier
+4. language_translator
 
 ## Creating a Model Archive
 

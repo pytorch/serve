@@ -6,8 +6,8 @@ import torch
 
 class LanguageTranslator(TextHandler):
     """
-    LanguageTranslator handler class. This handler takes a text (string)
-    as input and returns the translated text in destination based on the model.
+    LanguageTranslator handler class. This handler takes a text-file as input
+    and returns the translated text in destination language based on model.
     """
 
     def __init__(self):
@@ -22,6 +22,8 @@ class LanguageTranslator(TextHandler):
         text = data[0].get("data")
         if text is None:
             text = data[0].get("body")
+
+        text = text.decode('utf-8')
 
         ngrams = 2
 

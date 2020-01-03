@@ -54,7 +54,7 @@ class ArgParser(object):
                                    dest="handler",
                                    type=str,
                                    default=None,
-                                   help="TorchServe's default handler name.\n"
+                                   help="TorchServe's default handler name\n"
                                         " or handler python file path to handle custom TS inference logic.")
 
         parser_export.add_argument('--source-language',

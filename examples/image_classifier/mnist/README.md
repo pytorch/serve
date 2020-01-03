@@ -20,7 +20,7 @@ https://github.com/pytorch/examples/tree/master/mnist
  * Step - 4: Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name mnist --model-file serve/examples/mnist/mnist.py --serialized-file serve/examples/mnist/mnist_cnn.pt --handler serve/examples/mnist/mnist_handler.py
+    torch-model-archiver --model-name mnist --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler serve/examples/image_classifier/mnist/mnist_handler.py
     ```
    
  * Step - 5: Register the model on TS using the above model archive file and run digit recognition inference
@@ -29,6 +29,6 @@ https://github.com/pytorch/examples/tree/master/mnist
     mkdir model_store
     mv mnist.mar model_store/
     torchserve --start --model-store model_store --models mnist=mnist.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/mnist/test_data/0.jpg
+    curl -X POST http://127.0.0.1:8080/predictions/mnist -T serve/examples/image_classifier/mnist/test_data/0.jpg
     ```
 

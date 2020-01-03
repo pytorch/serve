@@ -19,7 +19,7 @@ Now that you have a high level view of TS, let's get a little into the weeds. TS
 
 To try out TS serving now, you can load the custom MNIST model, with this example:
 
-* [Digit recognition with MNIST](../examples/mnist)
+* [Digit recognition with MNIST](../examples/image_classifier/mnist)
 
 After this deep dive, you might also be interested in:
 * [Logging](logging.md): logging options that are available
