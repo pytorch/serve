@@ -28,7 +28,7 @@ def package_model(args, manifest):
         export_file_path = ModelExportUtils.check_mar_already_exists(model_name, export_file_path,
                                                                      args.force, args.archive_format)
 
-        # Step 2 : Copy all artifacts for temp directory
+        # Step 2 : Copy all artifacts to temp directory
         artifact_files = {'model_file': model_file, 'serialized_file': serialized_file, 'handler': handler,
                           'extra_files': extra_files}
 

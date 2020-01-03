@@ -1,0 +1,37 @@
+[
+  {
+    "name": "image_classifier_mar",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "image_classifier",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "iterations": 1,
+    "export-path": "/tmp/model"
+  },
+  {
+    "name": "text_classifier_mar",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "text_classifer",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "iterations": 1,
+    "export-path": "/tmp/model",
+    "source-language": "en",
+    "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt"
+  },
+  {
+    "name": "language_translator_mar",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "language_translator",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "iterations": 1,
+    "export-path": "/tmp/model",
+    "source-language": "en",
+    "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt",
+    "destination-vocab": "model_archiver/tests/integ_tests/resources/regular_model/destination_vocab.pt"
+  }
+]
