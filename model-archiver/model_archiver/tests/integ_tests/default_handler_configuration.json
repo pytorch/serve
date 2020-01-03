@@ -33,5 +33,43 @@
     "source-language": "en",
     "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt",
     "destination-vocab": "model_archiver/tests/integ_tests/resources/regular_model/destination_vocab.pt"
+  },
+  {
+    "name": "text_no_source_lang",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "text_classifier",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "iterations": 1,
+    "export-path": "/tmp/model",
+    "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt",
+    "expect-error": true
+  },
+  {
+    "name": "text_no_source_vocab",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "text_classifier",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "iterations": 1,
+    "export-path": "/tmp/model",
+    "source-language": "en",
+    "destination-vocab": "model_archiver/tests/integ_tests/resources/regular_model/destination_vocab.pt",
+    "expect-error": true
+  },
+  {
+    "name": "lang_translator_no_destination_vocab",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "language_translator",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "iterations": 1,
+    "export-path": "/tmp/model",
+    "source-language": "en",
+    "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt",
+    "expect-error": true
   }
 ]

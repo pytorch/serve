@@ -34,7 +34,7 @@ def run_test(test, cmd):
         try:
             subprocess.check_call(cmd, shell=True)
         except subprocess.CalledProcessError as exc:
-            if test.get("expectError") is not True:
+            if test.get("expect-error") is not True:
                 assert 0, "{}".format(exc.output)
             else:
                 return 0

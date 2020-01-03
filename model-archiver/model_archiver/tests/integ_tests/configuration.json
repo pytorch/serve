@@ -41,7 +41,7 @@
     "export-path": "/tmp/model",
     "archive-format": "default",
     "iterations": 2,
-    "expectError": true
+    "expect-error": true
   },
   {
     "name": "packaging_mar",
