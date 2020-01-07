@@ -1,0 +1,78 @@
+import io
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from torch.autograd import Variable
+from torchvision import transforms
+
+from .vision_handler import VisionHandler
+
+
+class ObjectDetector(VisionHandler):
+    """
+    ObjectDetector handler class. This handler takes an image
+    and returns list of detected classes and bounding boxes respectively
+    """
+
+    def __init__(self):
+        super(ObjectDetector, self).__init__()
+
+    def preprocess(self, data):
+        """
+         Scales, crops, and normalizes a image for a PyTorch model,
+         returns an Numpy array
+        """
+        image = data[0].get("data")
+        if image is None:
+            image = data[0].get("body")
+
+        my_preprocess = transforms.Compose([transforms.ToTensor()])
+        image = Image.open(io.BytesIO(image))
+        image = my_preprocess(image)
+        return image
+
+    def inference(self, img, threshold=0.5):
+        # Predict the classes and bounding boxes in an image using a trained deep learning model.
+
+        pred = self.model([img])  # Pass the image to the model
+        pred_class = [i for i in list(pred[0]['labels'].numpy())]  # Get the Prediction Score
+        pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())]  # Bounding boxes
+        pred_score = list(pred[0]['scores'].detach().numpy())
+        pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]  # Get list of index with score greater than threshold.
+        pred_boxes = pred_boxes[:pred_t + 1]
+        pred_class = pred_class[:pred_t + 1]
+        return [pred_class, pred_boxes]
+
+    def postprocess(self, inference_output):
+        pred_class = inference_output[0]
+        for i in range(len(pred_class)):
+            try:
+                if self.mapping:
+                    pred_class_names = [self.mapping['object_type_names'][i] for i in pred_class]  # Get the Prediction Score
+                    return [pred_class_names, inference_output[1]]
+                else:
+                    return inference_output
+            except Exception as e:
+                raise Exception('class list file should be json format - {"object_type_names":["person","car"...]}"')
+
+
+_service = ObjectDetector()
+
+
+def handle(data, context):
+    try:
+        if not _service.initialized:
+            _service.initialize(context)
+
+        if data is None:
+            return None
+
+        data = _service.preprocess(data)
+        data = _service.inference(data)
+        data = _service.postprocess(data)
+
+        return data
+    except Exception as e:
+        raise Exception("Please provide a custom handler in the model archive.")
