@@ -35,7 +35,7 @@ class ObjectDetector(VisionHandler):
 
     def inference(self, img, threshold=0.5):
         # Predict the classes and bounding boxes in an image using a trained deep learning model.
-
+        self.model.eval()
         pred = self.model([img])  # Pass the image to the model
         pred_class = [i for i in list(pred[0]['labels'].numpy())]  # Get the Prediction Score
         pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())]  # Bounding boxes
@@ -47,16 +47,17 @@ class ObjectDetector(VisionHandler):
 
     def postprocess(self, inference_output):
         pred_class = inference_output[0]
-        for i in range(len(pred_class)):
-            try:
-                if self.mapping:
-                    pred_class_names = [self.mapping['object_type_names'][i] for i in pred_class]  # Get the Prediction Score
-                    return [pred_class_names, inference_output[1]]
-                else:
-                    return inference_output
-            except Exception as e:
-                raise Exception('class list file should be json format - {"object_type_names":["person","car"...]}"')
+        try:
+            if self.mapping:
+                pred_class = [self.mapping['object_type_names'][i] for i in pred_class]  # Get the Prediction Score
 
+            retval = []
+            for idx, box in enumerate(inference_output[1]):
+                class_name = pred_class[idx]
+                retval.append({class_name: str(box)})
+            return [retval]
+        except Exception as e:
+            raise Exception('Object name list file should be json format - {"object_type_names":["person","car"...]}"')
 
 _service = ObjectDetector()
 
