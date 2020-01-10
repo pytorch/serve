@@ -1,38 +1,3 @@
-# TS Examples
-
-The following are examples on how to create and serve model archives with TS.
-
-#### Eager Mode 
-
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TS :
-    
-* Pre-requisites to create a torch model archive (.mar) :
-    * serialized-file (.pt) : This file represents the state_dict in case of eager mode model.
-    * model-file (.py) : This file contains model class extended from torch nn.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from torch.nn.modules
-    * index_to_name.json : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
-    * handler : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
-
-* Syntax
-
-    ```bash
-    torch-model-archiver --model-name <model_name> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --handler <path_to_custom_handler_or_default_handler_name> --extra-files <path_to_index_to_name_json_file>
-    ```
-  
-#### TorchScript Mode 
-
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TS :
-    
-* Pre-requisites to create a torch model archive (.mar) :
-    * serialized-file (.pt) : This file represents the state_dict in case of eager mode model or an executable ScriptModule in case of TorchScript. 
-    * index_to_name.json : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
-    * handler : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
-    
-* Syntax
-
-    ```bash
-    torch-model-archiver --model-name <model_name> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
-    ```  
-
 #### Eager Mode example using torchvision image classifiers:
 
 * TorchVision Image Classification Models : Download a pre-trained model state_dict for computer vision model that classifies images from the following :
@@ -58,7 +23,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
     curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/image_classifier/kitten.jpg
-    ```
+
 
 #### TorchScript example using DenseNet161 image classifier:
 
@@ -99,16 +64,4 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 Following example demonstrates how to create and serve a custom NN model with custom handler archives in TS :
 
-* [Digit recognition with MNIST](image_classifier/mnist)
-
-#### Text Classification Example
-
-Following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TS :
-
-* [Text classification example](text_classification)
-
-#### Object Detection Example
-
-Following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TS :
-
-* [Object_detection example](object_detector)
+* [Digit recognition with MNIST](mnist)
