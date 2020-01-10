@@ -56,25 +56,17 @@ def generate_model_archive():
 
     model_handlers = {
         'text_classifier': 'text',
-        'language_translator':  'text',
         'image_classifier': 'vision',
         'object_detector': 'vision'
     }
-
-    requires_destination_vocab = ['language_translator']
 
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
 
     if args.handler in model_handlers.keys():
         if model_handlers[args.handler] == "text":
-            if not args.source_language:
-                raise Exception("Please provide the source language code for {0} model."
-                                " Refer documentation for language codes".format(args.handler))
             if not args.source_vocab:
                 raise Exception("Please provide the source language vocab for {0} model.".format(args.handler))
-            if args.handler in requires_destination_vocab and not args.destination_vocab:
-                raise Exception("Please provide the destination language vocab for {0} model.".format(args.handler))
 
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)

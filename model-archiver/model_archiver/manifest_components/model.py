@@ -11,7 +11,7 @@ class Model(object):
     """
 
     def __init__(self, model_name, serialized_file, handler, model_file=None, description=None, model_version=None,
-                 extensions=None, source_language=None, source_vocab=None, destination_vocab=None):
+                 extensions=None, source_vocab=None):
         self.model_name = model_name
         self.serialized_file = serialized_file.split("/")[-1]
         self.model_file = model_file
@@ -19,9 +19,7 @@ class Model(object):
         self.model_version = model_version
         self.extensions = extensions
         self.handler = handler.split("/")[-1]
-        self.source_language = source_language
         self.source_vocab = source_vocab
-        self.destination_vocab = destination_vocab
         self.model_dict = self.__to_dict__()
 
     def __to_dict__(self):
@@ -33,14 +31,8 @@ class Model(object):
 
         model_dict['handler'] = self.handler
 
-        if self.source_language:
-            model_dict['sourceLanguage'] = self.source_language
-
         if self.source_vocab:
             model_dict['sourceVocab'] = self.source_vocab
-
-        if self.destination_vocab:
-            model_dict['destinationVocab'] = self.destination_vocab
 
         if self.model_file:
             model_dict['modelFile'] = self.model_file.split("/")[-1]

@@ -57,23 +57,11 @@ class ArgParser(object):
                                    help="TorchServe's default handler name\n"
                                         " or handler python file path to handle custom TS inference logic.")
 
-        parser_export.add_argument('--source-language',
-                                   required=False,
-                                   type=str,
-                                   default=None,
-                                   help='Source language code for text model. Refer documentation for language codes.')
-
         parser_export.add_argument('--source-vocab',
                                    required=False,
                                    type=str,
                                    default=None,
-                                   help='Vocab file for source language')
-
-        parser_export.add_argument('--destination-vocab',
-                                   required=False,
-                                   type=str,
-                                   default=None,
-                                   help='Vocab file for destination language')
+                                   help='Vocab file for source language. Required for text based models.')
 
         parser_export.add_argument('--extra-files',
                                    required=False,

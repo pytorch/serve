@@ -31,19 +31,17 @@ class TextClassifier(TextHandler):
 
         # Convert text to all lower case
         text = text.lower()
-        text = self._expand_contactions(text)
 
-        # Strip all punctuation from each article
-        text = self._remove_punctuations(text)
+        # expand contractions [like I'd -> I would, don't -> do not]
+        text = self._expand_conrtactions(text)
 
         # remove accented characters
         text = self._remove_accented_characters(text)
 
-        # remove accented characters
-        text = self._lemmatize_text(text)
+        # remove punctuations
+        text = self._remove_puncutation(text)
 
-        # TODO : use spacy or torchtext's inbuilt tokenizer? `spacy` supports multiple languages.
-        text = [tok.text for tok in self._tokenize(text)]
+        text = self._tokenize(text)
 
         text = torch.tensor([self.source_vocab[token] for token in ngrams_iterator(text, ngrams)])
 

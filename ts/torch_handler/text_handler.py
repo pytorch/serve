@@ -1,31 +1,26 @@
 from abc import ABC
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
+from torchtext.data.utils import get_tokenizer
 import re
-import spacy
-import unicodedata
+import string
 import torch
+import unicodedata
 
 
 class TextHandler(BaseHandler, ABC):
     def __init__(self):
         super(TextHandler, self).__init__()
         self.source_vocab = None
-        self.destination_vocab = None
-        self.source_language = None
-        self.spacy_model = None
+        self.tokenizer = get_tokenizer('basic_english')
 
     def initialize(self, ctx):
         super(TextHandler, self).initialize(ctx)
         self.initialized = False
-        self.source_language = self.manifest['model']['sourceLanguage'] if 'sourceLanguage' in self.manifest['model'] else 'en'
         self.source_vocab = torch.load(self.manifest['model']['sourceVocab'])
-        self.spacy_model = spacy.load(self.source_language)
-        if 'destinationVocab' in self.manifest['model']:
-            self.destination_vocab = torch.load(self.manifest['model']['destinationVocab'])
         self.initialized = True
 
-    def _expand_contactions(self, text):
+    def _expand_conrtactions(self, text):
         def expand_match(contraction):
             match = contraction.group(0)
             first_char = match[0]
@@ -34,21 +29,14 @@ class TextHandler(BaseHandler, ABC):
             expanded_contraction = first_char + expanded_contraction[1:]
             return expanded_contraction
 
-        if self.source_language == 'en':
-            contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTION_MAP.keys())),
-                                              flags=re.IGNORECASE | re.DOTALL)
-            text = contractions_pattern.sub(expand_match, text)
-            text = re.sub("'", "", text)
-        return text
-
-    def _lemmatize_text(self, text):
-        text = self._tokenize(text)
-        text = ' '.join([word.lemma_ if word.lemma_ != '-PRON-' else word.text for word in text])
+        contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTION_MAP.keys())),
+                                          flags=re.IGNORECASE | re.DOTALL)
+        text = contractions_pattern.sub(expand_match, text)
+        text = re.sub("'", "", text)
         return text
 
     def _remove_accented_characters(self, text):
-        if self.source_language == 'en':
-            text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8', 'ignore')
+        text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8', 'ignore')
         return text
 
     def _remove_html_tags(self, text):
@@ -56,13 +44,8 @@ class TextHandler(BaseHandler, ABC):
         clean_text = re.sub(cleanup_regex, '', text)
         return clean_text
 
-    def _remove_punctuations(self, text):
-        tokens = self._tokenize(text)
-        filtered_tokens = []
-        for token in tokens:
-            if not token.is_punct:
-                filtered_tokens.append(token)
-        return " ".join([tok.text for tok in filtered_tokens])
+    def _remove_puncutation(self, text):
+        return text.translate(str.maketrans('', '', string.punctuation))
 
     def _tokenize(self, text):
-        return self.spacy_model.tokenizer(text)
+        return self.tokenizer(text)
