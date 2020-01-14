@@ -8,7 +8,7 @@ https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
     wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
     ```
 
-* Create a model architecture file (model-file) based on selected model or use the sample provided with above examples.
+* Create a model archive file and serve the fcn model in TorchServe using below commands
 
 
     ```bash

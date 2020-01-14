@@ -8,7 +8,7 @@ https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
     wget https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
     ```
 
-* Create a model architecture file (model-file) based on selected model or use the sample provided with above examples.
+* Create a model archive file and serve the fastrcnn model in TorchServe using below commands
 
 
     ```bash
