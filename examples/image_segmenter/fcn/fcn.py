@@ -1,5 +1,6 @@
 from torch import nn
 
+
 class FCNHead(nn.Sequential):
     def __init__(self, in_channels, channels):
         inter_channels = in_channels // 4

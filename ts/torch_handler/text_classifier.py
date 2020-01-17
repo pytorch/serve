@@ -22,28 +22,21 @@ class TextClassifier(TextHandler):
             - remove accented characters
             - remove punctuations
         Converts the normalized text to tensor using the source_vocab.
-        Returns n Numpy array.
+        Returns a Numpy array.
         """
+        ngrams = 2
+
         text = data[0].get("data")
         if text is None:
             text = data[0].get("body")
-
         text = text.decode('utf-8')
 
-        ngrams = 2
-
         text = self._remove_html_tags(text)
-
         text = text.lower()
-
         text = self._expand_conrtactions(text)
-
         text = self._remove_accented_characters(text)
-
         text = self._remove_puncutation(text)
-
         text = self._tokenize(text)
-
         text = torch.tensor([self.source_vocab[token] for token in ngrams_iterator(text, ngrams)])
 
         return text
@@ -56,9 +49,7 @@ class TextClassifier(TextHandler):
         self.model.eval()
         inputs = Variable(text).to(self.device)
         output = self.model.forward(inputs, torch.tensor([0]))
-
         output = output.argmax(1).item() + 1
-
         if self.mapping:
             output = self.mapping[str(output)]
 

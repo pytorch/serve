@@ -1,14 +1,13 @@
-from collections import OrderedDict
-
-"""
-IntermediateLayerGetter is the direct copy of torchvision.models.segmentation/_utils/IntermediateLayerGetter.
-We had to copy here as it is a protected class.
-"""
 import torch
+from collections import OrderedDict
 from torch import nn
+
 
 class IntermediateLayerGetter(nn.ModuleDict):
     """
+    IntermediateLayerGetter is the direct copy of torchvision.models.segmentation/_utils/IntermediateLayerGetter.
+    We had to copy here as it is a protected class.
+
     Module wrapper that returns intermediate layers from a model
 
     It has a strong assumption that the modules have been registered
