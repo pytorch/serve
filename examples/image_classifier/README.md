@@ -30,7 +30,6 @@
 * Save the Densenet161 model in as an executable script module or a traced script:
 
 1. Save model using scripting
-
    ```python
    #scripted mode
    from torchvision import models

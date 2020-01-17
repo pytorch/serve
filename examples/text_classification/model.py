@@ -35,6 +35,5 @@ class TextSentiment(nn.Module):
             text: 1-D tensor representing a bag of text tensors
             offsets: a list of offsets to delimit the 1-D text tensor
                 into the individual sequences.
-
         """
         return self.fc(self.embedding(text, offsets))

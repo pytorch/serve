@@ -15,8 +15,14 @@ class TextClassifier(TextHandler):
 
     def preprocess(self, data):
         """
-         Normalizes the input text for PyTorch model,
-         returns an Numpy array
+        Normalizes the input text for PyTorch model using following basic cleanup operations :
+            - remove html tags
+            - lowercase all text
+            - expand contractions [like I'd -> I would, don't -> do not]
+            - remove accented characters
+            - remove punctuations
+        Converts the normalized text to tensor using the source_vocab.
+        Returns n Numpy array.
         """
         text = data[0].get("data")
         if text is None:
@@ -26,19 +32,14 @@ class TextClassifier(TextHandler):
 
         ngrams = 2
 
-        # remove html tags
         text = self._remove_html_tags(text)
 
-        # Convert text to all lower case
         text = text.lower()
 
-        # expand contractions [like I'd -> I would, don't -> do not]
         text = self._expand_conrtactions(text)
 
-        # remove accented characters
         text = self._remove_accented_characters(text)
 
-        # remove punctuations
         text = self._remove_puncutation(text)
 
         text = self._tokenize(text)

@@ -1,6 +1,5 @@
 import io
 from PIL import Image
-import torch
 from torchvision import transforms as T
 
 from .vision_handler import VisionHandler
@@ -9,8 +8,7 @@ from .vision_handler import VisionHandler
 class ImangeSegmenter(VisionHandler):
     """
     ImangeSegmentor handler class. This handler takes an image
-    and returns output shape as [CL H W], CL - number of classes, H - height and W - width
-    This handler can process FCN and DeepLab Segmentation models
+    and returns output shape as [CL H W], CL - number of classes, H - height and W - width.
     """
 
     def __init__(self):

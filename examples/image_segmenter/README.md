@@ -4,12 +4,11 @@
 
 https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
 
-    ```bash
-    wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
-    ```
+```bash
+wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
+```
 
 * Create a model archive file and serve the fcn model in TorchServe using below commands
-
 
     ```bash
     torch-model-archiver --model-name fcn_resnet_101 --model-file serve/examples/image_segmenter/fcn/model.py --serialized-file fcn_resnet101_coco-7ecb50ca.pth --handler image_segmenter --extra-files serve/examples/image_segmenter/fcn/fcn.py,serve/examples/image_segmenter/fcn/intermediate_layer_getter.py

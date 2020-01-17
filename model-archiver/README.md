@@ -134,7 +134,7 @@ Handler can be TorchServe's inbuilt handler name or path to a py to handle custo
 1. image_classifier
 2. object_detector
 3. text_classifier
-4. language_translator
+4. image_segmenter
 
 ## Creating a Model Archive
 
