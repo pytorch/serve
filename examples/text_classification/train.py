@@ -1,19 +1,12 @@
-import os
-import logging
 import argparse
-
-import torch
+import logging
+import os
 import sys
-
-from torchtext.datasets import text_classification
-from torch.utils.data import DataLoader
-
+import torch
 from model import TextSentiment
+from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
-
-r"""
-This file shows the training process of the text classification model.
-"""
+from torchtext.datasets import text_classification
 
 
 def generate_batch(batch):
@@ -41,14 +34,6 @@ def generate_batch(batch):
     offsets = torch.tensor(offsets[:-1]).cumsum(dim=0)
     text = torch.cat(text)
     return text, offsets, label
-
-
-r"""
-torch.utils.data.DataLoader is recommended for PyTorch users to load data.
-We use DataLoader here to load datasets and send it to the train_and_valid()
-and text() functions.
-
-"""
 
 
 def train_and_valid(lr_, sub_train_, sub_valid_):

@@ -4,8 +4,7 @@ import io
 from torchtext.utils import download_from_url, extract_archive, unicode_csv_reader
 from os import path
 from torchtext.datasets.text_classification import URLS
-from torchtext.data.functional import generate_sp_model, \
-    load_sp_model, sentencepiece_numericalizer
+from torchtext.data.functional import generate_sp_model, load_sp_model, sentencepiece_numericalizer
 from torchtext.datasets import text_classification
 
 
