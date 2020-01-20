@@ -219,6 +219,10 @@ public class ModelArchive {
     public String getModelName() {
         return manifest.getModel().getModelName();
     }
+    
+    public String getModelVersion() {
+        return manifest.getModel().getModelVersion();
+    }
 
     public void clean() {
         if (url != null && extracted) {
