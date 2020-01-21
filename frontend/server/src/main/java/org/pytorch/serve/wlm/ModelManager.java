@@ -238,9 +238,9 @@ public final class ModelManager {
                         numScaled += m.getValue().getDefaultModel().getMinWorkers();
                         numWorking +=
                                 wlm.getNumRunningWorkers(
-                                        m.getValue().getDefaultModel().getModelName());
+                                        m.getValue().getDefaultModel().getModelVersionName());
                     }
-
+                    System.out.println("Dhani" + String.valueOf(numWorking) + ":" + String.valueOf(numScaled));
                     if ((numWorking > 0) && (numWorking < numScaled)) {
                         response = "Partial Healthy";
                     } else if ((numWorking == 0) && (numScaled > 0)) {
@@ -281,9 +281,13 @@ public final class ModelManager {
         wlm.scheduleAsync(r);
     }
 
-    public boolean scaleRequestStatus(String modelName) {
-        Model model = ModelManager.getInstance().getModels().get(modelName);
-        int numWorkers = wlm.getNumRunningWorkers(modelName);
+    public boolean scaleRequestStatus(String modelName, String versionId) {
+        Model model = modelsNameMap.get(modelName).getVersionModel(versionId);
+        int numWorkers = 0;
+        
+        if(model != null) {
+         numWorkers = wlm.getNumRunningWorkers(model.getModelVersionName());
+        }
 
         return model == null || model.getMinWorkers() <= numWorkers;
     }
