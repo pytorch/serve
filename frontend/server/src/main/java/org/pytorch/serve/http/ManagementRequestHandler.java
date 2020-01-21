@@ -66,13 +66,19 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     }
                     throw new MethodNotAllowedException();
                 }
+                
+                String modelVersion= null;
+                if (segments.length == 4) {
+            		modelVersion = segments[3];
+            	}
 
                 if (HttpMethod.GET.equals(method)) {
                     handleDescribeModel(ctx, segments[2]);
                 } else if (HttpMethod.PUT.equals(method)) {
-                    handleScaleModel(ctx, decoder, segments[2]);
+                	
+                    handleScaleModel(ctx, decoder, segments[2], modelVersion);
                 } else if (HttpMethod.DELETE.equals(method)) {
-                    handleUnregisterModel(ctx, segments[2]);
+                    handleUnregisterModel(ctx, segments[2], modelVersion);
                 } else {
                     throw new MethodNotAllowedException();
                 }
@@ -84,7 +90,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
-                || ((segments.length == 2 || segments.length == 3) && segments[1].equals("models"))
+                || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
                 || endpointMap.containsKey(segments[1]);
     }
 
