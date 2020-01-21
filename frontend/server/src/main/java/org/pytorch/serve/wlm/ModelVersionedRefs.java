@@ -23,7 +23,7 @@ public final class ModelVersionedRefs {
         // TODO add exception handling for NumberFormatException
         Double vd = Double.valueOf(v);
         if (vd <= Double.valueOf("0.0")) {
-            throw new InvalidModelVersionException("Model Version is invalid: " + v);
+            throw new InvalidModelVersionException("Model version is invalid: " + v);
         }
     }
 
@@ -40,9 +40,12 @@ public final class ModelVersionedRefs {
      * @param versionId: String version ID from the manifest
      * @return None
      */
-    public void addVersionModel(Model model, String versionId)
-            throws InvalidModelVersionException, InvalidModelVersionException {
+    public void addVersionModel(Model model, String versionId) throws InvalidModelVersionException {
         logger.debug("Adding new version {} for model {}", versionId, model.getModelName());
+
+        if (versionId == null) {
+            throw new InvalidModelVersionException("Model version not found. ");
+        }
 
         validateVersionId(versionId);
         checkVersionCapacity();

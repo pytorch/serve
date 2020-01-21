@@ -292,7 +292,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         }
         future.thenApply(
                         v -> {
-                            boolean status = modelManager.scaleRequestStatus(modelName, modelVersion);
+                            boolean status =
+                                    modelManager.scaleRequestStatus(modelName, modelVersion);
                             if (HttpResponseStatus.OK.equals(v)) {
                                 if (status) {
                                     NettyUtils.sendJsonResponse(

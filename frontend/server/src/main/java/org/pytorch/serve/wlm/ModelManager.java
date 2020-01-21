@@ -216,7 +216,13 @@ public final class ModelManager {
     public boolean addJob(Job job) throws ModelNotFoundException {
         String modelName = job.getModelName();
         String versionId = job.getModelVersion();
-        Model model = modelsNameMap.get(modelName).getVersionModel(versionId);
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+
+        Model model = vmodel.getVersionModel(versionId);
+
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
@@ -240,7 +246,7 @@ public final class ModelManager {
                                 wlm.getNumRunningWorkers(
                                         m.getValue().getDefaultModel().getModelVersionName());
                     }
-                    System.out.println("Dhani" + String.valueOf(numWorking) + ":" + String.valueOf(numScaled));
+
                     if ((numWorking > 0) && (numWorking < numScaled)) {
                         response = "Partial Healthy";
                     } else if ((numWorking == 0) && (numScaled > 0)) {
@@ -284,9 +290,9 @@ public final class ModelManager {
     public boolean scaleRequestStatus(String modelName, String versionId) {
         Model model = modelsNameMap.get(modelName).getVersionModel(versionId);
         int numWorkers = 0;
-        
-        if(model != null) {
-         numWorkers = wlm.getNumRunningWorkers(model.getModelVersionName());
+
+        if (model != null) {
+            numWorkers = wlm.getNumRunningWorkers(model.getModelVersionName());
         }
 
         return model == null || model.getMinWorkers() <= numWorkers;
@@ -301,6 +307,10 @@ public final class ModelManager {
     }
 
     public Model getModel(String modelName, String versionId) {
-        return this.modelsNameMap.get(modelName).getVersionModel(versionId);
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            return null;
+        }
+        return vmodel.getVersionModel(versionId);
     }
 }
