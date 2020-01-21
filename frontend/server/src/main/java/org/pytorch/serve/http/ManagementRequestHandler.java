@@ -73,7 +73,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 }
 
                 if (HttpMethod.GET.equals(method)) {
-                    handleDescribeModel(ctx, segments[2]);
+                    handleDescribeModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.PUT.equals(method)) {
 
                     handleScaleModel(ctx, decoder, segments[2], modelVersion);
@@ -127,10 +127,11 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         NettyUtils.sendJsonResponse(ctx, list);
     }
 
-    private void handleDescribeModel(ChannelHandlerContext ctx, String modelName)
+    private void handleDescribeModel(
+            ChannelHandlerContext ctx, String modelName, String modelVersion)
             throws ModelNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
-        Model model = modelManager.getModels().get(modelName);
+        Model model = modelManager.getModel(modelName, modelVersion);
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
