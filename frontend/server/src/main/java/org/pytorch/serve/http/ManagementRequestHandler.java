@@ -216,19 +216,22 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         updateModelWorkers(
                 ctx,
                 modelName,
+                archive.getModelVersion(),
                 initialWorkers,
                 initialWorkers,
                 synchronous,
                 f -> {
-                    modelManager.unregisterModel(archive.getModelName());
+                    modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
                 });
     }
 
-    private void handleUnregisterModel(ChannelHandlerContext ctx, String modelName)
+    private void handleUnregisterModel(
+            ChannelHandlerContext ctx, String modelName, String modelVersion)
             throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
         ModelManager modelManager = ModelManager.getInstance();
-        HttpResponseStatus httpResponseStatus = modelManager.unregisterModel(modelName);
+        HttpResponseStatus httpResponseStatus =
+                modelManager.unregisterModel(modelName, modelVersion);
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
@@ -241,7 +244,10 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleScaleModel(
-            ChannelHandlerContext ctx, QueryStringDecoder decoder, String modelName)
+            ChannelHandlerContext ctx,
+            QueryStringDecoder decoder,
+            String modelName,
+            String modelVersion)
             throws ModelNotFoundException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
@@ -255,12 +261,13 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         if (!modelManager.getModels().containsKey(modelName)) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        updateModelWorkers(ctx, modelName, minWorkers, maxWorkers, synchronous, null);
+        updateModelWorkers(ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null);
     }
 
     private void updateModelWorkers(
             final ChannelHandlerContext ctx,
             final String modelName,
+            final String modelVersion,
             int minWorkers,
             int maxWorkers,
             boolean synchronous,
@@ -268,7 +275,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
         ModelManager modelManager = ModelManager.getInstance();
         CompletableFuture<HttpResponseStatus> future =
-                modelManager.updateModel(modelName, minWorkers, maxWorkers);
+                modelManager.updateModel(modelName, modelVersion, minWorkers, maxWorkers);
         if (!synchronous) {
             NettyUtils.sendJsonResponse(
                     ctx,

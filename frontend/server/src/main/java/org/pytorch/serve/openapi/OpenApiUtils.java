@@ -18,7 +18,7 @@ public final class OpenApiUtils {
         info.setTitle("TorchServe APIs");
         info.setDescription(
                 "TorchServe is a flexible and easy to use tool for serving deep learning models");
-        info.setVersion("1.0.0");
+        info.setVersion("0.1.0");
         openApi.setInfo(info);
 
         if (ConnectorType.BOTH.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {

@@ -187,7 +187,7 @@ public class ModelArchive {
                 throw new InvalidModelException("Model name is not defined.");
             }
 
-            if (model.getVersion() == null) {
+            if (model.getModelVersion() == null) {
                 throw new InvalidModelException("Model version is not defined.");
             }
 

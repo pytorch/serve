@@ -213,6 +213,7 @@ public class WorkerThread implements Runnable {
         }
 
         String modelName = model.getModelName();
+        String modelVersion = model.getVersion();
         setState(WorkerState.WORKER_STARTED, HttpResponseStatus.OK);
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -269,6 +270,7 @@ public class WorkerThread implements Runnable {
                                                 new Job(
                                                         null,
                                                         modelName,
+                                                        modelVersion,
                                                         WorkerCommands.LOAD,
                                                         input);
                                         model.addJob(workerId, job);

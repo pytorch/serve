@@ -190,7 +190,7 @@ public final class ModelManager {
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
 
-        return wlm.modelChanged(null);
+        return wlm.modelChanged(model);
     }
 
     public Map<String, Model> getModels() {
@@ -218,7 +218,7 @@ public final class ModelManager {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
 
-        if (wlm.hasNoWorker(modelName)) {
+        if (wlm.hasNoWorker(model.getModelVersionName())) {
             return false;
         }
 
