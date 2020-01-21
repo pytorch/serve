@@ -66,16 +66,16 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     }
                     throw new MethodNotAllowedException();
                 }
-                
-                String modelVersion= null;
+
+                String modelVersion = null;
                 if (segments.length == 4) {
-            		modelVersion = segments[3];
-            	}
+                    modelVersion = segments[3];
+                }
 
                 if (HttpMethod.GET.equals(method)) {
                     handleDescribeModel(ctx, segments[2]);
                 } else if (HttpMethod.PUT.equals(method)) {
-                	
+
                     handleScaleModel(ctx, decoder, segments[2], modelVersion);
                 } else if (HttpMethod.DELETE.equals(method)) {
                     handleUnregisterModel(ctx, segments[2], modelVersion);

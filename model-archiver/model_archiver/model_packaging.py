@@ -20,6 +20,7 @@ def package_model(args, manifest):
     handler = args.handler
     extra_files = args.extra_files
     export_file_path = args.export_path
+    model_version = args.version
     temp_files = []
 
     try:

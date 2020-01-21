@@ -22,8 +22,9 @@ public final class ModelVersionedRefs {
             throws InvalidModelVersionException, NumberFormatException {
         // TODO add exception handling for NumberFormatException
         Double vd = Double.valueOf(v);
-        if (vd <= Double.valueOf("0.0"))
+        if (vd <= Double.valueOf("0.0")) {
             throw new InvalidModelVersionException("Model Version is invalid: " + v);
+        }
     }
 
     private void checkVersionCapacity() {
@@ -46,9 +47,10 @@ public final class ModelVersionedRefs {
         validateVersionId(versionId);
         checkVersionCapacity();
 
-        if (this.modelsVersionMap.putIfAbsent(Double.valueOf(versionId), model) != null)
+        if (this.modelsVersionMap.putIfAbsent(Double.valueOf(versionId), model) != null) {
             throw new InvalidModelVersionException(
                     "Model " + model.getModelName() + " is already registered.");
+        }
 
         // TODO what if user wants to keep existing default as it is?
         this.setDefaultVersion(versionId);
@@ -72,8 +74,9 @@ public final class ModelVersionedRefs {
     public void setDefaultVersion(String versionId) throws InvalidModelVersionException {
         validateVersionId(versionId);
         Model model = this.modelsVersionMap.get(Double.valueOf(versionId));
-        if (model == null)
+        if (model == null) {
             throw new InvalidModelVersionException("Can't set default to: " + versionId);
+        }
 
         logger.debug("Setting default version to {} for model {}", versionId, model.getModelName());
         this.defaultVersion = Double.valueOf(versionId);
@@ -90,9 +93,14 @@ public final class ModelVersionedRefs {
      */
     public Model removeVersionModel(String versionId)
             throws InvalidModelVersionException, ModelNotFoundException {
-        // TODO Shall we set default model based on timestamp once default is removed?
-        validateVersionId(versionId);
-        if (this.defaultVersion.compareTo(Double.valueOf(versionId)) == 0) {
+        if (versionId == null) {
+            versionId = this.getDefaultVersion();
+        } else {
+            validateVersionId(versionId);
+        }
+
+        if (this.defaultVersion.compareTo(Double.valueOf(versionId)) == 0
+                && modelsVersionMap.size() > 1) {
             throw new InvalidModelVersionException(
                     String.format("Can't remove default version: %s", versionId));
         }
@@ -119,7 +127,9 @@ public final class ModelVersionedRefs {
         if (versionId != null) {
             validateVersionId(versionId);
             model = this.modelsVersionMap.get(Double.valueOf(versionId));
-        } else model = this.getDefaultModel();
+        } else {
+            model = this.getDefaultModel();
+        }
 
         return model;
     }

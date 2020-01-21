@@ -102,4 +102,10 @@ class ArgParser(object):
                                         'name as that provided in --model-name in the path specified by --export-path\n'
                                         'will overwritten')
 
+        parser_export.add_argument('-v','--version',
+                                   required=True,
+                                   type=str,
+                                   default=None,
+                                   help='Model version must be a valid non-negative floating point number')
+
         return parser_export

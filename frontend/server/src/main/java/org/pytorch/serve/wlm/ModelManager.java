@@ -85,7 +85,6 @@ public final class ModelManager {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
             }
-            modelName = archive.getModelName();
         } else {
             archive.getManifest().getModel().setModelName(modelName);
         }
@@ -156,23 +155,27 @@ public final class ModelManager {
             model.setMaxWorkers(0);
             CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model);
             httpResponseStatus = futureStatus.get();
+
+            // Only continue cleaning if resource cleaning succeeded
+            if (httpResponseStatus == HttpResponseStatus.OK) {
+                model.getModelArchive().clean();
+                startupModels.remove(modelName);
+                logger.info("Model {} unregistered.", modelName);
+            } else {
+                vmodel.addVersionModel(model, versionId);
+            }
+
+            if (vmodel.getAllVersions().size() == 0) {
+                modelsNameMap.remove(modelName);
+            }
+
         } catch (InvalidModelVersionException | ModelNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpResponseStatus.NOT_FOUND;
-
         } catch (ExecutionException | InterruptedException e1) {
 
             logger.warn("Process was interrupted while cleaning resources.");
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
-        }
-
-        // Only continue cleaning if resource cleaning succeeded
-        if (httpResponseStatus == HttpResponseStatus.OK) {
-            model.getModelArchive().clean();
-            startupModels.remove(modelName);
-            logger.info("Model {} unregistered.", modelName);
-        } else {
-            vmodel.addVersionModel(model, versionId);
         }
 
         return httpResponseStatus;
