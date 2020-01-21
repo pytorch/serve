@@ -292,4 +292,8 @@ public final class ModelManager {
     public Set<String> getStartupModels() {
         return startupModels;
     }
+
+    public Model getModel(String modelName, String versionId) {
+        return this.modelsNameMap.get(modelName).getVersionModel(versionId);
+    }
 }
