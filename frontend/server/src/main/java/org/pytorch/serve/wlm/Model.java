@@ -48,6 +48,14 @@ public class Model {
         return modelArchive.getModelName();
     }
 
+    public String getModelVersionName() {
+        return modelArchive.getModelName() + "_" + modelArchive.getModelVersion();
+    }
+
+    public String getVersion() {
+        return modelArchive.getModelVersion();
+    }
+
     public File getModelDir() {
         return modelArchive.getModelDir();
     }

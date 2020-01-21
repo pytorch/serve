@@ -1,6 +1,5 @@
 package org.pytorch.serve.http;
 
-
 public class InvalidModelVersionException extends IllegalArgumentException {
 
     private static final long serialVersionUID = 1L;
@@ -16,7 +15,8 @@ public class InvalidModelVersionException extends IllegalArgumentException {
     }
 
     /**
-     * Constructs an {@code InvalidModelVersionException} with the specified detail message and cause.
+     * Constructs an {@code InvalidModelVersionException} with the specified detail message and
+     * cause.
      *
      * <p>Note that the detail message associated with {@code cause} is <i>not</i> automatically
      * incorporated into this exception's detail message.

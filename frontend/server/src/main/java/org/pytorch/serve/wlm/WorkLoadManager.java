@@ -83,19 +83,21 @@ public class WorkLoadManager {
     }
 
     public CompletableFuture<HttpResponseStatus> modelChanged(Model model) {
-        synchronized (model.getModelName()) {
+        synchronized (model.getModelVersionName()) {
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
             List<WorkerThread> threads;
             if (minWorker == 0) {
-                threads = workers.remove(model.getModelName());
+                threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
                     return future;
                 }
             } else {
-                threads = workers.computeIfAbsent(model.getModelName(), k -> new ArrayList<>());
+                threads =
+                        workers.computeIfAbsent(
+                                model.getModelVersionName(), k -> new ArrayList<>());
             }
 
             int currentWorkers = threads.size();

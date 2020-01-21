@@ -148,6 +148,7 @@ public class Manifest {
     public static final class Model {
 
         private String modelName;
+        private String version;
         private String description;
         private String modelVersion;
         private Map<String, Object> extensions;
@@ -161,6 +162,14 @@ public class Manifest {
 
         public void setModelName(String modelName) {
             this.modelName = modelName;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
         }
 
         public String getDescription() {
