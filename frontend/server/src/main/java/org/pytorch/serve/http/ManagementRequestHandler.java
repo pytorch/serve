@@ -152,7 +152,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
 
-        List<WorkerThread> workers = modelManager.getWorkers(modelName);
+        List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
         for (WorkerThread worker : workers) {
             String workerId = worker.getWorkerId();
             long startTime = worker.getStartTime();
