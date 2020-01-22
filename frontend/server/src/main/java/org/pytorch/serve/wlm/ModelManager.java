@@ -16,7 +16,6 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
@@ -123,10 +122,10 @@ public final class ModelManager {
 
     private void createVersionedModel(Model model, String versionId) {
         // TODO Auto-generated method stub
-    	ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
-    	if (modelVersionRef == null) {
-    		modelVersionRef = new ModelVersionedRefs();
-    	}
+        ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
+        if (modelVersionRef == null) {
+            modelVersionRef = new ModelVersionedRefs();
+        }
         modelVersionRef.addVersionModel(model, versionId);
         modelsNameMap.putIfAbsent(model.getModelName(), modelVersionRef);
     }
@@ -174,6 +173,25 @@ public final class ModelManager {
         } catch (ExecutionException | InterruptedException e1) {
             logger.warn("Process was interrupted while cleaning resources.");
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return httpResponseStatus;
+    }
+
+    public HttpResponseStatus updateDefaultVersion(String modelName, String newModelVersion)
+            throws InvalidModelVersionException {
+        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            logger.warn("Model not found: " + modelName);
+            return HttpResponseStatus.NOT_FOUND;
+        }
+        try {
+            vmodel.setDefaultVersion(newModelVersion);
+        } catch (InvalidModelVersionException e) {
+            logger.warn(
+                    "Cannot set version {} to default for model {}", newModelVersion, modelName);
+            httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
 
         return httpResponseStatus;

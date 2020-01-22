@@ -75,8 +75,11 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 if (HttpMethod.GET.equals(method)) {
                     handleDescribeModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.PUT.equals(method)) {
-
-                    handleScaleModel(ctx, decoder, segments[2], modelVersion);
+                    if (segments.length == 5 && "set-default".equals(segments[3])) {
+                        setDefaultModelVersion(ctx, segments[2], segments[4]);
+                    } else {
+                        handleScaleModel(ctx, decoder, segments[2], modelVersion);
+                    }
                 } else if (HttpMethod.DELETE.equals(method)) {
                     handleUnregisterModel(ctx, segments[2], modelVersion);
                 } else {
@@ -91,6 +94,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
+                || (segments.length == 5 && segments[3].contentEquals("set-default"))
                 || endpointMap.containsKey(segments[1]);
     }
 
@@ -245,8 +249,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {
             throw new RequestTimeoutException("Timed out while cleaning resources: " + modelName);
-        }else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
-            throw new InternalServerException("Cannot remove default version " + modelVersion + " for model " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
+            throw new InternalServerException(
+                    "Cannot remove default version for model " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
@@ -338,5 +343,25 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             in = new RegisterModelRequest(decoder);
         }
         return in;
+    }
+
+    private void setDefaultModelVersion(
+            ChannelHandlerContext ctx, String modelName, String newModelVersion)
+            throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
+        ModelManager modelManager = ModelManager.getInstance();
+        HttpResponseStatus httpResponseStatus =
+                modelManager.updateDefaultVersion(modelName, newModelVersion);
+        if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
+            throw new InternalServerException(
+                    "Cannot remove default version " + newModelVersion + " for model " + modelName);
+        }
+        String msg =
+                "Default vesion succsesfully updated for model \""
+                        + modelName
+                        + "\" to \""
+                        + newModelVersion;
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 }
