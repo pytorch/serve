@@ -153,15 +153,20 @@ public final class ModelManager {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
+            System.out.println(model.toString());
             CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model);
             httpResponseStatus = futureStatus.get();
 
             // Only continue cleaning if resource cleaning succeeded
+
             if (httpResponseStatus == HttpResponseStatus.OK) {
                 model.getModelArchive().clean();
                 startupModels.remove(modelName);
                 logger.info("Model {} unregistered.", modelName);
             } else {
+                if (versionId == null) {
+                    versionId = vmodel.getDefaultVersion();
+                }
                 vmodel.addVersionModel(model, versionId);
             }
 
