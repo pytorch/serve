@@ -1,12 +1,10 @@
 
 
 import os
-import re
-
 import ts
 
 
-def test_mms_version():
+def test_ts_version():
     with open(os.path.join("ts", "version.py")) as f:
         exec(f.read(), globals())
 

@@ -3,10 +3,11 @@ import json
 import os
 import shutil
 import subprocess
-import requests
 
-DEFAULT_MODEL_PATH = "model_archiver/tests/integ_tests/resources/regular_model"
-DEFAULT_HANDLER = "service:handle"
+DEFAULT_MODEL_FILE = "model_archiver/tests/integ_tests/resources/regular_model/test_model.py"
+DEFAULT_SERIALIZED_FILE = "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt"
+DEFAULT_HANDLER = "model_archiver/tests/integ_tests/resources/regular_model/test_handler.py"
+DEFAULT_EXTRA_FILES = "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json"
 DEFAULT_RUNTIME = "python"
 DEFAULT_MODEL_NAME = "model"
 DEFAULT_EXPORT_PATH = "/tmp/model"
@@ -15,8 +16,10 @@ MANIFEST_FILE = "MAR-INF/MANIFEST.json"
 
 def update_tests(test):
     test["modelName"] = test.get("modelName", DEFAULT_MODEL_NAME)
-    test["modelPath"] = test.get("modelPath", DEFAULT_MODEL_PATH)
+    test["modelFile"] = test.get("modelPath", DEFAULT_MODEL_FILE)
+    test["modelSerializedFile"] = test.get("modelSerializedFile", DEFAULT_SERIALIZED_FILE)
     test["handler"] = test.get("handler", DEFAULT_HANDLER)
+    test["extraFiles"] = test.get("extraFiles", DEFAULT_EXTRA_FILES)
     test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
     test["exportPath"] = test.get("exportPath", DEFAULT_EXPORT_PATH)
     test["archiveFormat"] = test.get("archiveFormat", "default")
@@ -78,15 +81,13 @@ def validate_manifest_file(manifest, test):
     assert manifest.get("model").get("handler") == test.get("handler")
 
 
-def validate_files(file_list, prefix, regular):
+def validate_files(file_list, prefix):
     assert os.path.join(prefix, MANIFEST_FILE) in file_list
-    assert os.path.join(prefix, "service.py") in file_list
-
-    if regular:
-        assert os.path.join(prefix, "dummy-artifacts.txt") in file_list
-        assert os.path.join(prefix, "dir/1.py") in file_list
-    else:
-        assert os.path.join(prefix, "model.onnx") in file_list
+    assert os.path.join(prefix, "handler.py") in file_list
+    assert os.path.join(prefix, "model.py") in file_list
+    assert os.path.join(prefix, "model.pt") in file_list
+    assert os.path.join(prefix, "dummy-artifacts.txt") in file_list
+    assert os.path.join(prefix, "1.py") in file_list
 
 
 def validate_tar_archive(test_cfg):
@@ -95,7 +96,7 @@ def validate_tar_archive(test_cfg):
     f = tarfile.open(file_name, "r:gz")
     manifest = json.loads(f.extractfile(os.path.join(test_cfg.get("modelName"), MANIFEST_FILE)).read())
     validate_manifest_file(manifest, test_cfg)
-    validate_files(f.getnames(), test_cfg.get("modelName"), "regular_model" in test_cfg.get("modelPath"))
+    validate_files(f.getnames(), test_cfg.get("modelName"))
 
 
 def validate_noarchive_archive(test):
@@ -136,15 +137,19 @@ def test_model_archiver():
             delete_file_path(t.get("exportPath"))
             create_file_path(t.get("exportPath"))
             t = update_tests(t)
-            cmd = "model-archiver " \
+            cmd = "torch-model-archiver " \
                   "--model-name {} " \
-                  "--model-path {} " \
+                  "--model-file {} " \
+                  "--serialized-file {} " \
                   "--handler {} " \
+                  "--extra-files {} " \
                   "--runtime {} " \
                   "--export-path {} " \
                   "--archive-format {}".format(t.get("modelName"),
-                                               t.get("modelPath"),
+                                               t.get("modelFile"),
+                                               t.get("modelSerializedFile"),
                                                t.get("handler"),
+                                               t.get("extraFiles"),
                                                t.get("runtime"),
                                                t.get("exportPath"),
                                                t.get("archiveFormat"))

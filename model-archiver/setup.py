@@ -50,26 +50,19 @@ if __name__ == '__main__':
     requirements = ['future', 'enum-compat']
 
     setup(
-        name='model-archiver',
+        name='torch-model-archiver',
         version=version,
-        description='Model Archiver is used for creating archives of trained neural net models that can be consumed '
-                    'by MXNet-Model-Server inference',
+        description='Torch Model Archiver is used for creating archives of trained neural net models '
+                    'that can be consumed by TorchServe inference',
         long_description=pypi_description(),
-        author='MXNet SDK team',
-        author_email='noreply@amazon.com',
-        url='https://github.com/awslabs/mxnet-model-server/model-archiver/',
-        keywords='MXNet Model Archive Archiver MMS Server Serving Deep Learning Inference AI',
+        author='PyTorch Serving team',
+        author_email='noreply@noreply.com',
+        url='https://github.com/pytorch/serve/model-archiver/',
+        keywords='TorchServe Torch Model Archive Archiver TS Server Serving Deep Learning Inference AI',
         packages=pkgs,
         install_requires=requirements,
-        extras_require={
-            'mxnet-mkl': ['mxnet-mkl==1.3.1'],
-            'mxnet-cu90mkl': ['mxnet-cu90mkl==1.3.1'],
-            'mxnet-cu92mkl': ['mxnet-cu92mkl==1.3.1'],
-            'mxnet': ['mxnet==1.3.1'],
-            'onnx': ['onnx==1.1.1']
-        },
         entry_points={
-            'console_scripts': ['model-archiver=model_archiver.model_packaging:generate_model_archive']
+            'console_scripts': ['torch-model-archiver=model_archiver.model_packaging:generate_model_archive']
         },
         include_package_data=True,
         license='Apache License Version 2.0'

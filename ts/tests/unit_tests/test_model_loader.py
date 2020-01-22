@@ -14,6 +14,7 @@ from ts.model_loader import LegacyModelLoader
 from ts.model_loader import TsModelLoader
 from ts.model_loader import ModelLoaderFactory
 from ts.model_service.model_service import SingleNodeService
+from ts.utils.util import list_classes_from_module
 
 
 # noinspection PyClassHasNoInit
@@ -37,18 +38,16 @@ class TestModelFactory:
 class TestListModels:
 
     def test_list_models_legacy(self):
-        model_loader = ModelLoaderFactory.get_model_loader("legacy_mms")
         sys.path.append(os.path.abspath('ts/tests/unit_tests/model_service/dummy_model'))
         module = importlib.import_module('dummy_model_service')
-        classes = model_loader.list_model_services(module, SingleNodeService)
+        classes = list_classes_from_module(module, SingleNodeService)
         assert len(classes) == 1
         assert issubclass(classes[0], SingleNodeService)
 
     def test_list_models(self):
-        model_loader = ModelLoaderFactory.get_model_loader("ts")
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         module = importlib.import_module('dummy_class_model_service')
-        classes = model_loader.list_model_services(module)
+        classes = list_classes_from_module(module)
         assert len(classes) == 1
         assert classes[0].__name__ == 'CustomService'
 

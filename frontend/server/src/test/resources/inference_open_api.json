@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Model Server APIs",
-    "description": "Model Server is a flexible and easy to use tool for serving deep learning models",
+    "title": "TorchServe APIs",
+    "description": "TorchServe is a flexible and easy to use tool for serving deep learning models",
     "version": "1.0.0"
   },
   "paths": {
@@ -205,7 +205,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Model server status",
+            "description": "TorchServe status",
             "content": {
               "application/json": {
                 "schema": {
@@ -216,7 +216,7 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "description": "Overall status of the Model Server."
+                      "description": "Overall status of the TorchServe."
                     }
                   }
                 }

@@ -12,8 +12,6 @@ class RuntimeType(Enum):
     PYTHON2 = "python2"
     PYTHON3 = "python3"
 
-    # TODO : Add more runtimes here when we support more runtimes such as Java/Go/Scala etc..
-
 
 class Manifest(object):
     """

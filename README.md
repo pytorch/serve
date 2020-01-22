@@ -45,7 +45,7 @@ Before proceeding further with this document, make sure you have the following p
 
 We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
 
-One option is to use Virtualenv. This is used to create virtual Python environments. You may install and activate a virtualenv for Python 2.7 as follows:
+* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 2.7 as follows:
 
 ```bash
 pip install virtualenv
@@ -53,13 +53,17 @@ pip install virtualenv
 
 Then create a virtual environment:
 ```bash
-# Assuming we want to run python2.7 in /usr/local/bin/python2.7
-virtualenv -p /usr/local/bin/python2.7 /tmp/pyenv2
+# Assuming we want to run python3.7 in /usr/local/bin/python3.7
+virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
 # Enter this virtual environment as follows
-source /tmp/pyenv2/bin/activate
+source /tmp/pyenv3/bin/activate
 ```
 
 Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
+
+* **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
+
+[Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
 
 **Step 2:** Install torch
 TS won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
@@ -68,18 +72,35 @@ TS won't install the PyTorch engine by default. If it isn't already installed in
 pip install torch torchvision
 ```
 
+For conda
+
+```bash
+conda install pytorch torchvision -c pytorch
+```
+
 **Step 3:** Install TorchServe as follows:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
 cd serve
-python setup.py install
+pip install .
 ```
 
 **Notes:**
-* A minimal version of `model-archiver` will be installed with TS as dependency. See [model-archiver](model-archiver/README.md) for more options and details.
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
+### Installing torch-model-archiver
+
+*Install torch-model-archiver as follows:
+
+```bash
+cd serve/model-archiver
+pip install .
+```
+
+**Note** 
+* Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TS installation.
+* See the [detailed documentation](model-archiver/README.md) page for more options and troubleshooting.
 ### Serve a Model
 
 Once installed, you can get TS model server up and running very quickly. Try out `--help` to see all the CLI options available.
@@ -92,7 +113,11 @@ For this quick start, we'll skip over most of the features, but be sure to take 
 
 Here is an easy example for serving an object classification model:
 ```bash
-torchserve --start --models squeezenet=https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar
+wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+mkdir model_store
+mv densenet161.mar model_store/
+torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
 
 With the command above executed, you have TS running on your host, listening for inference requests. **Please note, that if you specify model(s) during TS start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TS start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
@@ -105,7 +130,7 @@ In the example below, we provide a shortcut for these steps.
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl -X POST http://127.0.0.1:8080/predictions/squeezenet -T kitten.jpg
+curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
 The predict endpoint will return a prediction response in JSON. It will look something like the following result:
@@ -113,24 +138,19 @@ The predict endpoint will return a prediction response in JSON. It will look som
 ```json
 [
   {
-    "probability": 0.8582232594490051,
-    "class": "n02124075 Egyptian cat"
+    "tiger_cat": 0.46933549642562866
   },
   {
-    "probability": 0.09159987419843674,
-    "class": "n02123045 tabby, tabby cat"
+    "tabby": 0.4633878469467163
   },
   {
-    "probability": 0.0374876894056797,
-    "class": "n02123159 tiger cat"
+    "Egyptian_cat": 0.06456148624420166
   },
   {
-    "probability": 0.006165083032101393,
-    "class": "n02128385 leopard, Panthera pardus"
+    "lynx": 0.0012828214094042778
   },
   {
-    "probability": 0.0031716004014015198,
-    "class": "n02127052 lynx, catamount"
+    "plastic_bag": 0.00023323034110944718
   }
 ]
 ```
@@ -168,3 +188,25 @@ Browse over to the [Docs readme](docs/README.md) for the full index of documenta
 We welcome all contributions!
 
 To file a bug or request a feature, please file a GitHub issue. Pull requests are welcome.
+
+## Experimental Release Roadmap
+
+Below, in order, is a prioritized list of tasks for this repository.
+
+### v0.1 Plan
+
+- [x] Port over MMS
+- [ ] CI (initially AWS CodeBuild)
+- [x] Default handler
+    - [x] Handle eager-mode and TorchScript (tracing and scripting)
+    - [x] Add zero-code pre and post-processing for Image Classification
+- [x] Basic examples
+    - [x] Eager-mode image classifier
+    - [x] TorchScript image classifier
+    - [x] Custom neural network 
+- [x] Basic docs (install, serve a model and use it for inference)
+
+### v0.2 Plan
+
+- [ ] Basic unit tests
+- [ ] Versioning

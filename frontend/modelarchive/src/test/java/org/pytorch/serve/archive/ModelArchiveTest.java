@@ -21,40 +21,45 @@ public class ModelArchiveTest {
         FileUtils.deleteQuietly(new File(tmp, "models"));
     }
 
-    @Test
+    @Test(expectedExceptions = ModelNotFoundException.class)
     public void test() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
 
-        // load 1.0 model from model folder
-        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop-v1.0");
+        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
+        archive.validate();
+        archive.clean();
         Assert.assertEquals(archive.getModelName(), "noop");
 
-        // load 1.0 model from model archive
-        File src = new File(modelStore, "noop-v1.0");
-        File target = new File("build/tmp/test", "noop-v1.0.mar");
-        ZipUtils.zip(src, target, false);
-        archive = ModelArchive.downloadModel("build/tmp/test", "noop-v1.0.mar");
-        Assert.assertEquals(archive.getModelName(), "noop");
-
-        // load model for s3
+        // load model for s3 --> This will fail as this model is not compatible with
+        // new implementation.
+        // TODO Change this once we have example models on s3
         archive =
                 ModelArchive.downloadModel(
                         modelStore,
                         "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
-        Assert.assertEquals(archive.getModelName(), "squeezenet_v1.1");
+        Assert.assertEquals(archive.getModelName(), null);
 
-        // test export
-        String[] args = new String[4];
-        args[0] = "export";
-        args[1] = "--model-name=noop";
-        args[2] = "--model-path=" + archive.getModelDir();
-        args[3] = "--output-file=" + output.getAbsolutePath();
+        ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
+    }
 
-        Exporter.main(args);
-        Assert.assertTrue(output.exists());
+    @Test(expectedExceptions = DownloadModelException.class)
+    public void testInvalidURL() throws ModelException, IOException {
+        String modelStore = "src/test/resources/models";
+        // load model for s3 --> This will fail as this model is not compatible with
+        // new implementation.
+        // TODO Change this once we have example models on s3
+        ModelArchive.downloadModel(
+                modelStore,
+                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
+    }
 
-        // load 1.0 model
-        archive = ModelArchive.downloadModel(modelStore, "noop-v1.0");
-        Assert.assertEquals(archive.getModelName(), "noop");
+    @Test(expectedExceptions = DownloadModelException.class)
+    public void testMalformURL() throws ModelException, IOException {
+        String modelStore = "src/test/resources/models";
+        // load model for s3 --> This will fail as this model is not compatible with
+        // new implementation.
+        // TODO Change this once we have example models on s3
+        ModelArchive.downloadModel(
+                modelStore, "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
 }

@@ -1,8 +1,7 @@
 
 
 """
-This module parses the arguments given through the mxnet-model-server command-line. This is used by model-server
-at runtime.
+This module parses the arguments given through the torch-model-archiver command-line.
 """
 
 import argparse
@@ -14,17 +13,16 @@ from .manifest_components.manifest import RuntimeType
 class ArgParser(object):
 
     """
-    Argument parser for model-export-tool commands
-    More detailed example is available at https://github.com/awslabs/mxnet-model-server/blob/master/README.md
+    Argument parser for torch-model-archiver commands
     """
 
     @staticmethod
     def export_model_args_parser():
 
-        """ Argument parser for mxnet-model-export
+        """ Argument parser for torch-model-export
         """
 
-        parser_export = argparse.ArgumentParser(prog='model-archiver', description='Model Archiver Tool',
+        parser_export = argparse.ArgumentParser(prog='torch-model-archiver', description='Torch Model Archiver Tool',
                                                 formatter_class=argparse.RawTextHelpFormatter)
 
         parser_export.add_argument('--model-name',
@@ -35,18 +33,34 @@ class ArgParser(object):
                                         'model-name.mar and saved in current working directory if no --export-path is\n'
                                         'specified, else it will be saved under the export path')
 
-        parser_export.add_argument('--model-path',
+        parser_export.add_argument('--serialized-file',
                                    required=True,
                                    type=str,
                                    default=None,
-                                   help='Path to the folder containing model related files.')
+                                   help='Path to .pt or .pth file containing state_dict in case of eager mode\n'
+                                        'or an executable ScriptModule in case of TorchScript.')
+
+        parser_export.add_argument('--model-file',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Path to python file containing model architecture.\n'
+                                        'This parameter is mandatory for eager mode models.\n'
+                                        'The model architecture file must contain only one\n'
+                                        'class definition extended from torch.nn.modules.')
 
         parser_export.add_argument('--handler',
-                                   required=True,
+                                   required=False,
                                    dest="handler",
                                    type=str,
                                    default=None,
-                                   help='Handler path to handle custom MMS inference logic.')
+                                   help='Handler path to handle custom TS inference logic.')
+
+        parser_export.add_argument('--extra-files',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Comma separated path to extra dependency files.')
 
         parser_export.add_argument('--runtime',
                                    required=False,
@@ -71,7 +85,7 @@ class ArgParser(object):
                                    choices=["tgz", "no-archive", "default"],
                                    help='The format in which the model artifacts are archived.\n'
                                         '"tgz": This creates the model-archive in <model-name>.tar.gz format.\n'
-                                        'If platform hosting MMS requires model-artifacts to be in ".tar.gz"\n'
+                                        'If platform hosting TS requires model-artifacts to be in ".tar.gz"\n'
                                         'use this option.\n'
                                         '"no-archive": This option creates an non-archived version of model artifacts\n'
                                         'at "export-path/{model-name}" location. As a result of this choice, \n'
@@ -79,7 +93,7 @@ class ArgParser(object):
                                         'without archiving these model files\n'
                                         '"default": This creates the model-archive in <model-name>.mar format.\n'
                                         'This is the default archiving format. Models archived in this format\n'
-                                        'will be readily hostable on native MMS.\n')
+                                        'will be readily hostable on native TS.\n')
 
         parser_export.add_argument('-f', '--force',
                                    required=False,
@@ -87,14 +101,5 @@ class ArgParser(object):
                                    help='When the -f or --force flag is specified, an existing .mar file with same\n'
                                         'name as that provided in --model-name in the path specified by --export-path\n'
                                         'will overwritten')
-
-        parser_export.add_argument('-c', '--convert',
-                                   required=False,
-                                   action='store_true',
-                                   help='When this option is used, model-archiver looks for special files and tries\n'
-                                        'preprocesses them. For example, if this option is chosen when running\n'
-                                        'model-archiver tool on a model with ".onnx" extension, the tool will try and\n'
-                                        'convert ".onnx" model into an MXNet model.')
-
 
         return parser_export
