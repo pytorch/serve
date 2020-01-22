@@ -165,11 +165,13 @@ public final class ModelManager {
                 modelsNameMap.remove(modelName);
             }
 
-        } catch (InvalidModelVersionException | ModelNotFoundException e) {
+        } catch (ModelNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpResponseStatus.NOT_FOUND;
+        } catch (InvalidModelVersionException e) {
+            logger.warn("Cannot remove default version {} for model {}", versionId, modelName);
+            httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         } catch (ExecutionException | InterruptedException e1) {
-
             logger.warn("Process was interrupted while cleaning resources.");
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }

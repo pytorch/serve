@@ -245,6 +245,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {
             throw new RequestTimeoutException("Timed out while cleaning resources: " + modelName);
+        }else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
+            throw new InternalServerException("Cannot remove default version " + modelVersion + " for model " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));

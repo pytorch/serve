@@ -125,7 +125,7 @@ public final class ModelVersionedRefs {
      * @param A String specifying a valid version Id
      * @return On Success - a Model Obj previously registered On Failure - null
      */
-    public Model getVersionModel(String versionId) throws InvalidModelVersionException {
+    public Model getVersionModel(String versionId){
         Model model = null;
         if (versionId != null) {
             validateVersionId(versionId);
@@ -143,7 +143,7 @@ public final class ModelVersionedRefs {
      * @param None
      * @return On Success - a Model Obj corresponding to the default Model obj On Failure - null
      */
-    public Model getDefaultModel() throws InvalidModelVersionException {
+    public Model getDefaultModel(){
         // TODO should not throw invalid here as it has been already validated??
         return this.modelsVersionMap.get(this.defaultVersion);
     }
