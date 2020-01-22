@@ -123,15 +123,12 @@ public final class ModelManager {
 
     private void createVersionedModel(Model model, String versionId) {
         // TODO Auto-generated method stub
-        ModelVersionedRefs modelVersionRef = new ModelVersionedRefs();
+    	ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
+    	if (modelVersionRef == null) {
+    		modelVersionRef = new ModelVersionedRefs();
+    	}
         modelVersionRef.addVersionModel(model, versionId);
-        ModelVersionedRefs existingModel =
-                modelsNameMap.putIfAbsent(model.getModelName(), modelVersionRef);
-        if (existingModel != null) {
-            // model already exists
-            throw new ConflictStatusException(
-                    "Model " + model.getModelName() + " is already registered.");
-        }
+        modelsNameMap.putIfAbsent(model.getModelName(), modelVersionRef);
     }
 
     public HttpResponseStatus unregisterModel(String modelName, String versionId) {
