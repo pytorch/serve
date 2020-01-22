@@ -102,8 +102,7 @@ public final class ModelManager {
 
         archive.validate();
 
-        Model tempModel =
-                createModel(archive, configManager, batchSize, maxBatchDelay, responseTimeout);
+        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
 
         createVersionedModel(tempModel, versionId);
 
@@ -113,11 +112,7 @@ public final class ModelManager {
     }
 
     private Model createModel(
-            ModelArchive archive,
-            ConfigManager configManager2,
-            int batchSize,
-            int maxBatchDelay,
-            int responseTimeout) {
+            ModelArchive archive, int batchSize, int maxBatchDelay, int responseTimeout) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setBatchSize(batchSize);
         model.setMaxBatchDelay(maxBatchDelay);
@@ -153,7 +148,6 @@ public final class ModelManager {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
-            System.out.println(model.toString());
             CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model);
             httpResponseStatus = futureStatus.get();
 
