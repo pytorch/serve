@@ -75,8 +75,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 if (HttpMethod.GET.equals(method)) {
                     handleDescribeModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.PUT.equals(method)) {
-                    if (segments.length == 5 && "set-default".equals(segments[3])) {
-                        setDefaultModelVersion(ctx, segments[2], segments[4]);
+                    if (segments.length == 5 && "set-default".equals(segments[4])) {
+                        setDefaultModelVersion(ctx, segments[2], segments[3]);
                     } else {
                         handleScaleModel(ctx, decoder, segments[2], modelVersion);
                     }
@@ -94,7 +94,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
-                || (segments.length == 5 && segments[3].contentEquals("set-default"))
+                || (segments.length == 5 && segments[4].contentEquals("set-default"))
                 || endpointMap.containsKey(segments[1]);
     }
 
@@ -350,12 +350,12 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
         ModelManager modelManager = ModelManager.getInstance();
         HttpResponseStatus httpResponseStatus =
-                modelManager.updateDefaultVersion(modelName, newModelVersion);
+                modelManager.setDefaultVersion(modelName, newModelVersion);
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
             throw new InternalServerException(
-                    "Cannot remove default version " + newModelVersion + " for model " + modelName);
+                    "Cannot set version " + newModelVersion + " as default for model " + modelName);
         }
         String msg =
                 "Default vesion succsesfully updated for model \""

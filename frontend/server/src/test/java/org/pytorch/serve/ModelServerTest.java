@@ -1070,7 +1070,8 @@ public class ModelServerTest {
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.CONFLICT.code());
-        Assert.assertEquals(resp.getMessage(), "Model noop_v1.0 is already registered.");
+        Assert.assertEquals(
+                resp.getMessage(), "Model version 1.11 is already registered for model noop_v1.0");
     }
 
     private void testRegisterModelMalformedUrl() throws InterruptedException {

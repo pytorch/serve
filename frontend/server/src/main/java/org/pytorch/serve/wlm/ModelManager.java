@@ -16,6 +16,7 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
@@ -120,7 +121,8 @@ public final class ModelManager {
         return model;
     }
 
-    private void createVersionedModel(Model model, String versionId) {
+    private void createVersionedModel(Model model, String versionId)
+            throws ConflictStatusException {
         // TODO Auto-generated method stub
         ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
         if (modelVersionRef == null) {
@@ -178,7 +180,7 @@ public final class ModelManager {
         return httpResponseStatus;
     }
 
-    public HttpResponseStatus updateDefaultVersion(String modelName, String newModelVersion)
+    public HttpResponseStatus setDefaultVersion(String modelName, String newModelVersion)
             throws InvalidModelVersionException {
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
@@ -190,7 +192,7 @@ public final class ModelManager {
             vmodel.setDefaultVersion(newModelVersion);
         } catch (InvalidModelVersionException e) {
             logger.warn(
-                    "Cannot set version {} to default for model {}", newModelVersion, modelName);
+                    "Cannot set version {} as default for model {}", newModelVersion, modelName);
             httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
 

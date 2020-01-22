@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,8 @@ public final class ModelVersionedRefs {
      * @param versionId: String version ID from the manifest
      * @return None
      */
-    public void addVersionModel(Model model, String versionId) throws InvalidModelVersionException {
+    public void addVersionModel(Model model, String versionId)
+            throws InvalidModelVersionException, ConflictStatusException {
         logger.debug("Adding new version {} for model {}", versionId, model.getModelName());
 
         if (versionId == null) {
@@ -51,8 +53,11 @@ public final class ModelVersionedRefs {
         checkVersionCapacity();
 
         if (this.modelsVersionMap.putIfAbsent(Double.valueOf(versionId), model) != null) {
-            throw new InvalidModelVersionException(
-                    "Model " + model.getModelName() + " is already registered.");
+            throw new ConflictStatusException(
+                    "Model version "
+                            + versionId
+                            + " is already registered for model "
+                            + model.getModelName());
         }
 
         // TODO what if user wants to keep existing default as it is?
