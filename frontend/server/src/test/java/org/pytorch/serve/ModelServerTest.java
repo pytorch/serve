@@ -148,16 +148,17 @@ public class ModelServerTest {
         testScaleModel(managementChannel);
         testListModels(managementChannel);
         testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
+        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
         testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
         testDescribeModel(managementChannel, "noopversioned", null, "1.21");
         testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
         testPredictions(channel, "noopversioned", "OK", "1.21");
-        testUnregisterModelFailure(managementChannel, "noopversioned", "1.21");
+        // testUnregisterModelFailure(managementChannel, "noopversioned", "1.21");
         testSetDefault(managementChannel, "noopversioned", "1.11");
         testUnregisterModel(managementChannel, "noopversioned", "1.21");
-        testDescribeApi(channel);
+        testUnregisterModel(managementChannel, "noopversioned", "1.11");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
@@ -469,9 +470,9 @@ public class ModelServerTest {
         channel.writeAndFlush(req);
         latch.await();
 
-        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
         Assert.assertEquals(
-                resp.getMessage(),
+                resp.getStatus(),
                 "Default vesion succsesfully updated for model \""
                         + modelName
                         + "\" to \""
