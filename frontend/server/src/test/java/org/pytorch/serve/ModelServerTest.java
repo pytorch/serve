@@ -414,10 +414,11 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
         channel.writeAndFlush(req);
         latch.await();
-        
+
         ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-        Assert.assertEquals(resp.getMessage(), "Cannot remove default version for model: " + modelName);
+        Assert.assertEquals(
+                resp.getMessage(), "Cannot remove default version for model " + modelName);
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
@@ -468,9 +469,9 @@ public class ModelServerTest {
         channel.writeAndFlush(req);
         latch.await();
 
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
         Assert.assertEquals(
-                resp.getStatus(),
+                resp.getMessage(),
                 "Default vesion succsesfully updated for model \""
                         + modelName
                         + "\" to \""
