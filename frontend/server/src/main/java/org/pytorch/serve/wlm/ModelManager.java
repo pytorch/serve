@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -330,5 +331,14 @@ public final class ModelManager {
             return null;
         }
         return vmodel.getVersionModel(versionId);
+    }
+
+    public Set<Entry<Double, Model>> getAllModelVersions(String modelName)
+            throws ModelNotFoundException {
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        return vmodel.getAllVersions();
     }
 }

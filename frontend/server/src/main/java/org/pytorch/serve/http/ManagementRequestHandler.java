@@ -71,7 +71,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 if (segments.length == 4) {
                     modelVersion = segments[3];
                 }
-
                 if (HttpMethod.GET.equals(method)) {
                     handleDescribeModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.PUT.equals(method)) {
@@ -135,11 +134,25 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx, String modelName, String modelVersion)
             throws ModelNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
-        Model model = modelManager.getModel(modelName, modelVersion);
-        if (model == null) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
+        ArrayList<DescribeModelResponse> resp = new ArrayList<DescribeModelResponse>();
+
+        if (modelVersion != null && modelVersion.equals("all")) {
+            for (Map.Entry<Double, Model> m : modelManager.getAllModelVersions(modelName)) {
+                resp.add(createModelResponse(modelManager, modelName, m.getValue()));
+            }
+        } else {
+            Model model = modelManager.getModel(modelName, modelVersion);
+            if (model == null) {
+                throw new ModelNotFoundException("Model not found: " + modelName);
+            }
+            resp.add(createModelResponse(modelManager, modelName, model));
         }
 
+        NettyUtils.sendJsonResponse(ctx, resp);
+    }
+
+    private DescribeModelResponse createModelResponse(
+            ModelManager modelManager, String modelName, Model model) {
         DescribeModelResponse resp = new DescribeModelResponse();
         resp.setModelName(modelName);
         resp.setModelUrl(model.getModelUrl());
@@ -166,7 +179,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory);
         }
 
-        NettyUtils.sendJsonResponse(ctx, resp);
+        return resp;
     }
 
     private void handleRegisterModel(
