@@ -696,9 +696,9 @@ public class ModelServerTest {
         mgmtChannel.writeAndFlush(req);
 
         latch.await();
-        DescribeModelResponse resp = JsonUtils.GSON.fromJson(result, DescribeModelResponse.class);
+        DescribeModelResponse[] resp = JsonUtils.GSON.fromJson(result, DescribeModelResponse[].class);
         Assert.assertEquals(httpStatus, HttpResponseStatus.OK);
-        Assert.assertEquals(resp.getMinWorkers(), 1);
+        Assert.assertEquals(resp[0].getMinWorkers(), 1);
         unloadTests(mgmtChannel, "noop_default_model_workers");
         setConfiguration("default_workers_per_model", "0");
     }
