@@ -136,7 +136,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         ModelManager modelManager = ModelManager.getInstance();
         ArrayList<DescribeModelResponse> resp = new ArrayList<DescribeModelResponse>();
 
-        if (modelVersion != null && modelVersion.equals("all")) {
+        if (modelVersion != null && ("all").equals(modelVersion)) {
             for (Map.Entry<Double, Model> m : modelManager.getAllModelVersions(modelName)) {
                 resp.add(createModelResponse(modelManager, modelName, m.getValue()));
             }
