@@ -148,15 +148,15 @@ public class ModelServerTest {
         testScaleModel(managementChannel);
         testListModels(managementChannel);
         testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
-        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
-        testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noop");
-        testDescribeModel(managementChannel, "noop", null, "1.21");
-        testDescribeModel(managementChannel, "noop", "all", "1.11");
-        testDescribeModel(managementChannel, "noop", "1.11", "1.11");
-        testPredictions(channel, "noop", "OK", "1.21");
-        testUnregisterModelFailure(managementChannel, "noop", "1.21");
-        testSetDefault(managementChannel, "noop", "1.11");
-        testUnregisterModel(managementChannel, "noop", "1.21");
+        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
+        testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
+        testDescribeModel(managementChannel, "noopversioned", null, "1.21");
+        testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
+        testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
+        testPredictions(channel, "noopversioned", "OK", "1.21");
+        testUnregisterModelFailure(managementChannel, "noopversioned", "1.21");
+        testSetDefault(managementChannel, "noopversioned", "1.11");
+        testUnregisterModel(managementChannel, "noopversioned", "1.21");
         testDescribeApi(channel);
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testPredictions(channel, "noop", "OK", null);
@@ -414,10 +414,10 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
         channel.writeAndFlush(req);
         latch.await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(
-                resp.getStatus(), "Cannot remove default version for model " + modelName);
+        
+        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(resp.getMessage(), "Cannot remove default version for model: " + modelName);
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
