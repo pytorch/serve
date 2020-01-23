@@ -144,16 +144,17 @@ public class ModelServerTest {
         testDescribeApi(channel);
         testUnregisterModel(managementChannel, "noop", null);
         testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
-        testSyncScaleModel(managementChannel);
+        testSyncScaleModel(managementChannel, "noop_v1.0", null);
         testScaleModel(managementChannel);
         testListModels(managementChannel);
         testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
         testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noop");
         testDescribeModel(managementChannel, "noop", null, "1.21");
-        testDescribeModel(managementChannel, "noop", "all", "1.21");
+        testDescribeModel(managementChannel, "noop", "all", "1.11");
         testDescribeModel(managementChannel, "noop", "1.11", "1.11");
         testPredictions(channel, "noop", "OK", "1.21");
+        testUnregisterModelFailure(managementChannel, "noop", "1.21");
         testSetDefault(managementChannel, "noop", "1.11");
         testUnregisterModel(managementChannel, "noop", "1.21");
         testDescribeApi(channel);
@@ -364,14 +365,17 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getStatus(), "Processing worker updates...");
     }
 
-    private void testSyncScaleModel(Channel channel) throws InterruptedException {
+    private void testSyncScaleModel(Channel channel, String modelName, String version)
+            throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+        requestURL += "?synchronous=true&min_worker=1\"";
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.PUT,
-                        "/models/noop_v1.0?synchronous=true&min_worker=1");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
@@ -395,6 +399,25 @@ public class ModelServerTest {
 
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" unregistered");
+    }
+
+    private void testUnregisterModelFailure(Channel channel, String modelName, String version)
+            throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(
+                resp.getStatus(), "Cannot remove default version for model " + modelName);
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
