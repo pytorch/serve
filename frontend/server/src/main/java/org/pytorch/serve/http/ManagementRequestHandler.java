@@ -374,7 +374,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 "Default vesion succsesfully updated for model \""
                         + modelName
                         + "\" to \""
-                        + newModelVersion;
+                        + newModelVersion
+                        + "\"";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 }

@@ -142,7 +142,7 @@ public class ModelServerTest {
         testRoot(managementChannel, listManagementApisResult);
         testApiDescription(channel, listInferenceApisResult);
         testDescribeApi(channel);
-        testUnregisterModel(managementChannel, "noop");
+        testUnregisterModel(managementChannel, "noop", null);
         testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
         testSyncScaleModel(managementChannel);
         testScaleModel(managementChannel);
@@ -153,9 +153,12 @@ public class ModelServerTest {
         testDescribeModel(managementChannel, "noop", null, "1.21");
         testDescribeModel(managementChannel, "noop", "all", "1.21");
         testDescribeModel(managementChannel, "noop", "1.11", "1.11");
+        testPredictions(channel, "noop", "OK", "1.21");
+        testSetDefault(managementChannel, "noop", "1.11");
+        testUnregisterModel(managementChannel, "noop", "1.21");
         testDescribeApi(channel);
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
-        testPredictions(channel, "noop", "OK");
+        testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
         testPredictionsJson(channel);
         testInvocationsJson(channel);
@@ -229,14 +232,14 @@ public class ModelServerTest {
         Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
 
         testLoadModelWithInitialWorkers(managementChannel, "mnist.mar", "mnist");
-        testPredictions(channel, "mnist", "0");
-        testUnregisterModel(managementChannel, "mnist");
+        testPredictions(channel, "mnist", "0", null);
+        testUnregisterModel(managementChannel, "mnist", null);
         testLoadModelWithInitialWorkers(managementChannel, "mnist_scripted.mar", "mnist_scripted");
-        testPredictions(channel, "mnist_scripted", "0");
-        testUnregisterModel(managementChannel, "mnist_scripted");
+        testPredictions(channel, "mnist_scripted", "0", null);
+        testUnregisterModel(managementChannel, "mnist_scripted", null);
         testLoadModelWithInitialWorkers(managementChannel, "mnist_traced.mar", "mnist_traced");
-        testPredictions(channel, "mnist_traced", "0");
-        testUnregisterModel(managementChannel, "mnist_traced");
+        testPredictions(channel, "mnist_traced", "0", null);
+        testUnregisterModel(managementChannel, "mnist_traced", null);
 
         channel.close();
         managementChannel.close();
@@ -329,7 +332,7 @@ public class ModelServerTest {
 
     private void testLoadModelWithInitialWorkersWithJSONReqBody(Channel channel)
             throws InterruptedException {
-        testUnregisterModel(channel, "noop");
+        testUnregisterModel(channel, "noop", null);
 
         result = null;
         latch = new CountDownLatch(1);
@@ -376,18 +379,21 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getStatus(), "Workers scaled");
     }
 
-    private void testUnregisterModel(Channel channel, String modelName)
+    private void testUnregisterModel(Channel channel, String modelName, String version)
             throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/" + modelName);
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        System.out.println("Harsh : " + resp.getStatus());
         Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" unregistered");
     }
 
@@ -425,17 +431,41 @@ public class ModelServerTest {
         } else {
             Assert.assertTrue(resp.length == 1);
         }
-        //Assert.assertTrue(resp[0].getWorkers().size() > 1);
         Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
     }
 
-    private void testPredictions(Channel channel, String modelName, String expectedOutput)
+    private void testSetDefault(Channel channel, String modelName, String defaultVersion)
             throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Default vesion succsesfully updated for model \""
+                        + modelName
+                        + "\" to \""
+                        + defaultVersion
+                        + "\"");
+    }
+
+    private void testPredictions(
+            Channel channel, String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/predictions/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/" + modelName);
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
         req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers()
@@ -1210,7 +1240,6 @@ public class ModelServerTest {
         latch.await();
 
         StatusResponse status = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        System.out.println("Harsh : " + status.getStatus());
         Assert.assertEquals(status.getStatus(), "Workers scaled");
 
         channel.close();
