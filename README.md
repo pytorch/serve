@@ -32,9 +32,8 @@ Before proceeding further with this document, make sure you have the following p
 
     For macOS:
     ```bash
-    brew tap caskroom/versions
-    brew update
-    brew cask install java8
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk8
     ```
 
 ### Installing TorchServe with pip
