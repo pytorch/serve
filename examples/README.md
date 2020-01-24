@@ -1,34 +1,35 @@
-# TS Examples
+# TorchServe Examples
 
-The following are examples on how to create and serve model archives with TS.
+The following are examples on how to create and serve model archives with TorchServe.
 
 #### Eager Mode 
 
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TS :
+Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
     
 * Pre-requisites to create a torch model archive (.mar) :
     * serialized-file (.pt) : This file represents the state_dict in case of eager mode model.
     * model-file (.py) : This file contains model class extended from torch nn.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from torch.nn.modules
-    * index_to_name.json : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
-    
+    * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * version : Model version must be a valid non-negative floating point number
 * Syntax
 
     ```bash
-    torch-model-archiver --model-name <model_name> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file>
+    torch-model-archiver --model-name <model_name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file>
     ```
   
 #### TorchScript Mode 
 
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TS :
+Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
     
 * Pre-requisites to create a torch model archive (.mar) :
     * serialized-file (.pt) : This file represents the state_dict in case of eager mode model or an executable ScriptModule in case of TorchScript. 
-    * index_to_name.json : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * version : Model version must be a valid non-negative floating point number
     
 * Syntax
 
     ```bash
-    torch-model-archiver --model-name <model_name> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file>
+    torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file>
     ```  
 
 #### Eager Mode example using torchvision image classifiers:
@@ -47,11 +48,11 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 * Create a torch model archive file using the above provided syntax command.
 
-#### Sample commands to create a DenseNet161 eager mode model archive, register it on TS and run image prediction
+#### Sample commands to create a DenseNet161 eager mode model archive, register it on TorchServe and run image prediction
 
     ```bash
     wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-    torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
     mkdir model_store
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
@@ -66,28 +67,28 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
     ```python
     #scripted mode
-    from torchvision import models
-    import torch
-    model = models.densenet161(pretrained=True)
-    sm = torch.jit.script(model)
-    sm.save("densenet161.pt")
+   from torchvision import models
+   import torch
+   model = models.densenet161(pretrained=True)
+   sm = torch.jit.script(model)
+   sm.save("densenet161.pt")
     ```
 
 2. Save model using tracing
     ```python
     #traced mode
-    from torchvision import models
-    import torch
-    model = models.densenet161(pretrained=True)
-    example_input = torch.rand(1, 3, 224, 224)
-    traced_script_module = torch.jit.trace(model, example_input)
-    traced_script_module.save("dense161.pt")
+   from torchvision import models
+   import torch
+   model = models.densenet161(pretrained=True)
+   example_input = torch.rand(1, 3, 224, 224)
+   traced_script_module = torch.jit.trace(model, example_input)
+   traced_script_module.save("dense161.pt")
     ```  
  
-* Use following commands to register Densenet161 torchscript model on TS and run image prediction
+* Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name densenet161_ts  --serialized-file densenet161.pt --extra-files serve/examples/index_to_name.json
+    torch-model-archiver --model-name densenet161_ts --version 1.0 --serialized-file densenet161.pt --extra-files serve/examples/index_to_name.json
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
@@ -95,6 +96,6 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     ```
 #### TorchScript example using custom model and custom handler:
 
-Following example demonstrates how to create and serve a custom NN model with custom handler archives in TS :
+Following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
 * [Digit recognition with MNIST](mnist)

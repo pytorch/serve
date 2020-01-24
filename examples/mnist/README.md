@@ -1,6 +1,6 @@
 # Digit recognition model with MNIST dataset
 
-In this example, we show how to use a pre-trained custom MNIST model to performing real time Digit recognition with TS.
+In this example, we show how to use a pre-trained custom MNIST model to performing real time Digit recognition with TorchServe.
 
 The inference service would return the digit inferred by the model in the input image.
 
@@ -10,9 +10,9 @@ https://github.com/pytorch/examples/tree/master/mnist
 # Objective
 1. Demonstrate how to package a custom trained model with custom handler into torch model archive (.mar) file
 2. Demonstrate how to create model handler code
-3. Demonstrate how to load model archive (.mar) file into TS and run inference.
+3. Demonstrate how to load model archive (.mar) file into TorchServe and run inference.
 
-# Serve a custom model on TS
+# Serve a custom model on TorchServe
 
  * Step - 1: Create a new model architecture file which contains model class extended from torch.nn.modules. In this example we have created [mnist model file](mnist.py).
  * Step - 2: Train a MNIST digit recognition model using https://github.com/pytorch/examples/blob/master/mnist/main.py and save the state dict of model. We have added the pre-created [state dict](mnist_cnn.pt) of this model.
@@ -20,10 +20,10 @@ https://github.com/pytorch/examples/tree/master/mnist
  * Step - 4: Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name mnist --model-file serve/examples/mnist/mnist.py --serialized-file serve/examples/mnist/mnist_cnn.pt --handler serve/examples/mnist/mnist_handler.py
+    torch-model-archiver --model-name mnist --version 1.0 --model-file serve/examples/mnist/mnist.py --serialized-file serve/examples/mnist/mnist_cnn.pt --handler serve/examples/mnist/mnist_handler.py
     ```
    
- * Step - 5: Register the model on TS using the above model archive file and run digit recognition inference
+ * Step - 5: Register the model on TorchServe using the above model archive file and run digit recognition inference
    
     ```bash
     mkdir model_store

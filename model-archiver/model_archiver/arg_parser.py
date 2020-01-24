@@ -54,7 +54,7 @@ class ArgParser(object):
                                    dest="handler",
                                    type=str,
                                    default=None,
-                                   help='Handler path to handle custom TS inference logic.')
+                                   help='Handler path to handle custom TorchServe inference logic.')
 
         parser_export.add_argument('--extra-files',
                                    required=False,
@@ -85,7 +85,7 @@ class ArgParser(object):
                                    choices=["tgz", "no-archive", "default"],
                                    help='The format in which the model artifacts are archived.\n'
                                         '"tgz": This creates the model-archive in <model-name>.tar.gz format.\n'
-                                        'If platform hosting TS requires model-artifacts to be in ".tar.gz"\n'
+                                        'If platform hosting TorchServe requires model-artifacts to be in ".tar.gz"\n'
                                         'use this option.\n'
                                         '"no-archive": This option creates an non-archived version of model artifacts\n'
                                         'at "export-path/{model-name}" location. As a result of this choice, \n'
@@ -93,7 +93,7 @@ class ArgParser(object):
                                         'without archiving these model files\n'
                                         '"default": This creates the model-archive in <model-name>.mar format.\n'
                                         'This is the default archiving format. Models archived in this format\n'
-                                        'will be readily hostable on native TS.\n')
+                                        'will be readily hostable on native TorchServe.\n')
 
         parser_export.add_argument('-f', '--force',
                                    required=False,

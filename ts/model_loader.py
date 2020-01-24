@@ -57,12 +57,12 @@ class ModelLoader(object):
 
 class TsModelLoader(ModelLoader):
     """
-    TS 1.0 Model Loader
+    TorchServe 1.0 Model Loader
     """
 
     def load(self, model_name, model_dir, handler, gpu_id, batch_size):
         """
-        Load TS 1.0 model from file.
+        Load TorchServe 1.0 model from file.
 
         :param model_name:
         :param model_dir:
@@ -138,12 +138,12 @@ class TsModelLoader(ModelLoader):
 #TODO Shall we remove this?
 class LegacyModelLoader(ModelLoader):
     """
-    TS 0.4 Model Loader
+    TorchServe 0.4 Model Loader
     """
 
     def load(self, model_name, model_dir, handler, gpu_id, batch_size):
         """
-        Load TS 0.3 model from file.
+        Load TorchServe 0.3 model from file.
 
         :param model_name:
         :param model_dir:

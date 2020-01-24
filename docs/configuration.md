@@ -1,10 +1,10 @@
 # Advanced configuration
 
-One of design goal of TS is easy to use. The default settings form TS should be sufficient for most of use cases. This document describe advanced configurations that allows user to deep customize TS's behavior.
+One of design goal of TorchServe is easy to use. The default settings form TorchServe should be sufficient for most of use cases. This document describe advanced configurations that allows user to deep customize TorchServe's behavior.
 
 ## Environment variables
 
-User can set environment variables to change TS behavior, following is a list of variables that user can set for TS:
+User can set environment variables to change TorchServe behavior, following is a list of variables that user can set for TorchServe:
 * JAVA_HOME
 * PYTHONPATH
 * TS_CONFIG_FILE
@@ -15,9 +15,9 @@ User can set environment variables to change TS behavior, following is a list of
 
 ## Command line parameters
 
-User can following parameters to start TS, those parameters will override default TS behavior:
+User can following parameters to start TorchServe, those parameters will override default TorchServe behavior:
 
-* **--ts-config** TS will load specified configuration file if TS_CONFIG_FILE is not set.
+* **--ts-config** TorchServe will load specified configuration file if TS_CONFIG_FILE is not set.
 * **--model-store** This parameter will override `model_store` property in config.properties file.
 * **--models** This parameter will override `load_models' property in config.properties.
 * **--log-config** This parameter will override default log4j.properties.
@@ -28,15 +28,15 @@ See [Running the TorchServe](server.md) for detail.
 
 ## config.properties file
 
-TS use a `config.properties` file to store configurations. TS use following order to locate this `config.properties` file:
-1. if `TS_CONFIG_FILE` environment variable is set, TS will load the configuration from the environment variable.
-2. if `--ts-config` parameter is passed to `torchserve`, TS will load the configuration from the parameter.
-3. if there is a `config.properties` in current folder where user start the `torchserve`, TS will load the `config.properties` file form current working directory.
-4. If none of above is specified, TS will load built-in configuration with default values.
+TorchServe use a `config.properties` file to store configurations. TorchServe use following order to locate this `config.properties` file:
+1. if `TS_CONFIG_FILE` environment variable is set, TorchServe will load the configuration from the environment variable.
+2. if `--ts-config` parameter is passed to `torchserve`, TorchServe will load the configuration from the parameter.
+3. if there is a `config.properties` in current folder where user start the `torchserve`, TorchServe will load the `config.properties` file form current working directory.
+4. If none of above is specified, TorchServe will load built-in configuration with default values.
 
 ### Customize JVM options
 
-The restrict TS frontend memory footprint, certain JVM options is set via **vmargs** property in `config.properties` file
+The restrict TorchServe frontend memory footprint, certain JVM options is set via **vmargs** property in `config.properties` file
 
 * default: N/A, use JVM default options
 
@@ -44,7 +44,7 @@ User can adjust those JVM options for fit their memory requirement if needed.
 
 ### Load models at startup
 
-User can configure load models while TS startup. TS can load models from `model_store` or from HTTP(s) URL.
+User can configure load models while TorchServe startup. TorchServe can load models from `model_store` or from HTTP(s) URL.
 
 * model_store
 	* standalone: default: N/A, load models from local disk is disabled.
@@ -54,9 +54,9 @@ User can configure load models while TS startup. TS can load models from `model_
 
 **Note:** `model_store` and `load_models` property can be override by command line parameters.
 
-### Configure TS listening port
+### Configure TorchServe listening port
 
-TS doesn't support authentication natively. To avoid unauthorized access, TS only allows localhost access by default. Inference API is listening on 8080 port and accepting HTTP request. Management API is listening on 8081 port and accepting HTTP request. See [Enable SSL](#enable-ssl) for configuring HTTPS.
+TorchServe doesn't support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default. Inference API is listening on 8080 port and accepting HTTP request. Management API is listening on 8081 port and accepting HTTP request. See [Enable SSL](#enable-ssl) for configuring HTTPS.
 
 * inference_address: inference API binding address, default: http://127.0.0.1:8080
 * management_address: management API binding address, default: http://127.0.0.1:8081
@@ -65,16 +65,18 @@ Here are a couple of examples:
 ```properties
 # bind inference API to all network interfaces with SSL enabled
 inference_address=https://0.0.0.0:8443
+```
 
+```properties
 # bind inference API to private network interfaces
 inference_address=https://172.16.1.10:8080
 ```
 
 ### Enable SSL
 
-For users who want to enable HTTPs, you can change `inference_address` or `management_addrss` protocol from http to https, for example: `inference_addrss=https://127.0.0.1`. This will make TS listening on localhost 443 port to accepting https request.
+For users who want to enable HTTPs, you can change `inference_address` or `management_addrss` protocol from http to https, for example: `inference_addrss=https://127.0.0.1`. This will make TorchServe listening on localhost 443 port to accepting https request.
 
-User also must provide certificate and private keys to enable SSL. TS support two ways to configure SSL:
+User also must provide certificate and private keys to enable SSL. TorchServe support two ways to configure SSL:
 1. Use keystore
 	* keystore: Keystore file location, if multiple private key entry in the keystore, first one will be picked. 
 	* keystore_pass: keystore password, key password (if applicable) MUST be the same as keystore password.
@@ -137,20 +139,20 @@ cors_allowed_headers=X-Custom-Header
 
 ### Restrict backend worker to access environment variable
 
-Environment variable may contains sensitive information like AWS credentials. Backend worker will execute arbitrary model's custom code, which may expose security risk. TS provides a `blacklist_env_vars` property which allows user to restrict which environment variable can be accessed by backend worker.
+Environment variable may contains sensitive information like AWS credentials. Backend worker will execute arbitrary model's custom code, which may expose security risk. TorchServe provides a `blacklist_env_vars` property which allows user to restrict which environment variable can be accessed by backend worker.
 
 * blacklist_env_vars: a regular expression to filter out environment variable names, default: all environment variable will be visible to backend worker.
 
 ### Limit GPU usage
-By default, TS will use all available GPUs for inference, you use `number_of_gpu` to limit the usage of GPUs.
+By default, TorchServe will use all available GPUs for inference, you use `number_of_gpu` to limit the usage of GPUs.
 
-* number_of_gpu: max number of GPUs that TS can use for inference, default: available GPUs in system.
+* number_of_gpu: max number of GPUs that TorchServe can use for inference, default: available GPUs in system.
 
 ### Other properties
 
 Most of those properties are designed for performance tuning. Adjusting those numbers will impact scalability and throughput.
 
-* enable_envvars_config: Enable configuring TS through environment variables. When this option is set to "true", all the static configurations of TS can come through environment variables as well. default: false
+* enable_envvars_config: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. default: false
 * number_of_netty_threads: number frontend netty thread, default: number of logical processors available to the JVM.
 * netty_client_threads: number of backend netty thread, default: number of logical processors available to the JVM.
 * default_workers_per_model: number of workers to create for each model that loaded at startup time, default: available GPUs in system or number of logical processors available to the JVM.

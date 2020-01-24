@@ -9,15 +9,15 @@
 
 ## Overview
 
-Torchserve can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  [REST based APIs](rest_api.md) handle state prediction requests.
+TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  [REST based APIs](rest_api.md) handle state prediction requests.
 
-For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TS to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TS behavior with custom services and run multiple models. There are examples of custom services in the [examples](../examples) folder.
+For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the [examples](../examples) folder.
 
 ## Technical Details
 
-Now that you have a high level view of TS, let's get a little into the weeds. TS takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TS supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
+Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
 
-To try out TS serving now, you can load the custom MNIST model, with this example:
+To try out TorchServe serving now, you can load the custom MNIST model, with this example:
 
 * [Digit recognition with MNIST](../examples/mnist)
 
@@ -94,8 +94,8 @@ There are no default required arguments to start the server
 
 ### Custom Services
 
-This topic is covered in much more detail on the [custom service documentation page](custom_service.md), but let's talk about how you start up your TS server using a custom service and why you might want one.
-Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TS like this:
+This topic is covered in much more detail on the [custom service documentation page](custom_service.md), but let's talk about how you start up your TorchServe server using a custom service and why you might want one.
+Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TorchServe like this:
 
 ```bash
 torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.mar
@@ -103,7 +103,7 @@ torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.m
 
 This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
 
-### Serving Multiple Models with TS
+### Serving Multiple Models with TorchServe
 
 Example multiple model usage:
 
@@ -117,7 +117,7 @@ Here's an example for running the resnet-18 and the vgg16 models using local mod
 torchserve --start --model-store /models --models resnet-18=resnet-18.mar squeezenet=squeezenet_v1.1.mar
 ```
 
-If you don't have the model files locally, then you can call TS using URLs to the model files.
+If you don't have the model files locally, then you can call TorchServe using URLs to the model files.
 
 ```bash
 torchserve --models resnet=https://<s3_path>/resnet-18.mar squeezenet=https://<s3_path>/squeezenet_v1.1.mar

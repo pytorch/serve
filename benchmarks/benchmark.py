@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Execute the TS Benchmark.  For instructions, run with the --help flag
+Execute the TorchServe Benchmark.  For instructions, run with the --help flag
 """
 
 # pylint: disable=redefined-builtin

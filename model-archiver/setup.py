@@ -58,7 +58,7 @@ if __name__ == '__main__':
         author='PyTorch Serving team',
         author_email='noreply@noreply.com',
         url='https://github.com/pytorch/serve/model-archiver/',
-        keywords='TorchServe Torch Model Archive Archiver TS Server Serving Deep Learning Inference AI',
+        keywords='TorchServe Torch Model Archive Archiver Server Serving Deep Learning Inference AI',
         packages=pkgs,
         install_requires=requirements,
         entry_points={

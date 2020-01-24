@@ -1,4 +1,4 @@
-# Torch Model archiver for TS
+# Torch Model archiver for TorchServe
 
 ## Contents of this Document
 * [Overview](#overview)
@@ -13,7 +13,7 @@
 
 ## Overview
 
-A key feature of TS is the ability to package all model artifacts into a single model archive file. It is a separate command line interface (CLI), `torch-model-archiver`, that can take model checkpoints or model definition file with state_dict, and package them into a `.mar` file. This file can then be redistributed and served by anyone using TS. It takes in the following model artifacts: a model checkpoint file in case of torchscript or a model definition file and a state_dict file in case of eager mode, and other optional assets that may be required to serve the model. The CLI creates a `.mar` file that TS's server CLI uses to serve the models.
+A key feature of TorchServe is the ability to package all model artifacts into a single model archive file. It is a separate command line interface (CLI), `torch-model-archiver`, that can take model checkpoints or model definition file with state_dict, and package them into a `.mar` file. This file can then be redistributed and served by anyone using TorchServe. It takes in the following model artifacts: a model checkpoint file in case of torchscript or a model definition file and a state_dict file in case of eager mode, and other optional assets that may be required to serve the model. The CLI creates a `.mar` file that TorchServe's server CLI uses to serve the models.
 
 **Important**: Make sure you try the [Quick Start: Creating a Model Archive](#creating-a-model-archive) tutorial for a short example of using `torch-model-archiver`.
 
@@ -40,7 +40,7 @@ Here is an example usage with the squeezenet_v1.1 model archive following the ex
 
 ```bash
 
-torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+torch-model-archiver --model-name densenet161  --version 1.0 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
 
 ```
 
@@ -48,7 +48,8 @@ torch-model-archiver --model-name densenet161 --model-file serve/examples/densen
 
 ```
 $ model-archiver -h
-usage: torch-model-archiver [-h] --model-name MODEL_NAME --model-path MODEL_PATH
+usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
+                      --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
                       --handler HANDLER [--runtime {python,python2,python3}]
                       [--export-path EXPORT_PATH] [-f]
 
@@ -70,7 +71,7 @@ optional arguments:
                         This parameter is mandatory for eager mode models.
                         The model architecture file must contain only one
                         class definition extended from torch.nn.modules.
-  --handler HANDLER     Handler path to handle custom TS inference logic.
+  --handler HANDLER     Handler path to handle custom TorchServe inference logic.
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.
   --runtime {python,python2,python3}
@@ -99,6 +100,7 @@ optional arguments:
                         .mar file with same name as that provided in --model-
                         name in the path specified by --export-path will
                         overwritten
+  -v, --version         Model version must be a valid non-negative floating point number.
 ```
 
 ## Artifact Details
@@ -141,31 +143,20 @@ TODO : add description about the above artifacts
 git clone https://github.com/pytorch/serve.git
 ```
 
-**3. Prepare your model custom service code**
-
-You can implement your own model customer service code with a model archive entry point.
-Here we are going to use the MXNet vision service `model_service_template`.
-This template is one of several provided with MMS.
-Download the template and place it in your `squeezenet` folder.
-
-```bash
-cp -r mxnet-model-server/examples/model_service_template/* squeezenet/
-```
-
-**4. Package your model**
+**3. Package your model**
 
 With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with MMS.
 
-In this next step we'll run `torch-model-archiver` and tell it our model's name is `densenet_161` with the `model-name` argument. Then we're giving it the `model-file` and `serialized-file` to the model's assets.
+In this next step we'll run `torch-model-archiver` and tell it our model's name is `densenet_161` and its version is `1.0` with the `model-name` and `version` parameter respectively. Then we're giving it the `model-file` and `serialized-file` to the model's assets.
 
 For torchscript:
 ```bash
-torch-model-archiver --model-name densenet_161 --serialized-file model.pt
+torch-model-archiver --model-name densenet_161 --version 1.0 --serialized-file model.pt
 ```
 
 For eagermode:
 ```bash
-torch-model-archiver --model-name densenet_161 --model-flie model.py --serialized-file model.pt
+torch-model-archiver --model-name densenet_161 --version 1.0 --model-flie model.py --serialized-file model.pt
 ```
 
-This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TS, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!
+This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TorchServe, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!
