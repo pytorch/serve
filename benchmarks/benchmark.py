@@ -21,7 +21,7 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-MODEL_STORE = "/Users/dhaniram_kshirsagar/projects/neo-sagemaker/mms/model-store"
+MODEL_STORE = "/Users/harsh_bafna/model_store"
 
 BENCHMARK_DIR = "/tmp/TSBenchmark/"
 
@@ -49,8 +49,8 @@ MODEL_NOOP = 'noop-v1.0'
 
 
 MODEL_MAP = {
-    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url':MODEL_STORE+'/d161_version.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url':MODEL_STORE+'/d161_version.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
+    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
     MODEL_LSTM_PTB: (JMX_TEXT_INPUT_MODEL_PLAN, {'url': '', 'model_name': MODEL_LSTM_PTB, 'data': 'lstm_ip.json'}),
     MODEL_NOOP: (JMX_TEXT_INPUT_MODEL_PLAN, {'url': '', 'model_name': MODEL_NOOP, 'data': 'noop_ip.txt'})
 }
@@ -90,10 +90,10 @@ CELLAR = '/home/ubuntu/.linuxbrew/Cellar/jmeter' if 'linux' in sys.platform else
 JMETER_VERSION = os.listdir(CELLAR)[0]
 CMDRUNNER = '{}/{}/libexec/lib/ext/CMDRunner.jar'.format(CELLAR, JMETER_VERSION)
 JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
-MMS_BASE = reduce(lambda val,func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
+TS_BASE = reduce(lambda val, func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
 JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')
-CONFIG_PROP = os.path.join(MMS_BASE, 'benchmarks', 'config.properties')
-CONFIG_PROP_TEMPLATE = os.path.join(MMS_BASE, 'benchmarks', 'config_template.properties')
+CONFIG_PROP = os.path.join(TS_BASE, 'benchmarks', 'config.properties')
+CONFIG_PROP_TEMPLATE = os.path.join(TS_BASE, 'benchmarks', 'config_template.properties')
 
 DOCKER_MMS_BASE = "/serve"
 DOCKER_CONFIG_PROP = os.path.join(DOCKER_MMS_BASE, 'benchmarks', 'config.properties')
@@ -189,7 +189,7 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         run_process(docker_run_call)
 
     management_port = int(pargs.management[0]) if pargs.management else port + 1
-    #time.sleep(300)
+    time.sleep(300)
 
     try:
         # temp files
@@ -220,7 +220,7 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         jmeter_call = '{} -n -t {} {} -l {} -j {} -e -o {}'.format(JMETER, abs_jmx, jmeter_args_str, tmpfile, logfile, reportDir)
         run_process(jmeter_call)
         print('Processing jmeter output')
-        time.sleep(10)
+        time.sleep(30)
         # run AggregateReport
         ag_call = 'java -jar {} --tool Reporter --generate-csv {} --input-jtl {} --plugin-type AggregateReport'.format(CMDRUNNER, outfile, tmpfile)
         run_process(ag_call)
@@ -310,7 +310,7 @@ def parseModel():
             if v in RESOURCE_MAP:
                 jmeter_args[k] = get_resource(v)
             if k == 'data':
-                jmeter_args[k] = os.path.join(MMS_BASE, 'benchmarks', v)
+                jmeter_args[k] = os.path.join(TS_BASE, 'benchmarks', v)
         if pargs.input:
             jmeter_args['input_filepath'] = pargs.input[0]
     else:
@@ -445,7 +445,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', nargs=1, type=str, default=None, help='The input to feed to the test')
     parser.add_argument('-g', '--gpus', nargs=1, type=int, default=None, help='Number of gpus.  Leave empty to run CPU only')
 
-    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[1], help='Number of loops to run')
+    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[100], help='Number of loops to run')
     parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
     parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of MMS backend workers to use')
 
