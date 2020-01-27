@@ -21,7 +21,11 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-MODEL_STORE = "/Users/harsh_bafna/model_store"
+'''
+MODEL_STORE is a workaround/temporary path to pickup models from local disk.
+This can be removed once required model mar files are available via some public repo.
+'''
+MODEL_STORE = "<your_model_store_path>"
 
 BENCHMARK_DIR = "/tmp/TSBenchmark/"
 
@@ -34,7 +38,6 @@ RESOURCE_MAP = {
 
 # Listing out all the JMX files
 JMX_IMAGE_INPUT_MODEL_PLAN = 'imageInputModelPlan.jmx'
-JMX_TEXT_INPUT_MODEL_PLAN = 'textInputModelPlan.jmx'
 JMX_PING_PLAN = 'pingPlan.jmx'
 JMX_CONCURRENT_LOAD_PLAN = 'concurrentLoadPlan.jmx'
 JMX_CONCURRENT_SCALE_CALLS = 'concurrentScaleCalls.jmx'
@@ -44,22 +47,21 @@ JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
 # Listing out the models tested
 MODEL_RESNET_18 = 'resnet-18'
 MODEL_SQUEEZE_NET = 'squeezenet'
-MODEL_LSTM_PTB = 'lstm_ptb'
-MODEL_NOOP = 'noop-v1.0'
 
+'''
+You will need have mar files for above models. Also, note that modelName in manifest.json should be 
+same as indicated above.
+'''
 
 MODEL_MAP = {
     MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
-    MODEL_LSTM_PTB: (JMX_TEXT_INPUT_MODEL_PLAN, {'url': '', 'model_name': MODEL_LSTM_PTB, 'data': 'lstm_ip.json'}),
-    MODEL_NOOP: (JMX_TEXT_INPUT_MODEL_PLAN, {'url': '', 'model_name': MODEL_NOOP, 'data': 'noop_ip.txt'})
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'})
 }
 
 
 # Mapping of which row is relevant for a given JMX Test Plan
 EXPERIMENT_RESULTS_MAP = {
     JMX_IMAGE_INPUT_MODEL_PLAN: ['Inference Request'],
-    JMX_TEXT_INPUT_MODEL_PLAN: ['Inference Request'],
     JMX_PING_PLAN: ['Ping Request'],
     JMX_CONCURRENT_LOAD_PLAN: ['Load Model Request'],
     JMX_CONCURRENT_SCALE_CALLS: ['Scale Up Model', 'Scale Down Model'],
@@ -69,7 +71,7 @@ EXPERIMENT_RESULTS_MAP = {
 
 JMETER_RESULT_SETTINGS = {
     'jmeter.reportgenerator.overall_granularity': 1000,
-    # 'jmeter.reportgenerator.report_title': '"MMS Benchmark Report Dashboard"',
+    # 'jmeter.reportgenerator.report_title': '"TorchServe Benchmark Report Dashboard"',
     'aggregate_rpt_pct1': 50,
     'aggregate_rpt_pct2': 90,
     'aggregate_rpt_pct3': 99,
@@ -95,13 +97,10 @@ JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')
 CONFIG_PROP = os.path.join(TS_BASE, 'benchmarks', 'config.properties')
 CONFIG_PROP_TEMPLATE = os.path.join(TS_BASE, 'benchmarks', 'config_template.properties')
 
-DOCKER_MMS_BASE = "/serve"
-DOCKER_CONFIG_PROP = os.path.join(DOCKER_MMS_BASE, 'benchmarks', 'config.properties')
+DOCKER_TS_BASE = "/serve"
+DOCKER_CONFIG_PROP = os.path.join(DOCKER_TS_BASE, 'benchmarks', 'config.properties')
 
-ALL_BENCHMARKS = list(itertools.product(('latency', 'throughput'), (MODEL_RESNET_18,MODEL_NOOP, MODEL_LSTM_PTB)))
-               # + [('multiple_models', MODEL_NOOP)]
-               # + list(itertools.product(('load', 'repeated_scale_calls'), (MODEL_RESNET_18,))) \ To Add once
-               # repeated_scale_calls is fixed
+ALL_BENCHMARKS = list(itertools.product(('latency', 'throughput'), (MODEL_RESNET_18)))
 
 
 BENCHMARK_NAMES = ['latency', 'throughput']
@@ -129,8 +128,8 @@ def get_resource(name):
         directory = os.path.dirname(path)
         if not os.path.exists(directory):
             os.makedirs(directory)
-        #urlretrieve(url, path)
-    #return pata
+        if not MODEL_STORE: #for local testing
+            urlretrieve(url, path)
     return url
 
 
@@ -165,8 +164,8 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         pargs.gpus[0] if pargs.gpus else multiprocessing.cpu_count()
     )
 
-    if pargs.mms:
-        url = pargs.mms[0]
+    if pargs.ts:
+        url = pargs.ts[0]
         if '://' in url:
             protocol, url = url.split('://')
         if ':' in url:
@@ -176,13 +175,18 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             hostname = url
             port = 80
     else:
-        # Start MMS
+        # Start TorchServe
+        '''
+        Default docker files do not exist and same needs to be added.
+        '''
+        raise Exception('Docker not supported at this moment. Use --ts switch.')
+
         docker = 'nvidia-docker' if pargs.gpus else 'docker'
-        container = 'mms_benchmark_gpu' if pargs.gpus else 'mms_benchmark_cpu'
-        docker_path = 'awsdeeplearningteam/mxnet-model-server:nightly-mxnet-gpu' \
-            if pargs.gpus else 'awsdeeplearningteam/mxnet-model-server:nightly-mxnet-cpu'
+        container = 'ts_benchmark_gpu' if pargs.gpus else 'ts_benchmark_cpu'
+        docker_path = 'torchserve-model-server:nightly-torch-gpu' \
+            if pargs.gpus else 'torchserve-model-server:nightly-torch-cpu'
         if pargs.docker:
-            container = 'mms_benchmark_{}'.format(pargs.docker[0].split('/')[1])
+            container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
             docker_path = pargs.docker[0]
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
@@ -390,12 +394,8 @@ class Benchmarks:
         """
         plan = JMX_MULTIPLE_MODELS_LOAD_PLAN
         jmeter_args = {
-            'url1': MODEL_MAP[MODEL_NOOP][1]['url'],
-            'url2': MODEL_MAP[MODEL_LSTM_PTB][1]['url'],
-            'url3': MODEL_MAP[MODEL_RESNET_18][1]['url'],
-            'model1_name': MODEL_MAP[MODEL_NOOP][1]['model_name'],
-            'model2_name': MODEL_MAP[MODEL_LSTM_PTB][1]['model_name'],
-            'model3_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
+            'url1': MODEL_MAP[MODEL_RESNET_18][1]['url'],
+            'model1_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
             'data3': get_resource('kitten.jpg')
         }
         return run_single_benchmark(plan, jmeter_args)
@@ -419,7 +419,7 @@ def run_benchmark():
         raise Exception("No benchmark benchmark_named {}".format(benchmark_name))
 
 
-def modify_config_props_for_mms(pargs):
+def modify_config_props_for_ts(pargs):
     shutil.copyfile(CONFIG_PROP_TEMPLATE, CONFIG_PROP)
     with open(CONFIG_PROP, 'a') as f:
         f.write('\nnumber_of_netty_threads=32')
@@ -445,12 +445,12 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', nargs=1, type=str, default=None, help='The input to feed to the test')
     parser.add_argument('-g', '--gpus', nargs=1, type=int, default=None, help='Number of gpus.  Leave empty to run CPU only')
 
-    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[100], help='Number of loops to run')
+    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[1], help='Number of loops to run')
     parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
-    parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of MMS backend workers to use')
+    parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of TorchServe backend workers to use')
 
-    parser.add_argument('--mms', nargs=1, type=str, help='Target an already running instance of MMS instead of spinning up a docker container of MMS.  Specify the target with the format address:port (for http) or protocol://address:port')
-    parser.add_argument('--management-port', dest='management', nargs=1, type=str, help='When targeting a running MMS instance, specify the management port')
+    parser.add_argument('--ts', nargs=1, type=str, help='Target an already running instance of TorchServe instead of spinning up a docker container of TorchServe.  Specify the target with the format address:port (for http) or protocol://address:port')
+    parser.add_argument('--management-port', dest='management', nargs=1, type=str, help='When targeting a running TorchServe instance, specify the management port')
     parser.add_argument('-v', '--verbose', action='store_true', help='Display all output')
     parser.add_argument('--options', nargs='*', default=[], help='Additional jmeter arguments.  It should follow the format of --options argname1 argval1 argname2 argval2 ...')
     pargs = parser.parse_args()
@@ -462,7 +462,7 @@ if __name__ == '__main__':
     else:
         os.makedirs(OUT_DIR)
 
-    modify_config_props_for_mms(pargs)
+    modify_config_props_for_ts(pargs)
 
     if pargs.suite:
         benchmark_model = pargs.model[0].lower()

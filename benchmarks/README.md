@@ -37,7 +37,7 @@ We support several basic benchmarks:
 - ping: Test the throughput of pinging against the frontend
 - load: Loads the same model many times in parallel.  The number of loads is given by the "count" option and defaults to 16.
 - repeated_scale_calls: Will scale the model up to "scale_up_workers"=16 then down to "scale_down_workers"=1 then up and down repeatedly.
-- multiple_models: Loads and scales up three models (1. noop, 2. lstm, and 3. resnet), at the same time, runs inferences on them, and then scales them down.  Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively.  data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
+- multiple_models: Loads and scales up three models (1. squeeze-net and 2. resnet), at the same time, runs inferences on them, and then scales them down.  Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively.  data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
 
 We also support compound benchmarks:
 - concurrent_inference: Runs the basic benchmark with different numbers of threads
@@ -57,8 +57,8 @@ Run all benchmarks\
 ```./benchmark.py --all```
 
 
-Run using the noop-v1.0 model\
-```./benchmark.py latency -m noop_v1.0```
+Run using the squeeze-net model\
+```./benchmark.py latency -m squeeze-net```
 
 
 Run on GPU (4 gpus)\
@@ -78,9 +78,9 @@ Run with custom options\
 
 
 Run against an already running instance of TorchServe\
-```./benchmark.py latency --mms 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
-```./benchmark.py latency --mms 127.0.0.1:8080 --management-port 8081```\
-```./benchmark.py latency --mms https://127.0.0.1:8443```
+```./benchmark.py latency --ts 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
+```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```\
+```./benchmark.py latency --ts https://127.0.0.1:8443```
 
 
 Run verbose with only a single loop\
@@ -101,7 +101,7 @@ The benchmarks can be used in conjunction with standard profiling tools such as 
 1. Run TorchServe directly through gradle (do not use docker).  This can be done either on your machine or on a remote machine accessible through SSH.
 2. In JProfiler, select "Attach" from the ribbon and attach to the ModelServer.  The process name in the attach window should be "com.amazonaws.ml.ts.ModelServer".  If it is on a remote machine, select "On another computer" in the attach window and enter the SSH details.  For the session startup settings, you can leave it with the defaults.  At this point, you should see live CPU and Memory Usage data on JProfiler's Telemetries section.
 3. Select Start Recordings in JProfiler's ribbon
-4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --mms https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
+4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
 5. Once the benchmark script has finished running, select Stop Recordings in JProfiler's ribbon
 
 Once you have stopped recording, you should be able to analyze the data.  One useful section to examine is CPU views > Call Tree and CPU views > Hot Spots to see where the processor time is going.
@@ -111,8 +111,8 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 The benchmarks can also be used to analyze the backend performance using cProfile.  It does not require any additional packages to run the benchmark, but viewing the logs does require an additional package.  Run `pip install snakeviz` to install this.  To run the python profiling, follow these steps:
 
 1. In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-2. Run the benchmark and TorchServe.  They can either be done automatically inside the docker container or separately with the "--mms" flag.
+2. Run the benchmark and TorchServe.  They can either be done automatically inside the docker container or separately with the "--ts" flag.
 3. Run TorchServe directly through gradle (do not use docker).  This can be done either on your machine or on a remote machine accessible through SSH.
-4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --mms https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
+4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
 5. Run `snakeviz /tmp/tsPythonProfile.prof` to view the profiling data.  It should start up a web server on your machine and automatically open the page.
 6. Don't forget to set BENCHMARK = False in the model_service_worker.py file after you are finished.
