@@ -111,4 +111,10 @@ Following example demonstrates how to create and serve a custom text_classificat
 
 Following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TS :
 
-* [Object_detection example](object_detector)
+* [Object detection example](object_detector)
+
+#### Image Segmentation Example
+
+Following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TS :
+
+* [Image segmentation example](image_segmenter)

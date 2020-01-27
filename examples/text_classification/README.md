@@ -4,7 +4,7 @@ This is an example to create a text classification dataset and train a sentiment
 
 https://github.com/pytorch/text/tree/master/examples/text_classification
 
-We have copied the files from above example and made small changes to save the model's state dict and added some default values.
+We have copied the files from above example and made small changes to save the model's state dict and added default values.
 
 # Training the model
 
