@@ -325,9 +325,6 @@ public class WorkerThread implements Runnable {
 
     private final String getWorkerName() {
         String modelName = model.getModelVersionName().getVersionedModelName();
-        if (modelName.length() > 25) {
-            modelName = modelName.substring(0, 25);
-        }
         return "W-" + port + '-' + modelName;
     }
 
