@@ -37,11 +37,49 @@ We support several basic benchmarks:
 - ping: Test the throughput of pinging against the frontend
 - load: Loads the same model many times in parallel.  The number of loads is given by the "count" option and defaults to 16.
 - repeated_scale_calls: Will scale the model up to "scale_up_workers"=16 then down to "scale_down_workers"=1 then up and down repeatedly.
+TBD :
 - multiple_models: Loads and scales up three models (1. squeeze-net and 2. resnet), at the same time, runs inferences on them, and then scales them down.  Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively.  data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
 
 We also support compound benchmarks:
+TBD :
 - concurrent_inference: Runs the basic benchmark with different numbers of threads
 
+## Benchmarking by launching docker container: [TBD]
+
+## Benchmarking in dev/local environment:
+
+#### Using local TorchServe instance:
+
+* Install TorchServe using the [install guide](../docs/install.md)
+* Start TorchServe using following command :
+
+```bash
+torchserve --start --model-store <path_to_your_model_store>
+```
+* To start benchmarking execute following commands
+
+```bash
+cd serve/benchmarks
+python benchmark.py throughput --ts http://127.0.0.1:8080
+```
+
+Note:
+1) The above model_store directory should contain resnet-18.mar file for running benchmark.
+2) The resnet-18.mar file must have model name as resnet-18
+3) Refer the examples below to run different benchmarking suites on TorchServe.
+
+#### By using external docker container for TorchServe:
+
+* Create and start a [docker container for TorchServe](../docker/README.md).
+* To start benchmarking execute following commands
+
+```bash
+cd serve/benchmarks
+python benchmark.py throughput --ts http://127.0.0.1:8080
+```
+
+Note:
+1) Refer the examples below to run different benchmarking suites on TorchServe.
 
 ## Examples
 

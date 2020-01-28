@@ -21,19 +21,13 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-'''
-MODEL_STORE is a workaround/temporary path to pickup models from local disk.
-This can be removed once required model mar files are available via some public repo.
-'''
-MODEL_STORE = "<your_model_store_path>"
-
 BENCHMARK_DIR = "/tmp/TSBenchmark/"
 
 OUT_DIR = os.path.join(BENCHMARK_DIR, 'out/')
 RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource/')
 
 RESOURCE_MAP = {
-    'kitten.jpg': MODEL_STORE+'/kitten.jpg'
+    'kitten.jpg': 'https://s3.amazonaws.com/model-server/inputs/kitten.jpg'
 }
 
 # Listing out all the JMX files
@@ -128,8 +122,7 @@ def get_resource(name):
         directory = os.path.dirname(path)
         if not os.path.exists(directory):
             os.makedirs(directory)
-        if not MODEL_STORE: #for local testing
-            urlretrieve(url, path)
+        urlretrieve(url, path)
     return url
 
 
@@ -445,7 +438,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', nargs=1, type=str, default=None, help='The input to feed to the test')
     parser.add_argument('-g', '--gpus', nargs=1, type=int, default=None, help='Number of gpus.  Leave empty to run CPU only')
 
-    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[1], help='Number of loops to run')
+    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[100], help='Number of loops to run')
     parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
     parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of TorchServe backend workers to use')
 

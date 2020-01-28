@@ -7,6 +7,10 @@ cp <path_to_resnet-18_MAR_file> .
 docker build -t torchserve:1.0 .
 ```
 
+Note:
+1) The step to copy resnet-18.mar file is optional and is only required for running benchmarking on docker container.
+2) The resnet-18.mar file must have model name as resnet-18.
+
 #### Start container with TorchServe image
 
 ```bash
