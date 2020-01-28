@@ -22,7 +22,7 @@ Before proceeding further with this document, make sure you have the following p
 
     For Ubuntu:
     ```bash
-    sudo apt-get install openjdk-8-jre-headless
+    sudo apt-get install openjdk-8-jdk
     ```
 
     For CentOS:
