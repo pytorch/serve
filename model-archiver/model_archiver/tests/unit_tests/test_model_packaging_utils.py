@@ -141,9 +141,11 @@ class TestExportModelUtils:
         engine = EngineType.MXNET.value
         model_name = 'my-model'
         handler = 'a.py::my-awesome-func'
+        serialized_file = 'model.pt'
+        model_file = 'model.pt'
 
         args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
-                         runtime=RuntimeType.PYTHON.value)
+                         runtime=RuntimeType.PYTHON.value, serialized_file=serialized_file, model_file=model_file)
 
         def test_publisher(self):
             pub = ModelExportUtils.generate_publisher(self.args)

@@ -7,8 +7,9 @@
 * [Artifact Details](#artifact-details)
     * [MAR-INFO](#mar-inf)
     * [Model name](#model-name)
-    * [Runtime](#runtime)
-    * [Handler](#handler)
+    * [Model File](#model-file)
+    * [Serialized File](#serialized-file)
+    * [handler](#handler)
 * [Quick Start: Creating a Model Archive](#creating-a-model-archive)
 
 ## Overview
@@ -40,7 +41,7 @@ Here is an example usage with the squeezenet_v1.1 model archive following the ex
 
 ```bash
 
-torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json --handler image_classifier
 
 ```
 
@@ -70,7 +71,12 @@ optional arguments:
                         This parameter is mandatory for eager mode models.
                         The model architecture file must contain only one
                         class definition extended from torch.nn.modules.
-  --handler HANDLER     Handler path to handle custom TS inference logic.
+  --handler HANDLER     TorchServe's default handler name  or handler python 
+                        file path to handle custom TS inference logic.
+
+  --source-vocab SOURCE_VOCAB
+                        Vocab file for source language required for text
+                        based models
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.
   --runtime {python,python2,python3}
@@ -122,6 +128,13 @@ A model file should contain the model architecture. This file is mandatory in ca
 
 A serialized file (.pt or .pth) should be a checkpoint in case of torchscript and state_dict in case of eager mode.
 
+### Handler
+
+Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TS inference logic. TorchServe supports following handlers out or box:
+1. image_classifier
+2. object_detector
+3. text_classifier
+4. image_segmenter
 
 ## Creating a Model Archive
 
@@ -141,31 +154,20 @@ TODO : add description about the above artifacts
 git clone https://github.com/pytorch/serve.git
 ```
 
-**3. Prepare your model custom service code**
-
-You can implement your own model customer service code with a model archive entry point.
-Here we are going to use the MXNet vision service `model_service_template`.
-This template is one of several provided with MMS.
-Download the template and place it in your `squeezenet` folder.
-
-```bash
-cp -r mxnet-model-server/examples/model_service_template/* squeezenet/
-```
-
-**4. Package your model**
+**3. Package your model**
 
 With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with MMS.
 
-In this next step we'll run `torch-model-archiver` and tell it our model's name is `densenet_161` with the `model-name` argument. Then we're giving it the `model-file` and `serialized-file` to the model's assets.
+In this next step we'll run `torch-model-archiver` and tell it our model's name is `densenet_161` with the `model-name` argument and that it will use TorchServe's default `image_classifier` handler with the `handler` argument . Then we're giving it the `model-file` and `serialized-file` to the model's assets.
 
 For torchscript:
 ```bash
-torch-model-archiver --model-name densenet_161 --serialized-file model.pt
+torch-model-archiver --model-name densenet_161 --serialized-file model.pt --handler image_classifier
 ```
 
 For eagermode:
 ```bash
-torch-model-archiver --model-name densenet_161 --model-flie model.py --serialized-file model.pt
+torch-model-archiver --model-name densenet_161 --model-flie model.py --serialized-file model.pt --handler image_classifier
 ```
 
 This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TS, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!

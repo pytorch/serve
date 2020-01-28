@@ -7,10 +7,10 @@ from PIL import Image
 from torch.autograd import Variable
 from torchvision import transforms
 
-from .base_handler import BaseHandler
+from .vision_handler import VisionHandler
 
 
-class ImageClassifier(BaseHandler):
+class ImageClassifier(VisionHandler):
     """
     ImageClassifier handler class. This handler takes an image
     and returns the name of object in that image.
@@ -93,5 +93,4 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("Only image classification models are supported w/o a handler."
-                        " Please provide a custom handler in the model archive.")
+        raise Exception("Please provide a custom handler in the model archive.")
