@@ -324,7 +324,7 @@ public class WorkerThread implements Runnable {
     }
 
     private final String getWorkerName() {
-        String modelName = model.getVersionedModelName();
+        String modelName = model.getModelVersionName().getVersionedModelName();
         if (modelName.length() > 25) {
             modelName = modelName.substring(0, 25);
         }
@@ -332,7 +332,8 @@ public class WorkerThread implements Runnable {
     }
 
     void setState(WorkerState newState, HttpResponseStatus status) {
-        listener.notifyChangeState(model.getVersionedModelName(), newState, status);
+        listener.notifyChangeState(
+                model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
         long timeTaken = System.currentTimeMillis() - startTime;
         if (state != WorkerState.WORKER_SCALED_DOWN) {

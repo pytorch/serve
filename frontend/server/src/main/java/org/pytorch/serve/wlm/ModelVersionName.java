@@ -18,6 +18,10 @@ public class ModelVersionName {
         return version;
     }
 
+    public String getVersionedModelName() {
+        return getModelName() + "_" + getVersion();
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;

@@ -26,6 +26,7 @@ public class Model {
     private int maxBatchDelay;
     private ReentrantLock lock;
     private int responseTimeout;
+    private ModelVersionName modelVersionName;
 
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
@@ -42,18 +43,17 @@ public class Model {
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
         failedInfReqs = new AtomicInteger(0);
         lock = new ReentrantLock();
+        modelVersionName =
+                new ModelVersionName(
+                        this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
     }
 
     public String getModelName() {
         return modelArchive.getModelName();
     }
 
-    public String getVersionedModelName() {
-        return modelArchive.getModelName() + "_" + modelArchive.getModelVersion();
-    }
-
     public ModelVersionName getModelVersionName() {
-        return new ModelVersionName(modelArchive.getModelName(), modelArchive.getModelVersion());
+        return modelVersionName;
     }
 
     public String getVersion() {
