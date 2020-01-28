@@ -155,10 +155,7 @@ public class ModelServerTest {
         testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
         testPredictions(channel, "noopversioned", "OK", "1.21");
-        // testUnregisterModelFailure(managementChannel, "noopversioned", "1.21");
         testSetDefault(managementChannel, "noopversioned", "1.11");
-        testUnregisterModel(managementChannel, "noopversioned", "1.21");
-        testUnregisterModel(managementChannel, "noopversioned", "1.11");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
@@ -206,6 +203,7 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
+        testUnregisterModelFailure("noopversioned", "1.11");
     }
 
     @Test
@@ -402,8 +400,10 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" unregistered");
     }
 
-    private void testUnregisterModelFailure(Channel channel, String modelName, String version)
+    private void testUnregisterModelFailure(String modelName, String version)
             throws InterruptedException {
+        Channel channel = connect(true);
+        Assert.assertNotNull(channel);
         result = null;
         latch = new CountDownLatch(1);
         String requestURL = "/models/" + modelName;
@@ -420,6 +420,11 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         Assert.assertEquals(
                 resp.getMessage(), "Cannot remove default version for model " + modelName);
+
+        channel = connect(true);
+        Assert.assertNotNull(channel);
+        testUnregisterModel(channel, "noopversioned", "1.21");
+        testUnregisterModel(channel, "noopversioned", "1.11");
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
