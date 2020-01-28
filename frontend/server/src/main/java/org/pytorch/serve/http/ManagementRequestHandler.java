@@ -93,7 +93,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
-                || (segments.length == 5 && segments[4].contentEquals("set-default"))
+                || (segments.length == 5 && "set-default".equals(segments[4]))
                 || endpointMap.containsKey(segments[1]);
     }
 
@@ -108,7 +108,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         }
 
         ModelManager modelManager = ModelManager.getInstance();
-        Map<String, Model> models = modelManager.getModels();
+        Map<String, Model> models = modelManager.getDefaultModels();
 
         List<String> keys = new ArrayList<>(models.keySet());
         Collections.sort(keys);
@@ -285,7 +285,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", null));
 
         ModelManager modelManager = ModelManager.getInstance();
-        if (!modelManager.getModels().containsKey(modelName)) {
+        if (!modelManager.getDefaultModels().containsKey(modelName)) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
         updateModelWorkers(ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null);

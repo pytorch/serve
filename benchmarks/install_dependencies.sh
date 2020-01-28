@@ -11,7 +11,6 @@ sudo apt-get -y upgrade
 echo "Setting up your Ubuntu machine to load test MMS"
 sudo apt-get install -y \
         python \
-        python-pip \
         python3-pip \
         python3-tk \
         python-psutil \

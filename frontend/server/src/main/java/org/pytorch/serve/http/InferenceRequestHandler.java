@@ -165,7 +165,6 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (HttpMethod.OPTIONS.equals(req.method())) {
             ModelManager modelManager = ModelManager.getInstance();
 
-            // ModelVersionedRefs model = modelManager.getModel(modelName, modelVersion);
             Model model = modelManager.getModel(modelName, modelVersion);
             if (model == null) {
                 throw new ModelNotFoundException("Model not found: " + modelName);

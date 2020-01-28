@@ -124,7 +124,7 @@ public final class ModelManager {
 
     private void createVersionedModel(Model model, String versionId)
             throws ConflictStatusException {
-        // TODO Auto-generated method stub
+
         ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
         if (modelVersionRef == null) {
             modelVersionRef = new ModelVersionedRefs();
@@ -215,8 +215,7 @@ public final class ModelManager {
         return wlm.modelChanged(model);
     }
 
-    public Map<String, Model> getModels() {
-        // return modelsNameMap;
+    public Map<String, Model> getDefaultModels() {
         ConcurrentHashMap<String, Model> defModelsMap = new ConcurrentHashMap<>();
         for (Map.Entry<String, ModelVersionedRefs> mvr : modelsNameMap.entrySet()) {
             defModelsMap.put(mvr.getKey(), mvr.getValue().getDefaultModel());
