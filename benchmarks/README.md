@@ -81,6 +81,10 @@ python benchmark.py throughput --ts http://127.0.0.1:8080
 Note:
 1) Refer the examples below to run different benchmarking suites on TorchServe.
 
+## Accessing benchmark reports :
+
+The benchmark reports are available at /tmp/TSBenchmark/
+
 ## Examples
 
 Run basic latency test on default resnet-18 model\
