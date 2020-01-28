@@ -1,8 +1,8 @@
 package org.pytorch.serve.archive;
 
 public class ModelVersionNotFoundException extends ModelException {
-	
-	static final long serialVersionUID = 1L;
+
+    static final long serialVersionUID = 1L;
 
     /**
      * Constructs an {@code ModelVersionNotFoundException} with the specified detail message.
@@ -29,5 +29,4 @@ public class ModelVersionNotFoundException extends ModelException {
     public ModelVersionNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }

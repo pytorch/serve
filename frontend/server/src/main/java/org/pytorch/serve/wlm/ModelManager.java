@@ -169,7 +169,7 @@ public final class ModelManager {
             }
         } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
-            httpResponseStatus = HttpResponseStatus.NOT_FOUND;
+            httpResponseStatus = HttpResponseStatus.BAD_REQUEST;
         } catch (InvalidModelVersionException e) {
             logger.warn("Cannot remove default version {} for model {}", versionId, modelName);
             httpResponseStatus = HttpResponseStatus.FORBIDDEN;

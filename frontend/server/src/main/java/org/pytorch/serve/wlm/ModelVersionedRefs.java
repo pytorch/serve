@@ -3,7 +3,6 @@ package org.pytorch.serve.wlm;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
@@ -98,7 +97,7 @@ public final class ModelVersionedRefs {
      *
      * @param A String specifying a valid non-default version Id
      * @return On Success - Removed model for given version Id
-     * @throws ModelVersionNotFoundException 
+     * @throws ModelVersionNotFoundException
      * @throws On Failure - throws InvalidModelVersionException and ModelNotFoundException
      */
     public Model removeVersionModel(String versionId)

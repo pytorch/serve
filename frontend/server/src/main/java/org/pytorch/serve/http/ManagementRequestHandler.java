@@ -253,12 +253,17 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private void handleUnregisterModel(
             ChannelHandlerContext ctx, String modelName, String modelVersion)
-            throws ModelVersionNotFoundException, InternalServerException, RequestTimeoutException {
+            throws ModelNotFoundException, InternalServerException, RequestTimeoutException,
+                    ModelVersionNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
         HttpResponseStatus httpResponseStatus =
                 modelManager.unregisterModel(modelName, modelVersion);
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
-            throw new ModelVersionNotFoundException(String.format("Model version: %s not found for model: %s", modelVersion, modelName));
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.BAD_REQUEST) {
+            throw new ModelVersionNotFoundException(
+                    String.format(
+                            "Model version: %s not found for model: %s", modelVersion, modelName));
         } else if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
             throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {
