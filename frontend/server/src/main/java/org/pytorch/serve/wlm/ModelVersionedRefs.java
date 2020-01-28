@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.slf4j.Logger;
@@ -97,10 +98,11 @@ public final class ModelVersionedRefs {
      *
      * @param A String specifying a valid non-default version Id
      * @return On Success - Removed model for given version Id
+     * @throws ModelVersionNotFoundException 
      * @throws On Failure - throws InvalidModelVersionException and ModelNotFoundException
      */
     public Model removeVersionModel(String versionId)
-            throws InvalidModelVersionException, ModelNotFoundException {
+            throws InvalidModelVersionException, ModelVersionNotFoundException {
         if (versionId == null) {
             versionId = this.getDefaultVersion();
         } else {
@@ -115,7 +117,7 @@ public final class ModelVersionedRefs {
 
         Model model = this.modelsVersionMap.remove(Double.valueOf(versionId));
         if (model == null) {
-            throw new ModelNotFoundException(
+            throw new ModelVersionNotFoundException(
                     String.format("Model version: %s not found", versionId));
         }
 

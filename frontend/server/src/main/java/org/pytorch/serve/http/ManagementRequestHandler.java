@@ -19,6 +19,7 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -252,12 +253,12 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private void handleUnregisterModel(
             ChannelHandlerContext ctx, String modelName, String modelVersion)
-            throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
+            throws ModelVersionNotFoundException, InternalServerException, RequestTimeoutException {
         ModelManager modelManager = ModelManager.getInstance();
         HttpResponseStatus httpResponseStatus =
                 modelManager.unregisterModel(modelName, modelVersion);
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
+            throw new ModelVersionNotFoundException(String.format("Model version: %s not found for model: %s", modelVersion, modelName));
         } else if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
             throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {

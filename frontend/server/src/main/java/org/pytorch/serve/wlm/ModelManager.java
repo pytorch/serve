@@ -17,6 +17,7 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.StatusResponse;
@@ -166,8 +167,7 @@ public final class ModelManager {
             if (vmodel.getAllVersions().size() == 0) {
                 modelsNameMap.remove(modelName);
             }
-
-        } catch (ModelNotFoundException e) {
+        } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpResponseStatus.NOT_FOUND;
         } catch (InvalidModelVersionException e) {
