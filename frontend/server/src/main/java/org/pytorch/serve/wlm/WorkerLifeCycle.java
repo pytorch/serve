@@ -117,10 +117,12 @@ public class WorkerLifeCycle {
                         "W-"
                                 + port
                                 + '-'
-                                + model.getModelVersionName()
+                                + model.getVersionedModelName()
                                         .substring(
                                                 0,
-                                                Math.min(model.getModelVersionName().length(), 25));
+                                                Math.min(
+                                                        model.getVersionedModelName().length(),
+                                                        25));
                 new ReaderThread(threadName, process.getErrorStream(), true, this).start();
                 new ReaderThread(threadName, process.getInputStream(), false, this).start();
             }

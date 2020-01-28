@@ -223,8 +223,8 @@ public final class ModelManager {
         return defModelsMap;
     }
 
-    public List<WorkerThread> getWorkers(String modelName) {
-        return wlm.getWorkers(modelName);
+    public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {
+        return wlm.getWorkers(modelVersionName);
     }
 
     public Map<Integer, WorkerThread> getWorkers() {

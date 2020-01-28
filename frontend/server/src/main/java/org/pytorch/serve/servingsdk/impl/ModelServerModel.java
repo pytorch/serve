@@ -32,7 +32,7 @@ public class ModelServerModel implements Model {
     public List<Worker> getModelWorkers() {
         ArrayList<Worker> list = new ArrayList<>();
         ModelManager.getInstance()
-                .getWorkers(model.getModelName())
+                .getWorkers(model.getModelVersionName())
                 .forEach(r -> list.add(new ModelWorker(r)));
         return list;
     }

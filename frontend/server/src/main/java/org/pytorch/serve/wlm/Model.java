@@ -48,8 +48,12 @@ public class Model {
         return modelArchive.getModelName();
     }
 
-    public String getModelVersionName() {
+    public String getVersionedModelName() {
         return modelArchive.getModelName() + "_" + modelArchive.getModelVersion();
+    }
+
+    public ModelVersionName getModelVersionName() {
+        return new ModelVersionName(modelArchive.getModelName(), modelArchive.getModelVersion());
     }
 
     public String getVersion() {
