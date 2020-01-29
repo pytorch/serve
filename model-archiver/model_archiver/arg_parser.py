@@ -50,11 +50,18 @@ class ArgParser(object):
                                         'class definition extended from torch.nn.modules.')
 
         parser_export.add_argument('--handler',
-                                   required=False,
+                                   required=True,
                                    dest="handler",
                                    type=str,
                                    default=None,
-                                   help='Handler path to handle custom TorchServe inference logic.')
+                                   help="TorchServe's default handler name\n"
+                                        " or handler python file path to handle custom TS inference logic.")
+
+        parser_export.add_argument('--source-vocab',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Vocab file for source language. Required for text based models.')
 
         parser_export.add_argument('--extra-files',
                                    required=False,

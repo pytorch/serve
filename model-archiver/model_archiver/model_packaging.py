@@ -21,6 +21,7 @@ def package_model(args, manifest):
     extra_files = args.extra_files
     export_file_path = args.export_path
     model_version = args.version
+    source_vocab = args.source_vocab
     temp_files = []
 
     try:
@@ -29,9 +30,9 @@ def package_model(args, manifest):
         export_file_path = ModelExportUtils.check_mar_already_exists(model_name, export_file_path,
                                                                      args.force, args.archive_format)
 
-        # Step 2 : Copy all artifacts for temp directory
+        # Step 2 : Copy all artifacts to temp directory
         artifact_files = {'model_file': model_file, 'serialized_file': serialized_file, 'handler': handler,
-                          'extra_files': extra_files}
+                          'extra_files': extra_files, 'source_vocab': source_vocab}
 
         model_path = ModelExportUtils.copy_artifacts(model_name, **artifact_files)
 
@@ -51,8 +52,25 @@ def generate_model_archive():
     Generate a model archive file
     :return:
     """
+
+    model_handlers = {
+        'text_classifier': 'text',
+        'image_classifier': 'vision',
+        'object_detector': 'vision',
+        'image_segmenter': 'vision'
+    }
+
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
+
+    if args.handler in model_handlers.keys():
+        if model_handlers[args.handler] == "text":
+            if not args.source_vocab:
+                raise Exception("Please provide the source language vocab for {0} model.".format(args.handler))
+    elif not args.handler.endswith(".py"):
+        raise Exception("Handler should be one of the default TS handlers [{0}]"
+                        " or a py file to handle custom TS inference logic.".format(",".join(model_handlers.keys())))
+
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)
 
