@@ -123,7 +123,7 @@ def get_resource(name):
         if not os.path.exists(directory):
             os.makedirs(directory)
         urlretrieve(url, path)
-    return url
+    return path
 
 
 def run_process(cmd, wait=True, **kwargs):
