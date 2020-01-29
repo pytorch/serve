@@ -8,7 +8,7 @@ docker build -t torchserve:1.0 .
 ```
 
 Note:
-1) The step to copy resnet-18.mar file is optional and is only required for running benchmarking on docker container.
+1) The step to copy resnet-18.mar file is optional and is only required for running benchmarking on docker container.To create resnet-18.mar file refer : [image classification with resnet18 example documentation](../examples/image_classifier/resnet_18)
 2) The resnet-18.mar file must have model name as resnet-18.
 
 #### Start container with TorchServe image

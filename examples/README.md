@@ -96,8 +96,14 @@ traced_script_module.save("dense161.pt")
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/kitten.jpg
+    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/image_classifier/kitten.jpg
     ```
+  
+#### TorchScript example using Resnet18 image classifier:
+Following example demonstrates how to create a Resnet18 image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
+
+* [Image classification using Resnet18](image_classifier/resnet_18)
+
 #### TorchScript example using custom model and custom handler:
 
 Following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :

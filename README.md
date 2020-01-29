@@ -113,7 +113,7 @@ For this quick start, we'll skip over most of the features, but be sure to take 
 Here is an easy example for serving an object classification model:
 ```bash
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
 mkdir model_store
 mv densenet161.mar model_store/
 torchserve --start --model-store model_store --models densenet161=densenet161.mar
