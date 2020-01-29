@@ -14,11 +14,11 @@
 
 * Create a torch model archive file using the above provided syntax command.
 
-#### Sample commands to create a DenseNet161 eager mode model archive, register it on TS and run image prediction
+#### Sample commands to create a DenseNet161 eager mode model archive, register it on TorchServe and run image prediction
 
     ```bash
     wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-    torch-model-archiver --model-name densenet161 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files serve/examples/image_classifier/index_to_name.json
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files serve/examples/image_classifier/index_to_name.json
     mkdir model_store
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
@@ -50,10 +50,10 @@
    traced_script_module.save("dense161.pt")
    ```  
  
-* Use following commands to register Densenet161 torchscript model on TS and run image prediction
+* Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name densenet161_ts  --serialized-file densenet161.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name densenet161_ts --version 1.0  --serialized-file densenet161.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
@@ -61,6 +61,6 @@
     ```
 #### TorchScript example using custom model and custom handler:
 
-Following example demonstrates how to create and serve a custom NN model with custom handler archives in TS :
+Following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
 * [Digit recognition with MNIST](mnist)

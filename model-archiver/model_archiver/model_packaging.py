@@ -68,8 +68,8 @@ def generate_model_archive():
             if not args.source_vocab:
                 raise Exception("Please provide the source language vocab for {0} model.".format(args.handler))
     elif not args.handler.endswith(".py"):
-        raise Exception("Handler should be one of the default TS handlers [{0}]"
-                        " or a py file to handle custom TS inference logic.".format(",".join(model_handlers.keys())))
+        raise Exception("Handler should be one of the default TorchServe handlers [{0}]"
+                        " or a py file to handle custom TorchServe inference logic.".format(",".join(model_handlers.keys())))
 
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)

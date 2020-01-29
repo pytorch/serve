@@ -71,7 +71,7 @@ optional arguments:
                         The model architecture file must contain only one
                         class definition extended from torch.nn.modules.
   --handler HANDLER     TorchServe's default handler name  or handler python 
-                        file path to handle custom TS inference logic.
+                        file path to handle custom TorchServe inference logic.
   --source-vocab SOURCE_VOCAB
                         Vocab file for source language required for text
                         based models
@@ -129,7 +129,7 @@ A serialized file (.pt or .pth) should be a checkpoint in case of torchscript an
 
 ### Handler
 
-Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TS inference logic. TorchServe supports following handlers out or box:
+Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TorchServe inference logic. TorchServe supports following handlers out or box:
 1. image_classifier
 2. object_detector
 3. text_classifier

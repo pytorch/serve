@@ -55,7 +55,7 @@ class ArgParser(object):
                                    type=str,
                                    default=None,
                                    help="TorchServe's default handler name\n"
-                                        " or handler python file path to handle custom TS inference logic.")
+                                        " or handler python file path to handle custom TorchServe inference logic.")
 
         parser_export.add_argument('--source-vocab',
                                    required=False,
@@ -109,7 +109,7 @@ class ArgParser(object):
                                         'name as that provided in --model-name in the path specified by --export-path\n'
                                         'will overwritten')
 
-        parser_export.add_argument('-v','--version',
+        parser_export.add_argument('-v', '--version',
                                    required=True,
                                    type=str,
                                    default=None,
