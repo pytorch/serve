@@ -11,11 +11,11 @@ wget https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.p
 * Create a model archive file and serve the fastrcnn model in TorchServe using below commands
 
     ```bash
-    torch-model-archiver --model-name --version 1.0 fastrcnn --model-file serve/examples/object_detector/fast-rcnn/model.py --serialized-file fasterrcnn_resnet50_fpn_coco-258fb6c6.pth --handler object_detector --extra-files serve/examples/object_detector/fast-rcnn/index_to_name.json
+    torch-model-archiver --model-name --version 1.0 fastrcnn --model-file examples/object_detector/fast-rcnn/model.py --serialized-file fasterrcnn_resnet50_fpn_coco-258fb6c6.pth --handler object_detector --extra-files examples/object_detector/fast-rcnn/index_to_name.json
     mkdir model_store
     mv fastrcnn.mar model_store/
     torchserve --start --model-store model_store --models fastrcnn=fastrcnn.mar
-    curl -X POST http://127.0.0.1:8080/predictions/fastrcnn -T serve/examples/object_detector/fast-rcnn/persons.jpg
+    curl -X POST http://127.0.0.1:8080/predictions/fastrcnn -T examples/object_detector/fast-rcnn/persons.jpg
     ```
 * Output
 
