@@ -46,6 +46,9 @@ cd serve
 pip install .
 ```
 
+**Notes:**
+* In case `pip install .` step fails, try using `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
+
 ## Install TorchServe for Development
 
 If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
