@@ -94,6 +94,7 @@ pip install .
 ```
 
 **Notes:**
+* In case `pip install .` step fails, try using `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
 ### Installing torch-model-archiver
