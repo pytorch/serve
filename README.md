@@ -61,21 +61,27 @@ source /tmp/pyenv3/bin/activate
 Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
 
 * **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
-
 [Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
+
+Then create a virtual environment using conda.
+```bash
+conda create -n myenv
+source activate myenv
+```
+
 
 **Step 2:** Install torch
 TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
+
+* For virtualenv
 
 ```bash
 pip install torch torchvision torchtext
 ```
 
-For conda
+* For conda
 
 ```bash
-conda create -n myenv
-source activate myenv
 conda install psutil pytorch torchvision torchtext -c pytorch
 ```
 
