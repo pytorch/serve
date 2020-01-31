@@ -3,13 +3,13 @@
 
 ## Prerequisites
 
-* **Python**: Required. Model Server for PyTorch (TorchServe) works with Python 2 or 3.  When installing TorchServe, we recommend that you use a Python and Conda environment to avoid conflicts with your other Torch installations.
+* **Python**: Required. Model Server for PyTorch (TorchServe) works with Python 3.  When installing TorchServe, we recommend that you use a Python and Conda environment to avoid conflicts with your other Torch installations.
 
 * **java 8**: Required. TorchServe use java to serve HTTP requests. You must install java 8 (or later) and make sure java is on available in $PATH environment variable *before* installing TorchServe. If you have multiple java installed, you can use $JAVA_HOME environment variable to control which java to use.
 
 For ubuntu:
 ```bash
-sudo apt-get install openjdk-8-jre-headless
+sudo apt-get install openjdk-8-jdk
 ```
 
 For centos
@@ -19,9 +19,8 @@ sudo yum install java-1.8.0-openjdk
 
 For Mac:
 ```bash
-brew tap caskroom/versions
-brew update
-brew cask install java8
+brew tap AdoptOpenJDK/openjdk
+brew cask install adoptopenjdk8
 ```
 
 You can also download and install [Oracle JDK](https://www.oracle.com/technetwork/java/javase/overview/index.html) manually if you have trouble with above commands.
@@ -29,7 +28,7 @@ You can also download and install [Oracle JDK](https://www.oracle.com/technetwor
 * **Torch**: Recommended. TorchServe won't install `torch` by default. Torch is required for most of examples in this project. TorchServe won't install torch engine by default. And you can also choose specific version of torch if you want.
 
 ```bash
-pip install torch torchvision
+pip install torch torchvision torchtext
 ```
 
 * **Curl**: Optional. Curl is used in all of the examples. Install it with your preferred package manager.
@@ -44,8 +43,11 @@ If you prefer, you can clone TorchServe from source code. First, run the followi
 ```bash
 git clone https://github.com/pytorch/serve.git
 cd serve
-python setup.py install
+pip install .
 ```
+
+**Notes:**
+* In case `pip install .` step fails, try using `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 
 ## Install TorchServe for Development
 
