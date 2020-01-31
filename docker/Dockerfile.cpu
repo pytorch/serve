@@ -24,7 +24,7 @@ RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 RUN pip install --no-cache-dir psutil
 RUN pip install --no-cache-dir torch
 RUN pip install --no-cache-dir torchvision
-ADD /serve /serve
+ADD serve serve
 RUN pip install ../serve/
 
 #Following block should be used once pypi package is live and comment block#1 above.

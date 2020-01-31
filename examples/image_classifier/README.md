@@ -18,11 +18,11 @@
 
     ```bash
     wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files serve/examples/image_classifier/index_to_name.json
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
     mkdir model_store
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/image_classifier/kitten.jpg
+    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
 
 
 #### TorchScript example using DenseNet161 image classifier:
@@ -53,11 +53,11 @@
 * Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name densenet161_ts --version 1.0  --serialized-file densenet161.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name densenet161_ts --version 1.0  --serialized-file densenet161.pt --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/image_classifier/kitten.jpg
+    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
     ```
 #### TorchScript example using custom model and custom handler:
 
