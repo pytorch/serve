@@ -68,7 +68,7 @@ Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) f
 TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
 
 ```bash
-pip install torch torchvision
+pip install torch torchvision torchtext
 ```
 
 For conda
@@ -76,7 +76,7 @@ For conda
 ```bash
 conda create -n myenv
 source activate myenv
-conda install psutil pytorch torchvision -c pytorch
+conda install psutil pytorch torchvision torchtext -c pytorch
 ```
 
 **Step 3:** Install TorchServe as follows:

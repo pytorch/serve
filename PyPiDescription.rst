@@ -16,7 +16,7 @@ Prerequisites
 For ubuntu:
 ::
 
-    sudo apt-get install openjdk-8-jre-headless
+    sudo apt-get install openjdk-8-jdk
 
 
 For centos
@@ -36,7 +36,7 @@ For Mac:
 Install PyTorch:
 ::
 
-    pip install torch
+    pip install torch torchvision torchtext
 
 
 Installation
