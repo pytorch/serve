@@ -21,7 +21,7 @@ public class WorkLoadManager {
 
     private ExecutorService threadPool;
 
-    private ConcurrentHashMap<String, List<WorkerThread>> workers;
+    private ConcurrentHashMap<ModelVersionName, List<WorkerThread>> workers;
 
     private ConfigManager configManager;
     private EventLoopGroup backendGroup;
@@ -39,8 +39,8 @@ public class WorkLoadManager {
         workers = new ConcurrentHashMap<>();
     }
 
-    public List<WorkerThread> getWorkers(String modelName) {
-        List<WorkerThread> list = workers.get(modelName);
+    public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {
+        List<WorkerThread> list = workers.get(modelVersionName);
         if (list == null) {
             return Collections.emptyList();
         }
@@ -57,17 +57,17 @@ public class WorkLoadManager {
         return map;
     }
 
-    public boolean hasNoWorker(String modelName) {
-        List<WorkerThread> worker = workers.get(modelName);
+    public boolean hasNoWorker(ModelVersionName modelVersionName) {
+        List<WorkerThread> worker = workers.get(modelVersionName);
         if (worker == null) {
             return true;
         }
         return worker.isEmpty();
     }
 
-    public int getNumRunningWorkers(String modelName) {
+    public int getNumRunningWorkers(ModelVersionName modelVersionName) {
         int numWorking = 0;
-        List<WorkerThread> threads = workers.getOrDefault(modelName, null);
+        List<WorkerThread> threads = workers.getOrDefault(modelVersionName, null);
 
         if (threads != null) {
             for (WorkerThread thread : threads) {
@@ -83,19 +83,21 @@ public class WorkLoadManager {
     }
 
     public CompletableFuture<HttpResponseStatus> modelChanged(Model model) {
-        synchronized (model.getModelName()) {
+        synchronized (model.getModelVersionName()) {
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
             List<WorkerThread> threads;
             if (minWorker == 0) {
-                threads = workers.remove(model.getModelName());
+                threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
                     return future;
                 }
             } else {
-                threads = workers.computeIfAbsent(model.getModelName(), k -> new ArrayList<>());
+                threads =
+                        workers.computeIfAbsent(
+                                model.getModelVersionName(), k -> new ArrayList<>());
             }
 
             int currentWorkers = threads.size();

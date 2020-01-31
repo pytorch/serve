@@ -1,7 +1,7 @@
 
 
 """
-ModelServiceWorker is the worker that is started by the TS front-end.
+ModelServiceWorker is the worker that is started by the TorchServe front-end.
 """
 
 import socket

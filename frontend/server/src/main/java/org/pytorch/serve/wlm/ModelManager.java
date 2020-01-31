@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +17,9 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
+import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
@@ -31,14 +34,14 @@ public final class ModelManager {
 
     private ConfigManager configManager;
     private WorkLoadManager wlm;
-    private ConcurrentHashMap<String, Model> models;
+    private ConcurrentHashMap<String, ModelVersionedRefs> modelsNameMap;
     private HashSet<String> startupModels;
     private ScheduledExecutorService scheduler;
 
     private ModelManager(ConfigManager configManager, WorkLoadManager wlm) {
         this.configManager = configManager;
         this.wlm = wlm;
-        models = new ConcurrentHashMap<>();
+        modelsNameMap = new ConcurrentHashMap<>();
         scheduler = Executors.newScheduledThreadPool(2);
         this.startupModels = new HashSet<>();
     }
@@ -84,10 +87,12 @@ public final class ModelManager {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
             }
-            modelName = archive.getModelName();
         } else {
             archive.getManifest().getModel().setModelName(modelName);
         }
+
+        String versionId = archive.getModelVersion();
+
         if (runtime != null) {
             archive.getManifest().setRuntime(runtime);
         }
@@ -99,68 +104,127 @@ public final class ModelManager {
 
         archive.validate();
 
-        Model model = new Model(archive, configManager.getJobQueueSize());
-        model.setBatchSize(batchSize);
-        model.setMaxBatchDelay(maxBatchDelay);
-        model.setResponseTimeout(responseTimeout);
-        Model existingModel = models.putIfAbsent(modelName, model);
-        if (existingModel != null) {
-            // model already exists
-            throw new ConflictStatusException("Model " + modelName + " is already registered.");
-        }
-        logger.info("Model {} loaded.", model.getModelName());
+        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
+
+        createVersionedModel(tempModel, versionId);
+
+        logger.info("Model {} loaded.", tempModel.getModelName());
 
         return archive;
     }
 
-    public HttpResponseStatus unregisterModel(String modelName) {
-        Model model = models.remove(modelName);
-        if (model == null) {
+    private Model createModel(
+            ModelArchive archive, int batchSize, int maxBatchDelay, int responseTimeout) {
+        Model model = new Model(archive, configManager.getJobQueueSize());
+        model.setBatchSize(batchSize);
+        model.setMaxBatchDelay(maxBatchDelay);
+        model.setResponseTimeout(responseTimeout);
+
+        return model;
+    }
+
+    private void createVersionedModel(Model model, String versionId)
+            throws ConflictStatusException {
+
+        ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
+        if (modelVersionRef == null) {
+            modelVersionRef = new ModelVersionedRefs();
+        }
+        modelVersionRef.addVersionModel(model, versionId);
+        modelsNameMap.putIfAbsent(model.getModelName(), modelVersionRef);
+    }
+
+    public HttpResponseStatus unregisterModel(String modelName, String versionId) {
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
             logger.warn("Model not found: " + modelName);
             return HttpResponseStatus.NOT_FOUND;
         }
-        model.setMinWorkers(0);
-        model.setMaxWorkers(0);
-        CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model);
+
+        Model model = null;
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
 
         try {
+            model = vmodel.removeVersionModel(versionId);
+            model.setMinWorkers(0);
+            model.setMaxWorkers(0);
+            CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model);
             httpResponseStatus = futureStatus.get();
-        } catch (InterruptedException | ExecutionException e) {
+
+            // Only continue cleaning if resource cleaning succeeded
+
+            if (httpResponseStatus == HttpResponseStatus.OK) {
+                model.getModelArchive().clean();
+                startupModels.remove(modelName);
+                logger.info("Model {} unregistered.", modelName);
+            } else {
+                if (versionId == null) {
+                    versionId = vmodel.getDefaultVersion();
+                }
+                vmodel.addVersionModel(model, versionId);
+            }
+
+            if (vmodel.getAllVersions().size() == 0) {
+                modelsNameMap.remove(modelName);
+            }
+        } catch (ModelVersionNotFoundException e) {
+            logger.warn("Model {} version {} not found.", modelName, versionId);
+            httpResponseStatus = HttpResponseStatus.BAD_REQUEST;
+        } catch (InvalidModelVersionException e) {
+            logger.warn("Cannot remove default version {} for model {}", versionId, modelName);
+            httpResponseStatus = HttpResponseStatus.FORBIDDEN;
+        } catch (ExecutionException | InterruptedException e1) {
             logger.warn("Process was interrupted while cleaning resources.");
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
 
-        // Only continue cleaning if resource cleaning succeeded
-        if (httpResponseStatus == HttpResponseStatus.OK) {
-            model.getModelArchive().clean();
-            startupModels.remove(modelName);
-            logger.info("Model {} unregistered.", modelName);
-        } else {
-            models.put(modelName, model);
+        return httpResponseStatus;
+    }
+
+    public HttpResponseStatus setDefaultVersion(String modelName, String newModelVersion)
+            throws InvalidModelVersionException {
+        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            logger.warn("Model not found: " + modelName);
+            return HttpResponseStatus.NOT_FOUND;
+        }
+        try {
+            vmodel.setDefaultVersion(newModelVersion);
+        } catch (InvalidModelVersionException e) {
+            logger.warn(
+                    "Cannot set version {} as default for model {}", newModelVersion, modelName);
+            httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
 
         return httpResponseStatus;
     }
 
     public CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, int minWorkers, int maxWorkers) {
-        Model model = models.get(modelName);
-        if (model == null) {
+            String modelName, String versionId, int minWorkers, int maxWorkers) {
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
             throw new AssertionError("Model not found: " + modelName);
         }
+
+        Model model = vmodel.getVersionModel(versionId);
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
+
         return wlm.modelChanged(model);
     }
 
-    public Map<String, Model> getModels() {
-        return models;
+    public Map<String, Model> getDefaultModels() {
+        ConcurrentHashMap<String, Model> defModelsMap = new ConcurrentHashMap<>();
+        for (Map.Entry<String, ModelVersionedRefs> mvr : modelsNameMap.entrySet()) {
+            defModelsMap.put(mvr.getKey(), mvr.getValue().getDefaultModel());
+        }
+        return defModelsMap;
     }
 
-    public List<WorkerThread> getWorkers(String modelName) {
-        return wlm.getWorkers(modelName);
+    public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {
+        return wlm.getWorkers(modelVersionName);
     }
 
     public Map<Integer, WorkerThread> getWorkers() {
@@ -169,12 +233,19 @@ public final class ModelManager {
 
     public boolean addJob(Job job) throws ModelNotFoundException {
         String modelName = job.getModelName();
-        Model model = models.get(modelName);
+        String versionId = job.getModelVersion();
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+
+        Model model = vmodel.getVersionModel(versionId);
+
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
 
-        if (wlm.hasNoWorker(modelName)) {
+        if (wlm.hasNoWorker(model.getModelVersionName())) {
             return false;
         }
 
@@ -187,9 +258,11 @@ public final class ModelManager {
                     String response = "Healthy";
                     int numWorking = 0;
                     int numScaled = 0;
-                    for (Map.Entry<String, Model> m : models.entrySet()) {
-                        numScaled += m.getValue().getMinWorkers();
-                        numWorking += wlm.getNumRunningWorkers(m.getValue().getModelName());
+                    for (Map.Entry<String, ModelVersionedRefs> m : modelsNameMap.entrySet()) {
+                        numScaled += m.getValue().getDefaultModel().getMinWorkers();
+                        numWorking +=
+                                wlm.getNumRunningWorkers(
+                                        m.getValue().getDefaultModel().getModelVersionName());
                     }
 
                     if ((numWorking > 0) && (numWorking < numScaled)) {
@@ -206,9 +279,39 @@ public final class ModelManager {
         wlm.scheduleAsync(r);
     }
 
-    public boolean scaleRequestStatus(String modelName) {
-        Model model = ModelManager.getInstance().getModels().get(modelName);
-        int numWorkers = wlm.getNumRunningWorkers(modelName);
+    public void modelWorkerStatus(final String modelName, final ChannelHandlerContext ctx) {
+        Runnable r =
+                () -> {
+                    String response = "Healthy";
+                    int numWorking = 0;
+                    int numScaled = 0;
+                    ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+                    for (Map.Entry<Double, Model> m : vmodel.getAllVersions()) {
+                        numScaled += m.getValue().getMinWorkers();
+                        numWorking += wlm.getNumRunningWorkers(m.getValue().getModelVersionName());
+                    }
+
+                    if ((numWorking > 0) && (numWorking < numScaled)) {
+                        response = "Partial Healthy";
+                    } else if ((numWorking == 0) && (numScaled > 0)) {
+                        response = "Unhealthy";
+                    }
+
+                    // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy"
+                    // and "Unhealthy"
+                    NettyUtils.sendJsonResponse(
+                            ctx, new StatusResponse(response), HttpResponseStatus.OK);
+                };
+        wlm.scheduleAsync(r);
+    }
+
+    public boolean scaleRequestStatus(String modelName, String versionId) {
+        Model model = modelsNameMap.get(modelName).getVersionModel(versionId);
+        int numWorkers = 0;
+
+        if (model != null) {
+            numWorkers = wlm.getNumRunningWorkers(model.getModelVersionName());
+        }
 
         return model == null || model.getMinWorkers() <= numWorkers;
     }
@@ -219,5 +322,22 @@ public final class ModelManager {
 
     public Set<String> getStartupModels() {
         return startupModels;
+    }
+
+    public Model getModel(String modelName, String versionId) {
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            return null;
+        }
+        return vmodel.getVersionModel(versionId);
+    }
+
+    public Set<Entry<Double, Model>> getAllModelVersions(String modelName)
+            throws ModelNotFoundException {
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        return vmodel.getAllVersions();
     }
 }

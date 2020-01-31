@@ -187,6 +187,10 @@ public class ModelArchive {
                 throw new InvalidModelException("Model name is not defined.");
             }
 
+            if (model.getModelVersion() == null) {
+                throw new InvalidModelException("Model version is not defined.");
+            }
+
             if (manifest.getRuntime() == null) {
                 throw new InvalidModelException("Runtime is not defined or invalid.");
             }
@@ -218,6 +222,10 @@ public class ModelArchive {
 
     public String getModelName() {
         return manifest.getModel().getModelName();
+    }
+
+    public String getModelVersion() {
+        return manifest.getModel().getModelVersion();
     }
 
     public void clean() {

@@ -213,6 +213,7 @@ public class WorkerThread implements Runnable {
         }
 
         String modelName = model.getModelName();
+        String modelVersion = model.getVersion();
         setState(WorkerState.WORKER_STARTED, HttpResponseStatus.OK);
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -269,6 +270,7 @@ public class WorkerThread implements Runnable {
                                                 new Job(
                                                         null,
                                                         modelName,
+                                                        modelVersion,
                                                         WorkerCommands.LOAD,
                                                         input);
                                         model.addJob(workerId, job);
@@ -322,15 +324,13 @@ public class WorkerThread implements Runnable {
     }
 
     private final String getWorkerName() {
-        String modelName = model.getModelName();
-        if (modelName.length() > 25) {
-            modelName = modelName.substring(0, 25);
-        }
+        String modelName = model.getModelVersionName().getVersionedModelName();
         return "W-" + port + '-' + modelName;
     }
 
     void setState(WorkerState newState, HttpResponseStatus status) {
-        listener.notifyChangeState(model.getModelName(), newState, status);
+        listener.notifyChangeState(
+                model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
         long timeTaken = System.currentTimeMillis() - startTime;
         if (state != WorkerState.WORKER_SCALED_DOWN) {

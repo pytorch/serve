@@ -44,7 +44,7 @@ def start():
         if pid is not None:
             try:
                 psutil.Process(pid)
-                print("TorchServe is already running, please use torchserve --stop to stop TS.")
+                print("TorchServe is already running, please use torchserve --stop to stop TorchServe.")
                 exit(1)
             except psutil.Error:
                 print("Removing orphan pid file.")

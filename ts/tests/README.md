@@ -1,4 +1,4 @@
-# Testing TS
+# Testing TorchServe
 
 ## Pre-requisites
 

@@ -80,6 +80,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 || segments[1].equals("api-description")
                 || segments[1].equals("invocations")
                 || (segments.length == 3 && segments[2].equals("predict"))
+                || (segments.length == 4 && segments[3].equals("predict"))
                 || endpointMap.containsKey(segments[1]);
     }
 
@@ -101,7 +102,14 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (segments.length < 3) {
             throw new ResourceNotFoundException();
         }
-        predict(ctx, req, null, segments[2]);
+
+        String modelVersion = null;
+
+        if (segments.length == 4) {
+            modelVersion = segments[3];
+        }
+
+        predict(ctx, req, null, segments[2], modelVersion);
     }
 
     private void handleInvocations(
@@ -119,7 +127,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 modelName = ModelManager.getInstance().getStartupModels().iterator().next();
             }
         }
-        predict(ctx, req, decoder, modelName);
+        predict(ctx, req, decoder, modelName, null);
     }
 
     private void handleLegacyPredict(
@@ -128,18 +136,23 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelNotFoundException {
-        if (segments.length < 3 || !"predict".equals(segments[2])) {
+
+        String modelVersion = null;
+        if (segments.length == 4 && "predict".equals(segments[3])) {
+            modelVersion = segments[2];
+        } else if (segments.length < 3 || !"predict".equals(segments[2])) {
             throw new ResourceNotFoundException();
         }
 
-        predict(ctx, req, decoder, segments[1]);
+        predict(ctx, req, decoder, segments[1], modelVersion);
     }
 
     private void predict(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String modelName)
+            String modelName,
+            String modelVersion)
             throws ModelNotFoundException {
         RequestInput input = parseRequest(ctx, req, decoder);
         if (modelName == null) {
@@ -151,7 +164,8 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
         if (HttpMethod.OPTIONS.equals(req.method())) {
             ModelManager modelManager = ModelManager.getInstance();
-            Model model = modelManager.getModels().get(modelName);
+
+            Model model = modelManager.getModel(modelName, modelVersion);
             if (model == null) {
                 throw new ModelNotFoundException("Model not found: " + modelName);
             }
@@ -161,7 +175,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             return;
         }
 
-        Job job = new Job(ctx, modelName, WorkerCommands.PREDICT, input);
+        Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             throw new ServiceUnavailableException(
                     "No worker is available to serve request: " + modelName);

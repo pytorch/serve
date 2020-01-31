@@ -16,15 +16,15 @@ Run the following commands to train the model :
 
 The above command generated the model's state dict as model.pt and the vocab used during model training as source_vocab.pt
 
-# Serve the text classification model on TS
+# Serve the text classification model on TorchServe
 
  * Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name my_text_classifier --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --source-vocab serve/examples/text_classification/vocab.pt --handler text_classifier --extra-files serve/examples/text_classification/index_to_name.json
+    torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --source-vocab serve/examples/text_classification/vocab.pt --handler text_classifier --extra-files serve/examples/text_classification/index_to_name.json
     ```
    
- * Register the model on TS using the above model archive file and run digit recognition inference
+ * Register the model on TorchServe using the above model archive file and run digit recognition inference
    
     ```bash
     mkdir model_store

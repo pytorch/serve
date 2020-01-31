@@ -17,7 +17,9 @@ public class ModelServerContext implements Context {
     @Override
     public Map<String, Model> getModels() {
         HashMap<String, Model> r = new HashMap<>();
-        ModelManager.getInstance().getModels().forEach((k, v) -> r.put(k, new ModelServerModel(v)));
+        ModelManager.getInstance()
+                .getDefaultModels()
+                .forEach((k, v) -> r.put(k, new ModelServerModel(v)));
         return r;
     }
 }

@@ -1,7 +1,7 @@
 TorchServe
 =======
 
-TorchServe (TS) is a flexible and easy to use tool for serving PyTorch models.
+TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the [docs folder](docs/README.md).
 
@@ -22,7 +22,7 @@ Before proceeding further with this document, make sure you have the following p
 
     For Ubuntu:
     ```bash
-    sudo apt-get install openjdk-8-jre-headless
+    sudo apt-get install openjdk-8-jdk
     ```
 
     For CentOS:
@@ -32,9 +32,8 @@ Before proceeding further with this document, make sure you have the following p
 
     For macOS:
     ```bash
-    brew tap caskroom/versions
-    brew update
-    brew cask install java8
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk8
     ```
 
 ### Installing TorchServe with pip
@@ -66,7 +65,7 @@ Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) f
 [Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
 
 **Step 2:** Install torch
-TS won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
+TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
 
 ```bash
 pip install torch torchvision
@@ -99,11 +98,11 @@ pip install .
 ```
 
 **Note** 
-* Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TS installation.
+* Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TorchServe installation.
 * See the [detailed documentation](model-archiver/README.md) page for more options and troubleshooting.
 ### Serve a Model
 
-Once installed, you can get TS model server up and running very quickly. Try out `--help` to see all the CLI options available.
+Once installed, you can get TorchServe model server up and running very quickly. Try out `--help` to see all the CLI options available.
 
 ```bash
 torchserve --help
@@ -114,15 +113,15 @@ For this quick start, we'll skip over most of the features, but be sure to take 
 Here is an easy example for serving an object classification model:
 ```bash
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-torch-model-archiver --model-name densenet161 --model-file serve/examples/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/index_to_name.json
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
 mkdir model_store
 mv densenet161.mar model_store/
 torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
 
-With the command above executed, you have TS running on your host, listening for inference requests. **Please note, that if you specify model(s) during TS start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TS start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
+With the command above executed, you have TorchServe running on your host, listening for inference requests. **Please note, that if you specify model(s) during TorchServe start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TorchServe start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
 
-To test it out, you can open a new terminal window next to the one running TS. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the TS predict endpoint with the kitten's image.
+To test it out, you can open a new terminal window next to the one running TorchServe. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the TorchServe predict endpoint with the kitten's image.
 
 ![kitten](docs/images/kitten_small.jpg)
 
@@ -155,9 +154,9 @@ The predict endpoint will return a prediction response in JSON. It will look som
 ]
 ```
 
-You will see this result in the response to your `curl` call to the predict endpoint, and in the server logs in the terminal window running TS. It's also being [logged locally with metrics](docs/metrics.md).
+You will see this result in the response to your `curl` call to the predict endpoint, and in the server logs in the terminal window running TorchServe. It's also being [logged locally with metrics](docs/metrics.md).
 
-Now you've seen how easy it can be to serve a deep learning model with TS! [Would you like to know more?](docs/server.md)
+Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
 
 ### Stopping the running TorchServe
 To stop the current running TorchServe instance, run the following command:
@@ -168,16 +167,16 @@ You would see output specifying that TorchServe has stopped.
 
 ### Create a Model Archive
 
-TS enables you to package up all of your model artifacts into a single model archive. This makes it easy to share and deploy your models.
+TorchServe enables you to package up all of your model artifacts into a single model archive. This makes it easy to share and deploy your models.
 To package a model, check out [model archiver documentation](model-archiver/README.md)
 
 ## Recommended production deployments
 
-* TS doesn't provide authentication. You have to have your own authentication proxy in front of TS.
-* TS doesn't provide throttling, it's vulnerable to DDoS attack. It's recommended to running TS behind a firewall.
-* TS only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-ts-listening-port) for detail.
+* TorchServe doesn't provide authentication. You have to have your own authentication proxy in front of TorchServe.
+* TorchServe doesn't provide throttling, it's vulnerable to DDoS attack. It's recommended to running TorchServe behind a firewall.
+* TorchServe only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-ts-listening-port) for detail.
 * SSL is not enabled by default, see [Enable SSL](docs/configuration.md#enable-ssl) for detail.
-* TS use a config.properties file to configure TS's behavior, see [Manage TS](docs/configuration.md) page for detail of how to configure TS.
+* TorchServe use a config.properties file to configure TorchServe's behavior, see [Manage TorchServe](docs/configuration.md) page for detail of how to configure TorchServe.
 
 ## Other Features
 

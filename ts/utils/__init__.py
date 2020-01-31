@@ -1,7 +1,7 @@
 
 
 """
-Util files for TS
+Util files for TorchServe
 """
 
 from . import timeit_decorator

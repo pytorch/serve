@@ -55,7 +55,7 @@ class ArgParser(object):
                                    type=str,
                                    default=None,
                                    help="TorchServe's default handler name\n"
-                                        " or handler python file path to handle custom TS inference logic.")
+                                        " or handler python file path to handle custom TorchServe inference logic.")
 
         parser_export.add_argument('--source-vocab',
                                    required=False,
@@ -92,7 +92,7 @@ class ArgParser(object):
                                    choices=["tgz", "no-archive", "default"],
                                    help='The format in which the model artifacts are archived.\n'
                                         '"tgz": This creates the model-archive in <model-name>.tar.gz format.\n'
-                                        'If platform hosting TS requires model-artifacts to be in ".tar.gz"\n'
+                                        'If platform hosting TorchServe requires model-artifacts to be in ".tar.gz"\n'
                                         'use this option.\n'
                                         '"no-archive": This option creates an non-archived version of model artifacts\n'
                                         'at "export-path/{model-name}" location. As a result of this choice, \n'
@@ -100,7 +100,7 @@ class ArgParser(object):
                                         'without archiving these model files\n'
                                         '"default": This creates the model-archive in <model-name>.mar format.\n'
                                         'This is the default archiving format. Models archived in this format\n'
-                                        'will be readily hostable on native TS.\n')
+                                        'will be readily hostable on native TorchServe.\n')
 
         parser_export.add_argument('-f', '--force',
                                    required=False,
@@ -108,5 +108,11 @@ class ArgParser(object):
                                    help='When the -f or --force flag is specified, an existing .mar file with same\n'
                                         'name as that provided in --model-name in the path specified by --export-path\n'
                                         'will overwritten')
+
+        parser_export.add_argument('-v', '--version',
+                                   required=True,
+                                   type=str,
+                                   default=None,
+                                   help='Model version must be a valid non-negative floating point number')
 
         return parser_export

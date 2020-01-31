@@ -1,36 +1,37 @@
-# TS Examples
+# TorchServe Examples
 
-The following are examples on how to create and serve model archives with TS.
+The following are examples on how to create and serve model archives with TorchServe.
 
 #### Eager Mode 
 
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TS :
+Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
     
 * Pre-requisites to create a torch model archive (.mar) :
     * serialized-file (.pt) : This file represents the state_dict in case of eager mode model.
     * model-file (.py) : This file contains model class extended from torch nn.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from torch.nn.modules
-    * index_to_name.json : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * version : Model version must be a valid non-negative floating point number
     * handler : TorchServe default handler's name or path to custom inference handler(.py)
-
 * Syntax
 
     ```bash
-    torch-model-archiver --model-name <model_name> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --handler <path_to_custom_handler_or_default_handler_name> --extra-files <path_to_index_to_name_json_file>
+    torch-model-archiver --model-name <model_name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --handler <path_to_custom_handler_or_default_handler_name> --extra-files <path_to_index_to_name_json_file>
     ```
   
 #### TorchScript Mode 
 
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TS :
+Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
     
 * Pre-requisites to create a torch model archive (.mar) :
     * serialized-file (.pt) : This file represents the state_dict in case of eager mode model or an executable ScriptModule in case of TorchScript. 
-    * index_to_name.json : This file contains the mapping of predicted index to class. The default TS handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
+    * version : Model version must be a valid non-negative floating point number
     * handler : TorchServe default handler's name or path to custom inference handler(.py)
     
 * Syntax
 
     ```bash
-    torch-model-archiver --model-name <model_name> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
+    torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
     ```  
 
 #### Eager Mode example using torchvision image classifiers:
@@ -49,11 +50,11 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 * Create a torch model archive file using the above provided syntax command.
 
-#### Sample commands to create a DenseNet161 eager mode model archive, register it on TS and run image prediction
+#### Sample commands to create a DenseNet161 eager mode model archive, register it on TorchServe and run image prediction
 
     ```bash
     wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-    torch-model-archiver --model-name densenet161 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files serve/examples/image_classifier/index_to_name.json
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files serve/examples/image_classifier/index_to_name.json
     mkdir model_store
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
@@ -66,55 +67,63 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 1. Save model using scripting
 
-   ```python
-   #scripted mode
-   from torchvision import models
-   import torch
-   model = models.densenet161(pretrained=True)
-   sm = torch.jit.script(model)
-   sm.save("densenet161.pt")
-   ```
+
+```python
+#scripted mode
+from torchvision import models
+import torch
+model = models.densenet161(pretrained=True)
+sm = torch.jit.script(model)
+sm.save("densenet161.pt")
+```
 
 2. Save model using tracing
-   ```python
-   #traced mode
-   from torchvision import models
-   import torch
-   model = models.densenet161(pretrained=True)
-   example_input = torch.rand(1, 3, 224, 224)
-   traced_script_module = torch.jit.trace(model, example_input)
-   traced_script_module.save("dense161.pt")
-   ```  
+
+```python
+#traced mode
+from torchvision import models
+import torch
+model = models.densenet161(pretrained=True)
+example_input = torch.rand(1, 3, 224, 224)
+traced_script_module = torch.jit.trace(model, example_input)
+traced_script_module.save("dense161.pt")
+```  
  
-* Use following commands to register Densenet161 torchscript model on TS and run image prediction
+* Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name densenet161_ts  --serialized-file densenet161.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name densenet161_ts --version 1.0 --serialized-file densenet161.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/kitten.jpg
+    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T serve/examples/image_classifier/kitten.jpg
     ```
+  
+#### TorchScript example using Resnet18 image classifier:
+Following example demonstrates how to create a Resnet18 image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
+
+* [Image classification using Resnet18](image_classifier/resnet_18)
+
 #### TorchScript example using custom model and custom handler:
 
-Following example demonstrates how to create and serve a custom NN model with custom handler archives in TS :
+Following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
 * [Digit recognition with MNIST](image_classifier/mnist)
 
 #### Text Classification Example
 
-Following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TS :
+Following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TorchServe :
 
 * [Text classification example](text_classification)
 
 #### Object Detection Example
 
-Following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TS :
+Following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TorchServe :
 
 * [Object detection example](object_detector)
 
 #### Image Segmentation Example
 
-Following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TS :
+Following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TorchServe :
 
 * [Image segmentation example](image_segmenter)

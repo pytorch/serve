@@ -114,11 +114,7 @@ public class WorkerLifeCycle {
                 process = Runtime.getRuntime().exec(args, envp, modelPath);
 
                 String threadName =
-                        "W-"
-                                + port
-                                + '-'
-                                + model.getModelName()
-                                        .substring(0, Math.min(model.getModelName().length(), 25));
+                        "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
                 new ReaderThread(threadName, process.getErrorStream(), true, this).start();
                 new ReaderThread(threadName, process.getInputStream(), false, this).start();
             }

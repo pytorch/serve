@@ -151,7 +151,11 @@ public class ModelServer {
 
                         ModelArchive archive =
                                 modelManager.registerModel(file.getName(), defaultModelName);
-                        modelManager.updateModel(archive.getModelName(), workers, workers);
+                        modelManager.updateModel(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                workers,
+                                workers);
                         startupModels.add(archive.getModelName());
                     } catch (ModelException | IOException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
@@ -190,7 +194,8 @@ public class ModelServer {
                                 100,
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName);
-                modelManager.updateModel(archive.getModelName(), workers, workers);
+                modelManager.updateModel(
+                        archive.getModelName(), archive.getModelVersion(), workers, workers);
                 startupModels.add(archive.getModelName());
             } catch (ModelException | IOException e) {
                 logger.warn("Failed to load model: " + url, e);

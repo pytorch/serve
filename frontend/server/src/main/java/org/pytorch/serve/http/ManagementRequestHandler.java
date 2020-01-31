@@ -19,6 +19,7 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -67,12 +68,20 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     throw new MethodNotAllowedException();
                 }
 
+                String modelVersion = null;
+                if (segments.length == 4) {
+                    modelVersion = segments[3];
+                }
                 if (HttpMethod.GET.equals(method)) {
-                    handleDescribeModel(ctx, segments[2]);
+                    handleDescribeModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.PUT.equals(method)) {
-                    handleScaleModel(ctx, decoder, segments[2]);
+                    if (segments.length == 5 && "set-default".equals(segments[4])) {
+                        setDefaultModelVersion(ctx, segments[2], segments[3]);
+                    } else {
+                        handleScaleModel(ctx, decoder, segments[2], modelVersion);
+                    }
                 } else if (HttpMethod.DELETE.equals(method)) {
-                    handleUnregisterModel(ctx, segments[2]);
+                    handleUnregisterModel(ctx, segments[2], modelVersion);
                 } else {
                     throw new MethodNotAllowedException();
                 }
@@ -84,7 +93,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
-                || ((segments.length == 2 || segments.length == 3) && segments[1].equals("models"))
+                || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
+                || (segments.length == 5 && "set-default".equals(segments[4]))
                 || endpointMap.containsKey(segments[1]);
     }
 
@@ -99,7 +109,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         }
 
         ModelManager modelManager = ModelManager.getInstance();
-        Map<String, Model> models = modelManager.getModels();
+        Map<String, Model> models = modelManager.getDefaultModels();
 
         List<String> keys = new ArrayList<>(models.keySet());
         Collections.sort(keys);
@@ -121,14 +131,29 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         NettyUtils.sendJsonResponse(ctx, list);
     }
 
-    private void handleDescribeModel(ChannelHandlerContext ctx, String modelName)
+    private void handleDescribeModel(
+            ChannelHandlerContext ctx, String modelName, String modelVersion)
             throws ModelNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
-        Model model = modelManager.getModels().get(modelName);
-        if (model == null) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
+        ArrayList<DescribeModelResponse> resp = new ArrayList<DescribeModelResponse>();
+
+        if ("all".equals(modelVersion)) {
+            for (Map.Entry<Double, Model> m : modelManager.getAllModelVersions(modelName)) {
+                resp.add(createModelResponse(modelManager, modelName, m.getValue()));
+            }
+        } else {
+            Model model = modelManager.getModel(modelName, modelVersion);
+            if (model == null) {
+                throw new ModelNotFoundException("Model not found: " + modelName);
+            }
+            resp.add(createModelResponse(modelManager, modelName, model));
         }
 
+        NettyUtils.sendJsonResponse(ctx, resp);
+    }
+
+    private DescribeModelResponse createModelResponse(
+            ModelManager modelManager, String modelName, Model model) {
         DescribeModelResponse resp = new DescribeModelResponse();
         resp.setModelName(modelName);
         resp.setModelUrl(model.getModelUrl());
@@ -145,7 +170,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
 
-        List<WorkerThread> workers = modelManager.getWorkers(modelName);
+        List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
         for (WorkerThread worker : workers) {
             String workerId = worker.getWorkerId();
             long startTime = worker.getStartTime();
@@ -155,7 +180,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory);
         }
 
-        NettyUtils.sendJsonResponse(ctx, resp);
+        return resp;
     }
 
     private void handleRegisterModel(
@@ -216,32 +241,46 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         updateModelWorkers(
                 ctx,
                 modelName,
+                archive.getModelVersion(),
                 initialWorkers,
                 initialWorkers,
                 synchronous,
                 f -> {
-                    modelManager.unregisterModel(archive.getModelName());
+                    modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
                 });
     }
 
-    private void handleUnregisterModel(ChannelHandlerContext ctx, String modelName)
-            throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
+    private void handleUnregisterModel(
+            ChannelHandlerContext ctx, String modelName, String modelVersion)
+            throws ModelNotFoundException, InternalServerException, RequestTimeoutException,
+                    ModelVersionNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
-        HttpResponseStatus httpResponseStatus = modelManager.unregisterModel(modelName);
+        HttpResponseStatus httpResponseStatus =
+                modelManager.unregisterModel(modelName, modelVersion);
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
             throw new ModelNotFoundException("Model not found: " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.BAD_REQUEST) {
+            throw new ModelVersionNotFoundException(
+                    String.format(
+                            "Model version: %s not found for model: %s", modelVersion, modelName));
         } else if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
             throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {
             throw new RequestTimeoutException("Timed out while cleaning resources: " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
+            throw new InternalServerException(
+                    "Cannot remove default version for model " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 
     private void handleScaleModel(
-            ChannelHandlerContext ctx, QueryStringDecoder decoder, String modelName)
+            ChannelHandlerContext ctx,
+            QueryStringDecoder decoder,
+            String modelName,
+            String modelVersion)
             throws ModelNotFoundException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
@@ -252,15 +291,16 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", null));
 
         ModelManager modelManager = ModelManager.getInstance();
-        if (!modelManager.getModels().containsKey(modelName)) {
+        if (!modelManager.getDefaultModels().containsKey(modelName)) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        updateModelWorkers(ctx, modelName, minWorkers, maxWorkers, synchronous, null);
+        updateModelWorkers(ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null);
     }
 
     private void updateModelWorkers(
             final ChannelHandlerContext ctx,
             final String modelName,
+            final String modelVersion,
             int minWorkers,
             int maxWorkers,
             boolean synchronous,
@@ -268,7 +308,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
         ModelManager modelManager = ModelManager.getInstance();
         CompletableFuture<HttpResponseStatus> future =
-                modelManager.updateModel(modelName, minWorkers, maxWorkers);
+                modelManager.updateModel(modelName, modelVersion, minWorkers, maxWorkers);
         if (!synchronous) {
             NettyUtils.sendJsonResponse(
                     ctx,
@@ -278,7 +318,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         }
         future.thenApply(
                         v -> {
-                            boolean status = modelManager.scaleRequestStatus(modelName);
+                            boolean status =
+                                    modelManager.scaleRequestStatus(modelName, modelVersion);
                             if (HttpResponseStatus.OK.equals(v)) {
                                 if (status) {
                                     NettyUtils.sendJsonResponse(
@@ -321,5 +362,26 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             in = new RegisterModelRequest(decoder);
         }
         return in;
+    }
+
+    private void setDefaultModelVersion(
+            ChannelHandlerContext ctx, String modelName, String newModelVersion)
+            throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
+        ModelManager modelManager = ModelManager.getInstance();
+        HttpResponseStatus httpResponseStatus =
+                modelManager.setDefaultVersion(modelName, newModelVersion);
+        if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
+            throw new InternalServerException(
+                    "Cannot set version " + newModelVersion + " as default for model " + modelName);
+        }
+        String msg =
+                "Default vesion succsesfully updated for model \""
+                        + modelName
+                        + "\" to \""
+                        + newModelVersion
+                        + "\"";
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 }

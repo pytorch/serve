@@ -8,16 +8,16 @@
 
 ## Introduction
 
-A custom service , is the code that is packaged into model archive, that is executed by Model Server for PyTorch (TS). 
-The custom service is responsible for handling incoming data and passing on to engine for inference. The output of the custom service is returned back as response by TS.
+A custom service , is the code that is packaged into model archive, that is executed by Model Server for PyTorch (TorchServe). 
+The custom service is responsible for handling incoming data and passing on to engine for inference. The output of the custom service is returned back as response by TorchServe.
 
 ## Requirements for custom service file
 
-The custom service file should define a method that acts as an entry point for execution, this function will be invoked by TS on a inference request. 
+The custom service file should define a method that acts as an entry point for execution, this function will be invoked by TorchServe on a inference request. 
 The function can have any name, not necessarily handle, however this function should accept, the following parameters
     
 * **data** - The input data from the incoming request
-* **context** - Is the TS [context](https://github.com/pytorch/serve/blob/master/ts/context.py) information passed for use with the custom service if required. 
+* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py) information passed for use with the custom service if required. 
 
 
 The signature of a entry point function is:
@@ -113,20 +113,20 @@ def handle(data, context):
     return _service.handle(data, context)
 
 ```
-Here the ``` handle()``` method is our entry point that will be invoked by TS, with the parameters data and context, it in turn can pass this information to an actual inference class object or handle all the processing in the 
+Here the ``` handle()``` method is our entry point that will be invoked by TorchServe, with the parameters data and context, it in turn can pass this information to an actual inference class object or handle all the processing in the 
 ```handle()``` method itself. The ```initialize()``` method is used to initialize the model at load time, so after first time, the service need not be re-initialized in the the life cycle of the relevant worker.
  We recommend using a ```initialize()``` method, avoid initialization at prediction time.
  
- This entry point is engaged in two cases: (1) when TS is asked to scale a model up, to increase the number of backend workers (it is done either via a ```PUT /models/{model_name}``` request or a ```POST /models``` request with `initial-workers` option or during TS startup when you use `--models` option (```torchserve --start --models {model_name=model.mar}```), ie., you provide model(s) to load) or (2) when TS gets a ```POST /predictions/{model_name}``` request. (1) is used to scale-up or scale-down workers for a model. (2) is used as a standard way to run inference against a model. (1) is also known as model load time, and that is where you would normally want to put code for model initialization. You can find out more about these and other TS APIs in [TS Management API](./management_api.md) and [TS Inference API](./inference_api.md)
+ This entry point is engaged in two cases: (1) when TorchServe is asked to scale a model up, to increase the number of backend workers (it is done either via a ```PUT /models/{model_name}``` request or a ```POST /models``` request with `initial-workers` option or during TorchServe startup when you use `--models` option (```torchserve --start --models {model_name=model.mar}```), ie., you provide model(s) to load) or (2) when TorchServe gets a ```POST /predictions/{model_name}``` request. (1) is used to scale-up or scale-down workers for a model. (2) is used as a standard way to run inference against a model. (1) is also known as model load time, and that is where you would normally want to put code for model initialization. You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
 
 ## Creating model archive with entry point 
 
-TS, identifies the entry point to the custom service, from the manifest file. Thus file creating the model archive, one needs to mention the entry point using the ```--handler``` option. 
+TorchServe, identifies the entry point to the custom service, from the manifest file. Thus file creating the model archive, one needs to mention the entry point using the ```--handler``` option. 
 
-The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables the create to an archive understood by TS.
+The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables the create to an archive understood by TorchServe.
 
-```python
-torch-model-archiver --model-name <model-name> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
+```bash
+torch-model-archiver --model-name <model-name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
 ```
 
 This will create file ```<model-name>.mar``` in the directory ```<output-dir>```

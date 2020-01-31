@@ -7,8 +7,8 @@
 * [Custom Metrics API](#custom-metrics-api)
 
 ## Introduction
-TS collects system level metrics in regular intervals, and also provides an API for custom metrics to be collected. Metrics collected by metrics are logged and can be aggregated by metric agents.
-The system level metrics are collected every minute. Metrics defined by the custom service code, can be collected per request or a batch of requests. TS logs these two sets of metrics to different log files.
+TorchServe collects system level metrics in regular intervals, and also provides an API for custom metrics to be collected. Metrics collected by metrics are logged and can be aggregated by metric agents.
+The system level metrics are collected every minute. Metrics defined by the custom service code, can be collected per request or a batch of requests. TorchServe logs these two sets of metrics to different log files.
 Metrics are collected by default at:
 * System metrics - log_directory/ts_metrics.log
 * Custom metrics - log directory/model_metrics.log
@@ -64,6 +64,8 @@ Once enabled the format emitted to logs, will look as follows
   ],
   "HostName": "my_machine_name"
 }
+```
+```json
 { 
   "MetricName": "DiskUsage",
   "Value": "124.13163757324219",
@@ -81,7 +83,7 @@ Once enabled the format emitted to logs, will look as follows
 
 ## Custom Metrics API
 
-TS enables the custom service code to emit metrics, that are then logged by the system
+TorchServe enables the custom service code to emit metrics, that are then logged by the system
 
 The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request.
 

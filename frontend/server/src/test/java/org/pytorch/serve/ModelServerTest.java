@@ -141,17 +141,23 @@ public class ModelServerTest {
         testRoot(channel, listInferenceApisResult);
         testRoot(managementChannel, listManagementApisResult);
         testApiDescription(channel, listInferenceApisResult);
-
         testDescribeApi(channel);
-        testUnregisterModel(managementChannel);
-        testLoadModel(managementChannel);
-        testSyncScaleModel(managementChannel);
+        testUnregisterModel(managementChannel, "noop", null);
+        testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
+        testSyncScaleModel(managementChannel, "noop_v1.0", null);
         testScaleModel(managementChannel);
         testListModels(managementChannel);
-        testDescribeModel(managementChannel);
-        testLoadModelWithInitialWorkers(managementChannel);
+        testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
+        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
+        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
+        testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
+        testDescribeModel(managementChannel, "noopversioned", null, "1.21");
+        testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
+        testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
+        testPredictions(channel, "noopversioned", "OK", "1.21");
+        testSetDefault(managementChannel, "noopversioned", "1.11");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
-        testPredictions(channel);
+        testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
         testPredictionsJson(channel);
         testInvocationsJson(channel);
@@ -197,6 +203,7 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
+        testUnregisterModelFailure("noopversioned", "1.11");
     }
 
     @Test
@@ -224,15 +231,15 @@ public class ModelServerTest {
         Assert.assertNotNull(channel, "Failed to connect to inference port.");
         Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
 
-        testLoadModelEager(managementChannel);
-        testPredictionsEager(channel);
-        testUnregisterModelEager(managementChannel);
-        testLoadModelTorchScripted(managementChannel);
-        testPredictionsTorchScripted(channel);
-        testUnregisterModelTorchScripted(managementChannel);
-        testLoadModelTorchTraced(managementChannel);
-        testPredictionsTorchTraced(channel);
-        testUnregisterModelTorchTraced(managementChannel);
+        testLoadModelWithInitialWorkers(managementChannel, "mnist.mar", "mnist");
+        testPredictions(channel, "mnist", "0", null);
+        testUnregisterModel(managementChannel, "mnist", null);
+        testLoadModelWithInitialWorkers(managementChannel, "mnist_scripted.mar", "mnist_scripted");
+        testPredictions(channel, "mnist_scripted", "0", null);
+        testUnregisterModel(managementChannel, "mnist_scripted", null);
+        testLoadModelWithInitialWorkers(managementChannel, "mnist_traced.mar", "mnist_traced");
+        testPredictions(channel, "mnist_traced", "0", null);
+        testUnregisterModel(managementChannel, "mnist_traced", null);
 
         channel.close();
         managementChannel.close();
@@ -284,75 +291,38 @@ public class ModelServerTest {
         Assert.assertEquals(result, noopApiResult);
     }
 
-    private void testLoadModel(Channel channel) throws InterruptedException {
+    private void testLoadModel(Channel channel, String url, String modelName)
+            throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL =
+                "/models?url="
+                        + url
+                        + "&model_name="
+                        + modelName
+                        + "&runtime=python&synchronous=false";
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.POST,
-                        "/models?url=noop.mar&model_name=noop_v1.0&runtime=python&synchronous=false");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"noop_v1.0\" registered");
+        Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" registered");
     }
 
-    private void testLoadModelEager(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.POST,
-                        "/models?url=noop.mar&model_name=mnist&initial_workers=1&runtime=python&synchronous=true");
-        channel.writeAndFlush(req);
-        latch.await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
-    }
-
-    private void testLoadModelTorchScripted(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.POST,
-                        "/models?url=noop.mar&model_name=mnist_scripted&initial_workers=1&runtime=python&synchronous=true");
-        channel.writeAndFlush(req);
-        latch.await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
-    }
-
-    private void testLoadModelTorchTraced(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.POST,
-                        "/models?url=noop.mar&model_name=mnist_traced&initial_workers=1&runtime=python&synchronous=true");
-        channel.writeAndFlush(req);
-        latch.await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
-    }
-
-    private void testLoadModelWithInitialWorkers(Channel channel) throws InterruptedException {
+    private void testLoadModelWithInitialWorkers(Channel channel, String url, String modelName)
+            throws InterruptedException {
 
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL =
+                "/models?url="
+                        + url
+                        + "&model_name="
+                        + modelName
+                        + "&runtime=python&initial_workers=1&synchronous=true";
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.POST,
-                        "/models?url=noop.mar&model_name=noop&initial_workers=1&synchronous=true");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
@@ -362,7 +332,7 @@ public class ModelServerTest {
 
     private void testLoadModelWithInitialWorkersWithJSONReqBody(Channel channel)
             throws InterruptedException {
-        testUnregisterModel(channel);
+        testUnregisterModel(channel, "noop", null);
 
         result = null;
         latch = new CountDownLatch(1);
@@ -394,14 +364,17 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getStatus(), "Processing worker updates...");
     }
 
-    private void testSyncScaleModel(Channel channel) throws InterruptedException {
+    private void testSyncScaleModel(Channel channel, String modelName, String version)
+            throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+        requestURL += "?synchronous=true&min_worker=1\"";
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.PUT,
-                        "/models/noop_v1.0?synchronous=true&min_worker=1");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
@@ -409,55 +382,49 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getStatus(), "Workers scaled");
     }
 
-    private void testUnregisterModel(Channel channel) throws InterruptedException {
+    private void testUnregisterModel(Channel channel, String modelName, String version)
+            throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/noop");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"noop\" unregistered");
+        Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" unregistered");
     }
 
-    private void testUnregisterModelEager(Channel channel) throws InterruptedException {
+    private void testUnregisterModelFailure(String modelName, String version)
+            throws InterruptedException {
+        Channel channel = connect(true);
+        Assert.assertNotNull(channel);
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"mnist\" unregistered");
-    }
+        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Cannot remove default version for model " + modelName);
 
-    private void testUnregisterModelTorchScripted(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist_scripted");
-        channel.writeAndFlush(req);
-        latch.await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"mnist_scripted\" unregistered");
-    }
-
-    private void testUnregisterModelTorchTraced(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/models/mnist_traced");
-        channel.writeAndFlush(req);
-        latch.await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"mnist_traced\" unregistered");
+        channel = connect(true);
+        Assert.assertNotNull(channel);
+        testUnregisterModel(channel, "noopversioned", "1.21");
+        testUnregisterModel(channel, "noopversioned", "1.11");
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
@@ -473,25 +440,62 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getModels().size(), 1);
     }
 
-    private void testDescribeModel(Channel channel) throws InterruptedException {
+    private void testDescribeModel(
+            Channel channel, String modelName, String requestVersion, String expectedVersion)
+            throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName;
+        if (requestVersion != null) {
+            requestURL += "/" + requestVersion;
+        }
         HttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/models/noop_v1.0");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
         channel.writeAndFlush(req);
         latch.await();
 
-        DescribeModelResponse resp = JsonUtils.GSON.fromJson(result, DescribeModelResponse.class);
-        Assert.assertTrue(resp.getWorkers().size() > 1);
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(result, DescribeModelResponse[].class);
+        if ("all".equals(requestVersion)) {
+            Assert.assertTrue(resp.length >= 1);
+        } else {
+            Assert.assertTrue(resp.length == 1);
+        }
+        Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
     }
 
-    private void testPredictions(Channel channel) throws InterruptedException {
+    private void testSetDefault(Channel channel, String modelName, String defaultVersion)
+            throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
+        channel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Default vesion succsesfully updated for model \""
+                        + modelName
+                        + "\" to \""
+                        + defaultVersion
+                        + "\"");
+    }
+
+    private void testPredictions(
+            Channel channel, String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/predictions/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
         req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers()
@@ -501,61 +505,7 @@ public class ModelServerTest {
         channel.writeAndFlush(req);
 
         latch.await();
-        Assert.assertEquals(result, "OK");
-    }
-
-    private void testPredictionsEager(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/mnist");
-        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
-        HttpUtil.setContentLength(req, req.content().readableBytes());
-        req.headers()
-                .set(
-                        HttpHeaderNames.CONTENT_TYPE,
-                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        channel.writeAndFlush(req);
-
-        latch.await();
-        Assert.assertEquals(result, "OK");
-    }
-
-    private void testPredictionsTorchScripted(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/mnist_scripted");
-        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
-        HttpUtil.setContentLength(req, req.content().readableBytes());
-        req.headers()
-                .set(
-                        HttpHeaderNames.CONTENT_TYPE,
-                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        channel.writeAndFlush(req);
-
-        latch.await();
-        Assert.assertEquals(result, "OK");
-    }
-
-    private void testPredictionsTorchTraced(Channel channel) throws InterruptedException {
-        result = null;
-        latch = new CountDownLatch(1);
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/mnist_traced");
-        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
-        HttpUtil.setContentLength(req, req.content().readableBytes());
-        req.headers()
-                .set(
-                        HttpHeaderNames.CONTENT_TYPE,
-                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        channel.writeAndFlush(req);
-
-        latch.await();
-        Assert.assertEquals(result, "OK");
+        Assert.assertEquals(result, expectedOutput);
     }
 
     private void testPredictionsJson(Channel channel) throws InterruptedException {
@@ -751,9 +701,10 @@ public class ModelServerTest {
         mgmtChannel.writeAndFlush(req);
 
         latch.await();
-        DescribeModelResponse resp = JsonUtils.GSON.fromJson(result, DescribeModelResponse.class);
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(result, DescribeModelResponse[].class);
         Assert.assertEquals(httpStatus, HttpResponseStatus.OK);
-        Assert.assertEquals(resp.getMinWorkers(), 1);
+        Assert.assertEquals(resp[0].getMinWorkers(), 1);
         unloadTests(mgmtChannel, "noop_default_model_workers");
         setConfiguration("default_workers_per_model", "0");
     }
@@ -1070,7 +1021,8 @@ public class ModelServerTest {
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.CONFLICT.code());
-        Assert.assertEquals(resp.getMessage(), "Model noop_v1.0 is already registered.");
+        Assert.assertEquals(
+                resp.getMessage(), "Model version 1.11 is already registered for model noop_v1.0");
     }
 
     private void testRegisterModelMalformedUrl() throws InterruptedException {

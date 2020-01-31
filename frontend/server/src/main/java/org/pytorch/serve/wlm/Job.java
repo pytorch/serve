@@ -21,18 +21,23 @@ public class Job {
     private ChannelHandlerContext ctx;
 
     private String modelName;
+    private String modelVersion;
     private WorkerCommands cmd; // Else its data msg or inf requests
     private RequestInput input;
     private long begin;
     private long scheduled;
 
     public Job(
-            ChannelHandlerContext ctx, String modelName, WorkerCommands cmd, RequestInput input) {
+            ChannelHandlerContext ctx,
+            String modelName,
+            String version,
+            WorkerCommands cmd,
+            RequestInput input) {
         this.ctx = ctx;
         this.modelName = modelName;
         this.cmd = cmd;
         this.input = input;
-
+        this.modelVersion = version;
         begin = System.currentTimeMillis();
         scheduled = begin;
     }
@@ -43,6 +48,10 @@ public class Job {
 
     public String getModelName() {
         return modelName;
+    }
+
+    public String getModelVersion() {
+        return modelVersion;
     }
 
     public WorkerCommands getCmd() {
