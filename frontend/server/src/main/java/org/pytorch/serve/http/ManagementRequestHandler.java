@@ -3,7 +3,6 @@ package org.pytorch.serve.http;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -20,6 +19,7 @@ import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.chkpnt.CheckpointManager;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -52,38 +52,74 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
-                if (!"models".equals(segments[1])) {
+                if (!"models".equals(segments[1]) || !"chkpnts".equals(segments[1])) {
                     throw new ResourceNotFoundException();
                 }
 
-                HttpMethod method = req.method();
-                if (segments.length < 3) {
-                    if (HttpMethod.GET.equals(method)) {
-                        handleListModels(ctx, decoder);
-                        return;
-                    } else if (HttpMethod.POST.equals(method)) {
-                        handleRegisterModel(ctx, decoder, req);
-                        return;
-                    }
-                    throw new MethodNotAllowedException();
-                }
+                switch (req.method().name()) {
+                    case "GET":
+                        if ("models".equals(segments[1])) {
+                            if (segments.length < 3) {
+                                handleListModels(ctx, decoder);
+                            } else {
 
-                String modelVersion = null;
-                if (segments.length == 4) {
-                    modelVersion = segments[3];
-                }
-                if (HttpMethod.GET.equals(method)) {
-                    handleDescribeModel(ctx, segments[2], modelVersion);
-                } else if (HttpMethod.PUT.equals(method)) {
-                    if (segments.length == 5 && "set-default".equals(segments[4])) {
-                        setDefaultModelVersion(ctx, segments[2], segments[3]);
-                    } else {
-                        handleScaleModel(ctx, decoder, segments[2], modelVersion);
-                    }
-                } else if (HttpMethod.DELETE.equals(method)) {
-                    handleUnregisterModel(ctx, segments[2], modelVersion);
-                } else {
-                    throw new MethodNotAllowedException();
+                                String modelVersion = null;
+                                if (segments.length == 4) {
+                                    modelVersion = segments[3];
+                                }
+                                handleDescribeModel(ctx, segments[2], modelVersion);
+                            }
+
+                        } else {
+
+                            if ("restart".equals(segments[2])) {
+                                restartWithCheckpoint(ctx, segments[2]);
+                            } else {
+                                getCheckpoints(ctx, segments[2]);
+                            }
+                        }
+                        break;
+                    case "PUT":
+                        if ("models".equals(segments[1])) {
+                            String modelVersion = null;
+                            if (segments.length == 4) {
+                                modelVersion = segments[3];
+                            }
+                            if (segments.length == 5 && "set-default".equals(segments[4])) {
+                                setDefaultModelVersion(ctx, segments[2], segments[3]);
+                            } else {
+                                handleScaleModel(ctx, decoder, segments[2], modelVersion);
+                            }
+
+                        } else {
+
+                        }
+                        break;
+                    case "POST":
+                        if ("models".equals(segments[1])) {
+                            if (segments.length < 3) {
+                                handleRegisterModel(ctx, decoder, req);
+                            }
+                        } else {
+                            if (segments.length == 5 && "save-checkpoint".equals(segments[4])) {
+                                saveCheckpoint(ctx, segments[2]);
+                            }
+                        }
+                        break;
+                    case "DELETE":
+                        if ("models".equals(segments[1])) {
+                            String modelVersion = null;
+                            if (segments.length == 4) {
+                                modelVersion = segments[3];
+                            }
+                            handleUnregisterModel(ctx, segments[2], modelVersion);
+
+                        } else {
+                            removeCheckpoint(ctx, segments[2]);
+                        }
+                        break;
+                    default:
+                        throw new MethodNotAllowedException();
                 }
             }
         } else {
@@ -382,6 +418,46 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                         + "\" to \""
                         + newModelVersion
                         + "\"";
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+    }
+
+    private void saveCheckpoint(ChannelHandlerContext ctx, String chkpntName)
+            throws InternalServerException {
+        CheckpointManager chkpntManager = CheckpointManager.getInstance();
+        HttpResponseStatus httpResponseStatus = chkpntManager.saveCheckpoint(chkpntName);
+        if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
+            throw new InternalServerException("Error while saving checkpoint: " + chkpntName);
+        }
+        String msg = "Checkpoint " + chkpntName + " saved succsesfully";
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+    }
+
+    private void restartWithCheckpoint(ChannelHandlerContext ctx, String chkpntName)
+            throws InternalServerException {
+        CheckpointManager chkpntManager = CheckpointManager.getInstance();
+        HttpResponseStatus httpResponseStatus = chkpntManager.restartwithCheckpoint(chkpntName);
+        if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
+            throw new InternalServerException("Error while starting checkpoint: " + chkpntName);
+        }
+        String msg = "Checkpoint " + chkpntName + " started succsesfully";
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+    }
+
+    private void getCheckpoints(ChannelHandlerContext ctx, String chkpntName) {
+        CheckpointManager chkpntManager = CheckpointManager.getInstance();
+        List<String> chkPonts = chkpntManager.getCheckpoints(chkpntName);
+        StringBuilder msg = new StringBuilder();
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg.toString()));
+    }
+
+    private void removeCheckpoint(ChannelHandlerContext ctx, String chkpntName)
+            throws InternalServerException {
+        CheckpointManager chkpntManager = CheckpointManager.getInstance();
+        HttpResponseStatus httpResponseStatus = chkpntManager.removeCheckpoint(chkpntName);
+        if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
+            throw new InternalServerException("Error while removing checkpoint: " + chkpntName);
+        }
+        String msg = "Checkpoint " + chkpntName + " removed succsesfully";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 }
