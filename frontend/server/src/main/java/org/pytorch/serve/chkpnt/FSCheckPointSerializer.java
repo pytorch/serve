@@ -2,12 +2,17 @@ package org.pytorch.serve.chkpnt;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 
@@ -24,6 +29,15 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         long created = System.currentTimeMillis();
         JsonObject modelCheckpoint = new JsonObject();
         modelCheckpoint.addProperty("created", created);
+
+        String checkpointPath = configManager.getCheckpointStore() + "/" + checkpointName;
+        File checkPointModelStore = new File(checkpointPath + "/model_store");
+        if (checkPointModelStore.exists()) {
+            throw new IOException("Checkpoint already exists");
+        }
+
+        checkPointModelStore.mkdirs();
+
         for (Map.Entry<String, Set<Entry<Double, Model>>> model : models.entrySet()) {
             for (Map.Entry<Double, Model> versionedModels : model.getValue()) {
                 Model vmodel = versionedModels.getValue();
@@ -37,21 +51,33 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
                 modelVersionData.addProperty("maxWorkers", vmodel.getMaxWorkers());
                 modelVersionData.addProperty("batchSize", vmodel.getBatchSize());
                 modelVersionData.addProperty("maxBatchDelay", vmodel.getMaxBatchDelay());
-                // modelVersionData.addProperty("path", vmodel.getModelDir().getAbsolutePath());
-                // TODO add logic to move mar to checkpoint directory.
+
+                String destMarFile =
+                        checkPointModelStore
+                                + "/"
+                                + model.getKey()
+                                + "_"
+                                + versionedModels.getKey()
+                                + ".zip";
+                FileOutputStream fos = new FileOutputStream(destMarFile);
+                ZipOutputStream zos = new ZipOutputStream(fos);
+                String modelFilesPath = vmodel.getModelDir().getAbsolutePath();
+                for (String filename : new File(modelFilesPath).list())
+                    addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
+                zos.flush();
+                fos.flush();
+                zos.close();
+                fos.close();
+
                 modelData.add(String.valueOf(versionedModels.getKey()), modelVersionData);
                 modelCheckpoint.add(model.getKey(), modelData);
-                try (FileWriter file =
-                        new FileWriter(
-                                configManager.getCheckpointStore()
-                                        + "/"
-                                        + checkpointName
-                                        + ".json")) {
-                    file.write(modelCheckpoint.toString());
-                    file.flush();
-                }
             }
         }
+
+        FileWriter file = new FileWriter(checkpointPath + "/" + checkpointName + ".json");
+        file.write(modelCheckpoint.toString());
+        file.flush();
+        file.close();
     }
 
     public JsonObject getCheckpoint(String checkpointName) {
@@ -71,4 +97,35 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
     }
 
     public void removeCheckpoint(String checkpointName) {}
+
+    private void addDirToZipArchive(
+            ZipOutputStream zos, File fileToZip, String parrentDirectoryName) throws IOException {
+        if (fileToZip == null || !fileToZip.exists()) {
+            return;
+        }
+
+        String zipEntryName = fileToZip.getName();
+        if (parrentDirectoryName != null && !parrentDirectoryName.isEmpty()) {
+            zipEntryName = parrentDirectoryName + "/" + fileToZip.getName();
+        }
+
+        if (fileToZip.isDirectory()) {
+            if (!"__pycache__".equals(fileToZip.getName())) {
+                System.out.println("+" + zipEntryName);
+                for (File file : fileToZip.listFiles()) {
+                    addDirToZipArchive(zos, file, zipEntryName);
+                }
+            }
+        } else {
+            byte[] buffer = new byte[1024];
+            FileInputStream fis = new FileInputStream(fileToZip);
+            zos.putNextEntry(new ZipEntry(zipEntryName));
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, length);
+            }
+            zos.closeEntry();
+            fis.close();
+        }
+    }
 }

@@ -55,8 +55,11 @@ public class CheckpointManager {
                 defaultVersionsMap.put(m.getKey(), m.getValue().getVersion());
             }
             chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
-        } catch (ModelNotFoundException | IOException e) {
+        } catch (ModelNotFoundException e) {
             logger.error("Model not found while saving checkpoint {}", chkpntName);
+            response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        } catch (IOException e) {
+            logger.error("Error while saving checkpoint to file {}", chkpntName);
             response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
 
