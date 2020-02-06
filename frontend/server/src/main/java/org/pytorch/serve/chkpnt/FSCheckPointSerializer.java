@@ -58,7 +58,7 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
                                 + model.getKey()
                                 + "_"
                                 + versionedModels.getKey()
-                                + ".zip";
+                                + ".mar";
                 FileOutputStream fos = new FileOutputStream(destMarFile);
                 ZipOutputStream zos = new ZipOutputStream(fos);
                 String modelFilesPath = vmodel.getModelDir().getAbsolutePath();
