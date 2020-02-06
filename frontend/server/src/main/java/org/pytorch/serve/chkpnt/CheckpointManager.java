@@ -1,6 +1,7 @@
 package org.pytorch.serve.chkpnt;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,25 +44,31 @@ public class CheckpointManager {
         HttpResponseStatus response = HttpResponseStatus.OK;
         ModelManager modelMgr = ModelManager.getInstance();
         Map<String, Model> defModels = modelMgr.getDefaultModels();
+        Map<String, String> defaultVersionsMap = new HashMap<String, String>();
         Map<String, Set<Entry<Double, Model>>> modelMap =
                 new HashMap<String, Set<Entry<Double, Model>>>();
-        for (Map.Entry<String, Model> m : defModels.entrySet()) {
-            try {
+        try {
+            for (Map.Entry<String, Model> m : defModels.entrySet()) {
+
                 Set<Entry<Double, Model>> models = modelMgr.getAllModelVersions(m.getKey());
                 modelMap.put(m.getKey(), models);
-
-            } catch (ModelNotFoundException e) {
-                logger.error("Model not found while saving checkpoint {}", chkpntName);
-                response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+                defaultVersionsMap.put(m.getKey(), m.getValue().getVersion());
             }
+            chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
+        } catch (ModelNotFoundException | IOException e) {
+            logger.error("Model not found while saving checkpoint {}", chkpntName);
+            response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
-        chkpntSerializer.saveCheckpoint(chkpntName, modelMap);
+
         return response;
     }
 
     public List<String> getCheckpoints(String chkpntName) {
-
         return null;
+    }
+
+    public String getCheckpoint(String chkpntName) {
+        return chkpntSerializer.getCheckpoint(chkpntName).toString();
     }
 
     public HttpResponseStatus restartwithCheckpoint(String chkpntName) {

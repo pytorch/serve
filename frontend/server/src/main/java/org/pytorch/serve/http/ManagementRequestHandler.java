@@ -101,7 +101,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                 handleRegisterModel(ctx, decoder, req);
                             }
                         } else {
-                            if (segments.length == 5 && "save-checkpoint".equals(segments[4])) {
+                            if (segments.length == 3) {
                                 saveCheckpoint(ctx, segments[2]);
                             }
                         }
@@ -131,6 +131,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         return segments.length == 0
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
                 || (segments.length == 5 && "set-default".equals(segments[4]))
+                || (segments[1].equals("chkpnts"))
                 || endpointMap.containsKey(segments[1]);
     }
 
