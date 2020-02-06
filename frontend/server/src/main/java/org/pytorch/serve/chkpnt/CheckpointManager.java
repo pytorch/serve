@@ -22,7 +22,7 @@ public class CheckpointManager {
 
     private ConfigManager configManager;
     private WorkLoadManager wlm;
-    private CheckPointSerializer chkpntSerializer;
+    private CheckpointSerializer chkpntSerializer;
 
     public static void init(ConfigManager configManager, WorkLoadManager wlm) {
         chkpntManager = new CheckpointManager(configManager, wlm);
@@ -33,7 +33,8 @@ public class CheckpointManager {
     }
 
     private CheckpointManager(ConfigManager configManager, WorkLoadManager wlm) {
-        this.chkpntSerializer = new CheckPointSerializer();
+        // TODO - Serializer init. can move to ModelServer or based on config. this can initialized
+        this.chkpntSerializer = new FSCheckPointSerializer();
         this.configManager = configManager;
         this.wlm = wlm;
     }

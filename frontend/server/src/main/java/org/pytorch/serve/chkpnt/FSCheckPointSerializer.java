@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.pytorch.serve.wlm.Model;
 
-public class CheckPointSerializer {
+public class FSCheckPointSerializer implements CheckpointSerializer {
 
     public void saveCheckpoint(
             String checkpointName, Map<String, Set<Entry<Double, Model>>> models) {}
