@@ -28,6 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.chkpnt.CheckpointManager;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
@@ -110,6 +111,8 @@ public class ModelServer {
     private void initModelStore() {
         WorkLoadManager wlm = new WorkLoadManager(configManager, serverGroups.getBackendGroup());
         ModelManager.init(configManager, wlm);
+        CheckpointManager.init(configManager, wlm);
+
         Set<String> startupModels = ModelManager.getInstance().getStartupModels();
         String defaultModelName;
         String loadModels = configManager.getLoadModels();
