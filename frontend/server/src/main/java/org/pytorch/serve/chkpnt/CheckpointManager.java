@@ -33,7 +33,7 @@ public class CheckpointManager {
     }
 
     private CheckpointManager(ConfigManager configManager, WorkLoadManager wlm) {
-        // TODO - Serializer init. can move to ModelServer or based on config. this can initialized
+        // TODO - Serialize init. can move to ModelServer or it can be initialized based on config
         this.chkpntSerializer = new FSCheckPointSerializer();
         this.configManager = configManager;
         this.wlm = wlm;
@@ -65,10 +65,13 @@ public class CheckpointManager {
     }
 
     public HttpResponseStatus restartwithCheckpoint(String chkpntName) {
+        String chkpntStore = configManager.getCheckpointStore();
+
         return null;
     }
 
     public HttpResponseStatus removeCheckpoint(String chkpntName) {
+
         return null;
     }
 }

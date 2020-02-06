@@ -73,6 +73,7 @@ public final class ConfigManager {
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
+    private static final String TS_CHECKPOINT_STORE = "checkpoint_store";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -134,6 +135,11 @@ public final class ConfigManager {
         String modelStore = args.getModelStore();
         if (modelStore != null) {
             prop.setProperty(TS_MODEL_STORE, modelStore);
+        }
+
+        String chkpntStore = args.getModelStore();
+        if (modelStore != null) {
+            prop.setProperty(TS_CHECKPOINT_STORE, chkpntStore);
         }
 
         String[] models = args.getModels();
@@ -318,6 +324,10 @@ public final class ConfigManager {
 
     public String getModelStore() {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
+    }
+
+    public String getCheckpointStore() {
+        return getCanonicalPath(prop.getProperty(TS_CHECKPOINT_STORE));
     }
 
     public String getLoadModels() {
@@ -607,6 +617,7 @@ public final class ConfigManager {
         private String pythonExecutable;
         private String modelStore;
         private String[] models;
+        private String chkpntStore;
 
         public Arguments() {}
 
@@ -615,6 +626,7 @@ public final class ConfigManager {
             pythonExecutable = cmd.getOptionValue("python");
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
+            setChkpntStore(cmd.getOptionValue("checkpoint-store"));
         }
 
         public static Options getOptions() {
@@ -647,6 +659,13 @@ public final class ConfigManager {
                             .argName("MODELS-STORE")
                             .desc("Model store location where models can be loaded.")
                             .build());
+            options.addOption(
+                    Option.builder("cs")
+                            .longOpt("checkpoint-store")
+                            .hasArg()
+                            .argName("CHECKPOINT-STORE")
+                            .desc("Checkpoint store location where checkpoints will be stored.")
+                            .build());
             return options;
         }
 
@@ -676,6 +695,14 @@ public final class ConfigManager {
 
         public void setModels(String[] models) {
             this.models = models;
+        }
+
+        public String getChkpntStore() {
+            return chkpntStore;
+        }
+
+        public void setChkpntStore(String chkpntStore) {
+            this.chkpntStore = chkpntStore;
         }
     }
 }
