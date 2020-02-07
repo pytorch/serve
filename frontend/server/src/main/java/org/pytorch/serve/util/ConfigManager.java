@@ -476,6 +476,8 @@ public final class ConfigManager {
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "
                 + (getLoadModels() == null ? "N/A" : getLoadModels())
+                + "\nCheckpoint Store: "
+                + (getCheckpointStore() == null ? "N/A" : getCheckpointStore())
                 + "\nLog dir: "
                 + getCanonicalPath(System.getProperty("LOG_LOCATION"))
                 + "\nMetrics dir: "
@@ -626,7 +628,7 @@ public final class ConfigManager {
             pythonExecutable = cmd.getOptionValue("python");
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
-            setChkpntStore(cmd.getOptionValue("checkpoint-store"));
+            chkpntStore = cmd.getOptionValue("checkpoint-store");
         }
 
         public static Options getOptions() {

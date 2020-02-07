@@ -14,6 +14,8 @@ public interface CheckpointSerializer {
             Map<String, String> defaultVersionsMap)
             throws IOException;
 
+    public void saveCheckpoint(Checkpoint chkpnt) throws IOException;
+
     public JsonObject getCheckpoint(String checkpointName);
 
     public void removeCheckpoint(String checkpointName);

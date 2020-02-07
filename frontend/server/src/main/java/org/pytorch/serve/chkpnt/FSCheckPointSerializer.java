@@ -1,5 +1,7 @@
 package org.pytorch.serve.chkpnt;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.FileReader;
@@ -14,6 +16,7 @@ import org.pytorch.serve.wlm.Model;
 public class FSCheckPointSerializer implements CheckpointSerializer {
 
     private ConfigManager configManager = ConfigManager.getInstance();
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public void saveCheckpoint(
             String checkpointName,
@@ -51,6 +54,16 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
                     file.flush();
                 }
             }
+        }
+    }
+
+    public void saveCheckpoint(Checkpoint chkpnt) throws IOException {
+        String chkpntJson = GSON.toJson(chkpnt, Checkpoint.class);
+        try (FileWriter file =
+                new FileWriter(
+                        configManager.getCheckpointStore() + "/" + chkpnt.getName() + ".json")) {
+            file.write(chkpntJson);
+            file.flush();
         }
     }
 

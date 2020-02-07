@@ -47,14 +47,33 @@ public class CheckpointManager {
         Map<String, String> defaultVersionsMap = new HashMap<String, String>();
         Map<String, Set<Entry<Double, Model>>> modelMap =
                 new HashMap<String, Set<Entry<Double, Model>>>();
+
+        Map<String, Map<String, ModelInfo>> modelNameMap = new HashMap<>();
+
         try {
             for (Map.Entry<String, Model> m : defModels.entrySet()) {
 
-                Set<Entry<Double, Model>> models = modelMgr.getAllModelVersions(m.getKey());
-                modelMap.put(m.getKey(), models);
-                defaultVersionsMap.put(m.getKey(), m.getValue().getVersion());
+                Set<Entry<Double, Model>> versionModels = modelMgr.getAllModelVersions(m.getKey());
+                Map<String, ModelInfo> modelInfoMap = new HashMap<>();
+                for (Entry<Double, Model> versionedModel : versionModels) {
+                    ModelInfo model = new ModelInfo();
+                    String version = String.valueOf(versionedModel.getKey());
+                    model.setBatchSize(versionedModel.getValue().getBatchSize());
+                    model.setDefaultVersion(m.getValue().getVersion());
+                    model.setMarName(m.getKey() + "_" + version);
+                    model.setMaxBatchDelay(versionedModel.getValue().getMaxBatchDelay());
+                    model.setMaxWorkers(versionedModel.getValue().getMaxWorkers());
+                    model.setMinWorkers(versionedModel.getValue().getMinWorkers());
+                    modelInfoMap.put(version, model);
+                }
+                modelNameMap.put(m.getKey(), modelInfoMap);
+                // modelMap.put(m.getKey(), models);
+                // defaultVersionsMap.put(m.getKey(), m.getValue().getVersion());
             }
-            chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
+            Checkpoint chkpnt = new Checkpoint(chkpntName);
+            chkpnt.setModels(modelNameMap);
+            chkpntSerializer.saveCheckpoint(chkpnt);
+            // chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
         } catch (ModelNotFoundException | IOException e) {
             logger.error("Model not found while saving checkpoint {}", chkpntName);
             response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
@@ -72,8 +91,20 @@ public class CheckpointManager {
     }
 
     public HttpResponseStatus restartwithCheckpoint(String chkpntName) {
-        String chkpntStore = configManager.getCheckpointStore();
+        Checkpoint chkpnt = new Checkpoint();
+        Map<String, Map<String, ModelInfo>> models = chkpnt.getModels();
 
+        String chkpntStore = configManager.getCheckpointStore();
+        //        JsonObject chkpnt = chkpntSerializer.getCheckpoint(chkpntName);
+        //        for(Map.Entry<String, JsonElement> modelMap : chkpnt.entrySet()){
+        //        	String modelName = modelMap.getKey();
+        //        	JsonObject versionModels = (JsonObject) modelMap.getValue();
+        //        	for(Map.Entry<String, JsonElement> versionModelMap : versionModels.entrySet()){
+        //        		String version = versionModelMap.getKey();
+        //        		JsonObject vModel = (JsonObject) versionModelMap.getValue();
+        //
+        //        	}
+        //        }
         return null;
     }
 
