@@ -70,12 +70,17 @@ public class CheckpointManager {
                 // modelMap.put(m.getKey(), models);
                 // defaultVersionsMap.put(m.getKey(), m.getValue().getVersion());
             }
+            
             Checkpoint chkpnt = new Checkpoint(chkpntName);
             chkpnt.setModels(modelNameMap);
             chkpntSerializer.saveCheckpoint(chkpnt);
             // chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
-        } catch (ModelNotFoundException | IOException e) {
+        } catch (ModelNotFoundException e) {
+
             logger.error("Model not found while saving checkpoint {}", chkpntName);
+            response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        } catch (IOException e) {
+            logger.error("Error while saving checkpoint to file {}", chkpntName);
             response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
 
