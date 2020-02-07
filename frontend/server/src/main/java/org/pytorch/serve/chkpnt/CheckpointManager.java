@@ -78,9 +78,7 @@ public class CheckpointManager {
             Checkpoint chkpnt = new Checkpoint(chkpntName);
             chkpnt.setModels(modelNameMap);
             chkpntSerializer.saveCheckpoint(chkpnt, versionMarPath);
-            // chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
         } catch (ModelNotFoundException e) {
-
             logger.error("Model not found while saving checkpoint {}", chkpntName);
             response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (IOException e) {
@@ -95,25 +93,27 @@ public class CheckpointManager {
         return null;
     }
 
-    public String getCheckpoint(String chkpntName) {
-        return chkpntSerializer.getCheckpoint(chkpntName).toString();
+    public Checkpoint getCheckpoint(String chkpntName) throws CheckpointReadException {
+        try {
+            return chkpntSerializer.getCheckpoint(chkpntName);
+        } catch (IOException e) {
+            throw new CheckpointReadException("Error while retrieving checkpoint details.");
+        }
     }
 
     public HttpResponseStatus restartwithCheckpoint(String chkpntName) {
-        Checkpoint chkpnt = new Checkpoint();
-        Map<String, Map<String, ModelInfo>> models = chkpnt.getModels();
+        Checkpoint chkpnt;
+        try {
+            chkpnt = chkpntSerializer.getCheckpoint(chkpntName);
 
-        String chkpntStore = configManager.getCheckpointStore();
-        //        JsonObject chkpnt = chkpntSerializer.getCheckpoint(chkpntName);
-        //        for(Map.Entry<String, JsonElement> modelMap : chkpnt.entrySet()){
-        //        	String modelName = modelMap.getKey();
-        //        	JsonObject versionModels = (JsonObject) modelMap.getValue();
-        //        	for(Map.Entry<String, JsonElement> versionModelMap : versionModels.entrySet()){
-        //        		String version = versionModelMap.getKey();
-        //        		JsonObject vModel = (JsonObject) versionModelMap.getValue();
-        //
-        //        	}
-        //        }
+            Map<String, Map<String, ModelInfo>> models = chkpnt.getModels();
+
+            String chkpntStore = configManager.getCheckpointStore();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         return null;
     }
 

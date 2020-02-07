@@ -37,6 +37,11 @@ public class Checkpoint {
     public void setCreated(long created) {
         this.created = created;
     }
+
+    @Override
+    public String toString() {
+        return "Checkpoint [name=" + name + ", created=" + created + ", models=" + models + "]";
+    }
 }
 
 class ModelInfo {
@@ -93,5 +98,22 @@ class ModelInfo {
 
     public void setMaxBatchDelay(int maxBatchDelay) {
         this.maxBatchDelay = maxBatchDelay;
+    }
+
+    @Override
+    public String toString() {
+        return "ModelInfo [defaultVersion="
+                + defaultVersion
+                + ", marName="
+                + marName
+                + ", minWorkers="
+                + minWorkers
+                + ", maxWorkers="
+                + maxWorkers
+                + ", batchSize="
+                + batchSize
+                + ", maxBatchDelay="
+                + maxBatchDelay
+                + "]";
     }
 }

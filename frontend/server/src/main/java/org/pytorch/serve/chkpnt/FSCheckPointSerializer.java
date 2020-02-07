@@ -49,7 +49,7 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         }
     }
 
-    public JsonObject getCheckpoint(String checkpointName) {
+    public Checkpoint getCheckpoint(String checkpointName) throws IOException {
         JsonParser jsonParser = new JsonParser();
 
         JsonObject checkpointJson = null;
@@ -62,12 +62,9 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
                                 + checkpointName
                                 + ".json")) {
             checkpointJson = jsonParser.parse(reader).getAsJsonObject();
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Checkpoint chkpnt = GSON.fromJson(checkpointJson, Checkpoint.class);
+            return chkpnt;
         }
-        return checkpointJson;
     }
 
     public void removeCheckpoint(String checkpointName) {}
