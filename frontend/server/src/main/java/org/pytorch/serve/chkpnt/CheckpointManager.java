@@ -89,8 +89,12 @@ public class CheckpointManager {
         return response;
     }
 
-    public List<String> getCheckpoints(String chkpntName) {
-        return null;
+    public List<Checkpoint> getCheckpoints() throws CheckpointReadException {
+        try {
+            return chkpntSerializer.getAllCheckpoints();
+        } catch (IOException e) {
+            throw new CheckpointReadException("Error while retrieving checkpoint details.");
+        }
     }
 
     public Checkpoint getCheckpoint(String chkpntName) throws CheckpointReadException {

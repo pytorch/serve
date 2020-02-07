@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -65,6 +67,17 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
             Checkpoint chkpnt = GSON.fromJson(checkpointJson, Checkpoint.class);
             return chkpnt;
         }
+    }
+
+    public List<Checkpoint> getAllCheckpoints() throws IOException {
+
+        ArrayList<Checkpoint> resp = new ArrayList<Checkpoint>();
+
+        for (String checkPointName : new File(configManager.getCheckpointStore()).list()) {
+            resp.add(getCheckpoint(checkPointName));
+        }
+
+        return resp;
     }
 
     public void removeCheckpoint(String checkpointName) {}

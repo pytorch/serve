@@ -74,10 +74,14 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
                         } else {
 
-                            if ("restart".equals(segments[2])) {
+                            if (segments.length == 3 && "restart".equals(segments[2])) {
                                 restartWithCheckpoint(ctx, segments[2]);
                             } else {
-                                getCheckpoint(ctx, segments[2]);
+                                if (segments.length == 3) {
+                                    getCheckpoint(ctx, segments[2]);
+                                } else {
+                                    getAllCheckpoints(ctx);
+                                }
                             }
                         }
                         break;
@@ -455,6 +459,17 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throw new InternalServerException(e.getMessage());
         }
         NettyUtils.sendJsonResponse(ctx, checkpoint);
+    }
+
+    private void getAllCheckpoints(ChannelHandlerContext ctx) {
+        CheckpointManager chkpntManager = CheckpointManager.getInstance();
+        ArrayList<Checkpoint> resp;
+        try {
+            resp = (ArrayList<Checkpoint>) chkpntManager.getCheckpoints();
+        } catch (CheckpointReadException e) {
+            throw new InternalServerException(e.getMessage());
+        }
+        NettyUtils.sendJsonResponse(ctx, resp);
     }
 
     private void removeCheckpoint(ChannelHandlerContext ctx, String chkpntName)
