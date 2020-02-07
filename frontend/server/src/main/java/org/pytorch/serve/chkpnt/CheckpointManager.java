@@ -122,7 +122,12 @@ public class CheckpointManager {
     }
 
     public HttpResponseStatus removeCheckpoint(String chkpntName) {
-
-        return null;
+        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
+        try {
+            chkpntSerializer.removeCheckpoint(chkpntName);
+        } catch (IOException e) {
+            httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        }
+        return httpResponseStatus;
     }
 }

@@ -13,5 +13,5 @@ public interface CheckpointSerializer {
 
     public List<Checkpoint> getAllCheckpoints() throws IOException;
 
-    public void removeCheckpoint(String checkpointName);
+    public void removeCheckpoint(String checkpointName) throws IOException;
 }

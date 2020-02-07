@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.util.ConfigManager;
 
 public class FSCheckPointSerializer implements CheckpointSerializer {
@@ -80,7 +81,10 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         return resp;
     }
 
-    public void removeCheckpoint(String checkpointName) {}
+    public void removeCheckpoint(String checkpointName) throws IOException {
+        String checkPointPath = configManager.getCheckpointStore() + "/" + checkpointName;
+        FileUtils.deleteDirectory(new File(checkPointPath));
+    }
 
     private void addDirToZipArchive(
             ZipOutputStream zos, File fileToZip, String parrentDirectoryName) throws IOException {
