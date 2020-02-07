@@ -436,9 +436,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void restartWithCheckpoint(ChannelHandlerContext ctx, String chkpntName)
-            throws InternalServerException {
+             {
         CheckpointManager chkpntManager = CheckpointManager.getInstance();
-        HttpResponseStatus httpResponseStatus = chkpntManager.restartwithCheckpoint(chkpntName);
+        HttpResponseStatus httpResponseStatus = chkpntManager.restart(chkpntName);
         if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
             throw new InternalServerException("Error while starting checkpoint: " + chkpntName);
         }

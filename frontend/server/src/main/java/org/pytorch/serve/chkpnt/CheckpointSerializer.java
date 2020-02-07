@@ -11,4 +11,6 @@ public interface CheckpointSerializer {
     public Checkpoint getCheckpoint(String checkpointName) throws IOException;
 
     public void removeCheckpoint(String checkpointName);
+
+  public void validate(String chkpntName) throws InvalidCheckPointException;
 }

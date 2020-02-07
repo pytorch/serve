@@ -1,12 +1,17 @@
 package org.pytorch.serve.chkpnt;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpStatusClass;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
@@ -101,20 +106,76 @@ public class CheckpointManager {
         }
     }
 
-    public HttpResponseStatus restartwithCheckpoint(String chkpntName) {
-        Checkpoint chkpnt;
-        try {
-            chkpnt = chkpntSerializer.getCheckpoint(chkpntName);
-
-            Map<String, Map<String, ModelInfo>> models = chkpnt.getModels();
-
-            String chkpntStore = configManager.getCheckpointStore();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public HttpResponseStatus restart(String chkpntName) {
+    	HttpResponseStatus status = HttpResponseStatus.OK;
+    	
+    	try {
+    		//Validate model
+    		chkpntSerializer.validate(chkpntName);
+    		//Terminate running models
+    		terminateModels();
+    		//Init. models
+    		status = initModels(chkpntName);
+	    }catch (InvalidCheckPointException e) {
+	    	logger.error("Error while validating checkpoint. Details: {}",e.getCause());
+        	status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+	    }catch (ModelNotFoundException e) {
+            logger.error("Model not found while saving checkpoint {}", chkpntName);
+            status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
+    	
+    return status;
+    }
 
-        return null;
+    private void terminateModels() throws ModelNotFoundException{
+    	 ModelManager modelMgr = ModelManager.getInstance();
+         Map<String, Model> defModels = modelMgr.getDefaultModels();
+
+         for (Map.Entry<String, Model> m : defModels.entrySet()) {
+
+             Set<Entry<Double, Model>> versionModels = modelMgr.getAllModelVersions(m.getKey());
+             for (Entry<Double, Model> versionedModel : versionModels) {
+                 String versionId = String.valueOf(versionedModel.getKey());
+                 //TODO Shall we indicate for new requests that checkpoint restart is in progress...
+                 modelMgr.unregisterModel(versionedModel.getValue().getModelName(), versionId);
+             }
+         }
+
+  }
+
+  private HttpResponseStatus initModels(String chkpntName) {
+    	HttpResponseStatus status = HttpResponseStatus.OK;
+    	try {
+        	Checkpoint chkpnt = chkpntSerializer.getCheckpoint(chkpntName);
+            Map<String, Map<String, ModelInfo>> models = chkpnt.getModels();
+            String chkpntMarStore = configManager.getCheckpointStore()+"//"+chkpntName+"//model-store";
+            ModelManager modelMgr = ModelManager.getInstance();
+            String checkpointPath = configManager.getCheckpointStore() + "/" + chkpnt.getName();
+            File checkPointModelStore = new File(checkpointPath + "/model_store");
+            
+            for(Map.Entry<String, Map<String, ModelInfo>> modelMap: models.entrySet()) {
+            	String modelName = modelMap.getKey();
+            	for(Map.Entry<String, ModelInfo> versionModel : modelMap.getValue().entrySet()) {
+            		String version = versionModel.getKey();
+            		ModelInfo modelInfo = versionModel.getValue();
+            		//TODO init/register models
+            		modelMgr.registerModel(
+            	             chkpntMarStore+"//"+modelInfo.getMarName()+".mar",
+            	             modelName,
+            	             null,
+            	             handler,
+            	             batchSize,
+            	             maxBatchDelay,
+            	             responseTimeout,
+            	             defaultModelName)
+            	}
+            }
+            
+        } catch (IOException e) {
+        	logger.error("Error while retrieving checkpoint details. Details: {}",e.getCause());
+        	status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        }
+    	return status;
     }
 
     public HttpResponseStatus removeCheckpoint(String chkpntName) {
