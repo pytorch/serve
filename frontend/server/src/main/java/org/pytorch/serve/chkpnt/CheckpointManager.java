@@ -44,7 +44,7 @@ public class CheckpointManager {
         HttpResponseStatus response = HttpResponseStatus.OK;
         ModelManager modelMgr = ModelManager.getInstance();
         Map<String, Model> defModels = modelMgr.getDefaultModels();
-        Map<String, String> defaultVersionsMap = new HashMap<String, String>();
+        Map<String, String> versionMarPath = new HashMap<String, String>();
         Map<String, Set<Entry<Double, Model>>> modelMap =
                 new HashMap<String, Set<Entry<Double, Model>>>();
 
@@ -59,21 +59,25 @@ public class CheckpointManager {
                     ModelInfo model = new ModelInfo();
                     String version = String.valueOf(versionedModel.getKey());
                     model.setBatchSize(versionedModel.getValue().getBatchSize());
-                    model.setDefaultVersion(m.getValue().getVersion());
+                    model.setDefaultVersion(
+                            m.getValue()
+                                    .getVersion()
+                                    .equals(versionedModel.getValue().getVersion()));
                     model.setMarName(m.getKey() + "_" + version);
                     model.setMaxBatchDelay(versionedModel.getValue().getMaxBatchDelay());
                     model.setMaxWorkers(versionedModel.getValue().getMaxWorkers());
                     model.setMinWorkers(versionedModel.getValue().getMinWorkers());
                     modelInfoMap.put(version, model);
+                    versionMarPath.put(
+                            m.getKey() + "_" + versionedModel.getValue().getVersion(),
+                            versionedModel.getValue().getModelDir().getAbsolutePath());
                 }
                 modelNameMap.put(m.getKey(), modelInfoMap);
-                // modelMap.put(m.getKey(), models);
-                // defaultVersionsMap.put(m.getKey(), m.getValue().getVersion());
             }
-            
+
             Checkpoint chkpnt = new Checkpoint(chkpntName);
             chkpnt.setModels(modelNameMap);
-            chkpntSerializer.saveCheckpoint(chkpnt);
+            chkpntSerializer.saveCheckpoint(chkpnt, versionMarPath);
             // chkpntSerializer.saveCheckpoint(chkpntName, modelMap, defaultVersionsMap);
         } catch (ModelNotFoundException e) {
 

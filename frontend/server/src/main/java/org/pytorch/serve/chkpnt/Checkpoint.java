@@ -40,7 +40,7 @@ public class Checkpoint {
 }
 
 class ModelInfo {
-    private String defaultVersion;
+    private boolean defaultVersion;
     private String marName;
     private int minWorkers;
     private int maxWorkers;
@@ -55,11 +55,11 @@ class ModelInfo {
         this.marName = marName;
     }
 
-    public String getDefaultVersion() {
+    public boolean getDefaultVersion() {
         return defaultVersion;
     }
 
-    public void setDefaultVersion(String defaultVersion) {
+    public void setDefaultVersion(boolean defaultVersion) {
         this.defaultVersion = defaultVersion;
     }
 
