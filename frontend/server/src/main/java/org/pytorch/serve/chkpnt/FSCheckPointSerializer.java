@@ -11,83 +11,39 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.wlm.Model;
 
 public class FSCheckPointSerializer implements CheckpointSerializer {
 
     private ConfigManager configManager = ConfigManager.getInstance();
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public void saveCheckpoint(
-            String checkpointName,
-            Map<String, Set<Entry<Double, Model>>> models,
-            Map<String, String> defaultVersionsMap)
+    public void saveCheckpoint(Checkpoint chkpnt, Map<String, String> versionMarPath)
             throws IOException {
+        String chkpntJson = GSON.toJson(chkpnt, Checkpoint.class);
 
-        long created = System.currentTimeMillis();
-        JsonObject modelCheckpoint = new JsonObject();
-        modelCheckpoint.addProperty("created", created);
-
-        String checkpointPath = configManager.getCheckpointStore() + "/" + checkpointName;
+        String checkpointPath = configManager.getCheckpointStore() + "/" + chkpnt.getName();
         File checkPointModelStore = new File(checkpointPath + "/model_store");
         if (checkPointModelStore.exists()) {
             throw new IOException("Checkpoint already exists");
         }
-
         checkPointModelStore.mkdirs();
 
-        for (Map.Entry<String, Set<Entry<Double, Model>>> model : models.entrySet()) {
-            for (Map.Entry<Double, Model> versionedModels : model.getValue()) {
-                Model vmodel = versionedModels.getValue();
-                JsonObject modelData = new JsonObject();
-                JsonObject modelVersionData = new JsonObject();
-                modelVersionData.addProperty(
-                        "default",
-                        vmodel.getVersion().equals(defaultVersionsMap.get(model.getKey())));
-                modelVersionData.addProperty("marName", vmodel.getModelUrl());
-                modelVersionData.addProperty("minWorkers", vmodel.getMinWorkers());
-                modelVersionData.addProperty("maxWorkers", vmodel.getMaxWorkers());
-                modelVersionData.addProperty("batchSize", vmodel.getBatchSize());
-                modelVersionData.addProperty("maxBatchDelay", vmodel.getMaxBatchDelay());
-
-                String destMarFile =
-                        checkPointModelStore
-                                + "/"
-                                + model.getKey()
-                                + "_"
-                                + versionedModels.getKey()
-                                + ".mar";
-                FileOutputStream fos = new FileOutputStream(destMarFile);
-                ZipOutputStream zos = new ZipOutputStream(fos);
-                String modelFilesPath = vmodel.getModelDir().getAbsolutePath();
-                for (String filename : new File(modelFilesPath).list())
-                    addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
-                zos.flush();
-                fos.flush();
-                zos.close();
-                fos.close();
-
-                modelData.add(String.valueOf(versionedModels.getKey()), modelVersionData);
-                modelCheckpoint.add(model.getKey(), modelData);
-            }
+        for (Map.Entry<String, String> marPath : versionMarPath.entrySet()) {
+            String destMarFile = checkPointModelStore + "/" + marPath.getKey() + ".mar";
+            FileOutputStream fos = new FileOutputStream(destMarFile);
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            String modelFilesPath = marPath.getValue();
+            for (String filename : new File(modelFilesPath).list())
+                addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
+            zos.flush();
+            fos.flush();
+            zos.close();
+            fos.close();
         }
-
-        FileWriter file = new FileWriter(checkpointPath + "/" + checkpointName + ".json");
-        file.write(modelCheckpoint.toString());
-        file.flush();
-        file.close();
-    }
-
-    public void saveCheckpoint(Checkpoint chkpnt) throws IOException {
-        String chkpntJson = GSON.toJson(chkpnt, Checkpoint.class);
-        try (FileWriter file =
-                new FileWriter(
-                        configManager.getCheckpointStore() + "/" + chkpnt.getName() + ".json")) {
+        try (FileWriter file = new FileWriter(checkpointPath + "/" + chkpnt.getName() + ".json")) {
             file.write(chkpntJson);
             file.flush();
         }
@@ -99,7 +55,12 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         JsonObject checkpointJson = null;
         try (FileReader reader =
                 new FileReader(
-                        configManager.getCheckpointStore() + "/" + checkpointName + ".json")) {
+                        configManager.getCheckpointStore()
+                                + "/"
+                                + checkpointName
+                                + "/"
+                                + checkpointName
+                                + ".json")) {
             checkpointJson = jsonParser.parse(reader).getAsJsonObject();
 
         } catch (IOException e) {
@@ -124,7 +85,6 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
 
         if (fileToZip.isDirectory()) {
             if (!"__pycache__".equals(fileToZip.getName())) {
-                System.out.println("+" + zipEntryName);
                 for (File file : fileToZip.listFiles()) {
                     addDirToZipArchive(zos, file, zipEntryName);
                 }
