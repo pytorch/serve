@@ -138,7 +138,7 @@ public final class ConfigManager {
         }
 
         String chkpntStore = args.getChkpntStore();
-        if (modelStore != null) {
+        if (chkpntStore != null) {
             prop.setProperty(TS_CHECKPOINT_STORE, chkpntStore);
         }
 
