@@ -19,7 +19,9 @@ import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.chkpnt.Checkpoint;
 import org.pytorch.serve.chkpnt.CheckpointManager;
+import org.pytorch.serve.chkpnt.CheckpointReadException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -75,7 +77,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             if ("restart".equals(segments[2])) {
                                 restartWithCheckpoint(ctx, segments[2]);
                             } else {
-                                getCheckpoints(ctx, segments[2]);
+                                getCheckpoint(ctx, segments[2]);
                             }
                         }
                         break;
@@ -444,11 +446,15 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 
-    private void getCheckpoints(ChannelHandlerContext ctx, String chkpntName) {
+    private void getCheckpoint(ChannelHandlerContext ctx, String chkpntName) {
         CheckpointManager chkpntManager = CheckpointManager.getInstance();
-        List<String> chkPonts = chkpntManager.getCheckpoints(chkpntName);
-        StringBuilder msg = new StringBuilder();
-        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg.toString()));
+        Checkpoint checkpoint;
+        try {
+            checkpoint = chkpntManager.getCheckpoint(chkpntName);
+        } catch (CheckpointReadException e) {
+            throw new InternalServerException(e.getMessage());
+        }
+        NettyUtils.sendJsonResponse(ctx, checkpoint);
     }
 
     private void removeCheckpoint(ChannelHandlerContext ctx, String chkpntName)
