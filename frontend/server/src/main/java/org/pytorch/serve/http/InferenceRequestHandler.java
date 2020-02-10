@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.chkpnt.CheckpointManager;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -46,6 +47,11 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelException {
+        if (CheckpointManager.isRestartInProgress()) {
+            String msg = "Restart in progress. Please try again later.";
+            NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+            return;
+        }
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);

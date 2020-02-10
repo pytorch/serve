@@ -50,6 +50,11 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelException {
+        if (CheckpointManager.isRestartInProgress()) {
+            String msg = "Restart in progress. Please try again later.";
+            NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+            return;
+        }
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
