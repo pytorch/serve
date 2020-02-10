@@ -111,7 +111,7 @@ public class ModelServer {
     private void initModelStore() {
         WorkLoadManager wlm = new WorkLoadManager(configManager, serverGroups.getBackendGroup());
         ModelManager.init(configManager, wlm);
-        CheckpointManager.init(configManager, wlm);
+        CheckpointManager.init(configManager);
 
         Set<String> startupModels = ModelManager.getInstance().getStartupModels();
         String defaultModelName;

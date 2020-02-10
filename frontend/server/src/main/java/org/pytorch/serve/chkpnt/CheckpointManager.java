@@ -16,7 +16,6 @@ import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
-import org.pytorch.serve.wlm.WorkLoadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,22 +26,20 @@ public class CheckpointManager {
     private static CheckpointManager chkpntManager;
 
     private ConfigManager configManager;
-    private WorkLoadManager wlm;
     private CheckpointSerializer chkpntSerializer;
 
-    public static void init(ConfigManager configManager, WorkLoadManager wlm) {
-        chkpntManager = new CheckpointManager(configManager, wlm);
+    public static void init(ConfigManager configManager) {
+        chkpntManager = new CheckpointManager(configManager);
     }
 
     public static CheckpointManager getInstance() {
         return chkpntManager;
     }
 
-    private CheckpointManager(ConfigManager configManager, WorkLoadManager wlm) {
+    private CheckpointManager(ConfigManager configManager) {
         // TODO - Serialize init. can move to ModelServer or it can be initialized based on config
         this.chkpntSerializer = new FSCheckPointSerializer();
         this.configManager = configManager;
-        this.wlm = wlm;
     }
 
     public HttpResponseStatus saveCheckpoint(String chkpntName) {
@@ -50,8 +47,6 @@ public class CheckpointManager {
         ModelManager modelMgr = ModelManager.getInstance();
         Map<String, Model> defModels = modelMgr.getDefaultModels();
         Map<String, String> versionMarPath = new HashMap<String, String>();
-        Map<String, Set<Entry<Double, Model>>> modelMap =
-                new HashMap<String, Set<Entry<Double, Model>>>();
 
         Map<String, Map<String, ModelInfo>> modelNameMap = new HashMap<>();
 
@@ -118,7 +113,7 @@ public class CheckpointManager {
 
         try {
             // Validate model
-            chkpntSerializer.validate(chkpntName);
+            validate(chkpntName);
             // Terminate running models
             terminateModels();
             // Init. models
@@ -128,6 +123,9 @@ public class CheckpointManager {
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (ModelNotFoundException e) {
             logger.error("Model not found while saving checkpoint {}", chkpntName);
+            status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        } catch (IOException e) {
+            logger.error("Error loading checkpoint {}", chkpntName);
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
 
@@ -221,5 +219,36 @@ public class CheckpointManager {
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
         return httpResponseStatus;
+    }
+
+    private boolean validate(String checkpointName) throws IOException, InvalidCheckPointException {
+        String chkpntMarStorePath =
+                configManager.getCheckpointStore() + "/" + checkpointName + "/model_store";
+        Checkpoint checkpoint = chkpntSerializer.getCheckpoint(checkpointName);
+
+        if (checkpoint.getModelCount() != new File(chkpntMarStorePath).listFiles().length) {
+            throw new InvalidCheckPointException(
+                    "Checkpoint " + checkpointName + "'s model store is corrupted.");
+        }
+
+        Map<String, Map<String, ModelInfo>> models = checkpoint.getModels();
+        for (Map.Entry<String, Map<String, ModelInfo>> modelMap : models.entrySet()) {
+            String modelName = modelMap.getKey();
+            for (Map.Entry<String, ModelInfo> versionModel : modelMap.getValue().entrySet()) {
+                String versionId = versionModel.getKey();
+                String marName = modelName + "_" + versionId + ".mar";
+                File marFile = new File(chkpntMarStorePath + "/" + marName);
+                if (!marFile.exists()) {
+                    throw new InvalidCheckPointException(
+                            "Correspoding mar file for model {} :"
+                                    + modelName
+                                    + ", version :"
+                                    + versionId
+                                    + " not found in checkpoint model store");
+                }
+            }
+        }
+
+        return true;
     }
 }

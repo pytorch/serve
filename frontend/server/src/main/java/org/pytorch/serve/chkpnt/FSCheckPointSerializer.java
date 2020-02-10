@@ -115,10 +115,4 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
             fis.close();
         }
     }
-
-    @Override
-    public void validate(String chkpntName) throws InvalidCheckPointException {
-        // TODO Auto-generated method stub
-
-    }
 }
