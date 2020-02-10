@@ -1,6 +1,7 @@
 package org.pytorch.serve.chkpnt;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public interface CheckpointSerializer {
@@ -10,7 +11,9 @@ public interface CheckpointSerializer {
 
     public Checkpoint getCheckpoint(String checkpointName) throws IOException;
 
-    public void removeCheckpoint(String checkpointName);
+    public void validate(String chkpntName) throws InvalidCheckPointException;
 
-  public void validate(String chkpntName) throws InvalidCheckPointException;
+    public List<Checkpoint> getAllCheckpoints() throws IOException;
+
+    public void removeCheckpoint(String checkpointName) throws IOException;
 }

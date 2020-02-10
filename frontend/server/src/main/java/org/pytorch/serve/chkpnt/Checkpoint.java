@@ -4,13 +4,13 @@ import java.util.Map;
 
 public class Checkpoint {
     private String name;
+    private int modelCount;
     private long created;
     private Map<String, Map<String, ModelInfo>> models;
 
-    public Checkpoint() {}
-
-    public Checkpoint(String chkpntName) {
+    public Checkpoint(String chkpntName, int modelCount) {
         this.name = chkpntName;
+        this.setModelCount(modelCount);
         this.created = System.currentTimeMillis();
     }
 
@@ -42,6 +42,14 @@ public class Checkpoint {
     public String toString() {
         return "Checkpoint [name=" + name + ", created=" + created + ", models=" + models + "]";
     }
+
+    public int getModelCount() {
+        return modelCount;
+    }
+
+    public void setModelCount(int modelCount) {
+        this.modelCount = modelCount;
+    }
 }
 
 class ModelInfo {
@@ -51,6 +59,7 @@ class ModelInfo {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int responseTimeout;
 
     public String getMarName() {
         return marName;
@@ -115,5 +124,13 @@ class ModelInfo {
                 + ", maxBatchDelay="
                 + maxBatchDelay
                 + "]";
+    }
+
+    public int getResponseTimeout() {
+        return responseTimeout;
+    }
+
+    public void setResponseTimeout(int responseTimeout) {
+        this.responseTimeout = responseTimeout;
     }
 }

@@ -10,9 +10,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.util.ConfigManager;
 
 public class FSCheckPointSerializer implements CheckpointSerializer {
@@ -67,7 +70,21 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         }
     }
 
-    public void removeCheckpoint(String checkpointName) {}
+    public List<Checkpoint> getAllCheckpoints() throws IOException {
+
+        ArrayList<Checkpoint> resp = new ArrayList<Checkpoint>();
+
+        for (String checkPointName : new File(configManager.getCheckpointStore()).list()) {
+            resp.add(getCheckpoint(checkPointName));
+        }
+
+        return resp;
+    }
+
+    public void removeCheckpoint(String checkpointName) throws IOException {
+        String checkPointPath = configManager.getCheckpointStore() + "/" + checkpointName;
+        FileUtils.deleteDirectory(new File(checkPointPath));
+    }
 
     private void addDirToZipArchive(
             ZipOutputStream zos, File fileToZip, String parrentDirectoryName) throws IOException {
@@ -99,9 +116,9 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         }
     }
 
-  @Override
-  public void validate(String chkpntName) throws InvalidCheckPointException {
-    // TODO Auto-generated method stub
-    
-  }
+    @Override
+    public void validate(String chkpntName) throws InvalidCheckPointException {
+        // TODO Auto-generated method stub
+
+    }
 }
