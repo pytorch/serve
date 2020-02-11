@@ -282,8 +282,6 @@ public class ModelServerTest {
 
         Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
 
-        testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
-
         testCheckpoint(managementChannel);
         testGetCheckpoint(managementChannel);
         testGetAllCheckpoint(managementChannel);
@@ -1428,7 +1426,7 @@ public class ModelServerTest {
         latch = new CountDownLatch(1);
         String requestURL = "/checkpoints/checkpoint1/restart";
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
         managementChannel.writeAndFlush(req);
         latch.await();
 

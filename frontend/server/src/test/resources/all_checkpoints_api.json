@@ -1,34 +1,70 @@
 [
   {
-    "name": "test_checkpoint",
-    "modelCount": 1,
+    "name":"checkpoint1",
+    "modelCount":6,
     "models": {
       "noop": {
-        "1.11": {
-          "defaultVersion": true,
-          "marName": "noop_1.11",
-          "minWorkers": 8,
-          "maxWorkers": 8,
-          "batchSize": 1,
-          "maxBatchDelay": 100,
-          "responseTimeout": 120
+        "1.11":{
+          "defaultVersion":true,
+          "marName":"noop_1.11",
+          "minWorkers":1,
+          "maxWorkers":1,
+          "batchSize":1,
+          "maxBatchDelay":100,
+          "responseTimeout":120
         }
-      }
-    }
-  },
-  {
-    "name": "checkpoint33",
-    "modelCount": 1,
-    "models": {
-      "noop": {
-        "1.11": {
-          "defaultVersion": true,
-          "marName": "noop_1.11",
-          "minWorkers": 8,
-          "maxWorkers": 8,
-          "batchSize": 1,
-          "maxBatchDelay": 100,
-          "responseTimeout": 120
+      },
+      "memory_error":{
+        "1.0":{
+          "defaultVersion":true,
+          "marName":"memory_error_1.0",
+          "minWorkers":0,
+          "maxWorkers":0,
+          "batchSize":1,
+          "maxBatchDelay":100,
+          "responseTimeout":120
+        }
+      },
+      "noop_v1.0":{
+        "1.11":{
+          "defaultVersion":true,
+          "marName":"noop_v1.0_1.11",
+          "minWorkers":2,
+          "maxWorkers":2,
+          "batchSize":1,
+          "maxBatchDelay":100,
+          "responseTimeout":120
+        }
+      },
+      "noopversioned":{
+        "1.21":{
+          "defaultVersion":false,
+          "marName":"noopversioned_1.21",
+          "minWorkers":1,
+          "maxWorkers":1,
+          "batchSize":1,
+          "maxBatchDelay":100,
+          "responseTimeout":120
+        },
+        "1.11":{
+          "defaultVersion":true,
+          "marName":"noopversioned_1.11",
+          "minWorkers":1,
+          "maxWorkers":1,
+          "batchSize":1,
+          "maxBatchDelay":100,
+          "responseTimeout":120
+        }
+      },
+      "err_batch":{
+        "1.0":{
+          "defaultVersion":true,
+          "marName":"err_batch_1.0",
+          "minWorkers":1,
+          "maxWorkers":1,
+          "batchSize":1,
+          "maxBatchDelay":100,
+          "responseTimeout":120
         }
       }
     }
