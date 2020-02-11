@@ -1,4 +1,4 @@
-package org.pytorch.serve.chkpnt;
+package org.pytorch.serve.checkpoint;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,21 +16,23 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
+import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.util.ConfigManager;
 
-public class FSCheckPointSerializer implements CheckpointSerializer {
+public class FSCheckpointSerializer implements CheckpointSerializer {
 
     private ConfigManager configManager = ConfigManager.getInstance();
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public void saveCheckpoint(Checkpoint chkpnt, Map<String, String> versionMarPath)
-            throws IOException {
-        String chkpntJson = GSON.toJson(chkpnt, Checkpoint.class);
+    public void saveCheckpoint(Checkpoint checkpoint, Map<String, String> versionMarPath)
+            throws IOException, ConflictStatusException {
+        String chkpntJson = GSON.toJson(checkpoint, Checkpoint.class);
 
-        String checkpointPath = configManager.getCheckpointStore() + "/" + chkpnt.getName();
+        String checkpointPath = configManager.getCheckpointStore() + "/" + checkpoint.getName();
         File checkPointModelStore = new File(checkpointPath + "/model_store");
         if (checkPointModelStore.exists()) {
-            throw new IOException("Checkpoint already exists");
+            throw new ConflictStatusException(
+                    "Checkpoint " + checkpoint.getName() + " already exists.");
         }
         checkPointModelStore.mkdirs();
 
@@ -46,7 +48,8 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
             zos.close();
             fos.close();
         }
-        try (FileWriter file = new FileWriter(checkpointPath + "/" + chkpnt.getName() + ".json")) {
+        try (FileWriter file =
+                new FileWriter(checkpointPath + "/" + checkpoint.getName() + ".json")) {
             file.write(chkpntJson);
             file.flush();
         }
@@ -65,8 +68,8 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
                                 + checkpointName
                                 + ".json")) {
             checkpointJson = jsonParser.parse(reader).getAsJsonObject();
-            Checkpoint chkpnt = GSON.fromJson(checkpointJson, Checkpoint.class);
-            return chkpnt;
+            Checkpoint checkpoint = GSON.fromJson(checkpointJson, Checkpoint.class);
+            return checkpoint;
         }
     }
 
@@ -75,9 +78,9 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         ArrayList<Checkpoint> resp = new ArrayList<Checkpoint>();
 
         for (String checkPointName : new File(configManager.getCheckpointStore()).list()) {
-        	if (!(new File(configManager.getCheckpointStore() + "/" + checkPointName).isFile())) {
-        		resp.add(getCheckpoint(checkPointName));
-        	}
+            if (!(new File(configManager.getCheckpointStore() + "/" + checkPointName).isFile())) {
+                resp.add(getCheckpoint(checkPointName));
+            }
         }
 
         return resp;

@@ -1,4 +1,4 @@
-package org.pytorch.serve.chkpnt;
+package org.pytorch.serve.checkpoint;
 
 public class CheckpointReadException extends Exception {
 

@@ -1,4 +1,4 @@
-package org.pytorch.serve.chkpnt;
+package org.pytorch.serve.checkpoint;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.File;
@@ -40,7 +40,7 @@ public class CheckpointManager {
 
     private CheckpointManager(ConfigManager configManager) {
         // TODO - Serialize init. can move to ModelServer or it can be initialized based on config
-        this.chkpntSerializer = new FSCheckPointSerializer();
+        this.chkpntSerializer = new FSCheckpointSerializer();
         this.configManager = configManager;
     }
 
@@ -80,9 +80,9 @@ public class CheckpointManager {
                 modelNameMap.put(m.getKey(), modelInfoMap);
             }
 
-            Checkpoint chkpnt = new Checkpoint(chkpntName, modelCount);
-            chkpnt.setModels(modelNameMap);
-            chkpntSerializer.saveCheckpoint(chkpnt, versionMarPath);
+            Checkpoint checkpoint = new Checkpoint(chkpntName, modelCount);
+            checkpoint.setModels(modelNameMap);
+            chkpntSerializer.saveCheckpoint(checkpoint, versionMarPath);
         } catch (ModelNotFoundException e) {
             logger.error("Model not found while saving checkpoint {}", chkpntName);
             response = HttpResponseStatus.INTERNAL_SERVER_ERROR;
@@ -121,7 +121,7 @@ public class CheckpointManager {
             terminateModels();
             // Init. models
             status = initModels(chkpntName);
-        } catch (InvalidCheckPointException e) {
+        } catch (InvalidCheckpointException e) {
             logger.error("Error while validating checkpoint. Details: {}", e.getCause());
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (ModelNotFoundException e) {
@@ -167,10 +167,10 @@ public class CheckpointManager {
             FileUtils.copyDirectory(chkpntMarStore, modelStore);
             List<File> files = (List<File>) FileUtils.listFiles(modelStore, null, true);
 
-            Checkpoint chkpnt = chkpntSerializer.getCheckpoint(chkpntName);
-            Map<String, Map<String, ModelInfo>> models = chkpnt.getModels();
+            Checkpoint checkpoint = chkpntSerializer.getCheckpoint(chkpntName);
+            Map<String, Map<String, ModelInfo>> models = checkpoint.getModels();
 
-            if (chkpnt.getModelCount() != files.size())
+            if (checkpoint.getModelCount() != files.size())
                 return HttpResponseStatus.INTERNAL_SERVER_ERROR;
 
             for (Map.Entry<String, Map<String, ModelInfo>> modelMap : models.entrySet()) {
@@ -226,13 +226,13 @@ public class CheckpointManager {
         return httpResponseStatus;
     }
 
-    private boolean validate(String checkpointName) throws IOException, InvalidCheckPointException {
+    private boolean validate(String checkpointName) throws IOException, InvalidCheckpointException {
         String chkpntMarStorePath =
                 configManager.getCheckpointStore() + "/" + checkpointName + "/model_store";
         Checkpoint checkpoint = chkpntSerializer.getCheckpoint(checkpointName);
 
         if (checkpoint.getModelCount() != new File(chkpntMarStorePath).listFiles().length) {
-            throw new InvalidCheckPointException(
+            throw new InvalidCheckpointException(
                     "Checkpoint " + checkpointName + "'s model store is corrupted.");
         }
 
@@ -244,7 +244,7 @@ public class CheckpointManager {
                 String marName = modelName + "_" + versionId + ".mar";
                 File marFile = new File(chkpntMarStorePath + "/" + marName);
                 if (!marFile.exists()) {
-                    throw new InvalidCheckPointException(
+                    throw new InvalidCheckpointException(
                             "Correspoding mar file for model {} :"
                                     + modelName
                                     + ", version :"

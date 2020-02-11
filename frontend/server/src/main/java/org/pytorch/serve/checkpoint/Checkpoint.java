@@ -1,4 +1,4 @@
-package org.pytorch.serve.chkpnt;
+package org.pytorch.serve.checkpoint;
 
 import java.util.Map;
 

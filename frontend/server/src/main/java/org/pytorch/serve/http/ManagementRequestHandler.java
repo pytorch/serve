@@ -19,9 +19,9 @@ import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
-import org.pytorch.serve.chkpnt.Checkpoint;
-import org.pytorch.serve.chkpnt.CheckpointManager;
-import org.pytorch.serve.chkpnt.CheckpointReadException;
+import org.pytorch.serve.checkpoint.Checkpoint;
+import org.pytorch.serve.checkpoint.CheckpointManager;
+import org.pytorch.serve.checkpoint.CheckpointReadException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -59,7 +59,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
-                if (!("models".equals(segments[1]) || "chkpnts".equals(segments[1]))) {
+                if (!("models".equals(segments[1]) || "checkpoints".equals(segments[1]))) {
                     throw new ResourceNotFoundException();
                 }
 
@@ -142,7 +142,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         return segments.length == 0
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
                 || (segments.length == 5 && "set-default".equals(segments[4]))
-                || (segments[1].equals("chkpnts"))
+                || (segments[1].equals("checkpoints"))
                 || endpointMap.containsKey(segments[1]);
     }
 
