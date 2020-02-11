@@ -37,9 +37,9 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -112,14 +112,19 @@ public class ModelServerTest {
         }
 
         JsonParser parser = new JsonParser();
-        JsonArray allCheckpointJson =
-                (JsonArray)
-                        parser.parse(new FileReader("src/test/resources/all_checkpoints_api.json"));
-        getAllCheckpointAPIResult = allCheckpointJson.toString();
+        try (InputStream is = new FileInputStream("src/test/resources/all_checkpoints_api.json")) {
+            InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            JsonArray allCheckpointJson = (JsonArray) parser.parse(isReader);
+            getAllCheckpointAPIResult = allCheckpointJson.toString();
+            isReader.close();
+        }
 
-        JsonArray checkpointJson =
-                (JsonArray) parser.parse(new FileReader("src/test/resources/checkpoints_api.json"));
-        getCheckpointAPIResult = checkpointJson.toString();
+        try (InputStream is = new FileInputStream("src/test/resources/checkpoint_api.json")) {
+            InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            JsonObject checkpointJson = (JsonObject) parser.parse(isReader);
+            getCheckpointAPIResult = checkpointJson.toString();
+            isReader.close();
+        }
     }
 
     @AfterSuite

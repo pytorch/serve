@@ -237,9 +237,12 @@ public final class CheckpointManager {
         if (!(checkPointModelStore.exists() && checkPointModelStore.isDirectory())) {
             throw new InvalidCheckpointException(
                     "Checkpoint " + checkpointName + "'s model store does not exist.");
-        } else if (checkpoint.getModelCount() != new File(chkpntMarStorePath).listFiles().length) {
-            throw new InvalidCheckpointException(
-                    "Checkpoint " + checkpointName + "'s model store is corrupted.");
+        } else {
+            File[] modelsMars = checkPointModelStore.listFiles();
+            if (modelsMars != null && checkpoint.getModelCount() != modelsMars.length) {
+                throw new InvalidCheckpointException(
+                        "Checkpoint " + checkpointName + "'s model store is corrupted.");
+            }
         }
 
         Map<String, Map<String, ModelInfo>> models = checkpoint.getModels();

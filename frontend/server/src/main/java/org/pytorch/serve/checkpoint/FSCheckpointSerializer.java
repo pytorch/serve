@@ -46,8 +46,11 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
                 FileOutputStream fos = new FileOutputStream(destMarFile);
                 ZipOutputStream zos = new ZipOutputStream(fos);
                 String modelFilesPath = marPath.getValue();
-                for (String filename : new File(modelFilesPath).list()) {
-                    addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
+                File[] marFiles = new File(modelFilesPath).listFiles();
+                if (marFiles != null) {
+                    for (File file : marFiles) {
+                        addDirToZipArchive(zos, file, null);
+                    }
                 }
                 zos.flush();
                 fos.flush();
@@ -91,9 +94,13 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
 
         ArrayList<Checkpoint> resp = new ArrayList<Checkpoint>();
 
-        for (String checkPointName : new File(configManager.getCheckpointStore()).list()) {
-            if (!(new File(configManager.getCheckpointStore() + "/" + checkPointName).isFile())) {
-                resp.add(getCheckpoint(checkPointName));
+        String[] checkPoints = new File(configManager.getCheckpointStore()).list();
+        if (checkPoints != null) {
+            for (String checkPointName : checkPoints) {
+                if (new File(configManager.getCheckpointStore() + "/" + checkPointName)
+                        .isDirectory()) {
+                    resp.add(getCheckpoint(checkPointName));
+                }
             }
         }
 
@@ -118,8 +125,11 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
 
         if (fileToZip.isDirectory()) {
             if (!"__pycache__".equals(fileToZip.getName())) {
-                for (File file : fileToZip.listFiles()) {
-                    addDirToZipArchive(zos, file, zipEntryName);
+                File[] marFiles = fileToZip.listFiles();
+                if (marFiles != null) {
+                    for (File file : marFiles) {
+                        addDirToZipArchive(zos, file, zipEntryName);
+                    }
                 }
             }
         } else {
@@ -135,8 +145,10 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
             } catch (IOException e) {
                 throw e;
             } finally {
+                if (fis != null) {
+                    fis.close();
+                }
                 zos.closeEntry();
-                fis.close();
             }
         }
     }
