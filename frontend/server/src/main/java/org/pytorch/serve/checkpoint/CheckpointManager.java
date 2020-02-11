@@ -19,7 +19,7 @@ import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CheckpointManager {
+public final class CheckpointManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ModelManager.class);
 
@@ -28,7 +28,7 @@ public class CheckpointManager {
     private ConfigManager configManager;
     private CheckpointSerializer chkpntSerializer;
 
-    private static boolean restartInProgress = false;
+    private static boolean restartInProgress;
 
     public static void init(ConfigManager configManager) {
         chkpntManager = new CheckpointManager(configManager);
@@ -170,8 +170,9 @@ public class CheckpointManager {
             Checkpoint checkpoint = chkpntSerializer.getCheckpoint(chkpntName);
             Map<String, Map<String, ModelInfo>> models = checkpoint.getModels();
 
-            if (checkpoint.getModelCount() != files.size())
+            if (checkpoint.getModelCount() != files.size()) {
                 return HttpResponseStatus.INTERNAL_SERVER_ERROR;
+            }
 
             for (Map.Entry<String, Map<String, ModelInfo>> modelMap : models.entrySet()) {
                 String modelName = modelMap.getKey();

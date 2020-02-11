@@ -102,8 +102,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                 handleScaleModel(ctx, decoder, segments[2], modelVersion);
                             }
 
-                        } else {
-
                         }
                         break;
                     case "POST":

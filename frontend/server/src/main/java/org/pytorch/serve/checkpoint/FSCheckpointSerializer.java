@@ -41,8 +41,9 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
             FileOutputStream fos = new FileOutputStream(destMarFile);
             ZipOutputStream zos = new ZipOutputStream(fos);
             String modelFilesPath = marPath.getValue();
-            for (String filename : new File(modelFilesPath).list())
+            for (String filename : new File(modelFilesPath).list()) {
                 addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
+            }
             zos.flush();
             fos.flush();
             zos.close();
