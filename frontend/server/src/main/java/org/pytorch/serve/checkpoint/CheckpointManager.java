@@ -28,7 +28,7 @@ public final class CheckpointManager {
     private ConfigManager configManager;
     private CheckpointSerializer chkpntSerializer;
 
-    private static boolean restartInProgress;
+    private boolean restartInProgress;
 
     public static void init(ConfigManager configManager) {
         chkpntManager = new CheckpointManager(configManager);
@@ -114,7 +114,7 @@ public final class CheckpointManager {
         HttpResponseStatus status = HttpResponseStatus.OK;
 
         try {
-            CheckpointManager.restartInProgress = true;
+            restartInProgress = true;
             // Validate model
             validate(chkpntName);
             // Terminate running models
@@ -131,7 +131,7 @@ public final class CheckpointManager {
             logger.error("Error loading checkpoint {}", chkpntName);
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } finally {
-            CheckpointManager.restartInProgress = false;
+            restartInProgress = false;
         }
 
         return status;
@@ -263,7 +263,7 @@ public final class CheckpointManager {
         return true;
     }
 
-    public static boolean isRestartInProgress() {
+    public boolean isRestartInProgress() {
         return restartInProgress;
     }
 }

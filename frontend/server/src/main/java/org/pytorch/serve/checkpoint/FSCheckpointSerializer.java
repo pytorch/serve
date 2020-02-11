@@ -60,6 +60,7 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
                 OutputStreamWriter osWriter = new OutputStreamWriter(os, StandardCharsets.UTF_8);
                 osWriter.write(chkpntJson);
                 osWriter.flush();
+                osWriter.close();
             }
         }
     }
@@ -81,6 +82,7 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
             InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
             checkpointJson = jsonParser.parse(isReader).getAsJsonObject();
             Checkpoint checkpoint = GSON.fromJson(checkpointJson, Checkpoint.class);
+            isReader.close();
             return checkpoint;
         }
     }
@@ -122,8 +124,9 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
             }
         } else {
             byte[] buffer = new byte[1024];
-            FileInputStream fis = new FileInputStream(fileToZip);
+            FileInputStream fis = null;
             try {
+                fis = new FileInputStream(fileToZip);
                 zos.putNextEntry(new ZipEntry(zipEntryName));
                 int length;
                 while ((length = fis.read(buffer)) > 0) {
