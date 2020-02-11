@@ -1370,7 +1370,7 @@ public class ModelServerTest {
             }
         }
     }
-    
+
     private void testCheckpoint(Channel managementChannel) throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
@@ -1500,5 +1500,4 @@ public class ModelServerTest {
             latch.countDown();
         }
     }
-
 }

@@ -114,7 +114,7 @@ public final class CheckpointManager {
         HttpResponseStatus status = HttpResponseStatus.OK;
 
         try {
-            restartInProgress = true;
+            CheckpointManager.restartInProgress = true;
             // Validate model
             validate(chkpntName);
             // Terminate running models
@@ -131,7 +131,7 @@ public final class CheckpointManager {
             logger.error("Error loading checkpoint {}", chkpntName);
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } finally {
-            restartInProgress = false;
+            CheckpointManager.restartInProgress = false;
         }
 
         return status;
@@ -232,7 +232,12 @@ public final class CheckpointManager {
                 configManager.getCheckpointStore() + "/" + checkpointName + "/model_store";
         Checkpoint checkpoint = chkpntSerializer.getCheckpoint(checkpointName);
 
-        if (checkpoint.getModelCount() != new File(chkpntMarStorePath).listFiles().length) {
+        File checkPointModelStore = new File(chkpntMarStorePath);
+
+        if (!(checkPointModelStore.exists() && checkPointModelStore.isDirectory())) {
+            throw new InvalidCheckpointException(
+                    "Checkpoint " + checkpointName + "'s model store does not exist.");
+        } else if (checkpoint.getModelCount() != new File(chkpntMarStorePath).listFiles().length) {
             throw new InvalidCheckpointException(
                     "Checkpoint " + checkpointName + "'s model store is corrupted.");
         }

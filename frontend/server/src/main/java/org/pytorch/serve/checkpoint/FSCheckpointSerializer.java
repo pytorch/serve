@@ -7,9 +7,12 @@ import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,25 +37,30 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
             throw new ConflictStatusException(
                     "Checkpoint " + checkpoint.getName() + " already exists.");
         }
-        checkPointModelStore.mkdirs();
 
-        for (Map.Entry<String, String> marPath : versionMarPath.entrySet()) {
-            String destMarFile = checkPointModelStore + "/" + marPath.getKey() + ".mar";
-            FileOutputStream fos = new FileOutputStream(destMarFile);
-            ZipOutputStream zos = new ZipOutputStream(fos);
-            String modelFilesPath = marPath.getValue();
-            for (String filename : new File(modelFilesPath).list()) {
-                addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
+        boolean checkpointDirectoryCreated = checkPointModelStore.mkdirs();
+
+        if (checkpointDirectoryCreated) {
+            for (Map.Entry<String, String> marPath : versionMarPath.entrySet()) {
+                String destMarFile = checkPointModelStore + "/" + marPath.getKey() + ".mar";
+                FileOutputStream fos = new FileOutputStream(destMarFile);
+                ZipOutputStream zos = new ZipOutputStream(fos);
+                String modelFilesPath = marPath.getValue();
+                for (String filename : new File(modelFilesPath).list()) {
+                    addDirToZipArchive(zos, new File(modelFilesPath + "/" + filename), null);
+                }
+                zos.flush();
+                fos.flush();
+                zos.close();
+                fos.close();
             }
-            zos.flush();
-            fos.flush();
-            zos.close();
-            fos.close();
-        }
-        try (FileWriter file =
-                new FileWriter(checkpointPath + "/" + checkpoint.getName() + ".json")) {
-            file.write(chkpntJson);
-            file.flush();
+
+            try (OutputStream os =
+                    new FileOutputStream(checkpointPath + "/" + checkpoint.getName() + ".json")) {
+                OutputStreamWriter osWriter = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+                osWriter.write(chkpntJson);
+                osWriter.flush();
+            }
         }
     }
 
@@ -60,15 +68,18 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
         JsonParser jsonParser = new JsonParser();
 
         JsonObject checkpointJson = null;
-        try (FileReader reader =
-                new FileReader(
+
+        try (InputStream is =
+                new FileInputStream(
                         configManager.getCheckpointStore()
                                 + "/"
                                 + checkpointName
                                 + "/"
                                 + checkpointName
                                 + ".json")) {
-            checkpointJson = jsonParser.parse(reader).getAsJsonObject();
+
+            InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            checkpointJson = jsonParser.parse(isReader).getAsJsonObject();
             Checkpoint checkpoint = GSON.fromJson(checkpointJson, Checkpoint.class);
             return checkpoint;
         }
@@ -112,13 +123,18 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
         } else {
             byte[] buffer = new byte[1024];
             FileInputStream fis = new FileInputStream(fileToZip);
-            zos.putNextEntry(new ZipEntry(zipEntryName));
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                zos.write(buffer, 0, length);
+            try {
+                zos.putNextEntry(new ZipEntry(zipEntryName));
+                int length;
+                while ((length = fis.read(buffer)) > 0) {
+                    zos.write(buffer, 0, length);
+                }
+            } catch (IOException e) {
+                throw e;
+            } finally {
+                zos.closeEntry();
+                fis.close();
             }
-            zos.closeEntry();
-            fis.close();
         }
     }
 }
