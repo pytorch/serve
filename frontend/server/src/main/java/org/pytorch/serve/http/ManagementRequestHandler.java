@@ -78,15 +78,10 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             }
 
                         } else {
-
-                            if (segments.length == 4 && "restart".equals(segments[3])) {
-                                restartWithCheckpoint(ctx, segments[2]);
+                            if (segments.length == 3) {
+                                getCheckpoint(ctx, segments[2]);
                             } else {
-                                if (segments.length == 3) {
-                                    getCheckpoint(ctx, segments[2]);
-                                } else {
-                                    getAllCheckpoints(ctx);
-                                }
+                                getAllCheckpoints(ctx);
                             }
                         }
                         break;
@@ -101,6 +96,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             } else {
                                 handleScaleModel(ctx, decoder, segments[2], modelVersion);
                             }
+                        } else if (segments.length == 4 && "restart".equals(segments[3])) {
+                            restartWithCheckpoint(ctx, segments[2]);
                         }
                         break;
                     case "POST":
