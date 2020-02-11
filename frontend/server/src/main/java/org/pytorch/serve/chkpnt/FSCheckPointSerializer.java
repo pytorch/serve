@@ -75,7 +75,9 @@ public class FSCheckPointSerializer implements CheckpointSerializer {
         ArrayList<Checkpoint> resp = new ArrayList<Checkpoint>();
 
         for (String checkPointName : new File(configManager.getCheckpointStore()).list()) {
-            resp.add(getCheckpoint(checkPointName));
+        	if (!(new File(configManager.getCheckpointStore() + "/" + checkPointName).isFile())) {
+        		resp.add(getCheckpoint(checkPointName));
+        	}
         }
 
         return resp;
