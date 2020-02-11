@@ -1370,64 +1370,7 @@ public class ModelServerTest {
             }
         }
     }
-
-    private Channel connect(boolean management) {
-        Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
-
-        final Connector connector = configManager.getListener(management);
-        try {
-            Bootstrap b = new Bootstrap();
-            final SslContext sslCtx =
-                    SslContextBuilder.forClient()
-                            .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                            .build();
-            b.group(Connector.newEventLoopGroup(1))
-                    .channel(connector.getClientChannel())
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                    .handler(
-                            new ChannelInitializer<Channel>() {
-                                @Override
-                                public void initChannel(Channel ch) {
-                                    ChannelPipeline p = ch.pipeline();
-                                    if (connector.isSsl()) {
-                                        p.addLast(sslCtx.newHandler(ch.alloc()));
-                                    }
-                                    p.addLast(new ReadTimeoutHandler(30));
-                                    p.addLast(new HttpClientCodec());
-                                    p.addLast(new HttpContentDecompressor());
-                                    p.addLast(new ChunkedWriteHandler());
-                                    p.addLast(new HttpObjectAggregator(6553600));
-                                    p.addLast(new TestHandler());
-                                }
-                            });
-
-            return b.connect(connector.getSocketAddress()).sync().channel();
-        } catch (Throwable t) {
-            logger.warn("Connect error.", t);
-        }
-        return null;
-    }
-
-    @ChannelHandler.Sharable
-    private class TestHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
-
-        @Override
-        public void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
-            httpStatus = msg.status();
-            result = msg.content().toString(StandardCharsets.UTF_8);
-            headers = msg.headers();
-            latch.countDown();
-        }
-
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-            Logger logger = LoggerFactory.getLogger(TestHandler.class);
-            logger.error("Unknown exception", cause);
-            ctx.close();
-            latch.countDown();
-        }
-    }
-
+    
     private void testCheckpoint(Channel managementChannel) throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
@@ -1500,4 +1443,62 @@ public class ModelServerTest {
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), "Checkpoint checkpoint1 removed succsesfully");
     }
+
+    private Channel connect(boolean management) {
+        Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
+
+        final Connector connector = configManager.getListener(management);
+        try {
+            Bootstrap b = new Bootstrap();
+            final SslContext sslCtx =
+                    SslContextBuilder.forClient()
+                            .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                            .build();
+            b.group(Connector.newEventLoopGroup(1))
+                    .channel(connector.getClientChannel())
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                    .handler(
+                            new ChannelInitializer<Channel>() {
+                                @Override
+                                public void initChannel(Channel ch) {
+                                    ChannelPipeline p = ch.pipeline();
+                                    if (connector.isSsl()) {
+                                        p.addLast(sslCtx.newHandler(ch.alloc()));
+                                    }
+                                    p.addLast(new ReadTimeoutHandler(30));
+                                    p.addLast(new HttpClientCodec());
+                                    p.addLast(new HttpContentDecompressor());
+                                    p.addLast(new ChunkedWriteHandler());
+                                    p.addLast(new HttpObjectAggregator(6553600));
+                                    p.addLast(new TestHandler());
+                                }
+                            });
+
+            return b.connect(connector.getSocketAddress()).sync().channel();
+        } catch (Throwable t) {
+            logger.warn("Connect error.", t);
+        }
+        return null;
+    }
+
+    @ChannelHandler.Sharable
+    private class TestHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
+
+        @Override
+        public void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
+            httpStatus = msg.status();
+            result = msg.content().toString(StandardCharsets.UTF_8);
+            headers = msg.headers();
+            latch.countDown();
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            Logger logger = LoggerFactory.getLogger(TestHandler.class);
+            logger.error("Unknown exception", cause);
+            ctx.close();
+            latch.countDown();
+        }
+    }
+
 }
