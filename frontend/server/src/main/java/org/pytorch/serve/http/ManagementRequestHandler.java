@@ -50,7 +50,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelException {
-        if (CheckpointManager.isRestartInProgress()) {
+        if (CheckpointManager.getInstance().isRestartInProgress()) {
             String msg = "Restart in progress. Please try again later.";
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
             return;
