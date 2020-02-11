@@ -1,6 +1,9 @@
 package org.pytorch.serve;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -34,6 +37,7 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -77,6 +81,8 @@ public class ModelServerTest {
     private String listInferenceApisResult;
     private String listManagementApisResult;
     private String noopApiResult;
+    private String getCheckpointAPIResult;
+    private String getAllCheckpointAPIResult;
 
     static {
         TestUtils.init();
@@ -104,6 +110,16 @@ public class ModelServerTest {
         try (InputStream is = new FileInputStream("src/test/resources/describe_api.json")) {
             noopApiResult = IOUtils.toString(is, StandardCharsets.UTF_8.name());
         }
+
+        JsonParser parser = new JsonParser();
+        JsonArray allCheckpointJson =
+                (JsonArray)
+                        parser.parse(new FileReader("src/test/resources/all_checkpoints_api.json"));
+        getAllCheckpointAPIResult = allCheckpointJson.toString();
+
+        JsonArray checkpointJson =
+                (JsonArray) parser.parse(new FileReader("src/test/resources/checkpoints_api.json"));
+        getCheckpointAPIResult = checkpointJson.toString();
     }
 
     @AfterSuite
@@ -242,6 +258,33 @@ public class ModelServerTest {
         testUnregisterModel(managementChannel, "mnist_traced", null);
 
         channel.close();
+        managementChannel.close();
+    }
+
+    @Test
+    public void testCheckpointAPIs()
+            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
+                    IOException, NoSuchFieldException, IllegalAccessException {
+        Channel managementChannel = null;
+
+        for (int i = 0; i < 5; ++i) {
+            managementChannel = connect(true);
+            if (managementChannel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
+
+        testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
+
+        testCheckpoint(managementChannel);
+        testGetCheckpoint(managementChannel);
+        testGetAllCheckpoint(managementChannel);
+        testRestoreCheckpoint(managementChannel);
+        testRemoveCheckpoint(managementChannel);
+
         managementChannel.close();
     }
 
@@ -1383,5 +1426,78 @@ public class ModelServerTest {
             ctx.close();
             latch.countDown();
         }
+    }
+
+    private void testCheckpoint(Channel managementChannel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/checkpoints/checkpoint1";
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        managementChannel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Checkpoint checkpoint1 saved succsesfully");
+    }
+
+    private void testGetCheckpoint(Channel managementChannel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/checkpoints/checkpoint1";
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
+        managementChannel.writeAndFlush(req);
+        latch.await();
+
+        JsonParser parser = new JsonParser();
+        JsonObject json = (JsonObject) parser.parse(result);
+        json.remove("created");
+        Assert.assertEquals(json.toString(), getCheckpointAPIResult);
+    }
+
+    private void testGetAllCheckpoint(Channel managementChannel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/checkpoints";
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
+        managementChannel.writeAndFlush(req);
+        latch.await();
+
+        JsonParser parser = new JsonParser();
+        JsonArray json = (JsonArray) parser.parse(result);
+        for (int i = 0; i < json.size(); i++) {
+            JsonObject jo = json.get(i).getAsJsonObject();
+            jo.remove("created");
+        }
+
+        Assert.assertEquals(json.toString(), getAllCheckpointAPIResult);
+    }
+
+    private void testRestoreCheckpoint(Channel managementChannel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/checkpoints/checkpoint1/restart";
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
+        managementChannel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Checkpoint checkpoint1 started succsesfully");
+    }
+
+    private void testRemoveCheckpoint(Channel managementChannel) throws InterruptedException {
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/checkpoints/checkpoint1";
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
+        managementChannel.writeAndFlush(req);
+        latch.await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Checkpoint checkpoint1 removed succsesfully");
     }
 }
