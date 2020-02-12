@@ -14,6 +14,7 @@ import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.checkpoint.CheckpointManager;
+import org.pytorch.serve.checkpoint.CheckpointReadException;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -46,7 +47,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, CheckpointReadException {
         if (CheckpointManager.getInstance().isRestartInProgress()) {
             String msg = "Restart in progress. Please try again later.";
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));

@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.checkpoint.CheckpointReadException;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.NettyUtils;
@@ -23,7 +24,7 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, CheckpointReadException {
 
         if (isApiDescription(segments)) {
             String path = decoder.path();

@@ -142,8 +142,6 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
                 while ((length = fis.read(buffer)) > 0) {
                     zos.write(buffer, 0, length);
                 }
-            } catch (IOException e) {
-                throw e;
             } finally {
                 if (fis != null) {
                     fis.close();

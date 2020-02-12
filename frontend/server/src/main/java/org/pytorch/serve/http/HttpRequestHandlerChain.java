@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.checkpoint.CheckpointReadException;
 import org.pytorch.serve.servingsdk.impl.ModelServerContext;
 import org.pytorch.serve.servingsdk.impl.ModelServerRequest;
 import org.pytorch.serve.servingsdk.impl.ModelServerResponse;
@@ -42,7 +43,7 @@ public abstract class HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelNotFoundException, ModelException;
+            throws ModelNotFoundException, ModelException, CheckpointReadException;
 
     private void run(
             ModelServerEndpoint endpoint,

@@ -49,7 +49,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, CheckpointReadException {
         if (CheckpointManager.getInstance().isRestartInProgress()) {
             String msg = "Restart in progress. Please try again later.";
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
@@ -87,6 +87,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                         break;
                     case "PUT":
                         if ("models".equals(segments[1])) {
+                            if (segments.length < 3) {
+                                throw new MethodNotAllowedException();
+                            }
                             String modelVersion = null;
                             if (segments.length == 4) {
                                 modelVersion = segments[3];
@@ -448,25 +451,18 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 
-    private void getCheckpoint(ChannelHandlerContext ctx, String chkpntName) {
+    private void getCheckpoint(ChannelHandlerContext ctx, String chkpntName)
+            throws CheckpointReadException {
         CheckpointManager chkpntManager = CheckpointManager.getInstance();
         Checkpoint checkpoint;
-        try {
-            checkpoint = chkpntManager.getCheckpoint(chkpntName);
-        } catch (CheckpointReadException e) {
-            throw new InternalServerException(e.getMessage());
-        }
+        checkpoint = chkpntManager.getCheckpoint(chkpntName);
         NettyUtils.sendJsonResponse(ctx, checkpoint);
     }
 
-    private void getAllCheckpoints(ChannelHandlerContext ctx) {
+    private void getAllCheckpoints(ChannelHandlerContext ctx) throws CheckpointReadException {
         CheckpointManager chkpntManager = CheckpointManager.getInstance();
         ArrayList<Checkpoint> resp;
-        try {
-            resp = (ArrayList<Checkpoint>) chkpntManager.getCheckpoints();
-        } catch (CheckpointReadException e) {
-            throw new InternalServerException(e.getMessage());
-        }
+        resp = (ArrayList<Checkpoint>) chkpntManager.getCheckpoints();
         NettyUtils.sendJsonResponse(ctx, resp);
     }
 

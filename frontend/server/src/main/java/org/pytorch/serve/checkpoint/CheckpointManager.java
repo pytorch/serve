@@ -94,14 +94,17 @@ public final class CheckpointManager {
         return response;
     }
 
+    @SuppressWarnings("PMD")
     public List<Checkpoint> getCheckpoints() throws CheckpointReadException {
         try {
             return chkpntSerializer.getAllCheckpoints();
         } catch (IOException e) {
+
             throw new CheckpointReadException("Error while retrieving checkpoint details.");
         }
     }
 
+    @SuppressWarnings("PMD")
     public Checkpoint getCheckpoint(String chkpntName) throws CheckpointReadException {
         try {
             return chkpntSerializer.getCheckpoint(chkpntName);
