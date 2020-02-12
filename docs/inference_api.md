@@ -13,7 +13,7 @@ There are three type of APIs:
 To view a full list of inference API, you can use following command:
 
 ```bash
-curl -X OPTIONS http://localhost:8443
+curl -X OPTIONS http://localhost:8080
 ```
 
 The out is OpenAPI 3.0.1 json format. You can use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
