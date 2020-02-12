@@ -178,6 +178,13 @@ public class ModelServerTest {
         testPredictions(channel, "noopversioned", "OK", "1.21");
         testSetDefault(managementChannel, "noopversioned", "1.11");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
+
+        testCheckpoint(managementChannel);
+        testGetCheckpoint(managementChannel);
+        testGetAllCheckpoint(managementChannel);
+        testRestoreCheckpoint(managementChannel);
+        testRemoveCheckpoint(managementChannel);
+
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
         testPredictionsJson(channel);
@@ -263,31 +270,6 @@ public class ModelServerTest {
         testUnregisterModel(managementChannel, "mnist_traced", null);
 
         channel.close();
-        managementChannel.close();
-    }
-
-    @Test
-    public void testCheckpointAPIs()
-            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-                    IOException, NoSuchFieldException, IllegalAccessException {
-        Channel managementChannel = null;
-
-        for (int i = 0; i < 5; ++i) {
-            managementChannel = connect(true);
-            if (managementChannel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
-
-        testCheckpoint(managementChannel);
-        testGetCheckpoint(managementChannel);
-        testGetAllCheckpoint(managementChannel);
-        testRestoreCheckpoint(managementChannel);
-        testRemoveCheckpoint(managementChannel);
-
         managementChannel.close();
     }
 
