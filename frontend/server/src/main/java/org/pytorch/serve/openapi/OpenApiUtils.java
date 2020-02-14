@@ -33,14 +33,15 @@ public final class OpenApiUtils {
     static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath(false));
         openApi.addPath("/ping", getPingPath());
-        openApi.addPath("/predictions/{model_name}", getPredictionsPath());
+        openApi.addPath("/predictions/{model_name}[/{model_version}]", getPredictionsPath());
         openApi.addPath("/api-description", getApiDescriptionPath(true));
     }
 
     static void listManagementApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath(false));
         openApi.addPath("/models", getModelsPath());
-        openApi.addPath("/models/{model_name}", getModelManagerPath());
+        openApi.addPath("/models/{model_name}[/{model_version}]", getModelManagerPath());
+        openApi.addPath("/models/{model_name}/{model_version}/set-default", getSetDefaultPath());
     }
 
     public static String getModelApi(Model model) {
@@ -148,12 +149,39 @@ public final class OpenApiUtils {
         return path;
     }
 
+    private static Path getSetDefaultPath() {
+        Path path = new Path();
+        path.setPut(getSetDefaultOperation());
+        return path;
+    }
+
     private static Path getModelManagerPath() {
         Path path = new Path();
         path.setGet(getDescribeModelOperation());
         path.setPut(getScaleOperation());
         path.setDelete(getUnRegisterOperation());
         return path;
+    }
+
+    private static Operation getSetDefaultOperation() {
+        Operation operation = new Operation("setDefault", "Set default version of a model");
+        operation.addParameter(
+                new PathParameter(
+                        "model_name", "Name of model whose default version needs to be updated."));
+        operation.addParameter(
+                new PathParameter(
+                        "model_version",
+                        "Version of model to be set as default version for the model"));
+
+        MediaType status = getStatusResponse();
+        MediaType error = getErrorResponse();
+
+        operation.addResponse(
+                new Response("200", "Default vesion succsesfully updated for model", status));
+        operation.addResponse(new Response("404", "Model not found", error));
+        operation.addResponse(new Response("500", "Internal Server Error", error));
+
+        return operation;
     }
 
     private static Operation getListModelsOperation() {
@@ -280,10 +308,11 @@ public final class OpenApiUtils {
         Operation operation =
                 new Operation(
                         "unregisterModel",
-                        "Unregister a model from TorchServe. This is an asynchronous call by default."
-                                + " Caller can call listModels to confirm if all the works has be terminated.");
+                        "Unregister the specified version of a model from TorchServe. If no version is specified, TorchServe tries to unregister the default version of the model and unregisters it if it is the only version available. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.");
 
         operation.addParameter(new PathParameter("model_name", "Name of model to unregister."));
+        operation.addParameter(
+                new PathParameter("model_version", "Version of model to unregister."));
         operation.addParameter(
                 new QueryParameter(
                         "synchronous",
@@ -305,6 +334,7 @@ public final class OpenApiUtils {
         operation.addResponse(new Response("200", "Model unregistered", status));
         operation.addResponse(new Response("202", "Accepted", status));
         operation.addResponse(new Response("404", "Model not found", error));
+        operation.addResponse(new Response("400", "Model version not found", error));
         operation.addResponse(new Response("408", "Request Timeout Error", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
@@ -315,10 +345,10 @@ public final class OpenApiUtils {
         Operation operation =
                 new Operation(
                         "describeModel",
-                        "Provides detailed information about the specified model.");
+                        "Provides detailed information about the specified version of a model. If no version is specified, returns the details of default version. If \"all\" is specified as version, returns the details about all the versions of the model.");
 
         operation.addParameter(new PathParameter("model_name", "Name of model to describe."));
-
+        operation.addParameter(new PathParameter("model_version", "Version of model to describe."));
         Schema schema = new Schema("object");
         schema.addProperty("modelName", new Schema("string", "Name of the model."), true);
         schema.addProperty("modelVersion", new Schema("string", "Version of the model."), true);
@@ -377,9 +407,9 @@ public final class OpenApiUtils {
         Operation operation =
                 new Operation(
                         "setAutoScale",
-                        "Configure number of workers for a model, This is a asynchronous call by default."
-                                + " Caller need to call describeModel check if the model workers has been changed.");
+                        "Configure number of workers for a specified version of a model. If no version is specified, this applies to the default version of the model. This is a asynchronous call by default. Caller need to call describeModel check if the model workers has been changed.");
         operation.addParameter(new PathParameter("model_name", "Name of model to describe."));
+        operation.addParameter(new PathParameter("model_version", "Version of model to describe."));
         operation.addParameter(
                 new QueryParameter(
                         "min_worker", "integer", "1", "Minimum number of worker processes."));
