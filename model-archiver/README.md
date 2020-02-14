@@ -166,7 +166,7 @@ torch-model-archiver --model-name densenet_161 --version 1.0 --serialized-file m
 
 For eagermode:
 ```bash
-torch-model-archiver --model-name densenet_161 --version 1.0 --model-flie model.py --serialized-file model.pt --handler image_classifier
+torch-model-archiver --model-name densenet_161 --version 1.0 --model-file model.py --serialized-file model.pt --handler image_classifier
 ```
 
 This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TorchServe, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!

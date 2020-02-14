@@ -44,7 +44,7 @@ Before proceeding further with this document, make sure you have the following p
 
 We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
 
-* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 2.7 as follows:
+* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 3.7 as follows:
 
 ```bash
 pip install virtualenv
