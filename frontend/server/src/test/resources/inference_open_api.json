@@ -125,7 +125,7 @@
         }
       }
     },
-    "/predictions/{model_name}": {
+    "/predictions/{model_name}[/{model_version}]": {
       "post": {
         "description": "Predictions entry point for each model. Use OPTIONS method to get detailed model API input and output description.",
         "operationId": "predictions",
