@@ -32,12 +32,9 @@ public final class OpenApiUtils {
 
     static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath(false));
-        openApi.addPath("/{model_name}/predict", getLegacyPredictPath());
         openApi.addPath("/ping", getPingPath());
         openApi.addPath("/predictions/{model_name}", getPredictionsPath());
         openApi.addPath("/api-description", getApiDescriptionPath(true));
-        openApi.addPath("/invocations", getInvocationsPath());
-        openApi.addPath("/models/{model_name}/invoke", getInvocationsPath());
     }
 
     static void listManagementApis(OpenApi openApi) {
