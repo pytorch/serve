@@ -92,40 +92,6 @@ public final class OpenApiUtils {
         return path;
     }
 
-    private static Path getInvocationsPath() {
-        Schema schema = new Schema();
-        schema.addProperty("model_name", new Schema("string", "Name of model"), false);
-
-        Schema dataProp = new Schema("string", "Inference input data");
-        dataProp.setFormat("binary");
-        schema.addProperty("data", dataProp, true);
-
-        MediaType multipart =
-                new MediaType(HttpHeaderValues.MULTIPART_FORM_DATA.toString(), schema);
-
-        RequestBody requestBody = new RequestBody();
-        requestBody.setRequired(true);
-        requestBody.addContent(multipart);
-
-        Operation operation =
-                new Operation("invocations", "A generic invocation entry point for all models.");
-        operation.setRequestBody(requestBody);
-        operation.addParameter(new QueryParameter("model_name", "Name of model"));
-
-        MediaType error = getErrorResponse();
-        MediaType mediaType = new MediaType("*/*", schema);
-        operation.addResponse(new Response("200", "Model specific output data format", mediaType));
-        operation.addResponse(new Response("400", "Missing model_name parameter", error));
-        operation.addResponse(new Response("404", "Model not found", error));
-        operation.addResponse(new Response("500", "Internal Server Error", error));
-        operation.addResponse(
-                new Response("503", "No worker is available to serve request", error));
-
-        Path path = new Path();
-        path.setPost(operation);
-        return path;
-    }
-
     private static Path getPredictionsPath() {
         Operation post =
                 new Operation(
@@ -172,38 +138,6 @@ public final class OpenApiUtils {
         Path path = new Path();
         path.setPost(post);
         path.setOptions(options);
-        return path;
-    }
-
-    private static Path getLegacyPredictPath() {
-        Operation operation =
-                new Operation("predict", "A legacy predict entry point for each model.");
-        operation.addParameter(new PathParameter("model_name", "Name of model to unregister."));
-
-        Schema schema = new Schema("string");
-        schema.setFormat("binary");
-        MediaType mediaType = new MediaType("*/*", schema);
-        RequestBody requestBody = new RequestBody();
-        requestBody.setRequired(true);
-        requestBody.setDescription("Input data format is defined by each model.");
-        requestBody.addContent(mediaType);
-
-        operation.setRequestBody(requestBody);
-
-        schema = new Schema("string");
-        schema.setFormat("binary");
-
-        mediaType = new MediaType("*/*", schema);
-        MediaType error = getErrorResponse();
-        operation.addResponse(new Response("200", "Model specific output data format", mediaType));
-        operation.addResponse(new Response("404", "Model not found", error));
-        operation.addResponse(new Response("500", "Internal Server Error", error));
-        operation.addResponse(
-                new Response("503", "No worker is available to serve request", error));
-        operation.setDeprecated(true);
-
-        Path path = new Path();
-        path.setPost(operation);
         return path;
     }
 
