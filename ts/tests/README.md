@@ -5,7 +5,7 @@
 You will need some additional Python modules to run the unit tests and linting.
 
 ```bash
-pip install mock pytest pylint
+pip install mock pytest pylint pytest-mock
 ```
 
 You will also need the source for the project, so clone the project first.
