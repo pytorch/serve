@@ -19,7 +19,8 @@ class MNISTDigitClassifier(object):
     def __init__(self):
         self.model = None
         self.mapping = None
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        "Setting device type to CPU here as the model used in example was trained in CPU"
+        self.device = torch.device("cpu")
         self.initialized = False
 
     def initialize(self, ctx):
