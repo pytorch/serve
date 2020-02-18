@@ -54,12 +54,13 @@ User can configure load models while TorchServe startup. TorchServe can load mod
 
 **Note:** `model_store` and `load_models` property can be override by command line parameters.
 
-### Configure TorchServe listening port
+### Configure TorchServe listening address and port
 
 TorchServe doesn't support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default. Inference API is listening on 8080 port and accepting HTTP request. Management API is listening on 8081 port and accepting HTTP request. See [Enable SSL](#enable-ssl) for configuring HTTPS.
 
 * inference_address: inference API binding address, default: http://127.0.0.1:8080
 * management_address: management API binding address, default: http://127.0.0.1:8081
+* In order to run predictions on models via public-ip specify IP address as `0.0.0.0` to make is accessible over all network interfaces or to the explicit IP-address as shown in example below.
 
 Here are a couple of examples:
 ```properties
@@ -74,7 +75,7 @@ inference_address=https://172.16.1.10:8080
 
 ### Enable SSL
 
-For users who want to enable HTTPs, you can change `inference_address` or `management_addrss` protocol from http to https, for example: `inference_addrss=https://127.0.0.1`. This will make TorchServe listening on localhost 443 port to accepting https request.
+For users who want to enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https, for example: `inference_address=https://127.0.0.1`. This will make TorchServe listening on localhost 443 port to accepting https request.
 
 User also must provide certificate and private keys to enable SSL. TorchServe support two ways to configure SSL:
 1. Use keystore
