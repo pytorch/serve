@@ -316,6 +316,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
             throw new InternalServerException(
                     "Cannot remove default version for model " + modelName);
+        } else if (httpResponseStatus == HttpResponseStatus.CONFLICT) {
+            throw new InternalServerException(
+                    "Model unregistration already in progress for model : " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));

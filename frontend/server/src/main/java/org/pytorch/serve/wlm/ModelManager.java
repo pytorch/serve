@@ -38,10 +38,13 @@ public final class ModelManager {
     private HashSet<String> startupModels;
     private ScheduledExecutorService scheduler;
 
+    private ConcurrentHashMap<String, String> modelUnregisterProgress;
+
     private ModelManager(ConfigManager configManager, WorkLoadManager wlm) {
         this.configManager = configManager;
         this.wlm = wlm;
         modelsNameMap = new ConcurrentHashMap<>();
+        modelUnregisterProgress = new ConcurrentHashMap<>();
         scheduler = Executors.newScheduledThreadPool(2);
         this.startupModels = new HashSet<>();
     }
@@ -141,10 +144,20 @@ public final class ModelManager {
             return HttpResponseStatus.NOT_FOUND;
         }
 
+        if (versionId == null) {
+            versionId = vmodel.getDefaultVersion();
+        }
+
+        if (modelUnregisterProgress.containsKey(modelName + versionId)) {
+            logger.warn("Unregister already in progress for model: " + modelName);
+            return HttpResponseStatus.CONFLICT;
+        }
+
         Model model = null;
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
 
         try {
+            modelUnregisterProgress.put(modelName + versionId, versionId);
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
@@ -158,9 +171,6 @@ public final class ModelManager {
                 startupModels.remove(modelName);
                 logger.info("Model {} unregistered.", modelName);
             } else {
-                if (versionId == null) {
-                    versionId = vmodel.getDefaultVersion();
-                }
                 vmodel.addVersionModel(model, versionId);
             }
 
@@ -176,6 +186,8 @@ public final class ModelManager {
         } catch (ExecutionException | InterruptedException e1) {
             logger.warn("Process was interrupted while cleaning resources.");
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        } finally {
+            modelUnregisterProgress.remove(modelName + versionId);
         }
 
         return httpResponseStatus;
@@ -339,5 +351,9 @@ public final class ModelManager {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
         return vmodel.getAllVersions();
+    }
+
+    public boolean isUnregisterInProgress() {
+        return !modelUnregisterProgress.isEmpty();
     }
 }

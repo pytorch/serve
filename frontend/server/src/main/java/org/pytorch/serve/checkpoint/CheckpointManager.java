@@ -99,8 +99,8 @@ public final class CheckpointManager {
         try {
             return chkpntSerializer.getAllCheckpoints();
         } catch (IOException e) {
-
-            throw new CheckpointReadException("Error while retrieving checkpoint details.");
+            throw new CheckpointReadException(
+                    "Error while retrieving checkpoint details. Cause : " + e.getCause());
         }
     }
 
@@ -109,7 +109,8 @@ public final class CheckpointManager {
         try {
             return chkpntSerializer.getCheckpoint(chkpntName);
         } catch (IOException e) {
-            throw new CheckpointReadException("Error while retrieving checkpoint details.");
+            throw new CheckpointReadException(
+                    "Error while retrieving checkpoint details. Cause : " + e.getCause());
         }
     }
 
@@ -118,6 +119,9 @@ public final class CheckpointManager {
 
         try {
             restartInProgress = true;
+            while (ModelManager.getInstance().isUnregisterInProgress()) {
+                Thread.sleep(5000);
+            }
             // Validate model
             validate(chkpntName);
             // Terminate running models
@@ -132,6 +136,9 @@ public final class CheckpointManager {
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (IOException e) {
             logger.error("Error loading checkpoint {}", chkpntName);
+            status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } finally {
             restartInProgress = false;
