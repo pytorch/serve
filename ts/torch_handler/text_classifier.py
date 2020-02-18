@@ -46,7 +46,6 @@ class TextClassifier(TextHandler):
         Predict the class of a text using a trained deep learning model and vocabulary.
         """
 
-        self.model.eval()
         inputs = Variable(text).to(self.device)
         output = self.model.forward(inputs, torch.tensor([0]))
         output = output.argmax(1).item() + 1

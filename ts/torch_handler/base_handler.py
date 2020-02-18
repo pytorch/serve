@@ -59,6 +59,8 @@ class BaseHandler(abc.ABC):
             self.model = model_class()
             self.model.load_state_dict(state_dict)
 
+        self.model.eval()
+
         logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
 
         # Read the mapping file, index to object name
