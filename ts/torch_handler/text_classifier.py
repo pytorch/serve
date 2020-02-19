@@ -33,7 +33,7 @@ class TextClassifier(TextHandler):
 
         text = self._remove_html_tags(text)
         text = text.lower()
-        text = self._expand_conrtactions(text)
+        text = self._expand_contractions(text)
         text = self._remove_accented_characters(text)
         text = self._remove_puncutation(text)
         text = self._tokenize(text)

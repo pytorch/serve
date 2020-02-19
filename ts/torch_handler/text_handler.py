@@ -20,7 +20,7 @@ class TextHandler(BaseHandler, ABC):
         self.source_vocab = torch.load(self.manifest['model']['sourceVocab'])
         self.initialized = True
 
-    def _expand_conrtactions(self, text):
+    def _expand_contractions(self, text):
         def expand_match(contraction):
             match = contraction.group(0)
             first_char = match[0]
