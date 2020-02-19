@@ -59,19 +59,21 @@ public class FSCheckpointSerializer implements CheckpointSerializer {
                 File modelMarFile = new File(destMarFile);
                 ZipFile zipFile = new ZipFile(modelMarFile);
                 if (zipFile.size() == 0) {
-                	if (modelMarFile.delete()) {
-                		int i = marPath.getKey().lastIndexOf('_');
-                		String[] modelVersion =  {marPath.getKey().substring(0, i), marPath.getKey().substring(i+1)};
-                		checkpoint.getModels().get(modelVersion[0]).remove(modelVersion[1]);
-                		checkpoint.setModelCount(checkpoint.getModelCount() - 1);
-                		if (checkpoint.getModels().get(modelVersion[0]).isEmpty()) {
-                			checkpoint.getModels().remove(modelVersion[0]);
-                		}
-                	}
+                    if (modelMarFile.delete()) {
+                        int i = marPath.getKey().lastIndexOf('_');
+                        String[] modelVersion = {
+                            marPath.getKey().substring(0, i), marPath.getKey().substring(i + 1)
+                        };
+                        checkpoint.getModels().get(modelVersion[0]).remove(modelVersion[1]);
+                        checkpoint.setModelCount(checkpoint.getModelCount() - 1);
+                        if (checkpoint.getModels().get(modelVersion[0]).isEmpty()) {
+                            checkpoint.getModels().remove(modelVersion[0]);
+                        }
+                    }
                 }
                 zipFile.close();
             }
-            
+
             String chkpntJson = GSON.toJson(checkpoint, Checkpoint.class);
 
             try (OutputStream os =

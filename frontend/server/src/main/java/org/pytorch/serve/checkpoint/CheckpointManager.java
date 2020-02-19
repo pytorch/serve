@@ -277,7 +277,8 @@ public final class CheckpointManager {
                 if (!marFile.exists()) {
                     logger.error(
                             "Correspoding mar file for model {}, version {} not found in checkpoint model store",
-                            checkpointName, versionId);
+                            checkpointName,
+                            versionId);
                     throw new InvalidCheckpointException(
                             "Correspoding mar file for model :"
                                     + modelName

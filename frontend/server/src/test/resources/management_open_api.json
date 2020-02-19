@@ -979,6 +979,353 @@
           }
         }
       }
+    },
+    "/checkpoints/{checkpoint_name}": {
+      "get": {
+        "description": "Describes all available checkpoints in TorchServe.",
+        "operationId": "listCheckpoints",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "checkpoint_name",
+            "description": "[optional] Name of checkpoint to describe to describe.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "modelCount",
+                    "checkpoints"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Checkpoint name"
+                    },
+                    "modelCount": {
+                      "type": "No of models in the checkpoint."
+                    },
+                    "checkpoints": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "modelCount",
+                        "models"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Checkpoint name"
+                        },
+                        "modelCount": {
+                          "type": "No of models in the checkpoint."
+                        },
+                        "models": {
+                          "type": "json",
+                          "required": [
+                            "model_name"
+                          ],
+                          "properties": {
+                            "model_name": {
+                              "type": "json",
+                              "required": [
+                                "model_version"
+                              ],
+                              "properties": {
+                                "model_version": {
+                                  "type": "json",
+                                  "required": [
+                                    "defaultVersion",
+                                    "marName",
+                                    "minWorkers",
+                                    "minWorkers",
+                                    "maxWorkers",
+                                    "batchSize",
+                                    "maxBatchDelay",
+                                    "responseTimeout"
+                                  ],
+                                  "properties": {
+                                    "defaultVersion": {
+                                      "type": "boolean",
+                                      "description": "Is default version for model?"
+                                    },
+                                    "marName": {
+                                      "type": "Name of model\u0027s mar file in checkpoint model store."
+                                    },
+                                    "minWorkers": {
+                                      "type": "integer",
+                                      "description": "Configured minimum number of worker."
+                                    },
+                                    "maxWorkers": {
+                                      "type": "integer",
+                                      "description": "Configured maximum number of worker."
+                                    },
+                                    "batchSize": {
+                                      "type": "integer",
+                                      "description": "Configured batch size."
+                                    },
+                                    "maxBatchDelay": {
+                                      "type": "integer",
+                                      "description": "Configured maximum batch delay in ms."
+                                    },
+                                    "responseTimeout": {
+                                      "type": "integer",
+                                      "description": "Configured response timeout for model in seconds."
+                                    }
+                                  },
+                                  "description": "A description of all versions of models availble in checkpoint model store."
+                                }
+                              },
+                              "description": "A description of all versions of models availble in checkpoint model store."
+                            }
+                          },
+                          "description": "A description of all versions of models availble in checkpoint model store."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Checkpoint read error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a checkpoint with given name.",
+        "operationId": "createCheckpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "checkpoint_name",
+            "description": "Name of the checkpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkpoint checkpoint_name saved succsesfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a checkpoint with given name.",
+        "operationId": "deleteCheckpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "checkpoint_name",
+            "description": "Name of the checkpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkpoint checkpoint_name succsesfully removed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checkpoints/{checkpoint_name}/restart": {
+      "put": {
+        "description": "Restart Torchserver with a given checkpoint name.",
+        "operationId": "restartCheckpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "checkpoint_name",
+            "description": "Name of the checkpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkpoint checkpoint_name started succsesfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

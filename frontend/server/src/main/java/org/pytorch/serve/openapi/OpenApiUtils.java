@@ -44,6 +44,8 @@ public final class OpenApiUtils {
         openApi.addPath("/", getApiDescriptionPath(false));
         openApi.addPath("/models", getModelsPath());
         openApi.addPath("/models/{model_name}", getModelManagerPath());
+        openApi.addPath("/checkpoints/{checkpoint_name}", getCheckpointManagerPath());
+        openApi.addPath("/checkpoints/{checkpoint_name}/restart", getCheckpointRestartPath());
     }
 
     public static String getModelApi(Model model) {
@@ -223,6 +225,135 @@ public final class OpenApiUtils {
         path.setPut(getScaleOperation());
         path.setDelete(getUnRegisterOperation());
         return path;
+    }
+
+    private static Path getCheckpointManagerPath() {
+        Path path = new Path();
+        path.setGet(getListCheckpointsOperation());
+        path.setPost(getCreateCheckpointOperation());
+        path.setDelete(getDeleteCheckpointOperation());
+        return path;
+    }
+
+    private static Path getCheckpointRestartPath() {
+        Path path = new Path();
+        path.setPut(getRestartCheckpointOperation());
+        return path;
+    }
+
+    private static Operation getListCheckpointsOperation() {
+        Operation operation =
+                new Operation(
+                        "listCheckpoints", "Describes all available checkpoints in TorchServe.");
+
+        operation.addParameter(
+                new PathParameter(
+                        "checkpoint_name",
+                        "[optional] Name of checkpoint to describe to describe."));
+
+        Schema schema = new Schema("object");
+        schema.addProperty("name", new Schema("string", "Checkpoint name"), true);
+        schema.addProperty("modelCount", new Schema("No of models in the checkpoint."), true);
+
+        Schema checkPointProp = new Schema("object");
+        checkPointProp.addProperty("name", new Schema("string", "Checkpoint name"), true);
+        checkPointProp.addProperty(
+                "modelCount", new Schema("No of models in the checkpoint."), true);
+
+        Schema modelVersionProp =
+                new Schema(
+                        "json",
+                        "A description of all versions of models availble in checkpoint model store.");
+        modelVersionProp.addProperty(
+                "defaultVersion", new Schema("boolean", "Is default version for model?"), true);
+        modelVersionProp.addProperty(
+                "marName", new Schema("Name of model's mar file in checkpoint model store."), true);
+        modelVersionProp.addProperty(
+                "minWorkers",
+                new Schema("Name of model's mar file in checkpoint model store."),
+                true);
+        modelVersionProp.addProperty(
+                "minWorkers", new Schema("integer", "Configured minimum number of worker."), true);
+        modelVersionProp.addProperty(
+                "maxWorkers", new Schema("integer", "Configured maximum number of worker."), true);
+        modelVersionProp.addProperty(
+                "batchSize", new Schema("integer", "Configured batch size."), true);
+        modelVersionProp.addProperty(
+                "maxBatchDelay",
+                new Schema("integer", "Configured maximum batch delay in ms."),
+                true);
+        modelVersionProp.addProperty(
+                "responseTimeout",
+                new Schema("integer", "Configured response timeout for model in seconds."),
+                true);
+
+        Schema modelsProp =
+                new Schema(
+                        "json",
+                        "A description of all versions of models availble in checkpoint model store.");
+        modelsProp.addProperty("model_version", modelVersionProp, true);
+
+        Schema models =
+                new Schema(
+                        "json",
+                        "A description of all versions of models availble in checkpoint model store.");
+        models.addProperty("model_name", modelsProp, true);
+
+        checkPointProp.addProperty("models", models, true);
+        schema.addProperty("checkpoints", checkPointProp, true);
+
+        MediaType json = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
+        MediaType error = getErrorResponse();
+
+        operation.addResponse(new Response("200", "OK", json));
+        operation.addResponse(new Response("404", "Checkpoint read error", error));
+        return operation;
+    }
+
+    private static Operation getCreateCheckpointOperation() {
+        Operation operation =
+                new Operation("createCheckpoint", "Create a checkpoint with given name.");
+        operation.addParameter(new PathParameter("checkpoint_name", "Name of the checkpoint"));
+
+        MediaType status = getStatusResponse();
+        MediaType error = getErrorResponse();
+
+        operation.addResponse(
+                new Response("200", "Checkpoint checkpoint_name saved succsesfully.", status));
+        operation.addResponse(new Response("500", "Internal Server Error", error));
+
+        return operation;
+    }
+
+    private static Operation getDeleteCheckpointOperation() {
+        Operation operation =
+                new Operation("deleteCheckpoint", "Delete a checkpoint with given name.");
+        operation.addParameter(new PathParameter("checkpoint_name", "Name of the checkpoint"));
+
+        MediaType status = getStatusResponse();
+        MediaType error = getErrorResponse();
+
+        operation.addResponse(
+                new Response("200", "Checkpoint checkpoint_name succsesfully removed.", status));
+        operation.addResponse(new Response("500", "Internal Server Error", error));
+
+        return operation;
+    }
+
+    private static Operation getRestartCheckpointOperation() {
+        Operation operation =
+                new Operation(
+                        "restartCheckpoint", "Restart Torchserver with a given checkpoint name.");
+        operation.addParameter(new PathParameter("checkpoint_name", "Name of the checkpoint"));
+
+        MediaType status = getStatusResponse();
+        MediaType error = getErrorResponse();
+
+        operation.addResponse(
+                new Response("200", "Checkpoint checkpoint_name started succsesfully.", status));
+        operation.addResponse(new Response("500", "Internal Server Error", error));
+
+        return operation;
     }
 
     private static Operation getListModelsOperation() {
