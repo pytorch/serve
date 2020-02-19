@@ -22,13 +22,9 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.util.ConfigManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FSCheckpointSerializer implements CheckpointSerializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(FSCheckpointSerializer.class);
-	
     private ConfigManager configManager = ConfigManager.getInstance();
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
