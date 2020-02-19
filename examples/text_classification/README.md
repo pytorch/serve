@@ -21,7 +21,7 @@ The above command generated the model's state dict as model.pt and the vocab use
  * Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file examples/text_classification/model.py --serialized-file examples/text_classification/model.pt --source-vocab examples/text_classification/vocab.pt --handler text_classifier --extra-files examples/text_classification/index_to_name.json
+    torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file model.py --serialized-file model.pt --source-vocab source_vocab.pt --handler text_classifier --extra-files index_to_name.json
     ```
    
  * Register the model on TorchServe using the above model archive file and run digit recognition inference
