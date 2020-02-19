@@ -89,7 +89,6 @@ class TsModelLoader(ModelLoader):
             module_name = module_name.split("/")[-1]
             module = importlib.import_module(module_name)
         except Exception as e:
-            print(str(e))
             module_name = ".{0}".format(handler)
             module = importlib.import_module(module_name, 'ts.torch_handler')
             function_name = None
