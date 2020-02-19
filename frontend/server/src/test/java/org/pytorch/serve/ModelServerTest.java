@@ -179,12 +179,6 @@ public class ModelServerTest {
         testSetDefault(managementChannel, "noopversioned", "1.11");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
 
-        testCheckpoint(managementChannel);
-        testGetCheckpoint(managementChannel);
-        testGetAllCheckpoint(managementChannel);
-        testRestoreCheckpoint(managementChannel);
-        testRemoveCheckpoint(managementChannel);
-
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
         testPredictionsJson(channel);
@@ -232,9 +226,11 @@ public class ModelServerTest {
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
         testUnregisterModelFailure("noopversioned", "1.11");
+
+        testTS();
+        testCheckpointAPIs();
     }
 
-    @Test
     public void testTS()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
                     IOException, NoSuchFieldException, IllegalAccessException {
@@ -270,6 +266,28 @@ public class ModelServerTest {
         testUnregisterModel(managementChannel, "mnist_traced", null);
 
         channel.close();
+        managementChannel.close();
+    }
+
+    public void testCheckpointAPIs() throws InterruptedException {
+        Channel managementChannel = null;
+
+        for (int i = 0; i < 5; ++i) {
+            managementChannel = connect(true);
+            if (managementChannel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
+
+        testCheckpoint(managementChannel);
+        testGetCheckpoint(managementChannel);
+        testGetAllCheckpoint(managementChannel);
+        testRestoreCheckpoint(managementChannel);
+        testRemoveCheckpoint(managementChannel);
+
         managementChannel.close();
     }
 
@@ -1406,14 +1424,14 @@ public class ModelServerTest {
     private void testRestoreCheckpoint(Channel managementChannel) throws InterruptedException {
         result = null;
         latch = new CountDownLatch(1);
-        String requestURL = "/checkpoints/checkpoint1/restart";
+        String requestURL = "/checkpoints/test_checkpoint/restart";
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         managementChannel.writeAndFlush(req);
         latch.await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(result, StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Checkpoint checkpoint1 started succsesfully");
+        Assert.assertEquals(resp.getStatus(), "Checkpoint test_checkpoint started succsesfully");
     }
 
     private void testRemoveCheckpoint(Channel managementChannel) throws InterruptedException {

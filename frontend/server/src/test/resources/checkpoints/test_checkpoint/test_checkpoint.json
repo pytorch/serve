@@ -5,7 +5,7 @@
     "noop": {
       "1.11": {
         "defaultVersion": true,
-        "marName": "noop.11",
+        "marName": "noop_1.11",
         "minWorkers": 8,
         "maxWorkers": 8,
         "batchSize": 1,

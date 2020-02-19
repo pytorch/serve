@@ -118,6 +118,7 @@ public final class CheckpointManager {
         HttpResponseStatus status = HttpResponseStatus.OK;
 
         try {
+            logger.info("Started restoring checkpoint {}", chkpntName);
             restartInProgress = true;
             while (ModelManager.getInstance().isUnregisterInProgress()) {
                 Thread.sleep(5000);
@@ -138,6 +139,7 @@ public final class CheckpointManager {
             logger.error("Error loading checkpoint {}", chkpntName);
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (InterruptedException e) {
+            logger.error("Error encountered while loading checkpoint {}", chkpntName);
             logger.error(e.getMessage());
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } finally {
@@ -154,11 +156,16 @@ public final class CheckpointManager {
         for (Map.Entry<String, Model> m : defModels.entrySet()) {
 
             Set<Entry<Double, Model>> versionModels = modelMgr.getAllModelVersions(m.getKey());
+            String defaultVersionId = m.getValue().getVersion();
             for (Entry<Double, Model> versionedModel : versionModels) {
                 String versionId = String.valueOf(versionedModel.getKey());
                 // TODO Shall we indicate for new requests that checkpoint restart is in progress...
+                if (defaultVersionId.equals(versionId)) {
+                    continue;
+                }
                 modelMgr.unregisterModel(versionedModel.getValue().getModelName(), versionId);
             }
+            modelMgr.unregisterModel(m.getValue().getModelName(), defaultVersionId);
         }
     }
 
@@ -215,13 +222,13 @@ public final class CheckpointManager {
             }
 
         } catch (IOException e) {
-            logger.error("Error while retrieving checkpoint details. Details: {}", e.getCause());
+            logger.error("Error while retrieving checkpoint details. Details: {}", e.getMessage());
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (ModelException e) {
-            logger.error("Error while registering model. Details: {}", e.getCause());
+            logger.error("Error while registering model. Details: {}", e.getMessage());
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Internal error while registering model. Details: {}", e.getCause());
+            logger.error("Internal error while registering model. Details: {}", e.getMessage());
             status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
         }
         return status;
@@ -238,6 +245,7 @@ public final class CheckpointManager {
     }
 
     private boolean validate(String checkpointName) throws IOException, InvalidCheckpointException {
+        logger.info("Validating checkpoint {}", checkpointName);
         String chkpntMarStorePath =
                 configManager.getCheckpointStore() + "/" + checkpointName + "/model_store";
         Checkpoint checkpoint = chkpntSerializer.getCheckpoint(checkpointName);
@@ -245,11 +253,15 @@ public final class CheckpointManager {
         File checkPointModelStore = new File(chkpntMarStorePath);
 
         if (!(checkPointModelStore.exists() && checkPointModelStore.isDirectory())) {
+            logger.error("Checkpoint {} does not exist", checkpointName);
             throw new InvalidCheckpointException(
                     "Checkpoint " + checkpointName + "'s model store does not exist.");
         } else {
             File[] modelsMars = checkPointModelStore.listFiles();
             if (modelsMars != null && checkpoint.getModelCount() != modelsMars.length) {
+                logger.error(
+                        "Model count in checkpoint {}'s model store does not match.",
+                        checkpointName);
                 throw new InvalidCheckpointException(
                         "Checkpoint " + checkpointName + "'s model store is corrupted.");
             }
@@ -263,8 +275,11 @@ public final class CheckpointManager {
                 String marName = modelName + "_" + versionId + ".mar";
                 File marFile = new File(chkpntMarStorePath + "/" + marName);
                 if (!marFile.exists()) {
+                    logger.error(
+                            "Correspoding mar file for model {}, version {} not found in checkpoint model store",
+                            checkpointName, versionId);
                     throw new InvalidCheckpointException(
-                            "Correspoding mar file for model {} :"
+                            "Correspoding mar file for model :"
                                     + modelName
                                     + ", version :"
                                     + versionId
@@ -272,7 +287,7 @@ public final class CheckpointManager {
                 }
             }
         }
-
+        logger.info("Validated checkpoint {}", checkpointName);
         return true;
     }
 
