@@ -7,6 +7,11 @@ TorchServe provides a set of API allow user to manage models at runtime:
 4. [Unregister a model](#unregister-a-model)
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
+7. [Create checkpoint](#create-checkpoint)
+8. [List checkpoints](#list-checkpoints)
+9. [Restart TorchServe with checkpoint](#restart-torchserve-with-checkpoint)
+10. [Remove checkpoint](#remove-a-checkpoint)
+
 
 Management API is listening on port 8081 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
@@ -332,3 +337,54 @@ The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [s
 Example outputs of the Inference and Management APIs:
 * [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
+
+
+## Create checkpoint
+
+`POST http://localhost:8081/checkpoints/{checkpoint_name}`
+
+User may want to take snapshot of current state of TorchServe and restore to this state in future.
+To create checkpoint of current state of TorchServe use :
+
+```bash
+curl -X POST http://localhost:8081/checkpoints/myCheckpoint
+```
+
+## List checkpoints
+
+`GET http://localhost:8081/checkpoints/{checkpoint_name}`
+
+To get details of a specific checkpoint use :
+
+```bash
+curl http://localhost:8081/checkpoints/myCheckpoint
+```
+
+To get details of all checkpoints use :
+
+```bash
+curl http://localhost:8081/checkpoints/
+```
+
+## Restart TorchServe with checkpoint
+
+`PUT http://localhost:8081/checkpoints/{checkpoint_name}/restart`
+
+To restart torchserve with a specific checkpoint use :
+
+```bash
+curl  -v -X PUT http://localhost:8081/checkpoints/myCheckpoint/restart
+```
+
+This will unregister all the currently registered models and restore the models stored in the checkpoint's model_store. No other APIs will be accessible while restart is in progress.
+
+
+## Remove a checkpoint
+
+`DELETE http://localhost:8081/checkpoints/{checkpoint_name}`
+
+To delete a checkpoint use :
+
+```bash
+curl  -X DELETE http://localhost:8081/checkpoints/myCheckpoint
+```
