@@ -59,9 +59,6 @@ public final class ModelVersionedRefs {
                             + " is already registered for model "
                             + model.getModelName());
         }
-
-        // TODO what if user wants to keep existing default as it is?
-        this.setDefaultVersion(versionId);
     }
 
     /**
