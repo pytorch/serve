@@ -28,10 +28,6 @@ public final class ModelVersionedRefs {
         }
     }
 
-    private void checkVersionCapacity() {
-        // place holder only for now
-    }
-
     /**
      * Adds a new version of the Model to the Map if it does not exist Sets this version as the
      * default version of the model which is automatically served on the next request to this model.
@@ -50,7 +46,6 @@ public final class ModelVersionedRefs {
         }
 
         validateVersionId(versionId);
-        checkVersionCapacity();
 
         if (this.modelsVersionMap.putIfAbsent(Double.valueOf(versionId), model) != null) {
             throw new ConflictStatusException(
