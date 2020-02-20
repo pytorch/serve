@@ -448,15 +448,24 @@
         }
       }
     },
-    "/models/{model_name}": {
+    "/models/{model_name}[/{model_version}]": {
       "get": {
-        "description": "Provides detailed information about the specified model.",
+        "description": "Provides detailed information about the specified version of a model. If no version is specified, returns the details of default version. If \"all\" is specified as version, returns the details about all the versions of the model.",
         "operationId": "describeModel",
         "parameters": [
           {
             "in": "path",
             "name": "model_name",
             "description": "Name of model to describe.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Version of model to describe.",
             "required": true,
             "schema": {
               "type": "string"
@@ -607,13 +616,22 @@
         }
       },
       "put": {
-        "description": "Configure number of workers for a model, This is a asynchronous call by default. Caller need to call describeModel check if the model workers has been changed.",
+        "description": "Configure number of workers for a specified version of a model. If no version is specified, this applies to the default version of the model. This is a asynchronous call by default. Caller need to call describeModel check if the model workers has been changed.",
         "operationId": "setAutoScale",
         "parameters": [
           {
             "in": "path",
             "name": "model_name",
             "description": "Name of model to describe.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Version of model to describe.",
             "required": true,
             "schema": {
               "type": "string"
@@ -818,13 +836,22 @@
         }
       },
       "delete": {
-        "description": "Unregister a model from TorchServe. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.",
+        "description": "Unregister the specified version of a model from TorchServe. If no version is specified, TorchServe tries to unregister the default version of the model and unregisters it if it is the only version available. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.",
         "operationId": "unregisterModel",
         "parameters": [
           {
             "in": "path",
             "name": "model_name",
             "description": "Name of model to unregister.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Version of model to unregister.",
             "required": true,
             "schema": {
               "type": "string"
@@ -919,8 +946,142 @@
               }
             }
           },
+          "400": {
+            "description": "Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
           "408": {
             "description": "Request Timeout Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/models/{model_name}/{model_version}/set-default": {
+      "put": {
+        "description": "Set default version of a model",
+        "operationId": "setDefault",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "description": "Name of model whose default version needs to be updated.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Version of model to be set as default version for the model",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default vesion succsesfully updated for model",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Model not found",
             "content": {
               "application/json": {
                 "schema": {
