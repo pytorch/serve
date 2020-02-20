@@ -37,7 +37,6 @@ class ImangeSegmenter(VisionHandler):
 
     def inference(self, img):
         # Predict the pixel classes for segmentation
-        self.model.eval()
         pred = self.model(img)['out']
         pred = pred.squeeze().detach().cpu().numpy()
         return [str(pred)]

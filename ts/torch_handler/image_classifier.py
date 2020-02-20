@@ -46,7 +46,6 @@ class ImageClassifier(VisionHandler):
         img = np.expand_dims(img, 0)
         img = torch.from_numpy(img)
 
-        self.model.eval()
         inputs = Variable(img).to(self.device)
         outputs = self.model.forward(inputs)
 
