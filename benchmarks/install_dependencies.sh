@@ -40,7 +40,7 @@ echo "Installing JMeter through Brew"
     true
 }
 {
-    brew install jmeter --with-plugins
+    brew install jmeter
 } || {
     true
 }
