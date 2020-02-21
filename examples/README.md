@@ -2,7 +2,17 @@
 
 The following are examples on how to create and serve model archives with TorchServe.
 
-#### Eager Mode 
+ - [Creating MAR file for eager mode torch model](#creating-mar-file-for-eager-mode-models)
+ - [Creating MAR file for torchscript mode torch model](#creating-mar-file-for-torchscript-mode-models)
+ - [Eager Mode example using torchvision image classifiers:](#eager-mode-example-using-torchvision-image-classifiers)
+ - [TorchScript example using DenseNet161 image classifier:](#torchscript-example-using-densenet161-image-classifier)
+ - [TorchScript example using Resnet18 image classifier:](#torchscript-example-using-resnet18-image-classifier)
+ - [Serving custom model on Torchserve](#serving-custom-model-on-torchserve)
+ - [Text Classification Example](#text-classification-example)
+ - [Object Detection Example](#object-detection-example)
+ - [Image Segmentation Example](#image-segmentation-example)
+
+#### Creating MAR file for eager mode models
 
 Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
     
@@ -18,7 +28,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     torch-model-archiver --model-name <model_name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --handler <path_to_custom_handler_or_default_handler_name> --extra-files <path_to_index_to_name_json_file>
     ```
   
-#### TorchScript Mode 
+#### Creating MAR file for torchscript mode models
 
 Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
     
@@ -104,7 +114,7 @@ Following example demonstrates how to create a Resnet18 image classifier model a
 
 * [Image classification using Resnet18](image_classifier/resnet_18)
 
-#### TorchScript example using custom model and custom handler:
+#### Serving custom model on TorchServe:
 
 Following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
