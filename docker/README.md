@@ -3,13 +3,8 @@
 ```bash
 cd serve/docker
 git clone https://github.com/pytorch/serve.git
-cp <path_to_resnet-18_MAR_file> .
 docker build -t torchserve:1.0 .
 ```
-
-Note:
-1) To create resnet-18.mar file refer : [image classification with resnet18 example documentation](../examples/image_classifier/resnet_18)
-2) The resnet-18.mar file must have model name as resnet-18.
 
 #### Start container with TorchServe image
 

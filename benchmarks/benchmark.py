@@ -42,14 +42,9 @@ JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
 MODEL_RESNET_18 = 'resnet-18'
 MODEL_SQUEEZE_NET = 'squeezenet'
 
-'''
-You will need have mar files for above models. Also, note that modelName in manifest.json should be 
-same as indicated above.
-'''
-
 MODEL_MAP = {
-    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'})
+    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
 }
 
 
