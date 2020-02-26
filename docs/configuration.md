@@ -87,23 +87,22 @@ inference_address=https://172.16.1.10:8080
 
 ### Enable SSL
 
-For users who want to enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https, for example: `inference_address=https://127.0.0.1`. This will make TorchServe listening on localhost 443 port to accepting https request.
+For users who want to enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`. The default is port 443, however you can make TorchServe listen on whatever port you set to accept https requests. For example, to receive https traffic on port 8443, you would use: `inference_address=https://127.0.0.1:8443`.
 
-User also must provide certificate and private keys to enable SSL. TorchServe support two ways to configure SSL:
-1. Use keystore
-	* keystore: Keystore file location, if multiple private key entry in the keystore, first one will be picked. 
-	* keystore_pass: keystore password, key password (if applicable) MUST be the same as keystore password.
-    * keystore_type: type of keystore, default: PKCS12
+You must also provide a certificate and private key to enable SSL. TorchServe supports two ways to configure SSL:
+1. Use a keystore:
+	* **keystore:** the keystore file location. If multiple private key entries exist in the keystore, the first one will be used.
+	* **keystore_pass**: the keystore password. The password (if applicable) MUST be the same as keystore password.
+    * **keystore_type**: the type of keystore. Default: PKCS12.
 
-2. Use private-key/certificate files
-	* private_key_file: private key file location, support both PKCS8 and OpenSSL private key.
-	* certificate_file: X509 certificate chain file location.
+2. Use private-key/certificate files:
+	* **private_key_file**: the private key file location. Supports both PKCS8 and OpenSSL private keys.
+	* **certificate_file**: the X509 certificate chain file location.
 
-#### Self-signed certificate example
+#### Examples
 
-This is a quick example to enable SSL with self-signed certificate
+**Option 1**: Use a keystore; generate a keystore with Java's keytool. Note the `storepass` argument expects you to create your own password.
 
-1. User java keytool to create keystore
 ```bash
 keytool -genkey -keyalg RSA -alias ts -keystore keystore.p12 -storepass changeit -storetype PKCS12 -validity 3600 -keysize 2048 -dname "CN=www.MY_TS.com, OU=Cloud Service, O=model server, L=Palo Alto, ST=California, C=US"
 ```
@@ -118,19 +117,19 @@ keystore_pass=changeit
 keystore_type=PKCS12
 ```
 
-2. User OpenSSL to create private key and certificate
-```bash
-```
+**Option 2**: Use private-key/certificate files; generate your self signed cert and key with OpenSSL:
 
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mykey.key -out mycert.pem
+```
 
 Config following property in config.properties:
 
 ```properties
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
-keystore=keystore.p12
-keystore_pass=changeit
-keystore_type=PKCS12
+private_key_file=mykey.key
+certificate_file=mycert.pem
 ```
 
 ### Configure Cross-Origin Resource Sharing (CORS)
@@ -141,11 +140,11 @@ resources from a server at a different origin.
 CORS is disabled by default. Configure following properties in config.properties file to enable CORS:
 
 ```properties
-# cors_allowed_origin is required to enable CORS, use '*' or your domain name 
+# cors_allowed_origin is required to enable CORS, use '*' or your domain name
 cors_allowed_origin=https://yourdomain.com
-# required if you want to use preflight request 
+# required if you want to use preflight request
 cors_allowed_methods=GET, POST, PUT, OPTIONS
-# required if the request has an Access-Control-Request-Headers header 
+# required if the request has an Access-Control-Request-Headers header
 cors_allowed_headers=X-Custom-Header
 ```
 
@@ -173,6 +172,6 @@ Most of those properties are designed for performance tuning. Adjusting those nu
 * async_logging: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled, default: false.
 * default_response_timeout: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. default: 120 seconds.
 * unregister_model_timeout: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. default: 120 seconds.
-* decode_input_request: Configuration to let backend workers to decode requests, when the content type is known. 
-If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and 
+* decode_input_request: Configuration to let backend workers to decode requests, when the content type is known.
+If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". default: true  
