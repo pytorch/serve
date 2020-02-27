@@ -2,11 +2,12 @@
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for an eager mode model](#creating-mar-file-for-torchscript-mode-model)
 * [Serving torchvision image classification models in TorchServe](#serving-torchvision-image-classification-models-in-torchserve)
- * [Serving Densenet161 model](#serving-torchvision-image-classification-models)
- * [Serving Resnet18 model](#example-to-serve-resnet18-image-classification-model)
-* [Serving Text Classification model](#example-to-serve-text-classification-model)
-* [Serving Object Detection model](#example-to-serve-object-detection-model)
-* [Serving Image Segmentation model](#example-to-serve-image-segmentation-model)
+  * [Serving densenet161 model](#serving-torchvision-image-classification-models)
+  * [Serving resnet18 model](#example-to-serve-resnet18-image-classification-model)
+* [Serving custom model with custom service handler](#example-to-serve-a-custom-model-with-custom-service-handler)
+* [Serving text classification model](#example-to-serve-text-classification-model)
+* [Serving object detection model](#example-to-serve-object-detection-model)
+* [Serving image segmentation model](#example-to-serve-image-segmentation-model)
 
 # TorchServe Examples
 
