@@ -203,7 +203,6 @@ Below, in order, is a prioritized list of tasks for this repository.
 
 ### v0.1 Plan
 
-- [x] Port over MMS
 - [ ] CI (initially AWS CodeBuild)
 - [x] Default handler
     - [x] Handle eager-mode and TorchScript (tracing and scripting)
