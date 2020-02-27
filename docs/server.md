@@ -81,10 +81,17 @@ There are no default required arguments to start the server
         http link: http://hostname/path/to/resource
 
     b) to load all the models in model store set model value to "all"
+    
+    ```bash
+    torchserve --model-store /models --start --models all
+    ```
 
     c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.
 
     d) Multiple models loading are also supported by specifying multiple name path pairs.
+    
+    e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
+    
 1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
@@ -105,6 +112,12 @@ torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.m
 This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
 
 ### Serving Multiple Models with TorchServe
+
+Example loading all models available in model_store while starting torchserve:
+
+```bash
+torchserve --start --model-store /models --models all
+```
 
 Example multiple model usage:
 
