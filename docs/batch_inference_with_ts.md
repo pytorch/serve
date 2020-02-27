@@ -139,7 +139,7 @@ Now that installation is done, we can run performance benchmark test as follows.
 ```text
 $ ab -k -l -n 10000 -c 1000 -T "image/jpeg" -p kitten.jpg localhost:8080/predictions/resnet-152
 ```
-The above test simulates MMS receiving 1000 concurrent requests at once and a total of 10,000 requests. All of these requests are directed to the endpoint "localhost:8080/predictions/resnet-152", which assumes
+The above test simulates TorchServe receiving 1000 concurrent requests at once and a total of 10,000 requests. All of these requests are directed to the endpoint "localhost:8080/predictions/resnet-152", which assumes
 that resnet-152 is already registered and scaled-up on TorchServe. We had done this registration and scaling up in the above steps.
  
 ## Conclusion
