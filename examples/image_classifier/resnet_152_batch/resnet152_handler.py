@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class BatchImageClassifier(object):
     """
-    BatchImageClassifier handler class. This handler takes list of greyscale images
+    BatchImageClassifier handler class. This handler takes list of images
     and returns a corresponding list of classes
     """
 
@@ -22,11 +22,11 @@ class BatchImageClassifier(object):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.initialized = False
 
-    def initialize(self, ctx):
+    def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
 
-        self.manifest = ctx.manifest
-        properties = ctx.system_properties
+        self.manifest = context.manifest
+        properties = context.system_properties
         model_dir = properties.get("model_dir")
 
         # Read model serialize/pt file
@@ -45,12 +45,12 @@ class BatchImageClassifier(object):
             if not os.path.isfile(model_def_path):
                 raise RuntimeError("Missing the model.py file")
 
-
             state_dict = torch.load(model_pt_path, map_location=self.device)
-            from resnet_152_batch import RestNet152ImageClassifier
+            from model import RestNet152ImageClassifier
             self.model = RestNet152ImageClassifier()
             self.model.load_state_dict(state_dict)
 
+        self.model.eval()
         logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
 
         # Read the mapping file, index to object name
@@ -64,17 +64,19 @@ class BatchImageClassifier(object):
 
         self.initialized = True
 
-    def preprocess(self, data):
+    def preprocess(self, request):
         """
          Scales, crops, and normalizes a PIL image for a PyTorch model,
          returns an Numpy array
         """
-        images = data[0].get("data")
-        if images is None:
-            images = data[0].get("body")
 
         image_tensor = None
-        for image in images:
+
+        for idx, data in enumerate(request):
+            image = data.get("data")
+            if image is None:
+                image = data.get("body")
+
             my_preprocess = transforms.Compose([
                 transforms.Resize(256),
                 transforms.CenterCrop(224),
