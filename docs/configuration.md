@@ -47,10 +47,22 @@ User can adjust those JVM options for fit their memory requirement if needed.
 User can configure load models while TorchServe startup. TorchServe can load models from `model_store` or from HTTP(s) URL.
 
 * model_store
-	* standalone: default: N/A, load models from local disk is disabled.
+	* standalone: default: N/A, load models from local disk is disabled. Following syntax can be used to configure lost of models to be loaded on startup :
+	
+```python
+# load all models present in model store
+load_models=all
+# load models from model store with mar names only
+load_models=model1.mar,model2.mar
+# load models from model store with model name and mar file
+load_models=model1=model1.mar,model2=model2.mar
+```
 
 * load_models
 	* standalone: default: N/A, no models will be load on startup.
+```python
+model_store=<path to model store directory which stores the local mar files.>
+```
 
 **Note:** `model_store` and `load_models` property can be override by command line parameters.
 
