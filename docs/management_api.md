@@ -19,7 +19,6 @@ Similar as [Inference API](inference_api.md), Management API also provide a [API
 `POST /models`
 * url - Model archive download url. Supports the following locations:
     * a local model archive (.mar); the file must be directly in model_store folder.
-    * a local model directory; the directory must be directly in model_store folder. This option can avoid TorchServe extracting .mar file to temporary folder, which will improve load time and reduce disk space usage.
     * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
 * model_name - the name of the model; this name will be used as {model_name} in other API as path. If this parameter is not present, modelName in MANIFEST.json will be used.
 * handler - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
