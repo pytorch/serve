@@ -57,7 +57,7 @@ class BaseHandler(abc.ABC):
                     model_class_definitions))
 
             model_class = model_class_definitions[0]
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            state_dict = torch.load(model_pt_path)
             self.model = model_class()
             self.model.load_state_dict(state_dict)
         self.model.to(self.device)
