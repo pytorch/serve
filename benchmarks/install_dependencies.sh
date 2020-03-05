@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # This file contains the installation setup for running benchmarks on EC2 isntance.
-# To run on a machine with GPU : ./install_dependencies True
-# To run on a machine with CPU : ./install_dependencies False
+# To run on a machine with GPU : ./install_dependencies.sh True
+# To run on a machine with CPU : ./install_dependencies.sh False
 
 set -ex
 
@@ -24,14 +24,14 @@ sudo apt-get install -y \
         && curl -O https://bootstrap.pypa.io/get-pip.py \
         && python3 get-pip.py
 
-sudo update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 if [[ $1 = True ]]
 then
         echo "Installing pip packages for GPU"
         sudo apt install -y nvidia-cuda-toolkit
-        pip install future psutil torchvision pillow --user
+        pip install future psutil pillow --user
         pip install torch==1.4.0+cu92 torchvision==0.5.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
 else
         echo "Installing pip packages for CPU"
