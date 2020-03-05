@@ -6,7 +6,7 @@ torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file se
 mkdir model-store
 mv resnet-152-batch.mar model-store/
 torchserve --start --model-store model-store
-curl -X POST curl -X POST "localhost:8081/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+curl -X POST "localhost:8081/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 
 The above commands will create the mar file and register the resnet152 model with torchserve with following configuration :
@@ -24,7 +24,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image
 curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
 ```
 
-#### TorchScript example using Resnet152 image classifier:
+#### TorchScript example using Resnet152 batch image classifier:
 
 * Save the Resnet152-batch model in as an executable script module or a traced script:
 
@@ -52,9 +52,17 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image
 * Use following commands to register Resnet152-batch torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py
     mkdir model-store
     mv resnet-152-batch.mar model-store/
-    torchserve --start --model-store model-store --models resnet-152-batch=resnet-152-batch.mar
-    curl -X POST http://127.0.0.1:8080/predictions/resnet-152-batch -T serve/examples/image_classifier/kitten.jpg
+    torchserve --start --model-store model-store
+    curl -X POST "localhost:8081/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
     ```
+  
+* To test batch inference execute the following commands within the specified max_batch_delay time :
+
+```bash
+curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
+curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
+curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
+```
