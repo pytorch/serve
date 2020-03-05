@@ -2,7 +2,9 @@
 
 ## Contents of this Document
 * [Introduction](#introduction)
-
+* [Prerequisites](#prerequisites)
+* [Batch Inference with TorchServe's default handlers](#batch-inference-with-torchserves-default-handlers)
+* [Batch Inference with TorchServe using ResNet-152 model](#batch-inference-with-torchserve-using-resnet-152-model)   
 * [Conclusion](#conclusion)   
 
 ## Introduction
@@ -16,6 +18,9 @@ and compare the performance of running a batched inference against running singl
 Before jumping into this document, please go over the following docs
 1. [What is TorchServe?](../README.md)
 1. [What is custom service code?](custom_service.md)
+
+## Batch Inference with TorchServe's default handlers
+TorchServe's default handlers do not support batch inference.
 
 ## Batch Inference with TorchServe using ResNet-152 model
 To support batching of inference requests, TorchServe needs the following:

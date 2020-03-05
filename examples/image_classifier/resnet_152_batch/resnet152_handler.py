@@ -46,8 +46,8 @@ class BatchImageClassifier(object):
                 raise RuntimeError("Missing the model.py file")
 
             state_dict = torch.load(model_pt_path, map_location=self.device)
-            from model import RestNet152ImageClassifier
-            self.model = RestNet152ImageClassifier()
+            from model import ResNet152ImageClassifier
+            self.model = ResNet152ImageClassifier()
             self.model.load_state_dict(state_dict)
 
         self.model.eval()
