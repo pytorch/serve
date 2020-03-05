@@ -8,14 +8,13 @@ set -ex
 
 sudo apt-get update
 sudo apt-get -y upgrade
-echo "Setting up your Ubuntu machine to load test MMS"
+echo "Setting up your Ubuntu machine to load test TS"
 sudo apt-get install -y \
         python \
         python3-pip \
         python3-tk \
         python-psutil \
-        default-jre \
-        default-jdk \
+        openjdk-8-jdk \
         linuxbrew-wrapper \
         build-essential
 
@@ -23,10 +22,10 @@ if [[ $1 = True ]]
 then
         echo "Installing pip packages for GPU"
         sudo apt install -y nvidia-cuda-toolkit
-        pip install future psutil mxnet-cu92 pillow --user
+        pip3 install future psutil pillow --user
 else
         echo "Installing pip packages for CPU"
-        pip install future psutil mxnet pillow --user
+        pip3 install future psutil pillow --user
 
 fi
 
@@ -66,12 +65,12 @@ sudo apt-get update
 sudo apt-get install -y docker-ce
 # shellcheck disable=SC1073
 {
-    sudo groupadd docker || { true }
+    sudo groupadd docker ||  true
 } || {
     true
 }
 {
-    gpasswd -a $USER docker
+    sudo gpasswd -a $USER docker
 } || {
     true
 }

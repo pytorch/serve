@@ -64,8 +64,8 @@ python benchmark.py throughput --ts http://127.0.0.1:8080
 ```
 
 Note:
-1) The above model_store directory should contain resnet-18.mar file for running benchmark. To create resnet-18.mar file refer [image classification with resnet18 example documentation](../examples/image_classifier/resnet_18)
-2) The resnet-18.mar file must have model name as resnet-18.
+1) The above model_store directory should contain resnet-18.mar file for running benchmark.
+2) Download the resnet-18.mar file from from following URL : https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 3) Refer the examples below to run different benchmarking suites on TorchServe.
 
 #### By using external docker container for TorchServe:
