@@ -63,11 +63,6 @@ cd serve/benchmarks
 python benchmark.py throughput --ts http://127.0.0.1:8080
 ```
 
-Note:
-1) The above model_store directory should contain resnet-18.mar file for running benchmark.
-2) Download the resnet-18.mar file from from following URL : https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
-3) Refer the examples below to run different benchmarking suites on TorchServe.
-
 #### By using external docker container for TorchServe:
 
 * Create and start a [docker container for TorchServe](../docker/README.md).
