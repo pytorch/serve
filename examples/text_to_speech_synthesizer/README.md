@@ -7,6 +7,14 @@ https://pytorch.org/hub/nvidia_deeplearningexamples_waveglow/
 We have copied WaveGlow's model file from following github repo:
 https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/SpeechSynthesis/Tacotron2/waveglow/model.py
 
+
+# Install pip dependencies using following commands
+
+```bash
+pip install numpy scipy librosa unidecode inflect
+pip install librosa --user
+```
+
 # Serve the WaveGlow speech synthesis model on TorchServe
 
  * Download the checkpoint for NVIDIA WaveGlow model :
