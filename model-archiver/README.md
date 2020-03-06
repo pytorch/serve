@@ -155,7 +155,7 @@ git clone https://github.com/pytorch/serve.git
 
 **3. Package your model**
 
-With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with MMS.
+With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with TorchServe.
 
 In this next step we'll run `torch-model-archiver` and tell it our model's name is `densenet_161` and its version is `1.0` with the `model-name` and `version` parameter respectively and that it will use TorchServe's default `image_classifier` handler with the `handler` argument . Then we're giving it the `model-file` and `serialized-file` to the model's assets.
 
