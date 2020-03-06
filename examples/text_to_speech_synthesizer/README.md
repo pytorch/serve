@@ -26,7 +26,7 @@ pip install librosa --user
  * Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name waveglow_synthesizer --version 1.0 --model-file waveglow.py --serialized-file nvidia_waveglowpyt_fp32_20190306.pth --handler waveglow_handler.py
+    torch-model-archiver --model-name waveglow_synthesizer --version 1.0 --model-file waveglow_model.py --serialized-file nvidia_waveglowpyt_fp32_20190306.pth --handler waveglow_handler.py
     ```
    
  * Register the model on TorchServe using the above model archive file and run digit recognition inference

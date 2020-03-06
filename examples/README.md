@@ -8,6 +8,7 @@
 * [Serving text classification model](#example-to-serve-text-classification-model)
 * [Serving object detection model](#example-to-serve-object-detection-model)
 * [Serving image segmentation model](#example-to-serve-image-segmentation-model)
+* [Serving speech synthesis model](#example-to-serve-speech-synthesis-model)
 
 # TorchServe Examples
 
@@ -113,30 +114,36 @@ traced_script_module.save("dense161.pt")
     ```
   
 ## Example to serve Resnet18 image classification model
-Following example demonstrates how to create a Resnet18 image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
+The following example demonstrates how to create a Resnet18 image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
 
 * [Image classification using Resnet18](image_classifier/resnet_18)
 
 ## Example to serve a Custom Model with Custom Service Handler
 
-Following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
+The following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
 * [Digit recognition with MNIST](image_classifier/mnist)
 
 ## Example to serve Text classification model
 
-Following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TorchServe :
+The following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TorchServe :
 
 * [Text classification example](text_classification)
 
 ## Example to serve Object Detection model
 
-Following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TorchServe :
+The following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TorchServe :
 
 * [Object detection example](object_detector)
 
 ## Example to serve Image Segmentation model
 
-Following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TorchServe :
+The following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TorchServe :
 
 * [Image segmentation example](image_segmenter)
+
+## Example to serve Speech Synthesis model
+
+The following example demonstrates how to create and serve a speech synthesis model with default a custom handler provided by TorchServe :
+
+* [Speech synthesis example](text_to_speech_synthesizer)
