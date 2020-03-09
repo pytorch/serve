@@ -30,6 +30,23 @@ cd serve
 ./build_image.sh
 ```
 
+The above command builds the TorchServe image for CPU device with `master` branch
+
+To create image for specific branch use following command :
+```bash
+./build_image.sh -b <branch_name>
+```
+
+To create image for GPU device use following command :
+```bash
+./build_image.sh --gpu
+```
+
+To create image for GPU device with specific branch use following command :
+```bash
+./build_image.sh -b <branch_name> --gpu
+```
+
 **Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
 
 ```bash
