@@ -6,13 +6,42 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the [docs folder](docs/README.md).
 
 ## Contents of this Document
-* [Quick Start](#quick-start)
+* [Quick Start with docker](#quick-start-with-docker)
+* [Quick Start for local environment](#quick-start-guide-for-local-environment)
 * [Serve a Model](#serve-a-model)
 * [Other Features](#other-features)
 * [Contributing](#contributing)
 
 
-## Quick Start
+## Quick Start with docker
+
+### Start TorchServe using docker image
+
+**Prerequisites**
+
+* docker - Refer [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+
+**Building docker image**
+
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
+./build_image.sh
+```
+
+**Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
+
+```bash
+./start.sh
+```
+
+**For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
+**For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
+**For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
+
+## Quick Start for local environment
+
 ### Prerequisites
 Before proceeding further with this document, make sure you have the following prerequisites.
 1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
