@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04
 
 ENV PYTHONUNBUFFERED TRUE
 
@@ -20,11 +20,11 @@ RUN apt-get update && \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
+RUN export USE_CUDA=1
+RUN pip install torch==1.4.0+cu92 torchvision==0.5.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
 RUN pip install --no-cache-dir psutil
-RUN pip install --no-cache-dir torch
-RUN pip install --no-cache-dir torchvision
-ADD serve serve
-RUN pip install ../serve/
+ADD serve /usr/local/serve
+RUN pip install /usr/local/serve
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
