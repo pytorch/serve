@@ -7,7 +7,7 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 
 
 | Model File | Type | Dataset | Size | Download |
-| --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | AlexNet | Image Classification | ImageNet | 216 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar)|
 | Densenet161 | Image Classification | ImageNet | 106 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar)|
 | Resnet18 | Image Classification | ImageNet | 41 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar)|
