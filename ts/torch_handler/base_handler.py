@@ -18,7 +18,7 @@ class BaseHandler(abc.ABC):
     def __init__(self):
         self.model = None
         self.mapping = None
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = None
         self.initialized = False
         self.manifest = None
 
@@ -26,8 +26,10 @@ class BaseHandler(abc.ABC):
         """First try to load torchscript else load eager mode state_dict based model"""
 
         self.manifest = ctx.manifest
+
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
+        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 
         # Read model serialize/pt file
         serialized_file = self.manifest['model']['serializedFile']
@@ -55,10 +57,10 @@ class BaseHandler(abc.ABC):
                     model_class_definitions))
 
             model_class = model_class_definitions[0]
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            state_dict = torch.load(model_pt_path)
             self.model = model_class()
             self.model.load_state_dict(state_dict)
-
+        self.model.to(self.device)
         self.model.eval()
 
         logger.debug('Model file {0} loaded successfully'.format(model_pt_path))

@@ -180,7 +180,7 @@ class MetricsStore(object):
         # noinspection PyTypeChecker
         self._add_or_update(name, value, None, unit, dimensions)
 
-    def add_metric(self, name, value, idx=None, unit=None, dimensions=None):
+    def add_metric(self, name, value, unit, idx=None, dimensions=None):
         """
         Add a metric which is generic with custom metrics
 

@@ -98,6 +98,9 @@ def start():
             if plugins:
                 class_path += ":" + plugins + "/*" if "*" not in plugins else ":" + plugins
 
+            if not args.model_store and props.get('model_store'):
+                args.model_store = props.get('model_store')
+
         cmd.append("-cp")
         cmd.append(class_path)
 

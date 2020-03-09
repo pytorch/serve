@@ -79,7 +79,7 @@ AGGREGATE_REPORT_CSV_LABELS_MAP = {
 
 CELLAR = '/home/ubuntu/.linuxbrew/Cellar/jmeter' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
 JMETER_VERSION = os.listdir(CELLAR)[0]
-CMDRUNNER = '{}/{}/libexec/lib/ext/CMDRunner.jar'.format(CELLAR, JMETER_VERSION)
+CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
 JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
 TS_BASE = reduce(lambda val, func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
 JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')
