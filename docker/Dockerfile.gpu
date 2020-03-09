@@ -34,6 +34,8 @@ COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server
 
+COPY config.properties /home/model-server/config.properties
+
 EXPOSE 8080 8081
 
 USER model-server
