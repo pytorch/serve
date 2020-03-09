@@ -143,9 +143,12 @@ class TestExportModelUtils:
         handler = 'a.py::my-awesome-func'
         serialized_file = 'model.pt'
         model_file = 'model.pt'
+        version = "1.0"
+        source_vocab = None
 
         args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
-                         runtime=RuntimeType.PYTHON.value, serialized_file=serialized_file, model_file=model_file)
+                         runtime=RuntimeType.PYTHON.value, serialized_file=serialized_file, model_file=model_file,
+                         version=version, source_vocab=source_vocab)
 
         def test_publisher(self):
             pub = ModelExportUtils.generate_publisher(self.args)

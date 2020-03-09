@@ -28,10 +28,13 @@ class TestModelPackaging:
     serialized_file = 'my-model/'
     handler = 'a.py::my-awesome-func'
     export_path = '/Users/dummyUser/'
+    version = '1.0'
+    source_vocab = None
 
     args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
                      runtime=RuntimeType.PYTHON.value, model_file=model_file, serialized_file=serialized_file,
-                     extra_files=None, export_path=export_path, force=False, archive_format="default", convert=False)
+                     extra_files=None, export_path=export_path, force=False, archive_format="default", convert=False,
+                     version=version, source_vocab=source_vocab)
 
     @pytest.fixture()
     def patches(self, mocker):
