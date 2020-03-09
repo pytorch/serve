@@ -42,14 +42,9 @@ JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
 MODEL_RESNET_18 = 'resnet-18'
 MODEL_SQUEEZE_NET = 'squeezenet'
 
-'''
-You will need have mar files for above models. Also, note that modelName in manifest.json should be 
-same as indicated above.
-'''
-
 MODEL_MAP = {
-    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'})
+    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
 }
 
 
@@ -84,7 +79,7 @@ AGGREGATE_REPORT_CSV_LABELS_MAP = {
 
 CELLAR = '/home/ubuntu/.linuxbrew/Cellar/jmeter' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
 JMETER_VERSION = os.listdir(CELLAR)[0]
-CMDRUNNER = '{}/{}/libexec/lib/ext/CMDRunner.jar'.format(CELLAR, JMETER_VERSION)
+CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
 JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
 TS_BASE = reduce(lambda val, func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
 JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')

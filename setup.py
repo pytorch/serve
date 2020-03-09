@@ -132,7 +132,7 @@ class BuildPlugins(Command):
 if __name__ == '__main__':
     version = detect_model_server_version()
 
-    requirements = ['Pillow', 'psutil', 'future', 'torch', 'torchvision', 'torchtext']
+    requirements = ['Pillow', 'psutil', 'future']
 
     setup(
         name='torchserve',
