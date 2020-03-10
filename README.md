@@ -76,13 +76,8 @@ TorchServe won't install the PyTorch engine by default. If it isn't already inst
 * For virtualenv
 
 ```bash
-#For CPU
+#For CPU/GPU
 pip install torch torchvision torchtext
-```
-
-```bash
-#For GPU
-pip install torch==1.4.0+cu92 torchvision==0.5.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 * For conda
@@ -94,7 +89,7 @@ conda install psutil pytorch torchvision torchtext -c pytorch
 
 ```bash
 #For GPU
-conda install psutil pytorch torchvision cudatoolkit=9.2 torchtext -c pytorch
+conda install psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
 ```
 
 **Step 3:** Install TorchServe as follows:
