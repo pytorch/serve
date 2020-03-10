@@ -43,7 +43,7 @@ conda install psutil pytorch torchvision torchtext -c pytorch
 
 ```bash
 #For GPU
-conda install psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
 ```
 
 
