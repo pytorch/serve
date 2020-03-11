@@ -40,6 +40,10 @@ Before proceeding further with this document, make sure you have the following p
 
 #### Setup
 
+**Step 0:** Assert JDK Version
+
+Latest OS distros ship a new version of Java. Before proceeding, ensure JDK 1.8 is the only (or the default) version of Java installed in your system, otherwise, you might face strange errors while installing that are hard to reason or debug.
+
 **Step 1:** Setup a Virtual Environment
 
 We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
