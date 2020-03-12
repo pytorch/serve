@@ -27,9 +27,25 @@ You can also download and install [Oracle JDK](https://www.oracle.com/technetwor
 
 * **Torch**: Recommended. TorchServe won't install `torch` by default. Torch is required for most of examples in this project. TorchServe won't install torch engine by default. And you can also choose specific version of torch if you want.
 
+* For virtualenv
+
 ```bash
+#For CPU/GPU
 pip install torch torchvision torchtext
 ```
+
+* For conda
+
+```bash
+#For CPU
+conda install psutil pytorch torchvision torchtext -c pytorch
+```
+
+```bash
+#For GPU
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
+```
+
 
 * **Curl**: Optional. Curl is used in all of the examples. Install it with your preferred package manager.
 

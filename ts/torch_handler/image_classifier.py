@@ -52,7 +52,7 @@ class ImageClassifier(VisionHandler):
         ps = F.softmax(outputs, dim=1)
         topk = getattr(ps, self.device.type)().topk(topk)
 
-        probs, classes = (e.data.numpy().squeeze().tolist() for e in topk)
+        probs, classes = (e.cpu().data.numpy().squeeze().tolist() for e in topk)
 
         results = []
         for i in range(len(probs)):

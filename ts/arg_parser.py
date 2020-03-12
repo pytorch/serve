@@ -30,13 +30,12 @@ class ArgParser(object):
                             help='Configuration file for model server')
         parser.add_argument('--model-store',
                             dest='model_store',
-                            help='Model store location where models can be loaded')
+                            help='Model store location from where local or default models can be loaded')
         parser.add_argument('--models',
                             metavar='MODEL_PATH1 MODEL_NAME=MODEL_PATH2...',
                             nargs='+',
                             help='Models to be loaded using [model_name=]model_location format. '
-                                 'Location can be a HTTP URL, a model archive file or directory '
-                                 'contains model archive files in MODEL_STORE.')
+                                 'Location can be a HTTP URL or a model archive file  in MODEL_STORE.')
         parser.add_argument('--log-config',
                             dest='log_config',
                             help='Log4j configuration file for model server')

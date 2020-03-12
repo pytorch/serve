@@ -40,6 +40,10 @@ Before proceeding further with this document, make sure you have the following p
 
 #### Setup
 
+**Step 0:** Assert JDK Version
+
+Latest OS distros ship a new version of Java. Before proceeding, ensure JDK 1.8 is the only (or the default) version of Java installed in your system, otherwise, you might face strange errors while installing that are hard to reason or debug.
+
 **Step 1:** Setup a Virtual Environment
 
 We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
@@ -76,13 +80,20 @@ TorchServe won't install the PyTorch engine by default. If it isn't already inst
 * For virtualenv
 
 ```bash
+#For CPU/GPU
 pip install torch torchvision torchtext
 ```
 
 * For conda
 
 ```bash
+#For CPU
 conda install psutil pytorch torchvision torchtext -c pytorch
+```
+
+```bash
+#For GPU
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
 ```
 
 **Step 3:** Install TorchServe as follows:

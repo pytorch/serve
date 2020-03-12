@@ -1,7 +1,7 @@
 import io
 from PIL import Image
 from torchvision import transforms as T
-
+from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
 
@@ -37,6 +37,7 @@ class ImangeSegmenter(VisionHandler):
 
     def inference(self, img):
         # Predict the pixel classes for segmentation
+        img = Variable(img).to(self.device)
         pred = self.model(img)['out']
         pred = pred.squeeze().detach().cpu().numpy()
         return [str(pred)]
