@@ -28,9 +28,9 @@ The location of log files and metric files can be configured at [log4j.propertie
 |	MemoryAvailable	|	host	|	MB	|	memory available on host	|
 |	MemoryUsed	|	host	|	MB	|	memory used on host	|
 |	MemoryUtilization	|	host	|	percentage	|	memory used on host	|
-|	Requests2XX	|	host	|	count	|	total number of requests that responded in 200-300 range	|
-|	Requests4XX	|	host	|	count	|	total number of requests that responded in 400-500 range |
-|	Requests5XX	|	host	|	count	|	total number of requests that responded above 500 |
+|	Requests2XX	|	host	|	count	|	logged for every request responded in 200-300 status code range	|
+|	Requests4XX	|	host	|	count	|	logged for every request responded in 400-500 status code range |
+|	Requests5XX	|	host	|	count	|	logged for every request responded with status code above 500 |
 
 
 ## Formatting
