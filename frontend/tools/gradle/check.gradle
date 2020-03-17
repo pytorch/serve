@@ -1,16 +1,3 @@
-apply plugin: 'findbugs'
-findbugs {
-    excludeFilter = file("${rootProject.projectDir}/tools/conf/findbugs-exclude.xml")
-    ignoreFailures = false
-    findbugsTest.enabled = true
-}
-tasks.withType(FindBugs) {
-    reports {
-        xml.enabled false
-        html.enabled true
-    }
-}
-
 apply plugin: 'pmd'
 pmd {
     ignoreFailures = false

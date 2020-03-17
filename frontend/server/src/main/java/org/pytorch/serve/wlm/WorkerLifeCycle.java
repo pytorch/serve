@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class WorkerLifeCycle {
 
-    static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
 
     private ConfigManager configManager;
     private Model model;
@@ -149,7 +149,7 @@ public class WorkerLifeCycle {
         return null;
     }
 
-    void setSuccess(boolean success) {
+    public void setSuccess(boolean success) {
         this.success = success;
         latch.countDown();
     }
@@ -171,7 +171,7 @@ public class WorkerLifeCycle {
         private InputStream is;
         private boolean error;
         private WorkerLifeCycle lifeCycle;
-        static final org.apache.log4j.Logger loggerModelMetrics =
+        private static final org.apache.log4j.Logger loggerModelMetrics =
                 org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
         public ReaderThread(String name, InputStream is, boolean error, WorkerLifeCycle lifeCycle) {

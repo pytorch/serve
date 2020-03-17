@@ -1,12 +1,12 @@
 package org.pytorch.serve.archive;
 
-public final class Hex {
+public final class HexUtils {
 
     private static final char[] HEX_CHARS = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
-    private Hex() {}
+    private HexUtils() {}
 
     public static String toHexString(byte[] block) {
         return toHexString(block, 0, block.length);
