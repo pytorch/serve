@@ -32,7 +32,7 @@ tasks.withType(Checkstyle) {
 
 apply plugin: "jacoco"
 jacoco {
-    toolVersion = "0.8.1"
+    toolVersion = "0.8.5"
 }
 jacocoTestReport {
     group = "Reporting"
