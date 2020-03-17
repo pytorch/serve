@@ -9,7 +9,7 @@ RUN apt-get update && \
     dpkg-dev \
     g++ \
     python3-dev \
-    default-jdk \
+    openjdk-11-jdk \
     curl \
     vim \
     && rm -rf /var/lib/apt/lists/* \

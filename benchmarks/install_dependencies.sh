@@ -13,7 +13,7 @@ sudo apt-get install -y \
         python3-dev \
         python-psutil \
         python3-pip \
-        default-jdk \
+        openjdk-11-jdk \
         g++ \
         linuxbrew-wrapper \
         curl \
