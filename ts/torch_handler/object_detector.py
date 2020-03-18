@@ -19,6 +19,8 @@ class ObjectDetector(VisionHandler):
         super(VisionHandler, self).initialize(ctx)
         self.initialized = False
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+        self.model.eval()
         self.initialized = True
 
     def preprocess(self, data):
