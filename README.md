@@ -86,6 +86,11 @@ pip install torch torchvision torchtext
 
 * For conda
 
+The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
+```
+pip install sentencepiece
+```
+
 ```bash
 #For CPU
 conda install psutil pytorch torchvision torchtext -c pytorch
