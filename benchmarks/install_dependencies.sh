@@ -13,10 +13,9 @@ sudo apt-get install -y \
         python3-dev \
         python-psutil \
         python3-pip \
-        openjdk-8-jdk \
+        openjdk-11-jdk \
         g++ \
         linuxbrew-wrapper \
-        openjdk-8-jdk-headless \
         curl \
         vim \
         build-essential \

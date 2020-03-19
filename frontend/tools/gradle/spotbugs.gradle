@@ -1,0 +1,32 @@
+buildscript {
+  repositories {
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:$spotbugsVersion"
+  }
+}
+
+subprojects {
+  apply plugin: 'com.github.spotbugs'
+
+  repositories {
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+
+  spotbugs {
+    toolVersion = project.toolVersion
+    effort = 'max'
+  }
+
+  tasks.withType(com.github.spotbugs.SpotBugsTask) {
+    reports {
+      html {
+        enabled = true
+      }
+      xml {
+        enabled = false
+      }
+    }
+  }
+}

@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,6 +11,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -71,7 +71,7 @@ public class ModelArchive {
         }
 
         if (modelLocation.isFile()) {
-            try (InputStream is = new FileInputStream(modelLocation)) {
+            try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
                 File unzipDir = unzip(is, null);
                 return load(url, unzipDir, true);
             }
@@ -104,7 +104,9 @@ public class ModelArchive {
 
     private static <T> T readFile(File file, Class<T> type)
             throws InvalidModelException, IOException {
-        try (Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+        try (Reader r =
+                new InputStreamReader(
+                        Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
             return GSON.fromJson(r, type);
         } catch (JsonParseException e) {
             throw new InvalidModelException("Failed to parse signature.json.", e);
@@ -128,7 +130,7 @@ public class ModelArchive {
         }
         ZipUtils.unzip(new DigestInputStream(is, md), tmp);
         if (eTag == null) {
-            eTag = Hex.toHexString(md.digest());
+            eTag = HexUtils.toHexString(md.digest());
         }
         File dir = new File(modelDir, eTag);
         if (dir.exists()) {

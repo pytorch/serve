@@ -3,7 +3,7 @@ package org.pytorch.serve.http;
 /** InvaliPluginException is thrown when there is an error while handling a Model Server plugin */
 public class InvalidPluginException extends RuntimeException {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     /**
      * Constructs an {@code InvalidPluginException} with {@code null} as its error detail message.
      */
