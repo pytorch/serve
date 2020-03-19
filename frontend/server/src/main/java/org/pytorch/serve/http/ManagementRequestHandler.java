@@ -9,12 +9,14 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
@@ -226,6 +228,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             maxBatchDelay,
                             responseTimeout,
                             null);
+        } catch (FileAlreadyExistsException e) {
+            throw new InternalServerException(
+                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
         } catch (IOException e) {
             throw new InternalServerException("Failed to save model: " + modelUrl, e);
         }

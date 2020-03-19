@@ -9,16 +9,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,72 +45,39 @@ public class ModelArchive {
     }
 
     public static ModelArchive downloadModel(String modelStore, String url)
-            throws ModelException, IOException {
-        if (URL_PATTERN.matcher(url).matches()) {
-            File modelDir = download(url);
-            return load(url, modelDir, true);
+            throws ModelException, FileAlreadyExistsException, IOException {
+
+        if (modelStore == null) {
+            throw new ModelNotFoundException("Model store has not been configured.");
         }
 
         if (url.contains("..")) {
             throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
 
-        if (modelStore == null) {
-            throw new ModelNotFoundException("Model store has not been configured.");
+        String marFileName = FilenameUtils.getName(url);
+        File modelLocation = new File(modelStore, marFileName);
+
+        if (modelLocation.exists()) {
+            throw new FileAlreadyExistsException(marFileName);
         }
 
-        File modelLocation = new File(modelStore, url);
+        if (URL_PATTERN.matcher(url).matches()) {
+            FileUtils.copyURLToFile(new URL(url), modelLocation);
+        }
+
         if (!modelLocation.exists()) {
             throw new ModelNotFoundException("Model not found in model store: " + url);
         }
+
         if (modelLocation.isFile()) {
             try (InputStream is = new FileInputStream(modelLocation)) {
                 File unzipDir = unzip(is, null);
                 return load(url, unzipDir, true);
             }
         }
+
         throw new ModelNotFoundException("Model not found at: " + url);
-    }
-
-    private static File download(String path) throws ModelException, IOException {
-        HttpURLConnection conn;
-        try {
-            URL url = new URL(path);
-            conn = (HttpURLConnection) url.openConnection();
-            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new DownloadModelException(
-                        "Failed to download model from: "
-                                + path
-                                + ", code: "
-                                + conn.getResponseCode());
-            }
-        } catch (MalformedURLException | RuntimeException e) {
-            // URLConnection may throw raw RuntimeException if port is out of range.
-            throw new ModelNotFoundException("Invalid model url: " + path, e);
-        } catch (IOException e) {
-            throw new DownloadModelException("Failed to download model from: " + path, e);
-        }
-
-        try {
-            String eTag = conn.getHeaderField("ETag");
-            File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            File modelDir = new File(tmpDir, "models");
-            FileUtils.forceMkdir(modelDir);
-            if (eTag != null) {
-                if (eTag.startsWith("\"") && eTag.endsWith("\"") && eTag.length() > 2) {
-                    eTag = eTag.substring(1, eTag.length() - 1);
-                }
-                File dir = new File(modelDir, eTag);
-                if (dir.exists()) {
-                    logger.info("model folder already exists: {}", eTag);
-                    return dir;
-                }
-            }
-
-            return unzip(conn.getInputStream(), eTag);
-        } catch (SocketTimeoutException e) {
-            throw new DownloadModelException("Download model timeout: " + path, e);
-        }
     }
 
     private static ModelArchive load(String url, File dir, boolean extracted)
