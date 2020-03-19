@@ -5,8 +5,8 @@ import org.pytorch.serve.wlm.WorkerThread;
 import software.amazon.ai.mms.servingsdk.Worker;
 
 public class ModelWorker implements Worker {
-    boolean running;
-    long memory;
+    private boolean running;
+    private long memory;
 
     public ModelWorker(WorkerThread t) {
         running = t.getState() == WorkerState.WORKER_MODEL_LOADED;

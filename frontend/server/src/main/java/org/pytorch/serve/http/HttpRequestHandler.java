@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
-    HttpRequestHandlerChain handlerChain;
+    private HttpRequestHandlerChain handlerChain;
     /** Creates a new {@code HttpRequestHandler} instance. */
     public HttpRequestHandler() {}
 

@@ -13,7 +13,7 @@ public final class CodecUtils {
 
     private CodecUtils() {}
 
-    static int readLength(ByteBuf byteBuf, int maxLength) {
+    public static int readLength(ByteBuf byteBuf, int maxLength) {
         int size = byteBuf.readableBytes();
         if (size < 4) {
             return BUFFER_UNDER_RUN;
@@ -29,11 +29,11 @@ public final class CodecUtils {
         return len;
     }
 
-    static String readString(ByteBuf byteBuf, int len) {
+    public static String readString(ByteBuf byteBuf, int len) {
         return new String(read(byteBuf, len), StandardCharsets.UTF_8);
     }
 
-    static byte[] read(ByteBuf in, int len) {
+    public static byte[] read(ByteBuf in, int len) {
         if (len < 0) {
             throw new CorruptedFrameException("Invalid message size: " + len);
         }
@@ -43,7 +43,7 @@ public final class CodecUtils {
         return buf;
     }
 
-    static Map<String, String> readMap(ByteBuf in, int len) {
+    public static Map<String, String> readMap(ByteBuf in, int len) {
         HashMap<String, String> ret = new HashMap<>();
         for (; len > 0; len--) {
             int l = readLength(in, in.readableBytes());

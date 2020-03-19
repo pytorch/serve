@@ -7,20 +7,21 @@
 
 * **java 8**: Required. TorchServe use java to serve HTTP requests. You must install java 8 (or later) and make sure java is on available in $PATH environment variable *before* installing TorchServe. If you have multiple java installed, you can use $JAVA_HOME environment variable to control which java to use.
 
-For ubuntu:
+For Ubuntu:
 ```bash
-sudo apt-get install openjdk-8-jdk
+sudo apt-get install openjdk-11-jdk
 ```
 
-For centos
+For CentOS:
 ```bash
-sudo yum install java-1.8.0-openjdk
+openjdk-11-jdk
+sudo yum install java-11-openjdk
 ```
 
-For Mac:
+For macOS:
 ```bash
 brew tap AdoptOpenJDK/openjdk
-brew cask install adoptopenjdk8
+brew cask install adoptopenjdk11
 ```
 
 You can also download and install [Oracle JDK](https://www.oracle.com/technetwork/java/javase/overview/index.html) manually if you have trouble with above commands.

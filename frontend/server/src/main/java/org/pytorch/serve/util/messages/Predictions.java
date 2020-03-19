@@ -35,7 +35,7 @@ public class Predictions {
     }
 
     public void setResp(byte[] resp) {
-        this.resp = resp;
+        this.resp = resp.clone();
     }
 
     public String getContentType() {

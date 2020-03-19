@@ -2,7 +2,7 @@ package org.pytorch.serve.wlm;
 
 public class WorkerInitializationException extends Exception {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /** Creates a new {@code WorkerInitializationException} instance. */
     public WorkerInitializationException(String message) {
