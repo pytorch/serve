@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyException;
@@ -25,10 +26,12 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -74,6 +77,7 @@ public final class ConfigManager {
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
+    private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -91,6 +95,7 @@ public final class ConfigManager {
     private Pattern blacklistPattern;
     private Properties prop;
     private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+    private boolean snapshotDisabled;
 
     private static ConfigManager instance;
 
@@ -99,11 +104,25 @@ public final class ConfigManager {
     private ConfigManager(Arguments args) {
         prop = new Properties();
 
+        this.snapshotDisabled = args.isSnapshotDisabled();
+
+        String logLocation = System.getenv("LOG_LOCATION");
+        if (logLocation != null) {
+            System.setProperty("LOG_LOCATION", logLocation);
+        } else if (System.getProperty("LOG_LOCATION") == null) {
+            System.setProperty("LOG_LOCATION", "logs");
+        }
+
         String filePath = System.getenv("TS_CONFIG_FILE");
         if (filePath == null) {
             filePath = args.getTsConfigFile();
             if (filePath == null) {
-                filePath = System.getProperty("tsConfigFile", "config.properties");
+                if (filePath == null) {
+                    filePath = getLastSnapshot();
+                    if (filePath == null) {
+                        filePath = System.getProperty("tsConfigFile", "config.properties");
+                    }
+                }
             }
         }
 
@@ -118,12 +137,6 @@ public final class ConfigManager {
         }
 
         resolveEnvVarVals(prop);
-        String logLocation = System.getenv("LOG_LOCATION");
-        if (logLocation != null) {
-            System.setProperty("LOG_LOCATION", logLocation);
-        } else if (System.getProperty("LOG_LOCATION") == null) {
-            System.setProperty("LOG_LOCATION", "logs");
-        }
 
         String metricsLocation = System.getenv("METRICS_LOCATION");
         if (metricsLocation != null) {
@@ -261,7 +274,7 @@ public final class ConfigManager {
     }
 
     public Properties getConfiguration() {
-        return new Properties(prop);
+        return (Properties) prop.clone();
     }
 
     public int getConfiguredDefaultWorkersPerModel() {
@@ -319,6 +332,10 @@ public final class ConfigManager {
 
     public String getModelStore() {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
+    }
+
+    public String getModelSnapshot() {
+        return prop.getProperty(TS_MODEL_SNAPSHOT, null);
     }
 
     public String getLoadModels() {
@@ -426,6 +443,29 @@ public final class ConfigManager {
             }
             return chain;
         }
+    }
+
+    private String getLastSnapshot() {
+        if (isSnapshotDisabled()) {
+            return null;
+        }
+
+        String latestSnapshotPath = null;
+        Path configPath = Paths.get(System.getProperty("LOG_LOCATION"), "config");
+
+        if (Files.exists(configPath)) {
+            try {
+                Optional<Path> lastFilePath =
+                        Files.list(configPath)
+                                .filter(f -> !Files.isDirectory(f))
+                                .max(Comparator.comparingLong(f -> f.toFile().lastModified()));
+                if (lastFilePath.isPresent()) latestSnapshotPath = lastFilePath.get().toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return latestSnapshotPath;
     }
 
     public String getProperty(String key, String def) {
@@ -602,12 +642,17 @@ public final class ConfigManager {
         }
     }
 
+    public boolean isSnapshotDisabled() {
+        return snapshotDisabled;
+    }
+
     public static final class Arguments {
 
         private String tsConfigFile;
         private String pythonExecutable;
         private String modelStore;
         private String[] models;
+        private boolean snapshotDisabled;
 
         public Arguments() {}
 
@@ -616,6 +661,7 @@ public final class ConfigManager {
             pythonExecutable = cmd.getOptionValue("python");
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
+            snapshotDisabled = cmd.hasOption("no-config-snapshot");
         }
 
         public static Options getOptions() {
@@ -648,6 +694,19 @@ public final class ConfigManager {
                             .argName("MODELS-STORE")
                             .desc("Model store location where models can be loaded.")
                             .build());
+            options.addOption(
+                    Option.builder("ss")
+                            .longOpt("snapshot-store")
+                            .hasArg()
+                            .argName("SNAPSHOT-STORE")
+                            .desc("Snapshot store location where snapshots will be stored.")
+                            .build());
+            options.addOption(
+                    Option.builder("ncs")
+                            .longOpt("no-config-snapshot")
+                            .argName("NO-CONFIG-SNAPSHOT")
+                            .desc("cofig")
+                            .build());
             return options;
         }
 
@@ -677,6 +736,10 @@ public final class ConfigManager {
 
         public void setModels(String[] models) {
             this.models = models.clone();
+        }
+
+        public boolean isSnapshotDisabled() {
+            return snapshotDisabled;
         }
     }
 }

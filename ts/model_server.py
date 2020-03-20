@@ -132,6 +132,10 @@ def start():
                         print("--model-store is required to load model locally.")
                         exit(1)
 
+        if args.no_config_snapshots:
+            cmd.append("--ncs")
+
+
         try:
             process = subprocess.Popen(cmd)
             pid = process.pid

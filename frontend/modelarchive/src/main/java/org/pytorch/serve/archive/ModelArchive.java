@@ -58,11 +58,10 @@ public class ModelArchive {
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
 
-        if (modelLocation.exists()) {
-            throw new FileAlreadyExistsException(marFileName);
-        }
-
         if (URL_PATTERN.matcher(url).matches()) {
+            if (modelLocation.exists()) {
+                throw new FileAlreadyExistsException(marFileName);
+            }
             FileUtils.copyURLToFile(new URL(url), modelLocation);
         }
 

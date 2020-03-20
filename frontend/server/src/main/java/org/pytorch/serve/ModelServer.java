@@ -30,6 +30,7 @@ import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.ConnectorType;
@@ -64,7 +65,6 @@ public class ModelServer {
             CommandLine cmd = parser.parse(options, args, null, false);
             ConfigManager.Arguments arguments = new ConfigManager.Arguments(cmd);
             ConfigManager.init(arguments);
-
             ConfigManager configManager = ConfigManager.getInstance();
             PluginsManager.getInstance().initialize();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
@@ -89,6 +89,9 @@ public class ModelServer {
             // Create and schedule metrics manager
             MetricManager.scheduleMetrics(configManager);
             System.out.println("Model server started."); // NOPMD
+
+            SnapshotManager.getInstance().saveSnapshot("startup");
+
             channelFutures.get(0).sync();
         } catch (InvalidPropertiesFormatException e) {
             logger.error("Invalid configuration", e);
@@ -110,8 +113,15 @@ public class ModelServer {
     private void initModelStore() {
         WorkLoadManager wlm = new WorkLoadManager(configManager, serverGroups.getBackendGroup());
         ModelManager.init(configManager, wlm);
+        SnapshotManager.init(configManager);
         Set<String> startupModels = ModelManager.getInstance().getStartupModels();
         String defaultModelName;
+        String modelSnapshot = configManager.getModelSnapshot();
+        if (modelSnapshot != null) {
+            SnapshotManager.getInstance().restore(modelSnapshot);
+            return;
+        }
+
         String loadModels = configManager.getLoadModels();
         if (loadModels == null || loadModels.isEmpty()) {
             return;
@@ -155,7 +165,8 @@ public class ModelServer {
                                 archive.getModelName(),
                                 archive.getModelVersion(),
                                 workers,
-                                workers);
+                                workers,
+                                true);
                         startupModels.add(archive.getModelName());
                     } catch (ModelException | IOException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
@@ -195,7 +206,7 @@ public class ModelServer {
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName);
                 modelManager.updateModel(
-                        archive.getModelName(), archive.getModelVersion(), workers, workers);
+                        archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());
             } catch (ModelException | IOException e) {
                 logger.warn("Failed to load model: " + url, e);
@@ -344,6 +355,8 @@ public class ModelServer {
         for (ChannelFuture future : futures) {
             future.channel().close();
         }
+
+        SnapshotManager.getInstance().saveSnapshot("shutdown");
         serverGroups.shutdown(true);
         serverGroups.init();
     }

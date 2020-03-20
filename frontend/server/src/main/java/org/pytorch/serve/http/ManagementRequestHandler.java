@@ -23,6 +23,7 @@ import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
+import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
@@ -240,6 +241,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         final String msg = "Model \"" + modelName + "\" registered";
         if (initialWorkers <= 0) {
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+            SnapshotManager.getInstance().saveSnapshot("snapshot");
             return;
         }
 
@@ -278,6 +280,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     "Cannot remove default version for model " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
+        SnapshotManager.getInstance().saveSnapshot("snapshot");
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 
