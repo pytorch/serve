@@ -1,4 +1,4 @@
-# Running the TorchServe
+# Running TorchServe
 
 ## Contents of this Document
 * [Overview](#overview)
