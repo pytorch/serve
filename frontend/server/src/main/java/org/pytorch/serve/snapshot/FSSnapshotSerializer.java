@@ -52,7 +52,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         String[] snapshots = new File(System.getProperty("LOG_LOCATION") + "/config").list();
         if (snapshots != null) {
             for (String snapshotName : snapshots) {
-            	resp.add(getSnapshot(snapshotName));
+                resp.add(getSnapshot(snapshotName));
             }
         }
         return resp;
@@ -62,8 +62,8 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         String snapshotPath = getSnapshotPath(snapshotName);
         FileUtils.deleteDirectory(new File(snapshotPath));
     }
-    
+
     private String getSnapshotPath(String snapshotName) {
-    	return System.getProperty("LOG_LOCATION") + "/config" + "/" + snapshotName;
+        return System.getProperty("LOG_LOCATION") + "/config" + "/" + snapshotName;
     }
 }
