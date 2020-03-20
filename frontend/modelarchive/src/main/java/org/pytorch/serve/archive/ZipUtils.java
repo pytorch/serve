@@ -3,10 +3,10 @@ package org.pytorch.serve.archive;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -22,13 +22,13 @@ public final class ZipUtils {
         if (includeRootDir) {
             prefix -= src.getName().length();
         }
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(dest))) {
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(dest.toPath()))) {
             addToZip(prefix, src, null, zos);
         }
     }
 
     public static void unzip(File src, File dest) throws IOException {
-        unzip(new FileInputStream(src), dest);
+        unzip(Files.newInputStream(src.toPath()), dest);
     }
 
     public static void unzip(InputStream is, File dest) throws IOException {
@@ -42,7 +42,7 @@ public final class ZipUtils {
                 } else {
                     File parentFile = file.getParentFile();
                     FileUtils.forceMkdir(parentFile);
-                    try (OutputStream os = new FileOutputStream(file)) {
+                    try (OutputStream os = Files.newOutputStream(file.toPath())) {
                         IOUtils.copy(zis, os);
                     }
                 }
@@ -70,7 +70,7 @@ public final class ZipUtils {
         } else if (file.isFile()) {
             ZipEntry entry = new ZipEntry(name);
             zos.putNextEntry(entry);
-            try (FileInputStream fis = new FileInputStream(file)) {
+            try (FileInputStream fis = (FileInputStream) Files.newInputStream(file.toPath())) {
                 IOUtils.copy(fis, zos);
             }
         }

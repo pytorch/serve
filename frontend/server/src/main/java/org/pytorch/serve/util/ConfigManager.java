@@ -4,13 +4,14 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyException;
 import java.security.KeyFactory;
@@ -106,9 +107,9 @@ public final class ConfigManager {
             }
         }
 
-        File file = new File(filePath);
-        if (file.exists()) {
-            try (FileInputStream stream = new FileInputStream(file)) {
+        File tsConfigFile = new File(filePath);
+        if (tsConfigFile.exists()) {
+            try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
                 prop.load(stream);
                 prop.put("tsConfigFile", filePath);
             } catch (IOException e) {
@@ -208,7 +209,7 @@ public final class ConfigManager {
         }
     }
 
-    String getEnableEnvVarsConfig() {
+    public String getEnableEnvVarsConfig() {
         return prop.getProperty(ENABLE_ENVVARS_CONFIG, "false");
     }
 
@@ -355,7 +356,7 @@ public final class ConfigManager {
             char[] keystorePass = getProperty(TS_KEYSTORE_PASS, "changeit").toCharArray();
             String keystoreType = getProperty(TS_KEYSTORE_TYPE, "PKCS12");
             KeyStore keyStore = KeyStore.getInstance(keystoreType);
-            try (InputStream is = new FileInputStream(keyStoreFile)) {
+            try (InputStream is = Files.newInputStream(Paths.get(keyStoreFile))) {
                 keyStore.load(is, keystorePass);
             }
 
@@ -397,7 +398,7 @@ public final class ConfigManager {
 
     private PrivateKey loadPrivateKey(String keyFile) throws IOException, GeneralSecurityException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        try (InputStream is = new FileInputStream(keyFile)) {
+        try (InputStream is = Files.newInputStream(Paths.get(keyFile))) {
             String content = IOUtils.toString(is, StandardCharsets.UTF_8);
             content = content.replaceAll("-----(BEGIN|END)( RSA)? PRIVATE KEY-----\\s*", "");
             byte[] buf = Base64.getMimeDecoder().decode(content);
@@ -416,7 +417,7 @@ public final class ConfigManager {
     private X509Certificate[] loadCertificateChain(String keyFile)
             throws IOException, GeneralSecurityException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        try (InputStream is = new FileInputStream(keyFile)) {
+        try (InputStream is = Files.newInputStream(Paths.get(keyFile))) {
             Collection<? extends Certificate> certs = cf.generateCertificates(is);
             int i = 0;
             X509Certificate[] chain = new X509Certificate[certs.size()];
@@ -500,7 +501,7 @@ public final class ConfigManager {
         return getIntProperty(TS_MAX_REQUEST_SIZE, 6553500);
     }
 
-    void setProperty(String key, String value) {
+    public void setProperty(String key, String value) {
         prop.setProperty(key, value);
     }
 
@@ -675,7 +676,7 @@ public final class ConfigManager {
         }
 
         public void setModels(String[] models) {
-            this.models = models;
+            this.models = models.clone();
         }
     }
 }

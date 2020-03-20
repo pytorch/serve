@@ -2,7 +2,7 @@ package org.pytorch.serve.http;
 
 public class MethodNotAllowedException extends RuntimeException {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs an {@code MethodNotAllowedException} with {@code null} as its error detail
