@@ -77,10 +77,6 @@ def validate_files(file_list, prefix, default_handler=None):
     if default_handler =="text_classifier":
         assert os.path.join(prefix, "source_vocab.pt") in file_list
 
-    if default_handler =="language_translator":
-        assert os.path.join(prefix, "source_vocab.pt") in file_list
-        assert os.path.join(prefix, "destination_vocab.pt") in file_list
-
 
 def validate_tar_archive(test_cfg):
     import tarfile
