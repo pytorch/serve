@@ -110,7 +110,7 @@ class ArgParser(object):
                                         'will overwritten')
 
         parser_export.add_argument('-v', '--version',
-                                   required=False,
+                                   required=True,
                                    type=str,
                                    default=None,
                                    help='Model version must be a valid non-negative floating point number')
