@@ -117,8 +117,8 @@ def validate(test):
 
 
 def build_cmd(test):
-    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format',
-            'source-language', 'source-vocab', 'destination-vocab', 'export-path', 'runtime']
+    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format', 'source-vocab',
+            'version', 'export-path', 'runtime']
     cmd = ["torch-model-archiver"]
 
     for arg in args:

@@ -7,6 +7,7 @@
     "handler": "image_classifier",
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
     "iterations": 1,
+    "version": "1.0",
     "export-path": "/tmp/model"
   },
   {
@@ -18,6 +19,7 @@
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
     "iterations": 1,
     "export-path": "/tmp/model",
+    "version": "1.0",
     "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt"
   },
   {
@@ -29,8 +31,7 @@
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
     "iterations": 1,
     "export-path": "/tmp/model",
-    "source-language": "en",
-    "destination-vocab": "model_archiver/tests/integ_tests/resources/regular_model/destination_vocab.pt",
+    "version": "1.0",
     "expect-error": true
   }
 ]
