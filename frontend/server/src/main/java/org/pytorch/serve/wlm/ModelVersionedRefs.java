@@ -13,7 +13,7 @@ public final class ModelVersionedRefs {
     private static final Logger logger = LoggerFactory.getLogger(ModelVersionedRefs.class);
 
     private ConcurrentHashMap<Double, Model> modelsVersionMap;
-    private Double defaultVersion;
+    private Double defaultVersion = null;
 
     public ModelVersionedRefs() {
         this.modelsVersionMap = new ConcurrentHashMap<>();
@@ -53,6 +53,10 @@ public final class ModelVersionedRefs {
                             + versionId
                             + " is already registered for model "
                             + model.getModelName());
+        }
+
+        if (this.defaultVersion == null) {
+            this.setDefaultVersion(versionId);
         }
     }
 
