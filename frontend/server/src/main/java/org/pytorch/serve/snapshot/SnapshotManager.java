@@ -29,8 +29,6 @@ public final class SnapshotManager {
     private ModelManager modelManager;
     private SnapshotSerializer snapshotSerializer;
 
-    private boolean restartInProgress;
-
     public static void init(ConfigManager configManager) {
         snapshotManager = new SnapshotManager(configManager);
     }
@@ -116,7 +114,6 @@ public final class SnapshotManager {
 
         try {
             logger.info("Started restoring models from snapshot");
-            restartInProgress = true;
             while (modelManager.isUnregisterInProgress()) {
                 Thread.sleep(5000);
             }
@@ -132,8 +129,6 @@ public final class SnapshotManager {
         } catch (InterruptedException e) {
             logger.error("Error encountered while loading snapshot");
             logger.error(e.getMessage());
-        } finally {
-            restartInProgress = false;
         }
     }
 
@@ -233,10 +228,6 @@ public final class SnapshotManager {
         }
         logger.info("Validated snapshot {}", snapshot.getName());
         return true;
-    }
-
-    public boolean isRestartInProgress() {
-        return restartInProgress;
     }
 
     private String getSnapshotName(String snapshotType) {
