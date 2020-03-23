@@ -19,6 +19,8 @@ phases:
       - pip install torch
       - pip install torchvision
       - cd model-archiver/ && pip install -U -e . && cd ../
+      #- pylint -rn --rcfile=./ts/tests/pylintrc ts/.
+      #- cd model-archiver/ && pylint -rn --rcfile=./model_archiver/tests/pylintrc model_archiver/. && cd ../
 
   build:
     commands:
