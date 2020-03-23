@@ -13,7 +13,7 @@ public final class ModelVersionedRefs {
     private static final Logger logger = LoggerFactory.getLogger(ModelVersionedRefs.class);
 
     private ConcurrentHashMap<Double, Model> modelsVersionMap;
-    Double defaultVersion;
+    private Double defaultVersion;
 
     public ModelVersionedRefs() {
         this.modelsVersionMap = new ConcurrentHashMap<>();
@@ -26,10 +26,6 @@ public final class ModelVersionedRefs {
         if (vd <= Double.valueOf("0.0")) {
             throw new InvalidModelVersionException("Model version is invalid: " + v);
         }
-    }
-
-    private void checkVersionCapacity() {
-        // place holder only for now
     }
 
     /**
@@ -50,7 +46,6 @@ public final class ModelVersionedRefs {
         }
 
         validateVersionId(versionId);
-        checkVersionCapacity();
 
         if (this.modelsVersionMap.putIfAbsent(Double.valueOf(versionId), model) != null) {
             throw new ConflictStatusException(

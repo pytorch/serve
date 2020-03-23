@@ -90,7 +90,7 @@ optional arguments:
   --archive-format {tgz,default}
                         The format in which the model artifacts are archived.
                         "tgz": This creates the model-archive in <model-name>.tar.gz format.
-                        If platform hosting MMS requires model-artifacts to be in ".tar.gz"
+                        If platform hosting requires model-artifacts to be in ".tar.gz"
                         use this option.
                         "no-archive": This option creates an non-archived version of model artifacts
                         at "export-path/{model-name}" location. As a result of this choice,
@@ -98,7 +98,7 @@ optional arguments:
                         without archiving these model files
                         "default": This creates the model-archive in <model-name>.mar format.
                         This is the default archiving format. Models archived in this format
-                        will be readily hostable on native MMS.
+                        will be readily hostable on TorchServe.
   -f, --force           When the -f or --force flag is specified, an existing
                         .mar file with same name as that provided in --model-
                         name in the path specified by --export-path will
@@ -155,7 +155,7 @@ git clone https://github.com/pytorch/serve.git
 
 **3. Package your model**
 
-With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with MMS.
+With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with TorchServe.
 
 In this next step we'll run `torch-model-archiver` and tell it our model's name is `densenet_161` and its version is `1.0` with the `model-name` and `version` parameter respectively and that it will use TorchServe's default `image_classifier` handler with the `handler` argument . Then we're giving it the `model-file` and `serialized-file` to the model's assets.
 

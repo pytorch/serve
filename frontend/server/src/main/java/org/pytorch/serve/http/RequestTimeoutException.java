@@ -2,7 +2,7 @@ package org.pytorch.serve.http;
 
 public class RequestTimeoutException extends RuntimeException {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs an {@code RequestTimeoutException} with the specified detail message.

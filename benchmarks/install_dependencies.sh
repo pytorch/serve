@@ -1,36 +1,44 @@
 #!/bin/bash
 
 # This file contains the installation setup for running benchmarks on EC2 isntance.
-# To run on a machine with GPU : ./install_dependencies True
-# To run on a machine with CPU : ./install_dependencies False
+# To run on a machine with GPU : ./install_dependencies.sh True
+# To run on a machine with CPU : ./install_dependencies.sh False
 
 set -ex
 
 sudo apt-get update
 sudo apt-get -y upgrade
-echo "Setting up your Ubuntu machine to load test MMS"
+echo "Setting up your Ubuntu machine to load test TS"
 sudo apt-get install -y \
-        python \
-        python3-pip \
-        python3-tk \
+        python3-dev \
         python-psutil \
-        default-jre \
-        default-jdk \
+        python3-pip \
+        openjdk-11-jdk \
+        g++ \
         linuxbrew-wrapper \
-        build-essential
+        curl \
+        vim \
+        build-essential \
+        && cd /tmp \
+        && curl -O https://bootstrap.pypa.io/get-pip.py \
+        && python3 get-pip.py
+
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 if [[ $1 = True ]]
 then
         echo "Installing pip packages for GPU"
         sudo apt install -y nvidia-cuda-toolkit
-        pip install future psutil mxnet-cu92 pillow --user
+        pip install future psutil pillow --user
+        pip install torch==1.4.0+cu92 torchvision==0.5.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
 else
         echo "Installing pip packages for CPU"
-        pip install future psutil mxnet pillow --user
+        pip install future psutil pillow torch torchvision --user
 
 fi
 
-pip3 install pandas
+pip install pandas
 
 echo "Installing JMeter through Brew"
 # Script would end on errors, but everything works fine
@@ -66,12 +74,12 @@ sudo apt-get update
 sudo apt-get install -y docker-ce
 # shellcheck disable=SC1073
 {
-    sudo groupadd docker || { true }
+    sudo groupadd docker ||  true
 } || {
     true
 }
 {
-    gpasswd -a $USER docker
+    sudo gpasswd -a $USER docker
 } || {
     true
 }

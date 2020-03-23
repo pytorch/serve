@@ -5,6 +5,7 @@
 * [System metrics](#system-metrics)
 * [Formatting](#formatting)
 * [Custom Metrics API](#custom-metrics-api)
+* [Logging the custom metrics](#logging-the-custom-metrics)
 
 ## Introduction
 TorchServe collects system level metrics in regular intervals, and also provides an API for custom metrics to be collected. Metrics collected by metrics are logged and can be aggregated by metric agents.
@@ -27,9 +28,9 @@ The location of log files and metric files can be configured at [log4j.propertie
 |	MemoryAvailable	|	host	|	MB	|	memory available on host	|
 |	MemoryUsed	|	host	|	MB	|	memory used on host	|
 |	MemoryUtilization	|	host	|	percentage	|	memory used on host	|
-|	Requests2XX	|	host	|	count	|	total number of requests that responded in 200-300 range	|
-|	Requests4XX	|	host	|	count	|	total number of requests that responded in 400-500 range |
-|	Requests5XX	|	host	|	count	|	total number of requests that responded above 500 |
+|	Requests2XX	|	host	|	count	|	logged for every request responded in 200-300 status code range	|
+|	Requests4XX	|	host	|	count	|	logged for every request responded in 400-500 status code range |
+|	Requests5XX	|	host	|	count	|	logged for every request responded with status code above 500 |
 
 
 ## Formatting
@@ -100,7 +101,7 @@ All metrics collected with in the context
 Dimensions for metrics can be defined as objects
 
 ```python
-from ts.metrics import dimension
+from ts.metrics.dimension import Dimension
 
 # Dimensions are name value pairs
 dim1 = Dimension(name, value)
@@ -120,7 +121,7 @@ One can add metrics with generic units using the following function.
 
 Function API
 ```python
-    def add_metric(name, value, idx=None, unit=None, dimensions=None):
+    def add_metric(name, value, unit, idx=None, dimensions=None):
         """
         Add a metric which is generic with custom metrics
 
@@ -143,7 +144,7 @@ Function API
 # Add Distance as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
 # Assuming batch size is 1 for example
-metrics.add_metric('DistanceInKM', distance, 'km', dimensions)
+metrics.add_metric('DistanceInKM', distance, 'km', dimensions=dimensions)
 ```
 
 
@@ -294,3 +295,15 @@ metrics.add_counter('LoopCount', -1, None, dimensions)
 # Final counter value in this case is 2
 
 ```
+
+
+### Logging the custom metrics
+
+Following sample code can be used to log the custom metrics created in the model's custom handler:
+
+```python
+for metric in metrics.store:
+    logger.info("[METRICS]%s", str(metric))
+```
+
+This custom metrics information is logged in the model_metrics.log file configured through [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.

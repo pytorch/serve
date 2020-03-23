@@ -2,7 +2,7 @@ package org.pytorch.serve.http;
 
 public class InternalServerException extends RuntimeException {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs an {@code InternalServerException} with the specified detail message.

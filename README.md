@@ -18,22 +18,23 @@ Before proceeding further with this document, make sure you have the following p
 1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
 1. Python     - TorchServe requires python to run the workers.
 1. pip        - Pip is a python package management system.
-1. Java 8     - TorchServe requires Java 8 to start. You have the following options for installing Java 8:
+1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
 
     For Ubuntu:
     ```bash
-    sudo apt-get install openjdk-8-jdk
+    sudo apt-get install openjdk-11-jdk
     ```
 
     For CentOS:
     ```bash
-    sudo yum install java-1.8.0-openjdk
+    openjdk-11-jdk
+    sudo yum install java-11-openjdk
     ```
 
     For macOS:
     ```bash
     brew tap AdoptOpenJDK/openjdk
-    brew cask install adoptopenjdk8
+    brew cask install adoptopenjdk11
     ```
 
 ### Installing TorchServe with pip
@@ -76,13 +77,25 @@ TorchServe won't install the PyTorch engine by default. If it isn't already inst
 * For virtualenv
 
 ```bash
+#For CPU/GPU
 pip install torch torchvision torchtext
 ```
 
 * For conda
 
+The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
+```
+pip install sentencepiece
+```
+
 ```bash
+#For CPU
 conda install psutil pytorch torchvision torchtext -c pytorch
+```
+
+```bash
+#For GPU
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
 ```
 
 **Step 3:** Install TorchServe as follows:
@@ -203,7 +216,6 @@ Below, in order, is a prioritized list of tasks for this repository.
 
 ### v0.1 Plan
 
-- [x] Port over MMS
 - [ ] CI (initially AWS CodeBuild)
 - [x] Default handler
     - [x] Handle eager-mode and TorchScript (tracing and scripting)

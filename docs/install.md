@@ -7,29 +7,46 @@
 
 * **java 8**: Required. TorchServe use java to serve HTTP requests. You must install java 8 (or later) and make sure java is on available in $PATH environment variable *before* installing TorchServe. If you have multiple java installed, you can use $JAVA_HOME environment variable to control which java to use.
 
-For ubuntu:
+For Ubuntu:
 ```bash
-sudo apt-get install openjdk-8-jdk
+sudo apt-get install openjdk-11-jdk
 ```
 
-For centos
+For CentOS:
 ```bash
-sudo yum install java-1.8.0-openjdk
+openjdk-11-jdk
+sudo yum install java-11-openjdk
 ```
 
-For Mac:
+For macOS:
 ```bash
 brew tap AdoptOpenJDK/openjdk
-brew cask install adoptopenjdk8
+brew cask install adoptopenjdk11
 ```
 
 You can also download and install [Oracle JDK](https://www.oracle.com/technetwork/java/javase/overview/index.html) manually if you have trouble with above commands.
 
 * **Torch**: Recommended. TorchServe won't install `torch` by default. Torch is required for most of examples in this project. TorchServe won't install torch engine by default. And you can also choose specific version of torch if you want.
 
+* For virtualenv
+
 ```bash
+#For CPU/GPU
 pip install torch torchvision torchtext
 ```
+
+* For conda
+
+```bash
+#For CPU
+conda install psutil pytorch torchvision torchtext -c pytorch
+```
+
+```bash
+#For GPU
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
+```
+
 
 * **Curl**: Optional. Curl is used in all of the examples. Install it with your preferred package manager.
 

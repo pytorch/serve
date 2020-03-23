@@ -1,7 +1,8 @@
 import io
+import torch
 from PIL import Image
 from torchvision import transforms
-
+from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
 
@@ -13,6 +14,14 @@ class ObjectDetector(VisionHandler):
 
     def __init__(self):
         super(ObjectDetector, self).__init__()
+
+    def initialize(self, ctx):
+        super(VisionHandler, self).initialize(ctx)
+        self.initialized = False
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+        self.model.eval()
+        self.initialized = True
 
     def preprocess(self, data):
         """
@@ -30,11 +39,14 @@ class ObjectDetector(VisionHandler):
 
     def inference(self, img, threshold=0.5):
         # Predict the classes and bounding boxes in an image using a trained deep learning model.
+        img = Variable(img).to(self.device)
         pred = self.model([img])  # Pass the image to the model
-        pred_class = [i for i in list(pred[0]['labels'].numpy())]  # Get the Prediction Score
-        pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())]  # Bounding boxes
-        pred_score = list(pred[0]['scores'].detach().numpy())
-        pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]  # Get list of index with score greater than threshold.
+        pred_class = [i for i in list(pred[0]['labels'].cpu().numpy())]  # Get the Prediction Score
+        # Bounding boxes
+        pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].cpu().detach().numpy())]
+        pred_score = list(pred[0]['scores'].cpu().detach().numpy())
+        # Get list of index with score greater than threshold.
+        pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
         pred_boxes = pred_boxes[:pred_t + 1]
         pred_class = pred_class[:pred_t + 1]
         return [pred_class, pred_boxes]

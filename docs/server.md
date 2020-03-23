@@ -1,4 +1,4 @@
-# Running the TorchServe
+# Running TorchServe
 
 ## Contents of this Document
 * [Overview](#overview)
@@ -74,17 +74,25 @@ torchserve
 
 There are no default required arguments to start the server
 
-1. **models**: required, <model_name>=<model_path> pairs.
+1. **models**: optional, <model_name>=<model_path> pairs.
 
-    a) Model path can be a local file path or URI (s3 link, or http link).
-        local file path: path/to/local/model/file or file://root/path/to/model/file
+    a) Model path can be mar file name in model store or URI (s3 link, or http link).
         s3 link: s3://S3_endpoint[:port]/...
         http link: http://hostname/path/to/resource
 
-    b) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files. 
+    b) to load all the models in model store set model value to "all"
+    
+    ```bash
+    torchserve --model-store /models --start --models all
+    ```
 
-    c) Multiple models loading are also supported by specifying multiple name path pairs.
-1. **model-store**: optional, A location where models are stored by default, all models in this location are loaded, the model name is same as archive or folder name.
+    c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.
+
+    d) Multiple models loading are also supported by specifying multiple name path pairs.
+    
+    e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
+    
+1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
 1. **start**: optional, A more descriptive way to start the server.
@@ -104,6 +112,12 @@ torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.m
 This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
 
 ### Serving Multiple Models with TorchServe
+
+Example loading all models available in model_store while starting torchserve:
+
+```bash
+torchserve --start --model-store /models --models all
+```
 
 Example multiple model usage:
 

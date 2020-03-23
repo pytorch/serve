@@ -1,3 +1,14 @@
+buildscript {
+  ext {
+    spotbugsVersion = '4.0.2'
+    toolVersion = '4.0.2'
+  }
+}
+
+plugins {
+  id 'com.github.spotbugs' version '4.0.2' apply false
+}
+
 allprojects {
     version = '1.0'
 
@@ -27,6 +38,7 @@ configure(javaProjects()) {
 
 	apply from: file("${rootProject.projectDir}/tools/gradle/formatter.gradle")
 	apply from: file("${rootProject.projectDir}/tools/gradle/check.gradle")
+	apply from: file("${rootProject.projectDir}/tools/gradle/spotbugs.gradle")
 
     test {
         useTestNG() {

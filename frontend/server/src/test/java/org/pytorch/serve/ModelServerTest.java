@@ -213,7 +213,7 @@ public class ModelServerTest {
         Channel channel = null;
         Channel managementChannel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = connect(false);
+            channel = connect(false, 300);
             if (channel != null) {
                 break;
             }
@@ -221,7 +221,7 @@ public class ModelServerTest {
         }
 
         for (int i = 0; i < 5; ++i) {
-            managementChannel = connect(true);
+            managementChannel = connect(true, 300);
             if (managementChannel != null) {
                 break;
             }
@@ -1328,7 +1328,7 @@ public class ModelServerTest {
         }
     }
 
-    private Channel connect(boolean management) {
+    private Channel connect(boolean management, int readTimeOut) {
         Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
 
         final Connector connector = configManager.getListener(management);
@@ -1349,7 +1349,7 @@ public class ModelServerTest {
                                     if (connector.isSsl()) {
                                         p.addLast(sslCtx.newHandler(ch.alloc()));
                                     }
-                                    p.addLast(new ReadTimeoutHandler(30));
+                                    p.addLast(new ReadTimeoutHandler(readTimeOut));
                                     p.addLast(new HttpClientCodec());
                                     p.addLast(new HttpContentDecompressor());
                                     p.addLast(new ChunkedWriteHandler());
@@ -1363,6 +1363,10 @@ public class ModelServerTest {
             logger.warn("Connect error.", t);
         }
         return null;
+    }
+
+    private Channel connect(boolean management) {
+        return connect(management, 120);
     }
 
     @ChannelHandler.Sharable
