@@ -22,8 +22,7 @@ class ArgParser(object):
         parser = argparse.ArgumentParser(prog='torchserve', description='Torchserve')
 
         sub_parse = parser.add_mutually_exclusive_group(required=False)
-        sub_parse.add_argument('-v', action='store_true', help='Return TorchServe Version')
-        sub_parse.add_argument('--version', action='store_true', help='Return TorchServe Version')
+        sub_parse.add_argument('-v','--version' action='store_true', help='Return TorchServe Version')
         sub_parse.add_argument('--start', action='store_true', help='Start the model-server')
         sub_parse.add_argument('--stop', action='store_true', help='Stop the model-server')
 
