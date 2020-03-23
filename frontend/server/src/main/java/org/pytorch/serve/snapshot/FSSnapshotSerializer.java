@@ -18,6 +18,7 @@ import org.pytorch.serve.util.ConfigManager;
 public class FSSnapshotSerializer implements SnapshotSerializer {
 
     private ConfigManager configManager = ConfigManager.getInstance();
+    private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public void saveSnapshot(Snapshot snapshot) throws IOException, ConflictStatusException {
@@ -34,7 +35,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         }
 
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
-        prop.put("model_snapshot", snapshotJson);
+        prop.put(TS_MODEL_SNAPSHOT, snapshotJson);
         try (OutputStream os = new FileOutputStream(snapshotFile)) {
             OutputStreamWriter osWriter = new OutputStreamWriter(os, StandardCharsets.UTF_8);
             prop.store(osWriter, "Saving snapshot");
