@@ -7,6 +7,7 @@
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
     "export-path": "/tmp/model",
     "archive-format": "default",
+    "version": "1.0",
     "iterations": 1
   },
   {
@@ -18,6 +19,7 @@
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
     "export-path": "/tmp/model",
     "archive-format": "no-archive",
+    "version": "1.0",
     "iterations": 1
   },
   {
@@ -29,6 +31,7 @@
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json,model_archiver/tests/integ_tests/resources/regular_model/dummy-artifacts.txt,model_archiver/tests/integ_tests/resources/regular_model/dir/1.py",
     "export-path": "/tmp/model",
     "archive-format": "tgz",
+    "version": "1.0",
     "iterations": 1
   },
   {
@@ -41,6 +44,7 @@
     "export-path": "/tmp/model",
     "archive-format": "default",
     "iterations": 2,
+    "version": "1.0",
     "expect-error": true
   },
   {
@@ -53,5 +57,6 @@
     "export-path": "/tmp/model",
     "archive-format": "default",
     "iterations": 2,
+    "version": "1.0",
     "force": true
   }  ]

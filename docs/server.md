@@ -1,4 +1,4 @@
-# Running the TorchServe
+# Running TorchServe
 
 ## Contents of this Document
 * [Overview](#overview)
@@ -39,7 +39,8 @@ The rest of this topic focus on serving of model files without much discussion o
 
 ```bash
 $ torchserve --help
-usage: torechserve [-h] [--start]
+usage: torechserve [-h] [-v | --version]
+                          [--start]
                           [--stop]
                           [--ts-config TS_CONFIG]
                           [--model-store MODEL_STORE]
@@ -54,6 +55,7 @@ mandatory arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --version         Return TorchServe Version
   --start               Start the model-server
   --stop                Stop the model-server
   --ts-config TS_CONFIG

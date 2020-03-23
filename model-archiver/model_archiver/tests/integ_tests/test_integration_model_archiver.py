@@ -77,10 +77,6 @@ def validate_files(file_list, prefix, default_handler=None):
     if default_handler =="text_classifier":
         assert os.path.join(prefix, "source_vocab.pt") in file_list
 
-    if default_handler =="language_translator":
-        assert os.path.join(prefix, "source_vocab.pt") in file_list
-        assert os.path.join(prefix, "destination_vocab.pt") in file_list
-
 
 def validate_tar_archive(test_cfg):
     import tarfile
@@ -121,8 +117,8 @@ def validate(test):
 
 
 def build_cmd(test):
-    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format',
-            'source-language', 'source-vocab', 'destination-vocab', 'export-path', 'runtime']
+    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format', 'source-vocab',
+            'version', 'export-path', 'runtime']
     cmd = ["torch-model-archiver"]
 
     for arg in args:
