@@ -463,7 +463,7 @@ public final class ConfigManager {
                     latestSnapshotPath = lastFilePath.get().toString();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // NOPMD
             }
         }
 

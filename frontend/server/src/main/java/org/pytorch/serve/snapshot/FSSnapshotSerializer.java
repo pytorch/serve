@@ -3,11 +3,11 @@ package org.pytorch.serve.snapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,8 +21,9 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
     private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    @Override
     public void saveSnapshot(Snapshot snapshot) throws IOException, ConflictStatusException {
-        File snapshotPath = new File(System.getProperty("LOG_LOCATION") + "/config");
+        File snapshotPath = new File(System.getProperty("LOG_LOCATION"), "config");
 
         FileUtils.forceMkdir(snapshotPath);
 
@@ -36,7 +37,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
 
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put(TS_MODEL_SNAPSHOT, snapshotJson);
-        try (OutputStream os = new FileOutputStream(snapshotFile)) {
+        try (OutputStream os = Files.newOutputStream(snapshotFile.toPath())) {
             OutputStreamWriter osWriter = new OutputStreamWriter(os, StandardCharsets.UTF_8);
             prop.store(osWriter, "Saving snapshot");
             osWriter.flush();
@@ -44,10 +45,12 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         }
     }
 
+    @Override
     public Snapshot getSnapshot(String snapshotJson) throws IOException {
         return GSON.fromJson(snapshotJson, Snapshot.class);
     }
 
+    @Override
     public List<Snapshot> getAllSnapshots() throws IOException {
         ArrayList<Snapshot> resp = new ArrayList<Snapshot>();
         String[] snapshots = new File(System.getProperty("LOG_LOCATION") + "/config").list();
@@ -59,6 +62,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         return resp;
     }
 
+    @Override
     public void removeSnapshot(String snapshotName) throws IOException {
         String snapshotPath = getSnapshotPath(snapshotName);
         FileUtils.deleteDirectory(new File(snapshotPath));
