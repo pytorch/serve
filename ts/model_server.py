@@ -27,7 +27,7 @@ def start():
             pid = int(f.readline())
 
     # pylint: disable=too-many-nested-blocks
-    if args.version or args.v:
+    if args.version:
         print("TorchServe Version is {}".format(__version__));
         return
     if args.stop:
