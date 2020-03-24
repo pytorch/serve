@@ -1039,8 +1039,9 @@ public class ModelServerTest {
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
 
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
-        Assert.assertEquals(resp.getMessage(), "Invalid model url: http://localhost:aaaa");
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Failed to download model from: http://localhost:aaaa");
     }
 
     private void testRegisterModelConnectionFailed() throws InterruptedException {
@@ -1080,7 +1081,7 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
         Assert.assertEquals(
                 resp.getMessage(),
-                "Failed to download model from: https://localhost:8443/fake.mar, code: 404");
+                "Failed to download model from: https://localhost:8443/fake.mar");
     }
 
     private void testRegisterModelInvalidPath() throws InterruptedException {

@@ -43,7 +43,7 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
     }
 
-    @Test(expectedExceptions = IOException.class)
+    @Test(expectedExceptions = DownloadModelException.class)
     public void testInvalidURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         // load model for s3 --> This will fail as this model is not compatible with
@@ -54,7 +54,7 @@ public class ModelArchiveTest {
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
 
-    @Test(expectedExceptions = IOException.class)
+    @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         // load model for s3 --> This will fail as this model is not compatible with

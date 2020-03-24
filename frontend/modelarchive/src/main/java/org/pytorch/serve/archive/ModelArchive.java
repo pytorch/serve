@@ -62,7 +62,7 @@ public class ModelArchive {
                 FileUtils.copyURLToFile(new URL(url), modelLocation);
             } catch (IOException e) {
                 FileUtils.deleteQuietly(modelLocation);
-                throw e;
+                throw new IOException("Invalid model url: " + url, e);
             }
         }
 

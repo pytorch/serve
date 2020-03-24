@@ -459,7 +459,9 @@ public final class ConfigManager {
                         Files.list(configPath)
                                 .filter(f -> !Files.isDirectory(f))
                                 .max(Comparator.comparingLong(f -> f.toFile().lastModified()));
-                if (lastFilePath.isPresent()) latestSnapshotPath = lastFilePath.get().toString();
+                if (lastFilePath.isPresent()) {
+                    latestSnapshotPath = lastFilePath.get().toString();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
