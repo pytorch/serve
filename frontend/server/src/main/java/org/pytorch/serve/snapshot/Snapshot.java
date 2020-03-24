@@ -6,7 +6,7 @@ public class Snapshot {
     private String name;
     private int modelCount;
     private long created;
-    private Map<String, Map<String, ModelInfo>> models;
+    private Map<String, Map<String, ModelSnapshot>> models;
 
     public Snapshot(String snaspshotName, int modelCount) {
         this.name = snaspshotName;
@@ -22,11 +22,11 @@ public class Snapshot {
         this.name = name;
     }
 
-    public Map<String, Map<String, ModelInfo>> getModels() {
+    public Map<String, Map<String, ModelSnapshot>> getModels() {
         return models;
     }
 
-    public void setModels(Map<String, Map<String, ModelInfo>> models) {
+    public void setModels(Map<String, Map<String, ModelSnapshot>> models) {
         this.models = models;
     }
 

@@ -49,7 +49,7 @@ public final class SnapshotManager {
         }
 
         Map<String, Model> defModels = modelManager.getDefaultModels();
-        Map<String, Map<String, ModelInfo>> modelNameMap = new HashMap<>();
+        Map<String, Map<String, ModelSnapshot>> modelNameMap = new HashMap<>();
 
         try {
             int modelCount = 0;
@@ -57,9 +57,9 @@ public final class SnapshotManager {
 
                 Set<Entry<Double, Model>> versionModels =
                         modelManager.getAllModelVersions(m.getKey());
-                Map<String, ModelInfo> modelInfoMap = new HashMap<>();
+                Map<String, ModelSnapshot> modelInfoMap = new HashMap<>();
                 for (Entry<Double, Model> versionedModel : versionModels) {
-                    ModelInfo model = new ModelInfo();
+                    ModelSnapshot model = new ModelSnapshot();
                     String version = String.valueOf(versionedModel.getKey());
                     model.setBatchSize(versionedModel.getValue().getBatchSize());
                     model.setDefaultVersion(
@@ -158,14 +158,14 @@ public final class SnapshotManager {
     private void initModels(Snapshot snapshot) {
         try {
 
-            Map<String, Map<String, ModelInfo>> models = snapshot.getModels();
+            Map<String, Map<String, ModelSnapshot>> models = snapshot.getModels();
 
-            for (Map.Entry<String, Map<String, ModelInfo>> modelMap : models.entrySet()) {
+            for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap : models.entrySet()) {
                 String modelName = modelMap.getKey();
                 String defVersionId = null;
-                for (Map.Entry<String, ModelInfo> versionModel : modelMap.getValue().entrySet()) {
+                for (Map.Entry<String, ModelSnapshot> versionModel : modelMap.getValue().entrySet()) {
                     String versionId = versionModel.getKey();
-                    ModelInfo modelInfo = versionModel.getValue();
+                    ModelSnapshot modelInfo = versionModel.getValue();
                     // TODO init/register models
                     modelManager.registerModel(
                             modelInfo.getMarName(),
@@ -210,10 +210,10 @@ public final class SnapshotManager {
         logger.info("Validating snapshot {}", snapshot.getName());
         String modelStore = configManager.getModelStore();
 
-        Map<String, Map<String, ModelInfo>> models = snapshot.getModels();
-        for (Map.Entry<String, Map<String, ModelInfo>> modelMap : models.entrySet()) {
+        Map<String, Map<String, ModelSnapshot>> models = snapshot.getModels();
+        for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap : models.entrySet()) {
             String modelName = modelMap.getKey();
-            for (Map.Entry<String, ModelInfo> versionModel : modelMap.getValue().entrySet()) {
+            for (Map.Entry<String, ModelSnapshot> versionModel : modelMap.getValue().entrySet()) {
                 String versionId = versionModel.getKey();
                 String marName = versionModel.getValue().getMarName();
                 File marFile = new File(modelStore + "/" + marName);
