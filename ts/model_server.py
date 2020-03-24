@@ -27,7 +27,7 @@ def start():
             pid = int(f.readline())
 
     # pylint: disable=too-many-nested-blocks
-    if args.version or args.v:
+    if args.version:
         print("TorchServe Version is {}".format(__version__));
         return
     if args.stop:
@@ -124,6 +124,9 @@ def start():
 
             cmd.append("-s")
             cmd.append(args.model_store)
+        else:
+            print("Missing mandatory parameter --model-store")
+            exit(1)
 
         if args.models:
             cmd.append("-m")

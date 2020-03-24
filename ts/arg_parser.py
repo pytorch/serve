@@ -30,7 +30,7 @@ class ArgParser(object):
                             dest='ts_config',
                             help='Configuration file for model server')
         parser.add_argument('--model-store',
-                            required=True,
+                            required=False,
                             dest='model_store',
                             help='Model store location from where local or default models can be loaded')
         parser.add_argument('--models',
