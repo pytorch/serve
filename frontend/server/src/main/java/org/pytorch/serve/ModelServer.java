@@ -90,7 +90,7 @@ public class ModelServer {
             MetricManager.scheduleMetrics(configManager);
             System.out.println("Model server started."); // NOPMD
 
-            SnapshotManager.getInstance().saveSnapshot("startup");
+            SnapshotManager.getInstance().saveStartupSnapshot();
 
             channelFutures.get(0).sync();
         } catch (InvalidPropertiesFormatException e) {
@@ -356,7 +356,7 @@ public class ModelServer {
             future.channel().close();
         }
 
-        SnapshotManager.getInstance().saveSnapshot("shutdown");
+        SnapshotManager.getInstance().saveShutdownSnapshot();
         serverGroups.shutdown(true);
         serverGroups.init();
     }

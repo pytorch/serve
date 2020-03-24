@@ -37,13 +37,11 @@ public final class ModelManager {
     private ConcurrentHashMap<String, ModelVersionedRefs> modelsNameMap;
     private HashSet<String> startupModels;
     private ScheduledExecutorService scheduler;
-    private ConcurrentHashMap<String, String> modelUnregisterProgress;
 
     private ModelManager(ConfigManager configManager, WorkLoadManager wlm) {
         this.configManager = configManager;
         this.wlm = wlm;
         modelsNameMap = new ConcurrentHashMap<>();
-        modelUnregisterProgress = new ConcurrentHashMap<>();
         scheduler = Executors.newScheduledThreadPool(2);
         this.startupModels = new HashSet<>();
     }
@@ -147,16 +145,10 @@ public final class ModelManager {
             versionId = vmodel.getDefaultVersion();
         }
 
-        if (modelUnregisterProgress.containsKey(modelName + versionId)) {
-            logger.warn("Unregister already in progress for model: " + modelName);
-            return HttpResponseStatus.CONFLICT;
-        }
-
         Model model = null;
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
 
         try {
-            modelUnregisterProgress.put(modelName + versionId, versionId);
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
@@ -188,8 +180,6 @@ public final class ModelManager {
         } catch (ExecutionException | InterruptedException e1) {
             logger.warn("Process was interrupted while cleaning resources.");
             httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
-        } finally {
-            modelUnregisterProgress.remove(modelName + versionId);
         }
 
         return httpResponseStatus;
@@ -236,8 +226,14 @@ public final class ModelManager {
 
     public Map<String, Model> getDefaultModels() {
         ConcurrentHashMap<String, Model> defModelsMap = new ConcurrentHashMap<>();
-        for (Map.Entry<String, ModelVersionedRefs> mvr : modelsNameMap.entrySet()) {
-            defModelsMap.put(mvr.getKey(), mvr.getValue().getDefaultModel());
+        for (String key : modelsNameMap.keySet()) {
+            ModelVersionedRefs mvr = modelsNameMap.get(key);
+            if (mvr != null) {
+                Model defaultModel = mvr.getDefaultModel();
+                if (defaultModel != null) {
+                    defModelsMap.put(key, defaultModel);
+                }
+            }
         }
         return defModelsMap;
     }
@@ -358,9 +354,5 @@ public final class ModelManager {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
         return vmodel.getAllVersions();
-    }
-
-    public boolean isUnregisterInProgress() {
-        return !modelUnregisterProgress.isEmpty();
     }
 }

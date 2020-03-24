@@ -43,13 +43,12 @@ public final class SnapshotManager {
         this.modelManager = ModelManager.getInstance();
     }
 
-    public void saveSnapshot(String snapshotType) {
+    private void saveSnapshot(String snapshotName) {
         if (configManager.isSnapshotDisabled()) {
             return;
         }
 
         Map<String, Model> defModels = modelManager.getDefaultModels();
-        String snapshotName = getSnapshotName(snapshotType);
         Map<String, Map<String, ModelInfo>> modelNameMap = new HashMap<>();
 
         try {
@@ -89,6 +88,18 @@ public final class SnapshotManager {
         }
     }
 
+    public void saveSnapshot() {
+        saveSnapshot(getSnapshotName("snapshot"));
+    }
+
+    public void saveStartupSnapshot() {
+        saveSnapshot(getSnapshotName("startup"));
+    }
+
+    public void saveShutdownSnapshot() {
+        saveSnapshot(getSnapshotName("shutdown"));
+    }
+
     @SuppressWarnings("PMD")
     public List<Snapshot> getSnapshots() throws SnapshotReadException {
         try {
@@ -114,9 +125,6 @@ public final class SnapshotManager {
 
         try {
             logger.info("Started restoring models from snapshot");
-            while (modelManager.isUnregisterInProgress()) {
-                Thread.sleep(5000);
-            }
             snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
             // Validate snapshot
             validate(snapshot);
@@ -126,9 +134,6 @@ public final class SnapshotManager {
             logger.error("Error while validating snapshot. Details: {}", e.getCause());
         } catch (IOException e) {
             logger.error("Error loading snapshot {}", snapshot.getName());
-        } catch (InterruptedException e) {
-            logger.error("Error encountered while loading snapshot");
-            logger.error(e.getMessage());
         }
     }
 
@@ -231,6 +236,7 @@ public final class SnapshotManager {
     }
 
     private String getSnapshotName(String snapshotType) {
-        return new SimpleDateFormat("yyyyMMddHHmmss'-" + snapshotType + ".cfg'").format(new Date());
+        return new SimpleDateFormat("yyyyMMddHHmmssSSS'-" + snapshotType + ".cfg'")
+                .format(new Date());
     }
 }

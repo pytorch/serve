@@ -241,7 +241,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         final String msg = "Model \"" + modelName + "\" registered";
         if (initialWorkers <= 0) {
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
-            SnapshotManager.getInstance().saveSnapshot("snapshot");
+            SnapshotManager.getInstance().saveSnapshot();
             return;
         }
 
@@ -280,7 +280,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     "Cannot remove default version for model " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
-        SnapshotManager.getInstance().saveSnapshot("snapshot");
+        SnapshotManager.getInstance().saveSnapshot();
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 

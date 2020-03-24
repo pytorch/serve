@@ -51,10 +51,6 @@ public class ModelArchive {
             throw new ModelNotFoundException("Model store has not been configured.");
         }
 
-        if (url.contains("..")) {
-            throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
-        }
-
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
 
@@ -62,7 +58,16 @@ public class ModelArchive {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
-            FileUtils.copyURLToFile(new URL(url), modelLocation);
+            try {
+                FileUtils.copyURLToFile(new URL(url), modelLocation);
+            } catch (IOException e) {
+                FileUtils.deleteQuietly(modelLocation);
+                throw e;
+            }
+        }
+
+        if (url.contains("..")) {
+            throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
 
         if (!modelLocation.exists()) {
