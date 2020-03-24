@@ -462,7 +462,6 @@ public class ModelServerTest {
             Assert.assertTrue(resp.length == 1);
         }
 
-        System.out.println(resp[0].getModelVersion());
         Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
     }
 
