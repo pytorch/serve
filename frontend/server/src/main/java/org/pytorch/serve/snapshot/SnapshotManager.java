@@ -163,7 +163,8 @@ public final class SnapshotManager {
             for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap : models.entrySet()) {
                 String modelName = modelMap.getKey();
                 String defVersionId = null;
-                for (Map.Entry<String, ModelSnapshot> versionModel : modelMap.getValue().entrySet()) {
+                for (Map.Entry<String, ModelSnapshot> versionModel :
+                        modelMap.getValue().entrySet()) {
                     String versionId = versionModel.getKey();
                     ModelSnapshot modelInfo = versionModel.getValue();
                     // TODO init/register models
