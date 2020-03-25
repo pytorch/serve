@@ -1,5 +1,7 @@
 package org.pytorch.serve;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -33,13 +35,19 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.IOUtils;
@@ -51,6 +59,7 @@ import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.JsonUtils;
@@ -67,6 +76,8 @@ public class ModelServerTest {
             "Requested resource is not found, please refer to API document.";
     private static final String ERROR_METHOD_NOT_ALLOWED =
             "Requested method is not allowed, please refer to API document.";
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private ConfigManager configManager;
     private ModelServer server;
@@ -143,6 +154,7 @@ public class ModelServerTest {
         testApiDescription(channel, listInferenceApisResult);
         testDescribeApi(channel);
         testUnregisterModel(managementChannel, "noop", null);
+        testSnapshot("snapshot1.cfg");
         testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
         testSyncScaleModel(managementChannel, "noop_v1.0", null);
         testScaleModel(managementChannel);
@@ -1326,6 +1338,61 @@ public class ModelServerTest {
                 }
             }
         }
+    }
+
+    private void testSnapshot(String expectedSnapshot) {
+
+        File expectedSnapshotFile = new File("src/test/resources/snapshots", expectedSnapshot);
+        Properties expectedProp = new Properties();
+
+        try (InputStream stream = Files.newInputStream(expectedSnapshotFile.toPath())) {
+            expectedProp.load(stream);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to read configuration file", e);
+        }
+
+        updateSnapshot(expectedProp);
+
+        Properties actualProp = new Properties();
+        File actualSnapshotFile = new File(getLastSnapshot());
+        try (InputStream stream = Files.newInputStream(actualSnapshotFile.toPath())) {
+            actualProp.load(stream);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to read configuration file", e);
+        }
+
+        updateSnapshot(actualProp);
+
+        assert actualProp.equals(expectedProp);
+    }
+
+    private void updateSnapshot(Properties prop) {
+        Snapshot snapshot = GSON.fromJson(prop.getProperty("model_snapshot"), Snapshot.class);
+        snapshot.setName("snapshot");
+        snapshot.setCreated(123456);
+        String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
+        prop.put("model_snapshot", snapshotJson);
+    }
+
+    private String getLastSnapshot() {
+        String latestSnapshotPath = null;
+        Path configPath = Paths.get(System.getProperty("LOG_LOCATION"), "config");
+
+        if (Files.exists(configPath)) {
+            try {
+                Optional<Path> lastFilePath =
+                        Files.list(configPath)
+                                .filter(f -> !Files.isDirectory(f))
+                                .max(Comparator.comparingLong(f -> f.toFile().lastModified()));
+                if (lastFilePath.isPresent()) {
+                    latestSnapshotPath = lastFilePath.get().toString();
+                }
+            } catch (IOException e) {
+                e.printStackTrace(); // NOPMD
+            }
+        }
+
+        return latestSnapshotPath;
     }
 
     private Channel connect(boolean management, int readTimeOut) {
