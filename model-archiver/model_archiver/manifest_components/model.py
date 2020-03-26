@@ -32,7 +32,7 @@ class Model(object):
         model_dict['handler'] = self.handler
 
         if self.source_vocab:
-            model_dict['sourceVocab'] = self.source_vocab
+            model_dict['sourceVocab'] = self.source_vocab.split("/")[-1]
 
         if self.model_file:
             model_dict['modelFile'] = self.model_file.split("/")[-1]

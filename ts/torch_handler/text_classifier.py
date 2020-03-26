@@ -47,7 +47,7 @@ class TextClassifier(TextHandler):
         """
 
         inputs = Variable(text).to(self.device)
-        output = self.model.forward(inputs, torch.tensor([0].to(self.device)))
+        output = self.model.forward(inputs, torch.tensor([0]).to(self.device))
         output = output.argmax(1).item() + 1
         if self.mapping:
             output = self.mapping[str(output)]

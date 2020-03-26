@@ -30,13 +30,8 @@ You can also download and install [Oracle JDK](https://www.oracle.com/technetwor
 * For virtualenv
 
 ```bash
-#For CPU
+#For CPU/GPU
 pip install torch torchvision torchtext
-```
-
-```bash
-#For GPU
-pip install torch==1.4.0+cu92 torchvision==0.5.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 * For conda
@@ -48,7 +43,7 @@ conda install psutil pytorch torchvision torchtext -c pytorch
 
 ```bash
 #For GPU
-conda install psutil pytorch torchvision cudatoolkit=9.2 torchtext -c pytorch
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
 ```
 
 
