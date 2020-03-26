@@ -1372,6 +1372,7 @@ public class ModelServerTest {
         snapshot.setCreated(123456);
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put("model_snapshot", snapshotJson);
+        prop.put("NUM_WORKERS", 4);
     }
 
     private String getLastSnapshot() {

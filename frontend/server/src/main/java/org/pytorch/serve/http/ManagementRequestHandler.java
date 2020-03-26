@@ -390,6 +390,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                         + "\" to \""
                         + newModelVersion
                         + "\"";
+        SnapshotManager.getInstance().saveSnapshot();
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 }
