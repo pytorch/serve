@@ -2,7 +2,7 @@ package org.pytorch.serve.archive;
 
 public class DownloadModelException extends ModelException {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs an {@code DownloadModelException} with the specified detail message.

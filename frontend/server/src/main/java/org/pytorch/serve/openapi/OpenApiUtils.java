@@ -30,14 +30,14 @@ public final class OpenApiUtils {
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
 
-    static void listInferenceApis(OpenApi openApi) {
+    private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath(false));
         openApi.addPath("/ping", getPingPath());
         openApi.addPath("/predictions/{model_name}[/{model_version}]", getPredictionsPath());
         openApi.addPath("/api-description", getApiDescriptionPath(true));
     }
 
-    static void listManagementApis(OpenApi openApi) {
+    private static void listManagementApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath(false));
         openApi.addPath("/models", getModelsPath());
         openApi.addPath("/models/{model_name}[/{model_version}]", getModelManagerPath());

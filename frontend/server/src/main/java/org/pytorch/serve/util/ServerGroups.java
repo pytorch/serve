@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class ServerGroups {
 
-    static final Logger logger = LoggerFactory.getLogger(ServerGroups.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerGroups.class);
 
     private ChannelGroup allChannels;
 

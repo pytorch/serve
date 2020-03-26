@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class WorkerThread implements Runnable {
 
-    static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
     private static final org.apache.log4j.Logger loggerTsMetrics =
             org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
@@ -45,8 +45,8 @@ public class WorkerThread implements Runnable {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
 
-    static final long WORKER_TIMEOUT = 2L;
-    static final ModelRequestEncoder ENCODER = new ModelRequestEncoder();
+    private static final long WORKER_TIMEOUT = 2L;
+    private static final ModelRequestEncoder ENCODER = new ModelRequestEncoder();
 
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
@@ -60,7 +60,7 @@ public class WorkerThread implements Runnable {
 
     private BatchAggregator aggregator;
     private WorkerStateListener listener;
-    ArrayBlockingQueue<ModelWorkerResponse> replies;
+    private ArrayBlockingQueue<ModelWorkerResponse> replies;
     private int gpuId;
     private long memory;
     private long startTime;
@@ -323,12 +323,12 @@ public class WorkerThread implements Runnable {
         }
     }
 
-    private final String getWorkerName() {
+    private String getWorkerName() {
         String modelName = model.getModelVersionName().getVersionedModelName();
         return "W-" + port + '-' + modelName;
     }
 
-    void setState(WorkerState newState, HttpResponseStatus status) {
+    public void setState(WorkerState newState, HttpResponseStatus status) {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
@@ -345,7 +345,7 @@ public class WorkerThread implements Runnable {
         }
     }
 
-    void retry() {
+    public void retry() {
         if (state == WorkerState.WORKER_SCALED_DOWN) {
             logger.debug("Worker terminated due to scale-down call.");
             return;

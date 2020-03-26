@@ -39,7 +39,8 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
     }
 
     private boolean isApiDescription(String[] segments) {
-        return segments.length == 0 || segments[1].equals("api-description");
+        return segments.length == 0
+                || (segments.length == 2 && segments[1].equals("api-description"));
     }
 
     private void handleApiDescription(ChannelHandlerContext ctx) {

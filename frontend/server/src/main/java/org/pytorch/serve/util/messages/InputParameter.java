@@ -22,7 +22,7 @@ public class InputParameter {
     public InputParameter(String name, byte[] data, CharSequence contentType) {
         this.name = name;
         this.contentType = contentType;
-        this.value = data;
+        this.value = data.clone();
     }
 
     public String getName() {
