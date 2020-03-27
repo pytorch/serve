@@ -18,6 +18,7 @@ phases:
       - pip install torch
       - pip install torchvision
       - pip install torchvision
+      - pip install psutil
 
   build:
     commands:
