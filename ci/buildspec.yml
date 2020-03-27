@@ -27,8 +27,6 @@ phases:
       - cd model-archiver/ && python -m pytest model_archiver/tests/unit_tests && cd ../
       - cd model-archiver/ && python -m pytest model_archiver/tests/integ_tests && cd ../
       - cd serving-sdk/ && mvn clean deploy && cd ../
-      - pylint -rn --rcfile=./ts/tests/pylintrc ts/.
-      - cd model-archiver/ && pylint -rn --rcfile=./model_archiver/tests/pylintrc model_archiver/. && cd ../
 
 artifacts:
   files:
