@@ -12,17 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.util.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FSSnapshotSerializer implements SnapshotSerializer {
 
+    private Logger logger = LoggerFactory.getLogger(FSSnapshotSerializer.class);
     private ConfigManager configManager = ConfigManager.getInstance();
     private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
-    public void saveSnapshot(Snapshot snapshot) throws IOException, ConflictStatusException {
+    public void saveSnapshot(Snapshot snapshot) throws IOException {
         File snapshotPath = new File(System.getProperty("LOG_LOCATION"), "config");
 
         FileUtils.forceMkdir(snapshotPath);
@@ -31,8 +33,8 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
 
         File snapshotFile = new File(snapshotPath, snapshot.getName());
         if (snapshotFile.exists()) {
-            throw new ConflictStatusException(
-                    "Snapshot " + snapshot.getName() + " already exists.");
+            logger.error(
+                    "Snapshot " + snapshot.getName() + " already exists. Not saving the sanpshot.");
         }
 
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
