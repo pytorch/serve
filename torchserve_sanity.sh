@@ -34,9 +34,9 @@ cd model-archiver
 
 if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/;
 then
-  echo "Model-archiver test suite execution successfully"
+  echo "Model-archiver UT test suite execution successfully"
 else
-  echo "Model-archiver test suite execution failed!!! Check logs for more details"
+  echo "Model-archiver UT test suite execution failed!!! Check logs for more details"
   exit 1
 fi
 
@@ -44,15 +44,15 @@ if pip install .;
 then
   echo "Successfully installed torch-model-archiver"
 else
-  echo "TorchServe installation torch-model-archiver"
+  echo "torch-model-archiver installation failed"
   exit 1
 fi
 
 if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/;
 then
-  echo "Model-archiver UT test suite execution successful"
+  echo "Model-archiver IT test suite execution successful"
 else
-  echo "Model-archiver UT test suite execution failed!!! Check logs for more details"
+  echo "Model-archiver IT test suite execution failed!!! Check logs for more details"
   exit 1
 fi
 
