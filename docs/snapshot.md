@@ -9,11 +9,11 @@ A TorchServe's snapshot consists of following:
  
 The snapshot is taken at following instances -
 
- - After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<YYYYMMDDHHmmSS>-startup.cfg
+ - After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<yyyyMMddHHmmssSSS>-startup.cfg
 
- - If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<YYYYMMDDHHmmSS>-snapshot.cfg
+ - If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-snapshot.cfg
 
- - When the server is shut down intentionally with `torchserve --stop`, snapshot is saved to ./logs/configs/<YYYYMMDDHHmmSS>-shutdown.cfg
+ - When the server is shut down intentionally with `torchserve --stop`, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-shutdown.cfg
 
 User can use snapshots to restore the TorchServe's state as follows :
 
