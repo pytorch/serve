@@ -27,7 +27,7 @@ Please also list any relevant details for your test configuration.
 
 ## Checklist:
 
-- [ ] Have you added tests that prove your fix is effective or that my feature works?
+- [ ] Have you added tests that prove your fix is effective or that this feature works?
 - [ ] New and existing unit tests pass locally with these changes?
 - [ ] Has code been commented, particularly in hard-to-understand areas?
 - [ ] Have you made corresponding changes to the documentation?
