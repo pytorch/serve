@@ -13,7 +13,7 @@ public final class ModelVersionedRefs {
     private static final Logger logger = LoggerFactory.getLogger(ModelVersionedRefs.class);
 
     private ConcurrentHashMap<Double, Model> modelsVersionMap;
-    private Double defaultVersion = null;
+    private Double defaultVersion;
 
     public ModelVersionedRefs() {
         this.modelsVersionMap = new ConcurrentHashMap<>();
