@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cleanup()
 {
   torchserve --stop
