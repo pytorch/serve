@@ -1,6 +1,6 @@
 package org.pytorch.serve.snapshot;
 
-class ModelSnapshot {
+public class ModelSnapshot {
     private boolean defaultVersion;
     private String marName;
     private int minWorkers;

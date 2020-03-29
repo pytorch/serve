@@ -47,6 +47,7 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -59,6 +60,7 @@ import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.snapshot.ModelSnapshot;
 import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -176,7 +178,7 @@ public class ModelServerTest {
         testSnapshot("snapshot8.cfg");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testSnapshot("snapshot10.cfg");
-        //        testScaleModel(managementChannel);
+        testScaleModel(managementChannel);
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
         testPredictionsJson(channel);
@@ -1391,6 +1393,13 @@ public class ModelServerTest {
         Snapshot snapshot = GSON.fromJson(prop.getProperty("model_snapshot"), Snapshot.class);
         snapshot.setName("snapshot");
         snapshot.setCreated(123456);
+        for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap :snapshot.getModels().entrySet()) {
+        	for (Map.Entry<String, ModelSnapshot> versionModel :
+                modelMap.getValue().entrySet()) {
+        		versionModel.getValue().setMinWorkers(4);
+        		versionModel.getValue().setMaxWorkers(4);
+        	}
+        }
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put("model_snapshot", snapshotJson);
         prop.put("NUM_WORKERS", 4);
