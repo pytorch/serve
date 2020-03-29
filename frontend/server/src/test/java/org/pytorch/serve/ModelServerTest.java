@@ -1403,6 +1403,7 @@ public class ModelServerTest {
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put("model_snapshot", snapshotJson);
         prop.put("NUM_WORKERS", 4);
+        prop.put("number_of_gpu", 4);
     }
 
     private String getLastSnapshot() {
