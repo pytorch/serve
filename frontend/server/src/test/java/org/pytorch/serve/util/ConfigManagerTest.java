@@ -106,10 +106,10 @@ public class ConfigManagerTest {
     @Test
     public void testNoEnvVars()
             throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
-        System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
         args.setModels(new String[] {"noop_v0.1"});
+        args.setTsConfigFile("src/test/resources/config_test_env.properties");
         ConfigManager.init(args);
         ConfigManager configManager = ConfigManager.getInstance();
         Assert.assertEquals("false", configManager.getEnableEnvVarsConfig());
