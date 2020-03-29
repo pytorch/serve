@@ -158,26 +158,34 @@ public class ModelServerTest {
         testDescribeApi(channel);
         testUnregisterModel(managementChannel, "noop", null);
         testSnapshot("snapshot2.cfg");
+        waitForSnapshot();
         testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
         testSnapshot("snapshot3.cfg");
+        waitForSnapshot();
         testSyncScaleModel(managementChannel, "noop_v1.0", null);
         testSnapshot("snapshot4.cfg");
+        waitForSnapshot();
         testListModels(managementChannel);
         testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
         testSnapshot("snapshot5.cfg");
+        waitForSnapshot();
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
         testSnapshot("snapshot6.cfg");
+        waitForSnapshot();
         testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
         testSnapshot("snapshot7.cfg");
+        waitForSnapshot();
         testDescribeModel(managementChannel, "noopversioned", null, "1.21");
         testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
         testPredictions(channel, "noopversioned", "OK", "1.21");
         testSetDefault(managementChannel, "noopversioned", "1.11");
         testSnapshot("snapshot8.cfg");
+        waitForSnapshot();
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testSnapshot("snapshot10.cfg");
+        waitForSnapshot();
         testScaleModel(managementChannel);
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
@@ -226,9 +234,10 @@ public class ModelServerTest {
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
         testUnregisterModelFailure("noopversioned", "1.11");
+
+        testTS();
     }
 
-    @Test
     public void testTS()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
                     IOException, NoSuchFieldException, IllegalAccessException {
@@ -356,7 +365,7 @@ public class ModelServerTest {
             throws InterruptedException {
         testUnregisterModel(channel, "noop", null);
         testSnapshot("snapshot9.cfg");
-
+        waitForSnapshot();
         result = null;
         latch = new CountDownLatch(1);
         DefaultFullHttpRequest req =
@@ -448,6 +457,7 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
         testUnregisterModel(channel, "noopversioned", "1.21");
         testSnapshot("snapshot24.cfg");
+        waitForSnapshot();
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
@@ -716,6 +726,8 @@ public class ModelServerTest {
         setConfiguration("default_workers_per_model", "1");
         loadTests(mgmtChannel, "noop.mar", "noop_default_model_workers");
         testSnapshot("snapshot19.cfg");
+        waitForSnapshot();
+
         result = null;
         latch = new CountDownLatch(1);
         HttpRequest req =
@@ -730,6 +742,7 @@ public class ModelServerTest {
         Assert.assertEquals(resp[0].getMinWorkers(), 1);
         unloadTests(mgmtChannel, "noop_default_model_workers");
         testSnapshot("snapshot20.cfg");
+        waitForSnapshot();
         setConfiguration("default_workers_per_model", "0");
     }
 
@@ -738,7 +751,7 @@ public class ModelServerTest {
         setConfiguration("decode_input_request", "true");
         loadTests(mgmtChannel, "noop-v1.0-config-tests.mar", "noop-config");
         testSnapshot("snapshot11.cfg");
-
+        waitForSnapshot();
         result = null;
         latch = new CountDownLatch(1);
         DefaultFullHttpRequest req =
@@ -755,6 +768,7 @@ public class ModelServerTest {
         Assert.assertFalse(result.contains("bytearray"));
         unloadTests(mgmtChannel, "noop-config");
         testSnapshot("snapshot12.cfg");
+        waitForSnapshot();
     }
 
     private void testPredictionsDoNotDecodeRequest(Channel inferChannel, Channel mgmtChannel)
@@ -762,6 +776,7 @@ public class ModelServerTest {
         setConfiguration("decode_input_request", "false");
         loadTests(mgmtChannel, "noop-v1.0-config-tests.mar", "noop-config");
         testSnapshot("snapshot13.cfg");
+        waitForSnapshot();
 
         result = null;
         latch = new CountDownLatch(1);
@@ -779,6 +794,7 @@ public class ModelServerTest {
         Assert.assertTrue(result.contains("bytearray"));
         unloadTests(mgmtChannel, "noop-config");
         testSnapshot("snapshot14.cfg");
+        waitForSnapshot();
     }
 
     private void testPredictionsModifyResponseHeader(
@@ -787,6 +803,8 @@ public class ModelServerTest {
         setConfiguration("decode_input_request", "false");
         loadTests(managementChannel, "respheader-test.mar", "respheader");
         testSnapshot("snapshot15.cfg");
+        waitForSnapshot();
+
         result = null;
         latch = new CountDownLatch(1);
         DefaultFullHttpRequest req =
@@ -806,6 +824,7 @@ public class ModelServerTest {
         Assert.assertTrue(result.contains("bytearray"));
         unloadTests(managementChannel, "respheader");
         testSnapshot("snapshot16.cfg");
+        waitForSnapshot();
     }
 
     private void testPredictionsNoManifest(Channel inferChannel, Channel mgmtChannel)
@@ -813,6 +832,7 @@ public class ModelServerTest {
         setConfiguration("default_service_handler", "service:handle");
         loadTests(mgmtChannel, "noop-no-manifest.mar", "nomanifest");
         testSnapshot("snapshot17.cfg");
+        waitForSnapshot();
         result = null;
         latch = new CountDownLatch(1);
         DefaultFullHttpRequest req =
@@ -829,6 +849,7 @@ public class ModelServerTest {
         Assert.assertEquals(result, "OK");
         unloadTests(mgmtChannel, "nomanifest");
         testSnapshot("snapshot18.cfg");
+        waitForSnapshot();
     }
 
     private void testLegacyPredict(Channel channel) throws InterruptedException {
@@ -1258,6 +1279,7 @@ public class ModelServerTest {
         Assert.assertEquals(httpStatus, HttpResponseStatus.OK);
         channel.close();
         testSnapshot("snapshot21.cfg");
+        waitForSnapshot();
 
         // Test for prediction
         channel = connect(false);
@@ -1287,6 +1309,7 @@ public class ModelServerTest {
         latch.await();
         Assert.assertEquals(httpStatus, HttpResponseStatus.OK);
         testSnapshot("snapshot22.cfg");
+        waitForSnapshot();
     }
 
     private void testErrorBatch() throws InterruptedException {
@@ -1309,6 +1332,7 @@ public class ModelServerTest {
 
         channel.close();
         testSnapshot("snapshot23.cfg");
+        waitForSnapshot();
 
         channel = connect(false);
         Assert.assertNotNull(channel);
@@ -1378,6 +1402,7 @@ public class ModelServerTest {
 
         Properties actualProp = new Properties();
         File actualSnapshotFile = new File(getLastSnapshot());
+
         try (InputStream stream = Files.newInputStream(actualSnapshotFile.toPath())) {
             actualProp.load(stream);
         } catch (IOException e) {
@@ -1385,7 +1410,6 @@ public class ModelServerTest {
         }
 
         updateSnapshot(actualProp);
-
         assert actualProp.equals(expectedProp);
     }
 
@@ -1425,6 +1449,15 @@ public class ModelServerTest {
         }
 
         return latestSnapshotPath;
+    }
+
+    private void waitForSnapshot() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private Channel connect(boolean management, int readTimeOut) {
