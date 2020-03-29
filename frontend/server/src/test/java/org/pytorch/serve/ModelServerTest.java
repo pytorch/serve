@@ -1393,12 +1393,12 @@ public class ModelServerTest {
         Snapshot snapshot = GSON.fromJson(prop.getProperty("model_snapshot"), Snapshot.class);
         snapshot.setName("snapshot");
         snapshot.setCreated(123456);
-        for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap :snapshot.getModels().entrySet()) {
-        	for (Map.Entry<String, ModelSnapshot> versionModel :
-                modelMap.getValue().entrySet()) {
-        		versionModel.getValue().setMinWorkers(4);
-        		versionModel.getValue().setMaxWorkers(4);
-        	}
+        for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap :
+                snapshot.getModels().entrySet()) {
+            for (Map.Entry<String, ModelSnapshot> versionModel : modelMap.getValue().entrySet()) {
+                versionModel.getValue().setMinWorkers(4);
+                versionModel.getValue().setMaxWorkers(4);
+            }
         }
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put("model_snapshot", snapshotJson);
