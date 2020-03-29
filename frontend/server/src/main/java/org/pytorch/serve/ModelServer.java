@@ -90,8 +90,6 @@ public class ModelServer {
             MetricManager.scheduleMetrics(configManager);
             System.out.println("Model server started."); // NOPMD
 
-            SnapshotManager.getInstance().saveStartupSnapshot();
-
             channelFutures.get(0).sync();
         } catch (InvalidPropertiesFormatException e) {
             logger.error("Invalid configuration", e);
@@ -318,6 +316,7 @@ public class ModelServer {
                             inferenceConnector, serverGroup, workerGroup, ConnectorType.BOTH));
         }
 
+        SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
     }
 

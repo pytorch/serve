@@ -92,9 +92,6 @@ public class WorkLoadManager {
             if (minWorker == 0) {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
-                    if (!isStartup) {
-                        SnapshotManager.getInstance().saveSnapshot();
-                    }
                     future.complete(HttpResponseStatus.OK);
                     return future;
                 }
@@ -137,10 +134,10 @@ public class WorkLoadManager {
                         }
                     }
                 }
+                if (!isStartup) {
+                    SnapshotManager.getInstance().saveSnapshot();
+                }
                 future.complete(HttpResponseStatus.OK);
-            }
-            if (!isStartup) {
-                SnapshotManager.getInstance().saveSnapshot();
             }
             return future;
         }
