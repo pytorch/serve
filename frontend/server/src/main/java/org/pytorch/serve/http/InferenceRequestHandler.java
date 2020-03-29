@@ -74,14 +74,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
     private boolean isInferenceReq(String[] segments) {
         return segments.length == 0
-                || segments[1].equals("ping")
+                || (segments.length >= 2
+                        && (segments[1].equals("ping")
+                                || segments[1].equals("predictions")
+                                || segments[1].equals("api-description")
+                                || segments[1].equals("invocations")
+                                || endpointMap.containsKey(segments[1])))
                 || (segments.length == 4 && segments[1].equals("models"))
-                || segments[1].equals("predictions")
-                || segments[1].equals("api-description")
-                || segments[1].equals("invocations")
                 || (segments.length == 3 && segments[2].equals("predict"))
-                || (segments.length == 4 && segments[3].equals("predict"))
-                || endpointMap.containsKey(segments[1]);
+                || (segments.length == 4 && segments[3].equals("predict"));
     }
 
     private void validatePredictionsEndpoint(String[] segments) {
