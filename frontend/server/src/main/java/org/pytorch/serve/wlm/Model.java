@@ -1,5 +1,6 @@
 package org.pytorch.serve.wlm;
 
+import com.google.gson.JsonObject;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
@@ -46,6 +48,28 @@ public class Model {
         modelVersionName =
                 new ModelVersionName(
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
+    }
+
+    public JsonObject getModelState(boolean isDefaultVersion) {
+
+        JsonObject modelInfo = new JsonObject();
+        modelInfo.addProperty("defaultVersion", isDefaultVersion);
+        modelInfo.addProperty("marName", FilenameUtils.getName(getModelUrl()));
+        modelInfo.addProperty("minWorkers", minWorkers);
+        modelInfo.addProperty("maxWorkers", maxWorkers);
+        modelInfo.addProperty("batchSize", batchSize);
+        modelInfo.addProperty("maxBatchDelay", maxBatchDelay);
+        modelInfo.addProperty("responseTimeout", responseTimeout);
+
+        return modelInfo;
+    }
+
+    public void setModelState(JsonObject modelInfo) {
+        minWorkers = modelInfo.get("minWorkers").getAsInt();
+        maxWorkers = modelInfo.get("maxWorkers").getAsInt();
+        maxBatchDelay = modelInfo.get("maxBatchDelay").getAsInt();
+        responseTimeout = modelInfo.get("responseTimeout").getAsInt();
+        batchSize = modelInfo.get("batchSize").getAsInt();
     }
 
     public String getModelName() {
