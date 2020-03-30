@@ -117,12 +117,9 @@ public final class ConfigManager {
         if (filePath == null) {
             filePath = args.getTsConfigFile();
             if (filePath == null) {
-                filePath = System.getProperty("tsConfigFile", "config.properties");
+                filePath = getLastSnapshot();
                 if (filePath == null) {
-                    filePath = getLastSnapshot();
-                    if (filePath == null) {
-                        filePath = System.getProperty("tsConfigFile", "config.properties");
-                    }
+                    filePath = System.getProperty("tsConfigFile", "config.properties");
                 }
             }
         }
