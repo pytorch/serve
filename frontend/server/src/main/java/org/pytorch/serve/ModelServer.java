@@ -68,7 +68,17 @@ public class ModelServer {
             ConfigManager configManager = ConfigManager.getInstance();
             PluginsManager.getInstance().initialize();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-            new ModelServer(configManager).startAndWait();
+            ModelServer modelServer = new ModelServer(configManager);
+
+            Runtime.getRuntime()
+                    .addShutdownHook(
+                            new Thread() {
+                                public void run() {
+                                    modelServer.stop();
+                                }
+                            });
+
+            modelServer.startAndWait();
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid configuration: " + e.getMessage()); // NOPMD
         } catch (ParseException e) {
