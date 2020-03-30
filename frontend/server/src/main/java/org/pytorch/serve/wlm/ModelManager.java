@@ -212,6 +212,11 @@ public final class ModelManager {
         }
 
         Model model = vmodel.getVersionModel(versionId);
+
+        if (model == null) {
+            throw new AssertionError("Model version not not found for model : " + modelName);
+        }
+
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);

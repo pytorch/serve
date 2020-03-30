@@ -73,6 +73,7 @@ public class ModelServer {
             Runtime.getRuntime()
                     .addShutdownHook(
                             new Thread() {
+                                @Override
                                 public void run() {
                                     modelServer.stop();
                                 }
