@@ -139,7 +139,7 @@ def start():
                         exit(1)
 
         if args.no_config_snapshots:
-            cmd.append("--ncs")
+            cmd.append("-ncs")
 
 
         try:

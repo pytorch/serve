@@ -705,7 +705,7 @@ public final class ConfigManager {
                     Option.builder("ncs")
                             .longOpt("no-config-snapshot")
                             .argName("NO-CONFIG-SNAPSHOT")
-                            .desc("cofig")
+                            .desc("disable torchserve snapshot")
                             .build());
             return options;
         }
