@@ -84,6 +84,9 @@ public class ModelServer {
     }
 
     public void startAndWait() throws InterruptedException, IOException, GeneralSecurityException {
+        // this is a purposely introduced error server exits before starting
+        System.exit(1);
+
         try {
             List<ChannelFuture> channelFutures = start();
             // Create and schedule metrics manager
