@@ -741,5 +741,9 @@ public final class ConfigManager {
         public boolean isSnapshotDisabled() {
             return snapshotDisabled;
         }
+
+        public void setSnapshotDisabled(boolean snapshotDisabled) {
+            this.snapshotDisabled = snapshotDisabled;
+        }
     }
 }
