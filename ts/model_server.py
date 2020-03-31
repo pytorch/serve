@@ -81,13 +81,11 @@ def start():
                 print("--ts-config file not found: {}".format(ts_config))
                 exit(1)
             ts_conf_file = ts_config
-        else:
-            ts_conf_file = "config.properties"
 
         class_path = \
             ".:{}".format(os.path.join(ts_home, "ts/frontend/*"))
 
-        if os.path.isfile(ts_conf_file):
+        if ts_conf_file and os.path.isfile(ts_conf_file):
             props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
