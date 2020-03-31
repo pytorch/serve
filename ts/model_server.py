@@ -128,6 +128,9 @@ def start():
             print("Missing mandatory parameter --model-store")
             exit(1)
 
+        if args.no_config_snapshots:
+            cmd.append("-ncs")
+
         if args.models:
             cmd.append("-m")
             cmd.extend(args.models)
@@ -137,9 +140,6 @@ def start():
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
                         exit(1)
-
-        if args.no_config_snapshots:
-            cmd.append("-ncs")
 
 
         try:

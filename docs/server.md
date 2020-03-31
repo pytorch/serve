@@ -68,7 +68,8 @@ optional arguments:
                         MODEL_STORE.
   --log-config LOG_CONFIG
                         Log4j configuration file for TorchServe
-
+  --ncs, --no-config-snapshots         
+                        Disable snapshot feature
 ```
 
 #### Arguments:
