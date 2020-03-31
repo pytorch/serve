@@ -132,7 +132,7 @@ torchserve --help
 
 For this quick start, we'll skip over most of the features, but be sure to take a look at the [full server docs](docs/server.md) when you're ready.
 
-Here is an easy example for serving an object classification model:
+Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
 ```bash
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
