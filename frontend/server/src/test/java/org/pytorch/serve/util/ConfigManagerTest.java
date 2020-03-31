@@ -115,5 +115,6 @@ public class ConfigManagerTest {
         ConfigManager configManager = ConfigManager.getInstance();
         Assert.assertEquals("false", configManager.getEnableEnvVarsConfig());
         Assert.assertEquals(120, configManager.getDefaultResponseTimeout());
+        modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "120");
     }
 }
