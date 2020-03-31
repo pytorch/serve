@@ -115,7 +115,7 @@ pip install .
 *Install torch-model-archiver as follows:
 
 ```bash
-cd serve/model-archiver
+cd model-archiver
 pip install .
 ```
 
