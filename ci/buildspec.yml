@@ -7,7 +7,6 @@ phases:
     commands:
       - apt-get update
       - apt-get install -y curl
-      - apt-get install -y openjdk-11-jdk
       - pip install pip -U
       - pip install future
       - pip install Pillow
