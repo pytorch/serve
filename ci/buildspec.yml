@@ -4,8 +4,6 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      java: openjdk11
     commands:
       - apt-get update
       - apt-get install -y curl
@@ -18,9 +16,6 @@ phases:
       - pip install twine
       - pip install pytest-mock -U
       - pip install requests
-      - pip install torch
-      - pip install torchvision
-      - pip install torchvision
       - pip install psutil
 
   build:
