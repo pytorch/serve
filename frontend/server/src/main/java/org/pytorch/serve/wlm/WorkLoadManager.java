@@ -85,6 +85,7 @@ public class WorkLoadManager {
 
     public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup) {
         synchronized (model.getModelVersionName()) {
+            boolean isSnapshotSaved = false;
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
@@ -136,8 +137,12 @@ public class WorkLoadManager {
                 }
                 if (!isStartup) {
                     SnapshotManager.getInstance().saveSnapshot();
+                    isSnapshotSaved = true;
                 }
                 future.complete(HttpResponseStatus.OK);
+            }
+            if (!isStartup && !isSnapshotSaved) {
+                SnapshotManager.getInstance().saveSnapshot();
             }
             return future;
         }

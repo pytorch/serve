@@ -279,7 +279,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throw new InternalServerException(
                     "Cannot remove default version for model " + modelName);
         }
-        SnapshotManager.getInstance().saveSnapshot();
         String msg = "Model \"" + modelName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
@@ -329,7 +328,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             boolean status =
                                     modelManager.scaleRequestStatus(modelName, modelVersion);
                             if (HttpResponseStatus.OK.equals(v)) {
-                                SnapshotManager.getInstance().saveSnapshot();
                                 if (status) {
                                     NettyUtils.sendJsonResponse(
                                             ctx, new StatusResponse("Workers scaled"), v);
