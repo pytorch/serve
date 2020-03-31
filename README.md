@@ -116,7 +116,29 @@ pip install .
 * If `pip install .`  fails, run `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
-### Installing torch-model-archiver
+### Install TorchServe for Development
+
+If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
+
+```bash
+pip install -e .
+```
+
+To upgrade TorchServe from source code and make changes executable, run:
+
+
+```bash
+pip install -U -e .
+```
+
+## Troubleshoot Installation
+
+| Issue | Solution |
+|---|---|
+|java not found, please make sure JAVA_HOME is set properly. | Make sure java is installed. java is on the $PATH or $JAVA_HOME is set properly. |
+|Your PYTHONPATH points to a site-packages dir for Python 3.x but you are running Python 2.x! | You do one of following: <ul><li>use virtualenv</li><li>unset PYTHONPATH</
+
+### Install torch-model-archiver
 
 *Install torch-model-archiver as follows:
 
