@@ -151,11 +151,11 @@ public class ModelServerTest {
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
         testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
-        testDescribeModel(managementChannel, "noopversioned", null, "1.21");
+        testDescribeModel(managementChannel, "noopversioned", null, "1.11");
         testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
         testPredictions(channel, "noopversioned", "OK", "1.21");
-        testSetDefault(managementChannel, "noopversioned", "1.11");
+        testSetDefault(managementChannel, "noopversioned", "1.21");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testPredictions(channel, "noop", "OK", null);
         testPredictionsBinary(channel);
@@ -203,7 +203,7 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
-        testUnregisterModelFailure("noopversioned", "1.11");
+        testUnregisterModelFailure("noopversioned", "1.21");
     }
 
     @Test
@@ -423,8 +423,8 @@ public class ModelServerTest {
 
         channel = connect(true);
         Assert.assertNotNull(channel);
-        testUnregisterModel(channel, "noopversioned", "1.21");
         testUnregisterModel(channel, "noopversioned", "1.11");
+        testUnregisterModel(channel, "noopversioned", "1.21");
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
@@ -461,6 +461,7 @@ public class ModelServerTest {
         } else {
             Assert.assertTrue(resp.length == 1);
         }
+
         Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
     }
 

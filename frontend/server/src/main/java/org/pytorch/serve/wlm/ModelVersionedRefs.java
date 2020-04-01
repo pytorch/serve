@@ -55,8 +55,9 @@ public final class ModelVersionedRefs {
                             + model.getModelName());
         }
 
-        // TODO what if user wants to keep existing default as it is?
-        this.setDefaultVersion(versionId);
+        if (this.defaultVersion == null) {
+            this.setDefaultVersion(versionId);
+        }
     }
 
     /**
