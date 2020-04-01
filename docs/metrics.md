@@ -14,7 +14,7 @@ Metrics are collected by default at:
 * System metrics - log_directory/ts_metrics.log
 * Custom metrics - log directory/model_metrics.log
 
-The location of log files and metric files can be configured at [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.
+The location of log files and metric files can be configured at [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file
 
 
 ## System Metrics
