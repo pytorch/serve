@@ -1,12 +1,10 @@
 package org.pytorch.serve.snapshot;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -102,16 +100,6 @@ public final class SnapshotManager {
     }
 
     @SuppressWarnings("PMD")
-    public List<Snapshot> getSnapshots() throws SnapshotReadException {
-        try {
-            return snapshotSerializer.getAllSnapshots();
-        } catch (IOException e) {
-            throw new SnapshotReadException(
-                    "Error while retrieving snapshot details. Cause : " + e.getCause());
-        }
-    }
-
-    @SuppressWarnings("PMD")
     public Snapshot getSnapshot(String snapshotName) throws SnapshotReadException {
         try {
             return snapshotSerializer.getSnapshot(snapshotName);
@@ -132,27 +120,13 @@ public final class SnapshotManager {
         initModels(snapshot);
     }
 
-    private void terminateModels() throws ModelNotFoundException {
-        Map<String, Model> defModels = modelManager.getDefaultModels();
-
-        for (Map.Entry<String, Model> m : defModels.entrySet()) {
-
-            Set<Entry<Double, Model>> versionModels = modelManager.getAllModelVersions(m.getKey());
-            String defaultVersionId = m.getValue().getVersion();
-            for (Entry<Double, Model> versionedModel : versionModels) {
-                String versionId = String.valueOf(versionedModel.getKey());
-                if (defaultVersionId.equals(versionId)) {
-                    continue;
-                }
-                modelManager.unregisterModel(versionedModel.getValue().getModelName(), versionId);
-            }
-            modelManager.unregisterModel(m.getValue().getModelName(), defaultVersionId);
-        }
-    }
-
     private void initModels(Snapshot snapshot) {
         try {
 
+            if (snapshot.getModelCount() <= 0) {
+                logger.warn("Model snapshot is empty. Starting TorchServe without initial models.");
+                return;
+            }
             Map<String, Map<String, ModelSnapshot>> models = snapshot.getModels();
 
             for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap : models.entrySet()) {
@@ -192,16 +166,6 @@ public final class SnapshotManager {
         }
     }
 
-    public HttpResponseStatus removeSnapshot(String snapshotName) {
-        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
-        try {
-            snapshotSerializer.removeSnapshot(snapshotName);
-        } catch (IOException e) {
-            httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
-        }
-        return httpResponseStatus;
-    }
-
     private boolean validate(Snapshot snapshot) throws IOException, InvalidSnapshotException {
         logger.info("Validating snapshot {}", snapshot.getName());
         String modelStore = configManager.getModelStore();
@@ -229,11 +193,6 @@ public final class SnapshotManager {
         }
         logger.info("Validated snapshot {}", snapshot.getName());
         return true;
-    }
-
-    public void getLastSnapshot() throws IOException {
-        // TODO Auto-generated method stub
-
     }
 
     private String getSnapshotName(String snapshotType) {

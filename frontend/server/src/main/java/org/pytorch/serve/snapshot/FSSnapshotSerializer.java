@@ -12,10 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
@@ -57,24 +55,6 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
     @Override
     public Snapshot getSnapshot(String snapshotJson) throws IOException {
         return GSON.fromJson(snapshotJson, Snapshot.class);
-    }
-
-    @Override
-    public List<Snapshot> getAllSnapshots() throws IOException {
-        ArrayList<Snapshot> resp = new ArrayList<Snapshot>();
-        String[] snapshots = new File(getSnapshotDirectory()).list();
-        if (snapshots != null) {
-            for (String snapshotName : snapshots) {
-                resp.add(getSnapshot(snapshotName));
-            }
-        }
-        return resp;
-    }
-
-    @Override
-    public void removeSnapshot(String snapshotName) throws IOException {
-        String snapshotPath = getSnapshotPath(snapshotName);
-        FileUtils.deleteDirectory(new File(snapshotPath));
     }
 
     public static String getSnapshotPath(String snapshotName) {
