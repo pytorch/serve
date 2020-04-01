@@ -1,7 +1,6 @@
 package org.pytorch.serve.snapshot;
 
 import com.google.gson.JsonObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
