@@ -1,6 +1,6 @@
 # Build Spec for AWS CodeBuild CI
 
-version: 0.1
+version: 0.2
 
 phases:
   install:
@@ -15,17 +15,11 @@ phases:
       - pip install twine
       - pip install pytest-mock -U
       - pip install requests
-      - pip install -U -e .
-      - pip install torch
-      - pip install torchvision
-      - cd model-archiver/ && pip install -U -e . && cd ../
+      - pip install psutil
 
   build:
     commands:
-      - frontend/gradlew -p frontend build
-      - python -m pytest ts/tests/unit_tests
-      - cd model-archiver/ && python -m pytest model_archiver/tests/unit_tests && cd ../
-      - cd model-archiver/ && python -m pytest model_archiver/tests/integ_tests && cd ../
+      - ./torchserve_sanity.sh
       - cd serving-sdk/ && mvn clean deploy && cd ../
 
 artifacts:
