@@ -121,7 +121,8 @@ pip install .
 If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
 
 ```bash
-pip install -e .
+cd model-archiver
+pip install .
 ```
 
 To upgrade TorchServe from source code and make changes executable, run:
@@ -133,10 +134,14 @@ pip install -U -e .
 
 ## Troubleshoot Installation
 
-| Issue | Solution |
-|---|---|
-|java not found, please make sure JAVA_HOME is set properly. | Make sure java is installed. java is on the $PATH or $JAVA_HOME is set properly. |
-|Your PYTHONPATH points to a site-packages dir for Python 3.x but you are running Python 2.x! | You do one of following: <ul><li>use virtualenv</li><li>unset PYTHONPATH</
+Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
+```bash
+wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
+mkdir model_store
+mv densenet161.mar model_store/
+torchserve --start --model-store model_store --models densenet161=densenet161.mar
+```
 
 ### Install torch-model-archiver
 
@@ -168,7 +173,7 @@ Below, in order, is a prioritized list of tasks for this repository.
 * [x] Basic examples
   * [x] Eager-mode image classifier
     * [x] TorchScript image classifier
-    * [x] Custom neural network 
+    * [x] Custom neural network
 * [x] Basic docs (install, serve a model and use it for inference)
 
 ### v0.2 Plan
