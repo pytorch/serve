@@ -45,7 +45,7 @@ class ArgParser(object):
                             help='Run the model server in foreground. If this option is disabled, the model server'
                                  ' will run in the background.',
                             action='store_true')
-        parser.add_argument('--no-config-snapshots',
+        parser.add_argument('--no-config-snapshots', '--ncs',
                             dest='no_config_snapshots',
                             help='Prevents to server from storing config snapshot files.',
                             action='store_true')

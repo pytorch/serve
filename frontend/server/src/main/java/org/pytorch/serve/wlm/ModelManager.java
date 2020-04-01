@@ -260,6 +260,10 @@ public final class ModelManager {
             String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup) {
         Model model = getVersionModel(modelName, versionId);
 
+        if (model == null) {
+            throw new AssertionError("Model version not not found for model : " + modelName);
+        }
+
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);

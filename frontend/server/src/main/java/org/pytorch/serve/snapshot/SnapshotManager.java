@@ -2,12 +2,12 @@ package org.pytorch.serve.snapshot;
 
 import com.google.gson.JsonObject;
 import io.netty.handler.codec.http.HttpResponseStatus;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -38,9 +38,10 @@ public final class SnapshotManager {
     }
 
     private SnapshotManager(ConfigManager configManager) {
-        this.snapshotSerializer = new FSSnapshotSerializer();
         this.configManager = configManager;
         this.modelManager = ModelManager.getInstance();
+        this.snapshotSerializer =
+                SnapshotSerializerFactory.getSerializer(configManager.getSnapshotStore());
     }
 
     private void saveSnapshot(String snapshotName) {
@@ -95,16 +96,6 @@ public final class SnapshotManager {
     }
 
     @SuppressWarnings("PMD")
-    public List<Snapshot> getSnapshots() throws SnapshotReadException {
-        try {
-            return snapshotSerializer.getAllSnapshots();
-        } catch (IOException e) {
-            throw new SnapshotReadException(
-                    "Error while retrieving snapshot details. Cause : " + e.getCause());
-        }
-    }
-
-    @SuppressWarnings("PMD")
     public Snapshot getSnapshot(String snapshotName) throws SnapshotReadException {
         try {
             return snapshotSerializer.getSnapshot(snapshotName);
@@ -114,45 +105,26 @@ public final class SnapshotManager {
         }
     }
 
-    public void restore(String modelSnapshot) {
+    public void restore(String modelSnapshot) throws InvalidSnapshotException, IOException {
         Snapshot snapshot = null;
 
-        try {
-            logger.info("Started restoring models from snapshot");
-            snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
-            // Validate snapshot
-            validate(snapshot);
-            // Init. models
-            initModels(snapshot);
-        } catch (InvalidSnapshotException e) {
-            logger.error("Error while validating snapshot. Details: {}", e.getCause());
-        } catch (IOException e) {
-            logger.error("Error loading snapshot {}", snapshot.getName());
-        }
-    }
-
-    private void terminateModels() throws ModelNotFoundException {
-        Map<String, Model> defModels = modelManager.getDefaultModels();
-
-        for (Map.Entry<String, Model> m : defModels.entrySet()) {
-
-            Set<Entry<Double, Model>> versionModels = modelManager.getAllModelVersions(m.getKey());
-            String defaultVersionId = m.getValue().getVersion();
-            for (Entry<Double, Model> versionedModel : versionModels) {
-                String versionId = String.valueOf(versionedModel.getKey());
-                if (defaultVersionId.equals(versionId)) {
-                    continue;
-                }
-                modelManager.unregisterModel(versionedModel.getValue().getModelName(), versionId);
-            }
-            modelManager.unregisterModel(m.getValue().getModelName(), defaultVersionId);
-        }
+        logger.info("Started restoring models from snapshot {}", modelSnapshot);
+        snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
+        // Validate snapshot
+        validate(snapshot);
+        // Init. models
+        initModels(snapshot);
     }
 
     private void initModels(Snapshot snapshot) {
         try {
 
             Map<String, Map<String, JsonObject>> models = snapshot.getModels();
+
+            if (snapshot.getModelCount() <= 0) {
+                logger.warn("Model snapshot is empty. Starting TorchServe without initial models.");
+                return;
+            }
 
             for (Map.Entry<String, Map<String, JsonObject>> modelMap : models.entrySet()) {
                 String modelName = modelMap.getKey();
@@ -167,16 +139,6 @@ public final class SnapshotManager {
         } catch (ModelException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
-    }
-
-    public HttpResponseStatus removeSnapshot(String snapshotName) {
-        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
-        try {
-            snapshotSerializer.removeSnapshot(snapshotName);
-        } catch (IOException e) {
-            httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
-        }
-        return httpResponseStatus;
     }
 
     private boolean validate(Snapshot snapshot) throws IOException, InvalidSnapshotException {

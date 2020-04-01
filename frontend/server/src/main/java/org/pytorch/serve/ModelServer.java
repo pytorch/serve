@@ -30,6 +30,7 @@ import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -68,7 +69,18 @@ public class ModelServer {
             ConfigManager configManager = ConfigManager.getInstance();
             PluginsManager.getInstance().initialize();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-            new ModelServer(configManager).startAndWait();
+            ModelServer modelServer = new ModelServer(configManager);
+
+            Runtime.getRuntime()
+                    .addShutdownHook(
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    modelServer.stop();
+                                }
+                            });
+
+            modelServer.startAndWait();
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid configuration: " + e.getMessage()); // NOPMD
         } catch (ParseException e) {
@@ -83,7 +95,9 @@ public class ModelServer {
         }
     }
 
-    public void startAndWait() throws InterruptedException, IOException, GeneralSecurityException {
+    public void startAndWait()
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         try {
             List<ChannelFuture> channelFutures = start();
             // Create and schedule metrics manager
@@ -108,7 +122,7 @@ public class ModelServer {
         }
     }
 
-    private void initModelStore() {
+    private void initModelStore() throws InvalidSnapshotException, IOException {
         WorkLoadManager wlm = new WorkLoadManager(configManager, serverGroups.getBackendGroup());
         ModelManager.init(configManager, wlm);
         SnapshotManager.init(configManager);
@@ -275,9 +289,11 @@ public class ModelServer {
      *
      * @return A ChannelFuture object
      * @throws InterruptedException if interrupted
+     * @throws InvalidSnapshotException
      */
     public List<ChannelFuture> start()
-            throws InterruptedException, IOException, GeneralSecurityException {
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         stopped.set(false);
 
         configManager.validateConfigurations();

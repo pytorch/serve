@@ -39,7 +39,7 @@ The rest of this topic focus on serving of model files without much discussion o
 
 ```bash
 $ torchserve --help
-usage: torechserve [-h] [-v | --version]
+usage: torchserve [-h] [-v | --version]
                           [--start]
                           [--stop]
                           [--ts-config TS_CONFIG]
@@ -68,7 +68,8 @@ optional arguments:
                         MODEL_STORE.
   --log-config LOG_CONFIG
                         Log4j configuration file for TorchServe
-
+  --ncs, --no-config-snapshots         
+                        Disable snapshot feature
 ```
 
 #### Arguments:

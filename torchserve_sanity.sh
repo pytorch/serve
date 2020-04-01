@@ -1,13 +1,72 @@
 #!/bin/bash
+set -euxo pipefail
+
+start_torchserve()
+{
+  echo "Starting TorchServe"
+  torchserve --start --model-store model_store &
+  pid=$!
+  count=$(ps -A| grep $pid |wc -l)
+  if [[ $count -eq 1 ]]
+  then
+          if wait $pid; then
+                  echo "Successfully started TorchServe"
+          else
+                  echo "TorchServe start failed (returned $?)"
+                  exit 1
+          fi
+  else
+          echo "Successfully started TorchServe"
+  fi
+
+  sleep 10
+}
+
+stop_torchserve()
+{
+  torchserve --stop
+  sleep 10
+}
+
+register_model()
+{
+  echo "Registering resnet-18 model"
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&initial_workers=1&synchronous=true")
+
+  if [ ! "$response" == 200 ]
+  then
+      echo "Failed to register model with torchserve"
+      cleanup
+      exit 1
+  else
+      echo "Successfully registered resnet-18 model with torchserve"
+  fi
+}
+
+run_inference()
+{
+  echo "Running inference on resnet-18 model"
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/resnet-18 -T examples/image_classifier/kitten.jpg)
+
+  if [ ! "$response" == 200 ]
+  then
+      echo "Failed to run inference on resnet-18 model"
+      cleanup
+      exit 1
+  else
+      echo "Successfully ran infernece on resnet-18 model."
+  fi
+}
 
 cleanup()
 {
-  torchserve --stop
+  stop_torchserve
 
   rm -rf model_store
 
   rm -rf logs
 }
+
 
 pip install mock pytest==3.6 pylint pytest-mock pytest-cov
 
@@ -71,47 +130,20 @@ cd ..
 
 mkdir model_store
 
-echo "Starting TorchServe"
-torchserve --start --model-store model_store &
-pid=$!
-count=$(ps -A| grep $pid |wc -l)
-if [[ $count -eq 1 ]]
-then
-        if wait $pid; then
-                echo "Successfully started TorchServe"
-        else
-                echo "TorchServe start failed (returned $?)"
-                exit 1
-        fi
-else
-        echo "Successfully started TorchServe"
-fi
+start_torchserve
 
-sleep 10
+register_model
 
-echo "Registering resnet-18 model"
-response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&initial_workers=1&synchronous=true")
+run_inference
 
-if [ ! "$response" == 200 ]
-then
-    echo "Failed to register model with torchserve"
-    cleanup
-    exit 1
-else
-    echo "Successfully registered resnet-18 model with torchserve"
-fi
+stop_torchserve
 
-echo "Running inference on resnet-18 model"
-response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/resnet-18 -T examples/image_classifier/kitten.jpg)
+# restarting torchserve
+# this should restart with the generated snapshot and resnet-18 model should be automatically registered
 
-if [ ! "$response" == 200 ]
-then
-    echo "Failed to run inference on resnet-18 model"
-    cleanup
-    exit 1
-else
-    echo "Successfully ran infernece on resnet-18 model."
-fi
+start_torchserve
+
+run_inference
 
 cleanup
 

@@ -37,8 +37,8 @@ def start():
             try:
                 parent = psutil.Process(pid)
                 for child in parent.children(recursive=True):
-                    child.kill()
-                parent.kill()
+                    child.terminate()
+                parent.terminate()
                 print("TorchServe has stopped.")
             except (OSError, psutil.Error):
                 print("TorchServe already stopped.")
@@ -81,13 +81,11 @@ def start():
                 print("--ts-config file not found: {}".format(ts_config))
                 exit(1)
             ts_conf_file = ts_config
-        else:
-            ts_conf_file = "config.properties"
 
         class_path = \
             ".:{}".format(os.path.join(ts_home, "ts/frontend/*"))
 
-        if os.path.isfile(ts_conf_file):
+        if ts_conf_file and os.path.isfile(ts_conf_file):
             props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
@@ -128,6 +126,9 @@ def start():
             print("Missing mandatory parameter --model-store")
             exit(1)
 
+        if args.no_config_snapshots:
+            cmd.append("-ncs")
+
         if args.models:
             cmd.append("-m")
             cmd.extend(args.models)
@@ -137,9 +138,6 @@ def start():
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
                         exit(1)
-
-        if args.no_config_snapshots:
-            cmd.append("--ncs")
 
 
         try:
