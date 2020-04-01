@@ -1,9 +1,11 @@
 package org.pytorch.serve.snapshot;
 
-public class SnapshotUtils {
+public final class SnapshotUtils {
+
+    private SnapshotUtils() {}
 
     public static String getLastSnapshot(String storageType) {
-        if (storageType == "FS") {
+        if ("FS".equalsIgnoreCase(storageType)) {
             return FSSnapshotSerializer.getLastSnapshotFS();
         }
         return null;

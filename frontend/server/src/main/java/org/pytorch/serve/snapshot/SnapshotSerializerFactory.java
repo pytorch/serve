@@ -1,9 +1,11 @@
 package org.pytorch.serve.snapshot;
 
-public class SnapshotSerializerFactory {
+public final class SnapshotSerializerFactory {
+
+    private SnapshotSerializerFactory() {}
 
     public static SnapshotSerializer getSerializer(String storageType) {
-        if (storageType.equalsIgnoreCase("FS")) {
+        if ("FS".equalsIgnoreCase(storageType)) {
             return new FSSnapshotSerializer();
         }
         return null;
