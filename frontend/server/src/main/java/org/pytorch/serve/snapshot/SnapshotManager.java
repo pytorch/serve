@@ -38,9 +38,10 @@ public final class SnapshotManager {
     }
 
     private SnapshotManager(ConfigManager configManager) {
-        this.snapshotSerializer = new FSSnapshotSerializer();
         this.configManager = configManager;
         this.modelManager = ModelManager.getInstance();
+        this.snapshotSerializer =
+                SnapshotSerializerFactory.getSerializer(configManager.getSnapshotStore());
     }
 
     private void saveSnapshot(String snapshotName) {
@@ -120,21 +121,15 @@ public final class SnapshotManager {
         }
     }
 
-    public void restore(String modelSnapshot) {
+    public void restore(String modelSnapshot) throws InvalidSnapshotException, IOException {
         Snapshot snapshot = null;
 
-        try {
-            logger.info("Started restoring models from snapshot");
-            snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
-            // Validate snapshot
-            validate(snapshot);
-            // Init. models
-            initModels(snapshot);
-        } catch (InvalidSnapshotException e) {
-            logger.error("Error while validating snapshot. Details: {}", e.getCause());
-        } catch (IOException e) {
-            logger.error("Error loading snapshot {}", snapshot.getName());
-        }
+        logger.info("Started restoring models from snapshot {}", modelSnapshot);
+        snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
+        // Validate snapshot
+        validate(snapshot);
+        // Init. models
+        initModels(snapshot);
     }
 
     private void terminateModels() throws ModelNotFoundException {
@@ -234,6 +229,11 @@ public final class SnapshotManager {
         }
         logger.info("Validated snapshot {}", snapshot.getName());
         return true;
+    }
+
+    public void getLastSnapshot() throws IOException {
+        // TODO Auto-generated method stub
+
     }
 
     private String getSnapshotName(String snapshotType) {

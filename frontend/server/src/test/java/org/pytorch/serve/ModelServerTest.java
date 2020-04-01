@@ -34,6 +34,7 @@ import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.testng.Assert;
@@ -59,7 +60,9 @@ public class ModelServerTest {
     }
 
     @BeforeSuite
-    public void beforeSuite() throws InterruptedException, IOException, GeneralSecurityException {
+    public void beforeSuite()
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();

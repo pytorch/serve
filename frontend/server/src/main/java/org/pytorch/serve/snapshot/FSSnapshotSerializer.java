@@ -8,8 +8,15 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.util.ConfigManager;
@@ -25,7 +32,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
 
     @Override
     public void saveSnapshot(Snapshot snapshot) throws IOException {
-        File snapshotPath = new File(System.getProperty("LOG_LOCATION"), "config");
+        File snapshotPath = new File(getSnapshotDirectory());
 
         FileUtils.forceMkdir(snapshotPath);
 
@@ -55,7 +62,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
     @Override
     public List<Snapshot> getAllSnapshots() throws IOException {
         ArrayList<Snapshot> resp = new ArrayList<Snapshot>();
-        String[] snapshots = new File(System.getProperty("LOG_LOCATION") + "/config").list();
+        String[] snapshots = new File(getSnapshotDirectory()).list();
         if (snapshots != null) {
             for (String snapshotName : snapshots) {
                 resp.add(getSnapshot(snapshotName));
@@ -70,7 +77,45 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         FileUtils.deleteDirectory(new File(snapshotPath));
     }
 
-    private String getSnapshotPath(String snapshotName) {
-        return System.getProperty("LOG_LOCATION") + "/config" + "/" + snapshotName;
+    public static String getSnapshotPath(String snapshotName) {
+        return getSnapshotDirectory() + "/" + snapshotName;
+    }
+
+    public static String getSnapshotDirectory() {
+        return System.getProperty("LOG_LOCATION") + "/config";
+    }
+
+    public static String getLastSnapshotFS() {
+        String latestSnapshotPath = null;
+        Path configPath = Paths.get(FSSnapshotSerializer.getSnapshotDirectory());
+
+        if (Files.exists(configPath)) {
+            try {
+                Optional<Path> lastFilePath =
+                        Files.list(configPath)
+                                .filter(f -> !Files.isDirectory(f))
+                                .max(
+                                        Comparator.comparingLong(
+                                                f -> getSnapshotTime(f.getFileName().toString())));
+                if (lastFilePath.isPresent()) {
+                    latestSnapshotPath = lastFilePath.get().toString();
+                }
+            } catch (IOException e) {
+                e.printStackTrace(); // NOPMD
+            }
+        }
+
+        return latestSnapshotPath;
+    }
+
+    private static long getSnapshotTime(String filename) {
+        String timestamp = filename.split("-")[0];
+        Date d = null;
+        try {
+            d = new SimpleDateFormat("yyyyMMddHHmmssSSS").parse(timestamp);
+        } catch (ParseException e) {
+            e.printStackTrace(); // NOPMD
+        }
+        return d.getTime();
     }
 }

@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.snapshot.ModelSnapshot;
 import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
@@ -47,7 +48,9 @@ public class SnapshotTest {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @BeforeClass
-    public void beforeSuite() throws InterruptedException, IOException, GeneralSecurityException {
+    public void beforeSuite()
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         System.setProperty("tsConfigFile", "src/test/resources/config.properties");
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
         ConfigManager.init(new ConfigManager.Arguments());
@@ -65,7 +68,9 @@ public class SnapshotTest {
     }
 
     @Test
-    public void test() throws InterruptedException, IOException, GeneralSecurityException {
+    public void test()
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         Channel channel = null;
         Channel managementChannel = null;
         for (int i = 0; i < 5; ++i) {
@@ -236,7 +241,8 @@ public class SnapshotTest {
     }
 
     private void testStartTorchServeWithLastSnapshot()
-            throws InterruptedException, IOException, GeneralSecurityException {
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         System.setProperty("tsConfigFile", "");
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
@@ -254,7 +260,8 @@ public class SnapshotTest {
     }
 
     private void testRestartTorchServeWithSnapshotAsConfig()
-            throws InterruptedException, IOException, GeneralSecurityException {
+            throws InterruptedException, IOException, GeneralSecurityException,
+                    InvalidSnapshotException {
         server.stop();
         validateSnapshot("snapshot9.cfg");
 

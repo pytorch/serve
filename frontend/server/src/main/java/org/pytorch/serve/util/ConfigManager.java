@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyException;
@@ -26,12 +25,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -44,6 +41,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
+import org.pytorch.serve.snapshot.SnapshotUtils;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -77,6 +75,7 @@ public final class ConfigManager {
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
+    private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
 
     // Configuration which are not documented or enabled through environment variables
@@ -111,6 +110,11 @@ public final class ConfigManager {
             System.setProperty("LOG_LOCATION", logLocation);
         } else if (System.getProperty("LOG_LOCATION") == null) {
             System.setProperty("LOG_LOCATION", "logs");
+        }
+
+        String snapshotStore = args.getSnapshotStore();
+        if (snapshotStore != null) {
+            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
         }
 
         String filePath = System.getenv("TS_CONFIG_FILE");
@@ -332,6 +336,10 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
+    public String getSnapshotStore() {
+        return prop.getProperty(TS_SNAPSHOT_STORE, "FS");
+    }
+
     public String getModelSnapshot() {
         return prop.getProperty(TS_MODEL_SNAPSHOT, null);
     }
@@ -448,24 +456,7 @@ public final class ConfigManager {
             return null;
         }
 
-        String latestSnapshotPath = null;
-        Path configPath = Paths.get(System.getProperty("LOG_LOCATION"), "config");
-
-        if (Files.exists(configPath)) {
-            try {
-                Optional<Path> lastFilePath =
-                        Files.list(configPath)
-                                .filter(f -> !Files.isDirectory(f))
-                                .max(Comparator.comparingLong(f -> f.toFile().lastModified()));
-                if (lastFilePath.isPresent()) {
-                    latestSnapshotPath = lastFilePath.get().toString();
-                }
-            } catch (IOException e) {
-                e.printStackTrace(); // NOPMD
-            }
-        }
-
-        return latestSnapshotPath;
+        return SnapshotUtils.getLastSnapshot(getSnapshotStore());
     }
 
     public String getProperty(String key, String def) {
@@ -695,13 +686,6 @@ public final class ConfigManager {
                             .desc("Model store location where models can be loaded.")
                             .build());
             options.addOption(
-                    Option.builder("ss")
-                            .longOpt("snapshot-store")
-                            .hasArg()
-                            .argName("SNAPSHOT-STORE")
-                            .desc("Snapshot store location where snapshots will be stored.")
-                            .build());
-            options.addOption(
                     Option.builder("ncs")
                             .longOpt("no-config-snapshot")
                             .argName("NO-CONFIG-SNAPSHOT")
@@ -744,6 +728,11 @@ public final class ConfigManager {
 
         public void setSnapshotDisabled(boolean snapshotDisabled) {
             this.snapshotDisabled = snapshotDisabled;
+        }
+
+        public String getSnapshotStore() {
+            // TODO : remove hard-coding and add a new cmd param for snapshot store
+            return "FS";
         }
     }
 }
