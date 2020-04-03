@@ -128,13 +128,11 @@ fi
 
 cd ..
 
-mkdir model_store
+mkdir -p model_store
 
 start_torchserve
 
 register_model
-
-run_inference
 
 stop_torchserve
 
