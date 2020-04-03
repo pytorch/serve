@@ -25,7 +25,7 @@ sudo apt-get install -y \
         && python3 get-pip.py
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-export PATH="$PATH:/home/linuxbrew/.linuxbrew/Homebrew/bin/"
+export PATH="/home/linuxbrew/.linuxbrew/Homebrew/bin/:$PATH"
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
