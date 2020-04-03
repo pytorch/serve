@@ -277,11 +277,11 @@ public final class TestUtils {
     }
 
     public static void closeChannels() throws InterruptedException {
-        if (managementChannel != null && managementChannel.isActive()) {
-            managementChannel.close();
+        if (managementChannel != null) {
+            managementChannel.closeFuture().sync();
         }
-        if (inferenceChannel != null && managementChannel.isActive()) {
-            inferenceChannel.close();
+        if (inferenceChannel != null) {
+            inferenceChannel.closeFuture().sync();
         }
     }
 
