@@ -39,8 +39,6 @@ public final class TestUtils {
     static HttpResponseStatus httpStatus;
     static String result;
     static HttpHeaders headers;
-    private static Channel inferenceChannel;
-    private static Channel managementChannel;
 
     private TestUtils() {}
 
@@ -236,53 +234,6 @@ public final class TestUtils {
             logger.warn("Connect error.", t);
         }
         return null;
-    }
-
-    public static Channel getInferenceChannel(ConfigManager configManager)
-            throws InterruptedException {
-        return getChannel(false, configManager);
-    }
-
-    public static Channel getManagementChannel(ConfigManager configManager)
-            throws InterruptedException {
-        return getChannel(true, configManager);
-    }
-
-    private static Channel getChannel(boolean isManagementChannel, ConfigManager configManager)
-            throws InterruptedException {
-        if (isManagementChannel && managementChannel != null && managementChannel.isActive()) {
-            return managementChannel;
-        } else if (!isManagementChannel
-                && inferenceChannel != null
-                && inferenceChannel.isActive()) {
-            return inferenceChannel;
-        } else {
-            Channel channel = null;
-            if (channel == null) {
-                for (int i = 0; i < 5; ++i) {
-                    channel = TestUtils.connect(isManagementChannel, configManager);
-                    if (channel != null) {
-                        break;
-                    }
-                    Thread.sleep(100);
-                }
-            }
-            if (isManagementChannel) {
-                managementChannel = channel;
-            } else {
-                inferenceChannel = channel;
-            }
-            return channel;
-        }
-    }
-
-    public static void closeChannels() throws InterruptedException {
-        if (managementChannel != null) {
-            managementChannel.closeFuture().sync();
-        }
-        if (inferenceChannel != null) {
-            inferenceChannel.closeFuture().sync();
-        }
     }
 
     @ChannelHandler.Sharable
