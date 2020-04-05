@@ -1,6 +1,9 @@
-# Running TorchServe
+# Serve Models with TorchServe
+
+This topic covers TorchServe in depth. For a simple example that shows how to run TorchServe quickly, see [Quick start](quickstart.md).
 
 ## Contents of this Document
+
 * [Overview](#overview)
 * [Technical Details](#technical-details)
 * [Model Files](#model-files)
@@ -9,13 +12,22 @@
 
 ## Overview
 
-TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  [REST based APIs](rest_api.md) handle state prediction requests.
+Use TorchServe for many types of inference in production settings. It provides an easy-to-use command line interface and uses [REST based APIs](rest_api.md) to handle state prediction requests.
 
-For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the [examples](../examples) folder.
+For example, suppose you want to make an app that lets your users snap a picture,
+and it tells them what objects were detected in the scene, and predicts on what the objects might be.
+You can use TorchServe to serve a prediction endpoint for an object detection and identification model that takes images as input, and then returns predictions.
+
+You can also modify TorchServe behavior with custom services and run multiple models.
+For more information, see [Custom Service](custom_service.md).
+There are examples of custom services in the [examples](../examples) folder.
 
 ## Technical Details
 
-Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
+Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a PyTorch deep learning model and wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from the command line. This command line call takes the single or multiple models you want to serve,
+along with additional optional parameters that control the port, host, and logging.
+TorchServe supports running custom services to handle the specific inference handling logic.
+These are covered in more detail in the [custom service](custom_service.md) documentation.
 
 To try out TorchServe serving now, you can load the custom MNIST model, with this example:
 
@@ -30,10 +42,11 @@ After this deep dive, you might also be interested in:
 
 * [Custom Services](custom_service.md): learn about serving different kinds of model and inference types
 
-
 ## Model Files
 
-The rest of this topic focus on serving of model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
+The rest of this topic focus on serving of model files without much discussion on the model files themselves, where they come from, and how they're made.
+Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already.
+If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
 
 ## Command Line Interface
 
@@ -67,14 +80,9 @@ optional arguments:
                         Log4j configuration file for TorchServe
 ```
 
-#### Arguments:
-Example where no models are loaded at start time:
+### Arguments
 
-```bash
-torchserve
-```
-
-There are no default required arguments to start the server
+There are no required arguments to start the server
 
 1. **models**: optional, <model_name>=<model_path> pairs.
 
@@ -83,17 +91,17 @@ There are no default required arguments to start the server
         http link: http://hostname/path/to/resource
 
     b) to load all the models in model store set model value to "all"
-    
+
     ```bash
     torchserve --model-store /models --start --models all
     ```
 
-    c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.
+    c) Although the model file has .mar extension, it is actually a zip file with a .mar extension that contains trained models and model signature files.
 
-    d) Multiple models loading are also supported by specifying multiple name path pairs.
-    
+    d) You can load multiple models by specifying multiple name and path pairs.
+
     e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
-    
+
 1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
@@ -105,13 +113,14 @@ There are no default required arguments to start the server
 ### Custom Services
 
 This topic is covered in much more detail on the [custom service documentation page](custom_service.md), but let's talk about how you start up your TorchServe server using a custom service and why you might want one.
-Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TorchServe like this:
+Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs.
+You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TorchServe like this:
 
 ```bash
 torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.mar
 ```
 
-This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
+This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in the archive would point to the entry point.
 
 ### Serving Multiple Models with TorchServe
 
@@ -141,9 +150,6 @@ torchserve --models resnet=https://<s3_path>/resnet-18.mar squeezenet=https://<s
 
 This will setup a local host serving resnet-18 model and squeezenet model on the same port, using the default 8080. Check http://127.0.0.1:8081/models to see that each model has an endpoint for prediction. In this case you would see `predictions/resnet` and `predictions/squeezenet`
 
-
 ### Logging and Metrics
 
 For details on logging see the [logging documentation](logging.md). For details on metrics see the [metrics documentation](metrics.md).
-
-

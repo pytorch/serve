@@ -1,6 +1,7 @@
 # Management API
 
-TorchServe provides a set of API allow user to manage models at runtime:
+TorchServe provides the following APIs that allows you to manage models at runtime:
+
 1. [Register a model](#register-a-model)
 2. [Increase/decrease number of workers for specific model](#scale-workers)
 3. [Describe a model's status](#describe-model)
@@ -8,13 +9,11 @@ TorchServe provides a set of API allow user to manage models at runtime:
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
 
-Management API is listening on port 8081 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
+The Management API listens on port 8081 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
-Similar as [Inference API](inference_api.md), Management API also provide a [API description](#api-description) to describe management APIs with OpenAPI 3.0 specification.
+Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with OpenAPI 3.0 specification.
 
-## Management APIs
-
-### Register a model
+## Register a model
 
 `POST /models`
 * url - Model archive download url. Supports the following locations:
@@ -37,9 +36,10 @@ curl -X POST "http://localhost:8081/models?url=https://<s3_path>/squeezenet_v1.1
 }
 ```
 
-User may want to create workers while register, creating initial workers may take some time, user can choose between synchronous or synchronous call to make sure initial workers are created properly.
+You might want to create workers during registration. because creating initial workers might take some time,
+you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
 
-The asynchronous call will return before trying to create workers with HTTP code 202:
+The asynchronous call returns with HTTP code 202 before trying to create workers.
 
 ```bash
 curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_path>/squeezenet_v1.1.mar"
@@ -55,7 +55,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=fals
 }
 ```
 
-The synchronous call will return after all workers has be adjusted with HTTP code 200.
+The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
 curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/squeezenet_v1.1.mar"
@@ -71,8 +71,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 }
 ```
 
-
-### Scale workers
+## Scale workers
 
 `PUT /models/{model_name}`
 * min_worker - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
@@ -81,9 +80,9 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 * synchronous - whether or not the call is synchronous. The default value is `false`.
 * timeout - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
 
-Use the Scale Worker API to dynamically adjust the number of workers for any version of a model to better serve different inference request loads. 
+Use the Scale Worker API to dynamically adjust the number of workers for any version of a model to better serve different inference request loads.
 
-There are two different flavour of this API, synchronous vs asynchronous.
+There are two different flavors of this API, synchronous and asynchronous.
 
 The asynchronous call will return immediately with HTTP code 202:
 
@@ -95,13 +94,13 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3"
 < x-request-id: 74b65aab-dea8-470c-bb7a-5a186c7ddee6
 < content-length: 33
 < connection: keep-alive
-< 
+<
 {
   "status": "Worker updated"
 }
 ```
 
-The synchronous call will return after all workers has be adjusted with HTTP code 200.
+The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
 curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
@@ -120,7 +119,7 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
 To scale workers of a specific version of a model use URI : /models/{model_name}/{version}
 `PUT /models/{model_name}/{version}`
 
-The following synchronus call will return after all workers for version "2.0" for model "noop" has be adjusted with HTTP code 200.
+The following synchronous call will return after all workers for version "2.0" for model "noop" has be adjusted with HTTP code 200.
 
 ```bash
 curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=true"
@@ -136,7 +135,7 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 }
 ```
 
-### Describe model
+## Describe model
 
 `GET /models/{model_name}`
 
@@ -248,7 +247,7 @@ curl http://localhost:8081/models/noop/all
 ]
 ```
 
-### Unregister a model
+## Unregister a model
 
 `DELETE /models/{model_name}/{version}`
 
@@ -262,7 +261,7 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 }
 ```
 
-### List models
+## List models
 
 `GET /models`
 * limit - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is `100`.
@@ -312,9 +311,9 @@ curl -X OPTIONS http://localhost:8081
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
 
 Example outputs of the Inference and Management APIs:
+
 * [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
-
 
 ## Set Default Version
 
@@ -329,5 +328,6 @@ curl -v -X PUT http://localhost:8081/models/noop/2.0/set-default
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
 
 Example outputs of the Inference and Management APIs:
+
 * [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
