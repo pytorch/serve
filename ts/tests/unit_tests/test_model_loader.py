@@ -10,7 +10,6 @@ from collections import namedtuple
 import mock
 import pytest
 
-from ts.model_loader import LegacyModelLoader
 from ts.model_loader import TsModelLoader
 from ts.model_loader import ModelLoaderFactory
 from ts.model_service.model_service import SingleNodeService
@@ -20,13 +19,6 @@ from ts.utils.util import list_classes_from_module
 # noinspection PyClassHasNoInit
 # @pytest.mark.skip(reason="Disabling it currently until the PR #467 gets merged")
 class TestModelFactory:
-
-    def test_model_loader_factory_legacy(self):
-        model_loader = ModelLoaderFactory.get_model_loader(
-            os.path.abspath('ts/tests/unit_tests/model_service/dummy_model'))
-
-        assert isinstance(model_loader, LegacyModelLoader)
-
     def test_model_loader_factory(self):
         model_loader = ModelLoaderFactory.get_model_loader(
             os.path.abspath('ts/tests/unit_tests/test_utils/'))
