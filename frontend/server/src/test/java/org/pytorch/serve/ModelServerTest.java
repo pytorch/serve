@@ -42,7 +42,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-@Test(testName = "testModelServer")
 public class ModelServerTest {
     private static final String ERROR_NOT_FOUND =
             "Requested resource is not found, please refer to API document.";
