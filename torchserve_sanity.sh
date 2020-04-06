@@ -68,6 +68,7 @@ cleanup()
 }
 
 
+pip install wrapt --upgrade --ignore-installed
 pip install pytest==3.6
 pip install mock pytest-mock pytest-cov
 pip install -U pylint
