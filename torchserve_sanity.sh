@@ -1,3 +1,15 @@
+#!/bin/bash
+set -euxo pipefail
+
+cleanup()
+{
+  torchserve --stop
+
+  rm -rf model_store
+
+  rm -rf logs
+}
+
 pip install mock pytest==3.6 pylint pytest-mock pytest-cov
 
 cd frontend
@@ -34,9 +46,9 @@ cd model-archiver
 
 if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/;
 then
-  echo "Model-archiver test suite execution successfully"
+  echo "Model-archiver UT test suite execution successfully"
 else
-  echo "Model-archiver test suite execution failed!!! Check logs for more details"
+  echo "Model-archiver UT test suite execution failed!!! Check logs for more details"
   exit 1
 fi
 
@@ -44,15 +56,15 @@ if pip install .;
 then
   echo "Successfully installed torch-model-archiver"
 else
-  echo "TorchServe installation torch-model-archiver"
+  echo "torch-model-archiver installation failed"
   exit 1
 fi
 
 if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/;
 then
-  echo "Model-archiver UT test suite execution successful"
+  echo "Model-archiver IT test suite execution successful"
 else
-  echo "Model-archiver UT test suite execution failed!!! Check logs for more details"
+  echo "Model-archiver IT test suite execution failed!!! Check logs for more details"
   exit 1
 fi
 
@@ -64,12 +76,13 @@ echo "Starting TorchServe"
 torchserve --start --model-store model_store &
 pid=$!
 count=$(ps -A| grep $pid |wc -l)
-if [[ $count -eq 0 ]]
+if [[ $count -eq 1 ]]
 then
         if wait $pid; then
                 echo "Successfully started TorchServe"
         else
                 echo "TorchServe start failed (returned $?)"
+                exit 1
         fi
 else
         echo "Successfully started TorchServe"
@@ -80,13 +93,13 @@ sleep 10
 echo "Registering resnet-18 model"
 response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&initial_workers=1&synchronous=true")
 
-echo $response
-
 if [ ! "$response" == 200 ]
 then
-    echo "failed to register model with torchserve"
+    echo "Failed to register model with torchserve"
+    cleanup
+    exit 1
 else
-    echo "successfully registered resnet-18 model with torchserve"
+    echo "Successfully registered resnet-18 model with torchserve"
 fi
 
 echo "Running inference on resnet-18 model"
@@ -95,15 +108,12 @@ response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -
 if [ ! "$response" == 200 ]
 then
     echo "Failed to run inference on resnet-18 model"
+    cleanup
+    exit 1
 else
     echo "Successfully ran infernece on resnet-18 model."
 fi
 
-torchserve --stop
-
-rm -rf model_store
-
-rm -rf logs
-
+cleanup
 
 echo "CONGRATULATIONS!!! YOUR BRANCH IS IN STABLE STATE"

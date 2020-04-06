@@ -20,7 +20,7 @@ pip install librosa --user
  * Download the checkpoint for NVIDIA WaveGlow model :
  
     ```bash
-   https://api.ngc.nvidia.com/v2/models/nvidia/waveglowpyt_fp32/versions/1/files/nvidia_waveglowpyt_fp32_20190306.pth 
+   wget https://api.ngc.nvidia.com/v2/models/nvidia/waveglowpyt_fp32/versions/1/files/nvidia_waveglowpyt_fp32_20190306.pth 
    ```
 
  * Create a torch model archive using the torch-model-archiver utility to archive the above files.
