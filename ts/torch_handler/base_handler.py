@@ -9,6 +9,7 @@ import json
 import importlib
 
 import torch
+from ..utils.util import list_classes_from_module
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +50,6 @@ class BaseHandler(abc.ABC):
             model_def_path = os.path.join(model_dir, model_file)
             if not os.path.isfile(model_def_path):
                 raise RuntimeError("Missing the model.py file")
-
-            from ..utils.util import list_classes_from_module
 
             module = importlib.import_module(model_file.split(".")[0])
             model_class_definitions = list_classes_from_module(module)

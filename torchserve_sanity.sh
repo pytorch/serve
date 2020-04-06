@@ -68,13 +68,16 @@ cleanup()
 }
 
 
-pip install mock pytest==3.6 pylint pytest-mock pytest-cov
+pip install pytest==3.6
+pip install mock pytest-mock pytest-cov
+pip install -U pylint
+
 
 cd frontend
 
 if ./gradlew clean build;
 then
-  echo "Frontend build suite execution successfully"
+  echo "Frontend build suite execution successful"
 else
   echo "Frontend build suite execution failed!!! Check logs for more details"
   exit 1
@@ -83,11 +86,13 @@ fi
 cd ..
 if python -m pytest --cov-report html:htmlcov --cov=ts/ ts/tests/unit_tests/;
 then
-  echo "Backend test suite execution successfully"
+  echo "Backend test suite execution successful"
 else
   echo "Backend test suite execution failed!!! Check logs for more details"
   exit 1
 fi
+
+pylint -rn --rcfile=./ts/tests/pylintrc ts/.
 
 pip uninstall --yes torchserve
 pip uninstall --yes torch-model-archiver
