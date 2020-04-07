@@ -146,7 +146,7 @@ torchserve --start --model-store model_store --models densenet161=densenet161.ma
 
 ### Install torch-model-archiver
 
-*Install torch-model-archiver as follows:
+* Install torch-model-archiver as follows:
 
 ```bash
 cd serve/model-archiver
