@@ -1,40 +1,83 @@
-# TorchServe
+TorchServe
+=======
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).
+A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the [docs folder](docs/README.md).
 
 ## Contents of this Document
-
-* [Install TorchServe](#install-torchserve)
+* [Quick Start with docker](#quick-start-with-docker)
+* [Quick Start for local environment](#quick-start-guide-for-local-environment)
+* [Serve a Model](#serve-a-model)
+* [Other Features](#other-features)
 * [Contributing](#contributing)
 
-## Install TorchServe
+
+## Quick Start with docker
+
+### Start TorchServe using docker image
+
+**Prerequisites**
+
+* docker - Refer [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+
+**Building docker image**
+
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
+./build_image.sh
+```
+
+The above command builds the TorchServe image for CPU device with `master` branch
+
+To create image for specific branch use following command :
+```bash
+./build_image.sh -b <branch_name>
+```
+
+To create image for GPU device use following command :
+```bash
+./build_image.sh --gpu
+```
+
+To create image for GPU device with specific branch use following command :
+```bash
+./build_image.sh -b <branch_name> --gpu
+```
+
+**Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
+
+```bash
+./start.sh
+```
+
+**For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
+**For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
+**For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
+
+## Quick Start for local environment
 
 ### Prerequisites
-
 Before proceeding further with this document, make sure you have the following prerequisites.
-
 1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
 1. Python     - TorchServe requires python to run the workers.
 1. pip        - Pip is a python package management system.
 1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
 
     For Ubuntu:
-
     ```bash
     sudo apt-get install openjdk-11-jdk
     ```
 
     For CentOS:
-
     ```bash
     openjdk-11-jdk
     sudo yum install java-11-openjdk
     ```
 
-    For macOS
-
+    For macOS:
     ```bash
     brew tap AdoptOpenJDK/openjdk
     brew cask install adoptopenjdk11
@@ -55,7 +98,6 @@ pip install virtualenv
 ```
 
 Then create a virtual environment:
-
 ```bash
 # Assuming we want to run python3.7 in /usr/local/bin/python3.7
 virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
@@ -69,11 +111,11 @@ Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) f
 [Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
 
 Then create a virtual environment using conda.
-
 ```bash
 conda create -n myenv
 source activate myenv
 ```
+
 
 **Step 2:** Install torch
 TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
@@ -88,8 +130,7 @@ pip install torch torchvision torchtext
 * For conda
 
 The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
-
-```bash
+```
 pip install sentencepiece
 ```
 
@@ -112,27 +153,30 @@ pip install .
 ```
 
 **Notes:**
-
-* If `pip install .`  fails, run `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
+* In case `pip install .` step fails, try using `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
-### Install TorchServe for Development
+### Installing torch-model-archiver
 
-If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
+*Install torch-model-archiver as follows:
 
 ```bash
 cd model-archiver
 pip install .
 ```
 
-To upgrade TorchServe from source code and make changes executable, run:
+**Note** 
+* Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TorchServe installation.
+* See the [detailed documentation](model-archiver/README.md) page for more options and troubleshooting.
+### Serve a Model
 
+Once installed, you can get TorchServe model server up and running very quickly. Try out `--help` to see all the CLI options available.
 
 ```bash
-pip install -U -e .
+torchserve --help
 ```
 
-## Troubleshoot Installation
+For this quick start, we'll skip over most of the features, but be sure to take a look at the [full server docs](docs/server.md) when you're ready.
 
 Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
 ```bash
@@ -143,16 +187,68 @@ mv densenet161.mar model_store/
 torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
 
-### Install torch-model-archiver
+With the command above executed, you have TorchServe running on your host, listening for inference requests. **Please note, that if you specify model(s) during TorchServe start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TorchServe start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
 
-*Install torch-model-archiver as follows:
+To test it out, you can open a new terminal window next to the one running TorchServe. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the TorchServe predict endpoint with the kitten's image.
+
+![kitten](docs/images/kitten_small.jpg)
+
+In the example below, we provide a shortcut for these steps.
 
 ```bash
-cd serve/model-archiver
-pip install .
+curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
-For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+The predict endpoint will return a prediction response in JSON. It will look something like the following result:
+
+```json
+[
+  {
+    "tiger_cat": 0.46933549642562866
+  },
+  {
+    "tabby": 0.4633878469467163
+  },
+  {
+    "Egyptian_cat": 0.06456148624420166
+  },
+  {
+    "lynx": 0.0012828214094042778
+  },
+  {
+    "plastic_bag": 0.00023323034110944718
+  }
+]
+```
+
+You will see this result in the response to your `curl` call to the predict endpoint, and in the server logs in the terminal window running TorchServe. It's also being [logged locally with metrics](docs/metrics.md).
+
+Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
+
+### Stopping the running TorchServe
+To stop the current running TorchServe instance, run the following command:
+```bash
+$ torchserve --stop
+```
+You would see output specifying that TorchServe has stopped.
+
+### Create a Model Archive
+
+TorchServe enables you to package up all of your model artifacts into a single model archive. This makes it easy to share and deploy your models.
+To package a model, check out [model archiver documentation](model-archiver/README.md)
+
+## Recommended production deployments
+
+* TorchServe doesn't provide authentication. You have to have your own authentication proxy in front of TorchServe.
+* TorchServe doesn't provide throttling, it's vulnerable to DDoS attack. It's recommended to running TorchServe behind a firewall.
+* TorchServe only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-ts-listening-port) for detail.
+* SSL is not enabled by default, see [Enable SSL](docs/configuration.md#enable-ssl) for detail.
+* TorchServe use a config.properties file to configure TorchServe's behavior, see [Manage TorchServe](docs/configuration.md) page for detail of how to configure TorchServe.
+
+## Other Features
+
+Browse over to the [Docs readme](docs/README.md) for the full index of documentation. This includes more examples, how to customize the API service, API endpoint details, and more.
 
 ## Contributing
 
@@ -166,17 +262,17 @@ Below, in order, is a prioritized list of tasks for this repository.
 
 ### v0.1 Plan
 
-* [ ] CI (initially AWS CodeBuild)
-* [x] Default handler
-  * [x] Handle eager-mode and TorchScript (tracing and scripting)
-  * [x] Add zero-code pre and post-processing for Image Classification
-* [x] Basic examples
-  * [x] Eager-mode image classifier
-    * [x] TorchScript image classifier
-    * [x] Custom neural network
-* [x] Basic docs (install, serve a model and use it for inference)
+- [ ] CI (initially AWS CodeBuild)
+- [x] Default handler
+    - [x] Handle eager-mode and TorchScript (tracing and scripting)
+    - [x] Add zero-code pre and post-processing for Image Classification
+- [x] Basic examples
+    - [x] Eager-mode image classifier
+    - [x] TorchScript image classifier
+    - [x] Custom neural network 
+- [x] Basic docs (install, serve a model and use it for inference)
 
 ### v0.2 Plan
 
-* [ ] Basic unit tests
-* [ ] Versioning
+- [ ] Basic unit tests
+- [ ] Versioning
