@@ -152,7 +152,7 @@ public class ModelServerTest {
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
         testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
         testDescribeModel(managementChannel, "noopversioned", null, "1.11");
-        testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
+        testDescribeModel(managementChannel, "noopversioned", "all", "1.21");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
         testPredictions(channel, "noopversioned", "OK", "1.21");
         testSetDefault(managementChannel, "noopversioned", "1.21");
