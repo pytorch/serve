@@ -76,6 +76,7 @@ source activate myenv
 ```
 
 **Step 2:** Install torch
+
 TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
 
 * For virtualenv
