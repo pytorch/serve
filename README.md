@@ -116,17 +116,15 @@ pip install .
 * If `pip install .`  fails, run `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
-### Install TorchServe for Development
+### Install TorchServe for development
 
 If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
 
 ```bash
-cd model-archiver
-pip install .
+pip install -e .
 ```
 
 To upgrade TorchServe from source code and make changes executable, run:
-
 
 ```bash
 pip install -U -e .
@@ -135,6 +133,7 @@ pip install -U -e .
 ## Troubleshoot Installation
 
 Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
+
 ```bash
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
