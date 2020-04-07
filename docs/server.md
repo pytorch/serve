@@ -49,6 +49,10 @@ usage: torchserve [-h] [-v | --version]
 
 Torchserve
 
+mandatory arguments:
+  --model-store MODEL_STORE
+                        Model store location where models can be loaded
+
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         Return TorchServe Version
@@ -56,8 +60,7 @@ optional arguments:
   --stop                Stop the model-server
   --ts-config TS_CONFIG
                         Configuration file for TorchServe
-  --model-store MODEL_STORE
-                        Model store location where models can be loaded
+
   --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
                         Models to be loaded using [model_name=]model_location
                         format. Location can be a HTTP URL, a model archive
@@ -65,13 +68,15 @@ optional arguments:
                         MODEL_STORE.
   --log-config LOG_CONFIG
                         Log4j configuration file for TorchServe
+  --ncs, --no-config-snapshots         
+                        Disable snapshot feature
 ```
 
 #### Arguments:
 Example where no models are loaded at start time:
 
 ```bash
-torchserve
+torchserve --model-store /models
 ```
 
 There are no default required arguments to start the server
@@ -108,7 +113,7 @@ This topic is covered in much more detail on the [custom service documentation p
 Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TorchServe like this:
 
 ```bash
-torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.mar
+torchserve --start --model-store /models --models not-hot-dog=super-fancy-net.mar
 ```
 
 This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
@@ -132,15 +137,6 @@ Here's an example for running the resnet-18 and the vgg16 models using local mod
 ```bash
 torchserve --start --model-store /models --models resnet-18=resnet-18.mar squeezenet=squeezenet_v1.1.mar
 ```
-
-If you don't have the model files locally, then you can call TorchServe using URLs to the model files.
-
-```bash
-torchserve --models resnet=https://<s3_path>/resnet-18.mar squeezenet=https://<s3_path>/squeezenet_v1.1.mar
-```
-
-This will setup a local host serving resnet-18 model and squeezenet model on the same port, using the default 8080. Check http://127.0.0.1:8081/models to see that each model has an endpoint for prediction. In this case you would see `predictions/resnet` and `predictions/squeezenet`
-
 
 ### Logging and Metrics
 

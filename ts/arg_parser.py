@@ -30,6 +30,7 @@ class ArgParser(object):
                             dest='ts_config',
                             help='Configuration file for model server')
         parser.add_argument('--model-store',
+                            required=False,
                             dest='model_store',
                             help='Model store location from where local or default models can be loaded')
         parser.add_argument('--models',
@@ -43,6 +44,10 @@ class ArgParser(object):
         parser.add_argument('--foreground',
                             help='Run the model server in foreground. If this option is disabled, the model server'
                                  ' will run in the background.',
+                            action='store_true')
+        parser.add_argument('--no-config-snapshots', '--ncs',
+                            dest='no_config_snapshots',
+                            help='Prevents to server from storing config snapshot files.',
                             action='store_true')
 
         return parser

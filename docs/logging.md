@@ -85,13 +85,13 @@ vmargs=-Dlog4j.configuration=file:///path/to/custom/log4j.properties
 ```
 Then start the TorchServe as follows
 ```bash
-$ torchserve --start --ts-config /path/to/config.properties
+$ torchserve --start --model-store /models --ts-config /path/to/config.properties
 ```
 ### Provide with CLI 
 Alternatively, you could start the TorchServe with the following command as well
 
 ```bash
-$ torchserve --start --log-config /path/to/custom/log4j.properties
+$ torchserve --start --model-store /models --log-config /path/to/custom/log4j.properties
 ```
 
 # Enable asynchronous logging
