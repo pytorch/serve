@@ -4,6 +4,8 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).
 
+For a simple example of how to get TorchServe up and running after installation, see [Quick start](docs/quick_start.md).
+
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)

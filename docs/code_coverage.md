@@ -1,4 +1,4 @@
-#### To execute unit testing and generate code coverage report follow these steps:
+# To execute unit testing and generate code coverage report follow these steps:
 
 ```bash
 cd serve/frontend
@@ -14,6 +14,6 @@ The above command executes the TorchServe frontend build suite which consists of
 
 The reports can be accessed at the following path :
 
-```
+```bash
 serve/frontend/server/build/reports
 ```
