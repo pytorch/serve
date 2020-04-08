@@ -167,6 +167,17 @@ pip install .
 * If `pip install .`  fails, run `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
+### Install torch-model-archiver
+
+* Install torch-model-archiver as follows:
+
+```bash
+cd serve/model-archiver
+pip install .
+```
+
+For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+
 ### Install TorchServe for development
 
 If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
@@ -192,17 +203,6 @@ mkdir model_store
 mv densenet161.mar model_store/
 torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
-
-### Install torch-model-archiver
-
-* Install torch-model-archiver as follows:
-
-```bash
-cd serve/model-archiver
-pip install .
-```
-
-For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
 ## Contributing
 
