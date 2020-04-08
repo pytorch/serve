@@ -10,17 +10,11 @@ The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason,
 
 While installing JMeter through brew, the `install_depdendencies.sh` script asks for following command line input.  
 ```bash
-Installing JMeter through Brew
-+ yes ''
-+ brew update
-==> Select the Linuxbrew installation directory
-- Enter your password to install to /home/linuxbrew/.linuxbrew (recommended)
-- Press Control-D to install to /home/ubuntu/.linuxbrew
-- Press Control-C to cancel installation
-[sudo] password for ubuntu: 
+Press RETURN to continue or any other key to abort
 ```
 
-Here `Press Control-D to install to /home/ubuntu/.linuxbrew` as the `ubuntu` user on EC2 node has password-less sudo access.
+Here press Enter key, it will install Homebrew at /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter.
+Note: While installing JMeter through brew on GPU base instancce, use`install_depdendencies.sh True`. 
 
 ### MacOS
 
