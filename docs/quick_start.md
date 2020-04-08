@@ -36,7 +36,8 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 To test the model server, send a request to the server's `predictions` API.
 
-Comlete the following steps:
+Complete the following steps:
+
 * Open a new terminal window (other than the one running TorchServe).
 * Use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images)
   and use the  `-o` flag to name it `kitten.jpg` for you.
@@ -86,11 +87,3 @@ torchserve --stop
 ```
 
 You see output specifying that TorchServe has stopped.
-
-## Recommended production deployments
-
-* TorchServe doesn't provide authentication. You have to have your own authentication proxy in front of TorchServe.
-* TorchServe doesn't provide throttling, it's vulnerable to DDoS attack. It's recommended to running TorchServe behind a firewall.
-* TorchServe only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-ts-listening-port) for detail.
-* SSL is not enabled by default, see [Enable SSL](docs/configuration.md#enable-ssl) for detail.
-* TorchServe use a config.properties file to configure TorchServe's behavior, see [Manage TorchServe](docs/configuration.md) page for detail of how to configure TorchServe.

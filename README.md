@@ -7,9 +7,59 @@ For full documentation, see [Model Server for PyTorch Documentation](docs/README
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
+* [Quick Start with docker](#quick-start-with-docker)
+* [Quick Start for local environment](#quick-start-guide-for-local-environment)
+* [Serve a Model](#serve-a-model)
+* [Other Features](#other-features)
 * [Contributing](#contributing)
 
 ## Install TorchServe
+
+## Quick Start with docker
+
+### Start TorchServe using docker image
+
+#### Prerequisites
+
+* docker - Refer [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+
+#### Building docker image
+
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
+./build_image.sh
+```
+
+The above command builds the TorchServe image for CPU device with `master` branch
+
+To create image for specific branch use following command :
+```bash
+./build_image.sh -b <branch_name>
+```
+
+To create image for GPU device use following command :
+```bash
+./build_image.sh --gpu
+```
+
+To create image for GPU device with specific branch use following command :
+```bash
+./build_image.sh -b <branch_name> --gpu
+```
+
+**Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
+
+```bash
+./start.sh
+```
+
+**For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
+**For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
+**For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
+
+## Quick Start for local environment
 
 ### Prerequisites
 
