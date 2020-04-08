@@ -17,8 +17,8 @@ sudo apt-get install -y \
         g++ \
         curl \
         vim \
-	git \
-	file \
+        git \
+        file \
         build-essential \
         && cd /tmp \
         && curl -O https://bootstrap.pypa.io/get-pip.py \
