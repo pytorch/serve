@@ -126,6 +126,7 @@ source activate myenv
 ```
 
 **Step 2:** Install torch
+
 TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
 
 * For virtualenv
@@ -194,7 +195,7 @@ torchserve --start --model-store model_store --models densenet161=densenet161.ma
 
 ### Install torch-model-archiver
 
-*Install torch-model-archiver as follows:
+* Install torch-model-archiver as follows:
 
 ```bash
 cd serve/model-archiver
