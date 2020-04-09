@@ -103,7 +103,7 @@ optional arguments:
                         .mar file with same name as that provided in --model-
                         name in the path specified by --export-path will
                         overwritten
-  -v, --version         Model version must be a valid non-negative floating point number.
+  -v, --version         Model's version.
 ```
 
 ## Artifact Details

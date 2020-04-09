@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +83,9 @@ public class WorkLoadManager {
         return numWorking;
     }
 
-    public CompletableFuture<HttpResponseStatus> modelChanged(Model model) {
+    public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup) {
         synchronized (model.getModelVersionName()) {
+            boolean isSnapshotSaved = false;
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
@@ -133,7 +135,14 @@ public class WorkLoadManager {
                         }
                     }
                 }
+                if (!isStartup) {
+                    SnapshotManager.getInstance().saveSnapshot();
+                    isSnapshotSaved = true;
+                }
                 future.complete(HttpResponseStatus.OK);
+            }
+            if (!isStartup && !isSnapshotSaved) {
+                SnapshotManager.getInstance().saveSnapshot();
             }
             return future;
         }
