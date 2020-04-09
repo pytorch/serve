@@ -129,11 +129,11 @@ public class ModelServerTest {
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
         testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
-        testDescribeModel(managementChannel, "noopversioned", null, "1.21");
-        testDescribeModel(managementChannel, "noopversioned", "all", "1.11");
+        testDescribeModel(managementChannel, "noopversioned", null, "1.11");
+        testDescribeModel(managementChannel, "noopversioned", "all", "1.2.1");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
-        testPredictions(channel, "noopversioned", "OK", "1.21");
-        testSetDefault(managementChannel, "noopversioned", "1.11");
+        testPredictions(channel, "noopversioned", "OK", "1.2.1");
+        testSetDefault(managementChannel, "noopversioned", "1.2.1");
         testLoadModelWithInitialWorkersWithJSONReqBody(managementChannel);
         testScaleModel(managementChannel);
         testPredictions(channel, "noop", "OK", null);
@@ -182,7 +182,8 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
-        testUnregisterModelFailure("noopversioned", "1.11");
+        testSetInvalidVersionDefault("noopversioned", "3.3.3");
+        testUnregisterModelFailure("noopversioned", "1.2.1");
 
         testTS();
     }
@@ -356,7 +357,8 @@ public class ModelServerTest {
 
         channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
-        testUnregisterModel(channel, "noopversioned", "1.21");
+        testUnregisterModel(channel, "noopversioned", "1.11");
+        testUnregisterModel(channel, "noopversioned", "1.2.1");
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
@@ -385,6 +387,7 @@ public class ModelServerTest {
         } else {
             Assert.assertTrue(resp.length == 1);
         }
+
         Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
     }
 
@@ -407,6 +410,26 @@ public class ModelServerTest {
                         + "\" to \""
                         + defaultVersion
                         + "\"");
+    }
+
+    private void testSetInvalidVersionDefault(String modelName, String defaultVersion)
+            throws InterruptedException {
+        Channel channel = TestUtils.connect(true, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
+        channel.writeAndFlush(req);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Model version " + defaultVersion + " does not exist for model " + modelName);
     }
 
     private void testPredictions(
