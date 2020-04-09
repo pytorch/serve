@@ -3,6 +3,16 @@
 TorchServe is meant to be easy to use. The default settings form TorchServe should be sufficient for most use cases.
 If you want to customize TorchServe, the configuration options described in this topic are available.
 
+There are three ways to configure TorchServe. In order of priority, the are:
+
+1. Environment variables
+2. Command line arguments
+3. Configuration file
+
+For example, the value of an environment variable overrides both command line arguments and
+a property in the configuration file. The value of a command line argument overrides
+a value in the configuration file.
+
 ## Environment variables
 
 You can change TorchServe behavior by setting the following environment variables:
@@ -20,7 +30,7 @@ The value of an environment variable overrides other property values.
 
 Customize TorchServe behavior by using the following command line arguments when you call `torchserve`:
 
-* **--ts-config** TorchServe loads the specified configuration file if `TS_CONFIG_FILE` is not set
+* **--ts-config** TorchServe loads the specified configuration file if `TS_CONFIG_FILE` environment variable is not set
 * **--model-store** Overrides the `model_store` property in config.properties file
 * **--models** Overrides the `load_models` property in config.properties
 * **--log-config** Overrides the default log4j.properties
@@ -66,13 +76,13 @@ The following values are valid:
 ### Configure TorchServe listening address and port
 
 TorchServe doesn't support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default.
-The inference API is listening on port 8080 accepting HTTP requests. The management API is listening on port 8081 port and accepting HTTP request.
+The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
 See [Enable SSL](#enable-ssl) to configure HTTPS.
 
 * `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
-* management_address: management API binding address. Default: http://127.0.0.1:8081
-* To run predictions on models via public-ip, specify the IP address as `0.0.0.0`
-  to make it accessible over all network interfaces, or set it to the explicit IP-address as shown in example below:
+* `management_address`: management API binding address. Default: http://127.0.0.1:8081
+* To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
+  To run predictions on models on a specific IP address, specify the IP address and port.
 
 Here are a couple of examples:
 
@@ -153,31 +163,31 @@ cors_allowed_methods=GET, POST, PUT, OPTIONS
 cors_allowed_headers=X-Custom-Header
 ```
 
-### Restrict backend worker to access environment variable
+### Restrict backend worker to access environment variables
 
 Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
 which might expose a security risk. TorchServe provides a `blacklist_env_vars` property that allows you to restrict which environment variables can be accessed by backend workers.
 
-* `blacklist_env_vars`: a regular expression to filter out environment variable names. default: all environment variables are visible to backend workers.
+* `blacklist_env_vars`: a regular expression to filter out environment variable names. Default: all environment variables are visible to backend workers.
 
 ### Limit GPU usage
 
 By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu` to limit the usage of GPUs.
 
-* `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. default: all available GPUs in system.
+* `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
 
 ### Other properties
 
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
-* `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. default: false
-* `number_of_netty_threads`: number frontend netty thread, default: number of logical processors available to the JVM.
-* `netty_client_threads`: number of backend netty thread, default: number of logical processors available to the JVM.
-* `default_workers_per_model`: number of workers to create for each model that loaded at startup time, default: available GPUs in system or number of logical processors available to the JVM.
-* `job_queue_size`: number inference jobs that frontend will queue before backend can serve, default 100.
-* `async_logging`: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled, default: false.
-* `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. default: 120 seconds.
-* `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. default: 120 seconds.
+* `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
+* `number_of_netty_threads`: number frontend netty thread. Default: number of logical processors available to the JVM.
+* `netty_client_threads`: number of backend netty thread. Default: number of logical processors available to the JVM.
+* `default_workers_per_model`: number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
+* `job_queue_size`: number inference jobs that frontend will queue before backend can serve. Default: 100.
+* `async_logging`: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
+* `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
+* `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
-the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". default: true  
+the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  

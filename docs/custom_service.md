@@ -5,7 +5,7 @@ the model when you use the model archiver. TorchServe executes this code when it
 
 Provide a custom script to:
 
-* Preprocess input data before it is sent to the model for inference
+* Pre-process input data before it is sent to the model for inference
 * Customize how the model is invoked for inference
 * Post-process output from the model before sending the response to the user
 
