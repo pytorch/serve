@@ -203,6 +203,7 @@ public class ModelServerTest {
         testScaleModelFailure();
         testUnregisterModelNotFound();
         testUnregisterModelTimeout();
+        testSetInvalidVersionDefault("noopversioned", "3.3.3");
         testUnregisterModelFailure("noopversioned", "1.2.1");
     }
 
@@ -484,6 +485,26 @@ public class ModelServerTest {
                         + "\" to \""
                         + defaultVersion
                         + "\"");
+    }
+
+    private void testSetInvalidVersionDefault(String modelName, String defaultVersion)
+            throws InterruptedException {
+        Channel channel = connect(true);
+        Assert.assertNotNull(channel);
+        result = null;
+        latch = new CountDownLatch(1);
+        String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
+        channel.writeAndFlush(req);
+        latch.await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Model version " + defaultVersion + " does not exist for model " + modelName);
     }
 
     private void testPredictions(
