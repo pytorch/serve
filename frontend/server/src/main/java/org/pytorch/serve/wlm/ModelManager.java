@@ -192,8 +192,7 @@ public final class ModelManager {
         try {
             vmodel.setDefaultVersion(newModelVersion);
         } catch (InvalidModelVersionException e) {
-            logger.warn(
-                    "Cannot set version {} as default for model {}", newModelVersion, modelName);
+            logger.warn("Model version {} does not exist for model {}", newModelVersion, modelName);
             httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
 
