@@ -36,8 +36,6 @@ def start():
         else:
             try:
                 parent = psutil.Process(pid)
-                for child in parent.children(recursive=True):
-                    child.terminate()
                 parent.terminate()
                 print("TorchServe has stopped.")
             except (OSError, psutil.Error):
