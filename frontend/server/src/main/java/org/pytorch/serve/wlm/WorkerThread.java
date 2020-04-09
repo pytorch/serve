@@ -161,7 +161,7 @@ public class WorkerThread implements Runnable {
                 req = null;
             }
         } catch (InterruptedException e) {
-        	logger.debug("System state is : " + state);
+            logger.debug("System state is : " + state);
             if (state == WorkerState.WORKER_SCALED_DOWN || state == WorkerState.WORKER_STOPPED) {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
