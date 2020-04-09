@@ -6,6 +6,11 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the [docs folder](docs/README.md).
 
 ## Contents of this Document
+<<<<<<< HEAD
+=======
+
+* [Install TorchServe](#install-torchserve)
+>>>>>>> 17a29eae0500c455cfe31f409dd8ea584f06d23a
 * [Quick Start with docker](#quick-start-with-docker)
 * [Quick Start for local environment](#quick-start-guide-for-local-environment)
 * [Serve a Model](#serve-a-model)
@@ -14,6 +19,55 @@ A quick overview and examples for both serving and packaging are provided below.
 
 
 ## Quick Start with docker
+<<<<<<< HEAD
+=======
+
+### Start TorchServe using docker image
+
+#### Prerequisites
+
+* docker - Refer [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+
+#### Building docker image
+
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
+./build_image.sh
+```
+
+The above command builds the TorchServe image for CPU device with `master` branch
+
+To create image for specific branch use following command :
+```bash
+./build_image.sh -b <branch_name>
+```
+
+To create image for GPU device use following command :
+```bash
+./build_image.sh --gpu
+```
+
+To create image for GPU device with specific branch use following command :
+```bash
+./build_image.sh -b <branch_name> --gpu
+```
+
+**Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
+
+```bash
+./start.sh
+```
+
+**For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
+**For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
+**For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
+
+## Quick Start for local environment
+
+### Prerequisites
+>>>>>>> 17a29eae0500c455cfe31f409dd8ea584f06d23a
 
 ### Start TorchServe using docker image
 
@@ -118,6 +172,7 @@ source activate myenv
 
 
 **Step 2:** Install torch
+
 TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
 
 * For virtualenv
@@ -156,21 +211,41 @@ pip install .
 * In case `pip install .` step fails, try using `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
 * See the [advanced installation](docs/install.md) page for more options and troubleshooting.
 
+<<<<<<< HEAD
 ### Installing torch-model-archiver
 
 *Install torch-model-archiver as follows:
+=======
+### Install torch-model-archiver
+
+* Install torch-model-archiver as follows:
+>>>>>>> 17a29eae0500c455cfe31f409dd8ea584f06d23a
 
 ```bash
-cd model-archiver
+cd serve/model-archiver
 pip install .
 ```
 
+<<<<<<< HEAD
 **Note** 
 * Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TorchServe installation.
 * See the [detailed documentation](model-archiver/README.md) page for more options and troubleshooting.
 ### Serve a Model
 
 Once installed, you can get TorchServe model server up and running very quickly. Try out `--help` to see all the CLI options available.
+=======
+For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+
+### Install TorchServe for development
+
+If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
+
+```bash
+pip install -e .
+```
+
+To upgrade TorchServe from source code and make changes executable, run:
+>>>>>>> 17a29eae0500c455cfe31f409dd8ea584f06d23a
 
 ```bash
 torchserve --help
@@ -179,6 +254,7 @@ torchserve --help
 For this quick start, we'll skip over most of the features, but be sure to take a look at the [full server docs](docs/server.md) when you're ready.
 
 Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
+
 ```bash
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
@@ -187,6 +263,7 @@ mv densenet161.mar model_store/
 torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
 
+<<<<<<< HEAD
 With the command above executed, you have TorchServe running on your host, listening for inference requests. **Please note, that if you specify model(s) during TorchServe start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TorchServe start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
 
 To test it out, you can open a new terminal window next to the one running TorchServe. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the TorchServe predict endpoint with the kitten's image.
@@ -250,6 +327,8 @@ To package a model, check out [model archiver documentation](model-archiver/READ
 
 Browse over to the [Docs readme](docs/README.md) for the full index of documentation. This includes more examples, how to customize the API service, API endpoint details, and more.
 
+=======
+>>>>>>> 17a29eae0500c455cfe31f409dd8ea584f06d23a
 ## Contributing
 
 We welcome all contributions!

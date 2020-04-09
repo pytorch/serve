@@ -113,6 +113,6 @@ class ArgParser(object):
                                    required=True,
                                    type=str,
                                    default=None,
-                                   help='Model version must be a valid non-negative floating point number')
+                                   help='Model\'s version')
 
         return parser_export

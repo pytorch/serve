@@ -3,7 +3,16 @@
 ```bash
 cd serve/docker
 git clone https://github.com/pytorch/serve.git
-docker build -t torchserve:1.0 .
+```
+
+For creating CPU based image :
+```bash
+docker build --file Dockerfile.cpu -t torchserve:1.0 .
+```
+
+For creating GPU based image :
+```bash
+docker build --file Dockerfile.gpu -t torchserve:1.0 .
 ```
 
 #### Start container with TorchServe image

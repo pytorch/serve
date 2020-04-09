@@ -27,6 +27,13 @@
         <exclude name="MethodReturnsInternalArray"/>
     </rule>
 
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions">
+        <properties>
+            <property name="utilityClassPattern" value="[A-Z][a-zA-Z0-9]+"/>
+        </properties>
+    </rule>
+
+
     <rule ref="category/java/codestyle.xml">
         <exclude name="UnnecessaryModifier"/>
         <exclude name="UselessParentheses"/>
@@ -74,6 +81,8 @@
         <exclude name="NcssCount"/>
         <exclude name="UseObjectForClearerAPI"/>
         <exclude name="TooManyMethods"/>
+        <exclude name="ExcessiveMethodLength"/>
+        <exclude name="ExcessivePublicCount"/>
     </rule>
 
     <rule ref="category/java/documentation.xml">
@@ -118,7 +127,7 @@
     <rule ref="category/java/multithreading.xml">
         <exclude name="AvoidSynchronizedAtMethodLevel"/>
         <exclude name="DoNotUseThreads"/>
-         <exclude name="UseConcurrentHashMap"/>
+        <exclude name="UseConcurrentHashMap"/>
     </rule>
 
     <rule ref="category/java/performance.xml">
