@@ -414,18 +414,18 @@ public class ModelServerTest {
 
     private void testSetInvalidVersionDefault(String modelName, String defaultVersion)
             throws InterruptedException {
-        Channel channel = connect(true);
+        Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
-        result = null;
-        latch = new CountDownLatch(1);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
         String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
 
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req);
-        latch.await();
+        TestUtils.getLatch().await();
 
-        ErrorResponse resp = JsonUtils.GSON.fromJson(result, ErrorResponse.class);
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         Assert.assertEquals(
                 resp.getMessage(),
