@@ -9,19 +9,19 @@ TorchServe provides the following APIs that allows you to manage models at runti
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
 
-The Management API listens on port 8081 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
+The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
-Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with OpenAPI 3.0 specification.
+Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
 ## Register a model
 
 `POST /models`
 
-* url - Model archive download url. Supports the following locations:
-  * a local model archive (.mar); the file must be directly in model_store folder.
+* `url` - Model archive download url. Supports the following locations:
+  * a local model archive (.mar); the file must be in the `model_store` folder (and not in a subfolder).
   * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
-* model_name - the name of the model; this name will be used as {model_name} in other API as path. If this parameter is not present, modelName in MANIFEST.json will be used.
-* handler - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
+* `model_name` - the name of the model; this name will be used as {model_name} in other APIs as part of the path. If this parameter is not present, `modelName` in MANIFEST.json will be used.
+* `handler` - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
 * runtime - the runtime for the model custom service code. This value will override runtime in MANIFEST.json if present. The default value is `PYTHON`.
 * batch_size - the inference batch size. The default value is `1`.
 * max_batch_delay - the maximum delay for batch aggregation. The default value is 100 milliseconds.
@@ -76,11 +76,11 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 
 `PUT /models/{model_name}`
 
-* min_worker - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
-* max_worker - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
-* number_gpu - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
-* synchronous - whether or not the call is synchronous. The default value is `false`.
-* timeout - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
+* `min_worker` - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
+* `max_worker` - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
+* `number_gpu` - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
+* `synchronous` - whether or not the call is synchronous. The default value is `false`.
+* `timeout` - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
 
 Use the Scale Worker API to dynamically adjust the number of workers for any version of a model to better serve different inference request loads.
 
@@ -267,8 +267,8 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 
 `GET /models`
 
-* limit - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is `100`.
-* next_page_token - (optional) queries for next page. It is passed as a query parameter. This value is return by a previous API call.
+* `limit` - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is `100`.
+* `next_page_token` - (optional) queries for next page. It is passed as a query parameter. This value is return by a previous API call.
 
 Use the Models API to query default versions of current registered models:
 
