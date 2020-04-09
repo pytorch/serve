@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public final class SnapshotManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(ModelManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(SnapshotManager.class);
 
     private static SnapshotManager snapshotManager;
 

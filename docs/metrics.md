@@ -277,7 +277,7 @@ Function API
         """
 ```
 
-To create , increment and decrement counter based metrics we can use the following calls
+To create, increment and decrement counter based metrics we can use the following calls
 ```python
 # Add Loop Count as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
