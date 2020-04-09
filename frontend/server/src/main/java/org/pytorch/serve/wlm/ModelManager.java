@@ -141,6 +141,10 @@ public final class ModelManager {
             return HttpResponseStatus.NOT_FOUND;
         }
 
+        if (versionId == null) {
+            versionId = vmodel.getDefaultVersion();
+        }
+
         Model model = null;
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
 
@@ -148,7 +152,7 @@ public final class ModelManager {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
-            CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model);
+            CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model, false);
             httpResponseStatus = futureStatus.get();
 
             // Only continue cleaning if resource cleaning succeeded
@@ -200,24 +204,40 @@ public final class ModelManager {
     }
 
     public CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, int minWorkers, int maxWorkers) {
+            String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup) {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             throw new AssertionError("Model not found: " + modelName);
         }
 
         Model model = vmodel.getVersionModel(versionId);
+
+        if (model == null) {
+            throw new AssertionError("Model version not not found for model : " + modelName);
+        }
+
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
 
-        return wlm.modelChanged(model);
+        return wlm.modelChanged(model, isStartup);
+    }
+
+    public CompletableFuture<HttpResponseStatus> updateModel(
+            String modelName, String versionId, int minWorkers, int maxWorkers) {
+        return updateModel(modelName, versionId, minWorkers, maxWorkers, false);
     }
 
     public Map<String, Model> getDefaultModels() {
         ConcurrentHashMap<String, Model> defModelsMap = new ConcurrentHashMap<>();
-        for (Map.Entry<String, ModelVersionedRefs> mvr : modelsNameMap.entrySet()) {
-            defModelsMap.put(mvr.getKey(), mvr.getValue().getDefaultModel());
+        for (String key : modelsNameMap.keySet()) {
+            ModelVersionedRefs mvr = modelsNameMap.get(key);
+            if (mvr != null) {
+                Model defaultModel = mvr.getDefaultModel();
+                if (defaultModel != null) {
+                    defModelsMap.put(key, defaultModel);
+                }
+            }
         }
         return defModelsMap;
     }

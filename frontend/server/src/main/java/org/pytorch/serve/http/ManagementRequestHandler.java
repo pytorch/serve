@@ -9,18 +9,21 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
+import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
@@ -226,6 +229,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             maxBatchDelay,
                             responseTimeout,
                             null);
+        } catch (FileAlreadyExistsException e) {
+            throw new InternalServerException(
+                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
         } catch (IOException e) {
             throw new InternalServerException("Failed to save model: " + modelUrl, e);
         }
@@ -234,6 +240,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
         final String msg = "Model \"" + modelName + "\" registered";
         if (initialWorkers <= 0) {
+            SnapshotManager.getInstance().saveSnapshot();
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
             return;
         }
@@ -382,6 +389,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                         + "\" to \""
                         + newModelVersion
                         + "\"";
+        SnapshotManager.getInstance().saveSnapshot();
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
     }
 }
