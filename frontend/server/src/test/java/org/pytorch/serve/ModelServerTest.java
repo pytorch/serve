@@ -424,7 +424,7 @@ public class ModelServerTest {
         channel = connect(true);
         Assert.assertNotNull(channel);
         testUnregisterModel(channel, "noopversioned", "1.11");
-        testUnregisterModel(channel, "noopversioned", "1.21");
+        testUnregisterModel(channel, "noopversioned", "1.2.1");
     }
 
     private void testListModels(Channel channel) throws InterruptedException {
