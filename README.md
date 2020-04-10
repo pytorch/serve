@@ -194,7 +194,7 @@ To upgrade TorchServe from source code and make changes executable, run:
 pip install -U -e .
 ```
 
-## Troubleshoot Installation
+## Serve a Model
 
 Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
 
