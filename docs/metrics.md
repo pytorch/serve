@@ -1,6 +1,6 @@
 # TorchServe Metrics
 
-## Contents of this Document
+## Contents of this document
 
 * [Introduction](#introduction)
 * [System metrics](#system-metrics)
@@ -10,7 +10,7 @@
 
 ## Introduction
 
-TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
+TorchServe collects system-level metrics in regular intervals, and also provides an API to collect custom metrics.
 Metrics collected by metrics are logged and can be aggregated by metric agents.
 The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
 TorchServe logs these two sets of metrics to different log files.
@@ -25,13 +25,13 @@ The location of log files and metric files can be configured i in the [log4j.pro
 
 | Metric Name | Dimension | Unit | Semantics |
 |---|---|---|---|
-| CPUUtilization | host | percentage | cpu utillization on host |
+| CPUUtilization | host | percentage | CPU utilization on host |
 | DiskAvailable | host | GB | disk available on host |
 | DiskUsed | host | GB | disk used on host |
 | DiskUtilization | host | percentage | disk used on host |
 | MemoryAvailable | host | MB | memory available on host |
 | MemoryUsed | host | MB | memory used on host |
-| MemoryUtilization | host | percentage | memory used on host |
+| MemoryUtilization | host | percentage | memory utilization on host |
 | Requests2XX | host | count | logged for every request responded in 200-300 status code range |
 | Requests4XX | host |count | logged for every request responded in 400-500 status code range |
 | Requests5XX | host | count | logged for every request responded with status code above 500 |
@@ -88,11 +88,10 @@ After you enable JSON log formatting, logs will look as follows:
 
 ## Custom Metrics API
 
-TorchServe enables the custom service code to emit metrics that are then logged by the system
+TorchServe enables the custom service code to emit metrics that are then logged by the system.
 
-The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request.
+The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request with a metrics object:
 
-Which has a metrics object.
 
 ```python
 # Access context metrics as follows
@@ -101,7 +100,7 @@ metrics = context.metrics
 
 All metrics are collected within the context.
 
-### Creating dimension object(s)
+### Create dimension object(s)
 
 Dimensions for metrics can be defined as objects
 
@@ -153,7 +152,7 @@ Function API
 metrics.add_metric('DistanceInKM', distance, 'km', dimensions=dimensions)
 ```
 
-### Add Time based metrics
+### Add time-based metrics
 
 Add time-based by invoking the following method:
 
@@ -183,7 +182,7 @@ Note that the default unit in this case is 'ms'
 
 **Supported units**: ['ms', 's']
 
-To add custom tim- based metrics:
+To add custom time-based metrics:
 
 ```python
 # Add inference time
@@ -192,7 +191,7 @@ To add custom tim- based metrics:
 metrics.add_time('InferenceTime', end_time-start_time, None, 'ms', dimensions)
 ```
 
-### Add Size-based metrics
+### Add size-based metrics
 
 Add size-based metrics by invoking the following method:
 
@@ -218,7 +217,7 @@ Function API
         """
 ```
 
-Note that the default unit in this case is 'ms'.
+Note that the default unit in this case is milliseconds (ms).
 
 **Supported units**: ['MB', 'kB', 'GB']
 
@@ -264,7 +263,7 @@ To add custom percentage-based metrics:
 metrics.add_percent('MemoryUtilization', utilization_percent, None, dimensions)
 ```
 
-### Add Counter-based metrics
+### Add counter-based metrics
 
 Percentage based metrics can be added by invoking the following method
 
@@ -308,7 +307,7 @@ metrics.add_counter('LoopCount', -1, None, dimensions)
 
 ```
 
-### Logging the custom metrics
+### Log custom metrics
 
 Following sample code can be used to log the custom metrics created in the model's custom handler:
 
