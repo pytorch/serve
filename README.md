@@ -7,6 +7,8 @@ For full documentation, see [Model Server for PyTorch Documentation](docs/README
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
+* [Prerequisites](#prerequisites)
+* [Python virtual environment setup](#python-virtual-environment-setup)
 * [Quick Start with docker](#quick-start-with-docker)
 * [Quick Start for local environment](#quick-start-guide-for-local-environment)
 * [Serve a Model](#serve-a-model)
@@ -15,11 +17,100 @@ For full documentation, see [Model Server for PyTorch Documentation](docs/README
 
 ## Install TorchServe
 
+## Prerequisites
+
+Before proceeding further with this document, make sure you have the following prerequisites.
+
+1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
+1. Python     - TorchServe requires python to run the workers.
+1. pip        - Pip is a python package management system.
+1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
+
+    For Ubuntu:
+
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
+
+    For CentOS:
+
+    ```bash
+    openjdk-11-jdk
+    sudo yum install java-11-openjdk
+    ```
+
+    For macOS
+
+    ```bash
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk11
+    ```
+
+## Python virtual environment setup
+
+We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
+
+* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 3.7 as follows:
+
+```bash
+pip install virtualenv
+```
+
+Then create a virtual environment:
+
+```bash
+# Assuming we want to run python3.7 in /usr/local/bin/python3.7
+virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
+# Enter this virtual environment as follows
+source /tmp/pyenv3/bin/activate
+```
+
+Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
+
+* **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
+[Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
+
+Then create a virtual environment using conda.
+
+```bash
+conda create -n myenv
+source activate myenv
+```
+
+#### Install torch
+
+TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
+
+* For virtualenv
+
+```bash
+#For CPU/GPU
+pip install torch torchvision torchtext
+```
+
+* For conda
+
+The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
+
+```bash
+pip install sentencepiece
+```
+
+```bash
+#For CPU
+conda install psutil pytorch torchvision torchtext -c pytorch
+```
+
+```bash
+#For GPU
+conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
+```
+
 ## Quick Start with docker
 
 ### Start TorchServe using docker image
 
-#### Prerequisites
+#### Docker specific prerequisites
 
 * docker - Refer [official docker installation guide](https://docs.docker.com/install/)
 * git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
@@ -61,100 +152,11 @@ To create image for GPU device with specific branch use following command :
 
 ## Quick Start for local environment
 
-### Prerequisites
-
-Before proceeding further with this document, make sure you have the following prerequisites.
-
-1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
-1. Python     - TorchServe requires python to run the workers.
-1. pip        - Pip is a python package management system.
-1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
-
-    For Ubuntu:
-
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-
-    For CentOS:
-
-    ```bash
-    openjdk-11-jdk
-    sudo yum install java-11-openjdk
-    ```
-
-    For macOS
-
-    ```bash
-    brew tap AdoptOpenJDK/openjdk
-    brew cask install adoptopenjdk11
-    ```
-
 ### Installing TorchServe with pip
 
 #### Setup
 
-**Step 1:** Setup a Virtual Environment
-
-We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
-
-* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 3.7 as follows:
-
-```bash
-pip install virtualenv
-```
-
-Then create a virtual environment:
-
-```bash
-# Assuming we want to run python3.7 in /usr/local/bin/python3.7
-virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
-# Enter this virtual environment as follows
-source /tmp/pyenv3/bin/activate
-```
-
-Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
-
-* **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
-[Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
-
-Then create a virtual environment using conda.
-
-```bash
-conda create -n myenv
-source activate myenv
-```
-
-**Step 2:** Install torch
-
-TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
-
-* For virtualenv
-
-```bash
-#For CPU/GPU
-pip install torch torchvision torchtext
-```
-
-* For conda
-
-The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
-
-```bash
-pip install sentencepiece
-```
-
-```bash
-#For CPU
-conda install psutil pytorch torchvision torchtext -c pytorch
-```
-
-```bash
-#For GPU
-conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
-```
-
-**Step 3:** Install TorchServe as follows:
+**Step 1:** Install TorchServe as follows:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
