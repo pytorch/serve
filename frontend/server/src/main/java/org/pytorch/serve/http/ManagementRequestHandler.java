@@ -141,7 +141,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         ArrayList<DescribeModelResponse> resp = new ArrayList<DescribeModelResponse>();
 
         if ("all".equals(modelVersion)) {
-            for (Map.Entry<Double, Model> m : modelManager.getAllModelVersions(modelName)) {
+            for (Map.Entry<String, Model> m : modelManager.getAllModelVersions(modelName)) {
                 resp.add(createModelResponse(modelManager, modelName, m.getValue()));
             }
         } else {
@@ -380,8 +380,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
-            throw new InternalServerException(
-                    "Cannot set version " + newModelVersion + " as default for model " + modelName);
+            throw new InvalidModelVersionException(
+                    "Model version " + newModelVersion + " does not exist for model " + modelName);
         }
         String msg =
                 "Default vesion succsesfully updated for model \""

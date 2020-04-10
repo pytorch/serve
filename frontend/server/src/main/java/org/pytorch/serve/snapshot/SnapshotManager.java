@@ -54,10 +54,12 @@ public final class SnapshotManager {
             int modelCount = 0;
             for (Map.Entry<String, Model> m : defModels.entrySet()) {
 
-                Set<Entry<Double, Model>> versionModels =
+                Set<Entry<String, Model>> versionModels =
                         modelManager.getAllModelVersions(m.getKey());
+
                 Map<String, JsonObject> modelInfoMap = new HashMap<>();
-                for (Entry<Double, Model> versionedModel : versionModels) {
+                for (Entry<String, Model> versionedModel : versionModels) {
+                    ModelSnapshot model = new ModelSnapshot();
                     String version = String.valueOf(versionedModel.getKey());
                     boolean isDefaultVersion =
                             m.getValue()

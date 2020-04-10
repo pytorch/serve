@@ -241,8 +241,7 @@ public final class ModelManager {
         try {
             vmodel.setDefaultVersion(newModelVersion);
         } catch (InvalidModelVersionException e) {
-            logger.warn(
-                    "Cannot set version {} as default for model {}", newModelVersion, modelName);
+            logger.warn("Model version {} does not exist for model {}", newModelVersion, modelName);
             httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
 
@@ -362,7 +361,7 @@ public final class ModelManager {
                     int numWorking = 0;
                     int numScaled = 0;
                     ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
-                    for (Map.Entry<Double, Model> m : vmodel.getAllVersions()) {
+                    for (Map.Entry<String, Model> m : vmodel.getAllVersions()) {
                         numScaled += m.getValue().getMinWorkers();
                         numWorking += wlm.getNumRunningWorkers(m.getValue().getModelVersionName());
                     }
@@ -408,7 +407,7 @@ public final class ModelManager {
         return vmodel.getVersionModel(versionId);
     }
 
-    public Set<Entry<Double, Model>> getAllModelVersions(String modelName)
+    public Set<Entry<String, Model>> getAllModelVersions(String modelName)
             throws ModelNotFoundException {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
