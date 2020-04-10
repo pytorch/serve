@@ -59,7 +59,6 @@ public final class SnapshotManager {
 
                 Map<String, JsonObject> modelInfoMap = new HashMap<>();
                 for (Entry<String, Model> versionedModel : versionModels) {
-                    ModelSnapshot model = new ModelSnapshot();
                     String version = String.valueOf(versionedModel.getKey());
                     boolean isDefaultVersion =
                             m.getValue()
