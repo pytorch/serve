@@ -10,9 +10,8 @@ For full documentation, see [Model Server for PyTorch Documentation](docs/README
 * [Prerequisites](#prerequisites)
 * [Python virtual environment setup](#python-virtual-environment-setup)
 * [Quick Start with docker](#quick-start-with-docker)
-* [Quick Start for local environment](#quick-start-guide-for-local-environment)
+* [Quick Start for local environment](#quick-start-for-local-environment)
 * [Serve a Model](#serve-a-model)
-* [Other Features](#other-features)
 * [Contributing](#contributing)
 
 ## Install TorchServe
@@ -108,14 +107,9 @@ conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c py
 
 ## Quick Start with docker
 
-### Start TorchServe using docker image
+### Use TorchServe with Docker
 
-#### Docker specific prerequisites
-
-* docker - Refer [official docker installation guide](https://docs.docker.com/install/)
-* git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-
-#### Building docker image
+#### Build a Docker image for TorchServe
 
 ```bash
 git clone https://github.com/pytorch/serve.git
@@ -123,19 +117,19 @@ cd serve
 ./build_image.sh
 ```
 
-The above command builds the TorchServe image for CPU device with `master` branch
+The above command builds the TorchServe image for the CPU device using code from TorchServe's `master` branch
 
-To create image for specific branch use following command :
+To create a Docker image for specific branch, use following command:
 ```bash
 ./build_image.sh -b <branch_name>
 ```
 
-To create image for GPU device use following command :
+To create a Docker image for the GPU device, use following command :
 ```bash
 ./build_image.sh --gpu
 ```
 
-To create image for GPU device with specific branch use following command :
+To create a Docker image for the GPU device with a specific branch, use following command: :
 ```bash
 ./build_image.sh -b <branch_name> --gpu
 ```
@@ -146,9 +140,9 @@ To create image for GPU device with specific branch use following command :
 ./start.sh
 ```
 
-**For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
-**For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
-**For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
+**For pre-trained and pre-packaged models-archives refer to the [TorchServe model zoo](docs/model_zoo.md)**
+**For managing models with TorchServe refer to the [Management API documentation](docs/management_api.md)****
+**For managing models with TorchServe refer to the [Management API documentation](docs/management_api.md)**
 
 ## Quick Start for local environment
 
