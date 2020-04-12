@@ -10,27 +10,26 @@ service that sets up HTTP endpoints to handle model inference requests.
 Prerequisites
 -------------
 
-* **java 8**: Required. TorchServe use java to serve HTTP requests. You must install java 8 (or later) and make sure java is on available in $PATH environment variable *before* installing torchserve. If you have multiple java installed, you can use $JAVA_HOME environment vairable to control which java to use.
+* **java 11**: Required. TorchServe use java to serve HTTP requests. You must install java 11 (or later) and make sure java is on available in $PATH environment variable *before* installing torchserve. If you have multiple java installed, you can use $JAVA_HOME environment vairable to control which java to use.
 * **PyTorch**: Required. Latest version of PyTorch will be installed as a part of TorchServe installation.
 
 For ubuntu:
 ::
 
-    sudo apt-get install openjdk-8-jdk
+    sudo apt-get install openjdk-11-jdk
 
 
 For centos
 ::
 
-    sudo yum install java-1.8.0-openjdk
+    sudo yum install java-11-openjdk
 
 
 For Mac:
 ::
 
-    brew tap caskroom/versions
-    brew update
-    brew cask install java8
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk11
 
 
 Install PyTorch:
