@@ -46,7 +46,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 ## Examples torchvision image classification models in TorchServe
 The following example demonstrates how to create image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
 
-* [Image classification] models(image_classifier)
+* [Image classification models](image_classifier/)
 
 ## Example to serve a Custom Model with Custom Service Handler
 
