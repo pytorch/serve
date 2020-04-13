@@ -45,10 +45,10 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
     ```  
   
-## Example to serve Resnet18 image classification model
-The following example demonstrates how to create a Resnet18 image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
+## Examples to serve image classification models
+The following example demonstrates how to create image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
 
-* [Image classification using Resnet18](image_classifier/resnet_18)
+* [Image classification](image_classifier)
 
 ## Example to serve a Custom Model with Custom Service Handler
 
