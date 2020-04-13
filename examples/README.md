@@ -1,9 +1,7 @@
 # Contents of this Document
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
-* [Serving torchvision image classification models in TorchServe](#serving-torchvision-image-classification-models-in-torchserve)
-  * [Serving densenet161 model](#serving-torchvision-image-classification-models)
-  * [Serving resnet18 model](#example-to-serve-resnet18-image-classification-model)
+* [Serving torchvision image classification models in TorchServe](#examples-torchvision-image-classification-models-in-torchserve)
 * [Serving custom model with custom service handler](#example-to-serve-a-custom-model-with-custom-service-handler)
 * [Serving text classification model](#example-to-serve-text-classification-model)
 * [Serving object detection model](#example-to-serve-object-detection-model)
@@ -45,10 +43,10 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
     ```  
   
-## Examples to serve image classification models
+## Examples torchvision image classification models in TorchServe
 The following example demonstrates how to create image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
 
-* [Image classification](image_classifier)
+* [Image classification] models(image_classifier)
 
 ## Example to serve a Custom Model with Custom Service Handler
 
