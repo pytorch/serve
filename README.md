@@ -145,7 +145,16 @@ pip install -U -e .
 
 ## Serve a model
 
-This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already installed TorchServe and the model archiver. 
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already installed TorchServe and the model archiver.
+
+To run this example, clone the TorchServe repository and navigate to the root of the repository:
+
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
+```
+
+Then run the following steps from the root of the repository.
 
 ### Store a Model
 
