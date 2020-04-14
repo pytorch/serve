@@ -63,7 +63,7 @@ To create image for GPU device with specific branch use following command :
 
 Before proceeding further with this document, make sure you have the following prerequisites.
 
-1. Ubuntu or macOS. The following instructions will focus on Linux and macOS only.
+1. Ubuntu or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
 1. Python     - TorchServe requires python to run the workers.
 1. pip        - Pip is a python package management system.
 1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
