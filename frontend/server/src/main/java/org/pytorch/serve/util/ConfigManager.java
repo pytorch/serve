@@ -41,6 +41,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
+import org.pytorch.serve.snapshot.SnapshotUtils;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -74,6 +75,8 @@ public final class ConfigManager {
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
+    private static final String TS_SNAPSHOT_STORE = "snapshot_store";
+    private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -91,6 +94,7 @@ public final class ConfigManager {
     private Pattern blacklistPattern;
     private Properties prop;
     private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+    private boolean snapshotDisabled;
 
     private static ConfigManager instance;
 
@@ -99,11 +103,28 @@ public final class ConfigManager {
     private ConfigManager(Arguments args) {
         prop = new Properties();
 
+        this.snapshotDisabled = args.isSnapshotDisabled();
+
+        String logLocation = System.getenv("LOG_LOCATION");
+        if (logLocation != null) {
+            System.setProperty("LOG_LOCATION", logLocation);
+        } else if (System.getProperty("LOG_LOCATION") == null) {
+            System.setProperty("LOG_LOCATION", "logs");
+        }
+
+        String snapshotStore = args.getSnapshotStore();
+        if (snapshotStore != null) {
+            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
+        }
+
         String filePath = System.getenv("TS_CONFIG_FILE");
         if (filePath == null) {
             filePath = args.getTsConfigFile();
             if (filePath == null) {
-                filePath = System.getProperty("tsConfigFile", "config.properties");
+                filePath = getLastSnapshot();
+                if (filePath == null) {
+                    filePath = System.getProperty("tsConfigFile", "config.properties");
+                }
             }
         }
 
@@ -118,12 +139,6 @@ public final class ConfigManager {
         }
 
         resolveEnvVarVals(prop);
-        String logLocation = System.getenv("LOG_LOCATION");
-        if (logLocation != null) {
-            System.setProperty("LOG_LOCATION", logLocation);
-        } else if (System.getProperty("LOG_LOCATION") == null) {
-            System.setProperty("LOG_LOCATION", "logs");
-        }
 
         String metricsLocation = System.getenv("METRICS_LOCATION");
         if (metricsLocation != null) {
@@ -261,7 +276,7 @@ public final class ConfigManager {
     }
 
     public Properties getConfiguration() {
-        return new Properties(prop);
+        return (Properties) prop.clone();
     }
 
     public int getConfiguredDefaultWorkersPerModel() {
@@ -319,6 +334,14 @@ public final class ConfigManager {
 
     public String getModelStore() {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
+    }
+
+    public String getSnapshotStore() {
+        return prop.getProperty(TS_SNAPSHOT_STORE, "FS");
+    }
+
+    public String getModelSnapshot() {
+        return prop.getProperty(TS_MODEL_SNAPSHOT, null);
     }
 
     public String getLoadModels() {
@@ -426,6 +449,14 @@ public final class ConfigManager {
             }
             return chain;
         }
+    }
+
+    private String getLastSnapshot() {
+        if (isSnapshotDisabled()) {
+            return null;
+        }
+
+        return SnapshotUtils.getLastSnapshot(getSnapshotStore());
     }
 
     public String getProperty(String key, String def) {
@@ -602,12 +633,17 @@ public final class ConfigManager {
         }
     }
 
+    public boolean isSnapshotDisabled() {
+        return snapshotDisabled;
+    }
+
     public static final class Arguments {
 
         private String tsConfigFile;
         private String pythonExecutable;
         private String modelStore;
         private String[] models;
+        private boolean snapshotDisabled;
 
         public Arguments() {}
 
@@ -616,6 +652,7 @@ public final class ConfigManager {
             pythonExecutable = cmd.getOptionValue("python");
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
+            snapshotDisabled = cmd.hasOption("no-config-snapshot");
         }
 
         public static Options getOptions() {
@@ -648,6 +685,12 @@ public final class ConfigManager {
                             .argName("MODELS-STORE")
                             .desc("Model store location where models can be loaded.")
                             .build());
+            options.addOption(
+                    Option.builder("ncs")
+                            .longOpt("no-config-snapshot")
+                            .argName("NO-CONFIG-SNAPSHOT")
+                            .desc("disable torchserve snapshot")
+                            .build());
             return options;
         }
 
@@ -677,6 +720,19 @@ public final class ConfigManager {
 
         public void setModels(String[] models) {
             this.models = models.clone();
+        }
+
+        public boolean isSnapshotDisabled() {
+            return snapshotDisabled;
+        }
+
+        public void setSnapshotDisabled(boolean snapshotDisabled) {
+            this.snapshotDisabled = snapshotDisabled;
+        }
+
+        public String getSnapshotStore() {
+            // TODO : remove hard-coding and add a new cmd param for snapshot store
+            return "FS";
         }
     }
 }
