@@ -4,12 +4,12 @@
 
 * [Serving Quick Start](../README.md#serve-a-model) - Basic server usage tutorial
 * [Model Archive Quick Start](../model-archiver#creating-a-model-archive) - Tutorial that shows you how to package a model archive file.
-* [Installation](../README.md##install-torchserve-for-local-environment) - Installation procedures
 * [Serving Models](server.md) - Explains how to use `torchserve`.
   * [REST API](rest_api.md) - Specification on the API endpoint for TorchServe
 * [Packaging Model Archive](../model-archiver/README.md) - Explains how to package model archive file, use `model-archiver`.
 * [Logging](logging.md) - How to configure logging
 * [Metrics](metrics.md) - How to configure metrics
+* [Batch inference with TorchServe](batch_inference_with_ts.md) - How to create and serve a model with batch inference in TorchServe
 
 ## Advanced Features
 
