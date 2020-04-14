@@ -64,7 +64,7 @@ TBD :
 
 #### Using local TorchServe instance:
 
-* Install TorchServe using the [install guide](../docs/install.md)
+* Install TorchServe using the [install guide](../README.md#install-torchserve)
 * Start TorchServe using following command :
 
 ```bash

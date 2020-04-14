@@ -46,7 +46,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file example
 ### Arguments
 
 ```
-$ model-archiver -h
+$ torch-model-archiver -h
 usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
                       --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
                       --handler HANDLER [--runtime {python,python2,python3}]
@@ -135,25 +135,15 @@ Handler can be TorchServe's inbuilt handler name or path to a py to handle custo
 3. text_classifier
 4. image_segmenter
 
+For more details refer [default handler documentation](../docs/default_handlers.md)
 ## Creating a Model Archive
 
-**1. Download these sample Densenet model artifacts (if you don't have them handy)**
-
-```bash
-TODO : add sample artifact URLs
-```
-
-The downloaded model artifact files are:
-
-TODO : add description about the above artifacts
-
-
-**2. Download the torch model archiver source**
+**1. Download the torch model archiver source**
 ```bash
 git clone https://github.com/pytorch/serve.git
 ```
 
-**3. Package your model**
+**2. Package your model**
 
 With the model artifacts available locally, you can use the `torch-model-archiver` CLI to generate a `.mar` file that can be used to serve an inference API with TorchServe.
 
