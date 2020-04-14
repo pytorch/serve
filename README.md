@@ -8,9 +8,8 @@ For full documentation, see [Model Server for PyTorch Documentation](docs/README
 
 * [Install TorchServe](#install-torchserve)
 * [Quick Start with docker](#quick-start-with-docker)
-* [Quick Start for local environment](#quick-start-guide-for-local-environment)
+* [Quick Start for local environment](#quick-start-for-local-environment)
 * [Serve a Model](#serve-a-model)
-* [Other Features](#other-features)
 * [Contributing](#contributing)
 
 ## Install TorchServe
@@ -55,7 +54,6 @@ To create image for GPU device with specific branch use following command :
 ./start.sh
 ```
 
-**For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
 **For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
 **For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
 
@@ -65,7 +63,7 @@ To create image for GPU device with specific branch use following command :
 
 Before proceeding further with this document, make sure you have the following prerequisites.
 
-1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
+1. Ubuntu or macOS. The following instructions will focus on Linux and macOS only.
 1. Python     - TorchServe requires python to run the workers.
 1. pip        - Pip is a python package management system.
 1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
@@ -74,13 +72,6 @@ Before proceeding further with this document, make sure you have the following p
 
     ```bash
     sudo apt-get install openjdk-11-jdk
-    ```
-
-    For CentOS:
-
-    ```bash
-    openjdk-11-jdk
-    sudo yum install java-11-openjdk
     ```
 
     For macOS
@@ -164,8 +155,7 @@ pip install .
 
 **Notes:**
 
-* If `pip install .`  fails, run `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
-* See the [advanced installation](docs/install.md) page for more options and troubleshooting.
+* If `pip install .`  fails, install the following python packages using `pip install` : Pillow, psutil, future and run `python setup.py install`.
 
 ### Install torch-model-archiver
 
@@ -192,7 +182,7 @@ To upgrade TorchServe from source code and make changes executable, run:
 pip install -U -e .
 ```
 
-## Troubleshoot Installation
+## Serve a model
 
 Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
 
@@ -203,6 +193,8 @@ mkdir model_store
 mv densenet161.mar model_store/
 torchserve --start --model-store model_store --models densenet161=densenet161.mar
 ```
+
+For more details refer [quick start guide for model serving](docs/quick_start.md)
 
 ## Contributing
 
@@ -216,17 +208,18 @@ Below, in order, is a prioritized list of tasks for this repository.
 
 ### v0.1 Plan
 
-* [ ] CI (initially AWS CodeBuild)
+* [x] CI (initially AWS CodeBuild)
 * [x] Default handler
   * [x] Handle eager-mode and TorchScript (tracing and scripting)
   * [x] Add zero-code pre and post-processing for Image Classification
+  * [x] Add zero-code pre and post-processing for Text Classification
+  * [x] Add zero-code pre and post-processing for Image Segmentation
+  * [x] Add zero-code pre and post-processing for Object Detection
 * [x] Basic examples
   * [x] Eager-mode image classifier
-    * [x] TorchScript image classifier
-    * [x] Custom neural network
+  * [x] TorchScript image classifier
+  * [x] Custom neural network
 * [x] Basic docs (install, serve a model and use it for inference)
-
-### v0.2 Plan
-
-* [ ] Basic unit tests
-* [ ] Versioning
+* [x] Basic unit tests
+* [x] Versioning
+* [x] Snapshot
