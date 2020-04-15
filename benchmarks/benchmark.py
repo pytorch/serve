@@ -355,8 +355,8 @@ class Benchmarks:
         by using batch processing at TorchServe
         """
         plan, jmeter_args = parseModel()
-        jmeter_args['batch_delay'] = pargs.batch_delay
-        jmeter_args['batch_size'] = pargs.batch_size
+        jmeter_args['batch_delay'] = pargs.batch_delay[0]
+        jmeter_args['batch_size'] = pargs.batch_size[0]
         return run_single_benchmark(plan, jmeter_args)
 
     @staticmethod
