@@ -45,7 +45,7 @@ MODEL_SQUEEZE_NET = 'squeezenet1_1'
 MODEL_DENSE_NET = 'densenet161'
 MODEL_ALEX_NET = 'alexnet'
 MODEL_VGG = 'vgg11'
-MODEL_RESNET_152 = 'resnet_152_batch'
+MODEL_RESNET_152 = 'resnet-152-batch'
 
 MODEL_MAP = {
     MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
@@ -53,7 +53,7 @@ MODEL_MAP = {
     MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet_152_batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
 }
 
 
