@@ -41,10 +41,16 @@ JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
 # Listing out the models tested
 MODEL_RESNET_18 = 'resnet-18'
 MODEL_SQUEEZE_NET = 'squeezenet'
+MODEL_DENSE_NET = 'densenet161'
+MODEL_ALEX_NET = 'alexnet'
+MODEL_VGG = 'vgg11'
 
 MODEL_MAP = {
     MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
+    MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
 }
 
 
@@ -382,8 +388,16 @@ class Benchmarks:
         """
         plan = JMX_MULTIPLE_MODELS_LOAD_PLAN
         jmeter_args = {
-            'url1': MODEL_MAP[MODEL_RESNET_18][1]['url'],
-            'model1_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
+            'url1': MODEL_MAP[MODEL_ALEX_NET][1]['url'],
+            'url2': MODEL_MAP[MODEL_DENSE_NET][1]['url'],
+            'url3': MODEL_MAP[MODEL_RESNET_18][1]['url'],
+            'url4': MODEL_MAP[MODEL_SQUEEZE_NET][1]['url'],
+            'url5': MODEL_MAP[MODEL_VGG][1]['url'],
+            'model1_name': MODEL_MAP[MODEL_ALEX_NET][1]['model_name'],
+            'model2_name': MODEL_MAP[MODEL_DENSE_NET][1]['model_name'],
+            'model3_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
+            'model4_name': MODEL_MAP[MODEL_SQUEEZE_NET][1]['model_name'],
+            'model5_name': MODEL_MAP[MODEL_VGG][1]['model_name'],
             'data3': get_resource('kitten.jpg')
         }
         return run_single_benchmark(plan, jmeter_args)
