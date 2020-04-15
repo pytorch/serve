@@ -53,7 +53,7 @@ MODEL_MAP = {
     MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
 }
 
 
@@ -348,6 +348,7 @@ class Benchmarks:
         """
         plan, jmeter_args = parseModel()
         return run_single_benchmark(plan, jmeter_args)
+
     @staticmethod
     def throughput_batch():
         """
@@ -355,8 +356,6 @@ class Benchmarks:
         by using batch processing at TorchServe
         """
         plan, jmeter_args = parseModel()
-        jmeter_args['batch_delay'] = pargs.batch_delay[0]
-        jmeter_args['batch_size'] = pargs.batch_size[0]
         return run_single_benchmark(plan, jmeter_args)
 
     @staticmethod
@@ -495,5 +494,5 @@ if __name__ == '__main__':
             run_benchmark()
     else:
         benchmark_name = pargs.name.lower()
-        benchmark_model = pargs.model[0].lower()
+        benchmark_model = MODEL_RESNET_152 if benchmark_name == "throughput_batch" else pargs.model[0].lower()
         run_benchmark()
