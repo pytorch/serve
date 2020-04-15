@@ -37,6 +37,7 @@ JMX_CONCURRENT_LOAD_PLAN = 'concurrentLoadPlan.jmx'
 JMX_CONCURRENT_SCALE_CALLS = 'concurrentScaleCalls.jmx'
 JMX_MULTIPLE_MODELS_LOAD_PLAN = 'multipleModelsLoadPlan.jmx'
 JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
+JMX_BATCH_IMAGE_INPUT_MODEL_PLAN = 'batchImageInputModelPlan.jmx'
 
 # Listing out the models tested
 MODEL_RESNET_18 = 'resnet-18'
@@ -44,6 +45,7 @@ MODEL_SQUEEZE_NET = 'squeezenet1_1'
 MODEL_DENSE_NET = 'densenet161'
 MODEL_ALEX_NET = 'alexnet'
 MODEL_VGG = 'vgg11'
+MODEL_RESNET_152 = 'resnet_152_batch'
 
 MODEL_MAP = {
     MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
@@ -51,12 +53,14 @@ MODEL_MAP = {
     MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'resnet_152_batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
 }
 
 
 # Mapping of which row is relevant for a given JMX Test Plan
 EXPERIMENT_RESULTS_MAP = {
     JMX_IMAGE_INPUT_MODEL_PLAN: ['Inference Request'],
+    JMX_BATCH_IMAGE_INPUT_MODEL_PLAN: ['Batch Inference Request'],
     JMX_PING_PLAN: ['Ping Request'],
     JMX_CONCURRENT_LOAD_PLAN: ['Load Model Request'],
     JMX_CONCURRENT_SCALE_CALLS: ['Scale Up Model', 'Scale Down Model'],
@@ -344,6 +348,16 @@ class Benchmarks:
         """
         plan, jmeter_args = parseModel()
         return run_single_benchmark(plan, jmeter_args)
+    @staticmethod
+    def throughput_batch():
+        """
+        Performs a simple single benchmark that measures the model throughput on inference tasks
+        by using batch processing at TorchServe
+        """
+        plan, jmeter_args = parseModel()
+        jmeter_args['batch_delay'] = pargs.batch_delay
+        jmeter_args['batch_size'] = pargs.batch_size
+        return run_single_benchmark(plan, jmeter_args)
 
     @staticmethod
     def latency():
@@ -450,6 +464,9 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--loops', nargs=1, type=int, default=[100], help='Number of loops to run')
     parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
     parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of TorchServe backend workers to use')
+
+    parser.add_argument('-b', '--batch-size', nargs=1, type=int, default=2, help='Batch size to process togather on TorchServe')
+    parser.add_argument('--batch-delay', nargs=1, type=int, default=5000, help='Max time in milliseconds TorchServe will wait for batch request processing')
 
     parser.add_argument('--ts', nargs=1, type=str, help='Target an already running instance of TorchServe instead of spinning up a docker container of TorchServe.  Specify the target with the format address:port (for http) or protocol://address:port')
     parser.add_argument('--management-port', dest='management', nargs=1, type=str, help='When targeting a running TorchServe instance, specify the management port')
