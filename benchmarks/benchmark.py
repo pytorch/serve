@@ -40,7 +40,7 @@ JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
 
 # Listing out the models tested
 MODEL_RESNET_18 = 'resnet-18'
-MODEL_SQUEEZE_NET = 'squeezenet'
+MODEL_SQUEEZE_NET = 'squeezenet1_1'
 MODEL_DENSE_NET = 'densenet161'
 MODEL_ALEX_NET = 'alexnet'
 MODEL_VGG = 'vgg11'
