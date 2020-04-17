@@ -27,35 +27,35 @@ pip install torchserve torch-model-archiver
 _Ubuntu_
 
 1. Install Java 11
-```
-sudo apt-get install openjdk-11-jdk
-```
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 1. Create an environment and install torchserve and torch-model-archiver
-```
-conda create --name torchserve torchserve torch-model-archiver -c pytorch
-```
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    ```
 1. Activate the environment
-```
-source activate torchserve
-```
+    ```bash
+    source activate torchserve
+    ```
 
 _macOS_
 
 1. Install Java 11
-```
-brew tap AdoptOpenJDK/openjdk
-brew cask install adoptopenjdk11
-```
+    ```bash
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk11
+    ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 1. Create an environment and install torchserve and torch-model-archiver
-```
-conda create --name torchserve torchserve torch-model-archiver -c pytorch
-```
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    ```
 1. Activate the environment
-```
-source activate torchserve
-```
+    ```bash
+    source activate torchserve
+    ```
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
