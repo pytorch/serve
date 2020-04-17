@@ -10,6 +10,7 @@
 * [Packaging Model Archive](../model-archiver/README.md) - Explains how to package model archive file, use `model-archiver`.
 * [Logging](logging.md) - How to configure logging
 * [Metrics](metrics.md) - How to configure metrics
+* [Batch inference with TorchServe](batch_inference_with_ts.md) - How to create and serve a model with batch inference in TorchServe
 
 ## Advanced Features
 
