@@ -2,126 +2,51 @@
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).
+**For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
 
 ## Contents of this Document
 
-* [Install TorchServe for local environment](#install-torchserve-for-local-environment)
+* [Install TorchServe](#install-torchserve)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
-## Install TorchServe for local environment
+## Install TorchServe
 
-### Prerequisites
+_Ubuntu_
 
-Before proceeding further with this document, make sure you have the following prerequisites.
-
-1. Ubuntu or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
-1. Python     - TorchServe requires python to run the workers.
-1. pip        - Pip is a python package management system.
-1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
-
-    For Ubuntu:
-
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-
-    For macOS
-
-    ```bash
-    brew tap AdoptOpenJDK/openjdk
-    brew cask install adoptopenjdk11
-    ```
-
-### Install TorchServe with pip
-
-#### Setup
-
-**Step 1:** Setup a Virtual Environment
-
-We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
-
-* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 3.7 as follows:
-
-```bash
-pip install virtualenv
+1. Install Java 11
+```
+sudo apt-get install openjdk-11-jdk
+```
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+1. Create an environment and install torchserve and torch-model-archiver
+```
+conda create --name torchserve torchserve torch-model-archiver -c pytorch
+```
+1. Activate the environment
+```
+source activate torchserve
 ```
 
-Then create a virtual environment:
+_macOS_
 
-```bash
-# Assuming we want to run python3.7 in /usr/local/bin/python3.7
-virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
-# Enter this virtual environment as follows
-source /tmp/pyenv3/bin/activate
+1. Install Java 11
+```
+brew tap AdoptOpenJDK/openjdk
+brew cask install adoptopenjdk11
+```
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+1. Create an environment and install torchserve and torch-model-archiver
+```
+conda create --name torchserve torchserve torch-model-archiver -c pytorch
+```
+1. Activate the environment
+```
+source activate torchserve
 ```
 
-Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
-
-* **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
-[Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
-
-Then create a virtual environment using conda.
-
-```bash
-conda create -n myenv
-source activate myenv
-```
-
-**Step 2:** Install torch
-
-TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
-
-* For virtualenv
-
-```bash
-#For CPU/GPU
-pip install torch torchvision torchtext
-```
-
-* For conda
-
-The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
-
-```bash
-pip install sentencepiece
-```
-
-```bash
-#For CPU
-conda install psutil pytorch torchvision torchtext -c pytorch
-```
-
-```bash
-#For GPU
-conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
-```
-
-**Step 3:** Install TorchServe as follows:
-
-```bash
-git clone https://github.com/pytorch/serve.git
-cd serve
-pip install .
-```
-
-**Notes:**
-
-* If `pip install .`  fails, run `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
-* See the [advanced installation](docs/install.md) page for more options and troubleshooting.
-
-### Install torch-model-archiver
-
-* Install torch-model-archiver as follows:
-
-```bash
-cd serve/model-archiver
-pip install .
-```
-
-For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
@@ -131,11 +56,20 @@ If you plan to develop with TorchServe and change some of the source code, insta
 pip install -e .
 ```
 
-To upgrade TorchServe from source code and make changes executable, run:
+* To develop with torch-model-archiver:
+
+```bash
+cd serve/model-archiver
+pip install -e .
+```
+
+To upgrade TorchServe or model archiver from source code and make changes executable, run:
 
 ```bash
 pip install -U -e .
 ```
+
+For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
 ## Serve a model
 
@@ -234,48 +168,59 @@ torchserve --stop
 
 You see output specifying that TorchServe has stopped.
 
-## Quick Start with docker
+## Quick Start with Docker
 
-### Start TorchServe using docker image
+### Prerequisites
 
-#### Prerequisites
-
-* docker - Refer [official docker installation guide](https://docs.docker.com/install/)
-* git    - Refer [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-
-#### Building docker image
+* docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+* TorchServe source code. Clone and enter the repo as follows:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
 cd serve
+```
+
+### Build the TorchServe Docker image
+
+The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference. 
+
+Build the TorchServe image for a CPU device using the `master` branch:
+
+```bash
 ./build_image.sh
 ```
 
-The above command builds the TorchServe image for CPU device with `master` branch
+Create a Docker image for a specific branch, use the following command:
 
-To create image for specific branch use following command :
 ```bash
 ./build_image.sh -b <branch_name>
 ```
 
-To create image for GPU device use following command :
+To create a Docker image for a GPU device, use the following command:
+
 ```bash
 ./build_image.sh --gpu
 ```
 
-To create image for GPU device with specific branch use following command :
+To create a Docker image for a GPU device with a specific branch, use following command:
+
 ```bash
 ./build_image.sh -b <branch_name> --gpu
 ```
 
-**Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
+To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered resnet-18 image classification model, use the following command:
 
 ```bash
 ./start.sh
 ```
 
-**For managing models with TorchServe refer [management api documentation](docs/management_api.md)**
-**For running inference on registered models with TorchServe refer [inference api documentation](docs/inference_api.md)**
+## Learn More
+
+* [Full documentation on TorchServe](docs/README.md)
+* [Manage models API](docs/management_api.md)
+* [Inference API](docs/inference_api.md)
+* [Package models for use with TorchServe](model-archiver/README.md)
 
 ## Contributing
 
