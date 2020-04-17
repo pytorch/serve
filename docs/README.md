@@ -4,7 +4,7 @@
 
 * [Serving Quick Start](../README.md#serve-a-model) - Basic server usage tutorial
 * [Model Archive Quick Start](../model-archiver#creating-a-model-archive) - Tutorial that shows you how to package a model archive file.
-* [Installation](../README.md##install-torchserve-for-local-environment) - Installation procedures
+* [Installation](../README.md##install-torchserve) - Installation procedures
 * [Serving Models](server.md) - Explains how to use `torchserve`.
   * [REST API](rest_api.md) - Specification on the API endpoint for TorchServe
 * [Packaging Model Archive](../model-archiver/README.md) - Explains how to package model archive file, use `model-archiver`.
