@@ -13,6 +13,17 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Install TorchServe
 
+Conda instructions are provided in more detail, but you may also use `pip` and `virtualenv` if that is your preference.
+**Note:** Java 11 is required. Instructions for installing Java 11 for Ubuntu or macOS are provided in the [Install with Conda](#install-with-conda) section.
+
+### Install with pip
+To use `pip` to install TorchServe and the model archiver:
+
+```
+pip install torchserve torch-model-archiver
+```
+
+### Install with Conda
 _Ubuntu_
 
 1. Install Java 11
@@ -183,7 +194,7 @@ cd serve
 
 ### Build the TorchServe Docker image
 
-The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference. 
+The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
 
 Build the TorchServe image for a CPU device using the `master` branch:
 
