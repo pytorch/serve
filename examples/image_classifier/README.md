@@ -8,7 +8,7 @@
   * [Image Classification with SqueezeNet 1_1](squeezenet) - https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth
   * [Image Classification with VGG11](vgg_11) - https://download.pytorch.org/models/vgg11-bbd30ac9.pth
 
-* Create a model architecture file (model-file) based on selected model or use the sample provided with above examples.
+* [Create a model archive file](../../model-archiver/README.md) based on selected model or use the sample provided with above examples.
 
 * You can use the [index_to_name.json](index_to_name.json) file for mapping predicted index to class or use a custom one.
 
@@ -49,7 +49,7 @@
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("dense161.pt")
    ```  
- 
+
 * Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
 
     ```bash

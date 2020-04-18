@@ -9,12 +9,13 @@
 
 ## Introduction
 
-A custom service , is the code that is packaged into model archive, that is executed by Model Server for PyTorch (TorchServe).
+A custom service is the code that is packaged into model archive to be executed by Model Server for PyTorch (TorchServe).
 The custom service is responsible for handling incoming data and passing on to engine for inference. The output of the custom service is returned back as response by TorchServe.
 
 ## Requirements for custom service file
 
-The custom service file should define a method that acts as an entry point for execution, this function will be invoked by TorchServe on a inference request.
+The custom service file should define a method that acts as an entry point for execution, this function will be invoked by TorchServe on an inference request.
+
 The function can have any name, not necessarily handle, however this function should accept, the following parameters
 
 * **data** - The input data from the incoming request
@@ -112,11 +113,11 @@ def handle(data, context):
     return _service.handle(data, context)
 
 ```
-Here the ``` handle()``` method is our entry point that will be invoked by TorchServe, with the parameters data and context, it in turn can pass this information to an actual inference class object or handle all the processing in the
-```handle()``` method itself. The ```initialize()``` method is used to initialize the model at load time, so after first time, the service need not be re-initialized in the the life cycle of the relevant worker.
- We recommend using a ```initialize()``` method, avoid initialization at prediction time.
+Here the ` handle()` method is our entry point that will be invoked by TorchServe, with the parameters data and context, it in turn can pass this information to an actual inference class object or handle all the processing in the
+`handle()` method itself. The `initialize()` method is used to initialize the model at load time, so after first time, the service need not be re-initialized in the the life cycle of the relevant worker.
+ We recommend using a `initialize()` method, avoid initialization at prediction time.
 
- This entry point is engaged in two cases: (1) when TorchServe is asked to scale a model up, to increase the number of backend workers (it is done either via a ```PUT /models/{model_name}``` request or a ```POST /models``` request with `initial-workers` option or during TorchServe startup when you use `--models` option (```torchserve --start --model-store {model-store-path} --models {model_name=model.mar}```), ie., you provide model(s) to load) or (2) when TorchServe gets a ```POST /predictions/{model_name}``` request. (1) is used to scale-up or scale-down workers for a model. (2) is used as a standard way to run inference against a model. (1) is also known as model load time, and that is where you would normally want to put code for model initialization. You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
+ This entry point is engaged in two cases: (1) when TorchServe is asked to scale a model up, to increase the number of backend workers (it is done either via a `PUT /models/{model_name}` request or a `POST /models` request with `initial-workers` option or during TorchServe startup when you use `--models` option (`torchserve --start --model-store {model-store-path} --models {model_name=model.mar}`), ie., you provide model(s) to load) or (2) when TorchServe gets a `POST /predictions/{model_name}` request. (1) is used to scale-up or scale-down workers for a model. (2) is used as a standard way to run inference against a model. (1) is also known as model load time, and that is where you would normally want to put code for model initialization. You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
 
 ** For a working example of a custom service handler refer [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py) **
 
