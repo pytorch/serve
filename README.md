@@ -61,7 +61,15 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
-If you plan to develop with TorchServe and change some of the source code, install it from source code and make your changes executable with this command:
+If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+First, clone the repo with:
+
+```bash
+git clone https://github.com/pytorch/serve
+cd serve
+```
+
+Then make your changes executable with this command:
 
 ```bash
 pip install -e .
@@ -74,7 +82,7 @@ cd serve/model-archiver
 pip install -e .
 ```
 
-To upgrade TorchServe or model archiver from source code and make changes executable, run:
+* To upgrade TorchServe or model archiver from source code and make changes executable, run:
 
 ```bash
 pip install -U -e .
@@ -84,7 +92,7 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 ## Serve a model
 
-This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already installed TorchServe and the model archiver.
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
 
 To run this example, clone the TorchServe repository and navigate to the root of the repository:
 
@@ -100,14 +108,24 @@ Then run the following steps from the root of the repository.
 To serve a model with TorchServe, first archive the model as a MAR file. You can use the model archiver to package a model.
 You can also create model stores to store your archived models.
 
-The following code gets a trained model, archives the model by using the model archiver, and then stores the model in a model store.
+1. Create a directory to store your models.
 
-```bash
-wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
-mkdir model_store
-mv densenet161.mar model_store/
-```
+    ```bash
+    mkdir ~/model_store
+    cd ~/model_store
+    ```
+
+1. Download a trained model.
+
+    ```bash
+    wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+    ```
+
+1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
+
+    ```bash
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ~/serve/examples/image_classifier/densenet_161/model.py --serialized-file ~/model_store/densenet161-8d451a50.pth --extra-files ~/serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    ```
 
 For more information about the model archiver, see [Torch Model archiver for TorchServe](../model-archiver/README.md)
 
@@ -116,7 +134,7 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-torchserve --start --model-store model_store --models densenet161=densenet161.mar
+torchserve --start --model-store model_store --models ~/model_store/densenet161=densenet161.mar
 ```
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
@@ -196,13 +214,13 @@ cd serve
 
 The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
 
-Build the TorchServe image for a CPU device using the `master` branch:
+To build the TorchServe image for a CPU device using the `master` branch, use the following command:
 
 ```bash
 ./build_image.sh
 ```
 
-Create a Docker image for a specific branch, use the following command:
+To create a Docker image for a specific branch, use the following command:
 
 ```bash
 ./build_image.sh -b <branch_name>
@@ -220,7 +238,7 @@ To create a Docker image for a GPU device with a specific branch, use following 
 ./build_image.sh -b <branch_name> --gpu
 ```
 
-To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered resnet-18 image classification model, use the following command:
+To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
 
 ```bash
 ./start.sh
