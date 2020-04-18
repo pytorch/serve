@@ -70,7 +70,7 @@ optional arguments:
                         This parameter is mandatory for eager mode models.
                         The model architecture file must contain only one
                         class definition extended from torch.nn.modules.
-  --handler HANDLER     TorchServe's default handler name  or handler python 
+  --handler HANDLER     TorchServe's default handler name  or handler python
                         file path to handle custom TorchServe inference logic.
   --source-vocab SOURCE_VOCAB
                         Vocab file for source language required for text
@@ -115,7 +115,7 @@ optional arguments:
 
 ### Model name
 
-A valid model name must begin with a letter of the alphabet and can only contains letters, digits, underscores (_), dashes (-) and periods (.).
+A valid model name must begin with a letter of the alphabet and can only contains letters, digits, underscores `_`, dashes `-` and periods `.`.
 
 **Note**: The model name can be overridden when you register the model with [Register Model API](../docs/management_api.md#register-a-model).
 
@@ -130,10 +130,10 @@ A serialized file (.pt or .pth) should be a checkpoint in case of torchscript an
 ### Handler
 
 Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TorchServe inference logic. TorchServe supports following handlers out or box:
-1. image_classifier
-2. object_detector
-3. text_classifier
-4. image_segmenter
+1. `image_classifier`
+2. `object_detector`
+3. `text_classifier`
+4. `image_segmenter`
 
 For more details refer [default handler documentation](../docs/default_handlers.md)
 ## Creating a Model Archive
