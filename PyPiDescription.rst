@@ -19,12 +19,6 @@ For ubuntu:
     sudo apt-get install openjdk-11-jdk
 
 
-For centos
-::
-
-    sudo yum install java-11-openjdk
-
-
 For Mac:
 ::
 
