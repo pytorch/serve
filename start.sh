@@ -1,9 +1,34 @@
 #!/bin/bash
 IMAGE_NAME="torchserve:1.0"
 
+for arg in "$@"
+do
+    case $arg in
+        -h|--help)
+          echo "options:"
+          echo "-h, --help  show brief help"
+          echo "-g, --gpu specify to use gpu"
+          echo "-d, --gpu_devices to use specific gpu device ids"
+          exit 0
+          ;;
+        -g|--gpu)
+          DOCKER_RUNTIME="--runtime=nvidia"
+          shift
+          ;;
+	-d|--gpu_devices)
+          if test $
+          then
+	    GPU_DEVICES="-e NVIDIA_VISIBLE_DEVICES=$2"
+            shift
+          fi
+          shift
+          ;;
+    esac
+done
 echo "Starting torchserve:1.0 docker image"
 
-docker run -d --rm -it -p 8080:8080 -p 8081:8081 torchserve:1.0 > /dev/null 2>&1
+docker run $DOCKER_RUNTIME $GPU_DEVICES -d --rm -it -p 8080:8080 -p 8081:8081 torchserve:1.0 > /dev/null 2>&1
+
 container_id=$(docker ps --filter="ancestor=$IMAGE_NAME" -q | xargs)
 
 sleep 30

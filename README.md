@@ -51,8 +51,17 @@ To create image for GPU device with specific branch use following command :
 
 **Running docker image and starting TorchServe inside container with pre-registered resnet-18 image classification model**
 
+For CPU run the following command:
 ```bash
 ./start.sh
+```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
 ```
 
 **For pre-trained and pre-packaged models-archives refer [TorchServe model zoo](docs/model_zoo.md)**
