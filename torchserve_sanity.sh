@@ -67,9 +67,6 @@ cleanup()
   rm -rf logs
 }
 
-
-pip install mock pytest==3.6 pylint pytest-mock==3.0.0 pytest-cov
-
 cd frontend
 
 if ./gradlew clean build;

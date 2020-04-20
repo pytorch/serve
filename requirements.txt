@@ -1,0 +1,9 @@
+Pillow==7.0.0
+future==0.18.2
+psutil==5.7.0
+mock==4.0.2
+pytest==3.6
+pylint==2.4.4
+pytest-mock==3.0.0
+pytest-cov==2.8.1
+wheel==0.34.2
