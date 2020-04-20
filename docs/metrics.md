@@ -42,7 +42,7 @@ CPUUtilization.Percent:0.0|#Level:Host|#hostname:my_machine_name
 MemoryUsed.Megabytes:13840.328125|#Level:Host|#hostname:my_machine_name    
 ```
 
-To enable metric logging in JSON format, we can modify the log formatter in [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties), This is explained in the logging [document](https://github.com/pytorch/serve/blob/master/docs/logging.md).
+To enable metric logging in JSON format, we can modify the log formatter in [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties), This is explained in the logging [document](logging.md).
 
 to enable JSON formatting for metrics change it to 
 
@@ -86,7 +86,7 @@ Once enabled the format emitted to logs, will look as follows
 
 TorchServe enables the custom service code to emit metrics, that are then logged by the system
 
-The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request.
+The custom service code is provided with a [context](../ts/context.py) of the current request.
 
 Which has metrics object.
 
@@ -306,4 +306,4 @@ for metric in metrics.store:
     logger.info("[METRICS]%s", str(metric))
 ```
 
-This custom metrics information is logged in the model_metrics.log file configured through [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.
+This custom metrics information is logged in the model_metrics.log file configured through [log4j.properties](../frontend/server/src/main/resources/log4j.properties) file.

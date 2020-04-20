@@ -18,7 +18,7 @@ The custom service file should define a method that acts as an entry point for e
 The function can have any name, not necessarily handle, however this function should accept, the following parameters
     
 * **data** - The input data from the incoming request
-* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py) information passed for use with the custom service if required. 
+* **context** - Is the TorchServe [context](../ts/context.py) information passed for use with the custom service if required. 
 
 
 The signature of a entry point function is:
@@ -148,7 +148,7 @@ class ModelHandler(object):
 
 TorchServe, identifies the entry point to the custom service, from the manifest file. Thus file creating the model archive, one needs to mention the entry point using the ```--handler``` option. 
 
-The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables the create to an archive understood by TorchServe.
+The [model-archiver](../model-archiver/README.md) tool enables the create to an archive understood by TorchServe.
 
 ```bash
 torch-model-archiver --model-name <model-name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
