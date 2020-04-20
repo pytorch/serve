@@ -84,8 +84,17 @@ pip install -e .
 
 * To upgrade TorchServe or model archiver from source code and make changes executable, run:
 
+For CPU run the following command:
 ```bash
 pip install -U -e .
+```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
