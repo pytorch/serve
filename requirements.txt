@@ -4,7 +4,7 @@ psutil==5.7.0
 mock==4.0.2
 pytest==5.4.1
 pylint==2.4.4
-pytest-mock==3.0.0
+pytest-mock==3.1.0
 pytest-cov==2.8.1
 wheel==0.34.2
 requests==2.23.0
