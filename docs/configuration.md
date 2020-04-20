@@ -132,6 +132,16 @@ private_key_file=mykey.key
 certificate_file=mycert.pem
 ```
 
+If you are using a self-signed certificate as shown above be sure to pass proper flags
+to your HTTP client before invoking a secure API request. For example with `curl`, you can
+pass `--insecure` flag. As in:
+
+```
+curl --insecure https://127.0.0.1:8443/ping
+```
+
+to ping the server.
+
 ### Configure Cross-Origin Resource Sharing (CORS)
 CORS is a mechanism that uses additional HTTP headers to tell a browser to let a
 web application running at one origin (domain) have permission to access selected
