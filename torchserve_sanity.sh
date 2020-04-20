@@ -68,7 +68,7 @@ cleanup()
 }
 
 
-pip install mock pytest==3.6 pylint pytest-mock pytest-cov
+pip install mock pytest pylint pytest-mock pytest-cov
 
 cd frontend
 
