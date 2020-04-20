@@ -8,14 +8,7 @@ phases:
       - apt-get update
       - apt-get install -y curl
       - pip install pip -U
-      - pip install future
-      - pip install Pillow
-      - pip install pytest
-      - pip install wheel
-      - pip install twine
-      - pip install pytest-mock -U
-      - pip install requests
-      - pip install psutil
+      - pip install -r requirements.txt
 
   build:
     commands:

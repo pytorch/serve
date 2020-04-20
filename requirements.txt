@@ -1,0 +1,10 @@
+Pillow
+future
+psutil
+mock
+pytest
+pylint
+pytest-mock
+pytest-cov
+wheel
+requests

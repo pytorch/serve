@@ -5,8 +5,8 @@
 You will need some additional Python modules to run the unit tests and linting.
 
 ```bash
-pip install mock pytest pylint pytest-mock pytest-cov
 cd serve
+pip install -r requirements.txt
 ./torchserve_sanity.sh
 ```
 
