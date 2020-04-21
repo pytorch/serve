@@ -53,15 +53,10 @@ _macOS_
     brew tap AdoptOpenJDK/openjdk
     brew cask install adoptopenjdk11
     ```
-1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 1. Create an environment and install torchserve and torch-model-archiver
-    For CPU
     ```bash
     conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision -c pytorch -c powerai
-    ```
-    For GPU
-    ```bash
-    conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
     ```
 1. Activate the environment
     ```bash
