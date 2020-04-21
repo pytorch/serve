@@ -320,6 +320,44 @@ conda install future psutil pytorch torchvision <span class="nv">cudatoolkit</sp
 <li><p><strong>Unzip</strong>: Optional. Unzip allows you to easily extract model files and inspect their content. If you choose to use it, associate it with <code class="docutils literal notranslate"><span class="pre">.mar</span></code> extensions.</p></li>
 </ul>
 </div>
+<div class="section" id="installation-with-pip">
+<h2>Installation with pip<a class="headerlink" href="#installation-with-pip" title="Permalink to this headline">¶</a></h2>
+<p><strong>From PyTorch official repositories</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -f https://download.pytorch.org/torch_stable.html torchserve
+</pre></div>
+</div>
+</div>
+<div class="section" id="installation-with-conda">
+<h2>Installation with conda<a class="headerlink" href="#installation-with-conda" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c pytorch torchserve
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-with-docker">
+<h2>Running with Docker<a class="headerlink" href="#running-with-docker" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cpu-only">
+<h3>CPU only<a class="headerlink" href="#cpu-only" title="Permalink to this headline">¶</a></h3>
+<p>For specific versions use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it pytorch/torchserve:0.1-cpu
+</pre></div>
+</div>
+<p>For the latest version you can use the <cite>latest</cite> tag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it pytorch/torchserve:latest
+</pre></div>
+</div>
+</div>
+<div class="section" id="gpu">
+<h3>GPU<a class="headerlink" href="#gpu" title="Permalink to this headline">¶</a></h3>
+<p>For the latest version you can use the <cite>gpu-latest</cite> tag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it --gpus all pytorch/torchserve:latest-gpu
+</pre></div>
+</div>
+<p>For specific versions use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it --gpus all pytorch/torchserve:0.1-cuda10.1-cudnn7-runtime
+</pre></div>
+</div>
+</div>
+</div>
 <div class="section" id="install-torchserve-from-source-code">
 <h2>Install TorchServe from Source Code<a class="headerlink" href="#install-torchserve-from-source-code" title="Permalink to this headline">¶</a></h2>
 <p>If you prefer, you can clone TorchServe from source code. First, run the following command:</p>
@@ -404,6 +442,13 @@ pip install .
               <ul>
 <li><a class="reference internal" href="#">Install TorchServe</a><ul>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#installation-with-pip">Installation with pip</a></li>
+<li><a class="reference internal" href="#installation-with-conda">Installation with conda</a></li>
+<li><a class="reference internal" href="#running-with-docker">Running with Docker</a><ul>
+<li><a class="reference internal" href="#cpu-only">CPU only</a></li>
+<li><a class="reference internal" href="#gpu">GPU</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#install-torchserve-from-source-code">Install TorchServe from Source Code</a></li>
 <li><a class="reference internal" href="#install-torchserve-for-development">Install TorchServe for Development</a></li>
 <li><a class="reference internal" href="#troubleshooting-installation">Troubleshooting Installation</a></li>
@@ -424,19 +469,20 @@ pip install .
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -627,6 +673,10 @@ pip install .
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Remove any empty p tags that Sphinx adds
+      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {
