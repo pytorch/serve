@@ -7,12 +7,12 @@ git clone https://github.com/pytorch/serve.git
 
 For creating CPU based image :
 ```bash
-docker build --file Dockerfile.cpu -t torchserve:1.0 .
+docker build --file Dockerfile.cpu -t torchserve:latest .
 ```
 
 For creating GPU based image :
 ```bash
-docker build --file Dockerfile.gpu -t torchserve:1.0 .
+docker build --file Dockerfile.gpu -t torchserve:latest .
 ```
 
 ## Start a container with a TorchServe image
