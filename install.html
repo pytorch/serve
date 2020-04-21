@@ -308,11 +308,11 @@ pip install torch torchvision torchtext
 <li><p>For conda</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#For CPU</span>
-conda install psutil pytorch torchvision torchtext -c pytorch
+conda install -c pytorch -c powerai pytorch torchtext torchvision
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#For GPU</span>
-conda install future psutil pytorch torchvision <span class="nv">cudatoolkit</span><span class="o">=</span><span class="m">10</span>.1 torchtext -c pytorch
+conda install -c pytorch -c powerai pytorch torchtext torchvision cudatoolkit=10.1
 </pre></div>
 </div>
 <ul class="simple">
