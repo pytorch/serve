@@ -1,4 +1,4 @@
-#### Create TorchServe docker image
+# Create TorchServe docker image
 
 ```bash
 cd serve/docker
@@ -15,13 +15,31 @@ For creating GPU based image :
 docker build --file Dockerfile.gpu -t torchserve:1.0 .
 ```
 
-#### Start container with TorchServe image
+## Start a container with a TorchServe image
 
+The following examples will start the container with 8080/81 port exposed to outer-world/localhost.
+
+### Start CPU container
+
+For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:1.0
+docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1-cpu
 ```
 
-The above command will start the container with 8080/81 port exposed to outer-world/localhost
+For the latest version, you can use the `latest` tag:
+docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+
+#### Start GPU container
+
+For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
+```bash
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1-cuda10.1-cudnn7-runtime
+```
+
+For the latest version, you can use the `gpu-latest` tag:
+```bash
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
+```
 
 #### Accessing TorchServe APIs inside container
 
