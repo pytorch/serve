@@ -256,24 +256,3 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 We welcome all contributions!
 
 To file a bug or request a feature, please file a GitHub issue. Pull requests are welcome.
-
-## Experimental Release Roadmap
-
-Below, in order, is a prioritized list of tasks for this repository.
-
-### v0.1 Plan
-
-* [ ] CI (initially AWS CodeBuild)
-* [x] Default handler
-  * [x] Handle eager-mode and TorchScript (tracing and scripting)
-  * [x] Add zero-code pre and post-processing for Image Classification
-* [x] Basic examples
-  * [x] Eager-mode image classifier
-    * [x] TorchScript image classifier
-    * [x] Custom neural network
-* [x] Basic docs (install, serve a model and use it for inference)
-
-### v0.2 Plan
-
-* [ ] Basic unit tests
-* [ ] Versioning
