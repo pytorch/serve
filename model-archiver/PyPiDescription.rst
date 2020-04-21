@@ -6,7 +6,7 @@ Torch Model Archiver is a tool used for creating archives of trained neural net 
 Use the Torch Model Archiver CLI to start create a ``.mar`` file.
 
 Torch Model Archiver is part of `TS <https://pypi.org/project/torchserve/>`__.
-However,you can install Torch Model Archiver stand alone.
+However, you can install Torch Model Archiver stand alone.
 
 Detailed documentation and examples are provided in the `README
 <https://github.com/pytorch/serve/model-archiver/README.md>`__.
@@ -15,16 +15,15 @@ Detailed documentation and examples are provided in the `README
 Installation
 ------------
 
-::
+Full installation instructions are in the project repo: https://github.com/pytorch/serve/blob/master/README.md
 
-    pip install torch-model-archiver
 
 Development
 -----------
 
 We welcome new contributors of all experience levels. For information on
-how to install MMS for development, refer to the `TS
-docs <https://github.com/pytorch/serve/blob/master/docs/install.md>`__.
+how to install TorchServe for development, refer to the `TS
+docs <https://github.com/pytorch/serve/blob/master/README.md#install-torchserve-for-development>`__.
 
 Important links
 ---------------
@@ -48,9 +47,7 @@ You can check the latest source code as follows:
 Testing
 -------
 
-After installation, try out the MMS Quickstart for `Create a
-model archive <https://github.com/pytorch/serve/blob/serve/README.md#model-archive>`__
-and `Serving a
+After installation, try out the Quickstart for `Serving a
 Model <https://github.com/pytorch/serve/blob/serve/model-archiver/README.md#serve-a-model>`__.
 
 
@@ -63,5 +60,5 @@ Help and Support
 Citation
 --------
 
-If you use MMS in a publication or project, please cite MMS:
-https://github.com/awslabs/mxnet-model-server
+If you use TorchServe in a publication or project, please cite TorchServe:
+https://github.com/pytorch/serve
