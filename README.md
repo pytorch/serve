@@ -20,6 +20,7 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 To use `pip` to install TorchServe and the model archiver:
 
 ```
+pip install sentencepiece torch torchtext torchvision
 pip install -f https://download.pytorch.org/whl/torch_stable.html torchserve torch-model-archiver
 ```
 
@@ -31,15 +32,14 @@ _Ubuntu with GPU/CUDA support_
     sudo apt-get install openjdk-11-jdk
     ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an CPU environment and install dependencies, plus `torchserve` and `torch-model-archiver`
+1. Create an environment and install dependencies, plus `torchserve` and `torch-model-archiver`
     ```bash
-    conda create --name torchserve cudatoolkit=10.1 future psutil pytorch torchtext torchvision torchserve   torch-model-archiver -c pytorch
+    conda create --name torchserve cudatoolkit=10.1 pytorch torchtext torchserve torchvision torch-model-archiver -c pytorch -c powerai
     ```
 1. Activate the environment
     ```bash
     source activate torchserve
     ```
-
 _Ubuntu (no GPUs)_
 
 1. Install Java 11
@@ -47,9 +47,9 @@ _Ubuntu (no GPUs)_
     sudo apt-get install openjdk-11-jdk
     ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an CPU environment and install dependencies, plus `torchserve` and `torch-model-archiver`
+1. Create an environment and install dependencies, plus `torchserve` and `torch-model-archiver`
     ```bash
-    conda create --name torchserve psutil pytorch torchtext torchvision torchserve torch-model-archiver -c pytorch
+    conda create --name torchserve pytorch torchtext torchserve torchvision torch-model-archiver -c pytorch -c powerai
     ```
 1. Activate the environment
     ```bash
@@ -64,9 +64,9 @@ _macOS_
     brew cask install adoptopenjdk11
     ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an environment and install `pytorch`, `torchserve`, and `torch-model-archiver`
+1. Create an environment and install dependencies, plus `torchserve` and `torch-model-archiver`
     ```bash
-    conda create --name torchserve pytorch torchserve torch-model-archiver -c pytorch
+    conda create --name torchserve pytorch torchtext torchserve torchvision torch-model-archiver -c pytorch -c powerai
     ```
 1. Activate the environment
     ```bash
