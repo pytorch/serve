@@ -20,6 +20,7 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 To use `pip` to install TorchServe and the model archiver:
 
 ```
+pip install torch torchtext torchvision sentencepiece
 pip install torchserve torch-model-archiver
 ```
 
@@ -32,8 +33,13 @@ _Ubuntu_
     ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 1. Create an environment and install torchserve and torch-model-archiver
+    For CPU
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision -c pytorch -c powerai
+    ```
+    For GPU
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
     ```
 1. Activate the environment
     ```bash
@@ -51,6 +57,12 @@ _macOS_
 1. Create an environment and install torchserve and torch-model-archiver
     ```bash
     conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    conda install -c pytorch -c powerai pytorch torchtext torchvision
+    ```
+    For GPU
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    conda install -c pytorch -c powerai pytorch torchtext torchvision cudatoolkit=10.1
     ```
 1. Activate the environment
     ```bash
