@@ -27,5 +27,5 @@ The reports can be accessed at the following path :
 
 - TorchServe frontende : serve/frontend/server/build/reports
 - TorchServe backend : serve/htmlcov
-- torch_model_archiver : serve/model-archiver/htmlcov
+- torch-model-archiver : serve/model-archiver/htmlcov
 

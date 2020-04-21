@@ -90,7 +90,7 @@ else
 fi
 
 pip uninstall --yes torchserve
-pip uninstall --yes torch_model_archiver
+pip uninstall --yes torch-model-archiver
 
 if pip install .;
 then
@@ -112,9 +112,9 @@ fi
 
 if pip install .;
 then
-  echo "Successfully installed torch_model_archiver"
+  echo "Successfully installed torch-model-archiver"
 else
-  echo "torch_model_archiver installation failed"
+  echo "torch-model-archiver installation failed"
   exit 1
 fi
 

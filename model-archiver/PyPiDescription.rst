@@ -17,7 +17,7 @@ Installation
 
 ::
 
-    pip install torch_model_archiver
+    pip install torch-model-archiver
 
 Development
 -----------
