@@ -2,15 +2,15 @@
 
 * TorchVision Image Classification Models : Download a pre-trained model state_dict for computer vision model that classifies images from the following :
 
-  * [Image Classification with AlexNet](image_classifier/alexnet) - https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth
-  * [Image Classification with DenseNet161](image_classifier/densenet_161) - https://download.pytorch.org/models/densenet161-8d451a50.pth
-  * [Image Classification with ResNet18](image_classifier/resnet_18) - https://download.pytorch.org/models/resnet18-5c106cde.pth
-  * [Image Classification with SqueezeNet 1_1](image_classifier/squeezenet) - https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth
-  * [Image Classification with VGG11](image_classifier/vgg_11) - https://download.pytorch.org/models/vgg11-bbd30ac9.pth
+  * [Image Classification with AlexNet](alexnet) - https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth
+  * [Image Classification with DenseNet161](densenet_161) - https://download.pytorch.org/models/densenet161-8d451a50.pth
+  * [Image Classification with ResNet18](resnet_18) - https://download.pytorch.org/models/resnet18-5c106cde.pth
+  * [Image Classification with SqueezeNet 1_1](squeezenet) - https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth
+  * [Image Classification with VGG11](vgg_11) - https://download.pytorch.org/models/vgg11-bbd30ac9.pth
 
-* Create a model architecture file (model-file) based on selected model or use the sample provided with above examples.
+* [Create a model archive file](../../model-archiver/README.md) based on selected model or use the sample provided with above examples.
 
-* You can use the [index_to_name.json](image_classifier/index_to_name.json) file for mapping predicted index to class or use a custom one.
+* You can use the [index_to_name.json](index_to_name.json) file for mapping predicted index to class or use a custom one.
 
 * Create a torch model archive file using the above provided syntax command.
 
@@ -49,7 +49,7 @@
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("dense161.pt")
    ```  
- 
+
 * Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
 
     ```bash
