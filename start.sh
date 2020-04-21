@@ -19,15 +19,16 @@ do
 	-d|--gpu_devices)
           if test $
           then
-            DOCKER_RUNTIME="--runtime=nvidia"
+	    DOCKER_RUNTIME="--runtime=nvidia"
             IMAGE_NAME="pytorch/torchserve:latest-gpu"
-            GPU_DEVICES="-e NVIDIA_VISIBLE_DEVICES=$2"
+	    GPU_DEVICES="-e NVIDIA_VISIBLE_DEVICES=$2"
             shift
           fi
           shift
           ;;
     esac
 done
+
 echo "Starting $IMAGE_NAME docker image"
 
 docker run $DOCKER_RUNTIME $GPU_DEVICES -d --rm -it -p 8080:8080 -p 8081:8081 $IMAGE_NAME > /dev/null 2>&1
