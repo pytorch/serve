@@ -247,7 +247,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/install.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/install.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -274,7 +274,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <div class="section" id="install-torchserve">
-<span id="install"></span><h1>Install TorchServe<a class="headerlink" href="#install-torchserve" title="Permalink to this headline">¶</a></h1>
+<h1>Install TorchServe<a class="headerlink" href="#install-torchserve" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -323,13 +323,13 @@ conda install future psutil pytorch torchvision <span class="nv">cudatoolkit</sp
 <div class="section" id="installation-with-pip">
 <h2>Installation with pip<a class="headerlink" href="#installation-with-pip" title="Permalink to this headline">¶</a></h2>
 <p><strong>From PyTorch official repositories</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -f https://download.pytorch.org/torch_stable.html torchserve
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -f https://download.pytorch.org/whl/torch_stable.html torchserve torch_model_archiver
 </pre></div>
 </div>
 </div>
 <div class="section" id="installation-with-conda">
 <h2>Installation with conda<a class="headerlink" href="#installation-with-conda" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c pytorch torchserve
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c pytorch torchserve torch_model_archiver
 </pre></div>
 </div>
 </div>
@@ -338,22 +338,22 @@ conda install future psutil pytorch torchvision <span class="nv">cudatoolkit</sp
 <div class="section" id="cpu-only">
 <h3>CPU only<a class="headerlink" href="#cpu-only" title="Permalink to this headline">¶</a></h3>
 <p>For specific versions use:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it pytorch/torchserve:0.1-cpu
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it -p <span class="m">8080</span>:8080 -p <span class="m">8081</span>:8081 pytorch/torchserve:0.1-cpu
 </pre></div>
 </div>
-<p>For the latest version you can use the <cite>latest</cite> tag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it pytorch/torchserve:latest
+<p>For the latest version you can use the <code class="docutils literal notranslate"><span class="pre">latest</span></code> tag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it -p <span class="m">8080</span>:8080 -p <span class="m">8081</span>:8081 pytorch/torchserve:latest
 </pre></div>
 </div>
 </div>
 <div class="section" id="gpu">
 <h3>GPU<a class="headerlink" href="#gpu" title="Permalink to this headline">¶</a></h3>
-<p>For the latest version you can use the <cite>gpu-latest</cite> tag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it --gpus all pytorch/torchserve:latest-gpu
+<p>For specific versions use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it --gpus all -p <span class="m">8080</span>:8080 -p <span class="m">8081</span>:8081 pytorch/torchserve:0.1-cuda10.1-cudnn7-runtime
 </pre></div>
 </div>
-<p>For specific versions use:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it --gpus all pytorch/torchserve:0.1-cuda10.1-cudnn7-runtime
+<p>For the latest version you can use the <code class="docutils literal notranslate"><span class="pre">gpu-latest</span></code> tag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -it --gpus all -p <span class="m">8080</span>:8080 -p <span class="m">8081</span>:8081 pytorch/torchserve:latest-gpu
 </pre></div>
 </div>
 </div>
