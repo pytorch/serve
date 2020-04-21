@@ -1,7 +1,7 @@
 
 
 """
-This module parses the arguments given through the torch-model-archiver command-line.
+This module parses the arguments given through the torch_model_archiver command-line.
 """
 
 import argparse
@@ -13,7 +13,7 @@ from .manifest_components.manifest import RuntimeType
 class ArgParser(object):
 
     """
-    Argument parser for torch-model-archiver commands
+    Argument parser for torch_model_archiver commands
     """
 
     @staticmethod
@@ -22,7 +22,7 @@ class ArgParser(object):
         """ Argument parser for torch-model-export
         """
 
-        parser_export = argparse.ArgumentParser(prog='torch-model-archiver', description='Torch Model Archiver Tool',
+        parser_export = argparse.ArgumentParser(prog='torch_model_archiver', description='Torch Model Archiver Tool',
                                                 formatter_class=argparse.RawTextHelpFormatter)
 
         parser_export.add_argument('--model-name',

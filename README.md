@@ -20,20 +20,36 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 To use `pip` to install TorchServe and the model archiver:
 
 ```
-pip install torchserve torch-model-archiver
+pip install -f https://download.pytorch.org/whl/torch_stable.html torchserve torch_model_archiver
 ```
 
 ### Install with Conda
-_Ubuntu_
+_Ubuntu with GPU/CUDA support_
 
 1. Install Java 11
     ```bash
     sudo apt-get install openjdk-11-jdk
     ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an environment and install torchserve and torch-model-archiver
+1. Create an CPU environment and install dependencies, plus `torchserve` and `torch_model_archiver`
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    conda create --name torchserve cudatoolkit=10.1 future psutil pytorch torchtext torchvision torchserve   torch_model_archiver -c pytorch
+    ```
+1. Activate the environment
+    ```bash
+    source activate torchserve
+    ```
+
+_Ubuntu (no GPUs)_
+
+1. Install Java 11
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+1. Create an CPU environment and install dependencies, plus `torchserve` and `torch_model_archiver`
+    ```bash
+    conda create --name torchserve psutil pytorch torchtext torchvision torchserve torch_model_archiver -c pytorch
     ```
 1. Activate the environment
     ```bash
@@ -48,9 +64,9 @@ _macOS_
     brew cask install adoptopenjdk11
     ```
 1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an environment and install torchserve and torch-model-archiver
+1. Create an environment and install `pytorch`, `torchserve`, and `torch_model_archiver`
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver -c pytorch
+    conda create --name torchserve pytorch torchserve torch_model_archiver -c pytorch
     ```
 1. Activate the environment
     ```bash
@@ -75,7 +91,7 @@ Then make your changes executable with this command:
 pip install -e .
 ```
 
-* To develop with torch-model-archiver:
+* To develop with torch_model_archiver:
 
 ```bash
 cd serve/model-archiver
@@ -124,7 +140,7 @@ You can also create model stores to store your archived models.
 1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ~/serve/examples/image_classifier/densenet_161/model.py --serialized-file ~/model_store/densenet161-8d451a50.pth --extra-files ~/serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch_model_archiver --model-name densenet161 --version 1.0 --model-file ~/serve/examples/image_classifier/densenet_161/model.py --serialized-file ~/model_store/densenet161-8d451a50.pth --extra-files ~/serve/examples/image_classifier/index_to_name.json --handler image_classifier
     ```
 
 For more information about the model archiver, see [Torch Model archiver for TorchServe](../model-archiver/README.md)

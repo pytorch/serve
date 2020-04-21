@@ -50,7 +50,7 @@ if __name__ == '__main__':
     requirements = ['future', 'enum-compat']
 
     setup(
-        name='torch-model-archiver',
+        name='torch_model_archiver',
         version=version,
         description='Torch Model Archiver is used for creating archives of trained neural net models '
                     'that can be consumed by TorchServe inference',
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         packages=pkgs,
         install_requires=requirements,
         entry_points={
-            'console_scripts': ['torch-model-archiver=model_archiver.model_packaging:generate_model_archive']
+            'console_scripts': ['torch_model_archiver=model_archiver.model_packaging:generate_model_archive']
         },
         include_package_data=True,
         license='Apache License Version 2.0'

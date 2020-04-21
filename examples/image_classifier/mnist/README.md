@@ -17,10 +17,10 @@ https://github.com/pytorch/examples/tree/master/mnist
  * Step - 1: Create a new model architecture file which contains model class extended from torch.nn.modules. In this example we have created [mnist model file](mnist.py).
  * Step - 2: Train a MNIST digit recognition model using https://github.com/pytorch/examples/blob/master/mnist/main.py and save the state dict of model. We have added the pre-created [state dict](mnist_cnn.pt) of this model.
  * Step - 3: Write a custom handler to run the inference on your model. In this example, we have added a [custom_handler](mnist_handler.py) which runs the inference on the input greyscale images using the above model and recogniges the digit in the image.
- * Step - 4: Create a torch model archive using the torch-model-archiver utility to archive the above files.
+ * Step - 4: Create a torch model archive using the torch_model_archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler examples/image_classifier/mnist/mnist_handler.py
+    torch_model_archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler examples/image_classifier/mnist/mnist_handler.py
     ```
    
  * Step - 5: Register the model on TorchServe using the above model archive file and run digit recognition inference

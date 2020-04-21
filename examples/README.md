@@ -24,7 +24,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 * Syntax
 
     ```bash
-    torch-model-archiver --model-name <model_name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --handler <path_to_custom_handler_or_default_handler_name> --extra-files <path_to_index_to_name_json_file>
+    torch_model_archiver --model-name <model_name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --handler <path_to_custom_handler_or_default_handler_name> --extra-files <path_to_index_to_name_json_file>
     ```
 
 ## Creating mar file for torchscript mode model
@@ -40,7 +40,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 * Syntax
 
     ```bash
-    torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
+    torch_model_archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
     ```  
 
 ## Examples torchvision image classification models in TorchServe

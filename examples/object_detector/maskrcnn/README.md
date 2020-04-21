@@ -11,7 +11,7 @@ wget https://download.pytorch.org/models/maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth
 * Create a model archive file and serve the maskrcnn model in TorchServe using below commands
 
     ```bash
-    torch-model-archiver --model-name maskrcnn --version 1.0 --model-file serve/examples/object_detector/maskrcnn/model.py --serialized-file maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth --handler object_detector --extra-files serve/examples/object_detector/index_to_name.json
+    torch_model_archiver --model-name maskrcnn --version 1.0 --model-file serve/examples/object_detector/maskrcnn/model.py --serialized-file maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth --handler object_detector --extra-files serve/examples/object_detector/index_to_name.json
     mkdir model_store
     mv maskrcnn.mar model_store/
     torchserve --start --model-store model_store --models maskrcnn=maskrcnn.mar

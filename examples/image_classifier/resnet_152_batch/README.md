@@ -2,7 +2,7 @@
 
 ```bash
 wget https://download.pytorch.org/models/resnet152-b121ed2d.pth
-torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file serve/examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py --extra-files serve/examples/image_classifier/index_to_name.json
+torch_model_archiver --model-name resnet-152-batch --version 1.0 --model-file serve/examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py --extra-files serve/examples/image_classifier/index_to_name.json
 mkdir model-store
 mv resnet-152-batch.mar model-store/
 torchserve --start --model-store model-store
@@ -52,7 +52,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image
 * Use following commands to register Resnet152-batch torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py
+    torch_model_archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py
     mkdir model-store
     mv resnet-152-batch.mar model-store/
     torchserve --start --model-store model-store
