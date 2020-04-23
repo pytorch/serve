@@ -8,7 +8,7 @@ TorchServe provides following inference handlers out of box:
 * Input : RGB image
 * Output : Top 5 predictions and their respective probability of the image
 
-For more details see [examples](../examples/image_classifier)
+For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/image_classifier)
 
 ## image_segmenter
 
@@ -16,7 +16,7 @@ For more details see [examples](../examples/image_classifier)
 * Input : RGB image
 * Output : Output shape as [CL H W], CL - number of classes, H - height and W - width.
 
-For more details see [examples](../examples/image_segmenter)
+For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/image_segmenter)
 
 ## object_detector
 
@@ -24,7 +24,7 @@ For more details see [examples](../examples/image_segmenter)
 * Input : RGB image
 * Output : List of detected classes and bounding boxes respectively 
 
-For more details see [examples](../examples/object_detector) 
+For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/object_detector) 
 
 ## text_classifier
 
@@ -32,4 +32,4 @@ For more details see [examples](../examples/object_detector)
 * Input : text file
 * Output : Class of input text
 
-For more details see [examples](../examples/text_classification)
+For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/text_classification)
