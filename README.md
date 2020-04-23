@@ -88,14 +88,6 @@ For CPU run the following command:
 ```bash
 pip install -U -e .
 ```
-For GPU run the following command:
-```bash
-./start.sh --gpu
-```
-For GPU with specific GPU device ids run the following command:
-```bash
-./start.sh --gpu_devices 1,2,3
-```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
@@ -251,6 +243,14 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 
 ```bash
 ./start.sh
+```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
 ```
 
 ## Learn More

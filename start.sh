@@ -19,6 +19,8 @@ do
 	-d|--gpu_devices)
           if test $
           then
+	    DOCKER_RUNTIME="--runtime=nvidia"
+            IMAGE_NAME="pytorch/torchserve:latest-gpu"
 	    GPU_DEVICES="-e NVIDIA_VISIBLE_DEVICES=$2"
             shift
           fi

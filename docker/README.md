@@ -17,8 +17,15 @@ docker build --file Dockerfile.gpu -t torchserve:1.0 .
 
 #### Start container with TorchServe image
 
+For CPU based image :
+
 ```bash
 docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:1.0
+```
+For GPU based image :
+
+```bash
+docker run --rm -it --gpus --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 torchserve:1.0
 ```
 
 The above command will start the container with 8080/81 port exposed to outer-world/localhost
