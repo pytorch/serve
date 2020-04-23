@@ -34,7 +34,7 @@ After this deep dive, you might also be interested in:
 
 ## Model Files
 
-The rest of this topic focus on serving of model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
+The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
 
 ## Command Line Interface
 
@@ -48,7 +48,7 @@ usage: torchserve [-h] [-v | --version]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
-Torchserve
+torchserve
 
 mandatory arguments:
   --model-store MODEL_STORE
@@ -123,7 +123,7 @@ This would serve a prediction endpoint at `predictions/not-hot-dog/` and run you
 
 ### Serving Multiple Models with TorchServe
 
-Example loading all models available in model_store while starting torchserve:
+Example loading all models available in `model_store` while starting TorchServe:
 
 ```bash
 torchserve --start --model-store /models --models all

@@ -60,11 +60,11 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 
 ## Demo to configure TorchServe with batch-supported model
 
-In this section lets bring up model server and launch Resnet-152 model, which has been built to handle a batch of request. 
+In this section lets bring up model server and launch Resnet-152 model, which has been built to handle a batch of request.
 
 ### Prerequisites
 
-Follow the main [Readme](../README.md) and install all the required packages including "torchserve".
+Follow the main [Readme](../README.md) and install all the required packages including `torchserve`.
 
 ### Loading Resnet-152 which handles batch inferences
 
@@ -127,9 +127,10 @@ $ curl localhost:8081/models/resnet-152
 * Now let's test this service.
 
   * Get an image to test this service
+
     ```text
     $ curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-    ``` 
+    ```
 
   * Run inference to test the model.
 
@@ -157,7 +158,7 @@ $ curl localhost:8081/models/resnet-152
       }
     ```
 
-* Now that we have the service up and running, we could run performance tests with the same kitten image as follows. There are multiple tools to measure performance of web-servers. We will use
+* Now that we have the service up and running, we can run performance tests with the same kitten image as follows. There are multiple tools to measure performance of web-servers. We will use
 [apache-bench](https://httpd.apache.org/docs/2.4/programs/ab.html) to run our performance tests. We chose `apache-bench` for our tests because of the ease of installation and ease of running tests.
 
 Before running this test, we need to first install `apache-bench` on our system. Since we were running this on an Ubuntu host, we install `apache-bench` as follows:
@@ -181,5 +182,5 @@ The take away from this example is that batching is a very useful feature. In ca
 it's advantageous to batch the requests. This allows for maximally utilizing the compute resources, especially GPU resources, which are more expensive. But customers should do their due diligence and perform enough tests to find optimal batch size depending on the number of GPUs available
 and number of models loaded per GPU.
 You should also analyze your traffic patterns before enabling the batch inference. As shown in the above experiments,
-services receiving TPS lesser than the batch size would lead to consistent "batch delay" timeouts and cause the response latency per request to spike.
-As with any cutting edge technology, batch inference is definitely a double-edged sword.
+services receiving TPS less than than the batch size would lead to consistent "batch delay" timeouts and cause the response latency per request to spike.
+As with any cutting-edge technology, batch inference is definitely a double-edged sword.
