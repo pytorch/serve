@@ -133,7 +133,7 @@ You can also create model stores to store your archived models.
     torch-model-archiver --model-name densenet161 --version 1.0 --model-file ~/serve/examples/image_classifier/densenet_161/model.py --serialized-file ~/model_store/densenet161-8d451a50.pth --extra-files ~/serve/examples/image_classifier/index_to_name.json --handler image_classifier
     ```
 
-For more information about the model archiver, see [Torch Model archiver for TorchServe](../model-archiver/README.md)
+For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
 
 ### Start TorchServe to serve the model
 
