@@ -125,10 +125,12 @@ We recommend using an `initialize()` method to avoid initialization at predictio
 
 This entry point is engaged in two cases:
 
-1. TorchServe is asked to scale a model out to increase the number of backend workers (it is done either via a `PUT /models/{model_name}` request or a `POST /models` request with `initial-workers` option or during TorchServe startup when you use `--models` option (`torchserve --start --models {model_name=model.mar}`), ie., you provide model(s) to load)
+1. TorchServe is asked to scale a model out to increase the number of backend workers (it is done either via a `PUT /models/{model_name}` request or a `POST /models` request with `initial-workers` option or during TorchServe startup when you use the `--models` option (`torchserve --start --models {model_name=model.mar}`), ie., you provide model(s) to load)
 1. TorchServe gets a `POST /predictions/{model_name}` request.
 
-(1) is used to scale-up or scale-down workers for a model. (2) is used as a standard way to run inference against a model. (1) is also known as model load time, and that is where you would normally want to put code for model initialization. You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
+(1) is used to scale-up or scale-down workers for a model. (2) is used as a standard way to run inference against a model. (1) is also known as model load time.
+Typically, you want code for model initialization to run at model load time.
+You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
 
 ** For a working example of a custom service handler, see [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py) **
 
