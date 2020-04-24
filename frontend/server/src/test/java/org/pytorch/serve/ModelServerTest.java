@@ -223,14 +223,14 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopV2ModelWithInitialWorkers"})
     public void testDescribeDefaultModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", null, "1.21");
+        testDescribeModel("noopversioned", null, "1.11");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeDefaultModelVersion"})
     public void testDescribeAllModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "all", "1.11");
+        testDescribeModel("noopversioned", "all", "1.21");
     }
 
     @Test(
@@ -244,7 +244,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeSpecificModelVersion"})
     public void testNoopVersionedPrediction() throws InterruptedException {
-        testPredictions("noopversioned", "OK", "1.21");
+        testPredictions("noopversioned", "OK", "1.11");
     }
 
     @Test(
