@@ -230,7 +230,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeDefaultModelVersion"})
     public void testDescribeAllModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "all", "1.11");
+        testDescribeModel("noopversioned", "all", "1.2.1");
     }
 
     @Test(
@@ -251,7 +251,17 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoopVersionedPrediction"})
     public void testSetDefaultVersionNoop() throws InterruptedException {
-        testSetDefault("noopversioned", "1.11");
+    	Channel channel = TestUtils.getManagementChannel(configManager);
+    	TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.setDefault(channel, "noopversioned", "1.2.1");
+    	TestUtils.getLatch().await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Default vesion succsesfully updated for model \"noopversioned\" to \"1.2.1\"");
+
     }
 
     @Test(
@@ -1221,11 +1231,51 @@ public class ModelServerTest {
         testPredictions("mnist_traced", "0", null);
     }
 
+    
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMNISTTracedModel"})
     public void testUnregistedMNISTTracedModel() throws InterruptedException {
         testUnregisterModel("mnist_traced", null);
+    }
+    
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregistedMNISTTracedModel"})
+    public void testSetInvalidDefaultVersion() throws InterruptedException {
+    	Channel channel = TestUtils.getManagementChannel(configManager);
+    	TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.setDefault(channel, "noopversioned", "1.2.1");
+    	TestUtils.getLatch().await();
+
+    	ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Model version 1.2.1 does not exist for model noopversioned");
+    }
+    
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testSetInvalidDefaultVersion"})
+    public void  testUnregisterModelFailure() throws InterruptedException {
+    	Channel channel = TestUtils.connect(true, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Cannot remove default version for model noopversioned");
+
+        channel = TestUtils.connect(true, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
+        TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
     }
 
     private void testLoadModel(String url, String modelName) throws InterruptedException {
@@ -1313,28 +1363,6 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
-    }
-
-    private void testSetDefault(String modelName, String defaultVersion)
-            throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
-
-        HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
-        channel.writeAndFlush(req);
-        TestUtils.getLatch().await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(
-                resp.getStatus(),
-                "Default vesion succsesfully updated for model \""
-                        + modelName
-                        + "\" to \""
-                        + defaultVersion
-                        + "\"");
     }
 
     private void loadTests(Channel channel, String model, String modelName)

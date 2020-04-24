@@ -28,10 +28,14 @@ import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+
+import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 
 public final class TestUtils {
 
@@ -193,6 +197,14 @@ public final class TestUtils {
         HttpRequest req =
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1, HttpMethod.GET, "/models?limit=200&nextPageToken=X");
+        channel.writeAndFlush(req);
+    }
+    
+    public static void setDefault(Channel channel, String modelName, String defaultVersion) {
+        String requestURL = "/models/" + modelName + "/" + defaultVersion + "/set-default";
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req);
     }
 
