@@ -110,9 +110,11 @@ public class ConfigManagerTest {
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
         args.setModels(new String[] {"noop_v0.1"});
+        args.setSnapshotDisabled(true);
         ConfigManager.init(args);
         ConfigManager configManager = ConfigManager.getInstance();
         Assert.assertEquals("false", configManager.getEnableEnvVarsConfig());
         Assert.assertEquals(120, configManager.getDefaultResponseTimeout());
+        modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "120");
     }
 }
