@@ -251,17 +251,16 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoopVersionedPrediction"})
     public void testSetDefaultVersionNoop() throws InterruptedException {
-    	Channel channel = TestUtils.getManagementChannel(configManager);
-    	TestUtils.setResult(null);
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.setDefault(channel, "noopversioned", "1.2.1");
-    	TestUtils.getLatch().await();
+        TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(
                 resp.getStatus(),
                 "Default vesion succsesfully updated for model \"noopversioned\" to \"1.2.1\"");
-
     }
 
     @Test(
@@ -1231,36 +1230,34 @@ public class ModelServerTest {
         testPredictions("mnist_traced", "0", null);
     }
 
-    
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMNISTTracedModel"})
     public void testUnregistedMNISTTracedModel() throws InterruptedException {
         testUnregisterModel("mnist_traced", null);
     }
-    
+
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregistedMNISTTracedModel"})
     public void testSetInvalidDefaultVersion() throws InterruptedException {
-    	Channel channel = TestUtils.getManagementChannel(configManager);
-    	TestUtils.setResult(null);
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.setDefault(channel, "noopversioned", "1.2.1");
-    	TestUtils.getLatch().await();
+        TestUtils.getLatch().await();
 
-    	ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         Assert.assertEquals(
-                resp.getMessage(),
-                "Model version 1.2.1 does not exist for model noopversioned");
+                resp.getMessage(), "Model version 1.2.1 does not exist for model noopversioned");
     }
-    
+
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testSetInvalidDefaultVersion"})
-    public void  testUnregisterModelFailure() throws InterruptedException {
-    	Channel channel = TestUtils.connect(true, configManager);
+    public void testUnregisterModelFailure() throws InterruptedException {
+        Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
