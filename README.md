@@ -1,160 +1,173 @@
-TorchServe
-=======
+# TorchServe
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the [docs folder](docs/README.md).
+**For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
 
 ## Contents of this Document
-* [Quick Start](#quick-start)
+
+* [Install TorchServe](#install-torchserve)
 * [Serve a Model](#serve-a-model)
-* [Other Features](#other-features)
+* [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
+## Install TorchServe
 
-## Quick Start
-### Prerequisites
-Before proceeding further with this document, make sure you have the following prerequisites.
-1. Ubuntu, CentOS, or macOS. Windows support is experimental. The following instructions will focus on Linux and macOS only.
-1. Python     - TorchServe requires python to run the workers.
-1. pip        - Pip is a python package management system.
-1. Java 11    - TorchServe requires Java 11 to start. You have the following options for installing Java 11:
+Conda instructions are provided in more detail, but you may also use `pip` and `virtualenv` if that is your preference.
+**Note:** Java 11 is required. Instructions for installing Java 11 for Ubuntu or macOS are provided in the [Install with Conda](#install-with-conda) section.
 
-    For Ubuntu:
+### Install with pip
+To use `pip` to install TorchServe and the model archiver:
+
+```
+pip install torch torchtext torchvision sentencepiece
+pip install torchserve torch-model-archiver
+```
+
+### Install with Conda
+_Ubuntu_
+
+1. Install Java 11
     ```bash
     sudo apt-get install openjdk-11-jdk
     ```
-
-    For CentOS:
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+1. Create an environment and install torchserve and torch-model-archiver
+    For CPU
     ```bash
-    openjdk-11-jdk
-    sudo yum install java-11-openjdk
+    conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision -c pytorch -c powerai
+    ```
+    For GPU
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    ```
+1. Activate the environment
+    ```bash
+    source activate torchserve
     ```
 
-    For macOS:
+_macOS_
+
+1. Install Java 11
     ```bash
     brew tap AdoptOpenJDK/openjdk
     brew cask install adoptopenjdk11
     ```
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
+1. Create an environment and install torchserve and torch-model-archiver
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver pytorch torchtext torchvision -c pytorch -c powerai
+    ```
+1. Activate the environment
+    ```bash
+    source activate torchserve
+    ```
 
-### Installing TorchServe with pip
+Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
-#### Setup
+### Install TorchServe for development
 
-**Step 1:** Setup a Virtual Environment
-
-We recommend installing and running TorchServe in a virtual environment. It's a good practice to run and install all of the Python dependencies in virtual environments. This will provide isolation of the dependencies and ease dependency management.
-
-* **Use Virtualenv** : This is used to create virtual Python environments. You may install and activate a virtualenv for Python 3.7 as follows:
-
-```bash
-pip install virtualenv
-```
-
-Then create a virtual environment:
-```bash
-# Assuming we want to run python3.7 in /usr/local/bin/python3.7
-virtualenv -p /usr/local/bin/python3.7 /tmp/pyenv3
-# Enter this virtual environment as follows
-source /tmp/pyenv3/bin/activate
-```
-
-Refer to the [Virtualenv documentation](https://virtualenv.pypa.io/en/stable/) for further information.
-
-* **Use Anaconda** : This is package, dependency and environment manager. You may download and install Anaconda as follows :
-[Download anaconda distribution](https://www.anaconda.com/distribution/#download-section)
-
-Then create a virtual environment using conda.
-```bash
-conda create -n myenv
-source activate myenv
-```
-
-
-**Step 2:** Install torch
-TorchServe won't install the PyTorch engine by default. If it isn't already installed in your virtual environment, you must install the PyTorch pip packages.
-
-* For virtualenv
+If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+First, clone the repo with:
 
 ```bash
-#For CPU/GPU
-pip install torch torchvision torchtext
+git clone https://github.com/pytorch/serve
+cd serve
 ```
 
-* For conda
-
-The `torchtext` package has a dependency on `sentencepiece`, which is not available via Anaconda. You can install it via `pip`:
-```
-pip install sentencepiece
-```
+Then make your changes executable with this command:
 
 ```bash
-#For CPU
-conda install psutil pytorch torchvision torchtext -c pytorch
+pip install -e .
 ```
+
+* To develop with torch-model-archiver:
 
 ```bash
-#For GPU
-conda install future psutil pytorch torchvision cudatoolkit=10.1 torchtext -c pytorch
+cd serve/model-archiver
+pip install -e .
 ```
 
-**Step 3:** Install TorchServe as follows:
+* To upgrade TorchServe or model archiver from source code and make changes executable, run:
+
+```bash
+pip install -U -e .
+```
+
+For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+
+## Serve a model
+
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
+
+To run this example, clone the TorchServe repository and navigate to the root of the repository:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
 cd serve
-pip install .
 ```
 
-**Notes:**
-* In case `pip install .` step fails, try using `python setup.py install` and install the following python packages using `pip install` : Pillow, psutil, future
-* See the [advanced installation](docs/install.md) page for more options and troubleshooting.
+Then run the following steps from the root of the repository.
 
-### Installing torch-model-archiver
+### Store a Model
 
-*Install torch-model-archiver as follows:
+To serve a model with TorchServe, first archive the model as a MAR file. You can use the model archiver to package a model.
+You can also create model stores to store your archived models.
+
+1. Create a directory to store your models.
+
+    ```bash
+    mkdir ~/model_store
+    cd ~/model_store
+    ```
+
+1. Download a trained model.
+
+    ```bash
+    wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+    ```
+
+1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
+
+    ```bash
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ~/serve/examples/image_classifier/densenet_161/model.py --serialized-file ~/model_store/densenet161-8d451a50.pth --extra-files ~/serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    ```
+
+For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
+
+### Start TorchServe to serve the model
+
+After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-cd model-archiver
-pip install .
+torchserve --start --model-store ~/model_store --models ~/model_store/densenet161=densenet161.mar
 ```
 
-**Note** 
-* Once torch-model-arvchiver is available in Python Package Index (PyPi), it will be a part of dependency in TorchServe installation.
-* See the [detailed documentation](model-archiver/README.md) page for more options and troubleshooting.
-### Serve a Model
+After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
 
-Once installed, you can get TorchServe model server up and running very quickly. Try out `--help` to see all the CLI options available.
+**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs). This start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
 
-```bash
-torchserve --help
-```
+### Get predictions from a model
 
-For this quick start, we'll skip over most of the features, but be sure to take a look at the [full server docs](docs/server.md) when you're ready.
+To test the model server, send a request to the server's `predictions` API.
 
-Here is an easy example for serving an object classification model (make sure to run it at the root of the repository):
-```bash
-wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
-mkdir model_store
-mv densenet161.mar model_store/
-torchserve --start --model-store model_store --models densenet161=densenet161.mar
-```
+Complete the following steps:
 
-With the command above executed, you have TorchServe running on your host, listening for inference requests. **Please note, that if you specify model(s) during TorchServe start - it will automatically scale backend workers to the number equal to available vCPUs (if you run on CPU instance) or to the number of available GPUs (if you run on GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs) this start up and autoscaling process might take considerable time. If you would like to minimize TorchServe start up time you can try to avoid registering and scaling up model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model) calls (this allows finer grain control to how much resources are allocated for any particular model).**
-
-To test it out, you can open a new terminal window next to the one running TorchServe. Then you can use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images) and curl's `-o` flag will name it `kitten.jpg` for you. Then you will `curl` a `POST` to the TorchServe predict endpoint with the kitten's image.
+* Open a new terminal window (other than the one running TorchServe).
+* Use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images)
+  and use the  `-o` flag to name it `kitten.jpg` for you.
+* Use `curl` to send `POST` to the TorchServe `predict` endpoint with the kitten's image.
 
 ![kitten](docs/images/kitten_small.jpg)
 
-In the example below, we provide a shortcut for these steps.
+The following code completes all three steps:
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
 curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
-The predict endpoint will return a prediction response in JSON. It will look something like the following result:
+The predict endpoint returns a prediction response in JSON. It will look something like the following result:
 
 ```json
 [
@@ -180,53 +193,74 @@ You will see this result in the response to your `curl` call to the predict endp
 
 Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
 
-### Stopping the running TorchServe
-To stop the current running TorchServe instance, run the following command:
+### Stop the running TorchServe
+
+To stop the currently running TorchServe instance, run the following command:
+
 ```bash
-$ torchserve --stop
+torchserve --stop
 ```
-You would see output specifying that TorchServe has stopped.
 
-### Create a Model Archive
+You see output specifying that TorchServe has stopped.
 
-TorchServe enables you to package up all of your model artifacts into a single model archive. This makes it easy to share and deploy your models.
-To package a model, check out [model archiver documentation](model-archiver/README.md)
+## Quick Start with Docker
 
-## Recommended production deployments
+### Prerequisites
 
-* TorchServe doesn't provide authentication. You have to have your own authentication proxy in front of TorchServe.
-* TorchServe doesn't provide throttling, it's vulnerable to DDoS attack. It's recommended to running TorchServe behind a firewall.
-* TorchServe only allows localhost access by default, see [Network configuration](docs/configuration.md#configure-ts-listening-port) for detail.
-* SSL is not enabled by default, see [Enable SSL](docs/configuration.md#enable-ssl) for detail.
-* TorchServe use a config.properties file to configure TorchServe's behavior, see [Manage TorchServe](docs/configuration.md) page for detail of how to configure TorchServe.
+* docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+* TorchServe source code. Clone and enter the repo as follows:
 
-## Other Features
+```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
+```
 
-Browse over to the [Docs readme](docs/README.md) for the full index of documentation. This includes more examples, how to customize the API service, API endpoint details, and more.
+### Build the TorchServe Docker image
+
+The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
+
+To build the TorchServe image for a CPU device using the `master` branch, use the following command:
+
+```bash
+./build_image.sh
+```
+
+To create a Docker image for a specific branch, use the following command:
+
+```bash
+./build_image.sh -b <branch_name>
+```
+
+To create a Docker image for a GPU device, use the following command:
+
+```bash
+./build_image.sh --gpu
+```
+
+To create a Docker image for a GPU device with a specific branch, use following command:
+
+```bash
+./build_image.sh -b <branch_name> --gpu
+```
+
+To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
+
+```bash
+./start.sh
+```
+
+## Learn More
+
+* [Full documentation on TorchServe](docs/README.md)
+* [Manage models API](docs/management_api.md)
+* [Inference API](docs/inference_api.md)
+* [Package models for use with TorchServe](model-archiver/README.md)
 
 ## Contributing
 
 We welcome all contributions!
 
-To file a bug or request a feature, please file a GitHub issue. Pull requests are welcome.
+To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md). 
 
-## Experimental Release Roadmap
-
-Below, in order, is a prioritized list of tasks for this repository.
-
-### v0.1 Plan
-
-- [ ] CI (initially AWS CodeBuild)
-- [x] Default handler
-    - [x] Handle eager-mode and TorchScript (tracing and scripting)
-    - [x] Add zero-code pre and post-processing for Image Classification
-- [x] Basic examples
-    - [x] Eager-mode image classifier
-    - [x] TorchScript image classifier
-    - [x] Custom neural network 
-- [x] Basic docs (install, serve a model and use it for inference)
-
-### v0.2 Plan
-
-- [ ] Basic unit tests
-- [ ] Versioning
+To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md). Cheers!

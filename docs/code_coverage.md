@@ -1,19 +1,30 @@
-#### To execute unit testing and generate code coverage report follow these steps:
+# Execute unit testing and generate a code coverage report
+
+## Prerequisites
+
+You need some additional Python modules to run the unit tests and linting.
 
 ```bash
-cd serve/frontend
-./gradlew clean build
+pip install mock pytest pylint pytest-mock pytest-cov
+cd serve
+./torchserve_sanity.sh
 ```
 
-The above command executes the TorchServe frontend build suite which consists of the following :
+**The above command executes the following**
 
-* checkstyle
-* findbugs
-* PMD
-* UT
+* TorchServe frontend build suite which consists of :
 
-The reports can be accessed at the following path :
+  * checkstyle
+  * findbugs
+  * PMD
+  * UT
 
-```
-serve/frontend/server/build/reports
-```
+* TorchServe backend pytest suite
+
+* torch-model-archive pytest suite
+
+The reports can be accessed at the following paths:
+
+* TorchServe frontend: `serve/frontend/server/build/reports`
+* TorchServe backend: `serve/htmlcov`
+* torch-model-archiver: `serve/model-archiver/htmlcov`
