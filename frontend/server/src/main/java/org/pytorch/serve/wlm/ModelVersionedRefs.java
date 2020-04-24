@@ -12,20 +12,11 @@ import org.slf4j.LoggerFactory;
 public final class ModelVersionedRefs {
     private static final Logger logger = LoggerFactory.getLogger(ModelVersionedRefs.class);
 
-    private ConcurrentHashMap<Double, Model> modelsVersionMap;
-    private Double defaultVersion;
+    private ConcurrentHashMap<String, Model> modelsVersionMap;
+    private String defaultVersion;
 
     public ModelVersionedRefs() {
         this.modelsVersionMap = new ConcurrentHashMap<>();
-    }
-
-    private void validateVersionId(String v)
-            throws InvalidModelVersionException, NumberFormatException {
-        // TODO add exception handling for NumberFormatException
-        Double vd = Double.valueOf(v);
-        if (vd <= Double.valueOf("0.0")) {
-            throw new InvalidModelVersionException("Model version is invalid: " + v);
-        }
     }
 
     /**
@@ -45,9 +36,7 @@ public final class ModelVersionedRefs {
             throw new InvalidModelVersionException("Model version not found. ");
         }
 
-        validateVersionId(versionId);
-
-        if (this.modelsVersionMap.putIfAbsent(Double.valueOf(versionId), model) != null) {
+        if (this.modelsVersionMap.putIfAbsent(versionId, model) != null) {
             throw new ConflictStatusException(
                     "Model version "
                             + versionId
@@ -55,8 +44,9 @@ public final class ModelVersionedRefs {
                             + model.getModelName());
         }
 
-        // TODO what if user wants to keep existing default as it is?
-        this.setDefaultVersion(versionId);
+        if (this.defaultVersion == null) {
+            this.setDefaultVersion(versionId);
+        }
     }
 
     /**
@@ -65,7 +55,7 @@ public final class ModelVersionedRefs {
      * @return String obj of the current default Version
      */
     public String getDefaultVersion() {
-        return this.defaultVersion.toString();
+        return this.defaultVersion;
     }
 
     /**
@@ -75,14 +65,13 @@ public final class ModelVersionedRefs {
      * @return None
      */
     public void setDefaultVersion(String versionId) throws InvalidModelVersionException {
-        validateVersionId(versionId);
-        Model model = this.modelsVersionMap.get(Double.valueOf(versionId));
+        Model model = this.modelsVersionMap.get(versionId);
         if (model == null) {
             throw new InvalidModelVersionException("Can't set default to: " + versionId);
         }
 
         logger.debug("Setting default version to {} for model {}", versionId, model.getModelName());
-        this.defaultVersion = Double.valueOf(versionId);
+        this.defaultVersion = versionId;
     }
 
     /**
@@ -99,17 +88,14 @@ public final class ModelVersionedRefs {
             throws InvalidModelVersionException, ModelVersionNotFoundException {
         if (versionId == null) {
             versionId = this.getDefaultVersion();
-        } else {
-            validateVersionId(versionId);
         }
 
-        if (this.defaultVersion.compareTo(Double.valueOf(versionId)) == 0
-                && modelsVersionMap.size() > 1) {
+        if (this.defaultVersion.equals(versionId) && modelsVersionMap.size() > 1) {
             throw new InvalidModelVersionException(
                     String.format("Can't remove default version: %s", versionId));
         }
 
-        Model model = this.modelsVersionMap.remove(Double.valueOf(versionId));
+        Model model = this.modelsVersionMap.remove(versionId);
         if (model == null) {
             throw new ModelVersionNotFoundException(
                     String.format("Model version: %s not found", versionId));
@@ -129,8 +115,7 @@ public final class ModelVersionedRefs {
     public Model getVersionModel(String versionId) {
         Model model = null;
         if (versionId != null) {
-            validateVersionId(versionId);
-            model = this.modelsVersionMap.get(Double.valueOf(versionId));
+            model = this.modelsVersionMap.get(versionId);
         } else {
             model = this.getDefaultModel();
         }
@@ -155,7 +140,7 @@ public final class ModelVersionedRefs {
         return null;
     }
 
-    public Set<Map.Entry<Double, Model>> getAllVersions() {
+    public Set<Map.Entry<String, Model>> getAllVersions() {
         return this.modelsVersionMap.entrySet();
     }
 }
