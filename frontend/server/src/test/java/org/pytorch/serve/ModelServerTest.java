@@ -1244,13 +1244,13 @@ public class ModelServerTest {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.setDefault(channel, "noopversioned", "1.2.1");
+        TestUtils.setDefault(channel, "noopversioned", "3.3.3");
         TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         Assert.assertEquals(
-                resp.getMessage(), "Model version 1.2.1 does not exist for model noopversioned");
+                resp.getMessage(), "Model version 3.3.3 does not exist for model noopversioned");
     }
 
     @Test(
