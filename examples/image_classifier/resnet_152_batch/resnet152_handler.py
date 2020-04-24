@@ -19,7 +19,7 @@ class BatchImageClassifier(object):
     def __init__(self):
         self.model = None
         self.mapping = None
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = None
         self.initialized = False
 
     def initialize(self, context):
@@ -28,6 +28,7 @@ class BatchImageClassifier(object):
         self.manifest = context.manifest
         properties = context.system_properties
         model_dir = properties.get("model_dir")
+        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 
         # Read model serialize/pt file
         serialized_file = self.manifest['model']['serializedFile']
@@ -36,7 +37,7 @@ class BatchImageClassifier(object):
             raise RuntimeError("Missing the model.pt file")
 
         try:
-            logger.debug('Loading torchscript model')
+            logger.info('Loading torchscript model to device {}'.format(self.device))
             self.model = torch.jit.load(model_pt_path)
         except Exception as e:
             # Read model definition file

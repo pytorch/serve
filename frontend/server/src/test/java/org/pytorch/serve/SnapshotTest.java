@@ -201,7 +201,7 @@ public class SnapshotTest {
         Channel managementChannel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        String requestURL = "/models/noopversioned/1.11/set-default";
+        String requestURL = "/models/noopversioned/1.2.1/set-default";
 
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
