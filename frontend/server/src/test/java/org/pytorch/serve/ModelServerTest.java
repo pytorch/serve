@@ -230,7 +230,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeDefaultModelVersion"})
     public void testDescribeAllModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "all", "1.21");
+        testDescribeModel("noopversioned", "all", "1.11");
     }
 
     @Test(
