@@ -2,6 +2,7 @@ import io
 import torch
 from PIL import Image
 from torchvision import transforms
+from torchvision import __version__ as torchvision_version
 from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
@@ -17,11 +18,12 @@ class ObjectDetector(VisionHandler):
 
     def initialize(self, ctx):
         super(VisionHandler, self).initialize(ctx)
-        self.initialized = False
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.device)
-        self.model.eval()
-        self.initialized = True
+        if torchvision_version == "0.5.0":
+            self.initialized = False
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.model.to(self.device)
+            self.model.eval()
+            self.initialized = True
 
     def preprocess(self, data):
         """
