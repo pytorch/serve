@@ -1,5 +1,7 @@
 # Text to speech synthesis using WaveGlow & Tacotron2 model.
 
+**This example works only on NVIDIA CUDA device and not on CPU**
+
 We have used the following Waveglow/Tacotron2 model for this example: 
 
 https://pytorch.org/hub/nvidia_deeplearningexamples_waveglow/
@@ -44,5 +46,4 @@ pip install librosa --user
 
 Note :
 
- * This example works only on NVIDIA CUDA device
  * Update the post process method to change the output location of the audio file.
