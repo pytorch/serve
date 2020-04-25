@@ -1,6 +1,7 @@
 # Running TorchServe
 
 ## Contents of this Document
+
 * [Overview](#overview)
 * [Technical Details](#technical-details)
 * [Model Files](#model-files)
@@ -33,7 +34,7 @@ After this deep dive, you might also be interested in:
 
 ## Model Files
 
-The rest of this topic focus on serving of model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
+The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
 
 ## Command Line Interface
 
@@ -47,7 +48,7 @@ usage: torchserve [-h] [-v | --version]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
-Torchserve
+torchserve
 
 mandatory arguments:
   --model-store MODEL_STORE
@@ -73,6 +74,7 @@ optional arguments:
 ```
 
 #### Arguments:
+
 Example where no models are loaded at start time:
 
 ```bash
@@ -88,7 +90,8 @@ There are no default required arguments to start the server
         http link: http://hostname/path/to/resource
 
     b) to load all the models in model store set model value to "all"
-    
+
+
     ```bash
     torchserve --model-store /models --start --models all
     ```
@@ -96,9 +99,9 @@ There are no default required arguments to start the server
     c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.
 
     d) Multiple models loading are also supported by specifying multiple name path pairs.
-    
+
     e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
-    
+
 1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
@@ -120,7 +123,7 @@ This would serve a prediction endpoint at `predictions/not-hot-dog/` and run you
 
 ### Serving Multiple Models with TorchServe
 
-Example loading all models available in model_store while starting torchserve:
+Example loading all models available in `model_store` while starting TorchServe:
 
 ```bash
 torchserve --start --model-store /models --models all
@@ -141,5 +144,3 @@ torchserve --start --model-store /models --models resnet-18=resnet-18.mar squeez
 ### Logging and Metrics
 
 For details on logging see the [logging documentation](logging.md). For details on metrics see the [metrics documentation](metrics.md).
-
-
