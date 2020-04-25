@@ -13,6 +13,10 @@ allprojects {
     version = '1.0'
 
     repositories {
+//        maven {
+//            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+//        }
+//        mavenLocal()
         jcenter()
     }
 

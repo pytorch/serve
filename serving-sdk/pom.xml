@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>software.amazon.ai</groupId>
-  <artifactId>mms-plugins-sdk</artifactId>
+  <groupId>org.pytorch</groupId>
+  <artifactId>torchserve-plugins-sdk</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1</version>
-  <name>mms-plugins-sdk</name>
+  <version>0.1-SNAPSHOT</version>
+  <name>torchserve-plugins-sdk</name>
   <description>
-    SDK for Model Server plugins
+    SDK for PyTorch model server plugins
   </description>
   <licenses>
     <license>
@@ -17,15 +17,15 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/awslabs/mxnet-model-server.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:deep-learning-mms-bot/mxnet-model-server.git</developerConnection>
-    <url>https://github.com/awslabs/mxnet-model-server/tree/master/serving-sdk</url>
+    <connection>scm:git:git://github.com/pytorch/serve.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:deep-learning-mms-bot/serve.git</developerConnection>
+    <url>https://github.com/pytorch/serve/tree/master/serving-sdk</url>
     <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
-      <name>MXNet Model Server</name>
-      <url>https://github.com/awslabs/mxnet-model-server</url>
+      <name>PyTorch Model Server</name>
+      <url>https://github.com/pytorch/serve</url>
       <id>modelserver.io</id>
     </developer>
   </developers>

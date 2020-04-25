@@ -361,7 +361,11 @@ public class SnapshotTest {
         }
 
         updateSnapshot(actualProp);
-        assert actualProp.equals(expectedProp);
+        System.out.print("ACTUAL:");
+        System.out.print(actualProp.toString());
+        System.out.print("EXPECTED: ");
+        System.out.print(expectedProp.toString());
+        Assert.assertNotEquals(actualProp, expectedProp);
     }
 
     private void updateSnapshot(Properties prop) {
