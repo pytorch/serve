@@ -25,12 +25,7 @@ class Bertseqclassifier(object):
         self.mapping = None
         self.device = None
         self.initialized = False
-        self.name_index = {
-        "1":"World",
-         "2":"Sports",
-         "3":"Business",
-         "4":"Sci/Tec"
-        }
+        
 
 
     def initialize(self, ctx):
