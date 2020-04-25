@@ -25,11 +25,11 @@ class Bertseqclassifier(object):
         self.mapping = None
         self.device = None
         self.initialized = False
-        
+
 
 
     def initialize(self, ctx):
-        """We simply load the pre-trained model from transfromers here is bert-base model"""
+        """Loading the serialized file/ pre-trained model from transfromers here is bert-base model"""
 
         properties = ctx.system_properties
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
@@ -41,12 +41,6 @@ class Bertseqclassifier(object):
             self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels = 4)
         self.model = torch.jit.load(model_pt_path)
 
-        # Read model definition file
-        # model_def_path = os.path.join(model_dir, "modelbert.py")
-        # if not os.path.isfile(model_def_path):
-        #     raise RuntimeError("Missing the model definition file")
-
-        # self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels = 4)
         self.model.to(self.device)
         self.model.eval()
         # Read the mapping file, index to object name
@@ -88,8 +82,6 @@ class Bertseqclassifier(object):
         if self.mapping:
             output = self.mapping[str(output)]
 
-        # _, y_hat = outputs[0].max(1)
-        # predicted_idx = str(y_hat.item())
         return [output]
 
     def postprocess(self, inference_output):
