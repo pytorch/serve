@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class Bertseqclassifier(object):
     """
     Bertseqclassifier handler class. This handler takes a piece of text
-    and returns the classification prediction which here is 4 classes in ag_news as presented in
+    and returns the classification prediction which here is 4 classes in ag_news dataset as presented in
     index_to_name.json.
     """
 
@@ -42,7 +42,7 @@ class Bertseqclassifier(object):
                 self.mapping = json.load(f)
         else:
             logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
-        # logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
+        logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
         self.initialized = True
 
     def preprocess(self, data):
