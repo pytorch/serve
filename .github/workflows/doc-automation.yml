@@ -1,0 +1,34 @@
+on: [push]
+
+jobs:
+  build_docs_job:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Dependencies
+      run: |
+        echo `python3 --version`
+        sudo apt-get install -y python-setuptools
+        sudo apt-get install -y python3-sphinx
+        python3 -m pip install --upgrade pip
+        python3 -m pip install setuptools
+        python3 -m pip install torch
+        python3 -m pip install -e git+git://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
+        python3 -m pip install recommonmark
+        python3 -m pip install katex
+        python3 -m pip install sphinxcontrib.katex
+    - name: Check env
+      run: which sphinx-build ; pwd ; git status ; git branch -a
+    - name: Build the docset
+      run: cd ./docs/sphinx ; make html
+      id: build
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: docs/sphinx/build/html
