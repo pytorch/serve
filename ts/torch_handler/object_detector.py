@@ -18,7 +18,9 @@ class ObjectDetector(VisionHandler):
 
     def initialize(self, ctx):
         super(VisionHandler, self).initialize(ctx)
-        if torchvision_version == "0.5.0":
+        version = torchvision_version.split(".")
+
+        if int(version[0]) == 0 and int(version[1]) < 6:
             self.initialized = False
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model.to(self.device)
