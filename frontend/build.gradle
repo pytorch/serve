@@ -13,9 +13,9 @@ allprojects {
     version = '1.0'
 
     repositories {
-//        maven {
-//            url  "https://dl.bintray.com/pytorch/maven"
-//        }
+        maven {
+            url  "https://dl.bintray.com/pytorch/maven"
+        }
         jcenter()
     }
 
