@@ -4,7 +4,7 @@
   <groupId>org.pytorch</groupId>
   <artifactId>torchserve-plugins-sdk</artifactId>
   <packaging>jar</packaging>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>torchserve-plugins-sdk</name>
   <description>
     SDK for PyTorch model server plugins
@@ -26,7 +26,6 @@
     <developer>
       <name>PyTorch Model Server</name>
       <url>https://github.com/pytorch/serve</url>
-      <id>modelserver.io</id>
     </developer>
   </developers>
 
@@ -53,15 +52,6 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>staging</id>
-      <properties>
-        <repo_url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</repo_url>
-        <skip.gpg>false</skip.gpg>
-      </properties>
-    </profile>
-  </profiles>
   <build>
     <plugins>
       <plugin>
@@ -128,32 +118,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.6</version>
-        <configuration>
-          <skip>${skip.gpg}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
-        <configuration>
-          <skip>false</skip>
-          <altDeploymentRepository>deployrepo::default::${repo_url}</altDeploymentRepository>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>8</source>
@@ -161,6 +125,13 @@
         </configuration>
       </plugin>
     </plugins>
-
   </build>
+
+  <distributionManagement>
+    <repository>
+      <id>bintray-pytorch-maven</id>
+      <name>pytorch-maven</name>
+      <url>https://api.bintray.com/maven/pytorch/maven/org.pytorch:torchserve_plugins_sdk/</url>
+    </repository>
+  </distributionManagement>
 </project>
