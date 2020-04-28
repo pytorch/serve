@@ -172,7 +172,9 @@ public class Model {
             }
             logger.trace("sending jobs, size: {}", jobsRepo.size());
         } finally {
-            lock.unlock();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
