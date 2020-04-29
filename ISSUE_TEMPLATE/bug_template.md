@@ -42,7 +42,7 @@ Please search on the [issue tracker](https://github.com/pytorch/serve/issues) be
 * Installed using source? [yes/no]:
 * Are you planning deploy it using docker container? [yes/no]:
 * Is it a CPU or GPU environment?:
-* Using a default/custom handler?:
+* Using a default/custom handler? [If possible upload/share custom handler/model]:
 * What kind of model is it e.g. vision, text, audio?: 
 * Are you planning to use local models from model-store or public url being used e.g. from S3 bucket etc.?
   [If public url then provide link.]:
