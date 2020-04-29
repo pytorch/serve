@@ -14,6 +14,7 @@ The inference service would return the label/ class inferred by the model from t
  * Step - 1: In this step, we provide the requirements for packaging a model. We use the following [Colab notebook](https://drive.google.com/open?id=1p3v-JjNi8xfE8vGd-Jhzisi1ztNLdbTb) to fine-tune BERT from Transformers on [The Corpus of Linguistic Acceptability (COLA)](https://nyu-mll.github.io/CoLA/). After running the Colab notebook, pytorch_model.bin file along with vocab.txt and config.json will be saved on your google drive that can be downloaded later into current directory. After downloading, we create Transformer_model directory and move the files to this directory.
 
  `mkdir Transformer_model`
+ 
  `mv pytorch_model.bin vocab.txt config.json Transformer_model`
 
  There is another option just for demonstration purposes, that you can run the following:
@@ -36,5 +37,5 @@ The inference service would return the label/ class inferred by the model from t
     torchserve --start --model-store model_store --models my_tc=BertSeqClassification.mar
 
     ```
-* Step - 4: open a new terminal and run: 
+* Step - 4: open a new terminal and run:
 `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./sample_text.txt`
