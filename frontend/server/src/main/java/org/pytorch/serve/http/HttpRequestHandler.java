@@ -61,6 +61,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         } catch (OutOfMemoryError e) {
             logger.trace("", e);
             NettyUtils.sendError(ctx, HttpResponseStatus.INSUFFICIENT_STORAGE, e);
+        } catch (IllegalArgumentException e) {
+            logger.error("", e);
+            NettyUtils.sendError(ctx, HttpResponseStatus.FORBIDDEN, e);
         } catch (Throwable t) {
             logger.error("", t);
             NettyUtils.sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, t);
