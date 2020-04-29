@@ -4,7 +4,6 @@ In this example, we show how to use a Fine_tuned or off-the-shelf Transformer mo
 
 The inference service would return the label/ class inferred by the model from the text.
 
-To produced the required file for torch
 
 # Objective
 1. Demonstrate how to package a transformer model with custom handler into torch model archive (.mar) file
@@ -12,7 +11,7 @@ To produced the required file for torch
 
 # Serve a custom model on TorchServe
 
- * Step - 1: We used the following [Colab notebook](https://drive.google.com/open?id=1p3v-JjNi8xfE8vGd-Jhzisi1ztNLdbTb) to fine-tune BERT from Transformers on Corpus of Linguistic Acceptability (COLA). After running the Colab notebook, pytorch_model.bin file along with vocab.txt and config.json will be saved on your google drive that can be downloaded later into current directory. After downloading, we create Transformer_model directory and move the files to this directory.
+ * Step - 1: In this step, we provide the requirements for archiving a model. We used the following [Colab notebook](https://drive.google.com/open?id=1p3v-JjNi8xfE8vGd-Jhzisi1ztNLdbTb) to fine-tune BERT from Transformers on Corpus of Linguistic Acceptability (COLA). After running the Colab notebook, pytorch_model.bin file along with vocab.txt and config.json will be saved on your google drive that can be downloaded later into current directory. After downloading, we create Transformer_model directory and move the files to this directory.
 
  `mkdir Transformer_model`
  `mv pytorch_model.bin vocab.txt config.json Transformer_model`
