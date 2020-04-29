@@ -1,0 +1,502 @@
+{
+	"info": {
+		"_postman_id": "225b7bd6-77f6-41e4-afb3-537004aa1db5",
+		"name": "TorchServe Management API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "All endpoints - Options",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ed009fc5-d75a-47a4-a882-8d0654d01f1a",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}"
+				},
+				"description": "All the endpoints for the management API"
+			},
+			"response": []
+		},
+		{
+			"name": "All models list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					]
+				},
+				"description": "List of all the models"
+			},
+			"response": []
+		},
+		{
+			"name": "Get model details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model-name}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"{{model-name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://sagemaker-pt.s3-us-west-2.amazonaws.com/densenet161.mar",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://sagemaker-pt.s3-us-west-2.amazonaws.com/densenet161.mar",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://sagemaker-pt.s3-us-west-2.amazonaws.com/densenet161.mar"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/densenet161?min_worker=3&synchronous=true",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/densenet161?min_worker=2&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"densenet161"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "2"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "model_name",
+							"value": "resnet152"
+						},
+						{
+							"key": "url",
+							"value": "resnet-152-batch.mar"
+						},
+						{
+							"key": "batch_size",
+							"value": "4"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "5000"
+						},
+						{
+							"key": "initial_workers",
+							"value": "3"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet152?min_worker=3&synchronous=true",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet152?min_worker=2&synchronous=true&batch_size=4&max_batch_delay=5000&synchronous=false",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet152"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "2"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						},
+						{
+							"key": "batch_size",
+							"value": "4"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "5000"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete model",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model-name}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"{{model-name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=densenet161&url=densenet161.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=densenet161&url=densenet161.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "model_name",
+							"value": "densenet161"
+						},
+						{
+							"key": "url",
+							"value": "densenet161.mar"
+						},
+						{
+							"key": "batch_size",
+							"value": "4"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "5000"
+						},
+						{
+							"key": "initial_workers",
+							"value": "3"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=mnist&url=mnist.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=mnist&url=mnist.mar&batch_size=2&max_batch_delay=2000&initial_workers=3&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "model_name",
+							"value": "mnist"
+						},
+						{
+							"key": "url",
+							"value": "mnist.mar"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "2000"
+						},
+						{
+							"key": "initial_workers",
+							"value": "3"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://sagemaker-pt.s3-us-west-2.amazonaws.com/fastrcnn.mar",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://sagemaker-pt.s3-us-west-2.amazonaws.com/fastrcnn.mar",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://sagemaker-pt.s3-us-west-2.amazonaws.com/fastrcnn.mar"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/fastrcnn?min_worker=3&synchronous=true",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/fastrcnn?min_worker=4&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"fastrcnn"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "4"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://sagemaker-pt.s3-us-west-2.amazonaws.com/my_text_classifier.mar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c2778d97-ae4d-47b0-97af-7b4c80b49827",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://sagemaker-pt.s3-us-west-2.amazonaws.com/my_text_classifier.mar",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://sagemaker-pt.s3-us-west-2.amazonaws.com/my_text_classifier.mar"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/my_text_classifier?min_worker=3&synchronous=true",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/my_text_classifier?min_worker=2&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"my_text_classifier"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "2"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=my_text_classifier&url=densenet161.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?model_name=my_text_classifier&url=my_text_classifier.mar&batch_size=1&max_batch_delay=1000&initial_workers=2&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "model_name",
+							"value": "my_text_classifier"
+						},
+						{
+							"key": "url",
+							"value": "my_text_classifier.mar"
+						},
+						{
+							"key": "batch_size",
+							"value": "1"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "1000"
+						},
+						{
+							"key": "initial_workers",
+							"value": "2"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

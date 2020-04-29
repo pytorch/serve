@@ -1,0 +1,115 @@
+{
+	"info": {
+		"_postman_id": "5be7c1ed-04b6-45c1-bf1d-3313c4392663",
+		"name": "TorchServe Inference API",
+		"description": "For Stress Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/densenet161",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a925ce8d-ac7b-4a6d-aefd-e29387a08b89",
+						"exec": [
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time should be less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"tabby\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "multipart-formdata",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data",
+							"type": "file",
+							"src": "/workspace/serve/docs/images/kitten_small.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/densenet161",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"densenet161"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "c396b3da-002f-46b5-a6eb-0121cc63b352",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "b6259025-d853-4d9e-a2f4-a6c0a0d86243",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
