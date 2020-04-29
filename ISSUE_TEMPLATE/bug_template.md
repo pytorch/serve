@@ -5,7 +5,18 @@ about: Create a report to help us improve
 ---
 
 Your issue may already be reported!
-Please search on the [issue tracker](../) before creating one.
+Please search on the [issue tracker](https://github.com/pytorch/serve/issues) before creating one.
+
+## Context
+<!--- How has this issue affected you? What are you trying to accomplish? -->
+<!--- Providing context helps us come up with a solution that is most useful in the real world -->
+* torchserve version:
+* torch version:
+* torchvision version [if any]:
+* torchtext version [if any]:
+* torchaudio version [if any]:
+* java version:
+* Operating System and version:
 
 ## Expected Behavior
 <!--- If you're describing a bug, tell us what should happen -->
@@ -23,26 +34,17 @@ Please search on the [issue tracker](../) before creating one.
 2.
 ...
 
-## Context
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
+## Failure Logs [if any]
+<!--- Provide any relevant log snippets or files here. -->
 
 ## Your Environment
 <!--- Include as many relevant details about the environment you experienced the bug in -->
-
-* Installed using source [yes/no]:
-* Is it deployed inside container [yes/no]:
-* Is it a CPU or GPU environment:
-* Are you using default/custom handler?
-* What kind of model is it e.g. vision [image classification/object detection/segmention etc.], text, audio?: 
-* Do you have local models inside model-store or public model url being used e.g. from S3 bucket etc.?
-  [If public provide link.]:
-* If posible, provide config.properties, logs [ts.log] and parameters used for model registration/update APIs:
-* pytorch/serve version used:
-* pytorch version used:
-* pytorch/vision version used [if any]:
-* pytorch/text version used [if any]:
-* pytorch/audio version used [if any]:
-* java version used:
-* Operating System and version:
+* Installed using source? [yes/no]:
+* Are you planning deploy it using docker container? [yes/no]:
+* Is it a CPU or GPU environment?:
+* Using a default/custom handler?:
+* What kind of model is it e.g. vision, text, audio?: 
+* Are you planning to use local models from model-store or public url being used e.g. from S3 bucket etc.?
+  [If public url then provide link.]:
+* Provide config.properties, logs [ts.log] and parameters used for model registration/update APIs:
 * Link to your project [if any]:
