@@ -40,13 +40,13 @@ pip install torchserve torch-model-archiver
     For CPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision -c pytorch -c powerai
     ```
 
     For GPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
     ```
 
 1. Activate the environment
@@ -68,7 +68,7 @@ pip install torchserve torch-model-archiver
 1. Create an environment and install torchserve and torch-model-archiver
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision -c pytorch -c powerai
     ```
 
 1. Activate the environment
