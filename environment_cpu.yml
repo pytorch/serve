@@ -1,0 +1,15 @@
+name: null
+channels:
+  - pytorch
+dependencies:
+  - future=0.18.2
+  - Pillow=7.0.0
+  - pip=20.0.2
+  - psutil=5.7.0
+  - pytorch=1.5.0
+  - torch-model-archiver
+  - torchserve
+  - torchtext=0.6.0
+  - torchvision=0.6.0
+  - pip:
+    - sentencepiece=0.1.86
