@@ -77,6 +77,8 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
+    private static final String TS_BATCH_SIZE = "batch_size";
+    private static final String TS_MAX_BATCH_DELAY = "max_batch_delay";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -542,6 +544,14 @@ public final class ConfigManager {
             return def;
         }
         return Integer.parseInt(value);
+    }
+
+    public int getDefaultBatchSize() {
+        return Integer.parseInt(prop.getProperty(TS_BATCH_SIZE, "1"));
+    }
+
+    public int getDefaultBatchDelay() {
+        return Integer.parseInt(prop.getProperty(TS_MAX_BATCH_DELAY, "100"));
     }
 
     public int getDefaultResponseTimeout() {

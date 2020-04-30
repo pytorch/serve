@@ -213,8 +213,8 @@ public class ModelServer {
                                 modelName,
                                 null,
                                 null,
-                                1,
-                                100,
+                                configManager.getDefaultBatchSize(),
+                                configManager.getDefaultBatchDelay(),
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName);
                 modelManager.updateModel(

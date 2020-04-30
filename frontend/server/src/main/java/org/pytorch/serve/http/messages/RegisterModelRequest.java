@@ -38,8 +38,14 @@ public class RegisterModelRequest {
         modelName = NettyUtils.getParameter(decoder, "model_name", null);
         runtime = NettyUtils.getParameter(decoder, "runtime", null);
         handler = NettyUtils.getParameter(decoder, "handler", null);
-        batchSize = NettyUtils.getIntParameter(decoder, "batch_size", 1);
-        maxBatchDelay = NettyUtils.getIntParameter(decoder, "max_batch_delay", 100);
+        batchSize =
+                NettyUtils.getIntParameter(
+                        decoder, "batch_size", ConfigManager.getInstance().getDefaultBatchSize());
+        maxBatchDelay =
+                NettyUtils.getIntParameter(
+                        decoder,
+                        "max_batch_delay",
+                        ConfigManager.getInstance().getDefaultBatchDelay());
         initialWorkers =
                 NettyUtils.getIntParameter(
                         decoder,
@@ -51,8 +57,8 @@ public class RegisterModelRequest {
     }
 
     public RegisterModelRequest() {
-        batchSize = 1;
-        maxBatchDelay = 100;
+        batchSize = ConfigManager.getInstance().getDefaultBatchSize();
+        maxBatchDelay = ConfigManager.getInstance().getDefaultBatchDelay();
         synchronous = true;
         initialWorkers = ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel();
         responseTimeout = -1;
