@@ -10,8 +10,9 @@ phases:
 
 artifacts:
   files:
-    - /workspace/report/api_report.html
     - /workspace/report/management_report.html
+    - /workspace/report/inference_report.html
+    - /workspace/report/snapshot_report.html
     - /tmp/ts.log
     - /tmp/test_exec.log
   name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d-%H:%M) 

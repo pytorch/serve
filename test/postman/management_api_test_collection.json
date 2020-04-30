@@ -1,0 +1,1099 @@
+{
+	"info": {
+		"_postman_id": "d71b1bbc-ce8f-4cfb-bf85-fbf8bb958820",
+		"name": "torchserve_regression_management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TS-MANAGEMENT-API-1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ecfbb15c-bc6d-4a32-8f9e-ff65db81ab0b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-2a",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "72072739-e588-4214-b4f7-3761c3861317",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cc0baaca-46eb-4cdc-a756-2d430cc71cdc",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/all",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fd3e359f-fe11-4075-8977-f8a169d16fb4",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aefbd490-f4f7-4d8a-9e8e-ad9489ab5784",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1?min_worker=3",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-5a",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1?min_worker=4&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "4"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-5b",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0?min_worker=5&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "5"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-6",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0?min_worker=5&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "5"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-7",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2bc3625e-0800-49fb-bf12-aa848b9ba356",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0/set-default",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0",
+						"set-default"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-8",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dd998033-3eea-4bb5-9353-18d6d1f885d8",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/2.0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"2.0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-8a",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "01f88d41-9950-4775-833a-ecc8f9ab14c9",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0/set-default",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0",
+						"set-default"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-9",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f6a34d99-2dac-4ce3-8924-58b91645c306",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-10",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "942b750b-088a-4355-89a8-89b0d263e1fc",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-11",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "482600ac-e8cc-4240-9019-e8ba5421063e",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-12",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4d7532d8-d244-4095-8dec-8a58aa4cbe75",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-13",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8a56636d-24b1-439c-b28e-1029db0a141c",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-14",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "91391969-b8c0-4d39-bb0f-21cf2d1d0e41",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-15",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f6781541-2e92-4837-b6f9-26c61e28de8e",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-16",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "073bc446-c12f-4a2d-8fa1-044914642de2",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-17",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9e195654-9864-46d4-896d-39926d89ffb3",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-18",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "76830b62-cb97-4a8e-8380-6862a6743c8b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-19",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e6bb5722-8b6f-4440-a74e-728c9b2f7efd",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-20",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b678f1b6-26aa-4fe9-b2af-382f5dbf7874",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-21",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "da09183e-d2d3-4100-bbb6-01395b56c0e0",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-22",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "13a0ea39-854a-4551-adf3-d1e1aac269d6",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-23",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9b5509db-0260-4e36-a304-586b006e86ee",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-24",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "eb97cab5-69fc-4c68-98be-a48b7c3bd01a",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-25",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "66f910d7-cc2f-4b60-8f94-df8304dd399f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-26",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4f9a8f9-e58a-4543-8e16-8c084daae4f2",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-27",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "597d391b-c9cd-45ea-8088-715e58b9129e",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-28",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0a95ee20-9b97-4d2a-8d1d-1698d7499b44",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-29",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "88c3e0eb-9984-4d53-a307-ecb4a546ca6a",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-30",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a97a22d6-1945-4992-81d0-e7508c5affa4",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-31",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "45736133-bb05-4dd7-80e9-f0d9f657a17f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-32",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "19d797fa-a89d-4248-b629-47fb98c9a460",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-33",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b0a0fa12-2de1-474e-8869-33a7c5a0895d",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-34",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2b032f46-291f-47e1-9f30-253d1cbc09b8",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "35867f37-7b99-42a5-823e-1bde5ff3b207",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "85a997ec-639c-4e3e-b685-a44799ed33d6",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

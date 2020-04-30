@@ -69,10 +69,12 @@ run_postman_test() {
   mkdir $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/
   set +e
-  newman run -e postman/environment.json postman/mangement_api_test_collection.json \
-	  -r html --reporter-html-export $ROOT_DIR/report/api_report.html &> $1
-  newman run -e postman/environment.json postman/inference_api_test_collection.json \
+  newman run -e postman/environment.json postman/management_api_test_collection.json \
 	  -r html --reporter-html-export $ROOT_DIR/report/management_report.html &> $1
+  newman run -e postman/environment.json postman/inference_api_test_collection.json \
+	  -r html --reporter-html-export $ROOT_DIR/report/inference_report.html &> $1
+  newman run -e postman/environment.json postman/snapshot_api_test_collection.json \
+      -r html --reporter-html-export $ROOT_DIR/report/snapshot_report.html &> $1
   set -e
   cd -
 }

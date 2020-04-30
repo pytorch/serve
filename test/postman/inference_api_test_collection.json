@@ -1,89 +1,306 @@
 {
 	"info": {
-		"_postman_id": "5be7c1ed-04b6-45c1-bf1d-3313c4392663",
-		"name": "TorchServe Inference API",
-		"description": "For Stress Tests",
+		"_postman_id": "a4e694d7-dbf8-4f61-8bbd-6ad9feec71f7",
+		"name": "torchserve_regression_inference",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"ping"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/densenet161",
+			"name": "TS-INFERENCE-API-1",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "a925ce8d-ac7b-4a6d-aefd-e29387a08b89",
+						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
 						"exec": [
-							"",
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response time should be less than 1000ms\", function () {",
-							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
-							"});",
-							"",
-							"",
-							"pm.test(\"Body matches string\", function () {",
-							"    pm.expect(pm.response.text()).to.include(\"tabby\");",
-							"});",
-							"",
-							""
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
 			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"name": "Content-Type",
-						"value": "multipart-formdata",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "data",
-							"type": "file",
-							"src": "/workspace/serve/docs/images/kitten_small.jpg"
-						}
-					]
-				},
+				"method": "PUT",
+				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/densenet161",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"predictions",
-						"densenet161"
-					]
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c939f028-8ba5-4d4e-9635-9750b6af41a2",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "adab6847-8c88-4b41-9a43-aaa234cd45c7",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3131c86a-c854-4eea-bff4-89fa68a703d2",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1f48f973-f708-4985-9b23-a2f23a23b376",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "49a06e27-d28d-466a-952e-6e2a097c878c",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-7",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8ed3b7db-0a36-49a0-9013-24c29945f469",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-8",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ef58db7a-8155-405b-bd7e-bf3cd2d0a754",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-9",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bff5258d-0029-4f7f-b09b-212e419cfcc7",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-10",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "42b20b6c-41c5-42e5-8aae-55e23a442717",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-11",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "94c04f02-ddf5-4c90-aa2b-1df1de0db1df",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-INFERENCE-API-12",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "860a6520-ed42-45c8-8315-d05b078521b8",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": ""
 				}
 			},
 			"response": []
@@ -93,7 +310,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "c396b3da-002f-46b5-a6eb-0121cc63b352",
+				"id": "3d2732d6-14cf-4a16-809b-68777156679f",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -103,7 +320,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "b6259025-d853-4d9e-a2f4-a6c0a0d86243",
+				"id": "90c609d2-601a-4035-bea7-23e0aa964cf7",
 				"type": "text/javascript",
 				"exec": [
 					""
