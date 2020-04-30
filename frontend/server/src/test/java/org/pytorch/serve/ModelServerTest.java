@@ -430,7 +430,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(
                 resp.getMessage(),
                 "Model version " + defaultVersion + " does not exist for model " + modelName);
@@ -836,7 +836,7 @@ public class ModelServerTest {
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(
                 resp.getMessage(), "Model version: 1.3.1 does not exist for model: noopversioned");
     }
@@ -912,7 +912,7 @@ public class ModelServerTest {
         channel.closeFuture().sync();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(
                 resp.getMessage(), "Model version: 1.3.1 does not exist for model: noopversioned");
     }
@@ -1095,7 +1095,7 @@ public class ModelServerTest {
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(
                 resp.getMessage(), "Model version: 1.3.1 does not exist for model: noop_v1.0");
     }
@@ -1119,7 +1119,7 @@ public class ModelServerTest {
         TestUtils.unregisterModel(channel, "noop_v1.0", "1.3.1", true);
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(
                 resp.getMessage(), "Model version: 1.3.1 does not exist for model: noop_v1.0");
     }
