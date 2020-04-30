@@ -16,12 +16,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>
-    <connection>scm:git:git://github.com/pytorch/serve.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:deep-learning-mms-bot/serve.git</developerConnection>
-    <url>https://github.com/pytorch/serve/tree/master/serving-sdk</url>
-    <tag>HEAD</tag>
-  </scm>
+
   <developers>
     <developer>
       <name>PyTorch Model Server</name>
@@ -59,7 +54,7 @@
         <artifactId>maven-gpg-plugin</artifactId>
         <version>1.6</version>
         <configuration>
-          <skip>false</skip>
+          <skip>${skip.gpg}</skip>
         </configuration>
         <executions>
           <execution>
