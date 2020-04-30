@@ -1,0 +1,23 @@
+package:
+  name: torchserve
+  version: 0.0.1b20200409
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - pillow
+    - psutil
+    - future
+
+build:
+  noarch: generic
+  script_env:
+    - TORCHSERVE_WHEEL
+
+about:
+  home: https://github.com/pytorch/serve
+  summary: 'Model serving on PyTorch'
