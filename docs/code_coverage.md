@@ -6,7 +6,7 @@ You will need some additional Python modules to run the unit tests and linting.
 
 ```bash
 cd serve
-pip install -r requirements.txt
+pip install -r ci/requirements.txt
 ./torchserve_sanity.sh
 ```
 

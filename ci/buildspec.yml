@@ -8,7 +8,7 @@ phases:
       - apt-get update
       - apt-get install -y curl
       - pip install pip -U
-      - pip install -r requirements.txt
+      - pip install -r ci/requirements.txt
 
   build:
     commands:
