@@ -2,6 +2,7 @@
 
 MACHINE=cpu
 BRANCH_NAME="master"
+DOCKER_TAG="pytorch/torchserve:latest"
 
 for arg in "$@"
 do
@@ -26,6 +27,7 @@ do
           ;;
         -g|--gpu)
           MACHINE=gpu
+          DOCKER_TAG="pytorch/torchserve:latest-gpu"
           shift
           ;;
     esac
@@ -37,4 +39,4 @@ git clone https://github.com/pytorch/serve.git
 cd serve
 git checkout $BRANCH_NAME
 cd ..
-docker build --file Dockerfile.$MACHINE -t torchserve:1.0 .
+docker build --file Dockerfile.$MACHINE -t $DOCKER_TAG .
