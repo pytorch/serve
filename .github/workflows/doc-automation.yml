@@ -1,5 +1,7 @@
-on: [push]
-
+on:
+  push:
+    branches:
+      - master
 jobs:
   build_docs_job:
     runs-on: ubuntu-latest
@@ -21,8 +23,6 @@ jobs:
         python3 -m pip install recommonmark
         python3 -m pip install katex
         python3 -m pip install sphinxcontrib.katex
-    - name: Check env
-      run: which sphinx-build ; pwd ; git status ; git branch -a
     - name: Build the docset
       run: cd ./docs/sphinx ; make html
       id: build
