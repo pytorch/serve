@@ -1,8 +1,8 @@
-## To execute unit testing and generate code coverage report follow these steps:
+# Execute unit testing and generate a code coverage report
 
-## Pre-requisites
+## Prerequisites
 
-You will need some additional Python modules to run the unit tests and linting.
+You need some additional Python modules to run the unit tests and linting.
 
 ```bash
 pip install mock pytest pylint pytest-mock pytest-cov
@@ -23,9 +23,8 @@ cd serve
 
 * torch-model-archive pytest suite
 
-The reports can be accessed at the following path :
+The reports can be accessed at the following paths:
 
-- TorchServe frontende : serve/frontend/server/build/reports
-- TorchServe backend : serve/htmlcov
-- torch-model-archiver : serve/model-archiver/htmlcov
-
+* TorchServe frontend: `serve/frontend/server/build/reports`
+* TorchServe backend: `serve/htmlcov`
+* torch-model-archiver: `serve/model-archiver/htmlcov`
