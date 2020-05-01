@@ -13,4 +13,4 @@ dependencies:
   - torchtext=0.6.0
   - torchvision=0.6.0
   - pip:
-    - sentencepiece=0.1.86
+    - sentencepiece==0.1.86

@@ -1,11 +1,11 @@
 # TorchServe on AWS
 
-The following guide will help you run TorchServe on AWS. You can install TorchServe on Ubuntu 16.04 or 18.04 EC2 instances. You may choose instances with GPUs (p or g-types are recommended) or only use CPUs (c or r-types are recommended).
+The following guide will help you run TorchServe on AWS. You can install TorchServe on Ubuntu 16.04 or 18.04 EC2 instances. You can choose instances with GPUs (p or g-types are recommended) or only use CPUs (c or r-types are recommended). To test TorchServe, you can use a free-tier CPU-only instance type, like t2.medium.
 
 There a few ways you can use TorchServe on AWS:
 
 * The [AWS Deep Learning AMI (DLAMI)](https://docs.aws.amazon.com/dlami/latest/devguide/launch-config.html) on EC2
-* If you want fully managed inference, model monitoring and autoscaling, use [Amazon SageMaker endpoints](https://aws.amazon.com/blogs/machine-learning/deploying-pytorch-models-for-inference-at-scale-using-torchserve/).
+* If you want fully managed inference, model monitoring, and autoscaling, use [Amazon SageMaker endpoints](https://aws.amazon.com/blogs/machine-learning/deploying-pytorch-models-for-inference-at-scale-using-torchserve/).
 * If you prefer Docker or Kubernetes, you can use [AWS Deep Learning Containers](https://docs.aws.amazon.com/deep-learning-containers/latest/devguide/setup.html).
 
 **Note:** Model serving and inference for very large models can be memory intensive, so choose your instance type with enough memory. If you use Amazon SageMaker endpoints, you can scale up or down, out or in, as needed.
