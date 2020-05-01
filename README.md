@@ -90,6 +90,7 @@ pip install -e .
 
 * To upgrade TorchServe or model archiver from source code and make changes executable, run:
 
+For CPU run the following command:
 ```bash
 pip install -U -e .
 ```
@@ -248,6 +249,14 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 
 ```bash
 ./start.sh
+```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
 ```
 
 ## Learn More

@@ -46,11 +46,11 @@ class BatchImageClassifier(object):
             if not os.path.isfile(model_def_path):
                 raise RuntimeError("Missing the model.py file")
 
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            state_dict = torch.load(model_pt_path)
             from model import ResNet152ImageClassifier
             self.model = ResNet152ImageClassifier()
             self.model.load_state_dict(state_dict)
-
+        self.model.to(self.device)
         self.model.eval()
         logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
 
@@ -87,7 +87,7 @@ class BatchImageClassifier(object):
             ])
             input_image = Image.open(io.BytesIO(image))
             input_image = my_preprocess(input_image).unsqueeze(0)
-
+            input_image = Variable(input_image).to(self.device)
             if input_image.shape is not None:
                 if image_tensor is None:
                     image_tensor = input_image
