@@ -37,7 +37,7 @@ pip install .
 
 Now let's cover the details on using the CLI tool: `model-archiver`.
 
-Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](../examples/README.md):
+Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](https://github.com/pytorch/serve/tree/master/examplesZ):
 
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
@@ -117,7 +117,7 @@ optional arguments:
 
 A valid model name must begin with a letter of the alphabet and can only contains letters, digits, underscores `_`, dashes `-` and periods `.`.
 
-**Note**: The model name can be overridden when you register the model with [Register Model API](../docs/management_api.md#register-a-model).
+**Note**: The model name can be overridden when you register the model with [Register Model API](https://pytorch.org/serve/management_api.html#register-a-models).
 
 ### Model file
 
@@ -135,7 +135,7 @@ Handler can be TorchServe's inbuilt handler name or path to a py to handle custo
 3. `text_classifier`
 4. `image_segmenter`
 
-For more details refer [default handler documentation](../docs/default_handlers.md)
+For more details refer [default handler documentation](https://pytorch.org/serve/default_handlers.html)
 ## Creating a Model Archive
 
 **1. Download the torch model archiver source**
@@ -159,4 +159,4 @@ For eagermode:
 torch-model-archiver --model-name densenet_161 --version 1.0 --model-file model.py --serialized-file model.pt --handler image_classifier
 ```
 
-This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TorchServe, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!
+This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TorchServe, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](https://github.com/pytorch/serve/blob/master/README.md#serve-a-model) and try to run this model archive that you just created!
