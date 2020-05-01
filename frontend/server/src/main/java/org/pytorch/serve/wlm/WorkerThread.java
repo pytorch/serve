@@ -175,11 +175,7 @@ public class WorkerThread implements Runnable {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpResponseStatus.INSUFFICIENT_STORAGE;
         } catch (Throwable t) {
-            if (state == WorkerState.WORKER_SCALED_DOWN || state == WorkerState.WORKER_STOPPED) {
-                logger.debug("Shutting down the thread .. Scaling down.");
-            } else {
-                logger.warn("Backend worker thread exception.", t);
-            }
+            logger.warn("Backend worker thread exception.", t);
         } finally {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
