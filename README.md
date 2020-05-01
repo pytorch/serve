@@ -124,8 +124,8 @@ This section shows a simple example of serving a model with TorchServe. To compl
 To run this example, clone the TorchServe repository and navigate to the root of the repository:
 
 ```bash
-cd ~
 git clone https://github.com/pytorch/serve.git
+cd serve
 ```
 
 Then run the following steps from the root of the repository.
@@ -138,8 +138,8 @@ You can also create model stores to store your archived models.
 1. Create a directory to store your models.
 
     ```bash
-    mkdir ~/model_store
-    cd ~/model_store
+    mkdir ./model_store
+    cd ./model_store
     ```
 
 1. Download a trained model.
@@ -151,7 +151,7 @@ You can also create model stores to store your archived models.
 1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ~/serve/examples/image_classifier/densenet_161/model.py --serialized-file ~/model_store/densenet161-8d451a50.pth --extra-files ~/serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file ./model_store/densenet161-8d451a50.pth --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     ```
 
 For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
@@ -161,7 +161,7 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-torchserve --start --model-store ~/model_store --models ~/model_store/densenet161.mar
+torchserve --start --model-store ./model_store --models ./model_store/densenet161.mar
 ```
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
