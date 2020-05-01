@@ -67,7 +67,9 @@ cleanup()
   rm -rf logs
 }
 
-pip install mock pytest pylint pytest-mock pytest-cov
+# set pylint to version 2.4.4 because of following bug with pylint 2.5 released on 27th April 2020
+# https://github.com/PyCQA/pylint/issues/3524
+pip install mock pytest pylint==2.4.4 pytest-mock pytest-cov
 pip install -U pylint
 
 cd frontend
