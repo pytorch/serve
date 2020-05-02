@@ -28,34 +28,53 @@ stop_torchserve()
   sleep 10
 }
 
-register_model()
+register_model(model)
 {
   echo "Registering resnet-18 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&initial_workers=1&synchronous=true")
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$model.mar&initial_workers=4&synchronous=true")
 
   if [ ! "$response" == 200 ]
   then
-      echo "Failed to register model with torchserve"
+      echo "Failed to register $model model with torchserve"
       cleanup
       exit 1
   else
-      echo "Successfully registered resnet-18 model with torchserve"
+      echo "Successfully registered $model model with torchserve"
   fi
 }
 
-run_inference()
+unregister_model(model)
 {
-  echo "Running inference on resnet-18 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/resnet-18 -T examples/image_classifier/kitten.jpg)
+  echo "Registering resnet-18 model"
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X DELETE "http://localhost:8081/models/$model")
 
   if [ ! "$response" == 200 ]
   then
-      echo "Failed to run inference on resnet-18 model"
+      echo "Failed to register $model model with torchserve"
       cleanup
       exit 1
   else
-      echo "Successfully ran infernece on resnet-18 model."
+      echo "Successfully registered $model model with torchserve"
   fi
+}
+
+run_inference(model, input)
+{
+  for i in {1..4}
+  do
+    echo "Running inference on $model model"
+    response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/$model -T $input)
+
+    if [ ! "$response" == 200 ]
+    then
+        echo "Failed to run inference on $model model"
+        cleanup
+        exit 1
+    else
+        echo "Successfully ran infernece on $model model."
+    fi
+  done
+
 }
 
 cleanup()
@@ -132,7 +151,35 @@ mkdir -p model_store
 
 start_torchserve
 
-register_model
+# run object detection example
+
+register_model "fastrcnn"
+
+run_inference "fastrcnn" "examples/object_detector/persons.jpg"
+
+unregister_model "fastrcnn"
+
+# run image segmentation example
+
+register_model "fcn_resnet_101"
+
+run_inference "fcn_resnet_101" "examples/image_segmenter/fcn/persons.jpg"
+
+unregister_model "fcn_resnet_101"
+
+# run text classification example -
+
+register_model "my_text_classifier"
+
+run_inference "my_text_classifier" "examples/text_classification/sample_text.txt"
+
+unregister_model "my_text_classifier"
+
+# run image classification example
+
+register_model "resnet-18"
+
+run_inference "resnet-18" "examples/image_classifier/kitten.jpg"
 
 stop_torchserve
 
@@ -142,6 +189,8 @@ stop_torchserve
 start_torchserve
 
 run_inference
+
+stop_torchserve
 
 cleanup
 
