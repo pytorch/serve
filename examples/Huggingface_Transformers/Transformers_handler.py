@@ -76,9 +76,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # with "input_ids" and "token_type_ids" - which is true for some popular transformer models, e.g. bert.
         # If your transformer model expects different tokenization, adapt this code to suit
         # its expected input format.
-        input_ids = inputs['input_ids']
-        attention_masks = inputs['attention_mask']
-        predictions = self.model(input_ids,attention_mask=attention_masks)
+        input_ids = inputs['input_ids'].to(self.device)
+        predictions = self.model(input_ids)
         prediction = predictions[0].argmax(1).item()
         logger.info("Model predicted: '%s'", prediction)
 
