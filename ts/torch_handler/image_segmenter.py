@@ -1,3 +1,6 @@
+"""
+Module for image segmentation default handler
+"""
 import io
 from PIL import Image
 from torchvision import transforms as T
@@ -35,20 +38,24 @@ class ImangeSegmenter(VisionHandler):
         image = trf(image).unsqueeze(0)
         return image
 
-    def inference(self, img):
+    def inference(self, data):
         # Predict the pixel classes for segmentation
-        img = Variable(img).to(self.device)
-        pred = self.model(img)['out']
+        data = Variable(data).to(self.device)
+        pred = self.model(data)['out']
         pred = pred.squeeze().detach().cpu().numpy()
         return [str(pred)]
 
-    def postprocess(self, inference_output):
-        return inference_output
+    def postprocess(self, data):
+        return data
+
 
 _service = ImangeSegmenter()
 
 
 def handle(data, context):
+    """
+    Entry point for image segmenter default handler
+    """
     try:
         if not _service.initialized:
             _service.initialize(context)
@@ -62,4 +69,4 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("Please provide a custom handler in the model archive.")
+        raise Exception("Please provide a custom handler in the model archive." + e)
