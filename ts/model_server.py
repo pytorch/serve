@@ -28,7 +28,7 @@ def start():
 
     # pylint: disable=too-many-nested-blocks
     if args.version:
-        print("TorchServe Version is {}".format(__version__));
+        print("TorchServe Version is {}".format(__version__))
         return
     if args.stop:
         if pid is None:
@@ -48,7 +48,7 @@ def start():
             try:
                 psutil.Process(pid)
                 print("TorchServe is already running, please use torchserve --stop to stop TorchServe.")
-                exit(1)
+                sys.exit(1)
             except psutil.Error:
                 print("Removing orphan pid file.")
                 os.remove(pid_file)
@@ -62,7 +62,7 @@ def start():
             log_config = os.path.realpath(args.log_config)
             if not os.path.isfile(log_config):
                 print("--log-config file not found: {}".format(log_config))
-                exit(1)
+                sys.exit(1)
 
             cmd.append("-Dlog4j.configuration=file://{}".format(log_config))
 
@@ -70,7 +70,7 @@ def start():
         if tmp_dir:
             if not os.path.isdir(tmp_dir):
                 print("Invalid temp directory: {}, please check TEMP environment variable.".format(tmp_dir))
-                exit(1)
+                sys.exit(1)
 
             cmd.append("-Djava.io.tmpdir={}".format(tmp_dir))
 
@@ -79,7 +79,7 @@ def start():
         if ts_config:
             if not os.path.isfile(ts_config):
                 print("--ts-config file not found: {}".format(ts_config))
-                exit(1)
+                sys.exit(1)
             ts_conf_file = ts_config
 
         class_path = \
@@ -118,13 +118,13 @@ def start():
         if args.model_store:
             if not os.path.isdir(args.model_store):
                 print("--model-store directory not found: {}".format(args.model_store))
-                exit(1)
+                sys.exit(1)
 
             cmd.append("-s")
             cmd.append(args.model_store)
         else:
             print("Missing mandatory parameter --model-store")
-            exit(1)
+            sys.exit(1)
 
         if args.no_config_snapshots:
             cmd.append("-ncs")
@@ -137,8 +137,7 @@ def start():
                 for model_url in args.models:
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
-                        exit(1)
-
+                        sys.exit(1)
 
         try:
             process = subprocess.Popen(cmd)
