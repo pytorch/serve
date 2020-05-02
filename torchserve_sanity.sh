@@ -28,50 +28,50 @@ stop_torchserve()
   sleep 10
 }
 
-register_model(model)
+register_model()
 {
   echo "Registering resnet-18 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$model.mar&initial_workers=4&synchronous=true")
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$1.mar&initial_workers=4&synchronous=true")
 
   if [ ! "$response" == 200 ]
   then
-      echo "Failed to register $model model with torchserve"
+      echo "Failed to register $1 model with torchserve"
       cleanup
       exit 1
   else
-      echo "Successfully registered $model model with torchserve"
+      echo "Successfully registered $1 model with torchserve"
   fi
 }
 
-unregister_model(model)
+unregister_model()
 {
   echo "Registering resnet-18 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X DELETE "http://localhost:8081/models/$model")
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X DELETE "http://localhost:8081/models/$1")
 
   if [ ! "$response" == 200 ]
   then
-      echo "Failed to register $model model with torchserve"
+      echo "Failed to register $1 model with torchserve"
       cleanup
       exit 1
   else
-      echo "Successfully registered $model model with torchserve"
+      echo "Successfully registered $1 model with torchserve"
   fi
 }
 
-run_inference(model, input)
+run_inference()
 {
   for i in {1..4}
   do
-    echo "Running inference on $model model"
-    response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/$model -T $input)
+    echo "Running inference on $1 model"
+    response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/$1 -T $2)
 
     if [ ! "$response" == 200 ]
     then
-        echo "Failed to run inference on $model model"
+        echo "Failed to run inference on $1 model"
         cleanup
         exit 1
     else
-        echo "Successfully ran infernece on $model model."
+        echo "Successfully ran infernece on $1 model."
     fi
   done
 
