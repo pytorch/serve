@@ -32,6 +32,7 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
     ```
 
 ### Install with Conda
+**Note:** For Conda, Python 3.8 is required to run Torchserve
 
 #### Ubuntu
 
@@ -46,19 +47,24 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
     For CPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
     ```
 
     For GPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
     ```
 
 1. Activate the environment
 
     ```bash
     source activate torchserve
+    ```
+
+2. Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
     ```
 
 #### macOS
@@ -74,13 +80,18 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 1. Create an environment and install torchserve and torch-model-archiver
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
     ```
 
 1. Activate the environment
 
     ```bash
     source activate torchserve
+    ```
+
+2. Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
     ```
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
