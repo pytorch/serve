@@ -18,12 +18,18 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 
 ### Install with pip
 
-To use `pip` to install TorchServe and the model archiver:
+1. Install Java 11
 
-``` bash
-pip install torch torchtext torchvision sentencepiece psutil future
-pip install torchserve torch-model-archiver
-```
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
+
+1. Use `pip` to install TorchServe and the model archiver:
+
+    ``` bash
+    pip install torch torchtext torchvision sentencepiece psutil future
+    pip install torchserve torch-model-archiver
+    ```
 
 ### Install with Conda
 
@@ -83,6 +89,12 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
 
+1. Install Java 11
+
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
+
 1. Install dependencies
 
     ```bash
@@ -121,14 +133,14 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
 
-To run this example, clone the TorchServe repository and navigate to the root of the repository:
+To run this example, clone the TorchServe repository:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
-cd serve
 ```
 
-Then run the following steps from the root of the repository.
+Then run the following steps from the parent directory of the root of the repository.
+For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`.
 
 ### Store a Model
 
@@ -138,8 +150,7 @@ You can also create model stores to store your archived models.
 1. Create a directory to store your models.
 
     ```bash
-    mkdir ./model_store
-    cd ./model_store
+    mkdir model_store
     ```
 
 1. Download a trained model.
@@ -151,7 +162,7 @@ You can also create model stores to store your archived models.
 1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file ./model_store/densenet161-8d451a50.pth --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     ```
 
 For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
@@ -161,7 +172,7 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-torchserve --start --model-store ./model_store --models ./model_store/densenet161.mar
+torchserve --start --ncs --model-store model_store --models densenet161.mar
 ```
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
