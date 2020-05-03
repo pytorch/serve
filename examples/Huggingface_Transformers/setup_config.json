@@ -1,0 +1,7 @@
+{
+ "model_name":"roberta-base",
+ "mode":"question_answer",
+ "do_lower_case":"True",
+ "num_labels":"0",
+ "Fine_tuned_model":"bert-large-uncased-whole-word-masking-finetuned-squad"
+}
