@@ -76,12 +76,12 @@ class TransformersClassifierHandler(BaseHandler, ABC):
             outputs, *_ = self.model(**inputs)
 
         outputs = softmax(outputs.numpy())
-        prediction, = np.argmax(outputs, axis=1)
+        prediction, = int(np.argmax(outputs, axis=1))
 
         if self.mapping:
             prediction = self.mapping[str(prediction)]
 
-        return [float(prediction)]
+        return [prediction]
 
     def postprocess(self, inference_output):
         # TODO: Add any needed post-processing of the model predictions here
