@@ -9,30 +9,51 @@ https://github.com/huggingface/transformers/tree/v2.8.0/examples#glue
 Code for a simple custom handler for the resulting BERT model can be found in the 
 file `transformers_cola_handler.py`.
 
-
-# Finetuning
-
-Run the following commands to finetune BERT:
+## Installing dependencies
 
 ```bash
-./run_script.sh
+pip3 install transformers==2.8.0 sklearn==0.22.2 numpy==1.18.1
 ```
 
-The above command generated tokenizer and model checkpoints in directory `"./outputs"`.
+## Downloading the pretrained checkpoint
 
-# Serve the finetuned BERT classification model on TorchServe
+First, we download a pretrained checkpoint for a DistilBERT model 
+finetuned for the SST sentiment analysis task:
+
+```bash
+python3 download_pretrained_model.py
+```
+
+The above command generates tokenizer and model checkpoints in directory `"./pretrained_model_checkpoint"`.
+
+## Serve the sentiment analysis model using TorchServe
 
  * Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
-    ```bash
-    torch-model-archiver --model-name bert --version 1.0 --serialized-file outputs/pytorch_model.bin --handler "./transformers_cola_handler.py" --extra-files "./outputs/config.json,./outputs/vocab.txt"
-    ```
+```bash
+torch-model-archiver --model-name distilbert --version 1.0 --serialized-file pretrained_model_checkpoint/pytorch_model.bin --handler "./transformers_custom_handler.py" --extra-files "./pretrained_model_checkpoint/config.json,./pretrained_model_checkpoint/vocab.txt,index_to_name.json"
+```
 
- * Register the model on TorchServe using the above model archive file and run inference on a sample text
+* Register the sentiment classifier model on TorchServe using the above model archive file
    
-    ```bash
-    mkdir model_store
-    mv bert.mar model_store/
-    torchserve --start --model-store model_store --models bert=bert.mar
-    curl -X POST http://127.0.0.1:8080/predictions/bert -T sample_data/positive_cola_example
-    ```
+```bash
+mkdir model_store
+mv distilbert.mar model_store/
+torchserve --start --model-store model_store --models distilbert=distilbert.mar
+```
+
+* Run inference on sample text
+
+We can call the Inference API with sample text to get sentiment predictions from our model:
+
+```bash
+curl -X POST http://127.0.0.1:8080/predictions/distilbert -T sample_data/positive_sentiment_example
+```
+
+This will print `"Positive Sentiment"`.
+
+We can also try a negative example:
+```bash
+curl -X POST http://127.0.0.1:8080/predictions/distilbert -T sample_data/positive_sentiment_example
+```
+prints `"Negative Sentiment"`.

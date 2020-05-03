@@ -8,9 +8,6 @@ import numpy as np
 from sklearn.utils.extmath import softmax
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-from transformers.data.processors.glue import glue_convert_examples_to_features
-from transformers.data.processors.utils import InputExample
-from transformers import glue_processors as processors
 
 from ts.torch_handler.base_handler import BaseHandler
 
@@ -76,7 +73,7 @@ class TransformersClassifierHandler(BaseHandler, ABC):
             outputs, *_ = self.model(**inputs)
 
         outputs = softmax(outputs.numpy())
-        prediction, = int(np.argmax(outputs, axis=1))
+        prediction = np.argmax(outputs, axis=1).item()
 
         if self.mapping:
             prediction = self.mapping[str(prediction)]
