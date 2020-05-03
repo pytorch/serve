@@ -286,6 +286,7 @@ For GPU with specific GPU device ids run the following command:
 * [Manage models API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing
 
