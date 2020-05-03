@@ -4,7 +4,7 @@ In this example, we show how to use a Fine_tuned or off-the-shelf Transformer mo
 
 The inference service would return the label/ class inferred by the model from the text.
 
-We need to make sure that have installed the Transformers, it can be installed using the following  command.
+First, we need to make sure that have installed the Transformers, it can be installed using the following  command.
 
  `pip install transformers`
 
