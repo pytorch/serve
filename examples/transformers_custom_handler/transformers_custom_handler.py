@@ -14,12 +14,12 @@ from ts.torch_handler.base_handler import BaseHandler
 logger = logging.getLogger(__name__)
 
 
-
 class TransformersClassifierHandler(BaseHandler, ABC):
     """
     Transformers text classifier handler class. This handler takes a text (string) and
     as input and returns the classification text based on the serialized transformers checkpoint.
     """
+
     def __init__(self):
         super(TransformersClassifierHandler, self).__init__()
         self.initialized = False
@@ -29,7 +29,11 @@ class TransformersClassifierHandler(BaseHandler, ABC):
 
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda:" + str(properties.get("gpu_id"))
+            if torch.cuda.is_available()
+            else "cpu"
+        )
 
         # Read model serialize/pt file
         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
@@ -38,7 +42,9 @@ class TransformersClassifierHandler(BaseHandler, ABC):
         self.model.to(self.device)
         self.model.eval()
 
-        logger.debug('_Transformer model from path {0} loaded successfully'.format(model_dir))
+        logger.debug(
+            "_Transformer model from path {0} loaded successfully".format(model_dir)
+        )
 
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
@@ -47,7 +53,9 @@ class TransformersClassifierHandler(BaseHandler, ABC):
             with open(mapping_file_path) as f:
                 self.mapping = json.load(f)
         else:
-            logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
+            logger.warning(
+                "Missing the index_to_name.json file. Inference output will not include class name."
+            )
 
         self.initialized = True
 
@@ -58,10 +66,12 @@ class TransformersClassifierHandler(BaseHandler, ABC):
         text = data[0].get("data")
         if text is None:
             text = data[0].get("body")
-        text = text.decode('utf-8')
+        text = text.decode("utf-8")
         logger.info("Received text: '%s'", text)
 
-        inputs = self.tokenizer.encode_plus(text, max_length=128, pad_to_max_length=True, return_tensors="pt")
+        inputs = self.tokenizer.encode_plus(
+            text, max_length=128, pad_to_max_length=True, return_tensors="pt"
+        )
         return inputs
 
     def inference(self, inputs):
@@ -69,7 +79,10 @@ class TransformersClassifierHandler(BaseHandler, ABC):
         Predict the class of a text using a trained transformer model.
         """
         with torch.no_grad():
-            inputs = {input_name: input_values.to(self.device) for input_name, input_values in inputs.items()}
+            inputs = {
+                input_name: input_values.to(self.device)
+                for input_name, input_values in inputs.items()
+            }
             outputs, *_ = self.model(**inputs)
 
         outputs = softmax(outputs.numpy())
