@@ -77,12 +77,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         #preprocessing text for sequence_classification and token_classification.
         if self.setup_config["mode"]== "sequence_classification" or self.setup_config["mode"]== "token_classification" :
             inputs = self.tokenizer.encode_plus(input_text, add_special_tokens = True, return_tensors = 'pt')
-        #preprocessing text for question_answering. 
+        #preprocessing text for question_answering.
         elif self.setup_config["mode"]== "question_answering":
             # the sample text for question_answering should be formated as dictionary
             # with question and text as keys and related text as values.
             # we use this format here seperate question and text for encoding.
-            #TODO extend to handle multiple questions.
+            #TODO extend to handle multiple questions, cleaning and dealing with long the context.
             question_context= ast.literal_eval(input_text)
             question = question_context["question"]
             context = question_context["context"]
