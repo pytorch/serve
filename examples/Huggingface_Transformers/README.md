@@ -57,13 +57,13 @@ This produces all the required files for packaging using a huggingface transform
 
 #### Setting the setup_config.json
 
-The s "Download_Transformer_models.py" script has been modified to load and save the required files using a setup config file, "setup_config.json". In the setup_config.json:
+The  "Download_Transformer_models.py" script has been modified to load and save the required files using a setup config file, "setup_config.json". In the setup_config.json:
 
 *model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
 
 *mode:* "calssification "for sequence classification, "question_answer "for question answering and "token_classification" for token classification. 
 
-*do_lower_case* : True or False for use of Tokenizer.
+*do_lower_case* : True or False for use of the Tokenizer.
 
 *num_labels* : number of outputs for "calssification", or "token_classification". 
 
