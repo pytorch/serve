@@ -13,11 +13,11 @@ print('Transformers version',transformers.__version__)
 def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case):
     print("Download model and tokenizer", pretrained_model_name)
     #loading pre-trained model and tokenizer
-    if mode== "classification":
+    if mode== "sequence_classification":
         config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
         model = AutoModelForSequenceClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
-    elif mode== "question_answer":
+    elif mode== "question_answering":
         model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model_name)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "token_classification":
