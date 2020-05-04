@@ -64,7 +64,7 @@ def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_
 
         input_ids = inputs["input_ids"].tolist()[0]
 
-        text_tokens = tokenizer.convert_ids_to_tokens(input_ids)
+        # text_tokens = tokenizer.convert_ids_to_tokens(input_ids)
 
         answer_start_scores, answer_end_scores = model(**inputs)
 

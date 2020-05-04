@@ -53,11 +53,11 @@ There is another option just for demonstration purposes, that you can run the fo
 
 `python Download_Transformer_models.py`
 
-This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory. If vocab.txt was not saved into this directory, this case has been addressed in the handler. 
+This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory. In case, the "vocab.txt" was not saved into this directory, we can load the tokenizer from pre-trained model vocab, this case has been addressed in the handler. 
 
 #### Setting the setup_config.json
 
-This script has been modified to load and saved the required files using a setup config file, "setup_config.json". In the setup_config.json:
+The s "Download_Transformer_models.py" script has been modified to load and save the required files using a setup config file, "setup_config.json". In the setup_config.json:
 
 *model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
 
@@ -69,7 +69,7 @@ This script has been modified to load and saved the required files using a setup
 
 #### Setting the extra_files
 
-If intended to use Transformer handler for question answering, the sample_text.txt should be formated as follows:
+To use Transformer handler for question answering, the sample_text.txt should be formated as follows:
 
 `{"question" :"Who was Jim Henson?", "text": "Jim Henson was a nice puppet"}`
 
@@ -79,7 +79,7 @@ If intended to use Transformer handler for Token classification, the index_to_na
 
 `{"label_list":"[O, B-MISC, I-MISC, B-PER,I-PER,B-ORG,I-ORG,B-LOC,I-LOC]"}`
 
-Once, setup_config.json,  sample_text.txt and  index_to_name.json are set properly, we can go ahead and package the model and start serving it. The current setting in "setup_config.json" is based on "roberta_base " model for question answering. To fine-tuned RoBERTA can be obtained from running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. Alternatively a fine_tuned BERT model can be used by setting "model_name" to "bert-large-uncased-whole-word-masking-finetuned-squad" in the "setup_config.json".
+Once, setup_config.json,  sample_text.txt and  index_to_name.json are set properly, we can go ahead and package the model and start serving it. The current setting in "setup_config.json" is based on "roberta_base " model for question answering. To fine-tuned RoBERTa can be obtained from running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. Alternatively a fine_tuned BERT model can be used by setting "model_name" to "bert-large-uncased-whole-word-masking-finetuned-squad" in the "setup_config.json".
 
 - ```
   torch-model-archiver --model-name RobertaQA --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
@@ -95,4 +95,3 @@ Once, setup_config.json,  sample_text.txt and  index_to_name.json are set proper
   ```
 
 - open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./sample_text.txt`
-
