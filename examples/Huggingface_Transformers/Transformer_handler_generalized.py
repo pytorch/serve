@@ -88,6 +88,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # the sample text for question_answer should be formated as dictionary
             # with question and text as keys and related text as values.
             # we use this format here seperate question and text for encoding.
+            #TODO extend to handle multiple questions. 
             received_json= ast.literal_eval(input_text)
             question = received_json["question"]
             text = received_json["text"]
@@ -99,11 +100,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """ Predict the class (or classes) of the received text using the serialized transformers checkpoint.
         """
 
-        for key in inputs.keys():
-            inputs[key]= inputs[key].to(self.device)
+
+        input_ids = inputs["input_ids"].to(self.device)
 
         if self.setup_config["mode"]== "classification":
-            input_ids = inputs["input_ids"]
             predictions = self.model(input_ids)
             prediction = predictions[0].argmax(1).item()
 
@@ -115,7 +115,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         elif self.setup_config["mode"]== "question_answer":
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
-            answer_start_scores, answer_end_scores = self.model(**inputs)
+            answer_start_scores, answer_end_scores = self.model(input_ids)
             answer_start = torch.argmax(answer_start_scores)  # Get the most likely beginning of answer with the argmax of the score
             answer_end = torch.argmax(answer_end_scores) + 1  # Get the most likely end of answer with the argmax of the score
             input_ids = inputs["input_ids"].tolist()[0]
@@ -124,8 +124,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Model predicted: '%s'", prediction)
 
         elif self.setup_config["mode"]== "token_classification":
-
-            outputs = self.model(**inputs)[0]
+            outputs = self.model(input_ids)[0]
             predictions = torch.argmax(outputs, dim=2)
             tokens = self.tokenizer.tokenize(self.tokenizer.decode(inputs["input_ids"][0]))
             if self.mapping:
