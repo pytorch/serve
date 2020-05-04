@@ -12,13 +12,13 @@ There a few ways you can use TorchServe on AWS:
 
 ## Setup TorchServe on an AWS Deep Learning AMI
 
-1. Spin up the latest Deep Learning AMI (DLAMI). This should only take a few minutes.
-1. Log in to your DLAMI
+1. Spin up an EC2 instance with the latest Deep Learning AMI (DLAMI). This should only take a few minutes.
+1. Log in to your instance.
 1. Install Java 11
     ```bash
     sudo apt-get install openjdk-11-jdk
     ```
-1. Clone the [TorchServe repository](http://#)
+1. Clone the TorchServe repository
     ```bash
     git clone https://github.com/pytorch/serve.git
     cd serve
@@ -30,6 +30,7 @@ There a few ways you can use TorchServe on AWS:
     ```bash
     conda create -n torchserve_p38 python=3.8.*
     ```
+    **Note:** When you run `conda` you may get a notice that `conda` can be upgraded. It is recommended that you upgrade so that you can avoid any issues. You may get a warning that your shell is not configured to use `conda`. Follow the instructions the warning provides on how to fix this issue.
 1. Update the environment with TorchServe and its dependencies. Change the name according to the environment you wish to update. This example uses `torchserve_p38`.
     * For a CPU instance
     ```bash
@@ -41,7 +42,7 @@ There a few ways you can use TorchServe on AWS:
     ```
 1. Activate the environment
     ```bash
-    conda activate pytorch_p38
+    conda activate torchserve_p38
     ```
 1. Test your installation
     * Run  `torchserve`
