@@ -153,11 +153,11 @@ public final class SnapshotManager {
                 File marFile = new File(modelStore + "/" + marName);
                 if (!marFile.exists()) {
                     logger.error(
-                            "Correspoding mar file for model {}, version {} not found in model store",
+                            "Model archive file for model {}, version {} not found in model store",
                             modelName,
                             versionId);
                     throw new InvalidSnapshotException(
-                            "Correspoding mar file for model :"
+                            "Model archive file for model :"
                                     + modelName
                                     + ", version :"
                                     + versionId
@@ -165,7 +165,7 @@ public final class SnapshotManager {
                 }
             }
         }
-        logger.info("Validated snapshot {}", snapshot.getName());
+        logger.info("Snapshot {} validated successfully", snapshot.getName());
         return true;
     }
 
