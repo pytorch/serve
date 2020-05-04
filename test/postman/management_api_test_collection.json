@@ -439,7 +439,7 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": ""
@@ -464,10 +464,32 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet&handler=serve/ts/torch_handler/image_classifier.py:handle",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet"
+						},
+						{
+							"key": "handler",
+							"value": "serve/ts/torch_handler/image_classifier.py:handle"
+						}
+					]
 				}
 			},
 			"response": []
@@ -489,7 +511,7 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": ""
@@ -514,7 +536,7 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": ""
@@ -539,10 +561,79 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet&batch_size=2",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "densenet"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-13a",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f8309b0e-928b-47c4-a1dc-2d5c2f57aec1",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet&batch_size=2",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "densenet"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						}
+					]
 				}
 			},
 			"response": []
@@ -564,10 +655,32 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&max_batch_delay=200",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "mnist"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "200"
+						}
+					]
 				}
 			},
 			"response": []
@@ -589,10 +702,79 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar&model_name=vgg11&initial_workers=0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "vgg11"
+						},
+						{
+							"key": "initial_workers",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-15a",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5c9a3af9-3926-4f48-97d1-fdf11ab04973",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&initial_workers=0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "mnist"
+						},
+						{
+							"key": "initial_workers",
+							"value": "0"
+						}
+					]
 				}
 			},
 			"response": []
@@ -614,10 +796,79 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet18"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-16a",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aa6f207e-d9ce-40cb-ab08-d7ca03ba2927",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet18"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
 				}
 			},
 			"response": []
@@ -639,10 +890,32 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=false",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet18"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
 				}
 			},
 			"response": []
@@ -655,19 +928,31 @@
 					"script": {
 						"id": "76830b62-cb97-4a8e-8380-6862a6743c8b",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?limit=1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
 				}
 			},
 			"response": []
@@ -689,10 +974,28 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?limit=1&next_page_token=1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "1"
+						},
+						{
+							"key": "next_page_token",
+							"value": "1"
+						}
+					]
 				}
 			},
 			"response": []
@@ -705,9 +1008,7 @@
 					"script": {
 						"id": "b678f1b6-26aa-4fe9-b2af-382f5dbf7874",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -717,7 +1018,22 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?number_gpu=10",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "number_gpu",
+							"value": "10"
+						}
+					]
 				}
 			},
 			"response": []
@@ -730,9 +1046,7 @@
 					"script": {
 						"id": "da09183e-d2d3-4100-bbb6-01395b56c0e0",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -742,22 +1056,43 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?min_worker=5&max_worker=5&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "5"
+						},
+						{
+							"key": "max_worker",
+							"value": "5"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-22",
+			"name": "TS-MANAGEMENT-API-21a",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "13a0ea39-854a-4551-adf3-d1e1aac269d6",
+						"id": "9e1c800a-84fa-4181-ac5c-083c5071b993",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -767,7 +1102,30 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?min_worker=6&max_worker=6&synchronous=false",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "6"
+						},
+						{
+							"key": "max_worker",
+							"value": "6"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
 				}
 			},
 			"response": []
@@ -780,9 +1138,7 @@
 					"script": {
 						"id": "9b5509db-0260-4e36-a304-586b006e86ee",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -792,7 +1148,60 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?timeout=-1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "timeout",
+							"value": "-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TS-MANAGEMENT-API-22",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "13a0ea39-854a-4551-adf3-d1e1aac269d6",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?timeout=0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "timeout",
+							"value": "0"
+						}
+					]
 				}
 			},
 			"response": []
@@ -806,7 +1215,7 @@
 						"id": "eb97cab5-69fc-4c68-98be-a48b7c3bd01a",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf(400);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -814,10 +1223,28 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "invalid-resnet18"
+						}
+					]
 				}
 			},
 			"response": []
@@ -830,8 +1257,8 @@
 					"script": {
 						"id": "66f910d7-cc2f-4b60-8f94-df8304dd399f",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"pm.test(\"Invalid URL POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -839,10 +1266,28 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "invalid-resnet18"
+						}
+					]
 				}
 			},
 			"response": []
@@ -864,7 +1309,7 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": ""
@@ -889,7 +1334,7 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": ""
@@ -906,7 +1351,7 @@
 						"id": "0a95ee20-9b97-4d2a-8d1d-1698d7499b44",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -914,10 +1359,19 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1"
+					]
 				}
 			},
 			"response": []
@@ -931,7 +1385,7 @@
 						"id": "88c3e0eb-9984-4d53-a307-ecb4a546ca6a",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -939,10 +1393,19 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1"
+					]
 				}
 			},
 			"response": []
@@ -955,19 +1418,31 @@
 					"script": {
 						"id": "a97a22d6-1945-4992-81d0-e7508c5affa4",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?next_page_token=12",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "next_page_token",
+							"value": "12"
+						}
+					]
 				}
 			},
 			"response": []
@@ -981,7 +1456,7 @@
 						"id": "45736133-bb05-4dd7-80e9-f0d9f657a17f",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -992,7 +1467,26 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?min_worker=10&max_worker=9",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "10"
+						},
+						{
+							"key": "max_worker",
+							"value": "9"
+						}
+					]
 				}
 			},
 			"response": []
@@ -1031,7 +1525,7 @@
 						"id": "b0a0fa12-2de1-474e-8869-33a7c5a0895d",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1039,35 +1533,19 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-34",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "2b032f46-291f-47e1-9f30-253d1cbc09b8",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1"
+					]
 				}
 			},
 			"response": []
