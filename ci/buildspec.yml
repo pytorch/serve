@@ -6,14 +6,14 @@ phases:
   install:
     commands:
       - apt-get update
-      - apt-get install -y curl
+      - apt-get install -y curl gnupg2
       - pip install pip -U
       - pip install -r ci/requirements.txt
 
   build:
     commands:
       - ./torchserve_sanity.sh
-      - cd serving-sdk/ && mvn clean deploy && cd ../
+      - cd serving-sdk/ && mvn clean install && cd ../
 
 artifacts:
   files:

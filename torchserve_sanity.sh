@@ -67,11 +67,16 @@ cleanup()
   rm -rf logs
 }
 
+
+# set pylint to version 2.4.4 because of following bug with pylint 2.5 released on 27th April 2020
+# https://github.com/PyCQA/pylint/issues/3524
+pip install mock pytest pylint==2.4.4 pytest-mock pytest-cov
+
 cd frontend
 
 if ./gradlew clean build;
 then
-  echo "Frontend build suite execution successfully"
+  echo "Frontend build suite execution successful"
 else
   echo "Frontend build suite execution failed!!! Check logs for more details"
   exit 1
@@ -80,11 +85,13 @@ fi
 cd ..
 if python -m pytest --cov-report html:htmlcov --cov=ts/ ts/tests/unit_tests/;
 then
-  echo "Backend test suite execution successfully"
+  echo "Backend test suite execution successful"
 else
   echo "Backend test suite execution failed!!! Check logs for more details"
   exit 1
 fi
+
+pylint -rn --rcfile=./ts/tests/pylintrc ts/.
 
 pip uninstall --yes torchserve
 pip uninstall --yes torch-model-archiver
