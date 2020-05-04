@@ -47,31 +47,37 @@ First, we need to make sure that have installed the Transformers, it can be inst
 
 Here, we inted to generalize the Transformer_handler.py, this will enable us to use any model defined in the Hugginface transformers such as BERT, RoBERTA, XLM, etc. for use cases defined in the AutoModel class such as AutoModelForSequenceClassification, AutoModelForQuestionAnswering, AutoModelForTokenClassification, and AutoModelWithLMHead will be added later. 
 
-As we discussed before to yeild desired results, one should fine-tuned each of the intended model to use before hand and have related  pytorch_model.bin file along with vocab.txt and config.json files as a result in the current directory. 
+As we discussed before to yeild desired results, one should fine-tuned each of the intended model to use before hand and saving the model and tokenizer using "save_pretrained() " will result in pytorch_model.bin file along with vocab.txt and config.json files. These files should be moved to a folder named Transformer_model in the current directory. 
 
-There is another option just for demonstration purposes, that you can run the following:
+There is another option just for demonstration purposes, to simply run "Download_Transformer_models.py", . The  "Download_Transformer_models.py" script loads and saves the required files mentioned above, using a setup config file, "setup_config.json". Also, settings in  "setup_config.json", are used in the handler, "Transformer_handler_generalized.py", as well to operate on the selected mode and other related settings. 
+
+#### Setting the setup_config.json
+
+In the setup_config.json:
+
+*model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
+
+*mode:* "sequence_classification "for sequence classification, "question_answering "for question answering and "token_classification" for token classification. 
+
+*do_lower_case* : True or False for use of the Tokenizer.
+
+*num_labels* : number of outputs for "sequence_classification", or "token_classification". 
+
+Once, setup_config.json has been set properly, the next step is to run " Download_Transformer_models.py":
 
 `python Download_Transformer_models.py`
 
 This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory. In case, the "vocab.txt" was not saved into this directory, we can load the tokenizer from pre-trained model vocab, this case has been addressed in the handler. 
 
-#### Setting the setup_config.json
 
-The  "Download_Transformer_models.py" script has been modified to load and save the required files using a setup config file, "setup_config.json". In the setup_config.json:
-
-*model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
-
-*mode:* "calssification "for sequence classification, "question_answer "for question answering and "token_classification" for token classification. 
-
-*do_lower_case* : True or False for use of the Tokenizer.
-
-*num_labels* : number of outputs for "calssification", or "token_classification". 
 
 #### Setting the extra_files
 
 To use Transformer handler for question answering, the sample_text.txt should be formated as follows:
 
-`{"question" :"Who was Jim Henson?", "text": "Jim Henson was a nice puppet"}`
+`{"question" :"Who was Jim Henson?", "context": "Jim Henson was a nice puppet"}`
+
+question represents the question to be asked from the source text named as context here. 
 
 index_to_name.json for question answering is not required. 
 
