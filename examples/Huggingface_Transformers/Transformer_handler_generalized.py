@@ -17,9 +17,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
     def __init__(self,ctx):
         super(TransformersSeqClassifierHandler, self).__init__()
-
         self.manifest = ctx.manifest
-
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
