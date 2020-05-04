@@ -47,9 +47,13 @@ First, we need to make sure that have installed the Transformers, it can be inst
 
 Here, we inted to generalize the Transformer_handler.py, this will enable us to use any model defined in the Hugginface transformers such as BERT, RoBERTA, XLM, etc. for use cases defined in the AutoModel class such as AutoModelForSequenceClassification, AutoModelForQuestionAnswering, AutoModelForTokenClassification, and AutoModelWithLMHead will be added later. 
 
-As we discussed before to yeild desired results, one should fine-tuned each of the intended model to use before hand and saving the model and tokenizer using "save_pretrained() " will result in pytorch_model.bin file along with vocab.txt and config.json files. These files should be moved to a folder named Transformer_model in the current directory. 
+### Getting Started with the Demo
 
-There is another option just for demonstration purposes, to simply run "Download_Transformer_models.py", . The  "Download_Transformer_models.py" script loads and saves the required files mentioned above, using a setup config file, "setup_config.json". Also, settings in  "setup_config.json", are used in the handler, "Transformer_handler_generalized.py", as well to operate on the selected mode and other related settings. 
+There are two paths to obtain the models and get started for this demo. 
+
+- **Option A** : To yeild desired results, one should fine-tuned each of the intended models to use before hand and saving the model and tokenizer using "save_pretrained() ". This will result in pytorch_model.bin file along with vocab.txt and config.json files. These files should be moved to a folder named Transformer_model in the current directory. 
+
+- **Option B**: There is another option just for demonstration purposes, to simply run "Download_Transformer_models.py", . The  "Download_Transformer_models.py" script loads and saves the required files mentioned above, using a setup config file, "setup_config.json". Also, settings in  "setup_config.json", are used in the handler, "Transformer_handler_generalized.py", as well to operate on the selected mode and other related settings. 
 
 #### Setting the setup_config.json
 
