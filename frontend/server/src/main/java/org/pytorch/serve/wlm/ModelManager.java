@@ -76,8 +76,8 @@ public final class ModelManager {
     public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
             throws ModelException, IOException {
 
-        boolean defaultVersion = modelInfo.get("defaultVersion").getAsBoolean();
-        String url = modelInfo.get("marName").getAsString();
+        boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
+        String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
         ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
 

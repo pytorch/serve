@@ -149,7 +149,7 @@ public final class SnapshotManager {
             String modelName = modelMap.getKey();
             for (Map.Entry<String, JsonObject> versionModel : modelMap.getValue().entrySet()) {
                 String versionId = versionModel.getKey();
-                String marName = versionModel.getValue().get("marName").getAsString();
+                String marName = versionModel.getValue().get(Model.MAR_NAME).getAsString();
                 File marFile = new File(modelStore + "/" + marName);
                 if (!marFile.exists()) {
                     logger.error(

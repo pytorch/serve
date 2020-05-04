@@ -31,6 +31,7 @@ import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -371,8 +372,8 @@ public class SnapshotTest {
         for (Map.Entry<String, Map<String, JsonObject>> modelMap :
                 snapshot.getModels().entrySet()) {
             for (Map.Entry<String, JsonObject> versionModel : modelMap.getValue().entrySet()) {
-                versionModel.getValue().addProperty("minWorkers", 4);
-                versionModel.getValue().addProperty("maxWorkers", 4);
+                versionModel.getValue().addProperty(Model.MIN_WORKERS, 4);
+                versionModel.getValue().addProperty(Model.MAX_WORKERS, 4);
             }
         }
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
