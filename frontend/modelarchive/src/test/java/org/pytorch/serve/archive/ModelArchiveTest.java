@@ -38,8 +38,10 @@ public class ModelArchiveTest {
                         modelStore,
                         "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
         Assert.assertEquals(archive.getModelName(), null);
-        FileUtils.deleteQuietly(new File(modelStore, "squeezenet_v1.1.model"));
-
+        ModelArchive.removeModel(
+                modelStore,
+                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
+        Assert.assertTrue(!new File(modelStore, "squeezenet_v1.1.model").exists());
         ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
     }
 
