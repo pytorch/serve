@@ -19,16 +19,10 @@ pip install librosa --user
 
 # Serve the WaveGlow speech synthesis model on TorchServe
 
- * Download the checkpoint for NVIDIA WaveGlow model :
+ * Generate the model archive for waveglow speech synthesis model using following command
  
     ```bash
-   wget https://api.ngc.nvidia.com/v2/models/nvidia/waveglowpyt_fp32/versions/1/files/nvidia_waveglowpyt_fp32_20190306.pth 
-   ```
-
- * Create a torch model archive using the torch-model-archiver utility to archive the above files.
- 
-    ```bash
-    torch-model-archiver --model-name waveglow_synthesizer --version 1.0 --model-file waveglow_model.py --serialized-file nvidia_waveglowpyt_fp32_20190306.pth --handler waveglow_handler.py
+    ./create_mar.sh
     ```
    
  * Register the model on TorchServe using the above model archive file and run digit recognition inference

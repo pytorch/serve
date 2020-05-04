@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import os
 import torch
+import zipfile
 from waveglow_model import WaveGlow
 from scipy.io.wavfile import write
 
@@ -32,6 +33,17 @@ class WaveGlowSpeechSynthesizer(object):
             new_state_dict[new_key] = value
         return new_state_dict
 
+    def _load_tacotron2_model(self, model_dir):
+        from PyTorch.SpeechSynthesis.Tacotron2.tacotron2 import model as tacotron2
+        from PyTorch.SpeechSynthesis.Tacotron2.tacotron2.text import text_to_sequence
+        tacotron2_checkpoint = torch.load(os.path.join(model_dir, 'nvidia_tacotron2pyt_fp32_20190306.pth'))
+        tacotron2_state_dict = self._unwrap_distributed(tacotron2_checkpoint['state_dict'])
+        tacotron2_config = tacotron2_checkpoint['config']
+        self.tacotron2_model = tacotron2.Tacotron2(**tacotron2_config)
+        self.tacotron2_model.load_state_dict(tacotron2_state_dict)
+        self.tacotron2_model.text_to_sequence = text_to_sequence
+        self.tacotron2_model.to(self.device)
+
     def initialize(self, ctx):
         """First try to load torchscript else load eager mode state_dict based model"""
 
@@ -41,6 +53,9 @@ class WaveGlowSpeechSynthesizer(object):
             raise RuntimeError("This model is not supported on CPU machines.")
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")))
 
+        with zipfile.ZipFile(model_dir + '/tacotron.zip', 'r') as zip_ref:
+            zip_ref.extractall(model_dir)
+
         waveglow_checkpoint = torch.load(os.path.join(model_dir, "nvidia_waveglowpyt_fp32_20190306.pth"))
         waveglow_state_dict = self._unwrap_distributed(waveglow_checkpoint['state_dict'])
         waveglow_config = waveglow_checkpoint['config']
@@ -49,9 +64,7 @@ class WaveGlowSpeechSynthesizer(object):
         self.waveglow_model.to(self.device)
         self.waveglow_model.eval()
 
-        self.tacotron2_model = torch.hub.load('nvidia/DeepLearningExamples:torchhub', 'nvidia_tacotron2')
-        self.tacotron2_model = self.tacotron2_model.to(self.device)
-        self.tacotron2_model.eval()
+        self._load_tacotron2_model(model_dir)
 
         logger.debug('WaveGlow model file loaded successfully')
         self.initialized = True
