@@ -57,7 +57,7 @@ There are two paths to obtain the models and get started for this demo.
 
 #### Setting the setup_config.json
 
-In the setup_config.json:
+In the setup_config.json :
 
 *model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
 
