@@ -16,7 +16,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     Transformers text classifier handler class. This handler takes a text (string) and
     as input and returns the classification text based on the serialized transformers checkpoint.
     """
-    def __init__(self):
+    def __init__(self, ctx):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.manifest = ctx.manifest
         properties = ctx.system_properties
