@@ -6,6 +6,7 @@ OTF Codec
 import json
 import logging
 import struct
+import sys
 import os
 
 from builtins import bytearray
@@ -152,7 +153,7 @@ def _retrieve_buffer(conn, length):
         pkt = conn.recv(length)
         if len(pkt) == 0:
             logging.info("Frontend disconnected.")
-            exit(0)
+            sys.exit(0)
 
         data += pkt
         length -= len(pkt)

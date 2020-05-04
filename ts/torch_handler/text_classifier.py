@@ -1,7 +1,12 @@
+# pylint: disable=E1102
+# TODO remove pylint disable comment after https://github.com/pytorch/pytorch/issues/24807 gets merged.
+"""
+Module for text classification default handler
+"""
 import torch
 from torch.autograd import Variable
-from .text_handler import TextHandler
 from torchtext.data.utils import ngrams_iterator
+from .text_handler import TextHandler
 
 
 class TextClassifier(TextHandler):
@@ -41,12 +46,12 @@ class TextClassifier(TextHandler):
 
         return text
 
-    def inference(self, text):
+    def inference(self, data):
         """
         Predict the class of a text using a trained deep learning model and vocabulary.
         """
 
-        inputs = Variable(text).to(self.device)
+        inputs = Variable(data).to(self.device)
         output = self.model.forward(inputs, torch.tensor([0]).to(self.device))
         output = output.argmax(1).item() + 1
         if self.mapping:
@@ -54,14 +59,17 @@ class TextClassifier(TextHandler):
 
         return [output]
 
-    def postprocess(self, inference_output):
-        return inference_output
+    def postprocess(self, data):
+        return data
 
 
 _service = TextClassifier()
 
 
 def handle(data, context):
+    """
+    Entry point for text classifier default handler
+    """
     try:
         if not _service.initialized:
             _service.initialize(context)
@@ -75,4 +83,4 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise e
+        raise Exception("Please provide a custom handler in the model archive." + e)
