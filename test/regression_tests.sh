@@ -80,6 +80,16 @@ run_postman_test() {
 }
 
 
+run_pytest() {
+
+  mkdir -p $ROOT_DIR/report/
+  cd $CODEBUILD_WD/test/pytest
+  stop_torch_serve
+  pytest . -v &> $1
+  cd -
+
+}
+
 rm -rf $ROOT_DIR && mkdir $ROOT_DIR && cd $ROOT_DIR
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
@@ -88,6 +98,7 @@ install_torchserve_from_source $TS_REPO $BRANCH
 generate_densenet_test_model_archive $MODEL_STORE
 start_torchserve $MODEL_STORE $TS_LOG_FILE
 run_postman_test $TEST_EXECUTION_LOG_FILE
+run_pytest $TEST_EXECUTION_LOG_FILE
 stop_torch_serve
 
 echo "** Tests Complete ** "
