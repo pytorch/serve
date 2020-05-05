@@ -371,7 +371,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/2.0",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -380,7 +380,7 @@
 					"path": [
 						"models",
 						"squeezenet1_1",
-						"2.0"
+						"1.0"
 					]
 				}
 			},
