@@ -605,7 +605,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet&batch_size=2",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -617,11 +617,11 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
 						},
 						{
 							"key": "model_name",
-							"value": "densenet"
+							"value": "resnet152"
 						},
 						{
 							"key": "batch_size",
@@ -652,29 +652,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet&batch_size=2",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "densenet"
-						},
-						{
-							"key": "batch_size",
-							"value": "2"
-						}
-					]
+					"raw": ""
 				}
 			},
 			"response": []
@@ -792,29 +770,26 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data",
+							"type": "file",
+							"src": "/Users/wongale/workplace/torchserve-testing/serve/kitten.jpg"
+						}
+					]
+				},
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&initial_workers=0",
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/vgg11",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
 					],
-					"port": "{{mgmt-port}}",
+					"port": "{{pred-port}}",
 					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "mnist"
-						},
-						{
-							"key": "initial_workers",
-							"value": "0"
-						}
+						"predictions",
+						"vgg11"
 					]
 				}
 			},
@@ -884,31 +859,18 @@
 				}
 			],
 			"request": {
-				"method": "POST",
+				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=true",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
 					],
 					"port": "{{mgmt-port}}",
 					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "resnet18"
-						},
-						{
-							"key": "synchronous",
-							"value": "true"
-						}
+						"models",
+						"resnet18"
 					]
 				}
 			},
@@ -1253,10 +1215,10 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "eb97cab5-69fc-4c68-98be-a48b7c3bd01a",
+						"id": "f6c41c3d-077b-43ee-b09c-06b4d84d54e2",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(400);",
+							"pm.test(\"Invalid URL POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1267,25 +1229,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "invalid-resnet18"
-						}
-					]
+					"raw": ""
 				}
 			},
 			"response": []
@@ -1403,16 +1347,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models",
-						"invalid_squeezenet1_1"
-					]
+					"raw": ""
 				}
 			},
 			"response": []
@@ -1423,10 +1358,10 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "88c3e0eb-9984-4d53-a307-ecb4a546ca6a",
+						"id": "207f7c2b-1d69-4292-bb4f-31a3147fc43b",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([404]]);",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1538,10 +1473,10 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "19d797fa-a89d-4248-b629-47fb98c9a460",
+						"id": "7a7e5033-0d32-4b11-a53f-b6e2e4f7ba61",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1552,7 +1487,18 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1/1.0/set-default",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1",
+						"1.0",
+						"set-default"
+					]
 				}
 			},
 			"response": []
