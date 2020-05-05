@@ -25,7 +25,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -41,7 +41,7 @@
 						},
 						{
 							"key": "model_name",
-							"value": "squeezenet"
+							"value": "squeezenet1_1"
 						}
 					]
 				}
