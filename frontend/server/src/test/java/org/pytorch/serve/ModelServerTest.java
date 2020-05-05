@@ -618,14 +618,13 @@ public class ModelServerTest {
         unloadTests(mgmtChannel, "noop_default_model_workers");
         setConfiguration("default_workers_per_model", "0");
     }
-    
+
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
     public void testLoadModelFromURL() throws InterruptedException {
         testLoadModel(
-                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
-                "squeezenet");
+                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar", "squeezenet");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
