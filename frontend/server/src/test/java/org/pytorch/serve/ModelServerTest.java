@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -617,10 +618,28 @@ public class ModelServerTest {
         unloadTests(mgmtChannel, "noop_default_model_workers");
         setConfiguration("default_workers_per_model", "0");
     }
-
+    
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
+    public void testLoadModelFromURL() throws InterruptedException {
+        testLoadModel(
+                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+                "squeezenet");
+        Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromURL"})
+    public void testUnregisterURLModel() throws InterruptedException {
+        testUnregisterModel("squeezenet", null);
+        Assert.assertTrue(!new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         Assert.assertNotNull(channel);
