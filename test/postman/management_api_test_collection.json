@@ -414,7 +414,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -422,8 +422,7 @@
 					"port": "{{mgmt-port}}",
 					"path": [
 						"models",
-						"squeezenet1_1",
-						"1.0"
+						"squeezenet1_1"
 					]
 				}
 			},
@@ -449,16 +448,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models",
-						"squeezenet1_1"
-					]
+					"raw": ""
 				}
 			},
 			"response": []
@@ -508,7 +498,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet&handler=serve/ts/torch_handler/image_classifier.py:handle",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -520,11 +510,11 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
-							"value": "squeezenet"
+							"value": "squeezenet1_1"
 						},
 						{
 							"key": "handler",
