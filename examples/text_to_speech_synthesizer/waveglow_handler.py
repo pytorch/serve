@@ -2,9 +2,10 @@ import logging
 import numpy as np
 import os
 import torch
+import uuid
 import zipfile
 from waveglow_model import WaveGlow
-from scipy.io.wavfile import write
+from scipy.io.wavfile import write, read
 
 logger = logging.getLogger(__name__)
 
@@ -93,9 +94,12 @@ class WaveGlowSpeechSynthesizer(object):
 
     def postprocess(self, inference_output):
         audio_numpy = inference_output[0].data.cpu().numpy()
-        path = "/tmp/audio.wav"
+        path = "/tmp/{}.wav".format(uuid.uuid4().hex)
         write(path, 22050, audio_numpy)
-        return ["Audio file generated successfully at {}".format(path)]
+        with open(path, 'rb') as output:
+            data = output.read()
+        os.remove(path)
+        return [data]
 
 
 _service = WaveGlowSpeechSynthesizer()

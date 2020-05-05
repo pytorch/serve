@@ -31,13 +31,7 @@ pip install librosa --user
     mkdir model_store
     mv waveglow_synthesizer.mar model_store/
     torchserve --start --model-store model_store --models waveglow_synthesizer.mar
-    curl -X POST http://127.0.0.1:8080/predictions/waveglow_synthesizer -T sample_text.txt
+    curl -X POST http://127.0.0.1:8080/predictions/waveglow_synthesizer -T sample_text.txt -o audio.wav
     ```
   * Response :
-  ```text
-    [Audio file generated successfully at /tmp/audio.wav]
-  ```
-
-Note :
-
- * Update the post process method to change the output location of the audio file.
+    An audio.wav file gets downloaded.
