@@ -429,31 +429,6 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-8a",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "01f88d41-9950-4775-833a-ecc8f9ab14c9",
-						"exec": [
-							"pm.test(\"Successful DELETE request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "TS-MANAGEMENT-API-9",
 			"event": [
 				{
@@ -487,7 +462,7 @@
 						"id": "942b750b-088a-4355-89a8-89b0d263e1fc",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -534,7 +509,7 @@
 						"id": "482600ac-e8cc-4240-9019-e8ba5421063e",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -559,7 +534,7 @@
 						"id": "4d7532d8-d244-4095-8dec-8a58aa4cbe75",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -584,7 +559,7 @@
 						"id": "8a56636d-24b1-439c-b28e-1029db0a141c",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -703,7 +678,7 @@
 						"id": "f6781541-2e92-4837-b6f9-26c61e28de8e",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -742,50 +717,6 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-15a",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "5c9a3af9-3926-4f48-97d1-fdf11ab04973",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "data",
-							"type": "file",
-							"src": "/Users/wongale/workplace/torchserve-testing/serve/kitten.jpg"
-						}
-					]
-				},
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/vgg11",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"predictions",
-						"vgg11"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "TS-MANAGEMENT-API-16",
 			"event": [
 				{
@@ -794,7 +725,7 @@
 						"id": "073bc446-c12f-4a2d-8fa1-044914642de2",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -840,8 +771,8 @@
 					"script": {
 						"id": "aa6f207e-d9ce-40cb-ab08-d7ca03ba2927",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -875,7 +806,7 @@
 						"id": "9e195654-9864-46d4-896d-39926d89ffb3",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -886,7 +817,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=false",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=resnet-18.mar&model_name=resnet18&synchronous=false",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -898,7 +829,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+							"value": "resnet-18.mar"
 						},
 						{
 							"key": "model_name",
