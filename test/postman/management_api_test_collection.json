@@ -193,7 +193,9 @@
 					"script": {
 						"id": "aefbd490-f4f7-4d8a-9e8e-ad9489ab5784",
 						"exec": [
-							""
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -225,6 +227,20 @@
 		},
 		{
 			"name": "TS-MANAGEMENT-API-5a",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "762ffec5-7c7e-40f0-ad45-6f1c1983b754",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -255,6 +271,20 @@
 		},
 		{
 			"name": "TS-MANAGEMENT-API-5b",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ce1c4c1c-761f-4e5d-9f04-f29247a88c34",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -286,11 +316,25 @@
 		},
 		{
 			"name": "TS-MANAGEMENT-API-6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "84b164c5-e5f6-4226-aeab-483fd8aab514",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0?min_worker=5&synchronous=true",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1?min_worker=6&number_gpu=1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -298,17 +342,16 @@
 					"port": "{{mgmt-port}}",
 					"path": [
 						"models",
-						"squeezenet1_1",
-						"1.0"
+						"squeezenet1_1"
 					],
 					"query": [
 						{
 							"key": "min_worker",
-							"value": "5"
+							"value": "6"
 						},
 						{
-							"key": "synchronous",
-							"value": "true"
+							"key": "number_gpu",
+							"value": "1"
 						}
 					]
 				}
@@ -323,8 +366,8 @@
 					"script": {
 						"id": "2bc3625e-0800-49fb-bf12-aa848b9ba356",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -359,8 +402,8 @@
 					"script": {
 						"id": "dd998033-3eea-4bb5-9353-18d6d1f885d8",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -394,8 +437,8 @@
 					"script": {
 						"id": "01f88d41-9950-4775-833a-ecc8f9ab14c9",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -406,7 +449,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0/set-default",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -414,9 +457,7 @@
 					"port": "{{mgmt-port}}",
 					"path": [
 						"models",
-						"squeezenet1_1",
-						"1.0",
-						"set-default"
+						"squeezenet1_1"
 					]
 				}
 			},
