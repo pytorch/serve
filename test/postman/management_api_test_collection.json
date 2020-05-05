@@ -631,7 +631,7 @@
 						"id": "91391969-b8c0-4d39-bb0f-21cf2d1d0e41",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -889,9 +889,7 @@
 					"script": {
 						"id": "e6bb5722-8b6f-4440-a74e-728c9b2f7efd",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -932,7 +930,9 @@
 					"script": {
 						"id": "b678f1b6-26aa-4fe9-b2af-382f5dbf7874",
 						"exec": [
-							""
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -970,7 +970,9 @@
 					"script": {
 						"id": "da09183e-d2d3-4100-bbb6-01395b56c0e0",
 						"exec": [
-							""
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -1016,7 +1018,9 @@
 					"script": {
 						"id": "9e1c800a-84fa-4181-ac5c-083c5071b993",
 						"exec": [
-							""
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -1062,7 +1066,9 @@
 					"script": {
 						"id": "9b5509db-0260-4e36-a304-586b006e86ee",
 						"exec": [
-							""
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -1100,7 +1106,9 @@
 					"script": {
 						"id": "13a0ea39-854a-4551-adf3-d1e1aac269d6",
 						"exec": [
-							""
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -1138,9 +1146,7 @@
 					"script": {
 						"id": "f6c41c3d-077b-43ee-b09c-06b4d84d54e2",
 						"exec": [
-							"pm.test(\"Invalid URL POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -1206,9 +1212,7 @@
 					"script": {
 						"id": "e4f9a8f9-e58a-4543-8e16-8c084daae4f2",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -1231,9 +1235,7 @@
 					"script": {
 						"id": "597d391b-c9cd-45ea-8088-715e58b9129e",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -1256,9 +1258,7 @@
 					"script": {
 						"id": "0a95ee20-9b97-4d2a-8d1d-1698d7499b44",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -1281,7 +1281,7 @@
 					"script": {
 						"id": "207f7c2b-1d69-4292-bb4f-31a3147fc43b",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
+							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -1352,7 +1352,7 @@
 					"script": {
 						"id": "45736133-bb05-4dd7-80e9-f0d9f657a17f",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
+							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
@@ -1396,7 +1396,7 @@
 					"script": {
 						"id": "7a7e5033-0d32-4b11-a53f-b6e2e4f7ba61",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
+							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -1432,7 +1432,7 @@
 					"script": {
 						"id": "b0a0fa12-2de1-474e-8869-33a7c5a0895d",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
+							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
