@@ -1,12 +1,12 @@
 {
 	"info": {
-		"_postman_id": "d71b1bbc-ce8f-4cfb-bf85-fbf8bb958820",
+		"_postman_id": "4d8b1327-d0b4-4e37-9544-06b57d9b480f",
 		"name": "torchserve_regression_management",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "TS-MANAGEMENT-API-1",
+			"name": "Register Model",
 			"event": [
 				{
 					"listen": "test",
@@ -49,7 +49,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-2",
+			"name": "Get Valid Model",
 			"event": [
 				{
 					"listen": "test",
@@ -83,7 +83,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-2a",
+			"name": "Get Model with Version",
 			"event": [
 				{
 					"listen": "test",
@@ -118,7 +118,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-3",
+			"name": "Get Model - All Versions",
 			"event": [
 				{
 					"listen": "test",
@@ -153,7 +153,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-4",
+			"name": "List Models",
 			"event": [
 				{
 					"listen": "test",
@@ -186,7 +186,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-5",
+			"name": "Scale Min Workers - Asynchronous",
 			"event": [
 				{
 					"listen": "test",
@@ -226,7 +226,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-5a",
+			"name": "Scale Min Workers - Synchronous",
 			"event": [
 				{
 					"listen": "test",
@@ -270,7 +270,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-5b",
+			"name": "Scale Min Workers for a Version",
 			"event": [
 				{
 					"listen": "test",
@@ -315,7 +315,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-6",
+			"name": "Scale Min Workers with GPU",
 			"event": [
 				{
 					"listen": "test",
@@ -359,7 +359,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-7",
+			"name": "Set Default Model Version",
 			"event": [
 				{
 					"listen": "test",
@@ -395,7 +395,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-8",
+			"name": "UnRegister Model",
 			"event": [
 				{
 					"listen": "test",
@@ -429,30 +429,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-9",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "f6a34d99-2dac-4ce3-8924-58b91645c306",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-10",
+			"name": "Register Model with Additional Params",
 			"event": [
 				{
 					"listen": "test",
@@ -499,53 +476,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-11",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "482600ac-e8cc-4240-9019-e8ba5421063e",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-12",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "4d7532d8-d244-4095-8dec-8a58aa4cbe75",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-13",
+			"name": "Register Model with Batch Size",
 			"event": [
 				{
 					"listen": "test",
@@ -592,77 +523,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-13a",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "f8309b0e-928b-47c4-a1dc-2d5c2f57aec1",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-14",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "91391969-b8c0-4d39-bb0f-21cf2d1d0e41",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&max_batch_delay=200",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "mnist"
-						},
-						{
-							"key": "max_batch_delay",
-							"value": "200"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-15",
+			"name": "Register Model Intial Workers 0",
 			"event": [
 				{
 					"listen": "test",
@@ -709,7 +570,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-16",
+			"name": "Register Model Synchronous",
 			"event": [
 				{
 					"listen": "test",
@@ -756,7 +617,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-16a",
+			"name": "UnRegister Model",
 			"event": [
 				{
 					"listen": "test",
@@ -790,7 +651,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-17",
+			"name": "Register Resnet Model",
 			"event": [
 				{
 					"listen": "test",
@@ -837,7 +698,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-18",
+			"name": "List with Limit",
 			"event": [
 				{
 					"listen": "test",
@@ -874,7 +735,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-19",
+			"name": "List with Pagination",
 			"event": [
 				{
 					"listen": "test",
@@ -915,7 +776,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-20",
+			"name": "Update GPU Count",
 			"event": [
 				{
 					"listen": "test",
@@ -955,7 +816,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-21",
+			"name": "Scale up Workers -  Synchronous",
 			"event": [
 				{
 					"listen": "test",
@@ -1003,7 +864,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-21a",
+			"name": "Scale up Workers - Asynchronous",
 			"event": [
 				{
 					"listen": "test",
@@ -1051,7 +912,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-23",
+			"name": "Update Timeout to -1",
 			"event": [
 				{
 					"listen": "test",
@@ -1091,7 +952,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-22",
+			"name": "Update Timeout to 0",
 			"event": [
 				{
 					"listen": "test",
@@ -1131,30 +992,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-24",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "f6c41c3d-077b-43ee-b09c-06b4d84d54e2",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-25",
+			"name": "Register Model - Invalid URL",
 			"event": [
 				{
 					"listen": "test",
@@ -1197,76 +1035,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-26",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "e4f9a8f9-e58a-4543-8e16-8c084daae4f2",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-27",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "597d391b-c9cd-45ea-8088-715e58b9129e",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-28",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "0a95ee20-9b97-4d2a-8d1d-1698d7499b44",
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-MANAGEMENT-API-29",
+			"name": "Get Model - Invalid Model",
 			"event": [
 				{
 					"listen": "test",
@@ -1300,7 +1069,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-30",
+			"name": "List Models - Invalid Next Page Token",
 			"event": [
 				{
 					"listen": "test",
@@ -1337,7 +1106,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-31",
+			"name": "Update Worker with Invalid Worker Count",
 			"event": [
 				{
 					"listen": "test",
@@ -1381,7 +1150,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-32",
+			"name": "Update Version - Invalid Model",
 			"event": [
 				{
 					"listen": "test",
@@ -1417,7 +1186,7 @@
 			"response": []
 		},
 		{
-			"name": "TS-MANAGEMENT-API-33",
+			"name": "UnRegister Invalid Model Name",
 			"event": [
 				{
 					"listen": "test",

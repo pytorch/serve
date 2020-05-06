@@ -1,12 +1,55 @@
 {
 	"info": {
-		"_postman_id": "a4e694d7-dbf8-4f61-8bbd-6ad9feec71f7",
+		"_postman_id": "8ac9d71d-2ac2-405a-ab64-f95870295d51",
 		"name": "torchserve_regression_inference",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "TS-INFERENCE-API-1",
+			"name": "Model Zoo - Register Text Classification",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference Text Classification",
 			"event": [
 				{
 					"listen": "test",
@@ -21,22 +64,90 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "examples/text_classification/sample_text.txt"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/my_text_classifier",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"my_text_classifier"
+					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "TS-INFERENCE-API-2",
+			"name": "Model Zoo - Register DenseNet",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "c939f028-8ba5-4d4e-9635-9750b6af41a2",
+						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - DenseNet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf(200);",
@@ -46,17 +157,135 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
 				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/densenet161",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"densenet161"
+					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "TS-INFERENCE-API-3",
+			"name": "Model Zoo - Register Model - SqueezeNet w Batch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - SqueezeNet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Inference Endpoint - Ping",
 			"event": [
 				{
 					"listen": "test",
@@ -72,235 +301,18 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-4",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "3131c86a-c854-4eea-bff4-89fa68a703d2",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-5",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "1f48f973-f708-4985-9b23-a2f23a23b376",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-6",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "49a06e27-d28d-466a-952e-6e2a097c878c",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-7",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "8ed3b7db-0a36-49a0-9013-24c29945f469",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-8",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "ef58db7a-8155-405b-bd7e-bf3cd2d0a754",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-9",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "bff5258d-0029-4f7f-b09b-212e419cfcc7",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-10",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "42b20b6c-41c5-42e5-8aae-55e23a442717",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-11",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "94c04f02-ddf5-4c90-aa2b-1df1de0db1df",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "TS-INFERENCE-API-12",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "860a6520-ed42-45c8-8315-d05b078521b8",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": ""
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"ping"
+					]
 				}
 			},
 			"response": []
