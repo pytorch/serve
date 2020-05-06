@@ -1,5 +1,0 @@
-sphinx
-recommonmark
--e git+git://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
-sphinxcontrib.katex
-matplotlib
