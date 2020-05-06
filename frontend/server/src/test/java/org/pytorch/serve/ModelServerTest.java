@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,6 +152,8 @@ public class ModelServerTest {
         testPredictionsModifyResponseHeader(channel, managementChannel);
         testPredictionsNoManifest(channel, managementChannel);
         testModelRegisterWithDefaultWorkers(managementChannel);
+        testLoadModelFromURL(managementChannel);
+        testUnregisterURLModel(managementChannel);
         testLoadingMemoryError();
         testPredictionMemoryError();
         testMetricManager();
@@ -278,6 +281,19 @@ public class ModelServerTest {
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" registered");
+    }
+
+    private void testLoadModelFromURL(Channel channel) throws InterruptedException {
+        testLoadModel(
+                channel,
+                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+                "squeezenet");
+        Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    private void testUnregisterURLModel(Channel channel) throws InterruptedException {
+        testUnregisterModel(channel, "squeezenet", null);
+        Assert.assertTrue(!new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
     private void testLoadModelWithInitialWorkers(Channel channel, String url, String modelName)
