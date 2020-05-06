@@ -276,7 +276,11 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" registered");
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Model \""
+                        + modelName
+                        + "\" registered with 0 initial workers. Use scale API to add workers for the model.");
     }
 
     private void testLoadModelFromURL(Channel channel) throws InterruptedException {
@@ -301,7 +305,8 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
+        Assert.assertEquals(
+                resp.getStatus(), "Model \"" + modelName + "\" registered with 1 initial workers");
     }
 
     private void testLoadModelWithInitialWorkersWithJSONReqBody(Channel channel)
@@ -321,7 +326,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
+        Assert.assertEquals(resp.getStatus(), "Model \"noop\" registered with 1 initial workers");
     }
 
     private void testScaleModel(Channel channel) throws InterruptedException {
@@ -1188,7 +1193,8 @@ public class ModelServerTest {
 
         StatusResponse status =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(status.getStatus(), "Workers scaled");
+        Assert.assertEquals(
+                status.getStatus(), "Model \"err_batch\" registered with 1 initial workers");
 
         channel.close();
 

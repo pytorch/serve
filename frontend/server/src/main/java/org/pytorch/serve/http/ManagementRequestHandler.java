@@ -238,8 +238,11 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
         modelName = archive.getModelName();
 
-        final String msg = "Model \"" + modelName + "\" registered";
         if (initialWorkers <= 0) {
+            final String msg =
+                    "Model \""
+                            + modelName
+                            + "\" registered with 0 initial workers. Use scale API to add workers for the model.";
             SnapshotManager.getInstance().saveSnapshot();
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
             return;
@@ -255,7 +258,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 f -> {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
-                });
+                },
+                true);
     }
 
     private void handleUnregisterModel(
@@ -301,7 +305,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         if (!modelManager.getDefaultModels().containsKey(modelName)) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        updateModelWorkers(ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null);
+        updateModelWorkers(
+                ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null, false);
     }
 
     private void updateModelWorkers(
@@ -311,7 +316,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             int minWorkers,
             int maxWorkers,
             boolean synchronous,
-            final Function<Void, Void> onError) {
+            final Function<Void, Void> onError,
+            boolean isRegistration) {
 
         ModelManager modelManager = ModelManager.getInstance();
         CompletableFuture<HttpResponseStatus> future =
@@ -329,8 +335,19 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                     modelManager.scaleRequestStatus(modelName, modelVersion);
                             if (HttpResponseStatus.OK.equals(v)) {
                                 if (status) {
-                                    NettyUtils.sendJsonResponse(
-                                            ctx, new StatusResponse("Workers scaled"), v);
+                                    if (isRegistration) {
+                                        String msg =
+                                                "Model \""
+                                                        + modelName
+                                                        + "\" registered with "
+                                                        + minWorkers
+                                                        + " initial workers";
+                                        NettyUtils.sendJsonResponse(
+                                                ctx, new StatusResponse(msg), v);
+                                    } else {
+                                        NettyUtils.sendJsonResponse(
+                                                ctx, new StatusResponse("Workers scaled"), v);
+                                    }
                                 } else {
                                     NettyUtils.sendJsonResponse(
                                             ctx,
