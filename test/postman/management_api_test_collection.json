@@ -436,9 +436,7 @@
 					"script": {
 						"id": "f6a34d99-2dac-4ce3-8924-58b91645c306",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -508,9 +506,7 @@
 					"script": {
 						"id": "482600ac-e8cc-4240-9019-e8ba5421063e",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -533,9 +529,7 @@
 					"script": {
 						"id": "4d7532d8-d244-4095-8dec-8a58aa4cbe75",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -605,9 +599,7 @@
 					"script": {
 						"id": "f8309b0e-928b-47c4-a1dc-2d5c2f57aec1",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf(200);",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
