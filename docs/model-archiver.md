@@ -37,7 +37,7 @@ pip install .
 
 Now let's cover the details on using the CLI tool: `model-archiver`.
 
-Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](https://github.com/pytorch/serve/tree/master/examplesZ):
+Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](https://github.com/pytorch/serve/tree/master/examples):
 
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
