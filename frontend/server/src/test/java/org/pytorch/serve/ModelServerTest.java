@@ -95,7 +95,8 @@ public class ModelServerTest {
     @Test
     public void test()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-            IOException, NoSuchFieldException, IllegalAccessException, GeneralSecurityException, InvalidSnapshotException {
+                    IOException, NoSuchFieldException, IllegalAccessException,
+                    GeneralSecurityException, InvalidSnapshotException {
         Channel channel = null;
         Channel managementChannel = null;
         for (int i = 0; i < 5; ++i) {
@@ -1249,7 +1250,7 @@ public class ModelServerTest {
 
     private void testTSPortRange()
             throws InterruptedException, GeneralSecurityException, InvalidSnapshotException,
-            IOException {
+                    IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         server.stop();
         System.setProperty("tsConfigFile", "src/test/resources/config_port.properties");
