@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.ErrorResponse;
@@ -94,7 +95,7 @@ public class ModelServerTest {
     @Test
     public void test()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-                    IOException, NoSuchFieldException, IllegalAccessException {
+            IOException, NoSuchFieldException, IllegalAccessException, GeneralSecurityException, InvalidSnapshotException {
         Channel channel = null;
         Channel managementChannel = null;
         for (int i = 0; i < 5; ++i) {
@@ -189,6 +190,7 @@ public class ModelServerTest {
         testUnregisterModelFailure("noopversioned", "1.2.1");
 
         testTS();
+        testTSPortRange();
     }
 
     public void testTS()
@@ -1243,5 +1245,44 @@ public class ModelServerTest {
                 }
             }
         }
+    }
+
+    private void testTSPortRange()
+            throws InterruptedException, GeneralSecurityException, InvalidSnapshotException,
+            IOException {
+        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
+        server.stop();
+        System.setProperty("tsConfigFile", "src/test/resources/config_port.properties");
+        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        ConfigManager.init(new ConfigManager.Arguments());
+        configManager = ConfigManager.getInstance();
+        PluginsManager.getInstance().initialize();
+
+        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        server = new ModelServer(configManager);
+        server.start();
+
+        Channel channel = null;
+        Channel managementChannel = null;
+        for (int i = 0; i < 5; ++i) {
+            channel = TestUtils.connect(false, configManager);
+            if (channel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            managementChannel = TestUtils.connect(true, configManager);
+            if (managementChannel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        Assert.assertNotNull(channel, "Failed to connect to inference port.");
+        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
+
+        testPing(channel);
     }
 }
