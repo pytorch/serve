@@ -6,7 +6,7 @@ import requests
 import json
 
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
-    print(os.getcwd())
+    stop_torchserve()
     cmd = ["torchserve","--start"]
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
     cmd.extend(["--model-store", "/workspace/model_store/"])
@@ -14,9 +14,8 @@ def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=F
         cmd.extend(["--ts-config", snapshot_file])
     if(no_config_snapshots):
         cmd.extend(["--no-config-snapshots"])
-    result = subprocess.run(cmd, stdout = subprocess.PIPE)
+    subprocess.run(cmd)
     time.sleep(10)
-    return result
 
 
 def stop_torchserve():
@@ -89,12 +88,3 @@ def test_start_from_default():
     start_torchserve()
     response = requests.get('http://127.0.0.1:8081/models/')
     assert len(json.loads(response.content)['models']) == 0
-
-
-def test_invalid_snapshot_file():
-    '''
-    Validates error for invalid snapshot file.
-    '''
-    delete_all_snapshots()
-    result = start_torchserve(snapshot_file="/tmp/does_not_exist")
-    assert "--ts-config file not found:" in result.stdout.decode('utf-8')
