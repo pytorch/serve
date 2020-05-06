@@ -98,7 +98,7 @@ install_torchserve_from_source $TS_REPO $BRANCH
 generate_densenet_test_model_archive $MODEL_STORE
 start_torchserve $MODEL_STORE $TS_LOG_FILE
 run_postman_test $TEST_EXECUTION_LOG_FILE
-#run_pytest $TEST_EXECUTION_LOG_FILE
+run_pytest $TEST_EXECUTION_LOG_FILE
 stop_torch_serve
 
 echo "** Tests Complete ** "
