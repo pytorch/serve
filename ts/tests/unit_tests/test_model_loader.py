@@ -10,7 +10,6 @@ from collections import namedtuple
 import mock
 import pytest
 
-from ts.model_loader import LegacyModelLoader
 from ts.model_loader import TsModelLoader
 from ts.model_loader import ModelLoaderFactory
 from ts.model_service.model_service import SingleNodeService
@@ -20,16 +19,8 @@ from ts.utils.util import list_classes_from_module
 # noinspection PyClassHasNoInit
 # @pytest.mark.skip(reason="Disabling it currently until the PR #467 gets merged")
 class TestModelFactory:
-
-    def test_model_loader_factory_legacy(self):
-        model_loader = ModelLoaderFactory.get_model_loader(
-            os.path.abspath('ts/tests/unit_tests/model_service/dummy_model'))
-
-        assert isinstance(model_loader, LegacyModelLoader)
-
     def test_model_loader_factory(self):
-        model_loader = ModelLoaderFactory.get_model_loader(
-            os.path.abspath('ts/tests/unit_tests/test_utils/'))
+        model_loader = ModelLoaderFactory.get_model_loader()
 
         assert isinstance(model_loader, TsModelLoader)
 
@@ -71,25 +62,12 @@ class TestLoadModels:
         )
         return patches
 
-    def test_load_model_legacy(self, patches):
-        patches.mock_open.side_effect = [mock.mock_open(read_data=self.mock_manifest).return_value]
-        patches.open_signature.side_effect = [mock.mock_open(read_data='{}').return_value]
-        patches.is_file.return_value = True
-        patches.os_path.side_effect = [False, True]
-        sys.path.append(self.model_dir)
-        handler = 'dummy_model_service'
-        model_loader = ModelLoaderFactory.get_model_loader(self.model_dir)
-        assert isinstance(model_loader, LegacyModelLoader)
-        service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
-
-        assert inspect.ismethod(service._entry_point)
-
     def test_load_class_model(self, patches):
         patches.mock_open.side_effect = [mock.mock_open(read_data=self.mock_manifest).return_value]
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
         handler = 'dummy_class_model_service'
-        model_loader = ModelLoaderFactory.get_model_loader(os.path.abspath('ts/unit_tests/test_utils/'))
+        model_loader = ModelLoaderFactory.get_model_loader()
         service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
 
         assert inspect.ismethod(service._entry_point)
@@ -99,7 +77,7 @@ class TestLoadModels:
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
         handler = 'dummy_func_model_service:infer'
-        model_loader = ModelLoaderFactory.get_model_loader(os.path.abspath('ts/unit_tests/test_utils/'))
+        model_loader = ModelLoaderFactory.get_model_loader()
         service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
 
         assert isinstance(service._entry_point, types.FunctionType)
@@ -110,7 +88,7 @@ class TestLoadModels:
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
         handler = 'dummy_func_model_service:wrong'
-        model_loader = ModelLoaderFactory.get_model_loader(os.path.abspath('ts/unit_tests/test_utils/'))
+        model_loader = ModelLoaderFactory.get_model_loader()
         with pytest.raises(ValueError, match=r"Expected only one class .*"):
             model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
 
@@ -120,6 +98,6 @@ class TestLoadModels:
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
         handler = 'dummy_func_model_service'
-        model_loader = ModelLoaderFactory.get_model_loader(os.path.abspath('ts/unit_tests/test_utils/'))
+        model_loader = ModelLoaderFactory.get_model_loader()
         with pytest.raises(ValueError, match=r"Expected only one class .*"):
             model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
