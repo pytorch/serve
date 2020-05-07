@@ -2,7 +2,7 @@
 
 * [Prerequisites](#docker_prerequisite)
 * [Create TorchServe docker image](#docker_image_production)
-* [Create TorchServe docker image for dev](#docker_image_dev)
+* [Create TorchServe docker image from source](#docker_image_source)
 
 # Prerequisites
 
@@ -66,7 +66,7 @@ The TorchServe's inference and management APIs can be accessed on localhost over
 curl http://localhost:8080/ping
 ```
 
-# Create TorchServe docker image for dev
+# Create TorchServe docker image from source
 
 The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
 
