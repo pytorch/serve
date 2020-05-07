@@ -25,7 +25,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar&model_name=my_text_classifier",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -37,11 +37,11 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar"
 						},
 						{
 							"key": "model_name",
-							"value": "squeezenet1_1"
+							"value": "my_text_classifier"
 						}
 					]
 				}
@@ -118,7 +118,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -130,11 +130,11 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
 						},
 						{
 							"key": "model_name",
-							"value": "squeezenet1_1"
+							"value": "densenet161"
 						}
 					]
 				}
