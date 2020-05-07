@@ -23,6 +23,7 @@ import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -30,7 +31,6 @@ import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerThread;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
 
 /**
  * A class handling inbound HTTP requests to the management API.
