@@ -53,6 +53,7 @@ generate_densenet_test_model_archive() {
 start_torchserve() {
 
   # Start Torchserve with Model Store
+  delete_model_store_snapshots
   torchserve --start --model-store $1 --models $1/densenet161.mar &> $2
   sleep 10
   curl http://127.0.0.1:8081/models
@@ -64,15 +65,30 @@ stop_torch_serve() {
   torchserve --stop
 }
 
+
+delete_model_store_snapshots() {
+  rm -f $MODEL_STORE/*
+  rm -rf logs/
+}
+
+
 run_postman_test() {
   # Run Postman Scripts
   mkdir $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/
   set +e
-  newman run -e postman/environment.json postman/management_api_test_collection.json \
-	  -r html --reporter-html-export $ROOT_DIR/report/management_report.html &> $1
-  newman run -e postman/environment.json postman/inference_api_test_collection.json \
-	  -r html --reporter-html-export $ROOT_DIR/report/inference_report.html &> $1
+  # Run Management API Tests
+  stop_torch_serve
+  start_torchserve $MODEL_STORE $TS_LOG_FILE
+  newman run -e postman/environment.json --verbose postman/management_api_test_collection.json \
+	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html
+
+
+  # Run Inference API Tests after Restart
+  stop_torch_serve
+  start_torchserve $MODEL_STORE $TS_LOG_FILE
+  newman run -e postman/environment.json --verbose postman/inference_api_test_collection.json \
+	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html
   set -e
   cd -
 }
@@ -94,10 +110,8 @@ echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
 install_torchserve_from_source $TS_REPO $BRANCH
 generate_densenet_test_model_archive $MODEL_STORE
-start_torchserve $MODEL_STORE $TS_LOG_FILE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
-stop_torch_serve
 
 echo "** Tests Complete ** "
 exit 0
