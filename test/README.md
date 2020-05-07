@@ -1,8 +1,6 @@
 # TorchServe Regression Tests
 
-This folder contains nightly regression tests execututed against TorchServe master.
-
-These tests use [POSTMAN](https://www.postman.com/downloads/) for exercising all the Management & Inference APIs.
+This folder contains nightly regression tests execututed against TorchServe master.These tests use [POSTMAN](https://www.postman.com/downloads/) for exercising all the Management & Inference APIs.
 
 ### Latest Test Run Status
 
@@ -26,4 +24,5 @@ Then, run `./test/regression_tests.sh` from the torchserve root.
 
 To add to the tests, import a collection (in /postman) to Postman and add new requests. 
 Afterwards, export the collection as a v2.1 collection and replace the existing exported collection.
+
 To add a new suite of tests, add a new collection to /postman and update regression_tests.sh to run the new collection and buldsepc.yml to keep track of the report.
