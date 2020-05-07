@@ -2,6 +2,7 @@ package org.pytorch.serve;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -28,9 +29,9 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
-import org.pytorch.serve.snapshot.ModelSnapshot;
 import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -386,11 +387,11 @@ public class SnapshotTest {
         Snapshot snapshot = GSON.fromJson(prop.getProperty("model_snapshot"), Snapshot.class);
         snapshot.setName("snapshot");
         snapshot.setCreated(123456);
-        for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap :
+        for (Map.Entry<String, Map<String, JsonObject>> modelMap :
                 snapshot.getModels().entrySet()) {
-            for (Map.Entry<String, ModelSnapshot> versionModel : modelMap.getValue().entrySet()) {
-                versionModel.getValue().setMinWorkers(4);
-                versionModel.getValue().setMaxWorkers(4);
+            for (Map.Entry<String, JsonObject> versionModel : modelMap.getValue().entrySet()) {
+                versionModel.getValue().addProperty(Model.MIN_WORKERS, 4);
+                versionModel.getValue().addProperty(Model.MAX_WORKERS, 4);
             }
         }
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
