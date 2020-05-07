@@ -16,9 +16,13 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     Transformers text classifier handler class. This handler takes a text (string) and
     as input and returns the classification text based on the serialized transformers checkpoint.
     """
-    def __init__(self, ctx):
+    def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
+        self.initialized = False
+
+    def initialize(self, ctx):
         self.manifest = ctx.manifest
+
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
@@ -41,6 +45,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
 
+        self.initialized = True
 
     def preprocess(self, data):
         """ Very basic preprocessing code - only tokenizes.
@@ -87,12 +92,13 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         return inference_output
 
 
+_service = TransformersSeqClassifierHandler()
 
 
 def handle(data, context):
     try:
-        _service = TransformersSeqClassifierHandler(context)
-
+        if not _service.initialized:
+            _service.initialize(context)
 
         if data is None:
             return None
