@@ -126,7 +126,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161&initial_workers=1&synchronous=true",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -143,6 +143,14 @@
 						{
 							"key": "model_name",
 							"value": "densenet161"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
 						}
 					]
 				}
