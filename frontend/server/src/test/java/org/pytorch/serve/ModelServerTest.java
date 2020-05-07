@@ -123,13 +123,13 @@ public class ModelServerTest {
         testApiDescription(channel, listInferenceApisResult);
         testDescribeApi(channel);
         testUnregisterModel(managementChannel, "noop", null);
-        testLoadModel(managementChannel, "noop.mar", "noop_v1.0");
+        testLoadModel(managementChannel, "noop.mar", "noop_v1.0", "1.11");
         testSyncScaleModel(managementChannel, "noop_v1.0", null);
         testListModels(managementChannel);
         testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
-        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop");
-        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned");
-        testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned");
+        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop", "1.11");
+        testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noopversioned", "1.11");
+        testLoadModelWithInitialWorkers(managementChannel, "noop_v2.mar", "noopversioned", "1.2.1");
         testDescribeModel(managementChannel, "noopversioned", null, "1.11");
         testDescribeModel(managementChannel, "noopversioned", "all", "1.2.1");
         testDescribeModel(managementChannel, "noopversioned", "1.11", "1.11");
@@ -215,13 +215,15 @@ public class ModelServerTest {
         Assert.assertNotNull(channel, "Failed to connect to inference port.");
         Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
 
-        testLoadModelWithInitialWorkers(managementChannel, "mnist.mar", "mnist");
+        testLoadModelWithInitialWorkers(managementChannel, "mnist.mar", "mnist", "1.0");
         testPredictions(channel, "mnist", "0", null);
         testUnregisterModel(managementChannel, "mnist", null);
-        testLoadModelWithInitialWorkers(managementChannel, "mnist_scripted.mar", "mnist_scripted");
+        testLoadModelWithInitialWorkers(
+                managementChannel, "mnist_scripted.mar", "mnist_scripted", "1.0");
         testPredictions(channel, "mnist_scripted", "0", null);
         testUnregisterModel(managementChannel, "mnist_scripted", null);
-        testLoadModelWithInitialWorkers(managementChannel, "mnist_traced.mar", "mnist_traced");
+        testLoadModelWithInitialWorkers(
+                managementChannel, "mnist_traced.mar", "mnist_traced", "1.0");
         testPredictions(channel, "mnist_traced", "0", null);
         testUnregisterModel(managementChannel, "mnist_traced", null);
 
@@ -268,7 +270,7 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getResult(), noopApiResult);
     }
 
-    private void testLoadModel(Channel channel, String url, String modelName)
+    private void testLoadModel(Channel channel, String url, String modelName, String version)
             throws InterruptedException {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -280,14 +282,17 @@ public class ModelServerTest {
                 resp.getStatus(),
                 "Model \""
                         + modelName
-                        + "\" registered with 0 initial workers. Use scale API to add workers for the model.");
+                        + "\" Version: "
+                        + version
+                        + " registered with 0 initial workers. Use scale API to add workers for the model.");
     }
 
     private void testLoadModelFromURL(Channel channel) throws InterruptedException {
         testLoadModel(
                 channel,
                 "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
-                "squeezenet");
+                "squeezenet",
+                "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
@@ -296,7 +301,8 @@ public class ModelServerTest {
         Assert.assertTrue(!new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
-    private void testLoadModelWithInitialWorkers(Channel channel, String url, String modelName)
+    private void testLoadModelWithInitialWorkers(
+            Channel channel, String url, String modelName, String version)
             throws InterruptedException {
 
         TestUtils.setResult(null);
@@ -306,7 +312,12 @@ public class ModelServerTest {
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(
-                resp.getStatus(), "Model \"" + modelName + "\" registered with 1 initial workers");
+                resp.getStatus(),
+                "Model \""
+                        + modelName
+                        + "\" Version: "
+                        + version
+                        + " registered with 1 initial workers");
     }
 
     private void testLoadModelWithInitialWorkersWithJSONReqBody(Channel channel)
@@ -326,7 +337,8 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"noop\" registered with 1 initial workers");
+        Assert.assertEquals(
+                resp.getStatus(), "Model \"noop\" Version: 1.11 registered with 1 initial workers");
     }
 
     private void testScaleModel(Channel channel) throws InterruptedException {
@@ -1194,7 +1206,8 @@ public class ModelServerTest {
         StatusResponse status =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(
-                status.getStatus(), "Model \"err_batch\" registered with 1 initial workers");
+                status.getStatus(),
+                "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
 
         channel.close();
 
