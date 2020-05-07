@@ -251,7 +251,8 @@ public final class ModelManager {
     }
 
     private CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, boolean isStartup) {
+            String modelName, String versionId, boolean isStartup)
+            throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
         return updateModel(
                 modelName, versionId, model.getMinWorkers(), model.getMaxWorkers(), isStartup);
