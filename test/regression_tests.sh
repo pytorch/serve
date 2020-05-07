@@ -80,7 +80,7 @@ run_postman_test() {
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --verbose postman/management_api_test_collection.json \
-	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html
+	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html &> $1
 
 
   # Run Inference API Tests after Restart
@@ -88,7 +88,7 @@ run_postman_test() {
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --verbose postman/inference_api_test_collection.json \
-	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html
+	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html &> $1
   set -e
   cd -
 }
