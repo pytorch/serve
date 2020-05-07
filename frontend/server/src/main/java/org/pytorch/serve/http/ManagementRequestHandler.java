@@ -244,7 +244,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             + modelName
                             + "\" Version: "
                             + archive.getModelVersion()
-                            + " registered with 0 initial workers. Use scale API to add workers for the model.";
+                            + " registered with 0 initial workers. Use scale workers API to add workers for the model.";
             SnapshotManager.getInstance().saveSnapshot();
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
             return;
@@ -337,7 +337,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                     modelManager.scaleRequestStatus(modelName, modelVersion);
                             if (HttpResponseStatus.OK.equals(v)) {
                                 if (status) {
-                                    String msg = "Workers scaled";
+                                    String msg =
+                                            minWorkers + " Workers scaled for model " + modelName;
                                     if (isModelRegistrationRequest) {
                                         msg =
                                                 "Model \""

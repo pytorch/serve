@@ -284,7 +284,7 @@ public class ModelServerTest {
                         + modelName
                         + "\" Version: "
                         + version
-                        + " registered with 0 initial workers. Use scale API to add workers for the model.");
+                        + " registered with 0 initial workers. Use scale workers API to add workers for the model.");
     }
 
     private void testLoadModelFromURL(Channel channel) throws InterruptedException {
@@ -360,7 +360,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
+        Assert.assertEquals(resp.getStatus(), "1 Workers scaled for model " + modelName);
     }
 
     private void testUnregisterModel(Channel channel, String modelName, String version)
