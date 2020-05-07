@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8ac9d71d-2ac2-405a-ab64-f95870295d51",
+		"_postman_id": "a22a0432-717b-49c1-a3e1-53bf7541c487",
 		"name": "torchserve_regression_inference",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -25,7 +25,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar&model_name=my_text_classifier",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar&model_name=my_text_classifier&initial_workers=1&synchronous=true",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -42,6 +42,14 @@
 						{
 							"key": "model_name",
 							"value": "my_text_classifier"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
 						}
 					]
 				}
@@ -211,7 +219,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true&batch_size=2&max_batch_delay=200",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -228,6 +236,22 @@
 						{
 							"key": "model_name",
 							"value": "squeezenet1_1"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "200"
 						}
 					]
 				}
