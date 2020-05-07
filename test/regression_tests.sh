@@ -79,7 +79,7 @@ run_postman_test() {
   # Run Management API Tests
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --verbose postman/management_api_test_collection.json \
+  newman run -e postman/environment.json --bail --verbose postman/management_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
 
 
@@ -87,7 +87,7 @@ run_postman_test() {
   stop_torch_serve
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --verbose postman/inference_api_test_collection.json \
+  newman run -e postman/environment.json --bail --verbose postman/inference_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
   set -e
   cd -
@@ -99,7 +99,9 @@ run_pytest() {
   mkdir -p $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/pytest
   stop_torch_serve
+  set +e
   pytest . -v >>$1 2>&1
+  set -e
   cd -
 
 }
