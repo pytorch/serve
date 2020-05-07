@@ -75,7 +75,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "examples/text_classification/sample_text.txt"
+						"src": "../examples/text_classification/sample_text.txt"
 					},
 					"options": {
 						"raw": {
@@ -168,7 +168,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "examples/image_classifier/kitten.jpg"
+						"src": "../examples/image_classifier/kitten.jpg"
 					},
 					"options": {
 						"raw": {
@@ -261,7 +261,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "examples/image_classifier/kitten.jpg"
+						"src": "../examples/image_classifier/kitten.jpg"
 					},
 					"options": {
 						"raw": {
