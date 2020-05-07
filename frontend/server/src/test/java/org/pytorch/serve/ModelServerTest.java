@@ -191,7 +191,8 @@ public class ModelServerTest {
         testUnregisterModelFailure("noopversioned", "1.2.1");
 
         testTS();
-        testTSPortRange();
+        testTSValidPort();
+        testTSInvalidPort();
     }
 
     public void testTS()
@@ -1248,7 +1249,7 @@ public class ModelServerTest {
         }
     }
 
-    private void testTSPortRange()
+    private void testTSValidPort()
             throws InterruptedException, GeneralSecurityException, InvalidSnapshotException,
                     IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
@@ -1285,5 +1286,27 @@ public class ModelServerTest {
         Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
 
         testPing(channel);
+    }
+
+    private void testTSInvalidPort()
+            throws InterruptedException, GeneralSecurityException, InvalidSnapshotException,
+                    IOException {
+        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
+        //  invalid port test
+        server.stop();
+        System.setProperty("tsConfigFile", "src/test/resources/config_invalid_port.properties");
+        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        ConfigManager.init(new ConfigManager.Arguments());
+        configManager = ConfigManager.getInstance();
+        PluginsManager.getInstance().initialize();
+
+        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        server = new ModelServer(configManager);
+        try {
+            server.start();
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
+            Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");
+        }
     }
 }
