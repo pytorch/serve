@@ -1,30 +1,48 @@
-FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 AS compile-image
 
 ENV PYTHONUNBUFFERED TRUE
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    fakeroot \
     ca-certificates \
-    dpkg-dev \
     g++ \
     python3-dev \
-    openjdk-11-jdk-headless \
+    python3-distutils \
+    python3-venv \
+    openjdk-11-jre-headless \
     curl \
-    vim \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3 get-pip.py
 
+RUN python3 -m venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
+
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
 RUN export USE_CUDA=1
-RUN pip install psutil future torch torchvision torchtext
-RUN pip install --no-cache-dir psutil
-ADD serve serve
-RUN pip install ../serve/
+RUN pip install --no-cache-dir torch torchvision torchtext torchserve
+
+FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 AS runtime-image
+
+ENV PYTHONUNBUFFERED TRUE
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    ca-certificates \
+    python3-dev \
+    python3-distutils \
+    python3-venv \
+    openjdk-11-jre-headless \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+
+COPY --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
