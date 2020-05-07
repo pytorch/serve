@@ -1,9 +1,21 @@
-# Create TorchServe docker image
+## Contents of this Document
+
+* [Prerequisites](#docker_prerequisite)
+* [Create TorchServe docker image](#docker_image_production)
+* [Create TorchServe docker image for dev](#docker_image_dev)
+
+# Prerequisites
+
+* docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
+* git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+* TorchServe source code. Clone and enter the repo as follows:
 
 ```bash
-cd serve/docker
 git clone https://github.com/pytorch/serve.git
+cd serve
 ```
+
+# Create TorchServe docker image
 
 For creating CPU based image :
 ```bash
@@ -54,27 +66,50 @@ The TorchServe's inference and management APIs can be accessed on localhost over
 curl http://localhost:8080/ping
 ```
 
-#### Check running containers
+# Create TorchServe docker image for dev
+
+The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
+
+To build the TorchServe image for a CPU device using the `master` branch, use the following command:
 
 ```bash
-docker ps
+./build_image.sh
 ```
 
-#### Stop TorchServe containers
+To create a Docker image for a specific branch, use the following command:
 
 ```bash
-docker container stop <containerid>
+./build_image.sh -b <branch_name>
 ```
 
-Container ID can be found using `docker ps` command.
-
-#### Check port mapping associated with your container
+To create a Docker image for a specific branch and specific tag, use the following command:
 
 ```bash
-docker port <containerid>
+./build_image.sh -b <branch_name> -t <tagname:latest>
 ```
 
-#### Important Note
+To create a Docker image for a GPU device, use the following command:
 
-If you are hosting web-server inside your container then explicitly specify the ip/host as 0.0.0.0 for your web-server
-For details, refer : https://docs.docker.com/v17.09/engine/userguide/networking/default_network/binding/#related-information
+```bash
+./build_image.sh --gpu
+```
+
+To create a Docker image for a GPU device with a specific branch, use following command:
+
+```bash
+./build_image.sh -b <branch_name> --gpu
+```
+
+To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
+
+```bash
+./start.sh
+```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
+```

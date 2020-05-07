@@ -9,7 +9,7 @@ RUN apt-get update && \
     dpkg-dev \
     g++ \
     python3-dev \
-    openjdk-11-jdk-headless \
+    openjdk-11-jre-headless \
     curl \
     vim \
     && rm -rf /var/lib/apt/lists/* \
@@ -21,10 +21,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
 RUN export USE_CUDA=1
-RUN pip install psutil future torch torchvision torchtext
-RUN pip install --no-cache-dir psutil
-ADD serve serve
-RUN pip install ../serve/
+RUN pip install --no-cache-dir psutil future torch torchvision torchtext torchserve
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
