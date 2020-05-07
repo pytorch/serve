@@ -53,7 +53,6 @@ generate_densenet_test_model_archive() {
 start_torchserve() {
 
   # Start Torchserve with Model Store
-  delete_model_store_snapshots
   torchserve --start --model-store $1 --models $1/densenet161.mar &> $2
   sleep 10
   curl http://127.0.0.1:8081/models
@@ -86,6 +85,7 @@ run_postman_test() {
 
   # Run Inference API Tests after Restart
   stop_torch_serve
+  delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --verbose postman/inference_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html
