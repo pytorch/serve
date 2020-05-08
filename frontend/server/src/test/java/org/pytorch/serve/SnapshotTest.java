@@ -105,7 +105,7 @@ public class SnapshotTest {
         testNoSnapshotOnPrediction(channel);
         testSetDefaultSnapshot(managementChannel);
         testAsyncScaleModelSnapshot(managementChannel);
-
+        testUnregisterModelWithZeroWorkerSnapshot(managementChannel);
         channel.close();
         managementChannel.close();
 
@@ -232,6 +232,17 @@ public class SnapshotTest {
         TestUtils.scaleModel(channel, "noop_v1.0", null, 2, false);
         TestUtils.getLatch().await();
         waitForSnapshot(5000);
+        validateSnapshot("snapshot9.cfg");
+        waitForSnapshot();
+    }
+
+    private void testUnregisterModelWithZeroWorkerSnapshot(Channel channel)
+            throws InterruptedException {
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(channel, "noop.mar", "noop_zero", false, false);
+        waitForSnapshot(2000);
+        TestUtils.unregisterModel(channel, "noop_zero", null, true);
         validateSnapshot("snapshot9.cfg");
         waitForSnapshot();
     }
