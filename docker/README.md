@@ -33,29 +33,31 @@ The following examples will start the container with 8080/81 port exposed to out
 
 ### Start CPU container
 
+For the latest version, you can use the `latest` tag:
+```bash
+docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:latest
+```
+
 For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1-cpu
+docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:0.1-cpu
 ```
-For GPU based image :
-
-```bash
-docker run --rm -it --gpus --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 torchserve:1.0
-```
-
-For the latest version, you can use the `latest` tag:
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
 
 #### Start GPU container
 
-For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
+For GPU latest image with gpu devices 1 and 2:
+```bash
+docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 torchserve:latest
+```
+
+For specific versions you can pass in the specific tag to use (ex: 0.1-cuda10.1-cudnn7-runtime):
 ```bash
 docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1-cuda10.1-cudnn7-runtime
 ```
 
 For the latest version, you can use the `gpu-latest` tag:
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:gpu-latest
 ```
 
 #### Accessing TorchServe APIs inside container
