@@ -108,8 +108,23 @@ If you plan to develop with TorchServe and change some of the source code, you m
 
 1. Install dependencies
 
+* To install in Python virtual environment
+
     ```bash
-    pip install psutil future
+    pip install torch torchtext torchvision sentencepiece psutil future
+    ```
+
+* To install in Conda virtual environment
+    For CPU
+
+    ```bash
+    conda install psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    ```
+
+    For GPU
+
+    ```bash
+    conda install psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
     ```
 
 1. Clone the repo
