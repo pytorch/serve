@@ -47,13 +47,13 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
     For CPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch
     ```
 
     For GPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch
     ```
 
 1. Activate the environment
@@ -80,7 +80,7 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 1. Create an environment and install torchserve and torch-model-archiver
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch
     ```
 
 1. Activate the environment
