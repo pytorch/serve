@@ -122,20 +122,20 @@ If you plan to develop with TorchServe and change some of the source code, you m
 1. Make your changes executable
 
     ```bash
-    pip install -e .
+    pip install .
     ```
 
 * To develop with torch-model-archiver:
 
 ```bash
 cd serve/model-archiver
-pip install -e .
+pip install .
 ```
 
 * To upgrade TorchServe or model archiver from source code and make changes executable, run:
 
 ```bash
-pip install -U -e .
+pip install -U .
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
