@@ -139,7 +139,7 @@ If you plan to develop with TorchServe and change some of the source code, you m
     cd serve
     ```
 
-1. Make your changes executable
+1. Install from source
 
     ```bash
     pip install .
@@ -152,7 +152,7 @@ cd serve/model-archiver
 pip install .
 ```
 
-* To upgrade TorchServe or model archiver from source code and make changes executable, run:
+* To upgrade TorchServe or model archiver from source code, run:
 
 ```bash
 pip install -U .
