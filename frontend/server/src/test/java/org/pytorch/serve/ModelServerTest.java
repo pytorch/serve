@@ -645,7 +645,7 @@ public class ModelServerTest {
 
     private void testModelRegisterWithDefaultWorkers(Channel mgmtChannel)
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
-        setConfiguration("default_workers_per_model", "1");
+        setConfiguration("default_workers_per_init_model", "1");
         loadTests(mgmtChannel, "noop.mar", "noop_default_model_workers");
 
         TestUtils.setResult(null);
@@ -659,7 +659,7 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
         Assert.assertEquals(resp[0].getMinWorkers(), 1);
         unloadTests(mgmtChannel, "noop_default_model_workers");
-        setConfiguration("default_workers_per_model", "0");
+        setConfiguration("default_workers_per_init_model", "0");
     }
 
     private void testPredictionsDecodeRequest(Channel inferChannel, Channel mgmtChannel)

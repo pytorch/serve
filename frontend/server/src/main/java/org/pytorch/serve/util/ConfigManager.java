@@ -53,7 +53,7 @@ public final class ConfigManager {
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
     private static final String TS_LOAD_MODELS = "load_models";
     private static final String TS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
-    private static final String TS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
+    private static final String TS_DEFAULT_WORKERS_PER_INIT_MODEL = "default_workers_per_init_model";
     private static final String TS_DEFAULT_RESPONSE_TIMEOUT = "default_response_timeout";
     private static final String TS_UNREGISTER_MODEL_TIMEOUT = "unregister_model_timeout";
     private static final String TS_NUMBER_OF_NETTY_THREADS = "number_of_netty_threads";
@@ -280,7 +280,7 @@ public final class ConfigManager {
     }
 
     public int getConfiguredDefaultWorkersPerModel() {
-        return getIntProperty(TS_DEFAULT_WORKERS_PER_MODEL, 0);
+        return getIntProperty(TS_DEFAULT_WORKERS_PER_INIT_MODEL, 0);
     }
 
     public int getDefaultWorkers() {
@@ -289,17 +289,13 @@ public final class ConfigManager {
         }
         int workers = getConfiguredDefaultWorkersPerModel();
 
-        if ((workers == 0) && (prop.getProperty("NUM_WORKERS", null) != null)) {
-            workers = getIntProperty("NUM_WORKERS", 0);
-        }
-
         if (workers == 0) {
             workers = getNumberOfGpu();
         }
         if (workers == 0) {
             workers = Runtime.getRuntime().availableProcessors();
         }
-        setProperty("NUM_WORKERS", Integer.toString(workers));
+        setProperty("default_workers_per_init_model", Integer.toString(workers));
         return workers;
     }
 
