@@ -19,7 +19,8 @@ clean_slate()
 
 install_java_deps()
 {
-	sudo apt-get install -y openjdk-11-jdk
+	brew tap AdoptOpenJDK/openjdk
+	brew cask install adoptopenjdk11
 }
 
 install_torch_deps()
@@ -30,13 +31,12 @@ install_torch_deps()
 
 build_install_server()
 {
-	pip install .
+	cd ../ && pip install .
 }
 
 build_install_archiver()
 {
-	cd model-archiver
-	pip install .
+	cd ../model-archiver && pip install .
 }
 
 clean_slate
