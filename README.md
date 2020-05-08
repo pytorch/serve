@@ -100,36 +100,13 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
 
-1. Install Java 11
+Please deactivate any conda env that you might be within.
+Run the following script from the top of the source directory.
 
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
+NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-1. Install dependencies
-
-    ```bash
-    pip install psutil future
-    ```
-
-1. Clone the repo
-
-    ```bash
-    git clone https://github.com/pytorch/serve
-    cd serve
-    ```
-
-1. Make your changes executable
-
-    ```bash
-    pip install -e .
-    ```
-
-* To develop with torch-model-archiver:
-
-```bash
-cd serve/model-archiver
-pip install -e .
+```
+./install_from_src
 ```
 
 * To upgrade TorchServe or model archiver from source code and make changes executable, run:
