@@ -1250,17 +1250,12 @@ public class ModelServerTest {
     }
 
     private void testTSValidPort()
-            throws InterruptedException, GeneralSecurityException, InvalidSnapshotException,
+            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
                     IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         server.stop();
-        System.setProperty("tsConfigFile", "src/test/resources/config_port.properties");
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        ConfigManager.init(new ConfigManager.Arguments());
-        configManager = ConfigManager.getInstance();
-        PluginsManager.getInstance().initialize();
-
-        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        configManager.setProperty("inference_address", "https://127.0.0.1:42523");
         server = new ModelServer(configManager);
         server.start();
 
@@ -1288,19 +1283,12 @@ public class ModelServerTest {
         testPing(channel);
     }
 
-    private void testTSInvalidPort()
-            throws InterruptedException, GeneralSecurityException, InvalidSnapshotException,
-                    IOException {
+    private void testTSInvalidPort() {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         //  invalid port test
         server.stop();
-        System.setProperty("tsConfigFile", "src/test/resources/config_invalid_port.properties");
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        ConfigManager.init(new ConfigManager.Arguments());
-        configManager = ConfigManager.getInstance();
-        PluginsManager.getInstance().initialize();
-
-        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        configManager.setProperty("inference_address", "https://127.0.0.1:65536");
         server = new ModelServer(configManager);
         try {
             server.start();
