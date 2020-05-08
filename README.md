@@ -118,13 +118,18 @@ If you plan to develop with TorchServe and change some of the source code, you m
     For CPU
 
     ```bash
-    conda install psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    conda install psutil future pytorch torchtext torchvision -c pytorch
     ```
 
     For GPU
 
     ```bash
-    conda install psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    conda install psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch
+    ```
+
+    Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
     ```
 
 1. Clone the repo
