@@ -12,8 +12,8 @@ clean_slate()
 
 	echo "Cleaning up state"
 	# uninstall any global installations
-	pip uninstall --yes torchserve
-	pip uninstall --yes torch-model-archiver
+	pip uninstall --yes torchserve || true
+	pip uninstall --yes torch-model-archiver || true
 	sleep 5
 }
 
