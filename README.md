@@ -2,7 +2,7 @@
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-**For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
+**For full documentation, see [Model Server for PyTorch Documentation](https://pytorch.org/serve/).**
 
 ## Contents of this Document
 
@@ -295,7 +295,7 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 
 ## Learn More
 
-* [Full documentation on TorchServe](docs/README.md)
+* [Full documentation on TorchServe](https://pytorch.org/serve/)
 * [Manage models API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
