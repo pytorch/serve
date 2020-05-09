@@ -106,12 +106,6 @@ If you plan to develop with TorchServe and change some of the source code, you m
     sudo apt-get install openjdk-11-jdk
     ```
 
-1. Install dependencies
-
-    ```bash
-    pip install psutil future
-    ```
-
 1. Clone the repo
 
     ```bash
@@ -119,17 +113,17 @@ If you plan to develop with TorchServe and change some of the source code, you m
     cd serve
     ```
 
-1. Make your changes executable
+1. Install from local path
 
     ```bash
-    pip install -e .
+    pip install .
     ```
 
 * To develop with torch-model-archiver:
 
 ```bash
 cd serve/model-archiver
-pip install -e .
+pip install .
 ```
 
 * To upgrade TorchServe or model archiver from source code and make changes executable, run:
