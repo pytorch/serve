@@ -20,7 +20,7 @@ phases:
   build:
     commands:
       - ./torchserve_sanity.sh
-      - cd serving-sdk/ && mvn clean install && cd ../
+      - cd serving-sdk/ && mvn clean install -q && cd ../
 
 artifacts:
   files:
