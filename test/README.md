@@ -10,19 +10,51 @@ This folder contains nightly regression tests execututed against TorchServe mast
 
 ### Running the test manually.
 
-Install npm, newman cli & html reporter
+Clone Torch Serve Repo & Build the Docker Image for the execition env.
+
 ```
-sudo apt-get install npm
-npm install -g newman
-npm install -g newman-reporter-html
+git clone https://github.com/pytorch/serve
+cd serve
+./build_image.sh
 ```
 
-Then, run `./test/regression_tests.sh` from the torchserve root. 
+This would build a docker Image with a tag torchserve:1.0 in which we would run our Regression Tests.
 
+```
+docker run -it —user root torchserve:1.0 /bin/bash
+```
+
+In the Docker CLI execute the following tests.
+
+```
+apt-get update 
+apt-get install -y git wget
+git clone https://github.com/pytorch/serve
+cd serve 
+./test/regression_tests.sh
+```
+
+You can view the logs for Test execution & the Torch serve in the /tmp dir.
+
+```
+cat /tmp/test_exec.log
+cat /tmp/ts.log 
+```
 
 ### Adding tests
 
-To add to the tests, import a collection (in /postman) to Postman and add new requests. 
-Afterwards, export the collection as a v2.1 collection and replace the existing exported collection.
+To add to the tests, import a collection (in /postman) to Postman and add new requests. Specifically to test for inference against a new model
+* Open inference_api_test_collection.json in POST man.
+* Clone an Register Model / Inferece Request combination.
+* Update URL & Model Payload.
 
+
+![POSTMAN UI](screenshot/postman.png)
+
+Afterwards, export the collection as a v2.1 collection and replace the existing exported collection.
 To add a new suite of tests, add a new collection to /postman and update regression_tests.sh to run the new collection and buldsepc.yml to keep track of the report.
+
+
+### Test Coverage
+
+

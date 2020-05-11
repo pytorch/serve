@@ -15,8 +15,10 @@ TEST_EXECUTION_LOG_FILE="/tmp/test_exec.log"
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
 
-  # Install dependencies
+  # Install dependencies & test dependencies
   pip install torch torchtext torchvision sentencepiece psutil future
+  sudo apt-get install npm
+  npm install -g newman newman-reporter-html
 
   # Clone & Build TorchServe
   git clone -b $2 $1
