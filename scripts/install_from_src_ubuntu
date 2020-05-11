@@ -30,6 +30,7 @@ install_torch_deps()
 
 build_install_server()
 {
+	python setup.py build
 	pip install .
 }
 
