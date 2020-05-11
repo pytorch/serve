@@ -203,9 +203,6 @@ public final class OpenApiUtils {
                         "The token to retrieve the next set of results. TorchServe provides the"
                                 + " token when the response from a previous call has more results than the"
                                 + " maximum page size."));
-        operation.addParameter(
-                new QueryParameter(
-                        "model_name_pattern", "A model name filter to list only matching models."));
 
         Schema schema = new Schema("object");
         schema.addProperty(
