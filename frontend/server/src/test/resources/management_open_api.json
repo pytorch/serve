@@ -181,7 +181,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "model_url",
+            "name": "url",
             "description": "Model archive download url, support local file or HTTP(s) protocol. For S3, consider use pre-signed url.",
             "required": true,
             "schema": {

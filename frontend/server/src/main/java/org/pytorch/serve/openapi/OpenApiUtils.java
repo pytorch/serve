@@ -235,7 +235,7 @@ public final class OpenApiUtils {
 
         operation.addParameter(
                 new QueryParameter(
-                        "model_url",
+                        "url",
                         "string",
                         null,
                         true,
