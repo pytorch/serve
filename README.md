@@ -117,12 +117,6 @@ Verified on EC2 instances running Ubuntu DL AMI 28.x
 ./scripts/install_from_src_macos
 ```
 
-* To upgrade TorchServe or model archiver from source code and make changes executable, run:
-
-```bash
-pip install -U -e .
-```
-
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
 ## Serve a model
