@@ -1,5 +1,6 @@
 package org.pytorch.serve.wlm;
 
+import com.google.gson.JsonObject;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
@@ -17,6 +19,15 @@ import org.slf4j.LoggerFactory;
 public class Model {
 
     public static final String DEFAULT_DATA_QUEUE = "DATA_QUEUE";
+
+    public static final String MIN_WORKERS = "minWorkers";
+    public static final String MAX_WORKERS = "maxWorkers";
+    public static final String BATCH_SIZE = "batchSize";
+    public static final String MAX_BATCH_DELAY = "maxBatchDelay";
+    public static final String RESPONSE_TIMEOUT = "responseTimeout";
+    public static final String DEFAULT_VERSION = "defaultVersion";
+    public static final String MAR_NAME = "marName";
+
     private static final Logger logger = LoggerFactory.getLogger(Model.class);
 
     private ModelArchive modelArchive;
@@ -46,6 +57,28 @@ public class Model {
         modelVersionName =
                 new ModelVersionName(
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
+    }
+
+    public JsonObject getModelState(boolean isDefaultVersion) {
+
+        JsonObject modelInfo = new JsonObject();
+        modelInfo.addProperty(DEFAULT_VERSION, isDefaultVersion);
+        modelInfo.addProperty(MAR_NAME, FilenameUtils.getName(getModelUrl()));
+        modelInfo.addProperty(MIN_WORKERS, getMinWorkers());
+        modelInfo.addProperty(MAX_WORKERS, getMaxWorkers());
+        modelInfo.addProperty(BATCH_SIZE, getBatchSize());
+        modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
+        modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+
+        return modelInfo;
+    }
+
+    public void setModelState(JsonObject modelInfo) {
+        minWorkers = modelInfo.get(MIN_WORKERS).getAsInt();
+        maxWorkers = modelInfo.get(MAX_WORKERS).getAsInt();
+        maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
+        responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
+        batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
     }
 
     public String getModelName() {
@@ -172,7 +205,9 @@ public class Model {
             }
             logger.trace("sending jobs, size: {}", jobsRepo.size());
         } finally {
-            lock.unlock();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 

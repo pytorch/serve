@@ -271,6 +271,14 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 ```bash
 ./start.sh
 ```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
+```
 
 ## Learn More
 
@@ -278,6 +286,7 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 * [Manage models API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing
 

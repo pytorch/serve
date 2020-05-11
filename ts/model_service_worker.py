@@ -79,7 +79,7 @@ class TorchModelServiceWorker(object):
             if "gpu" in load_model_request:
                 gpu = int(load_model_request["gpu"])
 
-            model_loader = ModelLoaderFactory.get_model_loader(model_dir)
+            model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
 
             logging.debug("Model %s loaded.", model_name)
@@ -169,4 +169,4 @@ if __name__ == "__main__":
         if sock_type == 'unix' and os.path.exists(socket_name):
             os.remove(socket_name)
 
-    exit(1)
+    sys.exit(1)

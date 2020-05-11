@@ -3,10 +3,10 @@ package org.pytorch.serve.servingsdk.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.pytorch.serve.servingsdk.Context;
+import org.pytorch.serve.servingsdk.Model;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.ModelManager;
-import software.amazon.ai.mms.servingsdk.Context;
-import software.amazon.ai.mms.servingsdk.Model;
 
 public class ModelServerContext implements Context {
     @Override
