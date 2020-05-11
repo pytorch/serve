@@ -109,7 +109,7 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 Verified on EC2 instances running Ubuntu DL AMI 28.x
 
 ```
-./scripts/install_from_src_linux
+./scripts/install_from_src_ubuntu
 ```
 #### For MAC OS
 
