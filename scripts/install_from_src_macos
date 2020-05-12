@@ -31,12 +31,12 @@ install_torch_deps()
 
 build_install_server()
 {
-	cd ../ && pip install .
+	pip install .
 }
 
 build_install_archiver()
 {
-	cd ../model-archiver && pip install .
+	cd model-archiver && pip install .
 }
 
 clean_slate
