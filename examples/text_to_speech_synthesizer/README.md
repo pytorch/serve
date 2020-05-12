@@ -25,13 +25,33 @@ pip install librosa --user
     ./create_mar.sh
     ```
    
- * Register the model on TorchServe using the above model archive file and run digit recognition inference
+ * Register the model on TorchServe using the above model archive file
    
     ```bash
     mkdir model_store
     mv waveglow_synthesizer.mar model_store/
     torchserve --start --model-store model_store --models waveglow_synthesizer.mar
+    ```
+  * Run inference and download audio output using curl command : 
+    ```bash
     curl -X POST http://127.0.0.1:8080/predictions/waveglow_synthesizer -T sample_text.txt -o audio.wav
     ```
+    
+  * Run inference and download audio output using python script :
+  
+    ```python
+    import requests
+    
+    files = {'data': open('sample_text.txt','rb')}
+    response = requests.post('http://localhost:8080/predictions/waveglow_synthesizer', files=files)
+    data = response.content
+    
+    with open('audio.wav', 'wb') as audio_file:
+        audio_file.write(data)
+    ```
+  
+  * Change the host and port in above samples as per your server configuration.
+  
   * Response :
     An audio.wav file gets downloaded.
+
