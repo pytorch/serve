@@ -62,6 +62,7 @@ class WaveGlowSpeechSynthesizer(object):
         waveglow_config = waveglow_checkpoint['config']
         self.waveglow_model = WaveGlow(**waveglow_config)
         self.waveglow_model.load_state_dict(waveglow_state_dict)
+        self.waveglow_model = self.waveglow_model.remove_weightnorm(self.waveglow_model)
         self.waveglow_model.to(self.device)
         self.waveglow_model.eval()
 
