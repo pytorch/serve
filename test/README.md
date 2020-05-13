@@ -21,14 +21,14 @@ cd serve
 This would build a docker Image with a tag torchserve:1.0 in which we would run our Regression Tests.
 
 ```
-docker run -it —user root torchserve:1.0 /bin/bash
+docker run -it --user root torchserve:1.0 /bin/bash
 ```
 
 In the Docker CLI execute the following tests.
 
 ```
 apt-get update 
-apt-get install -y git wget
+apt-get install -y git wget sudo 
 git clone https://github.com/pytorch/serve
 cd serve 
 ./test/regression_tests.sh
