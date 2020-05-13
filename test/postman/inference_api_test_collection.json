@@ -1,17 +1,50 @@
 {
 	"info": {
-		"_postman_id": "a22a0432-717b-49c1-a3e1-53bf7541c487",
+		"_postman_id": "adeccce8-2c4e-4280-9077-ba72bd74c831",
 		"name": "torchserve_regression_inference",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "Inference Endpoint - Ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2371db9e-704d-45a6-a605-386e83fdef8e",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Model Zoo - Register Text Classification",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"id": "2b2a2853-d9d0-4171-801f-84b931237b7b",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -62,7 +95,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
+						"id": "dd382e3c-4007-45a7-a812-843a79c42049",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -107,12 +140,12 @@
 			"response": []
 		},
 		{
-			"name": "Model Zoo - Register DenseNet",
+			"name": "Model Zoo - Register Model - Densenet161",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"id": "d7a55cdd-5415-4ce0-830b-b79c1be54a5b",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -163,7 +196,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
+						"id": "4dbdeeb9-fc64-4397-95d0-101e572fa095",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -208,12 +241,12 @@
 			"response": []
 		},
 		{
-			"name": "Model Zoo - Register Model - SqueezeNet w Batch",
+			"name": "Model Zoo - Register Model - SqueezeNet",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"id": "70bfd0b3-8ad4-4932-a2e8-ec33a28b096c",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -227,7 +260,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true&batch_size=2&max_batch_delay=200",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -252,14 +285,6 @@
 						{
 							"key": "synchronous",
 							"value": "true"
-						},
-						{
-							"key": "batch_size",
-							"value": "2"
-						},
-						{
-							"key": "max_batch_delay",
-							"value": "200"
 						}
 					]
 				}
@@ -272,7 +297,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
+						"id": "974e7049-da8f-46de-ab0c-2422ba9b8c6e",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -317,12 +342,63 @@
 			"response": []
 		},
 		{
-			"name": "Inference Endpoint - Ping",
+			"name": "Model Zoo - Register Model - Alexnet",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "adab6847-8c88-4b41-9a43-aaa234cd45c7",
+						"id": "b2f5ef35-ce0d-4cd9-94e2-09ae9d364db4",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar&model_name=alexnet&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "alexnet"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - Alexnet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "98bc620e-c22c-42ab-bf6c-a417606760a2",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -332,18 +408,641 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/alexnet",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
 					],
 					"port": "{{pred-port}}",
 					"path": [
-						"ping"
+						"predictions",
+						"alexnet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Register Model - Resnet-18",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "81fbfc93-cd79-426d-8ec9-7f24195c9516",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet-18"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - Resnet-18",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "108f144f-706b-4fc0-87b1-2fe36f8dcff3",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/resnet-18",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"resnet-18"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Register Model - VGG11",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f6cf9621-9d92-4984-9fd7-8c2ac53cf0d9",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar&model_name=vgg11&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "vgg11"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - VGG11",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c0b4fa16-c638-46dd-9890-e69f0a5f6047",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/vgg11",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"vgg11"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Register Model - MNIST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5406e44e-f7c6-4a4d-9c15-e6be644ea37e",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "mnist"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - MNIST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "26090b54-e885-4586-8a9d-0acaee2c0451",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_classifier/mnist/test_data/0.png"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/mnist",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"mnist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Register Model - FAST RCNN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8453d0eb-2986-4e88-9127-a3b901ac6b54",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar&model_name=fastrcnn&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "fastrcnn"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Register Model - MASK RCNN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00d7e4c6-edfb-4230-8f68-12202f90d02a",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar&model_name=maskrcnn&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "maskrcnn"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Register Model - FCN Resnet 101",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9aa9df52-acc2-49f4-9f60-0a1cdc7425f1",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar&model_name=fcn_resnet_101&initial_workers=1&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "fcn_resnet_101"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - FAST RCNN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1b9fa2ea-4dd9-467a-9a1b-a98dafaef17a",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/object_detector/persons.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/fastrcnn",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"fastrcnn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - MASK RCNN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e1502626-4f48-4ac1-8627-eb64057d4807",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/object_detector/persons.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/maskrcnn",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"maskrcnn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference -FCN Resnet 101",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9e7c0f03-648b-4d14-ac7b-b64e805d927f",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_segmenter/fcn/persons.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/fcn_resnet_101",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"fcn_resnet_101"
 					]
 				}
 			},
@@ -354,7 +1053,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "3d2732d6-14cf-4a16-809b-68777156679f",
+				"id": "62ed3bcd-64cc-4916-8870-04871b60192d",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -364,7 +1063,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "90c609d2-601a-4035-bea7-23e0aa964cf7",
+				"id": "0a51dfca-e4d9-44a6-bf40-8a928f338629",
 				"type": "text/javascript",
 				"exec": [
 					""
