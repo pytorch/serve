@@ -22,7 +22,7 @@ install_torchserve_from_source() {
   # Install dependencies & test dependencies
   pip install  torch torchtext torchvision sentencepiece psutil future
   pip install  mock pytest pylint pytest-mock pytest-cov
-  sudo apt-get install nodejs-dev node-gyp libssl1.0-dev
+  sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
   sudo apt-get -y install npm
   sudo npm install -g n
   sudo n latest
