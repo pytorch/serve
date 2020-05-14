@@ -21,8 +21,3 @@ phases:
     commands:
       - ./torchserve_sanity.sh
       - cd serving-sdk/ && mvn clean install && cd ../
-
-artifacts:
-  files:
-    - dist/*.whl
-    - model_archiver/dist/*.whl
