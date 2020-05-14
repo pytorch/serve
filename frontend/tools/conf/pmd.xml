@@ -140,4 +140,10 @@
         <exclude name="TooFewBranchesForASwitchStatement"/>
     </rule>
 
+    <rule ref="category/java/design.xml/LoosePackageCoupling">
+        <properties>
+            <property name="packages" value="org.pytorch.serve" />
+        </properties>
+    </rule>
+
 </ruleset>
