@@ -113,7 +113,7 @@ public class WorkLoadManager {
 
                     Process workerProcess = lifecycle.getProcess();
 
-                    // Need to check process object here since thread.shutdown() -> lifecycle.exit()
+                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
                     // -> This may nullify process object per destroyForcibly doc.
                     if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
