@@ -12,8 +12,11 @@ sleep 10
 
 install_java_deps_mac()
 {
-	brew tap AdoptOpenJDK/openjdk
-	brew cask install adoptopenjdk11
+  JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+	if $JAVA_VERSION != "11" then
+    brew tap AdoptOpenJDK/openjdk
+	  brew cask install adoptopenjdk11
+  fi
 }
 
 clean_slate
