@@ -225,7 +225,3 @@ intersphinx_mapping = {
     'torch': ('https://pytorch.org/docs/stable/', None),
 }
 
-# Markdown parser - recommonmark
-source_parsers = {
-   '.md': 'recommonmark.parser.CommonMarkParser',
-}
