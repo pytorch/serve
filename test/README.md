@@ -18,7 +18,7 @@ cd serve
 ./build_image.sh
 ```
 
-This would build a docker Image with a tag torchserve:1.0 in which we would run our Regression Tests.
+This would build a docker Image with a pytorch/torchserve:latest in which we would run our Regression Tests.
 
 ```
 docker run -it --user root pytorch/torchserve:latest /bin/bash

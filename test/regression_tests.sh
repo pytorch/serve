@@ -15,29 +15,19 @@ TEST_EXECUTION_LOG_FILE="/tmp/test_exec.log"
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
 
-  #uninstalling existing  torchserve torch-model-archiver if any
-  pip uninstall --yes torchserve
-  pip uninstall --yes torch-model-archiver
-
-  # Install dependencies & test dependencies
-  pip install  torch torchtext torchvision sentencepiece psutil future
   pip install  mock pytest pylint pytest-mock pytest-cov
-  apt-get -y install nodejs-dev node-gyp libssl1.0-dev npm
-  npm install -g n
-  n latest
+  sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
+  sudo apt-get -y install npm
+  sudo npm install -g n
+  sudo n latest
   export PATH="$PATH"
-  npm install -g newman newman-reporter-html
+  sudo npm install -g newman newman-reporter-html
 
   # Clone & Build TorchServe
   git clone -b $2 $1
   cd serve
-  pip install .
-  cd -
-  
-  # Build Model Archiver
-  cd serve/model-archiver
-  pip install .
-  cd -
+  echo "Installing torchserve torch-model-archiver from source"
+  ./scripts/install_from_src_ubuntu
   echo "Torchserve Succesfully installed"
   
 }
@@ -116,8 +106,8 @@ run_pytest() {
 
 }
 
-rm -rf $ROOT_DIR && mkdir $ROOT_DIR
-chown -R $USER:$USER $ROOT_DIR
+sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
+sudo chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
