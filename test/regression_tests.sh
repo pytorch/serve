@@ -22,12 +22,11 @@ install_torchserve_from_source() {
   # Install dependencies & test dependencies
   pip install  torch torchtext torchvision sentencepiece psutil future
   pip install  mock pytest pylint pytest-mock pytest-cov
-  sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
-  sudo apt-get -y install npm
-  sudo npm install -g n
-  sudo n latest
+  apt-get -y install nodejs-dev node-gyp libssl1.0-dev npm
+  npm install -g n
+  n latest
   export PATH="$PATH"
-  sudo npm install -g newman newman-reporter-html
+  npm install -g newman newman-reporter-html
 
   # Clone & Build TorchServe
   git clone -b $2 $1
@@ -117,8 +116,8 @@ run_pytest() {
 
 }
 
-sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
-sudo chown -R $USER:$USER $ROOT_DIR
+rm -rf $ROOT_DIR && mkdir $ROOT_DIR
+chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
