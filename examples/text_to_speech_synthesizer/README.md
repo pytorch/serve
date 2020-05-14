@@ -54,4 +54,6 @@ pip install librosa --user
   
   * Response :
     An audio.wav file gets downloaded.
-
+    
+  **Note :** The above example works only for smaller text size. Refer following NVidia/DeepLearningExamples ticket for more details :
+  https://github.com/NVIDIA/DeepLearningExamples/issues/497
