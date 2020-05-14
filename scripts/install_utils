@@ -13,7 +13,7 @@ clean_slate()
 install_java_deps()
 {
   JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
-	if [ "$java_version" != "11" ]
+	if [ "$JAVA_VERSION" != "11" ]
   then
     sudo apt-get install -y openjdk-11-jdk
   fi
