@@ -79,7 +79,7 @@ run_model_archiver_UT_suite()
 
 run_model_archiver_IT_suite()
 {
-  cd cd model-archiver
+  cd model-archiver
   if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/;
   then
     echo "Model-archiver IT test suite execution successful"
