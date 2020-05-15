@@ -64,8 +64,7 @@ start_secure_torchserve() {
   # Start Torchserve with Model Store
   torchserve --start --ts-config resources/config.properties --model-store $1 --models $1/densenet161_v1.mar &> $2
   sleep 10
-  curl -X --insecure https://127.0.0.1:8444/models
-
+  curl --insecure -X GET https://127.0.0.1:8444/models
 }
 
 

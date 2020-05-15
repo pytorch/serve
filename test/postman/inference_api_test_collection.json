@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "adeccce8-2c4e-4280-9077-ba72bd74c831",
+		"_postman_id": "df30e58d-112f-4b3e-9433-e1cb74f68a12",
 		"name": "torchserve_regression_inference",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2371db9e-704d-45a6-a605-386e83fdef8e",
+						"id": "5daacf8f-72fa-489a-8c02-6463b638c39c",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -44,7 +44,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2b2a2853-d9d0-4171-801f-84b931237b7b",
+						"id": "eb2466c6-36c4-4f74-b65c-c60909e5ce7a",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -95,7 +95,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "dd382e3c-4007-45a7-a812-843a79c42049",
+						"id": "60c67b5b-14bd-411f-9c84-6a9379951f39",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -145,7 +145,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d7a55cdd-5415-4ce0-830b-b79c1be54a5b",
+						"id": "88baf069-77aa-4bb5-8ea8-885bfc2cd89d",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -196,7 +196,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4dbdeeb9-fc64-4397-95d0-101e572fa095",
+						"id": "583119cf-9860-4623-8883-ec8da23549f8",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -246,7 +246,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "70bfd0b3-8ad4-4932-a2e8-ec33a28b096c",
+						"id": "818529cd-f9e3-4b3d-af62-28f80e398ef7",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -297,7 +297,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "974e7049-da8f-46de-ab0c-2422ba9b8c6e",
+						"id": "b7ddbca3-bd5a-4aef-bdde-2e2a8afd721d",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -347,7 +347,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b2f5ef35-ce0d-4cd9-94e2-09ae9d364db4",
+						"id": "450f2208-6a00-4b63-a5c8-609bddd06eff",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -398,7 +398,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "98bc620e-c22c-42ab-bf6c-a417606760a2",
+						"id": "fa72e993-47f0-4a04-92b9-53767382ad64",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -448,7 +448,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "81fbfc93-cd79-426d-8ec9-7f24195c9516",
+						"id": "a9cd20dd-ecdd-4b0f-85b9-3131aea998e5",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -499,7 +499,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "108f144f-706b-4fc0-87b1-2fe36f8dcff3",
+						"id": "9a4184bf-abe3-4a80-a581-df3aac3cfc5f",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -549,7 +549,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f6cf9621-9d92-4984-9fd7-8c2ac53cf0d9",
+						"id": "d07ef8b1-572b-498a-aacc-1554aa50c2fe",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -600,7 +600,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c0b4fa16-c638-46dd-9890-e69f0a5f6047",
+						"id": "f40fe28e-7603-4a29-8cb1-d2da741ea740",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -650,7 +650,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "5406e44e-f7c6-4a4d-9c15-e6be644ea37e",
+						"id": "e10c8f0c-11ca-4fdf-a925-c25e4ccb08e4",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -701,7 +701,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "26090b54-e885-4586-8a9d-0acaee2c0451",
+						"id": "e1c48c78-30f6-41bc-ae57-eae84469f947",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -751,7 +751,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8453d0eb-2986-4e88-9127-a3b901ac6b54",
+						"id": "7d3ddef4-6c6d-4ae0-a303-96397ce6d1f4",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -797,12 +797,62 @@
 			"response": []
 		},
 		{
+			"name": "Model Zoo - Inference - FAST RCNN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dba332c3-65e4-4098-a706-a6a2affaa285",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/object_detector/persons.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/fastrcnn",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"fastrcnn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Model Zoo - Register Model - MASK RCNN",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "00d7e4c6-edfb-4230-8f68-12202f90d02a",
+						"id": "d3e16b87-50c8-4b90-81d1-de93b4744cdb",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -848,12 +898,62 @@
 			"response": []
 		},
 		{
+			"name": "Model Zoo - Inference - MASK RCNN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "74d0b477-df8b-47a1-99dc-f7921d21a551",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/object_detector/persons.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/maskrcnn",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"maskrcnn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Model Zoo - Register Model - FCN Resnet 101",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "9aa9df52-acc2-49f4-9f60-0a1cdc7425f1",
+						"id": "487f7e75-31fb-4a0f-8fea-bcdda6d26925",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -899,112 +999,12 @@
 			"response": []
 		},
 		{
-			"name": "Model Zoo - Inference - FAST RCNN",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "1b9fa2ea-4dd9-467a-9a1b-a98dafaef17a",
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"content-type": true
-				}
-			},
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "file",
-					"file": {
-						"src": "../examples/object_detector/persons.jpg"
-					},
-					"options": {
-						"raw": {
-							"language": "text"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/fastrcnn",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"predictions",
-						"fastrcnn"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Model Zoo - Inference - MASK RCNN",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "e1502626-4f48-4ac1-8627-eb64057d4807",
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"content-type": true
-				}
-			},
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "file",
-					"file": {
-						"src": "../examples/object_detector/persons.jpg"
-					},
-					"options": {
-						"raw": {
-							"language": "text"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/maskrcnn",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"predictions",
-						"maskrcnn"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Model Zoo - Inference -FCN Resnet 101",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "9e7c0f03-648b-4d14-ac7b-b64e805d927f",
+						"id": "a007abee-6b23-432b-862c-97ccdfe14613",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1047,13 +1047,110 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Model Zoo - Register - Resnet 152",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "64684a24-a7b0-4c73-b2b5-358e5e8fbb00",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet152"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference - Resnet 152",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b766bb91-7b3d-492d-b67d-1cdf1942a7e4",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/resnet152",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"predictions",
+						"resnet152"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "62ed3bcd-64cc-4916-8870-04871b60192d",
+				"id": "91b050ce-04cc-4c1e-aa1d-4ff61bc9742a",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1063,7 +1160,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "0a51dfca-e4d9-44a6-bf40-8a928f338629",
+				"id": "103be2cd-0e46-485b-b429-9a7728eb7639",
 				"type": "text/javascript",
 				"exec": [
 					""
