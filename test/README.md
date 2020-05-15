@@ -24,15 +24,22 @@ This would build a docker Image with a pytorch/torchserve:latest in which we wou
 docker run -it --user root pytorch/torchserve:latest /bin/bash
 ```
 
-In the Docker CLI execute the following tests.
+In the Docker CLI execute the following cmds.
 
 ```
 apt-get update 
 apt-get install -y git wget sudo 
 git clone https://github.com/pytorch/serve
 cd serve 
-./test/regression_tests.sh
 ```
+To execute tests on master run: 
+
+`./test/regression_tests.sh `
+
+To execute tests on different run: 
+
+`./test/regression_tests.sh <branch_name>`
+
 
 You can view the logs for Test execution & the Torch serve in the /tmp dir.
 
