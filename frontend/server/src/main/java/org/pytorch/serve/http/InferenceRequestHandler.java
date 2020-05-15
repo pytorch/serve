@@ -183,15 +183,13 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                             + modelName
                             + "\" Version "
                             + modelVersion
-                            + " has no worker to serve inference request. "
-                            + "Please use scale workers API to add workers.";
+                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
 
             if (modelVersion == null) {
                 responseMessage =
                         "Model \""
                                 + modelName
-                                + "\" has no worker to serve inference request. "
-                                + "Please use scale workers API to add workers.";
+                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
             }
 
             throw new ServiceUnavailableException(responseMessage);

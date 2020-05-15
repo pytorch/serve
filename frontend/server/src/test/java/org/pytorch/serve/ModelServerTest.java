@@ -125,6 +125,7 @@ public class ModelServerTest {
         testUnregisterModel(managementChannel, "noop", null);
         testLoadModel(managementChannel, "noop.mar", "noop_v1.0", "1.11");
         testSyncScaleModel(managementChannel, "noop_v1.0", null);
+        testSyncScaleModelWithoutVersion(managementChannel, "noop_v1.0");
         testListModels(managementChannel);
         testDescribeModel(managementChannel, "noop_v1.0", null, "1.11");
         testLoadModelWithInitialWorkers(managementChannel, "noop.mar", "noop", "1.11");
@@ -356,6 +357,18 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.scaleModel(channel, modelName, version, 1, true);
+
+        TestUtils.getLatch().await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "1 Workers scaled for model " + modelName);
+    }
+
+    private void testSyncScaleModelWithoutVersion(Channel channel, String modelName)
+            throws InterruptedException {
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.scaleModel(channel, modelName, null, 1, true);
 
         TestUtils.getLatch().await();
 

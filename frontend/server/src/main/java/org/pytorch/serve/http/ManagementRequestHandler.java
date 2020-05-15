@@ -297,6 +297,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throws ModelNotFoundException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
+        if (modelVersion == null) {
+            modelVersion = NettyUtils.getParameter(decoder, "model_version", null);
+        }
         if (maxWorkers < minWorkers) {
             throw new BadRequestException("max_worker cannot be less than min_worker.");
         }
@@ -318,7 +321,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             int minWorkers,
             int maxWorkers,
             boolean synchronous,
-            boolean isModelRegistrationRequest,
+            boolean isInit,
             final Function<Void, Void> onError) {
 
         ModelManager modelManager = ModelManager.getInstance();
@@ -339,7 +342,11 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                 if (status) {
                                     String msg =
                                             minWorkers + " Workers scaled for model " + modelName;
-                                    if (isModelRegistrationRequest) {
+                                    if (modelVersion != null) {
+                                        msg += " Version: " + modelVersion; // NOPMD
+                                    }
+
+                                    if (isInit) {
                                         msg =
                                                 "Model \""
                                                         + modelName
@@ -349,6 +356,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                                         + minWorkers
                                                         + " initial workers";
                                     }
+
                                     NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg), v);
                                 } else {
                                     NettyUtils.sendJsonResponse(
