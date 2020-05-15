@@ -273,7 +273,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "/home/shivam/pytorch/serve/examples/image_classifier/kitten.jpg"
+						"src": "../examples/image_classifier/kitten.jpg"
 					},
 					"options": {
 						"raw": {
