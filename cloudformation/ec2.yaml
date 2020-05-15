@@ -1,0 +1,335 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  AWS CloudFormation TorchServe: Creates a TorchServe stack using
+  a single EC2 instance running Ubuntu 18.04, install the packages
+  and files necessary to deploy.
+  **WARNING** This template creates an Amazon EC2 instance. You will be billed for
+  the AWS resources used if you create a stack from this template.
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+  VpcId:
+    Description: >-
+      ID of the VPC within which the EC2 instance would be setup. You can find instructions
+      for setup at https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenarios.html
+      Example https://docs.aws.amazon.com/vpc/latest/userguide/vpc-subnets-commands-example.html
+    Type: AWS::EC2::VPC::Id
+    ConstraintDescription: Must be a valid VPC id.
+  SubnetId:
+    Description: >-
+      ID of the Subnet within which the EC2 instance would be setup.
+      Check VpcId Parameter Description for setup instructions
+    Type: AWS::EC2::Subnet::Id
+    ConstraintDescription: Must be a valid VPC id.
+  InstanceType:
+    Description: TorchServe EC2 instance type
+    Type: String
+    Default: c4.4xlarge
+    AllowedValues:
+      - t1.micro
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m1.small
+      - m1.medium
+      - m1.large
+      - m1.xlarge
+      - m2.xlarge
+      - m2.2xlarge
+      - m2.4xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - c1.medium
+      - c1.xlarge
+      - c3.large
+      - c3.xlarge
+      - c3.2xlarge
+      - c3.4xlarge
+      - c3.8xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - g2.2xlarge
+      - g2.8xlarge
+      - p2.xlarge
+      - p2.8xlarge
+      - p2.16xlarge
+      - p3.2xlarge
+      - p3.8xlarge
+      - p3.16xlarge
+      - r3.large
+      - r3.xlarge
+      - r3.2xlarge
+      - r3.4xlarge
+      - r3.8xlarge
+      - i2.xlarge
+      - i2.2xlarge
+      - i2.4xlarge
+      - i2.8xlarge
+      - d2.xlarge
+      - d2.2xlarge
+      - d2.4xlarge
+      - d2.8xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+  ManagementLocation:
+    Description: 'The IP address range that can call management endpoint of TorchServe'
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: '0.0.0.0/0'
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SSHLocation:
+    Description: 'The IP address range that can be used to SSH to the EC2 instances'
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: '0.0.0.0/0'
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+Mappings:
+  AWSRegion2AMI:
+    us-east-1:
+      AMI: ami-085925f297f89fce1
+    us-west-2:
+      AMI: ami-003634241a8fcdec0
+    eu-west-1:
+      AMI: ami-0dad359ff462124ca
+    us-east-2:
+      AMI: ami-07c1207a9d40bc3bd
+    ap-southeast-2:
+      AMI: ami-04fcc97b5f6edcd89
+    ap-northeast-1:
+      AMI: ami-0278fe6949f6b1a06
+    ap-northeast-2:
+      AMI: ami-00edfb46b107f643c
+    ap-south-1:
+      AMI: ami-0b44050b2d893d5f7
+    eu-central-1:
+      AMI: ami-0e342d72b12109f91
+    ap-southeast-1:
+      AMI: ami-0f7719e8b7ba25c61
+    us-west-1:
+      AMI: ami-0f56279347d2fa43e
+Resources:
+  TorchServeInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          InstallAndRun:
+            - TorchServeSetup
+            - CloudwatchSetup
+            - CFNSetup
+        TorchServeSetup:
+          files:
+            /etc/torchserve/config.properties:
+               content: !Sub |
+                 inference_address=https://0.0.0.0:8080
+                 management_address=https://0.0.0.0:8081
+                 private_key_file=/etc/torchserve/server.key
+                 certificate_file=/etc/torchserve/server.pem
+               mode: '000400'
+               owner: root
+               group: root
+        CloudwatchSetup:
+          files:
+            # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
+            /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json:
+              content: !Sub |
+                {
+                  "metrics": {
+                    "append_dimensions": {
+                      "ImageId": "${!aws:ImageId}",
+                      "InstanceId": "${!aws:InstanceId}",
+                      "InstanceType": "${!aws:InstanceType}"
+                    },
+                    "metrics_collected": {
+                      "mem": {
+                        "measurement": [
+                          "mem_used_percent"
+                        ]
+                      }
+                    }
+                  },
+                  "logs": {
+                    "logs_collected": {
+                      "files": {
+                        "collect_list": [
+                          {
+                            "file_path": "/var/log/torchserve/ts_log.log",
+                            "log_group_name": "${AWS::StackName}/{instance_id}/TorchServe",
+                            "log_stream_name": "ApplicationLogs",
+                            "timezone": "UTC"
+                          },
+                          {
+                            "file_path": "/var/log/torchserve/ts_metrics.log",
+                            "log_group_name": "${AWS::StackName}/{instance_id}/TorchServe",
+                            "log_stream_name": "TorchServeMetrics",
+                            "timezone": "UTC"
+                          },
+                          {
+                            "file_path": "/var/log/torchserve/access_log.log",
+                            "log_group_name": "${AWS::StackName}/{instance_id}/TorchServe",
+                            "log_stream_name": "AccessLogs",
+                            "timezone": "UTC"
+                          },
+                          {
+                            "file_path": "/var/log/torchserve/model_log.log",
+                            "log_group_name": "${AWS::StackName}/{instance_id}/TorchServe",
+                            "log_stream_name": "ModelLogs",
+                            "timezone": "UTC"
+                          },
+                          {
+                            "file_path": "/var/log/torchserve/model_metrics.log",
+                            "log_group_name": "${AWS::StackName}/{instance_id}/TorchServe",
+                            "log_stream_name": "TorchServeModelMetrics",
+                            "timezone": "UTC"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+          commands:
+            01_stop_service:
+              command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a stop
+            02_start_service:
+              command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+        CFNSetup:
+          files:
+            /etc/cfn/cfn-hup.conf:
+               content: !Sub |
+                 [main]
+                 stack=${AWS::StackId}
+                 region=${AWS::Region}
+                 interval=1
+               mode: '000400'
+               owner: root
+               group: root
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+               content: !Sub |
+                 [cfn-auto-reloader-hook]
+                 triggers=post.update
+                 path=Resources.TorchServeInstance.Metadata.AWS::CloudFormation::Init
+                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region} --configsets InstallAndRun
+                 runas=root
+               mode: '000400'
+               owner: root
+               group: root
+            /lib/systemd/system/cfn-hup.service:
+                content: !Sub |
+                  [Unit]
+                  Description=cfn-hup daemon
+                  [Service]
+                  Type=simple
+                  ExecStart=/opt/aws/bin/cfn-hup
+                  Restart=always
+                  [Install]
+                  WantedBy=multi-user.target
+          commands:
+            01_enable_cfn_hup:
+              command: !Sub |
+                systemctl enable cfn-hup.service
+            02_start_cfn_hup:
+              command: !Sub |
+                systemctl start cfn-hup.service
+    Properties:
+      ImageId: !FindInMap
+        - AWSRegion2AMI
+        - !Ref 'AWS::Region'
+        - AMI
+      InstanceType: !Ref 'InstanceType'
+      IamInstanceProfile: !Ref CloudwatchInstanceProfile
+      SecurityGroupIds:
+        - !Ref 'TorcheServeSecurityGroup'
+      SubnetId: !Ref 'SubnetId'
+      KeyName: !Ref 'KeyName'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb
+          dpkg -i /tmp/amazon-cloudwatch-agent.deb
+          apt-get update -y
+          apt-get install -y python-pip python-setuptools openjdk-11-jdk openssl
+          python /usr/lib/python2.7/dist-packages/easy_install.py --script-dir /opt/aws/bin  https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+          # Install miniconda https://docs.anaconda.com/anaconda/install/silent-mode/
+          wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
+          rm -rf /home/ubuntu/miniconda && bash /tmp/miniconda.sh -b -p /home/ubuntu/miniconda
+          export PATH="/home/ubuntu/miniconda/bin:$PATH"
+          conda init
+          source /home/ubuntu/miniconda/etc/profile.d/conda.sh
+          conda config --set always_yes yes
+          conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+          conda activate torchserve
+          # Setup private-key file and self-signed certificate files
+          mkdir /etc/torchserve/
+          openssl req -new -x509 -days 365 -nodes -out /etc/torchserve/server.pem -keyout /etc/torchserve/server.key -subj "/C=US/ST=Washington/L=Seattle/O=Amazon Web Services/OU=Torchserve"
+          # Start cfn-hup
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region} --configsets InstallAndRun
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region}
+          # Start torchserve
+          mkdir model_store
+          export LOG_LOCATION="/var/log/torchserve"
+          torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT30M
+  TorcheServeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable access for ssh, inference and management endpoints
+      VpcId: !Ref 'VpcId'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '8080'
+          ToPort: '8080'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: '8081'
+          ToPort: '8081'
+          CidrIp: !Ref 'ManagementLocation'
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref 'SSHLocation'
+  CloudwatchIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - ec2.amazonaws.com
+              Action:
+                - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+  CloudwatchInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref CloudwatchIAMRole
+Outputs:
+  WebsiteURL:
+    Description: URL for newly created TorchServe stack
+    Value: !Join
+      - ''
+      - - http://
+        - !GetAtt 'TorchServeInstance.PublicDnsName'
+
