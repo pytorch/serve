@@ -1068,7 +1068,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2&initial_workers=1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1089,6 +1089,10 @@
 						{
 							"key": "batch_size",
 							"value": "2"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
 						}
 					]
 				}
