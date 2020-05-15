@@ -64,7 +64,7 @@ start_secure_torchserve() {
   # Start Torchserve with Model Store
   torchserve --start --ts-config resources/config.properties --model-store $1 --models $1/densenet161_v1.mar &> $2
   sleep 10
-  curl http://127.0.0.1:8081/models
+  curl -X --insecure https://127.0.0.1:8444/models
 
 }
 
@@ -99,10 +99,11 @@ run_postman_test() {
   newman run -e postman/environment.json --bail --verbose postman/inference_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
 
+  # Run Https test cases
   stop_torch_serve
   delete_model_store_snapshots
   start_secure_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --bail --verbose postman/https_test_collection.json \
+  newman run --insecure -e postman/environment.json --bail --verbose postman/https_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
 
   set -e
