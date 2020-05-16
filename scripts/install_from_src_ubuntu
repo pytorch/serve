@@ -1,48 +1,23 @@
 #!/bin/bash
 set -euo pipefail
 
-clean_slate()
-{
-	echo "                      =============================================="
-	echo "                      If you are within a conda env please deactivate it and come back"
-	echo "                      If you don't want to proceed kill this script in the next 10 seconds!"
-	echo "                      =============================================="
+source scripts/install_utils
 
-	sleep 10
+echo "                      =============================================="
+echo "                      If you are within a conda env please deactivate it and come back"
+echo "                      If you don't want to proceed kill this script in the next 10 seconds!"
+echo "                      =============================================="
 
-	echo "Cleaning up state"
-	# uninstall any global installations
-	pip uninstall --yes torchserve || true
-	pip uninstall --yes torch-model-archiver || true
-	sleep 5
-}
-
-install_java_deps()
-{
-	sudo apt-get install -y openjdk-11-jdk
-}
-
-install_torch_deps()
-{
-	# replace this with requirements.txt when ready
-	pip install torch torchtext torchvision sentencepiece psutil future
-}
-
-build_install_server()
-{
-	python setup.py build
-	pip install .
-}
-
-build_install_archiver()
-{
-	echo $PWD
-	cd model-archiver && pip install .
-}
+sleep 10
 
 clean_slate
+
 install_java_deps
 install_torch_deps
 
+build_frontend
+
 build_install_server
 build_install_archiver
+
+clean_up_build_residuals
