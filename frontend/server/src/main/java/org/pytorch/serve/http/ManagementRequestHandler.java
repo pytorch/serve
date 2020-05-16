@@ -136,7 +136,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private void handleDescribeModel(
             ChannelHandlerContext ctx, String modelName, String modelVersion)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
         ArrayList<DescribeModelResponse> resp = new ArrayList<DescribeModelResponse>();
 
@@ -270,13 +270,14 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         } else if (httpResponseStatus == HttpResponseStatus.BAD_REQUEST) {
             throw new ModelVersionNotFoundException(
                     String.format(
-                            "Model version: %s not found for model: %s", modelVersion, modelName));
+                            "Model version: %s does not exist for model: %s",
+                            modelVersion, modelName));
         } else if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
             throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {
             throw new RequestTimeoutException("Timed out while cleaning resources: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
-            throw new InternalServerException(
+            throw new InvalidModelVersionException(
                     "Cannot remove default version for model " + modelName);
         }
         String msg = "Model \"" + modelName + "\" unregistered";
@@ -288,7 +289,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String modelName,
             String modelVersion)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
         if (maxWorkers < minWorkers) {
@@ -311,7 +312,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             int minWorkers,
             int maxWorkers,
             boolean synchronous,
-            final Function<Void, Void> onError) {
+            final Function<Void, Void> onError)
+            throws ModelVersionNotFoundException {
 
         ModelManager modelManager = ModelManager.getInstance();
         CompletableFuture<HttpResponseStatus> future =
@@ -373,14 +375,15 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private void setDefaultModelVersion(
             ChannelHandlerContext ctx, String modelName, String newModelVersion)
-            throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
+            throws ModelNotFoundException, InternalServerException, RequestTimeoutException,
+                    ModelVersionNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
         HttpResponseStatus httpResponseStatus =
                 modelManager.setDefaultVersion(modelName, newModelVersion);
         if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
-            throw new InvalidModelVersionException(
+            throw new ModelVersionNotFoundException(
                     "Model version " + newModelVersion + " does not exist for model " + modelName);
         }
         String msg =
