@@ -124,7 +124,7 @@ public final class OpenApiUtils {
         post.addResponse(resp);
 
         MediaType error = getErrorResponse();
-        post.addResponse(new Response("404", "Model not found", error));
+        post.addResponse(new Response("404", "Model not found or Model Version not found", error));
         post.addResponse(new Response("500", "Internal Server Error", error));
         post.addResponse(new Response("503", "No worker is available to serve request", error));
 
@@ -178,7 +178,8 @@ public final class OpenApiUtils {
 
         operation.addResponse(
                 new Response("200", "Default vesion succsesfully updated for model", status));
-        operation.addResponse(new Response("404", "Model not found", error));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
@@ -333,8 +334,8 @@ public final class OpenApiUtils {
 
         operation.addResponse(new Response("200", "Model unregistered", status));
         operation.addResponse(new Response("202", "Accepted", status));
-        operation.addResponse(new Response("404", "Model not found", error));
-        operation.addResponse(new Response("400", "Model version not found", error));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("408", "Request Timeout Error", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
@@ -396,9 +397,12 @@ public final class OpenApiUtils {
         schema.addProperty("metrics", metrics, true);
 
         MediaType mediaType = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
+        MediaType error = getErrorResponse();
 
         operation.addResponse(new Response("200", "OK", mediaType));
-        operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
+        operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
     }
@@ -441,7 +445,8 @@ public final class OpenApiUtils {
         operation.addResponse(new Response("202", "Accepted", status));
         operation.addResponse(new Response("210", "Partial Success", status));
         operation.addResponse(new Response("400", "Bad request", error));
-        operation.addResponse(new Response("404", "Model not found", error));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
