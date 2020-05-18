@@ -13,86 +13,38 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Install TorchServe
 
-Conda instructions are provided in more detail, but you may also use `pip` and `virtualenv` if that is your preference.
-**Note:** Java 11 is required. Instructions for installing Java 11 for Ubuntu or macOS are provided in the [Install with Conda](#install-with-conda) section.
-
-### Install with pip
-
 1. Install Java 11
 
+    For Ubuntu
     ```bash
     sudo apt-get install openjdk-11-jdk
     ```
-
-1. Use `pip` to install TorchServe and the model archiver:
-
-    ``` bash
-    pip install torch torchtext torchvision sentencepiece psutil future
-    pip install torchserve torch-model-archiver
-    ```
-
-### Install with Conda
-**Note:** For Conda, Python 3.8 is required to run Torchserve
-
-#### Ubuntu
-
-1. Install Java 11
-
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-
-1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an environment and install torchserve and torch-model-archiver
-    For CPU
-
-    ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
-    ```
-
-    For GPU
-
-    ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
-    ```
-
-1. Activate the environment
-
-    ```bash
-    source activate torchserve
-    ```
-
-2. Optional if using torchtext models
-    ```bash
-    pip install sentencepiece
-    ```
-
-#### macOS
-
-1. Install Java 11
-
+   
+   For Mac
     ```bash
     brew tap AdoptOpenJDK/openjdk
     brew cask install adoptopenjdk11
     ```
 
-1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
-1. Create an environment and install torchserve and torch-model-archiver
+2. Install python pre-requisite packages
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    pip install -U -r requirements.txt
     ```
 
-1. Activate the environment
+3. Install torchserve and torch-model-archiver
 
-    ```bash
-    source activate torchserve
+    For Conda
     ```
-
-2. Optional if using torchtext models
-    ```bash
-    pip install sentencepiece
+    conda install torchserve torch-model-archiver
     ```
+   
+    For Pip
+    ```
+    pip install torchserve torch-model-archiver
+    ```
+   
+   **Note:** For Conda, Python 3.8 is required to run Torchserve
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 

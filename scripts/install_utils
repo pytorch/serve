@@ -21,12 +21,12 @@ install_java_deps()
 
 install_torch_deps()
 {
-	pip install -r requirements.txt
+	pip install -U -r requirements.txt
 }
 
 install_pytest_suite_deps()
 {
-  pip install -r requirements/developer.txt
+  pip install -U -r requirements/developer.txt
 }
 
 build_frontend() {

@@ -5,3 +5,4 @@ requests
 torch
 torchvision
 torchtext
+sentencepiece
