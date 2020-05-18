@@ -3,6 +3,7 @@
 * [Prerequisites](#docker_prerequisite)
 * [Create TorchServe docker image](#docker_image_production)
 * [Create TorchServe docker image from source](#docker_image_source)
+* [Create torch-model-archiver from container](#docker_torch_model_archiver)
 
 # Prerequisites
 
@@ -109,3 +110,32 @@ For GPU with specific GPU device ids run the following command:
 ```bash
 ./start.sh --gpu_devices 1,2,3
 ```
+
+# Create torch-model-archiver from container
+
+To create mar [model archive] file for torchserve deployment, you can use following steps
+
+1. Start container by sharing your local model-store/folder where you have your custom/example mar content as well model-store directory [if not there, create one]
+
+```bash
+docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
+```
+
+1. List your container or skip this if you know cotainer name 
+```bash
+docker ps
+```
+
+2. Bind and get the bash prompt of running container
+```bash
+docker exec -it <container_name> /bin/bash
+```
+You will be landing at /home/model-server/.
+
+3. Now Execute torch-model-archiver command e.g.
+```bash
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/model-server/examples/image_classifier/densenet_161/model.py --serialized-file /home/model-server/examples/image_classifier/densenet161-8d451a50.pth --export-path /home/model-server/model-store --extra-files /home/model-server/examples/image_classifier/index_to_name.json --handler image_classifier
+```
+Refer [torch-model-archiver](../model-archiver/README.md) for details.
+
+4. desnet161.mar file should be present at /home/model-server/model-store
