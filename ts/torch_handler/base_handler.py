@@ -44,7 +44,7 @@ class BaseHandler(abc.ABC):
         try:
             logger.debug('Loading torchscript model')
             self.model = torch.jit.load(model_pt_path)
-        except RuntimeError as e:
+        except RuntimeError as e: # pylint: disable=unused-variable
             # Read model definition file
             model_file = self.manifest['model']['modelFile']
             model_def_path = os.path.join(model_dir, model_file)
