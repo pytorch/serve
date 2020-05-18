@@ -10,6 +10,12 @@
 * docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
 * git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
 
+## Make sure you are in docker folder as follows
+
+```bash
+cd serve/docker
+```
+
 # Create TorchServe docker image
 
 For creating CPU based image :
