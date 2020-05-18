@@ -20,8 +20,6 @@
   RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
   RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
   
-  RUN pip install torch torchvision 
-  
   ENV JAVA_VERSION=11 \
       JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
       JDK_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
