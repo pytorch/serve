@@ -24,6 +24,7 @@ RUN export USE_CUDA=1
 RUN pip install psutil future torch torchvision torchtext
 ADD serve serve
 RUN pip install ../serve/
+RUN pip install ../serve/model-archiver/
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
@@ -43,5 +44,3 @@ WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]
-
-LABEL maintainer="wongale@amazon.com"

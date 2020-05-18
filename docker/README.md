@@ -8,23 +8,17 @@
 
 * docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
 * git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-* TorchServe source code. Clone and enter the repo as follows:
-
-```bash
-git clone https://github.com/pytorch/serve.git
-cd serve
-```
 
 # Create TorchServe docker image
 
 For creating CPU based image :
 ```bash
-docker build --file Dockerfile.cpu -t torchserve:latest .
+DOCKER_BUILDKIT=1 docker build --file Dockerfile -t torchserve:latest .
 ```
 
 For creating GPU based image :
 ```bash
-docker build --file Dockerfile.gpu -t torchserve:latest .
+DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
 ```
 
 ## Start a container with a TorchServe image
@@ -70,7 +64,7 @@ curl http://localhost:8080/ping
 
 # Create TorchServe docker image from source
 
-The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
+The following are examples on how to use the `build_image.sh` script to build Docker images from source to support CPU or GPU inference.
 
 To build the TorchServe image for a CPU device using the `master` branch, use the following command:
 
