@@ -861,6 +861,26 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsModelNotFound"})
+    public void testPredictionsModelVersionNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(false, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/predictions/noopversioned/1.3.1");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Model version: 1.3.1 does not exist for model: noopversioned");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsModelNotFound"})
     public void testInvalidManagementUri() throws InterruptedException {
         Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
@@ -929,6 +949,26 @@ public class ModelServerTest {
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(resp.getMessage(), "Model not found: InvalidModel");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeModelNotFound"})
+    public void testDescribeModelVersionNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(true, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/models/noopversioned/1.3.1");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Model version: 1.3.1 does not exist for model: noopversioned");
     }
 
     @Test(
@@ -1129,6 +1169,24 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelNotFound"})
+    public void testScaleModelVersionNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(true, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.scaleModel(channel, "noop_v1.0", "1.3.1", 2, true);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Model version: 1.3.1 does not exist for model: noop_v1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testScaleModelNotFound"})
     public void testUnregisterModelNotFound() throws InterruptedException {
         Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
@@ -1139,6 +1197,21 @@ public class ModelServerTest {
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(resp.getMessage(), "Model not found: fake");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterModelNotFound"})
+    public void testUnregisterModelVersionNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(true, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.unregisterModel(channel, "noopversioned", "1.3.1", true);
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Model version: 1.3.1 does not exist for model: noopversioned");
     }
 
     @Test(
@@ -1266,7 +1339,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(
                 resp.getMessage(), "Model version 3.3.3 does not exist for model noopversioned");
     }
@@ -1283,7 +1356,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
-        Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.FORBIDDEN.code());
         Assert.assertEquals(
                 resp.getMessage(), "Cannot remove default version for model noopversioned");
 
