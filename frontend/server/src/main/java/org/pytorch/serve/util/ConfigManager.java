@@ -104,8 +104,9 @@ public final class ConfigManager {
         prop = new Properties();
 
         this.snapshotDisabled = args.isSnapshotDisabled();
-        String version = readFile(getModelServerHome() + "/version.txt");
+        String version = readFile(getModelServerHome() + "/ts/version.txt");
         if (version != null) {
+            version = version.replaceAll("[\\n\\t ]", "");
             prop.setProperty(VERSION, version);
         }
 
