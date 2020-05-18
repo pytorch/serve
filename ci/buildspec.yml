@@ -8,7 +8,6 @@ phases:
       - apt-get update
       - apt-get install -y curl gnupg2
       - pip install pip -U
-      - pip install -r ci/requirements.txt
 
   build:
     commands:
