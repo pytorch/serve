@@ -1,47 +1,54 @@
-# Execute unit testing and generate a code coverage report
-
-## Prerequisites
-
-* Install all `TorchServe` prerequisites. For detailed steps refer [TorchServe installation documentation](../README.md#install-torchserve).
-
-* Install additional Python modules to run the unit tests and linting using following commands
+## To check branch stability run the sanity suite as follows
 
 ```bash
-cd <path_to_serve>
-pip install -r ci/requirements.txt
-```
-
-
-## Run sanity script
-
-```bash
-cd <path_to_serve>
 ./torchserve_sanity.sh
 ```
 
-**The above command executes the following**
+## To run frontend build suite run following command
 
-* TorchServe frontend build suite which consists of :
+```bash
+frontend/gradlew -p frontend clean build
+```
+
+TorchServe frontend build suite consists of :
 
   * checkstyle
   * findbugs
   * PMD
   * UT
+  
+The reports are generated at following path : `frontend/server/build/reports`
 
-* TorchServe backend pytest suite
+## To run backend pytest suite run following command
 
-* torch-model-archive pytest suite
+```bash
+python -m pytest --cov-report html:htmlcov --cov=ts/ ts/tests/unit_tests/
+```
 
-* Python linting on `ts` package
+The reports are generated at following path : `htmlcov/`
 
-* Installs `torchserve` and `torch-model-archiver` from source
+## To run python linting on `ts` package run following command
 
-* Run basic sanity on `torchserve`
+```bash
+pylint -rn --rcfile=./ts/tests/pylintrc ts/.;
+```
 
-* Run basic sanity for snapshot feature
+## To run pytest suite on model-archiver run following command
 
-The reports can be accessed at the following paths:
+```bash
+python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/
+```
 
-* TorchServe frontend: `serve/frontend/server/build/reports`
-* TorchServe backend: `serve/htmlcov`
-* torch-model-archiver: `serve/model-archiver/htmlcov`
+The reports are generated at following path : `model-archiver/htmlcov/`
+
+## To run IT suite on model-archiver run following command
+
+```bash
+cd model-archiver
+pip install .
+python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/
+```
+
+The reports are generated at following path : `model-archiver/htmlcov/`
+
+**Note**: All the above commands needs to be excuted from serve home
