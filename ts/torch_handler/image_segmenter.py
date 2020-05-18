@@ -1,18 +1,20 @@
 import io
 from PIL import Image
+import torch
 from torchvision import transforms as T
-from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
 
 class ImangeSegmenter(VisionHandler):
     """
     ImangeSegmentor handler class. This handler takes an image
-    and returns output shape as [CL H W], CL - number of classes, H - height and W - width.
+    and returns output as masked image
+    Ref - https://pytorch.org/hub/pytorch_vision_fcn_resnet101/
     """
 
     def __init__(self):
         super(ImangeSegmenter, self).__init__()
+        self.image = None
 
     def preprocess(self, data):
         """
@@ -26,24 +28,41 @@ class ImangeSegmenter(VisionHandler):
         image = data[0].get("data")
         if image is None:
             image = data[0].get("body")
-        image = Image.open(io.BytesIO(image))
+        self.image = Image.open(io.BytesIO(image))
         trf = T.Compose([T.Resize(256),
                          T.CenterCrop(224),
                          T.ToTensor(),
                          T.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])])
-        image = trf(image).unsqueeze(0)
-        return image
+        return  trf(self.image).unsqueeze(0)
 
-    def inference(self, img):
-        # Predict the pixel classes for segmentation
-        img = Variable(img).to(self.device)
-        pred = self.model(img)['out']
-        pred = pred.squeeze().detach().cpu().numpy()
-        return [str(pred)]
+    def inference(self, input_batch):
+        if torch.cuda.is_available():
+            input_batch = input_batch.to('cuda')
+            self.model.to('cuda')
+
+        with torch.no_grad():
+            output = self.model(input_batch)['out'][0]
+
+        output_predictions = output.argmax(0)
+        return output_predictions
 
     def postprocess(self, inference_output):
-        return inference_output
+        # create a color pallette, selecting a color for each class
+        palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
+        colors = torch.as_tensor([i for i in range(21)])[:, None] * palette
+        colors = (colors % 255).numpy().astype("uint8")
+
+        # plot the semantic segmentation predictions of 21 classes in each color
+        r = Image.fromarray(inference_output.byte().cpu().numpy()).resize(self.image.size)
+        r.putpalette(colors)
+
+        # convert image to generic jpg format from PIL image for client
+        output = io.BytesIO()
+        r.convert('RGB').save(output, format='JPEG')
+        bin_img_data = output.getvalue()
+
+        return [bin_img_data]
 
 _service = ImangeSegmenter()
 
