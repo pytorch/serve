@@ -30,7 +30,7 @@ def javaProjects() {
 }
 
 configure(javaProjects()) {
-    apply plugin: 'java'
+    apply plugin: 'java-library'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -42,7 +42,7 @@ configure(javaProjects()) {
 
     test {
         useTestNG() {
-            // suiteXmlFiles << new File(rootDir, "testng.xml") //This is how to add custom testng.xml
+            suites 'testng.xml'
         }
 
         testLogging {
