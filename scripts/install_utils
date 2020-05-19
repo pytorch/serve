@@ -156,17 +156,20 @@ register_model()
 # Takes model URL and payload path as input
 run_inference()
 {
-  echo "Running inference on $1 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/$1 -T $2)
+  for i in {1..4}
+  do
+    echo "Running inference on $1 model"
+    response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/$1 -T $2)
 
-  if [ ! "$response" == 200 ]
-  then
-      echo "Failed to run inference on $1 model"
-      cleanup
-      exit 1
-  else
-      echo "Successfully ran infernece on $1 model."
-  fi
+    if [ ! "$response" == 200 ]
+    then
+        echo "Failed to run inference on $1 model"
+        cleanup
+        exit 1
+    else
+        echo "Successfully ran infernece on $1 model."
+    fi
+  done
 }
 
 clean_up_build_residuals()
