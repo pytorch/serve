@@ -14,14 +14,14 @@ Clone Torch Serve Repo & Build the Docker Image for the execition env.
 
 ```
 git clone https://github.com/pytorch/serve
-cd serve
+cd serve/docker
 ./build_image.sh
 ```
 
-This would build a docker Image with a tag torchserve:1.0 in which we would run our Regression Tests.
+This would build a docker Image with a tag pytorch/torchserve:latest in which we would run our Regression Tests.
 
 ```
-docker run -it —user root torchserve:1.0 /bin/bash
+docker run -it —user root pytorch/torchserve:latest /bin/bash
 ```
 
 In the Docker CLI execute the following tests.

@@ -42,4 +42,4 @@ git clone https://github.com/pytorch/serve.git
 cd serve
 git checkout $BRANCH_NAME
 cd ..
-docker build --file Dockerfile_dev.$MACHINE -t $DOCKER_TAG .
+DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.$MACHINE -t $DOCKER_TAG .
