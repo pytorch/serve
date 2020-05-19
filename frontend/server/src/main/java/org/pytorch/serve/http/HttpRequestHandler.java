@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
             String[] segments = path.split("/");
             handlerChain.handleRequest(ctx, req, decoder, segments);
-        } catch (ResourceNotFoundException | ModelNotFoundException e) {
+        } catch (ResourceNotFoundException
+                | ModelNotFoundException
+                | ModelVersionNotFoundException e) {
             logger.trace("", e);
             NettyUtils.sendError(ctx, HttpResponseStatus.NOT_FOUND, e);
         } catch (BadRequestException | ModelException e) {
@@ -61,6 +64,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         } catch (OutOfMemoryError e) {
             logger.trace("", e);
             NettyUtils.sendError(ctx, HttpResponseStatus.INSUFFICIENT_STORAGE, e);
+        } catch (IllegalArgumentException e) {
+            logger.error("", e);
+            NettyUtils.sendError(ctx, HttpResponseStatus.FORBIDDEN, e);
         } catch (Throwable t) {
             logger.error("", t);
             NettyUtils.sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, t);

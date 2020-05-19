@@ -575,6 +575,35 @@
               }
             }
           },
+          "404": {
+            "description": "Model not found or Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -767,7 +796,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -909,36 +938,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "code",
-                    "type",
-                    "message"
-                  ],
-                  "properties": {
-                    "code": {
-                      "type": "integer",
-                      "description": "Error code."
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Error type."
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "Error message."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Model version not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1072,7 +1072,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
