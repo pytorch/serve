@@ -172,6 +172,22 @@ run_inference()
   done
 }
 
+
+unregister_model()
+{
+  echo "Unregistering $1 model"
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X DELETE "http://localhost:8081/models/$1")
+
+  if [ ! "$response" == 200 ]
+  then
+      echo "Failed to register $1 model with torchserve"
+      cleanup
+      exit 1
+  else
+      echo "Successfully registered $1 model with torchserve"
+  fi
+}
+
 clean_up_build_residuals()
 {
   rm -rf ts/__pycache__/
