@@ -44,6 +44,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image
    from torchvision import models
    import torch
    model = models.resnet152(pretrained=True)
+   model.eval()
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("resnet-152-batch.pt")
