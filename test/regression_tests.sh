@@ -96,8 +96,9 @@ run_postman_test() {
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --bail --verbose postman/inference_api_test_collection.json \
-	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
+	  -d postman/inference_data.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
 
+newman run postman/data_inference.json -d postman/data.json -e postman/environment.json
   # Run Https test cases
   stop_torch_serve
   delete_model_store_snapshots
