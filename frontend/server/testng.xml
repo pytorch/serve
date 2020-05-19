@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+  
+<suite name="TorchServeSuite" verbose="1" >
+  <test name="TorchServe">
+    <classes>
+      <class name="org.pytorch.serve.util.ConfigManagerTest"/>
+      <class name="org.pytorch.serve.CoverageTest"/>
+      <class name="org.pytorch.serve.ModelServerTest"/>
+      <class name="org.pytorch.serve.SnapshotTest"/>
+    </classes>
+  </test>
+</suite>
