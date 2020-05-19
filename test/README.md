@@ -50,11 +50,10 @@ cat /tmp/ts.log
 
 ### Adding tests
 
-To add to the tests, import a collection (in /postman) to Postman and add new requests. Specifically to test for inference against a new model
-* Open inference_api_test_collection.json in POST man.
-* Clone an Register Model / Inferece Request combination.
-* Update URL & Model Payload.
-
+To add to the tests, import a collection (in /postman) to Postman and add new requests.
+Specifically to test for inference against a new model
+* Open /postman/inference_data.json
+* Add new json object with the new model url and payload.
 
 ![POSTMAN UI](screenshot/postman.png)
 
