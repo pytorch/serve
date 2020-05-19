@@ -397,7 +397,7 @@ public class SnapshotTest {
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put("model_snapshot", snapshotJson);
         prop.put("tsConfigFile", "dummyconfig");
-        prop.put("default_workers_per_init_model", 4);
+        prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
     }
 

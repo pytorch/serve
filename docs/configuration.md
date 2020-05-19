@@ -183,7 +183,7 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
 * `number_of_netty_threads`: number frontend netty thread. Default: number of logical processors available to the JVM.
 * `netty_client_threads`: number of backend netty thread. Default: number of logical processors available to the JVM.
-* `default_workers_per_init_model`: number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
+* `default_workers_per_model`: number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
 * `job_queue_size`: number inference jobs that frontend will queue before backend can serve. Default: 100.
 * `async_logging`: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
 * `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
