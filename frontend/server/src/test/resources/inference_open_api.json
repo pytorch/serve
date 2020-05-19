@@ -165,7 +165,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model Version not found",
             "content": {
               "application/json": {
                 "schema": {
