@@ -186,7 +186,7 @@ The following code completes all three steps:
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:

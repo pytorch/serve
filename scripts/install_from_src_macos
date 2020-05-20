@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-source scripts/intall_utils
+source scripts/install_utils
 
 echo "                      =============================================="
 echo "                      If you are within a conda env please deactivate it and come back"
@@ -16,7 +16,7 @@ install_java_deps_mac()
 	if [ "$JAVA_VERSION" != "11" ]
   then
     brew tap AdoptOpenJDK/openjdk
-	  brew cask install adoptopenjdk11
+    brew cask install adoptopenjdk11
   fi
 }
 
