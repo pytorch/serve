@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4d8b1327-d0b4-4e37-9544-06b57d9b480f",
+		"_postman_id": "e0788277-be1f-4c5b-9991-28fe975e34e6",
 		"name": "torchserve_regression_management",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"id": "1cbd9673-61f2-4453-bcf1-93bfeb2568c8",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -54,7 +54,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ecfbb15c-bc6d-4a32-8f9e-ff65db81ab0b",
+						"id": "5c725a66-e4d3-4b2c-83eb-84c087ca42b4",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -88,7 +88,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "72072739-e588-4214-b4f7-3761c3861317",
+						"id": "73729bce-a973-4c30-892d-937e389d3d7e",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -123,7 +123,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "cc0baaca-46eb-4cdc-a756-2d430cc71cdc",
+						"id": "96133bb0-475d-4872-8b76-f58ce0fed5de",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -158,7 +158,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "fd3e359f-fe11-4075-8977-f8a169d16fb4",
+						"id": "2326f5ef-cb20-41b5-9a09-40e8141bdb52",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -191,7 +191,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "aefbd490-f4f7-4d8a-9e8e-ad9489ab5784",
+						"id": "5133cd34-e032-4db9-9dfc-e52febb985bc",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -231,7 +231,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "762ffec5-7c7e-40f0-ad45-6f1c1983b754",
+						"id": "79e4f73a-d7d1-40a0-b0e8-51065bfbd679",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -275,7 +275,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ce1c4c1c-761f-4e5d-9f04-f29247a88c34",
+						"id": "f9a4ed1f-acc7-43c6-8f55-2df667983042",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -320,7 +320,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "84b164c5-e5f6-4226-aeab-483fd8aab514",
+						"id": "2f5ab518-df2a-413e-b191-b00119f306d9",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -364,7 +364,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2bc3625e-0800-49fb-bf12-aa848b9ba356",
+						"id": "cbae9c5f-39a3-4e11-99b0-5b9cd67df235",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -400,7 +400,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "dd998033-3eea-4bb5-9353-18d6d1f885d8",
+						"id": "b889adac-73eb-4256-8538-5df0b089f017",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -434,7 +434,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "942b750b-088a-4355-89a8-89b0d263e1fc",
+						"id": "e786f9ea-7275-4aaf-93e3-d9ae21bfb80d",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -448,7 +448,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -460,7 +460,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "squeezenet1_1.mar"
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -481,7 +481,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8a56636d-24b1-439c-b28e-1029db0a141c",
+						"id": "4195502f-b873-4ef7-9533-83243a0f36bd",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -528,7 +528,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f6781541-2e92-4837-b6f9-26c61e28de8e",
+						"id": "161f791f-4c1d-4bd8-9eba-b2eb257d54b8",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -575,7 +575,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "073bc446-c12f-4a2d-8fa1-044914642de2",
+						"id": "78361e0a-97cc-444a-b1dd-d79ad9315850",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -622,7 +622,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "aa6f207e-d9ce-40cb-ab08-d7ca03ba2927",
+						"id": "302bfd26-c59e-49ea-a924-9eadf9711262",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -656,7 +656,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9e195654-9864-46d4-896d-39926d89ffb3",
+						"id": "7a2c2e4d-ab9e-440a-8cb6-327ccb03a4bb",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -670,7 +670,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=resnet-18.mar&model_name=resnet18&synchronous=false",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=false",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -682,7 +682,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "resnet-18.mar"
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
 						},
 						{
 							"key": "model_name",
@@ -703,7 +703,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "76830b62-cb97-4a8e-8380-6862a6743c8b",
+						"id": "cda03922-f0e8-4d30-b6ce-c796cfb588d5",
 						"exec": [
 							""
 						],
@@ -740,7 +740,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e6bb5722-8b6f-4440-a74e-728c9b2f7efd",
+						"id": "f0728d8a-9337-4673-8ffd-9311972081a7",
 						"exec": [
 							""
 						],
@@ -781,7 +781,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b678f1b6-26aa-4fe9-b2af-382f5dbf7874",
+						"id": "8c7e255e-ba4f-437b-a626-17e4797bad1a",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -821,7 +821,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "da09183e-d2d3-4100-bbb6-01395b56c0e0",
+						"id": "e634583b-ae79-4967-b5a1-e2ccd4b6fd67",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -869,7 +869,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9e1c800a-84fa-4181-ac5c-083c5071b993",
+						"id": "51198f24-a0d1-42e9-b3ff-8c3f06d67c81",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -917,7 +917,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9b5509db-0260-4e36-a304-586b006e86ee",
+						"id": "8827111d-8b8b-45a9-88c0-a08209137b80",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -957,7 +957,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "13a0ea39-854a-4551-adf3-d1e1aac269d6",
+						"id": "ea9e4bac-cc28-4f8c-8679-52530d07c993",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -997,7 +997,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "66f910d7-cc2f-4b60-8f94-df8304dd399f",
+						"id": "56def7be-ee41-4c74-84c6-17a183ddec3e",
 						"exec": [
 							"pm.test(\"Invalid URL POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
@@ -1040,7 +1040,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "207f7c2b-1d69-4292-bb4f-31a3147fc43b",
+						"id": "31cff3b0-a5be-4d48-a586-0d6482d34e83",
 						"exec": [
 							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
@@ -1074,7 +1074,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a97a22d6-1945-4992-81d0-e7508c5affa4",
+						"id": "98e63be5-982f-4a4b-8c12-d57328b81685",
 						"exec": [
 							""
 						],
@@ -1111,7 +1111,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "45736133-bb05-4dd7-80e9-f0d9f657a17f",
+						"id": "15b8cc28-86b9-40d8-aa59-409bc11cdaa4",
 						"exec": [
 							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
@@ -1155,7 +1155,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7a7e5033-0d32-4b11-a53f-b6e2e4f7ba61",
+						"id": "7edbe77d-64b3-40f7-b6f5-f1d6468a75a4",
 						"exec": [
 							"pm.test(\"Valid ERROR message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
@@ -1224,7 +1224,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "35867f37-7b99-42a5-823e-1bde5ff3b207",
+				"id": "9421de73-e415-404c-a41b-363fb02a6cb3",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1234,7 +1234,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "85a997ec-639c-4e3e-b685-a44799ed33d6",
+				"id": "7d4715cb-d48a-4586-9177-6faa347d9921",
 				"type": "text/javascript",
 				"exec": [
 					""

@@ -15,21 +15,19 @@ TEST_EXECUTION_LOG_FILE="/tmp/test_exec.log"
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
 
-  # Install dependencies & test dependencies
-  pip install torch torchtext torchvision sentencepiece psutil future
-  sudo apt-get install npm
-  npm install -g newman newman-reporter-html
+  pip install  mock pytest pylint pytest-mock pytest-cov
+  sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
+  sudo apt-get -y install npm
+  sudo npm install -g n
+  sudo n latest
+  export PATH="$PATH"
+  sudo npm install -g newman newman-reporter-html
 
   # Clone & Build TorchServe
   git clone -b $2 $1
   cd serve
-  pip install .
-  cd -
-  
-  # Build Model Archiver
-  cd serve/model-archiver
-  pip install .
-  cd -
+  echo "Installing torchserve torch-model-archiver from source"
+  ./scripts/install_from_src_ubuntu
   echo "Torchserve Succesfully installed"
   
 }
@@ -41,8 +39,8 @@ generate_densenet_test_model_archive() {
 
   # Download & create DenseNet Model Archive
   wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-  torch-model-archiver --model-name densenet161 \
-	  --version 1.0 --model-file $ROOT_DIR/serve/examples/image_classifier/densenet_161/model.py \
+  torch-model-archiver --model-name densenet161_v1 \
+	  --version 1.1 --model-file $ROOT_DIR/serve/examples/image_classifier/densenet_161/model.py \
 	  --serialized-file $1/densenet161-8d451a50.pth \
 	  --extra-files $ROOT_DIR/serve/examples/image_classifier/index_to_name.json \
 	  --handler image_classifier
@@ -55,10 +53,18 @@ generate_densenet_test_model_archive() {
 start_torchserve() {
 
   # Start Torchserve with Model Store
-  torchserve --start --model-store $1 --models $1/densenet161.mar &> $2
+  torchserve --start --model-store $1 --models $1/densenet161_v1.mar &> $2
   sleep 10
   curl http://127.0.0.1:8081/models
   
+}
+
+start_secure_torchserve() {
+
+  # Start Torchserve with Model Store
+  torchserve --start --ts-config resources/config.properties --model-store $1 --models $1/densenet161_v1.mar &> $2
+  sleep 10
+  curl --insecure -X GET https://127.0.0.1:8444/models
 }
 
 
@@ -90,7 +96,15 @@ run_postman_test() {
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --bail --verbose postman/inference_api_test_collection.json \
-	  -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
+	  -d postman/inference_data.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
+
+  # Run Https test cases
+  stop_torch_serve
+  delete_model_store_snapshots
+  start_secure_torchserve $MODEL_STORE $TS_LOG_FILE
+  newman run --insecure -e postman/environment.json --bail --verbose postman/https_test_collection.json \
+	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
+
   set -e
   cd -
 }
@@ -108,7 +122,9 @@ run_pytest() {
 
 }
 
-rm -rf $ROOT_DIR && mkdir $ROOT_DIR && cd $ROOT_DIR
+sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
+sudo chown -R $USER:$USER $ROOT_DIR
+cd $ROOT_DIR
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
