@@ -6,7 +6,7 @@ phases:
 
   build:
     commands:
-      - ./test/regression_tests.sh $CODEBUILD_BUILD_BRANCH
+      - ./test/regression_tests.sh $NIGHTLY_BUILD_BRANCH
 
 artifacts:
   files:
