@@ -1,17 +1,17 @@
 {
 	"info": {
-		"_postman_id": "a22a0432-717b-49c1-a3e1-53bf7541c487",
-		"name": "torchserve_regression_inference",
+		"_postman_id": "e69000d9-d3c8-49bd-879a-ad42b95b042a",
+		"name": "inference",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Model Zoo - Register Text Classification",
+			"name": "Model Zoo - Register Model",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
+						"id": "80fa33ea-ff6a-4535-9328-ddffb980062a",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -25,31 +25,31 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar&model_name=my_text_classifier&initial_workers=1&synchronous=true",
-					"protocol": "{{protocol}}",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
+					"protocol": "http",
 					"host": [
-						"{{hostname}}"
+						"localhost"
 					],
-					"port": "{{mgmt-port}}",
+					"port": "8081",
 					"path": [
 						"models"
 					],
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar"
+							"value": "{{url}}"
 						},
 						{
 							"key": "model_name",
-							"value": "my_text_classifier"
+							"value": "{{model_name}}"
 						},
 						{
 							"key": "initial_workers",
-							"value": "1"
+							"value": "{{worker}}"
 						},
 						{
 							"key": "synchronous",
-							"value": "true"
+							"value": "{{synchronous}}"
 						}
 					]
 				}
@@ -57,15 +57,15 @@
 			"response": []
 		},
 		{
-			"name": "Model Zoo - Inference Text Classification",
+			"name": "Model Zoo - Inference Model",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
+						"id": "3abf077e-ea14-4139-abd7-1c8e462af87c",
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -83,294 +83,23 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../examples/text_classification/sample_text.txt"
-					},
-					"options": {
-						"raw": {
-							"language": "text"
-						}
+						"src": "{{file}}"
 					}
 				},
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/my_text_classifier",
-					"protocol": "{{protocol}}",
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/{{model_name}}",
+					"protocol": "http",
 					"host": [
-						"{{hostname}}"
+						"localhost"
 					],
-					"port": "{{pred-port}}",
+					"port": "8080",
 					"path": [
 						"predictions",
-						"my_text_classifier"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Model Zoo - Register DenseNet",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161&initial_workers=1&synchronous=true",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "densenet161"
-						},
-						{
-							"key": "initial_workers",
-							"value": "1"
-						},
-						{
-							"key": "synchronous",
-							"value": "true"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Model Zoo - Inference - DenseNet",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"content-type": true
-				}
-			},
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "file",
-					"file": {
-						"src": "../examples/image_classifier/kitten.jpg"
-					},
-					"options": {
-						"raw": {
-							"language": "text"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/densenet161",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"predictions",
-						"densenet161"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Model Zoo - Register Model - SqueezeNet w Batch",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "1c2662e6-d670-4a18-b6c6-2830eb28827f",
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true&batch_size=2&max_batch_delay=200",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models"
-					],
-					"query": [
-						{
-							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-						},
-						{
-							"key": "model_name",
-							"value": "squeezenet1_1"
-						},
-						{
-							"key": "initial_workers",
-							"value": "1"
-						},
-						{
-							"key": "synchronous",
-							"value": "true"
-						},
-						{
-							"key": "batch_size",
-							"value": "2"
-						},
-						{
-							"key": "max_batch_delay",
-							"value": "200"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Model Zoo - Inference - SqueezeNet",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "c4c913b4-7a3d-4e1e-975c-35f0d5004655",
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"content-type": true
-				}
-			},
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "file",
-					"file": {
-						"src": "../examples/image_classifier/kitten.jpg"
-					},
-					"options": {
-						"raw": {
-							"language": "text"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/squeezenet1_1",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"predictions",
-						"squeezenet1_1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Inference Endpoint - Ping",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "adab6847-8c88-4b41-9a43-aaa234cd45c7",
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/ping",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{pred-port}}",
-					"path": [
-						"ping"
+						"{{model_name}}"
 					]
 				}
 			},
 			"response": []
 		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"id": "3d2732d6-14cf-4a16-809b-68777156679f",
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"id": "90c609d2-601a-4035-bea7-23e0aa964cf7",
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }
