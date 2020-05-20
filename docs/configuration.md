@@ -191,11 +191,11 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
-* `debug`: runs Torchserve in debug mode where `default_workers_per_model` is set to 1 when this flag is true.
-* `model_store` : path of model store directory.
-* `model_server_home` : Torchserve home directory.
-* `max_request_size` : The maximum allowable request size that the Torchserve accepts.
-* `max_response_size` : The maximum buffer size the frontend allocates for a worker response, in bytes.
+* `debug`: Run Torchserve in debug mode. Default: false
+* `model_store` : Path of model store directory.
+* `model_server_home` : Torchserve home directory. 
+* `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
+* `max_response_size` : The maximum buffer size the frontend allocates for a worker response, in bytes. Default: 6553500
 
 ---
 **NOTE**
