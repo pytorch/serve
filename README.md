@@ -100,42 +100,21 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
 
-1. Install Java 11
+Please deactivate any conda env that you might be within.
+Run the following script from the top of the source directory.
 
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
+NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-1. Install dependencies
+#### For Debian Based Systems
+Verified on EC2 instances running Ubuntu DL AMI 28.x
 
-    ```bash
-    pip install psutil future
-    ```
-
-1. Clone the repo
-
-    ```bash
-    git clone https://github.com/pytorch/serve
-    cd serve
-    ```
-
-1. Make your changes executable
-
-    ```bash
-    pip install -e .
-    ```
-
-* To develop with torch-model-archiver:
-
-```bash
-cd serve/model-archiver
-pip install -e .
 ```
+./scripts/install_from_src_ubuntu
+```
+#### For MAC OS
 
-* To upgrade TorchServe or model archiver from source code and make changes executable, run:
-
-```bash
-pip install -U -e .
+```
+./scripts/install_from_src_macos
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
@@ -292,6 +271,14 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 ```bash
 ./start.sh
 ```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
+```
 
 ## Learn More
 
@@ -299,6 +286,7 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 * [Manage models API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing
 

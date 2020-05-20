@@ -176,6 +176,14 @@ public class ModelArchive {
         }
     }
 
+    public static void removeModel(String modelStore, String marURL) {
+        if (URL_PATTERN.matcher(marURL).matches()) {
+            String marFileName = FilenameUtils.getName(marURL);
+            File modelLocation = new File(modelStore, marFileName);
+            FileUtils.deleteQuietly(modelLocation);
+        }
+    }
+
     public String getHandler() {
         return manifest.getModel().getHandler();
     }

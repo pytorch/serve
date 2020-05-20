@@ -15,6 +15,7 @@ from builtins import str
 
 from ts.metrics.metrics_store import MetricsStore
 from ts.service import Service
+from .utils.util import list_classes_from_module
 
 
 class ModelLoaderFactory(object):
@@ -23,14 +24,8 @@ class ModelLoaderFactory(object):
     """
 
     @staticmethod
-    def get_model_loader(model_dir):
-        manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
-        if os.path.exists(manifest_file):
-            return TsModelLoader()
-        elif os.path.exists(os.path.join(model_dir, "MANIFEST.json")):
-            return LegacyModelLoader()
-        else:
-            return TsModelLoader()
+    def get_model_loader():
+        return TsModelLoader()
 
 
 class ModelLoader(object):
@@ -88,7 +83,8 @@ class TsModelLoader(ModelLoader):
                 module_name = module_name[:-3]
             module_name = module_name.split("/")[-1]
             module = importlib.import_module(module_name)
-        except Exception as e:
+            # pylint: disable=unused-variable
+        except ImportError as e:
             module_name = ".{0}".format(handler)
             module = importlib.import_module(module_name, 'ts.torch_handler')
             function_name = None
@@ -105,7 +101,6 @@ class TsModelLoader(ModelLoader):
             # initialize model at load time
             entry_point(None, service.context)
         else:
-            from .utils.util import list_classes_from_module
             model_class_definitions = list_classes_from_module(module)
             if len(model_class_definitions) != 1:
                 raise ValueError("Expected only one class in custom service code or a function entry point {}".format(
@@ -131,58 +126,5 @@ class TsModelLoader(ModelLoader):
                         # pylint: disable=broad-except
                     except Exception:
                         pass
-
-        return service
-
-#TODO Shall we remove this?
-class LegacyModelLoader(ModelLoader):
-    """
-    TorchServe 0.4 Model Loader
-    """
-
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size):
-        """
-        Load TorchServe 0.3 model from file.
-
-        :param model_name:
-        :param model_dir:
-        :param handler:
-        :param gpu_id:
-        :param batch_size:
-        :return:
-        """
-        manifest_file = os.path.join(model_dir, "MANIFEST.json")
-
-        manifest = None
-        if os.path.isfile(manifest_file):
-            with open(manifest_file) as f:
-                manifest = json.load(f)
-        if not handler.endswith(".py"):
-            handler = handler + ".py"
-
-        service_file = os.path.join(model_dir, handler)
-        name = os.path.splitext(os.path.basename(service_file))[0]
-        if sys.version_info[0] > 2:
-            from importlib import util
-
-            spec = util.spec_from_file_location(name, service_file)
-            module = util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-        else:
-            import imp
-            module = imp.load_source(name, service_file)
-
-        if module is None:
-            raise ValueError("Unable to load module {}".format(service_file))
-
-        from ts.model_service.model_service import SingleNodeService
-        from .utils.util import list_classes_from_module
-        model_class_definitions = list_classes_from_module(module, SingleNodeService)
-        module_class = model_class_definitions[0]
-
-        module = module_class(model_name, model_dir, manifest, gpu_id)
-        service = Service(model_name, model_dir, manifest, module.handle, gpu_id, batch_size)
-
-        module.initialize(service.context)
 
         return service

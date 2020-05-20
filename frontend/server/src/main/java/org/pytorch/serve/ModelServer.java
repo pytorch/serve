@@ -29,6 +29,9 @@ import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.metrics.MetricManager;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.servingsdk.annotations.Endpoint;
+import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.snapshot.SnapshotManager;
@@ -40,9 +43,6 @@ import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
-import software.amazon.ai.mms.servingsdk.annotations.Endpoint;
-import software.amazon.ai.mms.servingsdk.annotations.helpers.EndpointTypes;
 
 public class ModelServer {
 
