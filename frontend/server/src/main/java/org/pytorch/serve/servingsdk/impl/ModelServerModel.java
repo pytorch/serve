@@ -2,9 +2,9 @@ package org.pytorch.serve.servingsdk.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.pytorch.serve.servingsdk.Model;
+import org.pytorch.serve.servingsdk.Worker;
 import org.pytorch.serve.wlm.ModelManager;
-import software.amazon.ai.mms.servingsdk.Model;
-import software.amazon.ai.mms.servingsdk.Worker;
 
 public class ModelServerModel implements Model {
     private final org.pytorch.serve.wlm.Model model;

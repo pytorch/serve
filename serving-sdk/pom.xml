@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>software.amazon.ai</groupId>
-  <artifactId>mms-plugins-sdk</artifactId>
+  <groupId>org.pytorch</groupId>
+  <artifactId>torchserve-plugins-sdk</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1</version>
-  <name>mms-plugins-sdk</name>
+  <version>0.0.3</version>
+  <name>torchserve-plugins-sdk</name>
   <description>
-    SDK for Model Server plugins
+    SDK for PyTorch model server plugins
   </description>
   <licenses>
     <license>
@@ -16,17 +16,11 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>
-    <connection>scm:git:git://github.com/awslabs/mxnet-model-server.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:deep-learning-mms-bot/mxnet-model-server.git</developerConnection>
-    <url>https://github.com/awslabs/mxnet-model-server/tree/master/serving-sdk</url>
-    <tag>HEAD</tag>
-  </scm>
+
   <developers>
     <developer>
-      <name>MXNet Model Server</name>
-      <url>https://github.com/awslabs/mxnet-model-server</url>
-      <id>modelserver.io</id>
+      <name>PyTorch Model Server</name>
+      <url>https://github.com/pytorch/serve</url>
     </developer>
   </developers>
 
@@ -53,17 +47,25 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>staging</id>
-      <properties>
-        <repo_url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</repo_url>
-        <skip.gpg>false</skip.gpg>
-      </properties>
-    </profile>
-  </profiles>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
+        <configuration>
+          <skip>${skip.gpg}</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -128,32 +130,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.6</version>
-        <configuration>
-          <skip>${skip.gpg}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
-        <configuration>
-          <skip>false</skip>
-          <altDeploymentRepository>deployrepo::default::${repo_url}</altDeploymentRepository>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>8</source>
@@ -161,6 +137,13 @@
         </configuration>
       </plugin>
     </plugins>
-
   </build>
+
+  <distributionManagement>
+    <repository>
+      <id>bintray-pytorch-maven</id>
+      <name>pytorch-maven</name>
+      <url>https://api.bintray.com/maven/pytorch/maven/org.pytorch:torchserve_plugins_sdk/</url>
+    </repository>
+  </distributionManagement>
 </project>

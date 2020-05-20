@@ -15,14 +15,17 @@ sudo apt-get install -y \
         python3-pip \
         openjdk-11-jdk \
         g++ \
-        linuxbrew-wrapper \
         curl \
         vim \
+        git \
+        file \
         build-essential \
         && cd /tmp \
         && curl -O https://bootstrap.pypa.io/get-pip.py \
         && python3 get-pip.py
 
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+export PATH="/home/linuxbrew/.linuxbrew/Homebrew/bin/:$PATH"
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
@@ -53,10 +56,10 @@ echo "Installing JMeter through Brew"
     true
 }
 
-wget https://jmeter-plugins.org/get/ -O /home/ubuntu/.linuxbrew/Cellar/jmeter/5.2.1/libexec/lib/ext/jmeter-plugins-manager-1.3.jar
-wget http://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O /home/ubuntu/.linuxbrew/Cellar/jmeter/5.2.1/libexec/lib/cmdrunner-2.2.jar
-java -cp /home/ubuntu/.linuxbrew/Cellar/jmeter/5.2.1/libexec/lib/ext/jmeter-plugins-manager-1.3.jar org.jmeterplugins.repository.PluginManagerCMDInstaller
-/home/ubuntu/.linuxbrew/Cellar/jmeter/5.2.1/libexec/bin/PluginsManagerCMD.sh install jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
+wget https://jmeter-plugins.org/get/ -O /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/lib/ext/jmeter-plugins-manager-1.3.jar
+wget http://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/lib/cmdrunner-2.2.jar
+java -cp /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/lib/ext/jmeter-plugins-manager-1.3.jar org.jmeterplugins.repository.PluginManagerCMDInstaller
+/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/bin/PluginsManagerCMD.sh install jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
 
 echo "Install docker"
 sudo apt-get remove docker docker-engine docker.io
