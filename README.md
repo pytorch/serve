@@ -100,10 +100,8 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
 
-
 Please deactivate any conda env that you might be within.
 Run the following script from the top of the source directory.
-
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
@@ -188,7 +186,7 @@ The following code completes all three steps:
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:

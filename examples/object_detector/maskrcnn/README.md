@@ -15,7 +15,7 @@ wget https://download.pytorch.org/models/maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth
     mkdir model_store
     mv maskrcnn.mar model_store/
     torchserve --start --model-store model_store --models maskrcnn=maskrcnn.mar
-    curl -X POST http://127.0.0.1:8080/predictions/maskrcnn -T serve/examples/object_detector/persons.jpg
+    curl http://127.0.0.1:8080/predictions/maskrcnn -T serve/examples/object_detector/persons.jpg
     ```
 * Output
 
