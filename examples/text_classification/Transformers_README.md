@@ -41,6 +41,5 @@ torchserve --start --model-store model_store --models my_tc=BertSeqClassificatio
 #### Get predictions from a model:
 
 ```
-curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./sample_text.txt
+curl http://127.0.0.1:8080/predictions/my_tc -T ./sample_text.txt
 ```
-

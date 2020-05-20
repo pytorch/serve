@@ -14,9 +14,9 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | VGG11 | Image Classification | ImageNet | 471 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar)|
 | Squeezenet 1_1 | Image Classification | ImageNet | 4.4 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar)|
 | MNIST digit classifier | Image Classification | MNIST | 4.3 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/mnist.mar)|
+| Resnet 152 |Image Classification | ImageNet | 214 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar)
 | Faster RCNN | Object Detection | COCO | 148 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar)|
 | MASK RCNN | Object Detection | COCO | 158 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar)|
 | Text classifier | Text Classification | AG_NEWS | 169 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar)|
 | FCN Resenet 101 | Image Segmentation | COCO | 193 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar)|
-
 Refer [example](../examples) for more details on above models.
