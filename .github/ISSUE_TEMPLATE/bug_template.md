@@ -18,6 +18,18 @@ Please search on the [issue tracker](https://github.com/pytorch/serve/issues) be
 * java version:
 * Operating System and version:
 
+## Your Environment
+<!--- Include as many relevant details about the environment you experienced the bug in -->
+* Installed using source? [yes/no]:
+* Are you planning to deploy it using docker container? [yes/no]:
+* Is it a CPU or GPU environment?:
+* Using a default/custom handler? [If possible upload/share custom handler/model]:
+* What kind of model is it e.g. vision, text, audio?:
+* Are you planning to use local models from model-store or public url being used e.g. from S3 bucket etc.?
+  [If public url then provide link.]:
+* Provide config.properties, logs [ts.log] and parameters used for model registration/update APIs:
+* Link to your project [if any]:
+
 ## Expected Behavior
 <!--- If you're describing a bug, tell us what should happen -->
 
@@ -37,14 +49,3 @@ Please search on the [issue tracker](https://github.com/pytorch/serve/issues) be
 ## Failure Logs [if any]
 <!--- Provide any relevant log snippets or files here. -->
 
-## Your Environment
-<!--- Include as many relevant details about the environment you experienced the bug in -->
-* Installed using source? [yes/no]:
-* Are you planning deploy it using docker container? [yes/no]:
-* Is it a CPU or GPU environment?:
-* Using a default/custom handler? [If possible upload/share custom handler/model]:
-* What kind of model is it e.g. vision, text, audio?: 
-* Are you planning to use local models from model-store or public url being used e.g. from S3 bucket etc.?
-  [If public url then provide link.]:
-* Provide config.properties, logs [ts.log] and parameters used for model registration/update APIs:
-* Link to your project [if any]:
