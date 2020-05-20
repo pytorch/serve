@@ -14,13 +14,15 @@ https://github.com/pytorch/examples/tree/master/mnist
 
 # Serve a custom model on TorchServe
 
+Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
+
  * Step - 1: Create a new model architecture file which contains model class extended from torch.nn.modules. In this example we have created [mnist model file](mnist.py).
  * Step - 2: Train a MNIST digit recognition model using https://github.com/pytorch/examples/blob/master/mnist/main.py and save the state dict of model. We have added the pre-created [state dict](mnist_cnn.pt) of this model.
  * Step - 3: Write a custom handler to run the inference on your model. In this example, we have added a [custom_handler](mnist_handler.py) which runs the inference on the input greyscale images using the above model and recognizes the digit in the image.
  * Step - 4: Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler examples/image_classifier/mnist/mnist_handler.py
+    torch-model-archiver --model-name mnist --version 1.0 --model-file ./serve/examples/image_classifier/mnist/mnist.py --serialized-file ./serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  ./serve/examples/image_classifier/mnist/mnist_handler.py
     ```
    
  * Step - 5: Register the model on TorchServe using the above model archive file and run digit recognition inference
@@ -29,6 +31,6 @@ https://github.com/pytorch/examples/tree/master/mnist
     mkdir model_store
     mv mnist.mar model_store/
     torchserve --start --model-store model_store --models mnist=mnist.mar
-    curl -X POST http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
+    curl -X POST http://127.0.0.1:8080/predictions/mnist -T ./serve/examples/image_classifier/mnist/test_data/0.png
     ```
 

@@ -25,6 +25,11 @@ For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
 ```bash
 docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1-cpu
 ```
+For GPU based image :
+
+```bash
+docker run --rm -it --gpus --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 torchserve:1.0
+```
 
 For the latest version, you can use the `latest` tag:
 docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest

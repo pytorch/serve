@@ -18,14 +18,21 @@ Conda instructions are provided in more detail, but you may also use `pip` and `
 
 ### Install with pip
 
-To use `pip` to install TorchServe and the model archiver:
+1. Install Java 11
 
-``` bash
-pip install torch torchtext torchvision sentencepiece psutil future
-pip install torchserve torch-model-archiver
-```
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
+
+1. Use `pip` to install TorchServe and the model archiver:
+
+    ``` bash
+    pip install torch torchtext torchvision sentencepiece psutil future
+    pip install torchserve torch-model-archiver
+    ```
 
 ### Install with Conda
+**Note:** For Conda, Python 3.8 is required to run Torchserve
 
 #### Ubuntu
 
@@ -40,19 +47,24 @@ pip install torchserve torch-model-archiver
     For CPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
     ```
 
     For GPU
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
     ```
 
 1. Activate the environment
 
     ```bash
     source activate torchserve
+    ```
+
+2. Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
     ```
 
 #### macOS
@@ -68,7 +80,7 @@ pip install torchserve torch-model-archiver
 1. Create an environment and install torchserve and torch-model-archiver
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch sentencepiece torchtext torchvision -c pytorch -c powerai
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
     ```
 
 1. Activate the environment
@@ -77,42 +89,32 @@ pip install torchserve torch-model-archiver
     source activate torchserve
     ```
 
+2. Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
+    ```
+
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
 If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
 
-1. Install dependencies
+Please deactivate any conda env that you might be within.
+Run the following script from the top of the source directory.
 
-    ```bash
-    pip install psutil future -y
-    ```
+NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-1. Clone the repo
+#### For Debian Based Systems
+Verified on EC2 instances running Ubuntu DL AMI 28.x
 
-    ```bash
-    git clone https://github.com/pytorch/serve
-    cd serve
-    ```
-
-1. Make your changes executable
-
-    ```bash
-    pip install -e .
-    ```
-
-* To develop with torch-model-archiver:
-
-```bash
-cd serve/model-archiver
-pip install -e .
 ```
+./scripts/install_from_src_ubuntu
+```
+#### For MAC OS
 
-* To upgrade TorchServe or model archiver from source code and make changes executable, run:
-
-```bash
-pip install -U -e .
+```
+./scripts/install_from_src_macos
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
@@ -121,14 +123,14 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
 
-To run this example, clone the TorchServe repository and navigate to the root of the repository:
+To run this example, clone the TorchServe repository:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
-cd serve
 ```
 
-Then run the following steps from the root of the repository.
+Then run the following steps from the parent directory of the root of the repository.
+For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`.
 
 ### Store a Model
 
@@ -138,8 +140,7 @@ You can also create model stores to store your archived models.
 1. Create a directory to store your models.
 
     ```bash
-    mkdir ./model_store
-    cd ./model_store
+    mkdir model_store
     ```
 
 1. Download a trained model.
@@ -151,7 +152,7 @@ You can also create model stores to store your archived models.
 1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file ./model_store/densenet161-8d451a50.pth --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     ```
 
 For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
@@ -161,7 +162,7 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-torchserve --start --model-store ./model_store --models ./model_store/densenet161.mar
+torchserve --start --ncs --model-store model_store --models densenet161.mar
 ```
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
@@ -270,6 +271,14 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 ```bash
 ./start.sh
 ```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
+```bash
+./start.sh --gpu_devices 1,2,3
+```
 
 ## Learn More
 
@@ -277,11 +286,12 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 * [Manage models API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing
 
 We welcome all contributions!
 
-To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md). 
+To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
 
 To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md). Cheers!
