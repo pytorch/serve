@@ -12,7 +12,15 @@ This folder contains nightly regression tests execututed against TorchServe mast
 
 ### Running the test manually.
 
-Use Public TorchServe Docker Image for the execition env.
+Clone Torch Serve Repo & Build the Docker Image for the execition env.
+
+```
+git clone https://github.com/pytorch/serve
+cd serve
+./build_image.sh
+```
+
+This would build a docker Image with a pytorch/torchserve:latest in which we would run our Regression Tests.
 
 ```
 docker run -it --user root pytorch/torchserve:latest /bin/bash
