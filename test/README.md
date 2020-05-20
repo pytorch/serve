@@ -18,21 +18,28 @@ cd serve
 ./build_image.sh
 ```
 
-This would build a docker Image with a tag torchserve:1.0 in which we would run our Regression Tests.
+This would build a docker Image with a pytorch/torchserve:latest in which we would run our Regression Tests.
 
 ```
-docker run -it —user root torchserve:1.0 /bin/bash
+docker run -it --user root pytorch/torchserve:latest /bin/bash
 ```
 
-In the Docker CLI execute the following tests.
+In the Docker CLI execute the following cmds.
 
 ```
 apt-get update 
-apt-get install -y git wget
+apt-get install -y git wget sudo 
 git clone https://github.com/pytorch/serve
 cd serve 
-./test/regression_tests.sh
 ```
+To execute tests on master run: 
+
+`./test/regression_tests.sh `
+
+To execute tests on different run: 
+
+`./test/regression_tests.sh <branch_name>`
+
 
 You can view the logs for Test execution & the Torch serve in the /tmp dir.
 
@@ -43,11 +50,10 @@ cat /tmp/ts.log
 
 ### Adding tests
 
-To add to the tests, import a collection (in /postman) to Postman and add new requests. Specifically to test for inference against a new model
-* Open inference_api_test_collection.json in POST man.
-* Clone an Register Model / Inferece Request combination.
-* Update URL & Model Payload.
-
+To add to the tests, import a collection (in /postman) to Postman and add new requests.
+Specifically to test for inference against a new model
+* Open /postman/inference_data.json
+* Add new json object with the new model url and payload.
 
 ![POSTMAN UI](screenshot/postman.png)
 
