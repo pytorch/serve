@@ -29,7 +29,7 @@ public final class ModelVersionedRefs {
      * @return None
      */
     public void addVersionModel(Model model, String versionId)
-            throws InvalidModelVersionException, ConflictStatusException {
+            throws ModelVersionNotFoundException, ConflictStatusException {
         logger.debug("Adding new version {} for model {}", versionId, model.getModelName());
 
         if (versionId == null) {
@@ -64,10 +64,10 @@ public final class ModelVersionedRefs {
      * @param A valid String obj with version to set default
      * @return None
      */
-    public void setDefaultVersion(String versionId) throws InvalidModelVersionException {
+    public void setDefaultVersion(String versionId) throws ModelVersionNotFoundException {
         Model model = this.modelsVersionMap.get(versionId);
         if (model == null) {
-            throw new InvalidModelVersionException("Can't set default to: " + versionId);
+            throw new ModelVersionNotFoundException("Can't set default to: " + versionId);
         }
 
         logger.debug("Setting default version to {} for model {}", versionId, model.getModelName());

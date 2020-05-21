@@ -169,7 +169,7 @@ public final class ModelManager {
     }
 
     private void createVersionedModel(Model model, String versionId)
-            throws ConflictStatusException {
+            throws ModelVersionNotFoundException, ConflictStatusException {
 
         ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
         if (modelVersionRef == null) {
@@ -233,7 +233,7 @@ public final class ModelManager {
     }
 
     public HttpResponseStatus setDefaultVersion(String modelName, String newModelVersion)
-            throws InvalidModelVersionException {
+            throws ModelVersionNotFoundException {
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
@@ -242,7 +242,7 @@ public final class ModelManager {
         }
         try {
             vmodel.setDefaultVersion(newModelVersion);
-        } catch (InvalidModelVersionException e) {
+        } catch (ModelVersionNotFoundException e) {
             logger.warn("Model version {} does not exist for model {}", newModelVersion, modelName);
             httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
@@ -251,20 +251,22 @@ public final class ModelManager {
     }
 
     private CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, boolean isStartup) {
+            String modelName, String versionId, boolean isStartup)
+            throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
         return updateModel(
                 modelName, versionId, model.getMinWorkers(), model.getMaxWorkers(), isStartup);
     }
 
     public CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup) {
+            String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup)
+            throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
 
         if (model == null) {
-            throw new AssertionError("Model version not not found for model : " + modelName);
+            throw new ModelVersionNotFoundException(
+                    "Model version: " + versionId + " does not exist for model: " + modelName);
         }
-
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
@@ -282,7 +284,8 @@ public final class ModelManager {
     }
 
     public CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, int minWorkers, int maxWorkers) {
+            String modelName, String versionId, int minWorkers, int maxWorkers)
+            throws ModelVersionNotFoundException {
         return updateModel(modelName, versionId, minWorkers, maxWorkers, false);
     }
 
@@ -308,20 +311,13 @@ public final class ModelManager {
         return wlm.getWorkers();
     }
 
-    public boolean addJob(Job job) throws ModelNotFoundException {
+    public boolean addJob(Job job) throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelName = job.getModelName();
         String versionId = job.getModelVersion();
-        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
-        if (vmodel == null) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
-        }
-
-        Model model = vmodel.getVersionModel(versionId);
-
+        Model model = getModel(modelName, versionId);
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-
         if (wlm.hasNoWorker(model.getModelVersionName())) {
             return false;
         }
@@ -401,12 +397,18 @@ public final class ModelManager {
         return startupModels;
     }
 
-    public Model getModel(String modelName, String versionId) {
+    public Model getModel(String modelName, String versionId) throws ModelVersionNotFoundException {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             return null;
         }
-        return vmodel.getVersionModel(versionId);
+        Model model = vmodel.getVersionModel(versionId);
+        if (model == null) {
+            throw new ModelVersionNotFoundException(
+                    "Model version: " + versionId + " does not exist for model: " + modelName);
+        } else {
+            return model;
+        }
     }
 
     public Set<Entry<String, Model>> getAllModelVersions(String modelName)
