@@ -100,42 +100,21 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
 
-1. Install Java 11
+Please deactivate any conda env that you might be within.
+Run the following script from the top of the source directory.
 
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
+NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-1. Install dependencies
+#### For Debian Based Systems
+Verified on EC2 instances running Ubuntu DL AMI 28.x
 
-    ```bash
-    pip install psutil future
-    ```
-
-1. Clone the repo
-
-    ```bash
-    git clone https://github.com/pytorch/serve
-    cd serve
-    ```
-
-1. Make your changes executable
-
-    ```bash
-    pip install -e .
-    ```
-
-* To develop with torch-model-archiver:
-
-```bash
-cd serve/model-archiver
-pip install -e .
 ```
+./scripts/install_from_src_ubuntu
+```
+#### For MAC OS
 
-* To upgrade TorchServe or model archiver from source code and make changes executable, run:
-
-```bash
-pip install -U -e .
+```
+./scripts/install_from_src_macos
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
@@ -207,7 +186,7 @@ The following code completes all three steps:
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:
@@ -247,51 +226,7 @@ torchserve --stop
 You see output specifying that TorchServe has stopped.
 
 ## Quick Start with Docker
-
-### Prerequisites
-
-* docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
-* git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-* TorchServe source code. Clone and enter the repo as follows:
-
-```bash
-git clone https://github.com/pytorch/serve.git
-cd serve
-```
-
-### Build the TorchServe Docker image
-
-The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
-
-To build the TorchServe image for a CPU device using the `master` branch, use the following command:
-
-```bash
-./build_image.sh
-```
-
-To create a Docker image for a specific branch, use the following command:
-
-```bash
-./build_image.sh -b <branch_name>
-```
-
-To create a Docker image for a GPU device, use the following command:
-
-```bash
-./build_image.sh --gpu
-```
-
-To create a Docker image for a GPU device with a specific branch, use following command:
-
-```bash
-./build_image.sh -b <branch_name> --gpu
-```
-
-To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
-
-```bash
-./start.sh
-```
+Refer [torchserve docker](docker/README.md) for details.
 
 ## Learn More
 
@@ -299,6 +234,7 @@ To run your TorchServe Docker image and start TorchServe inside the container wi
 * [Manage models API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing
 
