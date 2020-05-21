@@ -1,46 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
-clean_slate()
+source scripts/install_utils
+
+echo "                      =============================================="
+echo "                      If you are within a conda env please deactivate it and come back"
+echo "                      If you don't want to proceed kill this script in the next 10 seconds!"
+echo "                      =============================================="
+
+sleep 10
+
+install_java_deps_mac()
 {
-	echo "                      =============================================="
-	echo "                      If you are within a conda env please deactivate it and come back"
-	echo "                      If you don't want to proceed kill this script in the next 10 seconds!"
-	echo "                      =============================================="
-
-	sleep 10
-
-	echo "Cleaning up state"
-	# uninstall any global installations
-	pip uninstall --yes torchserve
-	pip uninstall --yes torch-model-archiver
-	sleep 5
-}
-
-install_java_deps()
-{
-	brew tap AdoptOpenJDK/openjdk
-	brew cask install adoptopenjdk11
-}
-
-install_torch_deps()
-{
-	# replace this with requirements.txt when ready
-	pip install torch torchtext torchvision sentencepiece psutil future
-}
-
-build_install_server()
-{
-	pip install .
-}
-
-build_install_archiver()
-{
-	cd model-archiver && pip install .
+  JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+	if [ "$JAVA_VERSION" != "11" ]
+  then
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk11
+  fi
 }
 
 clean_slate
-install_java_deps
+install_java_deps_mac
 install_torch_deps
 
 build_install_server
