@@ -7,20 +7,8 @@ The benchmarks measure the performance of TorchServe on various models and bench
 ### Ubuntu
 
 The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
-
-While installing JMeter through brew, the `install_depdendencies.sh` script asks for following command line input.  
-```bash
-Installing JMeter through Brew
-+ yes ''
-+ brew update
-==> Select the Linuxbrew installation directory
-- Enter your password to install to /home/linuxbrew/.linuxbrew (recommended)
-- Press Control-D to install to /home/ubuntu/.linuxbrew
-- Press Control-C to cancel installation
-[sudo] password for ubuntu: 
-```
-
-Here `Press Control-D to install to /home/ubuntu/.linuxbrew` as the `ubuntu` user on EC2 node has password-less sudo access.
+On CPU based instance, use `install_depdendencies.sh`.
+On GPU based instance, use `install_depdendencies.sh True`. 
 
 ### MacOS
 

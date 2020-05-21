@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
 import org.pytorch.serve.TestUtils;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ConfigManagerTest {
@@ -105,7 +105,8 @@ public class ConfigManagerTest {
 
     @Test
     public void testNoEnvVars()
-            throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
+            throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException,
+                    IOException {
         System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();

@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.openapi.OpenApiUtils;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -23,7 +25,6 @@ import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
 
 /**
  * A class handling inbound HTTP requests to the management API.
@@ -99,7 +100,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
     private void handlePredictions(
             ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         if (segments.length < 3) {
             throw new ResourceNotFoundException();
         }
@@ -118,7 +119,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelName =
                 ("invocations".equals(segments[1]))
                         ? NettyUtils.getParameter(decoder, "model_name", null)
@@ -136,7 +137,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
 
         String modelVersion = null;
         if (segments.length == 4 && "predict".equals(segments[3])) {
@@ -154,7 +155,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String modelName,
             String modelVersion)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         RequestInput input = parseRequest(ctx, req, decoder);
         if (modelName == null) {
             modelName = input.getStringParameter("model_name");
