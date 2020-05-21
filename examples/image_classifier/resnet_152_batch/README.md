@@ -1,8 +1,9 @@
 #### Sample commands to create a resnet-152 eager mode model archive for batch inputs, register it on TorchServe and run image prediction
+Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
 
 ```bash
 wget https://download.pytorch.org/models/resnet152-b121ed2d.pth
-torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file serve/examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py --extra-files serve/examples/image_classifier/index_to_name.json
+torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file ./serve/examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler ./serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py --extra-files ./serve/examples/image_classifier/index_to_name.json
 mkdir model-store
 mv resnet-152-batch.mar model-store/
 torchserve --start --model-store model-store
@@ -19,9 +20,9 @@ The above commands will create the mar file and register the resnet152 model wit
 To test batch inference execute the following commands within the specified max_batch_delay time :
 
 ```bash
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
 ```
 
 #### TorchScript example using Resnet152 batch image classifier:
@@ -52,7 +53,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image
 * Use following commands to register Resnet152-batch torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json --handler --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py
+    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files ./serve/examples/image_classifier/index_to_name.json --handler  ./serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py
     mkdir model-store
     mv resnet-152-batch.mar model-store/
     torchserve --start --model-store model-store
@@ -62,7 +63,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image
 * To test batch inference execute the following commands within the specified max_batch_delay time :
 
 ```bash
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
 ```
