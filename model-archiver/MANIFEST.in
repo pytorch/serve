@@ -1,1 +1,2 @@
 include PyPiDescription.rst
+include model_archiver/version.txt
