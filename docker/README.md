@@ -9,6 +9,9 @@
 
 * docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
 * git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
+* For base Ubuntu with GPU, install following nvidia container toolkit and driver- 
+  * [Nvidia container toolkit](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster)
+  * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
 
 ## Make sure you are in docker folder as follows
 
@@ -29,7 +32,6 @@ DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/c
 ```
 
 ## Start a container with a TorchServe image
-
 The following examples will start the container with 8080/81 port exposed to outer-world/localhost.
 
 #### Start CPU container
@@ -79,6 +81,19 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ./build_image.sh
 ```
 
+Alternatively, you can use following direct command- 
+```bash 
+Make sure you are inside serve/docker and use following commands
+1. git clone https://github.com/pytorch/serve.git
+2. cd serve;git checkout <branch>;cd docker
+
+For cpu -
+3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+
+For gpu - 
+3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.gpu -t torchserve:dev .
+```
+
 To create a Docker image for a specific branch, use the following command:
 
 ```bash
@@ -116,12 +131,13 @@ For GPU with specific GPU device ids run the following command:
 ```bash
 ./start.sh --gpu_devices 1,2,3
 ```
+Alternativel, you can use direct commands describe in **Start a container with a TorchServe image** above for cpu and gpu by changing image name
 
 # Create torch-model-archiver from container
 
 To create mar [model archive] file for torchserve deployment, you can use following steps
 
-1. Start container by sharing your local model-store/folder where you have your custom/example mar content as well model-store directory [if not there, create one]
+1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
 docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
