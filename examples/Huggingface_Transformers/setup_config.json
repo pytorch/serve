@@ -1,0 +1,6 @@
+{
+ "model_name":"roberta-base",
+ "mode":"question_answering",
+ "do_lower_case":"True",
+ "num_labels":"0"
+}

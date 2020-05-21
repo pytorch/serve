@@ -1,0 +1,44 @@
+{
+	"id": "b9eb6b86-585b-4fca-abd0-972ec686e3e8",
+	"name": "TorchServe",
+	"values": [
+		{
+			"key": "hostname",
+			"value": "localhost",
+			"enabled": true
+		},
+		{
+			"key": "protocol",
+			"value": "http",
+			"enabled": true
+		},
+		{
+			"key": "mgmt-port",
+			"value": "8081",
+			"enabled": true
+		},
+		{
+			"key": "model-name",
+			"value": "densenet161",
+			"enabled": true
+		},
+		{
+			"key": "pred-port",
+			"value": "8080",
+			"enabled": true
+		},
+		{
+			"key": "sec-mgmt-port",
+			"value": "8444",
+			"enabled": true
+		},
+		{
+			"key": "sec-pred-port",
+			"value": "8443",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2020-05-15T07:34:40.974Z",
+	"_postman_exported_using": "Postman/7.24.0"
+}

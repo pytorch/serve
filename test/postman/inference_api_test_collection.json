@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "e69000d9-d3c8-49bd-879a-ad42b95b042a",
+		"name": "inference",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Model Zoo - Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "80fa33ea-ff6a-4535-9328-ddffb980062a",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "{{url}}"
+						},
+						{
+							"key": "model_name",
+							"value": "{{model_name}}"
+						},
+						{
+							"key": "initial_workers",
+							"value": "{{worker}}"
+						},
+						{
+							"key": "synchronous",
+							"value": "{{synchronous}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3abf077e-ea14-4139-abd7-1c8e462af87c",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "{{file}}"
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/{{model_name}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"predictions",
+						"{{model_name}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
