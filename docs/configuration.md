@@ -194,14 +194,16 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `model_store` : Path of model store directory.
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
-* `max_response_size` : The maximum buffer size the frontend allocates for a worker response, in bytes. Default: 6553500
+* `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 
 ---
 **NOTE**
 
-Config properties can be set using environment variable only when `enable_envvars_config` is true and 
-desired property is defined using environment variable in form of `TS_<PROPERTY_NAME>`. 
+All the above config properties can be set using environment variable as follows.
+- set `enable_envvars_config` to true in config.properties
+- export environment variable for property as`TS_<PROPERTY_NAME>`. 
 
-eg: `inference_address` can be set using environment variable `TS_INFERENCE_ADDRESS`.
+  eg: to set inference_address property run cmd
+  `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
 
 ---
