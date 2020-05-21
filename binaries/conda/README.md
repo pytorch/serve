@@ -1,6 +1,6 @@
 # Building conda packages
 
-To build conda packages you must first produce wheels for the project, see root README.md for information.
+To build conda packages you must first produce wheels for the project, see [pip README](../pip/README.md) for information.
 
 After producing wheels use the following command to build conda packages:
 

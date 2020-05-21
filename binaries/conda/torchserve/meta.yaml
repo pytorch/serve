@@ -1,6 +1,6 @@
 package:
-  name: torch-model-archiver
-  version: 0.0.1b20200409
+  name: torchserve
+  version: 0.1.0
 
 requirements:
   build:
@@ -16,7 +16,7 @@ requirements:
 build:
   noarch: generic
   script_env:
-    - TORCH_MODEL_ARCHIVER_WHEEL
+    - TORCHSERVE_WHEEL
 
 about:
   home: https://github.com/pytorch/serve
