@@ -1,12 +1,13 @@
 package org.pytorch.serve.snapshot;
 
+import com.google.gson.JsonObject;
 import java.util.Map;
 
 public class Snapshot {
     private String name;
     private int modelCount;
     private long created;
-    private Map<String, Map<String, ModelSnapshot>> models;
+    private Map<String, Map<String, JsonObject>> models;
 
     public Snapshot(String snaspshotName, int modelCount) {
         this.name = snaspshotName;
@@ -22,11 +23,11 @@ public class Snapshot {
         this.name = name;
     }
 
-    public Map<String, Map<String, ModelSnapshot>> getModels() {
+    public Map<String, Map<String, JsonObject>> getModels() {
         return models;
     }
 
-    public void setModels(Map<String, Map<String, ModelSnapshot>> models) {
+    public void setModels(Map<String, Map<String, JsonObject>> models) {
         this.models = models;
     }
 

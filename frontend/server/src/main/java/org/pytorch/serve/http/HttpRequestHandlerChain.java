@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.servingsdk.ModelServerEndpointException;
 import org.pytorch.serve.servingsdk.impl.ModelServerContext;
 import org.pytorch.serve.servingsdk.impl.ModelServerRequest;
 import org.pytorch.serve.servingsdk.impl.ModelServerResponse;
@@ -18,8 +20,6 @@ import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpointException;
 
 public abstract class HttpRequestHandlerChain {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
