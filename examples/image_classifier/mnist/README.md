@@ -31,6 +31,6 @@ Run the commands given in following steps from the parent directory of the root 
     mkdir model_store
     mv mnist.mar model_store/
     torchserve --start --model-store model_store --models mnist=mnist.mar
-    curl -X POST http://127.0.0.1:8080/predictions/mnist -T ./serve/examples/image_classifier/mnist/test_data/0.png
+    curl http://127.0.0.1:8080/predictions/mnist -T ./serve/examples/image_classifier/mnist/test_data/0.png
     ```
 
