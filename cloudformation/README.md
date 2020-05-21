@@ -5,8 +5,7 @@ Torchserve provides configurable cloudformation templates to spin up AWS instanc
 
 ## Single EC2 instance
 * To spinup a single EC2 instance running Torchserve use the `ec2.yaml` template
-* The template expects a VPC already setup within which your instance will run ([VPC Setup instructions](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenarios.html)). You can use the default VPC as well.
-* Run the following command with the an ec2-keypair, VPC ID and Subnet ID as parameters
+* Run the following command with the an ec2-keypair, and optionally an instance type (default: c5.4xlarge)
 ```
 export AWS_ACCESS_KEY_ID="..."
 export AWS_SECRET_ACCESS_KEY="..."
@@ -17,8 +16,6 @@ aws cloudformation create-stack \
   --template-body file://ec2.yaml \
   --capabilities CAPABILITY_IAM \
   --parameters ParameterKey=KeyName,ParameterValue=<ec2-keypair-name> \
-               ParameterKey=VpcId,ParameterValue=<vpc-id> \
-               ParameterKey=SubnetId,ParameterValue=<subnet-id> \
                ParameterKey=InstanceType,ParameterValue=<instance-type>
 ```
 
@@ -59,4 +56,6 @@ aws cloudformation create-stack \
 ]
 ```
 * Once the instance is up and running, TorchServe logs are published to cloudwatch under the LogGroup=`<stack-name>/<ec2-instance-id>/TorchServe` e.g. `torchserve/i-0649487ecbe691676/TorchServe`
+
+* To terminate the instance and delete the stack you can run `aws cloudformation delete-stack --stack-name <stack-name>`
 
