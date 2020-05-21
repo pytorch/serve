@@ -72,13 +72,15 @@ public class ModelServerTest {
 
         server = new ModelServer(configManager);
         server.start();
-
+        String version = configManager.getProperty("version", null);
         try (InputStream is = new FileInputStream("src/test/resources/inference_open_api.json")) {
-            listInferenceApisResult = IOUtils.toString(is, StandardCharsets.UTF_8.name());
+            listInferenceApisResult =
+                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
 
         try (InputStream is = new FileInputStream("src/test/resources/management_open_api.json")) {
-            listManagementApisResult = IOUtils.toString(is, StandardCharsets.UTF_8.name());
+            listManagementApisResult =
+                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
 
         try (InputStream is = new FileInputStream("src/test/resources/describe_api.json")) {
