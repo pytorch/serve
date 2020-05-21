@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.ErrorResponse;
@@ -1366,6 +1367,61 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterModelFailure"})
+    private void testTSValidPort()
+            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
+                    IOException {
+        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
+        server.stop();
+        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        configManager.setProperty("inference_address", "https://127.0.0.1:42523");
+        server = new ModelServer(configManager);
+        server.start();
+
+        Channel channel = null;
+        Channel managementChannel = null;
+        for (int i = 0; i < 5; ++i) {
+            channel = TestUtils.connect(false, configManager);
+            if (channel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            managementChannel = TestUtils.connect(true, configManager);
+            if (managementChannel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        Assert.assertNotNull(channel, "Failed to connect to inference port.");
+        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
+
+        testPing();
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testTSValidPort"})
+    private void testTSInvalidPort() {
+        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
+        //  invalid port test
+        server.stop();
+        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        configManager.setProperty("inference_address", "https://127.0.0.1:65536");
+        server = new ModelServer(configManager);
+        try {
+            server.start();
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
+            Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");
+        }
     }
 
     private void testLoadModel(String url, String modelName) throws InterruptedException {
