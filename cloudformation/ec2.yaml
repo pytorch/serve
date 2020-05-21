@@ -10,6 +10,10 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+  ServerCertPassword:
+    Description: Server certifiate password
+    Type: String
+    Default: changeit
   InstanceType:
     Description: TorchServe EC2 instance type
     Type: String
@@ -391,6 +395,7 @@ Resources:
           # Setup private-key file and self-signed certificate files
           mkdir /etc/torchserve/
           openssl req -new -x509 -days 365 -nodes -out /etc/torchserve/server.pem -keyout /etc/torchserve/server.key -subj "/C=US/ST=Washington/L=Seattle/O=Amazon Web Services/OU=Torchserve"
+          keytool -import -alias torchserve -keystore /etc/torchserve/keystore -trustcacerts -file /etc/torchserve/server.pem -storepass ${ServerCertPassword} -noprompt
           # Start cfn-hup
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region} --configsets InstallAndRun
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region}
@@ -402,9 +407,17 @@ Resources:
       ResourceSignal:
         Timeout: PT30M
 Outputs:
-  TorchServeURL:
-    Description: URL for newly created TorchServe stack
+  TorchServeManagementURL:
+    Description: Management URL for newly created TorchServe stack
     Value: !Join
       - ''
-      - - http://
+      - - https://
         - !GetAtt 'TorchServeInstance.PublicDnsName'
+        - :8081
+  TorchServeInferenceURL:
+    Description: Inference URL for newly created TorchServe stack
+    Value: !Join
+      - ''
+      - - https://
+        - !GetAtt 'TorchServeInstance.PublicDnsName'
+        - :8080

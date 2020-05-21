@@ -19,14 +19,19 @@ aws cloudformation create-stack \
                ParameterKey=InstanceType,ParameterValue=<instance-type>
 ```
 
-* Once the cloudformation stack creation is complete, you can get the EC2 IP of the instance and test with the following commands
+* Once the cloudformation stack creation is complete, you can get the **TorchServeManagementURL** and **TorchServeInferenceURL** of the instance from the cloudformation output tab on AWS console and test with the following commands
 ```
-> EC2_IP=<ec2-ip>
-> curl --insecure -X POST "https://$EC2_IP:8081/models?initial_workers=1&synchronous=false&url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+> curl --insecure -X POST "<TorchServeManagementURL>/models?initial_workers=1&synchronous=false&url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
 {
   "status": "Processing worker updates..."
 }
-> curl --insecure "https://$EC2_IP:8081/models"
+
+> curl --insecure "<TorchServeInferenceURL>/ping"
+{
+  "status": "Healthy"
+}
+
+> curl --insecure "<TorchServeManagementURL>/models"
 {
     "models": [
         {
@@ -35,8 +40,10 @@ aws cloudformation create-stack \
         }
      ]
 }
+
 > curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-> curl --insecure -X POST "https://$EC2_IP:8080/predictions/squeezenet1_1" -T kitten.jpg
+
+> curl --insecure "<TorchServeInferenceURL>/predictions/squeezenet1_1" -T kitten.jpg
 [
     {
         "tabby": 0.2752002477645874
