@@ -131,7 +131,7 @@ For GPU with specific GPU device ids run the following command:
 ```bash
 ./start.sh --gpu_devices 1,2,3
 ```
-Alternativel, you can use direct commands describe in **Start a container with a TorchServe image** above for cpu and gpu by changing image name
+Alternatively, you can use direct commands describe in **Start a container with a TorchServe image** above for cpu and gpu by changing image name
 
 # Create torch-model-archiver from container
 
