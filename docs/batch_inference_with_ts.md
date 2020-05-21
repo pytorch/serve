@@ -135,7 +135,7 @@ $ curl localhost:8081/models/resnet-152
   * Run inference to test the model.
 
     ```text
-      $ curl -X POST localhost/predictions/resnet-152 -T kitten.jpg
+      $ curl localhost/predictions/resnet-152 -T kitten.jpg
       {
         "probability": 0.7148938179016113,
         "class": "n02123045 tabby, tabby cat"
@@ -164,7 +164,7 @@ $ curl localhost:8081/models/resnet-152
 Before running this test, we need to first install `apache-bench` on our system. Since we were running this on an Ubuntu host, we install `apache-bench` as follows:
 
 ```bash
-$ sudo apt-get udpate && sudo apt-get install apache2-utils
+$ sudo apt-get update && sudo apt-get install apache2-utils
 ```
 
 Now that installation is done, we can run performance benchmark test as follows.

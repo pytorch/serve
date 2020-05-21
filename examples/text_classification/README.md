@@ -30,5 +30,5 @@ The above command generated the model's state dict as model.pt and the vocab use
     mkdir model_store
     mv my_text_classifier.mar model_store/
     torchserve --start --model-store model_store --models my_tc=my_text_classifier.mar
-    curl -X POST http://127.0.0.1:8080/predictions/my_tc -T examples/text_classification/sample_text.txt
+    curl http://127.0.0.1:8080/predictions/my_tc -T examples/text_classification/sample_text.txt
     ```

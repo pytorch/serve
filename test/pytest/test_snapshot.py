@@ -46,7 +46,7 @@ def test_snapshot_created_on_management_api_invoke():
     '''
     delete_all_snapshots()
     start_torchserve()
-    requests.post('http://127.0.0.1:8081/models?url=/workspace/model_store/densenet161.mar')
+    requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar')
     time.sleep(10)
     stop_torchserve()
     assert len(glob.glob('logs/config/*snap*.cfg')) == 1
