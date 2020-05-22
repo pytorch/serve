@@ -41,7 +41,7 @@ do
   register_model "$model"
   run_inference "$model" "$input"
   #skip unregistering resnet-18 model to test snapshot feature with restart
-  if [ "$model" != "resnet-18"]
+  if [ "$model" != "resnet-18" ]
   then
     unregister_model "$model"
   fi
