@@ -79,7 +79,7 @@ public class ConfigManagerTest {
     }
 
     @Test
-    public void testNoEnvVars() throws ReflectiveOperationException {
+    public void testNoEnvVars() throws ReflectiveOperationException, IOException {
         System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
