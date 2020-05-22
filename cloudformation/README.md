@@ -64,5 +64,22 @@ aws cloudformation create-stack \
 ```
 * Once the instance is up and running, TorchServe logs are published to cloudwatch under the LogGroup=`<stack-name>/<ec2-instance-id>/TorchServe` e.g. `torchserve/i-0649487ecbe691676/TorchServe`
 
+* If you have to stop or restart torchserve, you'll have to ssh into the host
+
+```
+ssh -i <ec2-keypair-name> ubuntu@<ec2-dns>
+```
+
+```
+cd /
+sudo bash
+export PATH="/home/ubuntu/miniconda/bin:$PATH"
+conda init bash
+# IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+conda activate torchserve
+torchserve --stop
+torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
+```
+
 * To terminate the instance and delete the stack you can run `aws cloudformation delete-stack --stack-name <stack-name>`
 
