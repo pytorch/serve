@@ -55,6 +55,8 @@ stop_torchserve
 
 start_torchserve
 
+run_inference resnet-18 examples/image_classifier/kitten.jpg
+
 stop_torchserve
 
 cleanup
