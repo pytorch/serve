@@ -15,7 +15,7 @@ wget https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.p
     mkdir model_store
     mv fastrcnn.mar model_store/
     torchserve --start --model-store model_store --models fastrcnn=fastrcnn.mar
-    curl -X POST http://127.0.0.1:8080/predictions/fastrcnn -T serve/examples/object_detector/persons.jpg
+    curl http://127.0.0.1:8080/predictions/fastrcnn -T serve/examples/object_detector/persons.jpg
     ```
 * Output
 

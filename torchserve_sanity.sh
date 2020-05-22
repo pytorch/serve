@@ -14,6 +14,8 @@ cleanup()
 
 install_pytest_suite_deps
 
+run_backend_pytest
+
 run_backend_python_linting
 
 run_model_archiver_UT_suite

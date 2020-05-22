@@ -105,7 +105,8 @@ public class ConfigManagerTest {
 
     @Test
     public void testNoEnvVars()
-            throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
+            throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException,
+                    IOException {
         System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
