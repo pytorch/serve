@@ -75,7 +75,7 @@
 		"synchronous": "true",
 		"file": "../examples/image_classifier/kitten.jpg"
 	},
-
+        {
                 "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_seq_classification.mar",
                 "model_name": "bert_seq_classification",
                 "worker": "1",
