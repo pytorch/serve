@@ -135,7 +135,7 @@ $ curl localhost:8081/models/resnet-152
   * Run inference to test the model.
 
     ```text
-      $ curl -X POST localhost/predictions/resnet-152 -T kitten.jpg
+      $ curl localhost/predictions/resnet-152 -T kitten.jpg
       {
         "probability": 0.7148938179016113,
         "class": "n02123045 tabby, tabby cat"
