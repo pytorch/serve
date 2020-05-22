@@ -16,7 +16,7 @@ Clone Torch Serve Repo & Build the Docker Image for the execition env.
 
 ```
 git clone https://github.com/pytorch/serve
-cd serve
+cd serve/docker
 ./build_image.sh
 ```
 
