@@ -105,7 +105,7 @@ public class Connector {
         } else {
             port = Integer.parseInt(listeningPort);
         }
-        if (port >= Short.MAX_VALUE) {
+        if (port >= Short.MAX_VALUE * 2 + 1) {
             throw new IllegalArgumentException("Invalid port number: " + binding);
         }
         return new Connector(port, false, host, String.valueOf(port), ssl, management);

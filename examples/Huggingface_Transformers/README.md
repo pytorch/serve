@@ -84,4 +84,4 @@ torchserve --start --model-store model_store --models my_tc=RobertaQA.mar
 
 ```
 
-- To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./sample_text.txt`
+- To run the inference using our registered model, open a new terminal and run: `curl http://127.0.0.1:8080/predictions/my_tc -T ./sample_text.txt`

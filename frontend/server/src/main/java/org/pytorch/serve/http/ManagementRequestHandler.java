@@ -342,9 +342,12 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             if (HttpResponseStatus.OK.equals(v)) {
                                 if (status) {
                                     String msg =
-                                            minWorkers + " Workers scaled for model " + modelName;
+                                            "Workers scaled to "
+                                                    + minWorkers
+                                                    + " for model: "
+                                                    + modelName;
                                     if (modelVersion != null) {
-                                        msg += " Version: " + modelVersion; // NOPMD
+                                        msg += ", version: " + modelVersion; // NOPMD
                                     }
 
                                     if (isInit) {
