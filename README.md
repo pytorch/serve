@@ -226,59 +226,7 @@ torchserve --stop
 You see output specifying that TorchServe has stopped.
 
 ## Quick Start with Docker
-
-### Prerequisites
-
-* docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
-* git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-* TorchServe source code. Clone and enter the repo as follows:
-
-```bash
-git clone https://github.com/pytorch/serve.git
-cd serve
-```
-
-### Build the TorchServe Docker image
-
-The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
-
-To build the TorchServe image for a CPU device using the `master` branch, use the following command:
-
-```bash
-./build_image.sh
-```
-
-To create a Docker image for a specific branch, use the following command:
-
-```bash
-./build_image.sh -b <branch_name>
-```
-
-To create a Docker image for a GPU device, use the following command:
-
-```bash
-./build_image.sh --gpu
-```
-
-To create a Docker image for a GPU device with a specific branch, use following command:
-
-```bash
-./build_image.sh -b <branch_name> --gpu
-```
-
-To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
-
-```bash
-./start.sh
-```
-For GPU run the following command:
-```bash
-./start.sh --gpu
-```
-For GPU with specific GPU device ids run the following command:
-```bash
-./start.sh --gpu_devices 1,2,3
-```
+Refer [torchserve docker](docker/README.md) for details.
 
 ## Learn More
 
@@ -295,3 +243,6 @@ We welcome all contributions!
 To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
 
 To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md). Cheers!
+
+
+*TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*
