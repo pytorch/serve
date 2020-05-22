@@ -168,17 +168,17 @@ Refer [torch-model-archiver](../model-archiver/README.md) for details.
 You may want to consider about the following aspects / docker options when deploying torchserve in Production with Docker.
 
 
-* Shared Memory Size - 
+* Shared Memory Size 
 
     * ```shm-size``` - The shm-size parameter allows you to specify the shared memory that a container can use. It enables memory-intensive containers to run faster by giving more access to allocated memory.
 
 
-* User Limits for System Resources - [ulimit](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit)
+* User Limits for System Resources
     
     * ```--ulimit memlock=-1``` : Maximum locked-in-memory address space. 
     * ```--ulimit stack``` : Linux stack size 
 
-    The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
+    The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/) [here](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
 
 
 * Exposing specific ports / volumes between the host & docker env.
