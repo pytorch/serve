@@ -12,11 +12,13 @@ clean_slate()
 
 install_java_deps()
 {
+  set +e
   JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
 	if [ "$JAVA_VERSION" != "11" ]
   then
     sudo apt-get install -y openjdk-11-jdk
   fi
+  set -e
 }
 
 install_torch_deps()

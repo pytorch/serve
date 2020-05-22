@@ -1,8 +1,21 @@
+# syntax = docker/dockerfile:experimental
+#
+# Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
+# 
+# NOTE: To build this you will need a docker version > 18.06 with
+#       experimental enabled and DOCKER_BUILDKIT=1
+#
+#       If you do not use buildkit you are not going to have a good time
+#
+#       For reference: 
+#           https://docs.docker.com/develop/develop-images/build_enhancements/
+
 FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
 
 ENV PYTHONUNBUFFERED TRUE
 
-RUN apt-get update && \
+RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     fakeroot \
     ca-certificates \
@@ -22,9 +35,11 @@ RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
 RUN export USE_CUDA=1
 RUN pip install -r ../serve/requirements.txt
+RUN pip install --no-cache-dir psutil future torch torchvision torchtext
 ADD serve serve
 
 RUN pip install ../serve/
+RUN pip install ../serve/model-archiver/
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
@@ -44,5 +59,3 @@ WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]
-
-LABEL maintainer="wongale@amazon.com"
