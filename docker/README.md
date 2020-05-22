@@ -165,7 +165,7 @@ Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
 # Running TorchServe in a Production Docker Environment.
 
-You may want to consider about the following aspects / docker options when deploying torchserve in Production with Docker.
+You may want to consider the following aspects / docker options when deploying torchserve in Production with Docker.
 
 
 * Shared Memory Size 
