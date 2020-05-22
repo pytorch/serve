@@ -29,7 +29,7 @@ install_torchserve_from_source() {
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src_ubuntu
   echo "Torchserve Succesfully installed"
-  
+  pip install transformers 
 }
 
 
