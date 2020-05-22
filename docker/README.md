@@ -4,6 +4,7 @@
 * [Create TorchServe docker image](#docker_image_production)
 * [Create TorchServe docker image from source](#docker_image_source)
 * [Create torch-model-archiver from container](#docker_torch_model_archiver)
+* [Running TorchServe docker image in production](#docker_image_production)
 
 # Prerequisites
 
@@ -161,3 +162,37 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/m
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
 4. desnet161.mar file should be present at /home/model-server/model-store
+
+# Running TorchServe in a Production Docker Environment.
+
+You may want to consider about the following aspects / docker options when deploying torchserve in Production with Docker.
+
+
+* Shared Memory Size - 
+
+    * ```shm-size``` - The shm-size parameter allows you to specify the shared memory that a container can use. It enables memory-intensive containers to run faster by giving more access to allocated memory.
+
+
+* User Limits for System Resources - [ulimit](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit)
+    
+    * ```--ulimit memlock=-1``` : Maximum locked-in-memory address space. 
+    * ```--ulimit stack``` : Linux stack size 
+
+    The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
+
+
+* Exposing specific ports / volumes between the host & docker env.
+
+    *  ```-p8080:p8080 -p8081:8081``` TorchServe uses 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    * The model store is passed to torchserve with the --model-store option. You may want want to consider using a shared volume if you prefer pre populating models in model-store directory.
+
+For example,
+
+```
+docker run --rm --shm-size=1g \
+        --ulimit memlock=-1 \
+        --ulimit stack=67108864 \
+        -p8080:8080 \
+        -p8081:8081 \
+        --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
+```
