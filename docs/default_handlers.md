@@ -24,6 +24,8 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 * Input : RGB image
 * Output : List of detected classes and bounding boxes respectively 
 
+Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.
+
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/object_detector) 
 
 ## text_classifier
