@@ -184,7 +184,7 @@ You may want to consider the following aspects / docker options when deploying t
 * Exposing specific ports / volumes between the host & docker env.
 
     *  ```-p8080:p8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
-    * The model store is passed to torchserve with the --model-store option. You may want want to consider using a shared volume if you prefer pre populating models in model-store directory.
+    * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
 For example,
 
