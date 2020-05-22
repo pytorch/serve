@@ -1,3 +1,6 @@
+"""
+Module for image segmentation default handler
+"""
 import io
 from PIL import Image
 import torch
@@ -68,6 +71,9 @@ _service = ImangeSegmenter()
 
 
 def handle(data, context):
+    """
+    Entry point for image segmenter default handler
+    """
     try:
         if not _service.initialized:
             _service.initialize(context)
@@ -81,4 +87,4 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("Please provide a custom handler in the model archive.")
+        raise Exception("Please provide a custom handler in the model archive." + e)
