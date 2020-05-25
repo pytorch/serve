@@ -8,7 +8,7 @@ Prerequisites -
 
 Steps to follow to deploy this example - 
 
-1. git clone https://github.com/pytorch/serve.git
+1. git clone https://github.com/pytorch/serve.git; cd serve/
 2. git checkout issue_390
 2. cd serve/examples/semantic_search
 3. ./create-mar.sh
