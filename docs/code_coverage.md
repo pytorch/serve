@@ -36,19 +36,20 @@ pylint -rn --rcfile=./ts/tests/pylintrc ts/.;
 ## To run pytest suite on model-archiver run following command
 
 ```bash
-python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/
+cd model-archiver
+python -m pytest --cov-report html:htmlcov_ut --cov=model_archiver/ model_archiver/tests/unit_tests/
 ```
 
-The reports are generated at following path : `model-archiver/htmlcov/`
+The reports are generated at following path : `model-archiver/htmlcov_ut/`
 
 ## To run IT suite on model-archiver run following command
 
 ```bash
 cd model-archiver
 pip install .
-python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/
+python -m pytest --cov-report html:htmlcov_it --cov=model_archiver/ model_archiver/tests/integ_tests/
 ```
 
-The reports are generated at following path : `model-archiver/htmlcov/`
+The reports are generated at following path : `model-archiver/htmlcov_it/`
 
 **Note**: All the above commands needs to be excuted from serve home
