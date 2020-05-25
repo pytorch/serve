@@ -26,11 +26,11 @@
 				"header": [],
 				"url": {
 					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
-					"protocol": "http",
+					"protocol": "{{protocol}}",
 					"host": [
-						"localhost"
+						"{{hostname}}"
 					],
-					"port": "8081",
+					"port": "{{mgmt-port}}",
 					"path": [
 						"models"
 					],
@@ -62,11 +62,68 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3abf077e-ea14-4139-abd7-1c8e462af87c",
+						"id": "d6b1f2cf-6ffb-4850-b276-108f7f65fbd9",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
+							"var type_response = pm.iterationData.get(\"output_type\")",
+							"if (type_response === \"binary\" || type_response === \"others\" ) {",
+							"    pm.test(\"Successful POST request binary response\", function () {",
+							"        pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"    });",
+							"}",
+							"else if (type_response === \"text\") {",
+							"    pm.test(\"Test expected TEXT response\", function () {",
+							"        pm.response.to.have.body(pm.iterationData.get(\"expected\"));",
+							"    });",
+							"",
+							"}",
+							"else",
+							" if (\"json\" === \"json\") {",
+							"    pm.test(\"Test expected JSON response\", function () {",
+							"        var actual_obj = pm.response.json()",
+							"        var expected_obj = pm.iterationData.get(\"expected\")",
+							"        ",
+							"        flag=false",
+							"        if(_.size(expected_obj)==_.size(actual_obj)){flag=true}",
+							"",
+							"",
+							"        if(flag){",
+							"                var expected_keys = []",
+							"                var actual_keys = []",
+							"            \t_.forEach(expected_obj,function(value){expected_keys.push(_.keys(value)[0])})",
+							"                _.forEach(actual_obj,function(value){actual_keys.push(_.keys(value)[0])})",
+							"                flag = _.isEqual(expected_keys.sort(), actual_keys.sort()); ",
+							"        }",
+							"",
+							"",
+							"        for (i = 0; i < expected_keys.length; i++){",
+							"            current_key=_.keys(expected_obj[i]);",
+							"            current_actual_index=_.findIndex(expected_obj,function(o){return Object.keys(o)[0]==current_key});",
+							"",
+							"",
+							"            expected_val = _.values(expected_obj[i])[0]",
+							"            actual_val  = _.values(actual_obj[current_actual_index])[0]",
+							"",
+							"            var tolerance_value= (get_tolerance_value(expected_val))",
+							"            if(Math.abs(expected_val-actual_val)<tolerance_value)",
+							"            {flag=true}",
+							"            else{",
+							"                flag=false",
+							"                break;",
+							"            }",
+							"",
+							"        }",
+							"",
+							"        pm.expect(flag).to.be.true;",
+							"    ",
+							"    });",
+							"}",
+							"",
+							"function get_tolerance_value(expected_val) {",
+							"    var tolerance_percent = pm.iterationData.get(\"tolerance\")",
+							"   return (expected_val * tolerance_percent)/100;",
+							"} ",
+							"",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -88,11 +145,11 @@
 				},
 				"url": {
 					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/{{model_name}}",
-					"protocol": "http",
+					"protocol": "{{protocol}}",
 					"host": [
-						"localhost"
+						"{{hostname}}"
 					],
-					"port": "8080",
+					"port": "{{pred-port}}",
 					"path": [
 						"predictions",
 						"{{model_name}}"
@@ -100,6 +157,41 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Model Zoo - Unregister model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a14dd390-4176-45e7-af00-999676685f4a",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model_name}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"{{model_name}}"
+					]
+				}
+			},
+			"response": []
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }

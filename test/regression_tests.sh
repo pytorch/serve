@@ -53,7 +53,7 @@ generate_densenet_test_model_archive() {
 start_torchserve() {
 
   # Start Torchserve with Model Store
-  torchserve --start --model-store $1 --models $1/densenet161_v1.mar &> $2
+  torchserve --start --model-store $1 --models $1/densenet161_v1.mar &>> $2
   sleep 10
   curl http://127.0.0.1:8081/models
   
@@ -62,7 +62,7 @@ start_torchserve() {
 start_secure_torchserve() {
 
   # Start Torchserve with Model Store
-  torchserve --start --ts-config resources/config.properties --model-store $1 --models $1/densenet161_v1.mar &> $2
+  torchserve --start --ts-config resources/config.properties --model-store $1  &>> $2
   sleep 10
   curl --insecure -X GET https://127.0.0.1:8444/models
 }
@@ -105,6 +105,8 @@ run_postman_test() {
   newman run --insecure -e postman/environment.json --bail --verbose postman/https_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
 
+  stop_torch_serve
+  delete_model_store_snapshots
   set -e
   cd -
 }
@@ -125,6 +127,8 @@ run_pytest() {
 sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
+
+sudo rm $TEST_EXECUTION_LOG_FILE TS_LOG_FILE
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
