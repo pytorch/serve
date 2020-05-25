@@ -34,7 +34,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 3. Install torchserve and torch-model-archiver
 
-    For Conda
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
     ```
     conda install torchserve torch-model-archiver
     ```
