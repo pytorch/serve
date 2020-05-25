@@ -86,6 +86,7 @@ run_postman_test() {
   set +e
   # Run Management API Tests
   stop_torch_serve
+  delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --bail --verbose postman/management_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
@@ -106,7 +107,7 @@ run_postman_test() {
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
 
   stop_torch_serve
-  delete_model_store_snapshots
+
   set -e
   cd -
 }
@@ -128,7 +129,7 @@ sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
 
-sudo rm $TEST_EXECUTION_LOG_FILE TS_LOG_FILE
+sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
