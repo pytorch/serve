@@ -14,6 +14,8 @@ cleanup()
 
 install_pytest_suite_deps
 
+run_backend_pytest
+
 run_backend_python_linting
 
 run_model_archiver_UT_suite
@@ -26,7 +28,25 @@ mkdir -p model_store
 
 start_torchserve
 
-register_model resnet-18 resnet-18.mar
+
+models=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18")
+model_inputs=("examples/object_detector/persons.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg")
+handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier")
+
+for i in ${!models[@]};
+do
+  model=${models[$i]}
+  input=${model_inputs[$i]}
+  handler=${handlers[$i]}
+  register_model "$model"
+  run_inference "$model" "$input"
+  #skip unregistering resnet-18 model to test snapshot feature with restart
+  if [ "$model" != "resnet-18" ]
+  then
+    unregister_model "$model"
+  fi
+  echo "$handler default handler is stable."
+done
 
 stop_torchserve
 
@@ -36,6 +56,8 @@ stop_torchserve
 start_torchserve
 
 run_inference resnet-18 examples/image_classifier/kitten.jpg
+
+stop_torchserve
 
 cleanup
 
