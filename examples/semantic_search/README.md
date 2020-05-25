@@ -10,7 +10,7 @@ Steps to follow to deploy this example -
 
 1. git clone https://github.com/pytorch/serve.git; cd serve/
 2. git checkout issue_390
-2. cd serve/examples/semantic_search
+2. cd examples/semantic_search
 3. ./create-mar.sh
 4. Move the generated 'sentence_xformer.mar' file to your model-store
 5. start torchserve [start in a different terminal]
