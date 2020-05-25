@@ -2,9 +2,9 @@ Assumption -
 You have installed torchserve and torch-model-archive. If not then follow [quick start guide](https://github.com/pytorch/serve) given on github/serve to install the same
 
 Prerequisites - 
-pip install zipfile
-pip install json
-pip install sentence-transformers
+- pip install zipfile
+- pip install json
+- pip install sentence-transformers
 
 Steps to follow to deploy this example - 
 
