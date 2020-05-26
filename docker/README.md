@@ -1,10 +1,10 @@
 ## Contents of this Document
 
-* [Prerequisites](#docker_prerequisite)
-* [Create TorchServe docker image](#docker_image_production)
-* [Create TorchServe docker image from source](#docker_image_source)
-* [Create torch-model-archiver from container](#docker_torch_model_archiver)
-* [Running TorchServe docker image in production](#docker_image_production)
+* [Prerequisites](#prerequisites)
+* [Create TorchServe docker image](#create-torchserve-docker-image)
+* [Create TorchServe docker image from source](#create-torchserve-docker-image-from-source)
+* [Create torch-model-archiver from container](#create-torch-model-archiver-from-container)
+* [Running TorchServe docker image in production](#running-torchserve-in-a-production-docker-environment)
 
 # Prerequisites
 
@@ -84,15 +84,15 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 
 Alternatively, you can use following direct command- 
 ```bash 
-Make sure you are inside serve/docker and use following commands
-1. git clone https://github.com/pytorch/serve.git
-2. cd serve;git checkout <branch>;cd docker
+1. cd serve/docker
+2. git clone https://github.com/pytorch/serve.git
+3. cd serve;git checkout <branch>;cd docker
 
 For cpu -
-3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+4. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
 
 For gpu - 
-3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.gpu -t torchserve:dev .
+4. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.gpu -t torchserve:dev .
 ```
 
 To create a Docker image for a specific branch, use the following command:
@@ -132,7 +132,7 @@ For GPU with specific GPU device ids run the following command:
 ```bash
 ./start.sh --gpu_devices 1,2,3
 ```
-Alternatively, you can use direct commands describe in **Start a container with a TorchServe image** above for cpu and gpu by changing image name
+Alternatively, you can use direct commands describe in [Start a container with a TorchServe image](#start-a-container-with-a-torchserve-image) above for cpu and gpu by changing image name
 
 # Create torch-model-archiver from container
 
