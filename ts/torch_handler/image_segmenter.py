@@ -1,6 +1,8 @@
 """
 Module for image segmentation default handler
 """
+# pylint: disable=E1102,R1721
+
 import io
 from PIL import Image
 import torch
@@ -39,25 +41,25 @@ class ImangeSegmenter(VisionHandler):
                                      std=[0.229, 0.224, 0.225])])
         return  trf(self.image).unsqueeze(0)
 
-    def inference(self, input_batch):
+    def inference(self, data):
         if torch.cuda.is_available():
-            input_batch = input_batch.to('cuda')
+            data = data.to('cuda')
             self.model.to('cuda')
 
         with torch.no_grad():
-            output = self.model(input_batch)['out'][0]
+            output = self.model(data)['out'][0]
 
         output_predictions = output.argmax(0)
         return output_predictions
 
-    def postprocess(self, inference_output):
+    def postprocess(self, data):
         # create a color pallette, selecting a color for each class
         palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
         colors = torch.as_tensor([i for i in range(21)])[:, None] * palette
         colors = (colors % 255).numpy().astype("uint8")
 
         # plot the semantic segmentation predictions of 21 classes in each color
-        r = Image.fromarray(inference_output.byte().cpu().numpy()).resize(self.image.size)
+        r = Image.fromarray(data.byte().cpu().numpy()).resize(self.image.size)
         r.putpalette(colors)
 
         # convert image to generic jpg format from PIL image for client
