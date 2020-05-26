@@ -3,7 +3,6 @@
 To build `TorchServe` wheel use the following command
 
 ```
-cd <path_to_serve>
 ./build_wheels.sh
 ```
 
