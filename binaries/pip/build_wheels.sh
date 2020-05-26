@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -eou pipefail
+source ../../scripts/install_from_src_utils
 
 cleanup()
 {
@@ -38,6 +39,10 @@ create_model_archiver_wheel()
 rm -rf output
 
 mkdir output
+
+install_java_deps
+
+install_torch_deps
 
 create_torchserve_wheel
 
