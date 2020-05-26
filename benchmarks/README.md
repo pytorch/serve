@@ -150,7 +150,7 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 The benchmarks can also be used to analyze the backend performance using cProfile.  It does not require any additional packages to run the benchmark, but viewing the logs does require an additional package.  Run `pip install snakeviz` to install this.  To run the python profiling, follow these steps:
 
 1. In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-2. Run the benchmark and TorchServe.  They can either be done automatically inside the docker container or separately with the "--ts" flag.
+2. Run the benchmark and TorchServe.  They can either be done automatically inside the docker container or separately with the "--ts" flag. If you are running `TorchServe` inside docker container make sure you map the `/tmp` directory to some local directory on your machine while starting docker.
 3. Run TorchServe directly through gradle (do not use docker).  This can be done either on your machine or on a remote machine accessible through SSH.
 4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
 5. Run `snakeviz /tmp/tsPythonProfile.prof` to view the profiling data.  It should start up a web server on your machine and automatically open the page.
