@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 set -eou pipefail
-source ../../scripts/install_from_src_utils
+
+source ../../scripts/install_utils
 
 cleanup()
 {
