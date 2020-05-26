@@ -7,8 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.ModelManager;
@@ -40,23 +42,37 @@ public class MetricCollector implements Runnable {
             String pythonEnv;
             if ((pythonPath == null || pythonPath.isEmpty())
                     && (!workingDir.getAbsolutePath().contains("site-package"))) {
-                pythonEnv = "PYTHONPATH=" + workingDir.getAbsolutePath();
+                pythonEnv = workingDir.getAbsolutePath();
             } else {
-                pythonEnv = "PYTHONPATH=" + pythonPath;
+                pythonEnv = pythonPath;
                 if (!workingDir.getAbsolutePath().contains("site-package")) {
                     pythonEnv += File.pathSeparatorChar + workingDir.getAbsolutePath(); // NOPMD
                 }
             }
             // sbin added for macs for python sysctl pythonpath
+            HashMap<String, String> environment = new HashMap<>(System.getenv());
+            environment.put("PYTHONPATH", pythonEnv);
+
             StringBuilder path = new StringBuilder();
-            path.append("PATH=").append(System.getenv("PATH"));
+            path.append(System.getenv("PATH"));
             String osName = System.getProperty("os.name");
             if (osName.startsWith("Mac OS X")) {
                 path.append(File.pathSeparatorChar).append("/sbin/");
             }
-            String[] env = {pythonEnv, path.toString()};
-            final Process p = Runtime.getRuntime().exec(args, env, workingDir);
 
+            environment.put("PATH", path.toString());
+            ArrayList<String> envList = new ArrayList<>();
+            Pattern blackList = configManager.getBlacklistPattern();
+
+            for (Map.Entry<String, String> entry : environment.entrySet()) {
+                if (!blackList.matcher(entry.getKey()).matches()) {
+                    envList.add(entry.getKey() + '=' + entry.getValue());
+                }
+            }
+
+            final Process p =
+                    Runtime.getRuntime()
+                            .exec(args, envList.toArray(new String[0]), workingDir); // NOPMD
             ModelManager modelManager = ModelManager.getInstance();
             Map<Integer, WorkerThread> workerMap = modelManager.getWorkers();
             try (OutputStream os = p.getOutputStream()) {
