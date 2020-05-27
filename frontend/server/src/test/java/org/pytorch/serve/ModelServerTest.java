@@ -165,7 +165,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterNoopModel"})
     public void testLoadNoopModel() throws InterruptedException {
-        testLoadModel("noop.mar", "noop_v1.0");
+        testLoadModel("noop.mar", "noop_v1.0", "1.11");
     }
 
     @Test(
@@ -173,6 +173,13 @@ public class ModelServerTest {
             dependsOnMethods = {"testLoadNoopModel"})
     public void testSyncScaleNoopModel() throws InterruptedException {
         testSyncScaleModel("noop_v1.0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadNoopModel"})
+    public void testSyncScaleNoopModelWithVersion() throws InterruptedException {
+        testSyncScaleModel("noop_v1.0", "1.11");
     }
 
     @Test(
@@ -201,21 +208,21 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeNoopModel"})
     public void testLoadNoopModelWithInitialWorkers() throws InterruptedException {
-        testLoadModelWithInitialWorkers("noop.mar", "noop");
+        testLoadModelWithInitialWorkers("noop.mar", "noop", "1.11");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopModelWithInitialWorkers"})
     public void testLoadNoopV1ModelWithInitialWorkers() throws InterruptedException {
-        testLoadModelWithInitialWorkers("noop.mar", "noopversioned");
+        testLoadModelWithInitialWorkers("noop.mar", "noopversioned", "1.11");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopV1ModelWithInitialWorkers"})
     public void testLoadNoopV2ModelWithInitialWorkers() throws InterruptedException {
-        testLoadModelWithInitialWorkers("noop_v2.mar", "noopversioned");
+        testLoadModelWithInitialWorkers("noop_v2.mar", "noopversioned", "1.2.1");
     }
 
     @Test(
@@ -282,7 +289,8 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
+        Assert.assertEquals(
+                resp.getStatus(), "Model \"noop\" Version: 1.11 registered with 1 initial workers");
     }
 
     @Test(
@@ -622,7 +630,9 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
     public void testLoadModelFromURL() throws InterruptedException {
         testLoadModel(
-                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar", "squeezenet");
+                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+                "squeezenet",
+                "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
@@ -708,7 +718,9 @@ public class ModelServerTest {
 
         StatusResponse status =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(status.getStatus(), "Workers scaled");
+        Assert.assertEquals(
+                status.getStatus(),
+                "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
 
         channel.close();
 
@@ -1267,7 +1279,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelFailure"})
     public void testLoadMNISTEagerModel() throws InterruptedException {
-        testLoadModelWithInitialWorkers("mnist.mar", "mnist");
+        testLoadModelWithInitialWorkers("mnist.mar", "mnist", "1.0");
     }
 
     @Test(
@@ -1288,7 +1300,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregistedMNISTEagerModel"})
     public void testLoadMNISTScriptedModel() throws InterruptedException {
-        testLoadModelWithInitialWorkers("mnist_scripted.mar", "mnist_scripted");
+        testLoadModelWithInitialWorkers("mnist_scripted.mar", "mnist_scripted", "1.0");
     }
 
     @Test(
@@ -1309,7 +1321,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregistedMNISTScriptedModel"})
     public void testLoadMNISTTracedModel() throws InterruptedException {
-        testLoadModelWithInitialWorkers("mnist_traced.mar", "mnist_traced");
+        testLoadModelWithInitialWorkers("mnist_traced.mar", "mnist_traced", "1.0");
     }
 
     @Test(
@@ -1425,7 +1437,8 @@ public class ModelServerTest {
         }
     }
 
-    private void testLoadModel(String url, String modelName) throws InterruptedException {
+    private void testLoadModel(String url, String modelName, String version)
+            throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1433,7 +1446,13 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Model \"" + modelName + "\" registered");
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Model \""
+                        + modelName
+                        + "\" Version: "
+                        + version
+                        + " registered with 0 initial workers. Use scale workers API to add workers for the model.");
     }
 
     private void testUnregisterModel(String modelName, String version) throws InterruptedException {
@@ -1456,7 +1475,13 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
+        if (version == null) {
+            Assert.assertEquals(resp.getStatus(), "Workers scaled to 1 for model: " + modelName);
+        } else {
+            Assert.assertEquals(
+                    resp.getStatus(),
+                    "Workers scaled to 1 for model: " + modelName + ", version: " + version);
+        }
     }
 
     private void testDescribeModel(String modelName, String requestVersion, String expectedVersion)
@@ -1477,7 +1502,7 @@ public class ModelServerTest {
         Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
     }
 
-    private void testLoadModelWithInitialWorkers(String url, String modelName)
+    private void testLoadModelWithInitialWorkers(String url, String modelName, String version)
             throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
@@ -1486,7 +1511,13 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workers scaled");
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Model \""
+                        + modelName
+                        + "\" Version: "
+                        + version
+                        + " registered with 1 initial workers");
     }
 
     private void testPredictions(String modelName, String expectedOutput, String version)
