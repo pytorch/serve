@@ -84,7 +84,7 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ./build_image.sh
 ```
 
-Alternatively, you can use following direct command [assuming you have followed steps in [Clone serve source](#first-things-first)- 
+Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))- 
 ```bash 
 1. Do one more clone -> `git clone https://github.com/pytorch/serve.git`
 2. cd serve;git checkout <branch>;cd ..
