@@ -97,10 +97,10 @@ public final class ConfigManager {
                     "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
                     Pattern.CASE_INSENSITIVE);
     private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
-    
+
     private Pattern blacklistPattern;
     private Properties prop;
-    
+
     private boolean snapshotDisabled;
 
     private static ConfigManager instance;
@@ -653,16 +653,16 @@ public final class ConfigManager {
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
     }
-    
+
     public boolean isSSLEnabled() {
-    	String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(inferenceAddress);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid binding address: " + inferenceAddress);
         }
 
         String protocol = matcher.group(2);
-        
+
         return "https".equalsIgnoreCase(protocol);
     }
 

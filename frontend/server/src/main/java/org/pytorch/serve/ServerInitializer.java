@@ -5,10 +5,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.ssl.OptionalSslHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslHandler;
-
 import org.pytorch.serve.http.ApiDescriptionRequestHandler;
 import org.pytorch.serve.http.ExtendedSSLHandler;
 import org.pytorch.serve.http.HttpRequestHandler;
@@ -51,7 +48,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
 
         int maxRequestSize = ConfigManager.getInstance().getMaxRequestSize();
         if (sslCtx != null) {
-        	pipeline.addLast("ssl", new ExtendedSSLHandler(sslCtx));
+            pipeline.addLast("ssl", new ExtendedSSLHandler(sslCtx));
         }
         pipeline.addLast("http", new HttpServerCodec());
         pipeline.addLast("aggregator", new HttpObjectAggregator(maxRequestSize));

@@ -1,13 +1,5 @@
 package org.pytorch.serve.util;
 
-import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Objects;
-import java.util.regex.Matcher;
-
-import org.apache.commons.io.FileUtils;
-
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
@@ -27,6 +19,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import org.apache.commons.io.FileUtils;
 
 public class Connector {
 
