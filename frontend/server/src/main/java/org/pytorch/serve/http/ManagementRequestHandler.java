@@ -238,8 +238,13 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
         modelName = archive.getModelName();
 
-        final String msg = "Model \"" + modelName + "\" registered";
         if (initialWorkers <= 0) {
+            final String msg =
+                    "Model \""
+                            + modelName
+                            + "\" Version: "
+                            + archive.getModelVersion()
+                            + " registered with 0 initial workers. Use scale workers API to add workers for the model.";
             SnapshotManager.getInstance().saveSnapshot();
             NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
             return;
@@ -252,6 +257,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 initialWorkers,
                 initialWorkers,
                 synchronous,
+                true,
                 f -> {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
@@ -292,6 +298,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throws ModelNotFoundException, ModelVersionNotFoundException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
+        if (modelVersion == null) {
+            modelVersion = NettyUtils.getParameter(decoder, "model_version", null);
+        }
         if (maxWorkers < minWorkers) {
             throw new BadRequestException("max_worker cannot be less than min_worker.");
         }
@@ -302,7 +311,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         if (!modelManager.getDefaultModels().containsKey(modelName)) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        updateModelWorkers(ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null);
+        updateModelWorkers(
+                ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, false, null);
     }
 
     private void updateModelWorkers(
@@ -312,9 +322,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             int minWorkers,
             int maxWorkers,
             boolean synchronous,
+            boolean isInit,
             final Function<Void, Void> onError)
             throws ModelVersionNotFoundException {
-
         ModelManager modelManager = ModelManager.getInstance();
         CompletableFuture<HttpResponseStatus> future =
                 modelManager.updateModel(modelName, modelVersion, minWorkers, maxWorkers);
@@ -331,8 +341,27 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                                     modelManager.scaleRequestStatus(modelName, modelVersion);
                             if (HttpResponseStatus.OK.equals(v)) {
                                 if (status) {
-                                    NettyUtils.sendJsonResponse(
-                                            ctx, new StatusResponse("Workers scaled"), v);
+                                    String msg =
+                                            "Workers scaled to "
+                                                    + minWorkers
+                                                    + " for model: "
+                                                    + modelName;
+                                    if (modelVersion != null) {
+                                        msg += ", version: " + modelVersion; // NOPMD
+                                    }
+
+                                    if (isInit) {
+                                        msg =
+                                                "Model \""
+                                                        + modelName
+                                                        + "\" Version: "
+                                                        + modelVersion
+                                                        + " registered with "
+                                                        + minWorkers
+                                                        + " initial workers";
+                                    }
+
+                                    NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg), v);
                                 } else {
                                     NettyUtils.sendJsonResponse(
                                             ctx,
