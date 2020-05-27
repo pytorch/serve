@@ -1,5 +1,13 @@
 package org.pytorch.serve.util;
 
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Objects;
+import java.util.regex.Matcher;
+
+import org.apache.commons.io.FileUtils;
+
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
@@ -19,20 +27,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
-import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
 
 public class Connector {
-
-    private static final Pattern ADDRESS_PATTERN =
-            Pattern.compile(
-                    "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
-                    Pattern.CASE_INSENSITIVE);
 
     private static boolean useNativeIo = ConfigManager.getInstance().useNativeIo();
 
@@ -75,7 +71,7 @@ public class Connector {
     }
 
     public static Connector parse(String binding, boolean management) {
-        Matcher matcher = ADDRESS_PATTERN.matcher(binding);
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(binding);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid binding address: " + binding);
         }
