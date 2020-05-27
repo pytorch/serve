@@ -86,7 +86,7 @@ Alternatively, you can use following direct command-
 ```bash 
 1. cd serve/docker
 2. git clone https://github.com/pytorch/serve.git
-3. cd serve;git checkout <branch>;cd docker
+3. cd serve;git checkout <branch>;cd ..
 
 For cpu -
 4. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
