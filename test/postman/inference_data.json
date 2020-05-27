@@ -15,6 +15,7 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "output_type":"json",
+        "json_type":"image_classification",
         "expected":[
             {
                 "tabby":0.2752002477645874
@@ -41,6 +42,7 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "output_type":"json",
+        "json_type":"image_classification",
         "expected":[
             {
                 "tiger_cat":0.4693359136581421
@@ -67,6 +69,7 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "output_type":"json",
+        "json_type":"image_classification",
         "expected":[
             {
                 "tabby":0.31839194893836975
@@ -93,6 +96,7 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "output_type":"json",
+        "json_type":"image_classification",
         "expected":[
             {
                 "tabby":0.40864479541778564
@@ -119,6 +123,7 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "output_type":"json",
+        "json_type":"image_classification",
         "expected":[
             {
                 "tiger_cat":0.5501413345336914
@@ -152,24 +157,21 @@
         "model_name":"fastrcnn",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg",
-        "output_type":"others"
+        "file":"../examples/object_detector/persons.jpg"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar",
         "model_name":"maskrcnn",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg",
-        "output_type":"others"
+        "file":"../examples/object_detector/persons.jpg"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar",
         "model_name":"fcn_resnet_101",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg",
-        "output_type":"binary"
+        "file":"../examples/object_detector/persons.jpg"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar",
@@ -177,6 +179,100 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"others"
+        "output_type":"json",
+        "json_type":"default_json",
+        "expected":[
+            "n02123159",
+            "tiger_cat"
+        ]
+    },
+    {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_seq_classification.mar",
+        "model_name":"bert_seq_classification",
+        "worker":"1",
+        "synchronous":"true",
+        "file":"../examples/text_classification/sample_text.txt",
+        "output_type":"text",
+        "expected":"Accepted"
+    },
+    {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification.mar",
+        "model_name":"bert_token_classification",
+        "worker":"1",
+        "synchronous":"true",
+        "file":"../examples/text_classification/sample_text.txt",
+        "output_type":"json",
+        "json_type":"default_json",
+        "expected":[
+            [
+                "[CLS]",
+                "B-MISC"
+            ],
+            [
+                "bloomberg",
+                "O"
+            ],
+            [
+                "has",
+                "O"
+            ],
+            [
+                "decided",
+                "B-MISC"
+            ],
+            [
+                "to",
+                "B-MISC"
+            ],
+            [
+                "publish",
+                "B-MISC"
+            ],
+            [
+                "a",
+                "B-MISC"
+            ],
+            [
+                "new",
+                "B-MISC"
+            ],
+            [
+                "report",
+                "O"
+            ],
+            [
+                "on",
+                "B-MISC"
+            ],
+            [
+                "global",
+                "O"
+            ],
+            [
+                "economic",
+                "O"
+            ],
+            [
+                "situation",
+                "B-MISC"
+            ],
+            [
+                ".",
+                "O"
+            ],
+            [
+                "[SEP]",
+                "B-MISC"
+            ]
+        ]
+    },
+    {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa.mar",
+        "model_name":"roberta_qa",
+        "worker":"1",
+        "synchronous":"true",
+        "file":"../examples/Huggingface_Transformers/sample_text.txt",
+        "output_type":"text",
+        "expected":" was jim henson?</s></s> jim henson was a nice"
     }
 ]
