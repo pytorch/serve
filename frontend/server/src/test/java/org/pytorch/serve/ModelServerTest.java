@@ -95,13 +95,8 @@ public class ModelServerTest {
 
     @Test
     public void testPing() throws InterruptedException {
-        Channel channel = TestUtils.getInferenceChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        HttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/ping");
-        channel.writeAndFlush(req);
+        TestUtils.ping(configManager);
         TestUtils.getLatch().await();
-
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), "Healthy");
         Assert.assertTrue(TestUtils.getHeaders().contains("x-request-id"));
@@ -1384,20 +1379,21 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelFailure"})
-    private void testTSValidPort()
+    public void testTSValidPort()
             throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
                     IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
-        server.stop();
+        ConfigManager.init(new ConfigManager.Arguments());
+        ConfigManager configManagerValidPort = ConfigManager.getInstance();
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManager.setProperty("inference_address", "https://127.0.0.1:42523");
-        server = new ModelServer(configManager);
-        server.start();
+        configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
+        ModelServer serverValidPort = new ModelServer(configManagerValidPort);
+        serverValidPort.start();
 
         Channel channel = null;
         Channel managementChannel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(false, configManager);
+            channel = TestUtils.connect(false, configManagerValidPort);
             if (channel != null) {
                 break;
             }
@@ -1405,7 +1401,7 @@ public class ModelServerTest {
         }
 
         for (int i = 0; i < 5; ++i) {
-            managementChannel = TestUtils.connect(true, configManager);
+            managementChannel = TestUtils.connect(true, configManagerValidPort);
             if (managementChannel != null) {
                 break;
             }
@@ -1415,21 +1411,26 @@ public class ModelServerTest {
         Assert.assertNotNull(channel, "Failed to connect to inference port.");
         Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
 
-        testPing();
+        TestUtils.ping(configManagerValidPort);
+
+        serverValidPort.stop();
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testTSValidPort"})
-    private void testTSInvalidPort() {
+    public void testTSInvalidPort()
+            throws IOException, InterruptedException, GeneralSecurityException,
+                    InvalidSnapshotException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         //  invalid port test
-        server.stop();
+        ConfigManager.init(new ConfigManager.Arguments());
+        ConfigManager configManagerInvalidPort = ConfigManager.getInstance();
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManager.setProperty("inference_address", "https://127.0.0.1:65536");
-        server = new ModelServer(configManager);
+        configManagerInvalidPort.setProperty("inference_address", "https://127.0.0.1:65536");
+        ModelServer serverInvalidPort = new ModelServer(configManagerInvalidPort);
         try {
-            server.start();
+            serverInvalidPort.start();
         } catch (Exception e) {
             Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
             Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");

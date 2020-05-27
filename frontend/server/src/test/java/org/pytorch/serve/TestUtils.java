@@ -204,6 +204,14 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
+    public static void ping(ConfigManager configManager) throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        HttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/ping");
+        channel.writeAndFlush(req);
+    }
+
     public static Channel connect(boolean management, ConfigManager configManager) {
         return connect(management, configManager, 120);
     }
