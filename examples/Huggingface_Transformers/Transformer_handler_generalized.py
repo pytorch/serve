@@ -36,15 +36,17 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         #Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         #further setup config can be added.
-
-        if self.setup_config["mode"]== "sequence_classification":
-            self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-        elif self.setup_config["mode"]== "question_answering":
-            self.model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
-        elif self.setup_config["mode"]== "token_classification":
-            self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
-        else:
-            logger.warning('Missing the operation mode.')
+        if self.setup_config["save_mode"] == "torchscript":
+            self.model = torch.jit.load(model_dir)
+        elif self.setup_config["save_mode"] == "pretrained":
+            if self.setup_config["mode"]== "sequence_classification":
+                self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+            elif self.setup_config["mode"]== "question_answering":
+                self.model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
+            elif self.setup_config["mode"]== "token_classification":
+                self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
+            else:
+                logger.warning('Missing the operation mode.')
 
         if not os.path.isfile(os.path.join(model_dir, "vocab.txt")):
             self.tokenizer = AutoTokenizer.from_pretrained(self.setup_config["model_name"],do_lower_case=self.setup_config["do_lower_case"])
