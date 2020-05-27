@@ -33,7 +33,7 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 curl -X POST "http://localhost:8081/models?url=https://<s3_path>/squeezenet_v1.1.mar"
 
 {
-  "status": "Model \"squeezenet_v1.1\" registered"
+  "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
 
@@ -47,12 +47,12 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=fals
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
-< x-request-id: 29cde8a4-898e-48df-afef-f1a827a3cbc2
-< content-length: 33
+< x-request-id: 4dc54158-c6de-42aa-b5dd-ebcb5f721043
+< content-length: 47
 < connection: keep-alive
-<
+< 
 {
-  "status": "Worker updated"
+  "status": "Processing worker updates..."
 }
 ```
 
@@ -63,12 +63,12 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: ecd2e502-382f-4c3b-b425-519fbf6d3b85
+< content-length: 89
 < connection: keep-alive
-<
+< 
 {
-  "status": "Worker scaled"
+  "status": "Model \"squeezenet1_1\" Version: 1.0 registered with 1 initial workers"
 }
 ```
 
@@ -93,12 +93,12 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
-< x-request-id: 74b65aab-dea8-470c-bb7a-5a186c7ddee6
-< content-length: 33
+< x-request-id: 42adc58e-6956-4198-ad07-db6c620c4c1e
+< content-length: 47
 < connection: keep-alive
-<
+< 
 {
-  "status": "Worker updated"
+  "status": "Processing worker updates..."
 }
 ```
 
@@ -109,12 +109,12 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: b72b1ea0-81c6-4cce-92c4-530d3cfe5d4a
+< content-length: 63
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Workers scaled to 3 for model: noop"
 }
 ```
 
@@ -128,12 +128,12 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: 3997ccd4-ae44-4570-b249-e361b08d3d47
+< content-length: 77
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Workers scaled to 3 for model: noop, version: 2.0"
 }
 ```
 
