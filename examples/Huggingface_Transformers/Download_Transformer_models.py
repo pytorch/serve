@@ -14,22 +14,30 @@ def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_
     print("Download model and tokenizer", pretrained_model_name)
     #loading pre-trained model and tokenizer
     if mode== "sequence_classification":
-        config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
+        if save_mode == "torchscript":
+            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=True)
+        else:
+            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
         model = AutoModelForSequenceClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "question_answering":
-        model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model_name)
+        if save_mode == "torchscript":
+            config = AutoConfig.from_pretrained(pretrained_model_name,torchscript=True)
+        else:
+            config = AutoConfig.from_pretrained(pretrained_model_name)
+        model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model_name,config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "token_classification":
-        config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
-        model = AutoModelForTokenClassification.from_pretrained(pretrained_model_name)
+        if save_mode == "torchscript":
+            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=True)
+        else:
+            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
+        model = AutoModelForTokenClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
 
-
-    # NOTE : for demonstration purposes, we do not go through the fine-tune processing here.
-    # A Fine_tunining process based on your needs can be added.
-    # An example of Colab notebook for Fine_tunining process has been provided in the README.
-
+        # NOTE : for demonstration purposes, we do not go through the fine-tune processing here.
+        # A Fine_tunining process based on your needs can be added.
+        # An example of  Fine_tuned model has been provided in the README.
 
     NEW_DIR = "./Transformer_model"
     try:
@@ -39,12 +47,14 @@ def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_
     else:
         print ("Successfully created directory %s " % NEW_DIR)
 
-    print("Save model and tokenizer or Torchscript model based on the setting from setup_config", pretrained_model_name, 'in directory', NEW_DIR)
+    print("Save model and tokenizer/ Torchscript model based on the setting from setup_config", pretrained_model_name, 'in directory', NEW_DIR)
     if save_mode == "pretrained":
         model.save_pretrained(NEW_DIR)
         tokenizer.save_pretrained(NEW_DIR)
     elif save_mode == "torchscript":
-        dummy_input = "This is a dummy input for torch trace"
+        # making dummy input and run it through the model to let the torch.jit.trace()
+        # record the operatiosn and outputs a torchscript module.
+        dummy_input = "This is a dummy input for torch jit trace"
         inputs = tokenizer.encode_plus(dummy_input,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
         input_ids = inputs["input_ids"]
         traced_model = torch.jit.trace(model, [input_ids])
