@@ -1,4 +1,4 @@
-The following are the properties to be included in inference_data.json for adding a new test case.
+Use following properties to add inference test case in inference_data.json
 
 Mandatory properties
 ----
@@ -10,7 +10,7 @@ Mandatory properties
 
 **synchronous:** Synchronous call for register api, this must be true.
 
-**file:** relative file location of the input file
+**file:** Relative file location of the input file
 
 Response validation
 ----
@@ -19,26 +19,26 @@ Only http status code [200] gets verified to indicate test case success.
 
 If you want to validate the response body refer optional properties below.
 
-Optional properties
+Optional properties for response content validation
 ----
 
-Use these properties only if you want to validate the response content/body.
+Following properties should be used only when you to want validate the response content/body.
 
 **content-type:** Can be set to "text/plain" or "application/json".
-For "text/plain" content-type response message is compared with expected string.
-For "application/json" content-type response json is compared with expected json object.
+For "text/plain", content-type response message is compared with expected string.
+For "application/json", content-type response json is compared with expected json object.
 
-**validator:**: Currently validator can be either "default_json" or "image_classification".
-"default_json" is a basic json comparator where key value pairs are expected to be constant, however the order may change.
-"image_classification" is a custom comparator for json structure given below, here prediction scores may vary hence
-tolerance is used while comparing scores.
+**validator:**: Validator can be either "default_json" or "image_classification".
+"default_json" is a basic json comparator where key value pairs are expected to be constant, however the order may change. By default, this will be used for content validation even if you don't specify any validator for content type json.
+
+"image_classification" is a custom comparator for json structure given in following section. In this case, prediction scores may vary hence tolerance is used while comparing scores.
 
 **Note:**
-If expected output from your model's inference request is json with a different structure then you will have to add a custom
- function with name validate_<new_validator> and add entry for <new_validator>:validate_<new_validator> in `validators`
+If expected output from your model's inference request is json with a different structure (compared to image classfication above] then you will have to add a custom comparator with name validate_<new_validator> and add entry for <new_validator>:validate_<new_validator> in `validators`
  objects in `inference_api_test_collection.json`.
 
 **expected:** Expected string or json object based on content-type.
+
 **Note:**
 At present binary types are not supported as expected type.
 
@@ -64,7 +64,7 @@ Sample expected output for "image_classification" in json.
             }
         ]
 ```
-For above image classifiction inference response, here is the test case
+For above image classifiction inference response, here is the test case -
 ```json
 [{
         "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
