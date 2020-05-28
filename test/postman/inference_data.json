@@ -1,11 +1,10 @@
-[
-    {
+[{
         "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar",
         "model_name":"my_text_classifier",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
-        "output_type":"text",
+        "content-type":"text/plain",
         "expected":"Business"
     },
     {
@@ -14,8 +13,8 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"json",
-        "json_type":"image_classification",
+        "content-type":"application/json",
+        "validator":"image_classification",
         "expected":[
             {
                 "tabby":0.2752002477645874
@@ -41,8 +40,8 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"json",
-        "json_type":"image_classification",
+        "content-type":"application/json",
+        "validator":"image_classification",
         "expected":[
             {
                 "tiger_cat":0.4693359136581421
@@ -68,8 +67,8 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"json",
-        "json_type":"image_classification",
+        "content-type":"application/json",
+        "validator":"image_classification",
         "expected":[
             {
                 "tabby":0.31839194893836975
@@ -95,8 +94,8 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"json",
-        "json_type":"image_classification",
+        "content-type":"application/json",
+        "validator":"image_classification",
         "expected":[
             {
                 "tabby":0.40864479541778564
@@ -122,8 +121,8 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"json",
-        "json_type":"image_classification",
+        "content-type":"application/json",
+        "validator":"image_classification",
         "expected":[
             {
                 "tiger_cat":0.5501413345336914
@@ -149,7 +148,7 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/mnist/test_data/0.png",
-        "output_type":"text",
+        "content-type":"text/plain",
         "expected":"0"
     },
     {
@@ -179,8 +178,8 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
-        "output_type":"json",
-        "json_type":"default_json",
+        "content-type":"application/json",
+        "validator":"default_json",
         "expected":[
             "n02123159",
             "tiger_cat"
@@ -192,7 +191,7 @@
         "worker":"1",
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
-        "output_type":"text",
+        "content-type":"text/plain",
         "expected":"Accepted"
     },
     {
@@ -201,8 +200,8 @@
         "worker":"1",
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
-        "output_type":"json",
-        "json_type":"default_json",
+        "content-type":"application/json",
+        "validator":"default_json",
         "expected":[
             [
                 "[CLS]",
@@ -272,7 +271,7 @@
         "worker":"1",
         "synchronous":"true",
         "file":"../examples/Huggingface_Transformers/sample_text.txt",
-        "output_type":"text",
+        "content-type":"text/plain",
         "expected":" was jim henson?</s></s> jim henson was a nice"
     }
 ]
