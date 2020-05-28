@@ -413,6 +413,7 @@ public class SnapshotTest {
         prop.put("tsConfigFile", "dummyconfig");
         prop.put("NUM_WORKERS", 4);
         prop.put("number_of_gpu", 4);
+        prop.put("version", "0.1.1");
     }
 
     private String getLastSnapshot() {

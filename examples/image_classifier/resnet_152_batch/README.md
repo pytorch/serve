@@ -20,9 +20,9 @@ The above commands will create the mar file and register the resnet152 model wit
 To test batch inference execute the following commands within the specified max_batch_delay time :
 
 ```bash
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
 ```
 
 #### TorchScript example using Resnet152 batch image classifier:
@@ -45,6 +45,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/ima
    from torchvision import models
    import torch
    model = models.resnet152(pretrained=True)
+   model.eval()
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("resnet-152-batch.pt")
@@ -63,7 +64,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/ima
 * To test batch inference execute the following commands within the specified max_batch_delay time :
 
 ```bash
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
-curl -X POST http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/croco.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/dog.jpg &
+curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_classifier/resnet_152_batch/images/kitten.jpg &
 ```

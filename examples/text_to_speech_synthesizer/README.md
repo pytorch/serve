@@ -34,7 +34,7 @@ pip install librosa --user
     ```
   * Run inference and download audio output using curl command : 
     ```bash
-    curl -X POST http://127.0.0.1:8080/predictions/waveglow_synthesizer -T sample_text.txt -o audio.wav
+    curl http://127.0.0.1:8080/predictions/waveglow_synthesizer -T sample_text.txt -o audio.wav
     ```
     
   * Run inference and download audio output using python script :
