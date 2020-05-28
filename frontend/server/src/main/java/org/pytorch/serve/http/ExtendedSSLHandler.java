@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class ExtendedSSLHandler extends OptionalSslHandler {
     private static final Logger logger = LoggerFactory.getLogger(ExtendedSSLHandler.class);
     /** the length of the ssl record header (in bytes) */
-    static final int SSL_RECORD_HEADER_LENGTH = 5;
+    private static final int SSL_RECORD_HEADER_LENGTH = 5;
 
     public ExtendedSSLHandler(SslContext sslContext) {
         super(sslContext);
