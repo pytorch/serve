@@ -21,9 +21,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
     def initialize(self, ctx):
         self.manifest = ctx.manifest
-
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
+        serialized_file = self.manifest['model']['serializedFile']
+        model_pt_path = os.path.join(model_dir, serialized_file)
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
         #read configs for the mode, model_name, etc. from setup_config.json
         setup_config_path = os.path.join(model_dir, "setup_config.json")
@@ -37,7 +38,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         #Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         #further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
-            self.model = torch.jit.load(model_dir)
+            self.model = torch.jit.load(model_pt_path)
         elif self.setup_config["save_mode"] == "pretrained":
             if self.setup_config["mode"]== "sequence_classification":
                 self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
@@ -47,6 +48,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
             else:
                 logger.warning('Missing the operation mode.')
+        else:
+            logger.warning('Missing the checkpoint or state_dict.')
 
         if not os.path.isfile(os.path.join(model_dir, "vocab.txt")):
             self.tokenizer = AutoTokenizer.from_pretrained(self.setup_config["model_name"],do_lower_case=self.setup_config["do_lower_case"])
@@ -83,10 +86,15 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             inputs = self.tokenizer.encode_plus(input_text, add_special_tokens = True, return_tensors = 'pt')
         #preprocessing text for question_answering.
         elif self.setup_config["mode"]== "question_answering":
-            # the sample text for question_answering should be formated as dictionary
-            # with question and text as keys and related text as values.
+            #TODO Reading the context from a pickeled file or other fromats that
+            # fits the requirements of the task in hand. If this is done then need to
+            # modify the following preprocessing accordingly.
+
+            # the sample text for question_answering in the current version
+            # should be formated as dictionary with question and text as keys
+            # and related text as values.
             # we use this format here seperate question and text for encoding.
-            #TODO extend to handle multiple questions, cleaning and dealing with long the context.
+            
             question_context= ast.literal_eval(input_text)
             question = question_context["question"]
             context = question_context["context"]
