@@ -179,7 +179,6 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
-        "validator":"default_json",
         "expected":[
             "n02123159",
             "tiger_cat"
@@ -201,7 +200,6 @@
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"application/json",
-        "validator":"default_json",
         "expected":[
             [
                 "[CLS]",
