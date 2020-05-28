@@ -129,7 +129,8 @@
 							"}",
 							"",
 							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
-							"The order of keys with in an object may change.",
+							"-Notes-"
+							"The order of keys within an object may change.",
 							"If the output is array of objects then the objects compared are positional and cannot change order. ",
 							"*/",
 							"function validate_default(actual_obj, expected_obj) {",
