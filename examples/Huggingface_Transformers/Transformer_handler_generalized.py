@@ -80,10 +80,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         if text is None:
             text = data[0].get("body")
         input_text = text.decode('utf-8')
+        max_length = self.setup_config["max_length"]
         logger.info("Received text: '%s'", input_text)
         #preprocessing text for sequence_classification and token_classification.
         if self.setup_config["mode"]== "sequence_classification" or self.setup_config["mode"]== "token_classification" :
-            inputs = self.tokenizer.encode_plus(input_text, add_special_tokens = True, return_tensors = 'pt')
+            inputs = self.tokenizer.encode_plus(input_text,max_length = int(max_length), add_special_tokens = True, return_tensors = 'pt')
         #preprocessing text for question_answering.
         elif self.setup_config["mode"]== "question_answering":
             #TODO Reading the context from a pickeled file or other fromats that
@@ -94,11 +95,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # should be formated as dictionary with question and text as keys
             # and related text as values.
             # we use this format here seperate question and text for encoding.
-            
+
             question_context= ast.literal_eval(input_text)
             question = question_context["question"]
             context = question_context["context"]
-            inputs = self.tokenizer.encode_plus(question, context, add_special_tokens=True, return_tensors="pt")
+            inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length), add_special_tokens=True, return_tensors="pt")
 
         return inputs
 
