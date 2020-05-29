@@ -8,8 +8,13 @@ echo "Installing JMeter through Brew"
 brew update
 brew install jmeter
 
-
 CELLAR="/usr/local/Cellar/jmeter"
+
+if [ $(ls -1d /usr/local/Cellar/jmeter/* | wc -l) -gt 1 ];then
+  echo "Multiple versions of JMeter installed. Exiting..."
+  exit 1
+fi
+
 JMETER_HOME=`find $CELLAR ! -path $CELLAR -type d -maxdepth 1`
 
 wget https://jmeter-plugins.org/get/ -O $JMETER_HOME/libexec/lib/ext/jmeter-plugins-manager-1.3.jar
