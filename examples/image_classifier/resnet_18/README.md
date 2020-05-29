@@ -8,7 +8,7 @@ torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./serve/e
 mkdir model_store
 mv resnet-18.mar model_store/
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
-curl -X POST http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
+curl http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
 ```
 
 #### TorchScript example using Resnet18 image classifier:
@@ -31,6 +31,7 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/ima
    from torchvision import models
    import torch
    model = models.resnet18(pretrained=True)
+   model.eval()
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("resnet-18.pt")
@@ -43,5 +44,5 @@ curl -X POST http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/ima
     mkdir model_store
     mv resnet-18.mar model_store/
     torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
-    curl -X POST http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
+    curl http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
     ```
