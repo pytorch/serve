@@ -33,7 +33,7 @@ There are two paths to obtain the required model files for this demo.
 
 Torchscript exposes two APIs, script and trace, using any of these APIs, on the regular Pytorch model developed in python, compiles it to Torchscript. The resulted Torchscript can be loaded in a process where there is no Python dependency. The important difference between trace and script APIs, is that trace does not capture parts of the model which has data dependency such as control flow, this is where script is a better choice.
 
-To create Torchscript from Huggingface Transformers, torch.jit.trace() will be used that returns an executable or [`ScriptFunction`](https://pytorch.org/docs/stable/jit.html#torch.jit.ScriptFunction) that will be optimized using just-in-time compilation. We need to provide example inputs, torch.jit.trace, will record the operations performed on all the tensors when running the inputs through the transformer models. This option can be chosen through the setup_config.json that is  described in the next section. We need to keep this in mind, as torch.jit.trace()  record operations on tensors,  the size of inputs should be the same both in tracing and when using it for inference, otherwise it will raise an error. Also, there is torchscript flag that needs to be set when setting the configs to load the pretrained models, you can read more about it in this [Huggingface's doc](https://huggingface.co/transformers/torchscript.html).
+To create Torchscript from Huggingface Transformers, trace API (torch.jit.trace()) will be used that returns an executable or [`ScriptFunction`](https://pytorch.org/docs/stable/jit.html#torch.jit.ScriptFunction) that will be optimized using just-in-time compilation. We need to provide example inputs, torch.jit.trace, will record the operations performed on all the tensors when running the inputs through the transformer models. This option can be chosen through the setup_config.json that is  described in the next section. We need to keep this in mind, as torch.jit.trace()  record operations on tensors,  the size of inputs should be the same both in tracing and when using it for inference, otherwise it will raise an error. Also, there is torchscript flag that needs to be set when setting the configs to load the pretrained models, you can read more about it in this [Huggingface's doc](https://huggingface.co/transformers/torchscript.html).
 
 #### Setting the setup_config.json
 
@@ -41,7 +41,7 @@ In the setup_config.json :
 
 *model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
 
-*mode:* "sequence_classification "for sequence classification, "question_answering"for question answering and "token_classification" for token classification. 
+*mode:* "sequence_classification "for sequence classification, "question_answering"for question answering and "token_classification" for token classification.
 
 *do_lower_case* : True or False for use of the Tokenizer.
 
@@ -77,7 +77,7 @@ To use Transformer handler for question answering, the sample_text.txt should be
 
 ### Creating a torch Model Archive
 
-Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on a fine_tuned BERT model,  "bert-large-uncased-whole-word-masking-finetuned-squad", for question answering. To fine-tune RoBERTa or other models, it can be done by running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. 
+Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on a fine_tuned BERT model,  "bert-large-uncased-whole-word-masking-finetuned-squad", for question answering. To fine-tune RoBERTa or other models, it can be done by running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface.
 
 ```
 torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
@@ -105,4 +105,3 @@ torchserve --start --model-store model_store --models my_tc=BERTQA.mar
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./QA_artifacts/sample_text.txt`
-
