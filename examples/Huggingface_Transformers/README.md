@@ -77,7 +77,7 @@ To use Transformer handler for question answering, the sample_text.txt should be
 
 ### Creating a torch Model Archive
 
-Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on a fine_tuned BERT model,  "bert-large-uncased-whole-word-masking-finetuned-squad", for question answering. To fine-tune RoBERTa or other models, it can be done by running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. 
+Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on a fine_tuned BERT model,  "bert-large-uncased-whole-word-masking-finetuned-squad", for question answering. To fine-tune RoBERTa or other models, it can be done by running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface.
 
 ```
 torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
@@ -105,4 +105,3 @@ torchserve --start --model-store model_store --models my_tc=BERTQA.mar
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./QA_artifacts/sample_text.txt`
-
