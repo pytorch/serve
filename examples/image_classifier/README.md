@@ -22,7 +22,7 @@
     mkdir model_store
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
+    curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
 
 
 #### TorchScript example using DenseNet161 image classifier:
@@ -45,6 +45,7 @@
    from torchvision import models
    import torch
    model = models.densenet161(pretrained=True)
+   model.eval()
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("densenet161.pt")
@@ -57,7 +58,7 @@
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
+    curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
     ```
 #### TorchScript example using custom model and custom handler:
 

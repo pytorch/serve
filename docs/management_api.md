@@ -1,6 +1,7 @@
 # Management API
 
-TorchServe provides a set of API allow user to manage models at runtime:
+TorchServe provides the following APIs that allows you to manage models at runtime:
+
 1. [Register a model](#register-a-model)
 2. [Increase/decrease number of workers for specific model](#scale-workers)
 3. [Describe a model's status](#describe-model)
@@ -8,20 +9,19 @@ TorchServe provides a set of API allow user to manage models at runtime:
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
 
-Management API is listening on port 8081 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
+The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
-Similar as [Inference API](inference_api.md), Management API also provide a [API description](#api-description) to describe management APIs with OpenAPI 3.0 specification.
+Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
-## Management APIs
-
-### Register a model
+## Register a model
 
 `POST /models`
-* url - Model archive download url. Supports the following locations:
-    * a local model archive (.mar); the file must be directly in model_store folder.
-    * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
-* model_name - the name of the model; this name will be used as {model_name} in other API as path. If this parameter is not present, modelName in MANIFEST.json will be used.
-* handler - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
+
+* `url` - Model archive download url. Supports the following locations:
+  * a local model archive (.mar); the file must be in the `model_store` folder (and not in a subfolder).
+  * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
+* `model_name` - the name of the model; this name will be used as {model_name} in other APIs as part of the path. If this parameter is not present, `modelName` in MANIFEST.json will be used.
+* `handler` - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
 * runtime - the runtime for the model custom service code. This value will override runtime in MANIFEST.json if present. The default value is `PYTHON`.
 * batch_size - the inference batch size. The default value is `1`.
 * max_batch_delay - the maximum delay for batch aggregation. The default value is 100 milliseconds.
@@ -33,57 +33,58 @@ Similar as [Inference API](inference_api.md), Management API also provide a [API
 curl -X POST "http://localhost:8081/models?url=https://<s3_path>/squeezenet_v1.1.mar"
 
 {
-  "status": "Model \"squeezenet_v1.1\" registered"
+  "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
 
-User may want to create workers while register, creating initial workers may take some time, user can choose between synchronous or synchronous call to make sure initial workers are created properly.
+You might want to create workers during registration. because creating initial workers might take some time,
+you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
 
-The asynchronous call will return before trying to create workers with HTTP code 202:
+The asynchronous call returns with HTTP code 202 before trying to create workers.
 
 ```bash
 curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_path>/squeezenet_v1.1.mar"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
-< x-request-id: 29cde8a4-898e-48df-afef-f1a827a3cbc2
-< content-length: 33
+< x-request-id: 4dc54158-c6de-42aa-b5dd-ebcb5f721043
+< content-length: 47
 < connection: keep-alive
 < 
 {
-  "status": "Worker updated"
+  "status": "Processing worker updates..."
 }
 ```
 
-The synchronous call will return after all workers has be adjusted with HTTP code 200.
+The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
 curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/squeezenet_v1.1.mar"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: ecd2e502-382f-4c3b-b425-519fbf6d3b85
+< content-length: 89
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Model \"squeezenet1_1\" Version: 1.0 registered with 1 initial workers"
 }
 ```
 
-
-### Scale workers
+## Scale workers
 
 `PUT /models/{model_name}`
-* min_worker - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
-* max_worker - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
-* number_gpu - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
-* synchronous - whether or not the call is synchronous. The default value is `false`.
-* timeout - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
 
-Use the Scale Worker API to dynamically adjust the number of workers for any version of a model to better serve different inference request loads. 
+* `min_worker` - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
+* `max_worker` - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
+* `number_gpu` - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
+* `synchronous` - whether or not the call is synchronous. The default value is `false`.
+* `timeout` - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
 
-There are two different flavour of this API, synchronous vs asynchronous.
+Use the Scale Worker API to dynamically adjust the number of workers for any version of a model to better serve different inference request loads.
+
+There are two different flavors of this API, synchronous and asynchronous.
 
 The asynchronous call will return immediately with HTTP code 202:
 
@@ -92,51 +93,51 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
-< x-request-id: 74b65aab-dea8-470c-bb7a-5a186c7ddee6
-< content-length: 33
+< x-request-id: 42adc58e-6956-4198-ad07-db6c620c4c1e
+< content-length: 47
 < connection: keep-alive
 < 
 {
-  "status": "Worker updated"
+  "status": "Processing worker updates..."
 }
 ```
 
-The synchronous call will return after all workers has be adjusted with HTTP code 200.
+The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
 curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: b72b1ea0-81c6-4cce-92c4-530d3cfe5d4a
+< content-length: 63
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Workers scaled to 3 for model: noop"
 }
 ```
 
 To scale workers of a specific version of a model use URI : /models/{model_name}/{version}
 `PUT /models/{model_name}/{version}`
 
-The following synchronus call will return after all workers for version "2.0" for model "noop" has be adjusted with HTTP code 200.
+The following synchronous call will return after all workers for version "2.0" for model "noop" has be adjusted with HTTP code 200.
 
 ```bash
 curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=true"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: 3997ccd4-ae44-4570-b249-e361b08d3d47
+< content-length: 77
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Workers scaled to 3 for model: noop, version: 2.0"
 }
 ```
 
-### Describe model
+## Describe model
 
 `GET /models/{model_name}`
 
@@ -248,7 +249,7 @@ curl http://localhost:8081/models/noop/all
 ]
 ```
 
-### Unregister a model
+## Unregister a model
 
 `DELETE /models/{model_name}/{version}`
 
@@ -262,11 +263,12 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 }
 ```
 
-### List models
+## List models
 
 `GET /models`
-* limit - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is `100`.
-* next_page_token - (optional) queries for next page. It is passed as a query parameter. This value is return by a previous API call.
+
+* `limit` - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is `100`.
+* `next_page_token` - (optional) queries for next page. It is passed as a query parameter. This value is return by a previous API call.
 
 Use the Models API to query default versions of current registered models:
 
@@ -312,9 +314,9 @@ curl -X OPTIONS http://localhost:8081
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
 
 Example outputs of the Inference and Management APIs:
+
 * [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
-
 
 ## Set Default Version
 
@@ -329,5 +331,6 @@ curl -v -X PUT http://localhost:8081/models/noop/2.0/set-default
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
 
 Example outputs of the Inference and Management APIs:
+
 * [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)

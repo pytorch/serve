@@ -25,7 +25,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
 
     private Logger logger = LoggerFactory.getLogger(FSSnapshotSerializer.class);
     private ConfigManager configManager = ConfigManager.getInstance();
-    private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
+    private static final String MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
@@ -43,7 +43,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         }
 
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
-        prop.put(TS_MODEL_SNAPSHOT, snapshotJson);
+        prop.put(MODEL_SNAPSHOT, snapshotJson);
         try (OutputStream os = Files.newOutputStream(snapshotFile.toPath())) {
             OutputStreamWriter osWriter = new OutputStreamWriter(os, StandardCharsets.UTF_8);
             prop.store(osWriter, "Saving snapshot");

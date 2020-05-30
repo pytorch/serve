@@ -1,0 +1,1246 @@
+{
+	"info": {
+		"_postman_id": "e0788277-be1f-4c5b-9991-28fe975e34e6",
+		"name": "torchserve_regression_management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1cbd9673-61f2-4453-bcf1-93bfeb2568c8",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Valid Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5c725a66-e4d3-4b2c-83eb-84c087ca42b4",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Model with Version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "73729bce-a973-4c30-892d-937e389d3d7e",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Model - All Versions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "96133bb0-475d-4872-8b76-f58ce0fed5de",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/all",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Models",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2326f5ef-cb20-41b5-9a09-40e8141bdb52",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scale Min Workers - Asynchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5133cd34-e032-4db9-9dfc-e52febb985bc",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1?min_worker=3",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scale Min Workers - Synchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "79e4f73a-d7d1-40a0-b0e8-51065bfbd679",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1?min_worker=4&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "4"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scale Min Workers for a Version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f9a4ed1f-acc7-43c6-8f55-2df667983042",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0?min_worker=5&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "5"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scale Min Workers with GPU",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2f5ab518-df2a-413e-b191-b00119f306d9",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1?min_worker=6&number_gpu=1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "6"
+						},
+						{
+							"key": "number_gpu",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set Default Model Version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cbae9c5f-39a3-4e11-99b0-5b9cd67df235",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/1.0/set-default",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1",
+						"1.0",
+						"set-default"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnRegister Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b889adac-73eb-4256-8538-5df0b089f017",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model with Additional Params",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e786f9ea-7275-4aaf-93e3-d9ae21bfb80d",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						},
+						{
+							"key": "handler",
+							"value": "serve/ts/torch_handler/image_classifier.py:handle"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model with Batch Size",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4195502f-b873-4ef7-9533-83243a0f36bd",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet152"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model Intial Workers 0",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "161f791f-4c1d-4bd8-9eba-b2eb257d54b8",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar&model_name=vgg11&initial_workers=0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "vgg11"
+						},
+						{
+							"key": "initial_workers",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model Synchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "78361e0a-97cc-444a-b1dd-d79ad9315850",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet18"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnRegister Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "302bfd26-c59e-49ea-a924-9eadf9711262",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Resnet Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7a2c2e4d-ab9e-440a-8cb6-327ccb03a4bb",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet18&synchronous=false",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet18"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List with Limit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cda03922-f0e8-4d30-b6ce-c796cfb588d5",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?limit=1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List with Pagination",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f0728d8a-9337-4673-8ffd-9311972081a7",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?limit=1&next_page_token=1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "1"
+						},
+						{
+							"key": "next_page_token",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update GPU Count",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8c7e255e-ba4f-437b-a626-17e4797bad1a",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?number_gpu=10",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "number_gpu",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scale up Workers -  Synchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e634583b-ae79-4967-b5a1-e2ccd4b6fd67",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?min_worker=5&max_worker=5&synchronous=true",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "5"
+						},
+						{
+							"key": "max_worker",
+							"value": "5"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scale up Workers - Asynchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "51198f24-a0d1-42e9-b3ff-8c3f06d67c81",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?min_worker=6&max_worker=6&synchronous=false",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "6"
+						},
+						{
+							"key": "max_worker",
+							"value": "6"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Timeout to -1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8827111d-8b8b-45a9-88c0-a08209137b80",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?timeout=-1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "timeout",
+							"value": "-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Timeout to 0",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea9e4bac-cc28-4f8c-8679-52530d07c993",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?timeout=0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "timeout",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model - Invalid URL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "56def7be-ee41-4c74-84c6-17a183ddec3e",
+						"exec": [
+							"pm.test(\"Invalid URL POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "invalid-resnet18"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Model - Invalid Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "31cff3b0-a5be-4d48-a586-0d6482d34e83",
+						"exec": [
+							"pm.test(\"Valid ERROR message\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Models - Invalid Next Page Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "98e63be5-982f-4a4b-8c12-d57328b81685",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?next_page_token=12",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "next_page_token",
+							"value": "12"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Worker with Invalid Worker Count",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "15b8cc28-86b9-40d8-aa59-409bc11cdaa4",
+						"exec": [
+							"pm.test(\"Valid ERROR message\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet18?min_worker=10&max_worker=9",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet18"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "10"
+						},
+						{
+							"key": "max_worker",
+							"value": "9"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Version - Invalid Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7edbe77d-64b3-40f7-b6f5-f1d6468a75a4",
+						"exec": [
+							"pm.test(\"Valid ERROR message\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1/1.0/set-default",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1",
+						"1.0",
+						"set-default"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnRegister Invalid Model Name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b0a0fa12-2de1-474e-8869-33a7c5a0895d",
+						"exec": [
+							"pm.test(\"Valid ERROR message\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/invalid_squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"invalid_squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9421de73-e415-404c-a41b-363fb02a6cb3",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7d4715cb-d48a-4586-9177-6faa347d9921",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

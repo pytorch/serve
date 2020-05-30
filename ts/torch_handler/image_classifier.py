@@ -1,5 +1,7 @@
+"""
+Module for image classification default handler
+"""
 import io
-
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -39,14 +41,15 @@ class ImageClassifier(VisionHandler):
         image = my_preprocess(image)
         return image
 
-    def inference(self, img, topk=5):
+    def inference(self, data):
         ''' Predict the class (or classes) of an image using a trained deep learning model.
         '''
         # Convert 2D image to 1D vector
-        img = np.expand_dims(img, 0)
-        img = torch.from_numpy(img)
+        topk = 5
+        data = np.expand_dims(data, 0)
+        data = torch.from_numpy(data)
 
-        inputs = Variable(img).to(self.device)
+        inputs = Variable(data).to(self.device)
         outputs = self.model.forward(inputs)
 
         ps = F.softmax(outputs, dim=1)
@@ -55,13 +58,13 @@ class ImageClassifier(VisionHandler):
         probs, classes = (e.cpu().data.numpy().squeeze().tolist() for e in topk)
 
         results = []
-        for i in range(len(probs)):
+        for index, elem in enumerate(probs):
             if self.mapping:
                 tmp = dict()
                 if isinstance(self.mapping, dict) and isinstance(list(self.mapping.values())[0], list):
-                    tmp[self.mapping[str(classes[i])][1]] = probs[i]
+                    tmp[self.mapping[str(classes[index])][1]] = elem
                 elif isinstance(self.mapping, dict) and isinstance(list(self.mapping.values())[0], str):
-                    tmp[self.mapping[str(classes[i])]] = probs[i]
+                    tmp[self.mapping[str(classes[index])]] = elem
                 else:
                     raise Exception('index_to_name mapping should be in "class":"label" json format')
 
@@ -71,14 +74,17 @@ class ImageClassifier(VisionHandler):
 
         return [results]
 
-    def postprocess(self, inference_output):
-        return inference_output
+    def postprocess(self, data):
+        return data
 
 
 _service = ImageClassifier()
 
 
 def handle(data, context):
+    """
+    Entry point for image classifier default handler
+    """
     try:
         if not _service.initialized:
             _service.initialize(context)
@@ -92,4 +98,4 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("Please provide a custom handler in the model archive.")
+        raise Exception("Please provide a custom handler in the model archive." + e)
