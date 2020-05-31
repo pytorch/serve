@@ -7,8 +7,8 @@ The benchmarks measure the performance of TorchServe on various models and bench
 ### Ubuntu
 
 The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
-On CPU based instance, use `install_depdendencies.sh`.
-On GPU based instance, use `install_depdendencies.sh True`. 
+On CPU based instance, use `./install_dependencies.sh`.
+On GPU based instance, use `./install_dependencies.sh True`.
 
 ### MacOS
 
@@ -150,8 +150,42 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 The benchmarks can also be used to analyze the backend performance using cProfile.  It does not require any additional packages to run the benchmark, but viewing the logs does require an additional package.  Run `pip install snakeviz` to install this.  To run the python profiling, follow these steps:
 
 1. In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-2. Run the benchmark and TorchServe.  They can either be done automatically inside the docker container or separately with the "--ts" flag.
+2. Run the benchmark and TorchServe. They can either be done automatically inside the docker container or separately with the "--ts" flag. To run benchmark with backend profiling enabled inside docker, use following steps :
+
+    * create a docker image with BENCHMARK parameter set to true in model_service_worker.py
+    ```bash
+    cd docker
+    git clone https://github.com/pytorch/serve.git
+    cd serve
+    ## set BENCHMARK flag to true
+    vim ts/model_service_worker.py
+    cd ..
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+    ```
+    
+    * run benchmark's install_dependencies.sh
+    ```bash
+    cd ../benchmark
+    ./install_dependencies.sh
+    ```
+    
+    * start docker with /tmp directory mapped to local /tmp
+    ```bash
+    start docker with /tmp directory mapped to local /tmp
+    ```
+    
+    * start default throughput benchmark
+    ```
+    python benchmark.py throughput --ts http://127.0.0.1:8080
+    ```
+ 
 3. Run TorchServe directly through gradle (do not use docker).  This can be done either on your machine or on a remote machine accessible through SSH.
 4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
-5. Run `snakeviz /tmp/tsPythonProfile.prof` to view the profiling data.  It should start up a web server on your machine and automatically open the page.
+5. To visualize the profiling data using `snakeviz` use following commands:
+    ```bash
+    pip install snakeviz
+    snakeviz tsPythonProfile.prof
+    ```
+   It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed.
+
 6. Don't forget to set BENCHMARK = False in the model_service_worker.py file after you are finished.

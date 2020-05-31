@@ -56,13 +56,22 @@ echo "Installing JMeter through Brew"
     true
 }
 
-wget https://jmeter-plugins.org/get/ -O /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/lib/ext/jmeter-plugins-manager-1.3.jar
-wget http://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/lib/cmdrunner-2.2.jar
-java -cp /home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/lib/ext/jmeter-plugins-manager-1.3.jar org.jmeterplugins.repository.PluginManagerCMDInstaller
-/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/5.2.1/libexec/bin/PluginsManagerCMD.sh install jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
+CELLAR="/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/"
+
+if [ $(ls -1d $CELLAR/* | wc -l) -gt 1 ];then
+  echo "Multiple versions of JMeter installed. Exiting..."
+  exit 1
+fi
+
+JMETER_HOME=`find $CELLAR ! -path $CELLAR -type d -maxdepth 1`
+
+wget https://jmeter-plugins.org/get/ -O $JMETER_HOME/libexec/lib/ext/jmeter-plugins-manager-1.3.jar
+wget http://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O $JMETER_HOME/libexec/lib/cmdrunner-2.2.jar
+java -cp $JMETER_HOME/libexec/lib/ext/jmeter-plugins-manager-1.3.jar org.jmeterplugins.repository.PluginManagerCMDInstaller
+$JMETER_HOME/libexec/bin/PluginsManagerCMD.sh install jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
 
 echo "Install docker"
-sudo apt-get remove docker docker-engine docker.io
+sudo apt-get remove -y docker docker-engine docker.io
 sudo apt-get install -y \
      apt-transport-https \
      ca-certificates \
@@ -116,5 +125,5 @@ then
     sudo pkill -SIGHUP dockerd
 
     # Test nvidia-smi with the latest official CUDA image
-    docker run --runtime=nvidia --rm nvidia/cuda nvidia-smi
+    docker run --gpus all --rm nvidia/cuda nvidia-smi
 fi
