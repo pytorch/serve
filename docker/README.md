@@ -1,9 +1,10 @@
 ## Contents of this Document
 
-* [Prerequisites](#docker_prerequisite)
-* [Create TorchServe docker image](#docker_image_production)
-* [Create TorchServe docker image from source](#docker_image_source)
-* [Create torch-model-archiver from container](#docker_torch_model_archiver)
+* [Prerequisites](#prerequisites)
+* [Create TorchServe docker image](#create-torchserve-docker-image)
+* [Create TorchServe docker image from source](#create-torchserve-docker-image-from-source)
+* [Create torch-model-archiver from container](#create-torch-model-archiver-from-container)
+* [Running TorchServe docker image in production](#running-torchserve-in-a-production-docker-environment)
 
 # Prerequisites
 
@@ -13,10 +14,12 @@
   * [Nvidia container toolkit](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster)
   * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
 
-## Make sure you are in docker folder as follows
+## First things first
 
 ```bash
-cd serve/docker
+1. If you have not clone torchserve source then:
+git clone https://github.com/pytorch/serve.git
+2. cd serve/docker
 ```
 
 # Create TorchServe docker image
@@ -81,11 +84,10 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ./build_image.sh
 ```
 
-Alternatively, you can use following direct command- 
+Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))- 
 ```bash 
-Make sure you are inside serve/docker and use following commands
-1. git clone https://github.com/pytorch/serve.git
-2. cd serve;git checkout <branch>;cd docker
+1. Do one more clone -> `git clone https://github.com/pytorch/serve.git`
+2. cd serve;git checkout <branch>;cd ..
 
 For cpu -
 3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
@@ -131,7 +133,7 @@ For GPU with specific GPU device ids run the following command:
 ```bash
 ./start.sh --gpu_devices 1,2,3
 ```
-Alternatively, you can use direct commands describe in **Start a container with a TorchServe image** above for cpu and gpu by changing image name
+Alternatively, you can use direct commands describe in [Start a container with a TorchServe image](#start-a-container-with-a-torchserve-image) above for cpu and gpu by changing image name
 
 # Create torch-model-archiver from container
 
@@ -161,3 +163,37 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/m
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
 4. desnet161.mar file should be present at /home/model-server/model-store
+
+# Running TorchServe in a Production Docker Environment.
+
+You may want to consider the following aspects / docker options when deploying torchserve in Production with Docker.
+
+
+* Shared Memory Size 
+
+    * ```shm-size``` - The shm-size parameter allows you to specify the shared memory that a container can use. It enables memory-intensive containers to run faster by giving more access to allocated memory.
+
+
+* User Limits for System Resources
+    
+    * ```--ulimit memlock=-1``` : Maximum locked-in-memory address space. 
+    * ```--ulimit stack``` : Linux stack size 
+
+    The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/), [here](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
+
+
+* Exposing specific ports / volumes between the host & docker env.
+
+    *  ```-p8080:p8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
+
+For example,
+
+```
+docker run --rm --shm-size=1g \
+        --ulimit memlock=-1 \
+        --ulimit stack=67108864 \
+        -p8080:8080 \
+        -p8081:8081 \
+        --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
+```
