@@ -27,3 +27,11 @@ Advanced Features
 * :ref:`Custom Service <custom-service:Custom Service>` - Describes how to develop custom inference services.
 * `Unit Tests <https://github.com/pytorch/serve/tree/master/ts/tests/README.md>`_ - Housekeeping unit tests for TorchServe.
 * `Benchmark <https://github.com/pytorch/serve/blob/master/benchmarks/README.md>`_ - Use JMeter to run TorchServe through the paces and collect benchmark data.
+
+Default Handlers
+----------------
+
+* `Image Classifier <https://github.com/pytorch/serve/blob/staging_0_1_1/ts/torch_handler/image_classifier.py>`_ - This handler takes an image and returns the name of object in that image
+* `Text Classifier <https://github.com/pytorch/serve/blob/staging_0_1_1/ts/torch_handler/text_classifier.py>`_ - This handler takes a text (string) as input and returns the classification text based on the model vocabulary
+* `Object Detector <https://github.com/pytorch/serve/blob/staging_0_1_1/ts/torch_handler/object_detector.py>`_ - This handler takes an image and returns list of detected classes and bounding boxes respectively
+* `Image Segmenter <https://github.com/pytorch/serve/blob/staging_0_1_1/ts/torch_handler/image_segmenter.py>`_ - This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width
