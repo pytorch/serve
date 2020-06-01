@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -117,13 +118,14 @@ public class WorkLoadManager {
                     // -> This may nullify process object per destroyForcibly doc.
                     if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
-                        workerProcess.destroyForcibly();
                         try {
+                            String cmd = String.format("kill -9 %s", workerProcess.pid());
+                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
-                                    workerProcess.waitFor(
+                                    workerKillProcess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
                                             TimeUnit.SECONDS);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerThread interrupted during waitFor, possible async resource cleanup.");
                             future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
