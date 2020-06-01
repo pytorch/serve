@@ -1,8 +1,10 @@
 package org.pytorch.serve.wlm;
 
+import com.google.gson.JsonObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,29 @@ public final class ModelManager {
                 defaultModelName);
     }
 
+    public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
+            throws ModelException, IOException {
+
+        boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
+        String url = modelInfo.get(Model.MAR_NAME).getAsString();
+
+        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
+
+        Model tempModel = createModel(archive, modelInfo);
+
+        String versionId = archive.getModelVersion();
+
+        createVersionedModel(tempModel, versionId);
+
+        if (defaultVersion) {
+            modelManager.setDefaultVersion(modelName, versionId);
+        }
+
+        logger.info("Model {} loaded.", tempModel.getModelName());
+
+        updateModel(modelName, versionId, true);
+    }
+
     public ModelArchive registerModel(
             String url,
             String modelName,
@@ -82,6 +107,27 @@ public final class ModelManager {
             String defaultModelName)
             throws ModelException, IOException {
 
+        ModelArchive archive =
+                createModelArchive(modelName, url, handler, runtime, defaultModelName);
+
+        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
+
+        String versionId = archive.getModelVersion();
+
+        createVersionedModel(tempModel, versionId);
+
+        logger.info("Model {} loaded.", tempModel.getModelName());
+
+        return archive;
+    }
+
+    private ModelArchive createModelArchive(
+            String modelName,
+            String url,
+            String handler,
+            Manifest.RuntimeType runtime,
+            String defaultModelName)
+            throws FileAlreadyExistsException, ModelException, IOException {
         ModelArchive archive = ModelArchive.downloadModel(configManager.getModelStore(), url);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
@@ -91,11 +137,10 @@ public final class ModelManager {
             archive.getManifest().getModel().setModelName(modelName);
         }
 
-        String versionId = archive.getModelVersion();
-
         if (runtime != null) {
             archive.getManifest().setRuntime(runtime);
         }
+
         if (handler != null) {
             archive.getManifest().getModel().setHandler(handler);
         } else if (archive.getHandler() == null || archive.getHandler().isEmpty()) {
@@ -103,12 +148,6 @@ public final class ModelManager {
         }
 
         archive.validate();
-
-        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
-
-        createVersionedModel(tempModel, versionId);
-
-        logger.info("Model {} loaded.", tempModel.getModelName());
 
         return archive;
     }
@@ -123,8 +162,14 @@ public final class ModelManager {
         return model;
     }
 
+    private Model createModel(ModelArchive archive, JsonObject modelInfo) {
+        Model model = new Model(archive, configManager.getJobQueueSize());
+        model.setModelState(modelInfo);
+        return model;
+    }
+
     private void createVersionedModel(Model model, String versionId)
-            throws ConflictStatusException {
+            throws ModelVersionNotFoundException, ConflictStatusException {
 
         ModelVersionedRefs modelVersionRef = modelsNameMap.get(model.getModelName());
         if (modelVersionRef == null) {
@@ -171,6 +216,8 @@ public final class ModelManager {
             if (vmodel.getAllVersions().size() == 0) {
                 modelsNameMap.remove(modelName);
             }
+
+            ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
         } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpResponseStatus.BAD_REQUEST;
@@ -186,7 +233,7 @@ public final class ModelManager {
     }
 
     public HttpResponseStatus setDefaultVersion(String modelName, String newModelVersion)
-            throws InvalidModelVersionException {
+            throws ModelVersionNotFoundException {
         HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
@@ -195,7 +242,7 @@ public final class ModelManager {
         }
         try {
             vmodel.setDefaultVersion(newModelVersion);
-        } catch (InvalidModelVersionException e) {
+        } catch (ModelVersionNotFoundException e) {
             logger.warn("Model version {} does not exist for model {}", newModelVersion, modelName);
             httpResponseStatus = HttpResponseStatus.FORBIDDEN;
         }
@@ -203,19 +250,23 @@ public final class ModelManager {
         return httpResponseStatus;
     }
 
-    public CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup) {
-        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
-        if (vmodel == null) {
-            throw new AssertionError("Model not found: " + modelName);
-        }
+    private CompletableFuture<HttpResponseStatus> updateModel(
+            String modelName, String versionId, boolean isStartup)
+            throws ModelVersionNotFoundException {
+        Model model = getVersionModel(modelName, versionId);
+        return updateModel(
+                modelName, versionId, model.getMinWorkers(), model.getMaxWorkers(), isStartup);
+    }
 
-        Model model = vmodel.getVersionModel(versionId);
+    public CompletableFuture<HttpResponseStatus> updateModel(
+            String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup)
+            throws ModelVersionNotFoundException {
+        Model model = getVersionModel(modelName, versionId);
 
         if (model == null) {
-            throw new AssertionError("Model version not not found for model : " + modelName);
+            throw new ModelVersionNotFoundException(
+                    "Model version: " + versionId + " does not exist for model: " + modelName);
         }
-
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
@@ -223,8 +274,18 @@ public final class ModelManager {
         return wlm.modelChanged(model, isStartup);
     }
 
+    private Model getVersionModel(String modelName, String versionId) {
+        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
+        if (vmodel == null) {
+            throw new AssertionError("Model not found: " + modelName);
+        }
+
+        return vmodel.getVersionModel(versionId);
+    }
+
     public CompletableFuture<HttpResponseStatus> updateModel(
-            String modelName, String versionId, int minWorkers, int maxWorkers) {
+            String modelName, String versionId, int minWorkers, int maxWorkers)
+            throws ModelVersionNotFoundException {
         return updateModel(modelName, versionId, minWorkers, maxWorkers, false);
     }
 
@@ -250,20 +311,13 @@ public final class ModelManager {
         return wlm.getWorkers();
     }
 
-    public boolean addJob(Job job) throws ModelNotFoundException {
+    public boolean addJob(Job job) throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelName = job.getModelName();
         String versionId = job.getModelVersion();
-        ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
-        if (vmodel == null) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
-        }
-
-        Model model = vmodel.getVersionModel(versionId);
-
+        Model model = getModel(modelName, versionId);
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-
         if (wlm.hasNoWorker(model.getModelVersionName())) {
             return false;
         }
@@ -343,12 +397,18 @@ public final class ModelManager {
         return startupModels;
     }
 
-    public Model getModel(String modelName, String versionId) {
+    public Model getModel(String modelName, String versionId) throws ModelVersionNotFoundException {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             return null;
         }
-        return vmodel.getVersionModel(versionId);
+        Model model = vmodel.getVersionModel(versionId);
+        if (model == null) {
+            throw new ModelVersionNotFoundException(
+                    "Model version: " + versionId + " does not exist for model: " + modelName);
+        } else {
+            return model;
+        }
     }
 
     public Set<Entry<String, Model>> getAllModelVersions(String modelName)

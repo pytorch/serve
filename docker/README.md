@@ -10,7 +10,7 @@
 
 * docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
 * git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-* For base Ubuntu with GPU, install following nvidia container toolkit and driver-
+* For base Ubuntu with GPU, install following nvidia container toolkit and driver- 
   * [Nvidia container toolkit](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster)
   * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
 
@@ -84,15 +84,15 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ./build_image.sh
 ```
 
-Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))-
-```bash
+Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))- 
+```bash 
 1. Do one more clone -> `git clone https://github.com/pytorch/serve.git`
 2. cd serve;git checkout <branch>;cd ..
 
 For cpu -
 3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
 
-For gpu -
+For gpu - 
 3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.gpu -t torchserve:dev .
 ```
 
@@ -145,7 +145,7 @@ To create mar [model archive] file for torchserve deployment, you can use follow
 docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
 ```
 
-1. List your container or skip this if you know cotainer name
+1. List your container or skip this if you know cotainer name 
 ```bash
 docker ps
 ```
@@ -169,15 +169,15 @@ Refer [torch-model-archiver](../model-archiver/README.md) for details.
 You may want to consider the following aspects / docker options when deploying torchserve in Production with Docker.
 
 
-* Shared Memory Size
+* Shared Memory Size 
 
     * ```shm-size``` - The shm-size parameter allows you to specify the shared memory that a container can use. It enables memory-intensive containers to run faster by giving more access to allocated memory.
 
 
 * User Limits for System Resources
-
-    * ```--ulimit memlock=-1``` : Maximum locked-in-memory address space.
-    * ```--ulimit stack``` : Linux stack size
+    
+    * ```--ulimit memlock=-1``` : Maximum locked-in-memory address space. 
+    * ```--ulimit stack``` : Linux stack size 
 
     The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/), [here](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
 
@@ -195,5 +195,5 @@ docker run --rm --shm-size=1g \
         --ulimit stack=67108864 \
         -p8080:8080 \
         -p8081:8081 \
-        --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models
+        --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
 ```

@@ -2,5 +2,8 @@
 """
 This is the current version of Model Archiver Tool
 """
+import os
+from pathlib import Path
 
-__version__ = '0.1.0'
+version_path = os.path.join(Path(__file__).resolve().parent, 'version.txt')
+__version__ = open(version_path, 'r').read().strip()

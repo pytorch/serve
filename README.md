@@ -10,7 +10,6 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
-
 ## Serve a model
 
 This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).

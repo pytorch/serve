@@ -47,11 +47,11 @@ To get predictions from the default version of each loaded model, make a REST ca
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
 
-curl -X POST http://localhost:8080/predictions/resnet-18 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18 -T kitten.jpg
 
 or:
 
-curl -X POST http://localhost:8080/predictions/resnet-18 -F "data=@kitten.jpg"
+curl http://localhost:8080/predictions/resnet-18 -F "data=@kitten.jpg"
 ```
 
 To get predictions from a specific version of each loaded model, make a REST call to `/predictions/{model_name}/{version}`:
@@ -63,11 +63,11 @@ To get predictions from a specific version of each loaded model, make a REST cal
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
 
-curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
 
 or:
 
-curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -F "data=@kitten.jpg"
+curl http://localhost:8080/predictions/resnet-18/2.0 -F "data=@kitten.jpg"
 ```
 
 The result is JSON that tells you that the image is most likely a tabby cat. The highest prediction was:

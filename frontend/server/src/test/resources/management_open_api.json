@@ -3,7 +3,7 @@
   "info": {
     "title": "TorchServe APIs",
     "description": "TorchServe is a flexible and easy to use tool for serving deep learning models",
-    "version": "1.0.0"
+    "version": "%s"
   },
   "paths": {
     "/": {
@@ -92,15 +92,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "model_name_pattern",
-            "description": "A model name filter to list only matching models.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -181,7 +172,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "model_url",
+            "name": "url",
             "description": "Model archive download url, support local file or HTTP(s) protocol. For S3, consider use pre-signed url.",
             "required": true,
             "schema": {
@@ -584,6 +575,35 @@
               }
             }
           },
+          "404": {
+            "description": "Model not found or Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -776,7 +796,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -918,36 +938,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "code",
-                    "type",
-                    "message"
-                  ],
-                  "properties": {
-                    "code": {
-                      "type": "integer",
-                      "description": "Error code."
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Error type."
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "Error message."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Model version not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1081,7 +1072,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
