@@ -58,7 +58,7 @@ In the setup_config.json :
 
 *model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
 
-*mode:* "sequence_classification "for sequence classification, "question_answering"for question answering and "token_classification" for token classification. 
+*mode:* "sequence_classification "for sequence classification, "question_answering"for question answering and "token_classification" for token classification.
 
 *do_lower_case* : True or False for use of the Tokenizer.
 
