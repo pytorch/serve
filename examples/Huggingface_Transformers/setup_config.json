@@ -1,8 +1,8 @@
 {
- "model_name":"bert-base-uncased",
- "mode":"sequence_classification",
+ "model_name":"bert-large-uncased-whole-word-masking-finetuned-squad",
+ "mode":"question_answering",
  "do_lower_case":"True",
- "num_labels":"2",
+ "num_labels":"0",
  "save_mode":"torchscript",
  "max_length":"150"
 }
