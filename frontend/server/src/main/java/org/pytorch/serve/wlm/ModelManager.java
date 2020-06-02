@@ -10,7 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeoutException;
+
 import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
@@ -58,7 +64,7 @@ public final class ModelManager {
 
     public ModelArchive registerModel(String url, String defaultModelName, String preloadModel)
             throws ModelException, IOException, InterruptedException, ExecutionException,
-                    TimeoutException {
+            TimeoutException {
         return registerModel(
                 url,
                 null,
