@@ -22,7 +22,7 @@ public class ModelServerResponse implements Response {
 
     @Override
     public void setStatus(int i, String s) {
-        response.setStatus(HttpResponseStatus.valueOf(i, s));
+        response.setStatus(new HttpResponseStatus(i, s));
     }
 
     @Override
