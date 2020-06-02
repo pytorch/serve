@@ -656,7 +656,7 @@ public class ModelServerTest {
         TestUtils.registerModel(channel, "loading-memory-error.mar", "memory_error", true, false);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
         channel.close();
     }
 

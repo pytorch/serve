@@ -9,9 +9,11 @@ Communication message format: binary encoding
 
 import logging
 import os
+import multiprocessing
 import platform
 import socket
 import sys
+import signal
 
 from ts.arg_parser import ArgParser
 from ts.model_loader import ModelLoaderFactory
@@ -28,7 +30,9 @@ class TorchModelServiceWorker(object):
     """
     Backend worker to handle Model Server's python service code
     """
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
+
+    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None,
+                 model_request=None, preload_model=False, tmp_dir="/tmp"):
         self.sock_type = s_type
         if s_type == "unix":
             if s_name is None:
@@ -46,14 +50,20 @@ class TorchModelServiceWorker(object):
                 raise ValueError("Wrong arguments passed. No socket port given.")
             self.port = port_num
         else:
-            raise ValueError("Incomplete data provided")
+            raise ValueError("Invalid socket type provided")
 
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
 
-    @staticmethod
-    def load_model(load_model_request):
+        self.preload = preload_model
+        self.service = None
+        self.model_meta_data = model_request
+        self.out = self.err = None
+        self.tmp_dir = tmp_dir
+        self.socket_name = s_name
+
+    def load_model(self, load_model_request=None):
         """
         Expected command
         {
@@ -72,7 +82,7 @@ class TorchModelServiceWorker(object):
             model_dir = load_model_request["modelPath"].decode("utf-8")
             model_name = load_model_request["modelName"].decode("utf-8")
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
-            batch_size = None
+            batch_size = 1
             if "batchSize" in load_model_request:
                 batch_size = int(load_model_request["batchSize"])
 
@@ -80,14 +90,34 @@ class TorchModelServiceWorker(object):
             if "gpu" in load_model_request:
                 gpu = int(load_model_request["gpu"])
 
-            model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
+            io_fd = None
+            if "ioFileDescriptor" in load_model_request:
+                io_fd = load_model_request.get("ioFileDescriptor").decode("utf-8")
+                self._create_io_files(self.tmp_dir, io_fd)
 
-            logging.debug("Model %s loaded.", model_name)
+            if self.service is None or self.preload is False:
+                model_loader = ModelLoaderFactory.get_model_loader()
+                self.service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
+                logging.info("Model %s loaded io_fd=%s", model_name, str(io_fd))
 
-            return service, "loaded model {}".format(model_name), 200
+            return "loaded model {}. [PID]:{}".format(model_name, os.getpid()), 200
         except MemoryError:
             return None, "System out of memory", 507
+
+    def _create_io_files(self, tmp_dir, io_fd):
+        self.out = tmp_dir + '/' + io_fd + "-stdout"
+
+        self.err = tmp_dir + '/' + io_fd + "-stderr"
+        # TODO: Windows support
+        os.mkfifo(self.out)
+        os.mkfifo(self.err)
+
+    def _remap_io(self):
+        out_fd = open(self.out, "w")
+
+        err_fd = open(self.err, "w")
+        os.dup2(out_fd.fileno(), sys.stdout.fileno())
+        os.dup2(err_fd.fileno(), sys.stderr.fileno())
 
     def handle_connection(self, cl_socket):
         """
@@ -96,7 +126,7 @@ class TorchModelServiceWorker(object):
         :param cl_socket:
         :return:
         """
-        service = None
+        cl_socket.setblocking(True)
         while True:
             if BENCHMARK:
                 pr.disable()
@@ -105,20 +135,52 @@ class TorchModelServiceWorker(object):
             if BENCHMARK:
                 pr.enable()
             if cmd == b'I':
-                resp = service.predict(msg)
+                resp = self.service.predict(msg)
                 cl_socket.send(resp)
             elif cmd == b'L':
-                service, result, code = self.load_model(msg)
+                result, code = self.load_model(msg)
                 resp = bytearray()
                 resp += create_load_model_response(code, result)
                 cl_socket.send(resp)
+                self._remap_io()
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 
-            if service is not None and service.context is not None and service.context.metrics is not None:
-                emit_metrics(service.context.metrics.store)
+            if self.service is not None and self.service.context is not None \
+                    and self.service.context.metrics is not None:
+                emit_metrics(self.service.context.metrics.store)
+
+    def sigterm_handler(self):
+        for node in [self.socket_name, self.out, self.err]:
+            try:
+                os.remove(node)
+            except OSError:
+                pass
+
+    def start_worker(self, cl_socket):
+        """
+        Method to start the worker threads. These worker threads use multiprocessing to spawn a new worker.
+        :param cl_socket:
+        :return:
+        """
+
+        self.sock.close()  # close listening socket in the fork
+
+        try:
+            signal.signal(signal.SIGTERM, lambda signum, frame: self.sigterm_handler())
+            self.handle_connection(cl_socket)
+        except Exception:  # pylint: disable=broad-except
+            logging.error("Backend worker process die.", exc_info=True)
+        finally:
+            try:
+                os.remove(self.out)
+                os.remove(self.err)
+            finally:
+                cl_socket.shutdown(socket.SHUT_RDWR)
+                cl_socket.close()
+                os._exit(1)
 
     def run_server(self):
         """
@@ -133,18 +195,23 @@ class TorchModelServiceWorker(object):
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
-        self.sock.listen(1)
-        logging.info("[PID]%d", os.getpid())
+        self.sock.listen(128)
+        logging.info("[PID] %d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
 
         while True:
+            if self.service is None and self.preload is True:
+                # Lazy loading the models
+                self.load_model(self.model_meta_data)
             (cl_socket, _) = self.sock.accept()
             # workaround error(35, 'Resource temporarily unavailable') on OSX
             cl_socket.setblocking(True)
 
             logging.info("Connection accepted: %s.", cl_socket.getsockname())
-            self.handle_connection(cl_socket)
+            p = multiprocessing.Process(target=self.start_worker, args=(cl_socket,))
+            p.start()
+            cl_socket.close()
 
 
 if __name__ == "__main__":
@@ -159,6 +226,8 @@ if __name__ == "__main__":
     # noinspection PyBroadException
     try:
         logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
+        logging.info("model_service_worker started with args: %s", " ".join(sys.argv[1:]))
+        model_req = dict()
         args = ArgParser.model_service_worker_args().parse_args()
         socket_name = args.sock_name
         sock_type = args.sock_type
@@ -171,7 +240,11 @@ if __name__ == "__main__":
             pr.disable()
             pr.dump_stats('/tmp/tsPythonProfile.prof')
 
-        worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
+        model_req["handler"] = args.handler.encode('utf-8')
+        model_req["modelPath"] = args.model_path.encode('utf-8')
+        model_req["modelName"] = args.model_name.encode('utf-8')
+        worker = TorchModelServiceWorker(sock_type, socket_name, host, port, model_req,
+                                         args.preload_model, args.tmp_dir)
         worker.run_server()
         if BENCHMARK:
             pr.disable()

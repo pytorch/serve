@@ -13,13 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.InvalidPropertiesFormatException;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -168,11 +164,18 @@ public class ModelServer {
                         continue;
                     }
                     try {
-                        logger.debug("Loading models from model store: {}", file.getName());
+                        logger.debug(
+                                "Loading models from model store: {} preload_model: {}",
+                                file.getName(),
+                                configManager.getPreloadModel());
+
                         defaultModelName = getDefaultModelName(fileName);
 
                         ModelArchive archive =
-                                modelManager.registerModel(file.getName(), defaultModelName);
+                                modelManager.registerModel(
+                                        file.getName(),
+                                        defaultModelName,
+                                        configManager.getPreloadModel());
                         modelManager.updateModel(
                                 archive.getModelName(),
                                 archive.getModelVersion(),
@@ -180,7 +183,11 @@ public class ModelServer {
                                 workers,
                                 true);
                         startupModels.add(archive.getModelName());
-                    } catch (ModelException | IOException e) {
+                    } catch (ModelException
+                            | IOException
+                            | InterruptedException
+                            | ExecutionException
+                            | TimeoutException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -204,7 +211,11 @@ public class ModelServer {
             }
 
             try {
-                logger.info("Loading initial models: {}", url);
+                logger.info(
+                        "Loading initial models: {} preload_model: {}",
+                        url,
+                        configManager.getPreloadModel());
+
                 defaultModelName = getDefaultModelName(url);
 
                 ModelArchive archive =
@@ -216,11 +227,16 @@ public class ModelServer {
                                 1,
                                 100,
                                 configManager.getDefaultResponseTimeout(),
-                                defaultModelName);
+                                defaultModelName,
+                                configManager.getPreloadModel());
                 modelManager.updateModel(
                         archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());
-            } catch (ModelException | IOException e) {
+            } catch (ModelException
+                    | IOException
+                    | InterruptedException
+                    | ExecutionException
+                    | TimeoutException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }

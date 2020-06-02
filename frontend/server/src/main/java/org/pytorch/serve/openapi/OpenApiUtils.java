@@ -282,6 +282,12 @@ public final class OpenApiUtils {
                         "boolean",
                         "false",
                         "Decides whether creation of worker synchronous or not, default: false."));
+        operation.addParameter(
+                new QueryParameter(
+                        "preload_model",
+                        "boolean",
+                        "false",
+                        "Decides if model should be preloaded, default: false."));
 
         Manifest.RuntimeType[] types = Manifest.RuntimeType.values();
         List<String> runtimeTypes = new ArrayList<>(types.length);

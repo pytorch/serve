@@ -260,7 +260,17 @@
               "type": "boolean",
               "default": "false"
             }
+          },
+          {
+            "in": "query",
+            "name": "preload_model",
+            "description": "Decides if model should be preloaded, default: false.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "false"
           }
+        }
         ],
         "responses": {
           "200": {

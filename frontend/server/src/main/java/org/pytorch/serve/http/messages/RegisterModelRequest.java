@@ -34,6 +34,9 @@ public class RegisterModelRequest {
     @SerializedName("url")
     private String modelUrl;
 
+    @SerializedName("preload_model")
+    private String preloadModel;
+
     public RegisterModelRequest(QueryStringDecoder decoder) {
         modelName = NettyUtils.getParameter(decoder, "model_name", null);
         runtime = NettyUtils.getParameter(decoder, "runtime", null);
@@ -48,6 +51,7 @@ public class RegisterModelRequest {
         synchronous = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", "true"));
         responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
         modelUrl = NettyUtils.getParameter(decoder, "url", null);
+        preloadModel = NettyUtils.getParameter(decoder, "preload_model", null);
     }
 
     public RegisterModelRequest() {
@@ -56,6 +60,7 @@ public class RegisterModelRequest {
         synchronous = true;
         initialWorkers = ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel();
         responseTimeout = -1;
+        preloadModel = "false";
     }
 
     public String getModelName() {
@@ -82,7 +87,7 @@ public class RegisterModelRequest {
         return initialWorkers;
     }
 
-    public Boolean getSynchronous() {
+    public Boolean isSynchronous() {
         return synchronous;
     }
 
@@ -92,5 +97,9 @@ public class RegisterModelRequest {
 
     public String getModelUrl() {
         return modelUrl;
+    }
+
+    public String getPreloadModel() {
+        return preloadModel;
     }
 }

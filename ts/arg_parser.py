@@ -53,6 +53,15 @@ class ArgParser(object):
         return parser
 
     @staticmethod
+    def str2bool(v):
+        if v.lower() in ('yes', 'true', 'y', '1'):
+            return True
+
+        if v.lower() in ('no', 'false', 'n', '0'):
+            return False
+        raise argparse.ArgumentTypeError('Boolean value expected {}'.format(v))
+
+    @staticmethod
     def model_service_worker_args():
         """
         ArgParser for backend worker. Takes the socket name and socket type.
@@ -82,6 +91,30 @@ class ArgParser(object):
         parser.add_argument('--port',
                             type=str,
                             help='If \'sock-type\' is \'tcp\' this is expected to have the host port to bind on')
+
+        parser.add_argument('--handler',
+                            type=str,
+                            help='Entry point to the Model Server')
+
+        parser.add_argument('--model-path',
+                            type=str,
+                            help='Path to the actual model location')
+
+        parser.add_argument('--model-name',
+                            type=str,
+                            help='Name of the model')
+
+        parser.add_argument('--preload-model',
+                            dest="preload_model",
+                            required=True,
+                            type=ArgParser.str2bool,
+                            help='Determines if initialization should occur before spawning/forking child process')
+
+        parser.add_argument('--tmp-dir',
+                            dest="tmp_dir",
+                            required=True,
+                            type=str,
+                            help='Location of temporary file descriptors')
 
         return parser
 

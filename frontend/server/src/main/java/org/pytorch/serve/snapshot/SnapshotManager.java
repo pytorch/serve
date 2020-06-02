@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
@@ -129,13 +131,14 @@ public final class SnapshotManager {
                 String modelName = modelMap.getKey();
                 for (Map.Entry<String, JsonObject> versionModel : modelMap.getValue().entrySet()) {
                     JsonObject modelInfo = versionModel.getValue();
-                    modelManager.registerAndUpdateModel(modelName, modelInfo);
+                    modelManager.registerAndUpdateModel(
+                            modelName, modelInfo, configManager.getPreloadModel());
                 }
             }
 
         } catch (IOException e) {
             logger.error("Error while retrieving snapshot details. Details: {}", e.getMessage());
-        } catch (ModelException e) {
+        } catch (ModelException | InterruptedException | ExecutionException | TimeoutException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
     }

@@ -10,8 +10,11 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.SocketAddress;
+import java.nio.channels.Channels;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -45,7 +48,8 @@ public class WorkerThread implements Runnable {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
 
-    private static final long WORKER_TIMEOUT = 2L;
+    private static final long WORKER_TIMEOUT =
+            ConfigManager.getInstance().isDebug() ? Long.MAX_VALUE : 2L;
     private static final ModelRequestEncoder ENCODER = new ModelRequestEncoder();
 
     private ConfigManager configManager;
@@ -67,7 +71,11 @@ public class WorkerThread implements Runnable {
     private AtomicReference<Thread> currentThread = new AtomicReference<>();
     private String workerId;
 
+    private String threadName;
+    private BaseModelRequest req;
+
     private WorkerState state;
+    private boolean serverThread;
 
     private WorkerLifeCycle lifeCycle;
 
@@ -86,7 +94,9 @@ public class WorkerThread implements Runnable {
             int gpuId,
             Model model,
             BatchAggregator aggregator,
-            WorkerStateListener listener) {
+            WorkerStateListener listener,
+            int threadNumber,
+            boolean serverThread) {
         this.workerId = String.valueOf(port); // Unique across all workers.
         this.configManager = configManager;
         this.backendEventGroup = backendEventGroup;
@@ -98,67 +108,104 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(1);
+        this.serverThread = serverThread;
+        this.threadName =
+                !serverThread
+                        ? "W-"
+                                + model.getModelName()
+                                        .substring(0, Math.min(model.getModelName().length(), 25))
+                                + '-'
+                                + threadNumber
+                        : "BackendServer-" + model.getModelName();
         workerLoadTime =
                 new Metric(
                         getWorkerName(),
                         String.valueOf(System.currentTimeMillis()),
                         "ms",
-                        ConfigManager.getInstance().getHostName(),
+                        configManager.getHostName(),
                         new Dimension("Level", "Host"));
+    }
+
+    private void runWorker()
+            throws WorkerInitializationException, InterruptedException, FileNotFoundException {
+        int responseTimeout = model.getResponseTimeout();
+        while (isRunning()) {
+            req = aggregator.getRequest(backendChannel.id().asLongText(), state);
+            backendChannel.writeAndFlush(req).sync();
+            long begin = System.currentTimeMillis();
+            // TODO: Change this to configurable param
+            ModelWorkerResponse reply = replies.poll(responseTimeout, TimeUnit.MINUTES);
+            long duration = System.currentTimeMillis() - begin;
+            logger.info("Backend response time: {}", duration);
+            if (reply != null) {
+                aggregator.sendResponse(reply);
+            } else {
+                int val = model.incrFailedInfReqs();
+                logger.error("Number or consecutive unsuccessful inference {}", val);
+                throw new WorkerInitializationException(
+                        "Backend worker did not respond in given time");
+            }
+            switch (req.getCommand()) {
+                case PREDICT:
+                    model.resetFailedInfReqs();
+                    break;
+                case LOAD:
+                    String message = reply.getMessage();
+                    String tmpdir = System.getProperty("java.io.tmpdir");
+                    RandomAccessFile out =
+                            new RandomAccessFile(
+                                    tmpdir + '/' + backendChannel.id().asLongText() + "-stdout",
+                                    "rw");
+                    RandomAccessFile err =
+                            new RandomAccessFile(
+                                    tmpdir + '/' + backendChannel.id().asLongText() + "-stderr",
+                                    "rw");
+                    if (reply.getCode() == 200) {
+                        setState(WorkerState.WORKER_MODEL_LOADED, HttpResponseStatus.OK);
+                        lifeCycle.setPid(
+                                Integer.parseInt(
+                                        message.substring(
+                                                message.indexOf("[PID]:") + 6, message.length())));
+                        lifeCycle.attachIOStreams(
+                                threadName,
+                                Channels.newInputStream(out.getChannel()),
+                                Channels.newInputStream(err.getChannel()));
+                        backoffIdx = 0;
+                    } else {
+                        setState(
+                                WorkerState.WORKER_ERROR,
+                                HttpResponseStatus.valueOf(reply.getCode()));
+                    }
+                    break;
+                case UNLOAD:
+                case STATS:
+                default:
+                    break;
+            }
+            req = null;
+        }
     }
 
     @Override
     public void run() {
-        int responseTimeout = model.getResponseTimeout();
+        Process process = null;
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);
-        BaseModelRequest req = null;
         HttpResponseStatus status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
 
         try {
-            connect();
-
-            while (isRunning()) {
-                req = aggregator.getRequest(workerId, state);
-
-                backendChannel.writeAndFlush(req).sync();
-
-                long begin = System.currentTimeMillis();
-                ModelWorkerResponse reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-
-                long duration = System.currentTimeMillis() - begin;
-                logger.info("Backend response time: {}", duration);
-
-                if (reply != null) {
-                    aggregator.sendResponse(reply);
-                } else {
-                    int val = model.incrFailedInfReqs();
-                    logger.error("Number or consecutive unsuccessful inference {}", val);
-                    throw new WorkerInitializationException(
-                            "Backend worker did not respond in given time");
-                }
-                switch (req.getCommand()) {
-                    case PREDICT:
-                        model.resetFailedInfReqs();
-                        break;
-                    case LOAD:
-                        if (reply.getCode() == 200) {
-                            setState(WorkerState.WORKER_MODEL_LOADED, HttpResponseStatus.OK);
-                            backoffIdx = 0;
-                        } else {
-                            setState(
-                                    WorkerState.WORKER_ERROR,
-                                    HttpResponseStatus.valueOf(reply.getCode()));
-                            status = HttpResponseStatus.valueOf(reply.getCode());
-                        }
-                        break;
-                    case UNLOAD:
-                    case STATS:
-                    default:
-                        break;
-                }
-                req = null;
+            if (!serverThread) {
+                connect();
+                runWorker();
+            } else {
+                // TODO: Move this logic to a seperate ServerThread class
+                // This is server thread and shouldn't come out as long as process exists in CPU.
+                model.setPort(port);
+                lifeCycle.startBackendServer(port);
+                setState(WorkerState.WORKER_MODEL_LOADED, HttpResponseStatus.OK);
+                process = lifeCycle.getProcess();
+                process.waitFor();
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
@@ -187,7 +234,19 @@ public class WorkerThread implements Runnable {
                 status = HttpResponseStatus.INSUFFICIENT_STORAGE;
             }
 
-            if (req != null) {
+            if (!serverThread && req != null) {
+                aggregator.sendError(req, "Worker died.", status);
+            } else if (serverThread) {
+                model.setPort(-1);
+                if (process != null && process.isAlive()) {
+                    process.destroyForcibly();
+                    try {
+                        process.waitFor(1, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        logger.warn(
+                                "WorkerThread interrupted during waitFor, possible async resource cleanup.");
+                    }
+                }
                 aggregator.sendError(req, "Worker died.", status);
             }
             setState(WorkerState.WORKER_STOPPED, status);
@@ -208,9 +267,10 @@ public class WorkerThread implements Runnable {
         this.memory = memory;
     }
 
-    private void connect() throws WorkerInitializationException, InterruptedException {
-        if (!configManager.isDebug()) {
-            lifeCycle.startWorker(port);
+    private void connect()
+            throws WorkerInitializationException, InterruptedException, FileNotFoundException {
+        if (!this.serverThread && (model.getPort() == -1)) {
+            throw new WorkerInitializationException("Backend server is not running");
         }
 
         String modelName = model.getModelName();
@@ -274,7 +334,7 @@ public class WorkerThread implements Runnable {
                                                         modelVersion,
                                                         WorkerCommands.LOAD,
                                                         input);
-                                        model.addJob(workerId, job);
+                                        model.addJob(backendChannel.id().asLongText(), job);
                                         latch.countDown();
                                     });
 
@@ -282,6 +342,7 @@ public class WorkerThread implements Runnable {
                 throw new WorkerInitializationException(
                         "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
             }
+            workerId = workerId + "-" + backendChannel.id();
             running.set(true);
         } catch (Throwable t) {
             // https://github.com/netty/netty/issues/2597
@@ -312,6 +373,7 @@ public class WorkerThread implements Runnable {
         running.set(false);
         setState(WorkerState.WORKER_SCALED_DOWN, HttpResponseStatus.OK);
         if (backendChannel != null) {
+            model.removeJobQueue(backendChannel.id().asLongText());
             backendChannel.close();
         }
         Thread thread = currentThread.getAndSet(null);
@@ -322,6 +384,10 @@ public class WorkerThread implements Runnable {
 
             model.removeJobQueue(workerId);
         }
+    }
+
+    public boolean isServerThread() {
+        return serverThread;
     }
 
     private String getWorkerName() {

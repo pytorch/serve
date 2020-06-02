@@ -44,6 +44,10 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeBytes(buf);
 
             out.writeInt(request.getGpuId());
+
+            buf = request.getIoFileDescriptor().getBytes(StandardCharsets.UTF_8);
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
         } else if (msg instanceof ModelInferenceRequest) {
             out.writeByte('I');
             ModelInferenceRequest request = (ModelInferenceRequest) msg;
