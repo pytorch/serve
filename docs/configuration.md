@@ -163,6 +163,14 @@ cors_allowed_methods=GET, POST, PUT, OPTIONS
 cors_allowed_headers=X-Custom-Header
 ```
 
+### Preloading a model
+The model server gives users an option to take advantage of fork() sematics, ie., copy-on-write, on linux based systems. In order to load a model before spinning up the model workers, use `preload_model` option. Model server upon seeing this option set, will load the model just before scaling the first model worker. All the other workers will share the same
+instance of the loaded model. This way only the memory locations in the loaded model which are touch will be copied over to the individual model-workers process memory space.
+
+```properties
+preload_model=true
+```
+
 ### Restrict backend worker to access environment variables
 
 Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
