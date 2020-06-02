@@ -94,17 +94,17 @@ To use Transformer handler for question answering, the sample_text.txt should be
 
 ### Creating a torch Model Archive
 
-Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on a fine_tuned BERT model,  "bert-large-uncased-whole-word-masking-finetuned-squad", for question answering. To fine-tune RoBERTa or other models, it can be done by running [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface.
+Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on "bert-base-uncased" off the shelf, for sequence classification and Torchscript as save_mode. To fine-tune BERT, RoBERTa or other models, for question ansewering you can refer to [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. Model packaging using pretrained for save_mode can be done as follows:
 
 ```
-torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json, ./Seq_classification_artifacts/index_to_name.json"
 
 ```
 
 In case of using Torchscript the packaging step would look like the following:
 
 ```
-torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json"
+torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
 
 ```
 
@@ -116,9 +116,9 @@ To register the model on TorchServe using the above model archive file, we run t
 
 ```
 mkdir model_store
-mv BERTQA.mar model_store/
-torchserve --start --model-store model_store --models my_tc=BERTQA.mar
+mv BERTSeqClassification_Torchscript.mar model_store/
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification_Torchscript.mar
 
 ```
 
-- To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./QA_artifacts/sample_text.txt`
+- To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
