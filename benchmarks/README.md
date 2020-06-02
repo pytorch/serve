@@ -147,7 +147,7 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 
 ### Backend
 
-The benchmarks can also be used to analyze the backend performance using cProfile.  It does not require any additional packages to run the benchmark, but viewing the logs does require an additional package.  Run `pip install snakeviz` to install this.  To run the python profiling, follow these steps:
+The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
 1. Enable Benchmarks in TorchServe code with a boolean flag.
 2. Install TorchServe with the updated flag & start torchserve.
@@ -157,7 +157,8 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 #### Enable Benchmarks in TorchServe code with a boolean flag
 
 In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-If running inside docker 
+
+If running inside docker,
 
 ```
     cd docker
@@ -170,11 +171,8 @@ If running inside docker
 
 #### Install TorchServe with the updated flag & Start Torchserve
 
-If running outside docker.
-
 ```
     pip install .
-     
 ```
 
 If running inside docker
