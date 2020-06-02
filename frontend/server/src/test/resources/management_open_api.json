@@ -269,8 +269,8 @@
             "schema": {
               "type": "boolean",
               "default": "false"
+            }
           }
-        }
         ],
         "responses": {
           "200": {
