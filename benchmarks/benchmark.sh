@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-#set -ex
 IMAGE="pytorch/torchserve:latest"
 set -e
 
@@ -54,14 +53,6 @@ do
         shift
         shift
         ;;
-        -s|--s3)
-        UPLOAD="$2"
-        shift
-        ;;
-        -o|--op)
-        OP="$2"
-	shift
-        ;;
         -b|--cnt)
 	BCOUNT="$2"
 	shift
@@ -78,7 +69,7 @@ do
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-if [[ -z "${OP}" ]] && [[ -z "${URL}" ]]; then
+if  [[ -z "${URL}" ]]; then
     echo "URL is required, for example:"
     echo "benchmark.sh -u https://s3.amazonaws.com/model-server/model_archive_1.0/onnx-resnet50v1.mar"
     echo "benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar"
@@ -88,18 +79,6 @@ if [[ -z "${OP}" ]] && [[ -z "${URL}" ]]; then
 fi
 echo "Preparing for benchmark..."
 
-if [[ -z "${URL}" ]]; then
-    echo "URL is mandatory and it should be inference api url."
-    exit 1
-fi
-
-#if [[ -x "$(command -v nvidia-docker)" ]]; then
-#    GPU=true
-#else
-#    GPU=false
-#fi
-
-echo "11111"
 if [[ -z "${GPU}" ]]; then
     if [[ -z "${IMAGE}" ]]; then
         IMAGE=pytorch/torchserve:latest
@@ -115,26 +94,10 @@ else
    HW_TYPE=gpu
 fi
 
-echo "22222"
 docker pull "${IMAGE}"
-#if [[ "${GPU}" == "true" ]]; then
-#    DOCKER_RUNTIME="--runtime=nvidia"
-#    if [[ -z "${IMAGE}" ]]; then
-#        IMAGE=pytorch/torchserve:latest-gpu
-#        docker pull "${IMAGE}"
-#    fi
-#    #HW_TYPE=gpu
-#    #ENABLE_GPU="--gpus 4"
-#else
-#    if [[ -z "${IMAGE}" ]]; then
-#        IMAGE=pytorch/torchserve:latest
-#        docker pull "${IMAGE}"
-#    fi
-    #HW_TYPE=cpu
-#fi
 
 if [[ -z "${CONCURRENCY}" ]]; then
-    CONCURRENCY=1
+    CONCURRENCY=100
 fi
 
 if [[ -z "${REQUESTS}" ]]; then
@@ -171,31 +134,35 @@ echo "starting docker..."
 
  #start ts docker
 set +e
-if [ $(docker inspect -f '{{.State.Running}}' test1) = "true" ]; then
-	docker rm -f test1
-else
-	echo "ts1 not running"
-fi
-#docker rm -f ts
-set -e
 echo "docker_runtime is ${DOCKER_RUNTIME} and enable_gpu is ${ENABLE_GPU} and image is ${IMAGE}"
-docker run -d --rm -it --name test1 -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest > /dev/null 2>&1
+if [ ! "$(docker ps -q -f name="ts")" ]; then
+    if [ "$(docker ps -aq -f status=exited -f name="ts")" ]; then
+        # cleanup
+        docker rm -f ts
+    fi
+    # run your container
+    docker run ${DOCKER_RUNTIME} ${ENABLE_GPU} --name ts -p 8080:8080 -p 8081:8081 \
+        -v /tmp/benchmark/conf:/home/ubuntu/model-server \
+        -v /tmp/benchmark/logs:/home/ubuntu/model-server/logs \
+        -u root -itd ${IMAGE} torchserve --start \
+        --ts-config /home/model-server/config.properties
+fi
+set -e
+#docker run -d --rm -it --name ts -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest > /dev/null 2>&1
 #    -v /tmp/benchmark/conf:/opt/ml/conf \
 #    -v /tmp/benchmark/logs:/home/model-server/logs \
 #    -u root torchserve --start --ncs\
 #    --ts-config /opt/ml/conf/config.properties\
 #> /dev/null 2>&1
-#docker run ${DOCKER_RUNTIME} --name test1 --rm -p 8080:8080 -p 8081:8081 $ENABLE_GPU\
+#docker run ${DOCKER_RUNTIME} --name ts --rm -p 8080:8080 -p 8081:8081 $ENABLE_GPU\
 #    -v /tmp/benchmark/conf:/opt/ml/conf \
 #    -v /tmp/benchmark/logs:/home/model-server/logs \
 #    -u root -itd ${IMAGE} torchserve --start --ncs\
 #    --ts-config /opt/ml/conf/config.properties
 
-echo "Docker initiated"
-
 echo "2.2.2.2"
-#TS_VERSION=`docker exec -it test1 pip freeze | grep torchserve`
-echo "ts_vesion is ${TS_VERSION}"
+TS_VERSION=`docker exec -it ts pip freeze | grep torchserve`
+echo "ts_version is ${TS_VERSION}"
 set -e
 echo "3333"
 until curl -s "http://localhost:8080/ping" > /dev/null
@@ -208,18 +175,24 @@ echo "4444"
 echo "Docker started successfully"
 
 sleep 10
+container_id=$(docker ps --filter="ancestor=$IMAGE" -q | xargs)
+echo "Docker initiated with container id ${container_id}"
 
-echo "Registering resnet-18 model"
-set +e
-echo "http://localhost:8081/models?url=${URL}&initial_workers=1&synchronous=true"
-response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=${URL}&initial_workers=1&synchronous=true")
-
-if [ ! "$response" == 200 ]
-then
-    echo "failed to register model with torchserve"
+if [[ -z ${OP} ]] || test "${OP}" = "R"; then
+   echo "model already registered so should not send register request again"
+   sleep 10
 else
-    echo "successfully registered resnet-18 model with torchserve"
+    echo "http://localhost:8081/models?url=${URL}&initial_workers=1&synchronous=true"
+    response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=${URL}&initial_workers=1&synchronous=true")
+
+    if [ ! "$response" == 200 ]
+    then
+        echo "failed to register model with torchserve"
+    else
+        echo "successfully registered the model with torchserve"
+    fi
 fi
+
 result_file="/tmp/benchmark/result.txt"
 metric_log="/tmp/benchmark/logs/model_metrics.log"
 
@@ -244,6 +217,10 @@ else
 	    BATCH_DELAY=100
     fi
 
+    if [[ -z "${WORKERS}" ]]; then
+	    WORKERS=1
+    fi
+
     if test "${OP}" = "R"; then	
         RURL="?model_name=${MODEL}&url=${URL}&batch_size=${BATCH_SIZE}&max_batch_delay=${BATCH_DELAY}&initial_workers=${WORKERS}&synchronous=true"
         curl -X POST "http://localhost:8081/models${RURL}"
@@ -254,20 +231,6 @@ else
 
 	OP=""
     fi
-    
-    if test "${OP}" = "D"; then
-        ab -s 180 -c ${CONCURRENCY} -n ${REQUESTS} -k -m DELETE "http://localhost:8081/models/${MODEL}" > ${result_file}
-    fi
-
-    if test "${OP}" = "SF"; then
-            ab -s 180 -c ${CONCURRENCY} -n ${REQUESTS} -k -m PUT "http://localhost:8081/models/${MODEL}/1_0/set-default" > ${result_file}
-    fi
-
-    if test "${OP}" = "U"; then
-            ab -s 180 -c ${CONCURRENCY} -n ${REQUESTS} -k -m PUT "http://localhost:8081/models/${MODEL}?min_worker=${WORKERS}&synchronous=true" > ${result_file}
-    fi
-
-    #done
 fi
 
 echo "ab Execution completed"
@@ -309,7 +272,8 @@ if [[ -z "${OP}" ]] || test "${OP}" = "R"; then
     echo "Inference result:" >> /tmp/benchmark/report.txt
     curl -s -X POST http://127.0.0.1:8080/predictions/${MODEL} -H "Content-Type: ${CONTENT_TYPE}" \
         -T /tmp/benchmark/input >> /tmp/benchmark/report.txt
-    curl -X DELETE "http://localhost:8081/models/${MODEL}"
+    echo "DB.. Now unregistering model"
+    #curl -X DELETE "http://localhost:8081/models/${MODEL}"
 else
     echo "Benchmark results - Management API - ${OP}"
 fi
@@ -337,14 +301,4 @@ echo "TS latency mean: ${TS_MEAN}" >> /tmp/benchmark/report.txt
 echo "TS error rate: ${TS_ERROR_RATE}%" >> /tmp/benchmark/report.txt
 
 cat /tmp/benchmark/report.txt
-
-if [[ ! -z "${UPLOAD}" ]]; then
-    TODAY=`date +"%y-%m-%d_%H"`
-    echo "Saving on S3 bucket on s3://benchmarkai-metrics-prod/daily/ts/${HW_TYPE}/${TODAY}/${MODEL}"
-
-    aws s3 cp /tmp/benchmark/ s3://benchmarkai-metrics-prod/daily/ts/${HW_TYPE}/${TODAY}/${MODEL} --recursive
-
-    echo "Files uploaded"
-fi
-
 #set +x
