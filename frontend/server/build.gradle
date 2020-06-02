@@ -1,5 +1,6 @@
 dependencies {
     compile "io.netty:netty-all:${netty_version}"
+    compile group: 'io.netty', name: 'netty-transport-native-kqueue', version: '4.1.50.Final'
     compile project(":modelarchive")
     compile "commons-cli:commons-cli:${commons_cli_version}"
     compile "software.amazon.ai:mms-plugins-sdk:${mms_server_sdk_version}"
