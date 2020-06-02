@@ -3,7 +3,7 @@
   "info": {
     "title": "TorchServe APIs",
     "description": "TorchServe is a flexible and easy to use tool for serving deep learning models",
-    "version": "1.0.0"
+    "version": "%s"
   },
   "paths": {
     "/": {
@@ -92,15 +92,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "model_name_pattern",
-            "description": "A model name filter to list only matching models.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -181,7 +172,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "model_url",
+            "name": "url",
             "description": "Model archive download url, support local file or HTTP(s) protocol. For S3, consider use pre-signed url.",
             "required": true,
             "schema": {

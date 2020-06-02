@@ -179,8 +179,21 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
         Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
-            throw new ServiceUnavailableException(
-                    "No worker is available to serve request: " + modelName);
+            String responseMessage =
+                    "Model \""
+                            + modelName
+                            + "\" Version "
+                            + modelVersion
+                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
+
+            if (modelVersion == null) {
+                responseMessage =
+                        "Model \""
+                                + modelName
+                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
+            }
+
+            throw new ServiceUnavailableException(responseMessage);
         }
     }
 

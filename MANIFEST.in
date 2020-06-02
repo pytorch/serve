@@ -1,3 +1,4 @@
 include ts/frontend/model-server.jar
 include PyPiDescription.rst
 include ts/configs/*
+include ts/version.txt

@@ -6,7 +6,7 @@ phases:
 
   build:
     commands:
-      - ./test/regression_tests.sh
+      - ./test/regression_tests.sh $NIGHTLY_BUILD_BRANCH
 
 artifacts:
   files:
@@ -15,4 +15,4 @@ artifacts:
     - /workspace/report/snapshot_report.html
     - /tmp/ts.log
     - /tmp/test_exec.log
-  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d-%H:%M) 
+  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 

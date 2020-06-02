@@ -21,6 +21,7 @@ from ts.service import emit_metrics
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
+BENCHMARK = False
 
 
 class TorchModelServiceWorker(object):
@@ -97,7 +98,12 @@ class TorchModelServiceWorker(object):
         """
         service = None
         while True:
+            if BENCHMARK:
+                pr.disable()
+                pr.dump_stats('/tmp/tsPythonProfile.prof')
             cmd, msg = retrieve_msg(cl_socket)
+            if BENCHMARK:
+                pr.enable()
             if cmd == b'I':
                 resp = service.predict(msg)
                 cl_socket.send(resp)
@@ -159,8 +165,18 @@ if __name__ == "__main__":
         host = args.host
         port = args.port
 
+        if BENCHMARK:
+            import cProfile
+            pr = cProfile.Profile()
+            pr.disable()
+            pr.dump_stats('/tmp/tsPythonProfile.prof')
+
         worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
         worker.run_server()
+        if BENCHMARK:
+            pr.disable()
+            pr.dump_stats('/tmp/tsPythonProfile.prof')
+
     except socket.timeout:
         logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
     except Exception:  # pylint: disable=broad-except
