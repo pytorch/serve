@@ -6,7 +6,6 @@ OTF Codec
 import json
 import logging
 import struct
-import sys
 import os
 
 from builtins import bytearray
