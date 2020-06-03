@@ -104,7 +104,7 @@ torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serializ
 In case of using Torchscript the packaging step would look like the following:
 
 ```
-torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
 
 ```
 
@@ -122,3 +122,4 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
+
