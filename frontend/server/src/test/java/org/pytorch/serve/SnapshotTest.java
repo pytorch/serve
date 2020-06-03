@@ -173,6 +173,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnPrediction"})
     public void testRegisterSecondModelSnapshot() throws InterruptedException {
+        waitForSnapshot(5000);
         Channel managementChannel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -380,6 +381,7 @@ public class SnapshotTest {
         }
 
         updateSnapshot(actualProp);
+
         assert actualProp.equals(expectedProp);
     }
 
