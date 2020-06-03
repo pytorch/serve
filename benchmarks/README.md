@@ -155,3 +155,80 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
 5. Run `snakeviz /tmp/tsPythonProfile.prof` to view the profiling data.  It should start up a web server on your machine and automatically open the page.
 6. Don't forget to set BENCHMARK = False in the model_service_worker.py file after you are finished.
+
+<b>Benchmarking with Apache Bench</b>:
+Apaceh Bench can also be used in torchserve for Benchmarking performance of inference API's. The ApacheBench tool (ab) can load test servers by sending an arbitrary number of concurrent requests. Installation is very simple. Please follow this guide for setting up Apache Bench for benchmarking inference API's.
+
+<b>Installation:</b>
+Refresh the package database.
+
+apt-get update
+Install the apache2-utils package to get access to ApacheBench.
+
+apt-get install apache2-utils
+
+<b>Limited Privilege User</b>
+Optional: A limited privilege user account can also be created to carry out load testing using ab. The user account can be created like this:
+useradd -m -d /home/test -s /bin/bash -g sudo test
+
+<b>Set the password for the new user</b>
+
+passwd test
+
+<b>Switch to the new user</b>
+
+su test
+
+Pytorch Torch Serve Benchmarking
+The benchmarks measure the performance of torchserve on various models and benchmarks. It supports passed in a URL to the .mar file. It also runs various benchmarks using these models (see benchmarks section below). Torchserve is run on the same machine in a docker instance against Torchserve nightly docker image from docker hub.
+
+Installation
+The benchmarking script requires the following tools to run:
+
+Docker-ce with the current user added to the docker group
+Nvidia-docker (for GPU)
+ab: Apache bench to run bench mark
+bc: for metric percentile calculation
+Benchmarks
+We support several basic benchmarks:
+
+MMS throughput
+MMS latency P50
+MMS latency P90
+MMS latency P99
+MMS latency mean
+MMS HTTP error rate
+Model latency P50
+Model latency P90
+Model latency P99
+
+Note:
+Please use the models from torchserve S3 repository buckets.
+For eg. ./benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+
+
+Usage & Examples:
+The benchmarking script will choose to run on CPU or GPU instance based on presence of -g or --gpu flag. Underlying assumption is that nvidia-docker is required to be already present/installed on that gpu machine if gpu flag is true.
+
+Run benchmark test on resnet-18 model. It use kitten.jpg image as input from: https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+
+./benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+Run benchmark test on lstm_ptb model with json input
+
+benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar
+By default, the script will use 100 concurrency and run 1000 requests. to change concurrent:
+
+./benchmark.sh -c 200 -n 2000 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+You can pass -s parameter to upload results to S3:
+
+./benchmark.sh -s -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+You can also choose your local docker image to run benchmark
+
+./benchmark.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+You can also choose desired batch size and batch delay for batch inferencing benchmark
+
+./benchmark.sh --bsize 2 --batch_delay 200 -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+The benchmarking script will choose to run on CPU or GPU instance based on presence of -g or --gpu flag. Underlying assumption is that nvidia-docker is required to be already present/installed on that gpu machine if gpu flag is true.
+
+./benchmark.sh -g -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+

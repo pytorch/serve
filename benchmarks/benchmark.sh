@@ -67,10 +67,11 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if  [[ -z "${URL}" ]]; then
     echo "URL is required, for example:"
-    echo "benchmark.sh -u https://s3.amazonaws.com/model-server/model_archive_1.0/onnx-resnet50v1.mar"
+    echo "benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
     echo "benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar"
     echo "benchmark.sh -c 500 -n 50000 -i noop.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
-    echo "benchmark.sh -d local-image -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
+    echo "benchmark.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
+    echo "benchmark.sh --bsize 2 --bdelay 200 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
     exit 1
 fi
 echo "Preparing for benchmark..."
