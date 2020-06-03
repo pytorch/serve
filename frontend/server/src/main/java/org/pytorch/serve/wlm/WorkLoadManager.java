@@ -170,7 +170,7 @@ public class WorkLoadManager {
             throws InterruptedException, ExecutionException, TimeoutException {
         WorkerStateListener listener = new WorkerStateListener(future, 1);
         BatchAggregator aggregator = new BatchAggregator(model);
-        synchronized (model.getModelName()) {
+        synchronized (model.getModelVersionName().getVersionedModelName()) {
             model.setPort(port.getAndIncrement());
             WorkerThread thread =
                     new WorkerThread(

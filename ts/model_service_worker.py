@@ -55,7 +55,6 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
-
         self.preload = preload_model
         self.service = None
         self.model_meta_data = model_request
@@ -106,7 +105,6 @@ class TorchModelServiceWorker(object):
 
     def _create_io_files(self, tmp_dir, io_fd):
         self.out = tmp_dir + '/' + io_fd + "-stdout"
-
         self.err = tmp_dir + '/' + io_fd + "-stderr"
         # TODO: Windows support
         os.mkfifo(self.out)
@@ -114,7 +112,6 @@ class TorchModelServiceWorker(object):
 
     def _remap_io(self):
         out_fd = open(self.out, "w")
-
         err_fd = open(self.err, "w")
         os.dup2(out_fd.fileno(), sys.stdout.fileno())
         os.dup2(err_fd.fileno(), sys.stderr.fileno())
@@ -187,8 +184,6 @@ class TorchModelServiceWorker(object):
         Run the backend worker process and listen on a socket
         :return:
         """
-        if not DEBUG:
-            self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)

@@ -114,7 +114,7 @@ public class WorkerLifeCycle {
         args[8] = "--model-path";
         args[9] = model.getModelDir().getAbsolutePath();
         args[10] = "--model-name";
-        args[11] = model.getModelName();
+        args[11] = model.getModelVersionName().getVersionedModelName();
         args[12] = "--preload-model";
         args[13] = model.preloadModel();
         args[14] = "--tmp-dir";

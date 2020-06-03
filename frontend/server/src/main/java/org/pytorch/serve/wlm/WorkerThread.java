@@ -112,12 +112,8 @@ public class WorkerThread implements Runnable {
         this.serverThread = serverThread;
         this.threadName =
                 !serverThread
-                        ? "W-"
-                                + model.getModelName()
-                                        .substring(0, Math.min(model.getModelName().length(), 25))
-                                + '-'
-                                + threadNumber
-                        : "BackendServer-" + model.getModelName();
+                        ? getWorkerName() + '-' + threadNumber
+                        : "BackendServer-" + model.getModelVersionName().getVersionedModelName();
         workerLoadTime =
                 new Metric(
                         getWorkerName(),
@@ -282,7 +278,7 @@ public class WorkerThread implements Runnable {
 
         final int responseBufferSize = configManager.getMaxResponseSize();
         try {
-            Connector connector = new Connector(port);
+            Connector connector = new Connector(model.getPort());
             Bootstrap b = new Bootstrap();
             b.group(backendEventGroup)
                     .channel(connector.getClientChannel())
@@ -344,7 +340,7 @@ public class WorkerThread implements Runnable {
                 throw new WorkerInitializationException(
                         "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
             }
-            workerId = workerId + "-" + backendChannel.id();
+            workerId = workerId + "-" + backendChannel.id().asLongText();
             running.set(true);
         } catch (Throwable t) {
             // https://github.com/netty/netty/issues/2597
