@@ -253,7 +253,7 @@ if __name__ == "__main__":
     except socket.timeout:
         logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
     except Exception:  # pylint: disable=broad-except
-        logging.error("Backend worker process die.", exc_info=True)
+        logging.error("Backend worker process died.", exc_info=True)
     finally:
         if sock_type == 'unix' and os.path.exists(socket_name):
             os.remove(socket_name)

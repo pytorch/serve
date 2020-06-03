@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.metrics.Metric;
@@ -29,6 +30,8 @@ public class WorkerLifeCycle {
     private CountDownLatch latch;
     private boolean success;
     private Connector connector;
+    private ReaderThread errReader;
+    private ReaderThread outReader;
 
     public WorkerLifeCycle(ConfigManager configManager, Model model) {
         this.configManager = configManager;
@@ -77,8 +80,10 @@ public class WorkerLifeCycle {
 
     public void attachIOStreams(String threadName, InputStream outStream, InputStream errStream) {
         logger.warn("attachIOStreams() threadName={}", threadName);
-        new ReaderThread(threadName, errStream, true, this).start();
-        new ReaderThread(threadName, outStream, false, this).start();
+        errReader = new ReaderThread(threadName, errStream, true, this);
+        outReader = new ReaderThread(threadName, outStream, false, this);
+        errReader.start();
+        outReader.start();
     }
 
     public void startBackendServer(int port)
@@ -146,10 +151,22 @@ public class WorkerLifeCycle {
         }
     }
 
+    public synchronized void terminateIOStreams() {
+        if (errReader != null) {
+            logger.warn("terminateIOStreams() threadName={}", errReader.getName());
+            errReader.terminate();
+        }
+        if (outReader != null) {
+            logger.warn("terminateIOStreams() threadName={}", outReader.getName());
+            outReader.terminate();
+        }
+    }
+
     public synchronized void exit() {
         if (process != null) {
             process.destroyForcibly();
             connector.clean();
+            terminateIOStreams();
         }
     }
 
@@ -186,6 +203,7 @@ public class WorkerLifeCycle {
         private InputStream is;
         private boolean error;
         private WorkerLifeCycle lifeCycle;
+        private AtomicBoolean isRunning = new AtomicBoolean(true);
         private static final org.apache.log4j.Logger loggerModelMetrics =
                 org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
@@ -196,10 +214,14 @@ public class WorkerLifeCycle {
             this.lifeCycle = lifeCycle;
         }
 
+        public void terminate() {
+            isRunning.set(false);
+        }
+
         @Override
         public void run() {
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
-                while (scanner.hasNext()) {
+                while (isRunning.get() && scanner.hasNext()) {
                     String result = scanner.nextLine();
                     if (result == null) {
                         break;
@@ -220,9 +242,16 @@ public class WorkerLifeCycle {
                         logger.info(result);
                     }
                 }
+            } catch (Exception e) {
+                logger.error("Couldn't create scanner - {}", getName(), e);
             } finally {
-                logger.error("Couldn't create scanner - {}", getName());
+                logger.info("Stopped Scanner - {}", getName());
                 lifeCycle.setSuccess(false);
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    logger.error("Failed to close stream for thread {}", this.getName(), e);
+                }
             }
         }
     }
