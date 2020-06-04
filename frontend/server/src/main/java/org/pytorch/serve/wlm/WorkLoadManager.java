@@ -97,6 +97,10 @@ public class WorkLoadManager {
     }
 
     public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup) {
+        return modelChanged(model, isStartup, false);
+    }
+
+    public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup, boolean isShutdown) {
         synchronized (model.getModelVersionName()) {
             boolean isSnapshotSaved = false;
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
@@ -106,6 +110,11 @@ public class WorkLoadManager {
             if (minWorker == 0) {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
+                    HttpResponseStatus stopThreadStatus = stopServerThread(model);
+                    if (stopThreadStatus != HttpResponseStatus.OK){
+                        future.complete(stopThreadStatus);
+                        return future;
+                    }
                     future.complete(HttpResponseStatus.OK);
                     return future;
                 }
@@ -124,42 +133,19 @@ public class WorkLoadManager {
                     thread.shutdown();
                 }
                 if (maxWorker == 0) {
-                    model.getServerThread().shutdown();
-                    WorkerLifeCycle lifecycle = model.getServerThread().getLifeCycle();
-
-                    Process workerProcess = lifecycle.getProcess();
-
-                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
-                    // -> This may nullify process object per destroyForcibly doc.
-                    if (workerProcess != null && workerProcess.isAlive()) {
-                        boolean workerDestroyed = false;
-                        workerProcess.destroyForcibly();
-                        try {
-                            workerDestroyed =
-                                    workerProcess.waitFor(
-                                            configManager.getUnregisterModelTimeout(),
-                                            TimeUnit.SECONDS);
-                        } catch (InterruptedException e) {
-                            logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                            future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
-                            return future;
-                        }
-                        if (!workerDestroyed) {
-                            logger.warn(
-                                    "WorkerThread timed out while cleaning, please resend request.");
-                            future.complete(HttpResponseStatus.REQUEST_TIMEOUT);
-                            return future;
-                        }
-                    }
+                     HttpResponseStatus stopThreadStatus = stopServerThread(model);
+                     if (stopThreadStatus != HttpResponseStatus.OK){
+                         future.complete(stopThreadStatus);
+                         return future;
+                     }
                 }
-                if (!isStartup) {
+                if (!isStartup && !isShutdown) {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;
                 }
                 future.complete(HttpResponseStatus.OK);
             }
-            if (!isStartup && !isSnapshotSaved) {
+            if (!isStartup && !isSnapshotSaved && !isShutdown) {
                 SnapshotManager.getInstance().saveSnapshot();
             }
             return future;
@@ -170,7 +156,7 @@ public class WorkLoadManager {
             throws InterruptedException, ExecutionException, TimeoutException {
         WorkerStateListener listener = new WorkerStateListener(future, 1);
         BatchAggregator aggregator = new BatchAggregator(model);
-        synchronized (model.getModelVersionName().getVersionedModelName()) {
+        synchronized (model.getModelVersionName()) {
             model.setPort(port.getAndIncrement());
             WorkerThread thread =
                     new WorkerThread(
@@ -187,6 +173,36 @@ public class WorkLoadManager {
             threadPool.submit(thread);
             future.get(1, TimeUnit.MINUTES);
         }
+    }
+
+    private HttpResponseStatus stopServerThread(Model model){
+        model.getServerThread().shutdown();
+        WorkerLifeCycle lifecycle = model.getServerThread().getLifeCycle();
+
+        Process workerProcess = lifecycle.getProcess();
+
+        // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
+        // -> This may nullify process object per destroyForcibly doc.
+        if (workerProcess != null && workerProcess.isAlive()) {
+            boolean workerDestroyed = false;
+            workerProcess.destroyForcibly();
+            try {
+                workerDestroyed =
+                        workerProcess.waitFor(
+                                configManager.getUnregisterModelTimeout(),
+                                TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                logger.warn(
+                        "WorkerThread interrupted during waitFor, possible async resource cleanup.");
+                return HttpResponseStatus.INTERNAL_SERVER_ERROR;
+            }
+            if (!workerDestroyed) {
+                logger.warn(
+                        "WorkerThread timed out while cleaning, please resend request.");
+                return HttpResponseStatus.REQUEST_TIMEOUT;
+            }
+        }
+        return HttpResponseStatus.OK;
     }
 
     private void addThreads(
