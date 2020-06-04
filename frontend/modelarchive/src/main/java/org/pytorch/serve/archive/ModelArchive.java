@@ -58,7 +58,6 @@ public class ModelArchive {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
-
             try {
                 FileUtils.copyURLToFile(new URL(url), modelLocation);
             } catch (IOException e) {
