@@ -100,7 +100,8 @@ public class WorkLoadManager {
         return modelChanged(model, isStartup, false);
     }
 
-    public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup, boolean isShutdown) {
+    public CompletableFuture<HttpResponseStatus> modelChanged(
+            Model model, boolean isStartup, boolean isShutdown) {
         synchronized (model.getModelVersionName()) {
             boolean isSnapshotSaved = false;
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
@@ -111,7 +112,7 @@ public class WorkLoadManager {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     HttpResponseStatus stopThreadStatus = stopServerThread(model);
-                    if (stopThreadStatus != HttpResponseStatus.OK){
+                    if (stopThreadStatus != HttpResponseStatus.OK) {
                         future.complete(stopThreadStatus);
                         return future;
                     }
@@ -133,11 +134,11 @@ public class WorkLoadManager {
                     thread.shutdown();
                 }
                 if (maxWorker == 0) {
-                     HttpResponseStatus stopThreadStatus = stopServerThread(model);
-                     if (stopThreadStatus != HttpResponseStatus.OK){
-                         future.complete(stopThreadStatus);
-                         return future;
-                     }
+                    HttpResponseStatus stopThreadStatus = stopServerThread(model);
+                    if (stopThreadStatus != HttpResponseStatus.OK) {
+                        future.complete(stopThreadStatus);
+                        return future;
+                    }
                 }
                 if (!isStartup && !isShutdown) {
                     SnapshotManager.getInstance().saveSnapshot();
@@ -175,7 +176,7 @@ public class WorkLoadManager {
         }
     }
 
-    private HttpResponseStatus stopServerThread(Model model){
+    private HttpResponseStatus stopServerThread(Model model) {
         model.getServerThread().shutdown();
         WorkerLifeCycle lifecycle = model.getServerThread().getLifeCycle();
 
@@ -189,16 +190,14 @@ public class WorkLoadManager {
             try {
                 workerDestroyed =
                         workerProcess.waitFor(
-                                configManager.getUnregisterModelTimeout(),
-                                TimeUnit.SECONDS);
+                                configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 logger.warn(
                         "WorkerThread interrupted during waitFor, possible async resource cleanup.");
                 return HttpResponseStatus.INTERNAL_SERVER_ERROR;
             }
             if (!workerDestroyed) {
-                logger.warn(
-                        "WorkerThread timed out while cleaning, please resend request.");
+                logger.warn("WorkerThread timed out while cleaning, please resend request.");
                 return HttpResponseStatus.REQUEST_TIMEOUT;
             }
         }

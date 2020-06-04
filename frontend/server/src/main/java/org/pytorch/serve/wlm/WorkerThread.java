@@ -239,7 +239,8 @@ public class WorkerThread implements Runnable {
                 if (process != null && process.isAlive()) {
                     process.destroyForcibly();
                     try {
-                        process.waitFor(configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
+                        process.waitFor(
+                                configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
                     } catch (InterruptedException e) {
                         logger.warn(
                                 "WorkerThread interrupted during waitFor, possible async resource cleanup.");

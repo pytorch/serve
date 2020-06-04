@@ -393,8 +393,10 @@ public class ModelServer {
     private void exitModelStore() throws ModelNotFoundException {
         ModelManager modelManager = ModelManager.getInstance();
         for (Map.Entry<String, Model> m : modelManager.getDefaultModels().entrySet()) {
-            for (Map.Entry<String, Model> versionedModel :modelManager.getAllModelVersions(m.getKey())) {
-                logger.info("Unregistering model {} version {}", m.getKey(), versionedModel.getKey());
+            for (Map.Entry<String, Model> versionedModel :
+                    modelManager.getAllModelVersions(m.getKey())) {
+                logger.info(
+                        "Unregistering model {} version {}", m.getKey(), versionedModel.getKey());
                 modelManager.unregisterModel(m.getKey(), versionedModel.getKey(), true);
             }
         }
@@ -416,7 +418,7 @@ public class ModelServer {
         try {
             exitModelStore();
         } catch (ModelNotFoundException e) {
-            e.printStackTrace(); //NOPMD
+            e.printStackTrace(); // NOPMD
         }
     }
 }

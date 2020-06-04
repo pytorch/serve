@@ -203,7 +203,8 @@ public final class ModelManager {
         return unregisterModel(modelName, versionId, false);
     }
 
-    public HttpResponseStatus unregisterModel(String modelName, String versionId, boolean isShutDown) {
+    public HttpResponseStatus unregisterModel(
+            String modelName, String versionId, boolean isShutDown) {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             logger.warn("Model not found: " + modelName);
@@ -221,7 +222,8 @@ public final class ModelManager {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
-            CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model, false, isShutDown);
+            CompletableFuture<HttpResponseStatus> futureStatus =
+                    wlm.modelChanged(model, false, isShutDown);
             httpResponseStatus = futureStatus.get();
 
             // Only continue cleaning if resource cleaning succeeded
@@ -240,7 +242,7 @@ public final class ModelManager {
             if (vmodel.getAllVersions().size() == 0) {
                 modelsNameMap.remove(modelName);
             }
-            if(!isShutDown) {
+            if (!isShutDown) {
                 ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
             }
         } catch (ModelVersionNotFoundException e) {
