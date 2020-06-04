@@ -15,6 +15,7 @@ Provide a custom script to:
 * [Example Custom Service file](#example-custom-service-file)
 * [Creating model archive with entry point](#creating-model-archive-with-entry-point)
 * [Handling model execution on GPU](#handling-model-execution-on-multiple-gpus)
+* [Extend default handlers](#Extend-default-handlers)
 
 ## Requirements for custom service file
 
@@ -155,6 +156,60 @@ class ModelHandler(object):
 ```
 
 ** For more details refer [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py) **
+
+## Extend default handlers
+
+Torchserve has following default handlers.
+- base_handler
+- image_classifier
+- object_detector
+- text_classifier
+- text_handler
+
+If required above handlers can be extended to create custom handler.
+
+To import the default handler in a python script use the following import statement.
+
+`from ts.torch_handler.<default_handler_name> import <DefaultHandlerClass>`
+
+Following is an example of custom service extending image_classifier default handler.
+```python
+from ts.torch_handler.image_classifier import ImageClassifier
+
+class CustomImageClassifier(ImageClassifier):
+
+    def preprocess(self, data):
+        """
+        Transform raw input into model input data.
+        :param data: raw data to be transformed
+        :return: preprocessed data for model input
+        """
+        # custom pre-procsess code goes here
+        return data
+
+
+_service = CustomImageClassifier()
+
+
+def handle(data, context):
+    """
+    Entry point for custom image classifier handler
+    """
+    if not _service.initialized:
+        _service.initialize(context)
+
+    if data is None:
+        return None
+
+    data = _service.preprocess(data)
+    data = _service.inference(data)
+    data = _service.postprocess(data)
+
+    return data
+```
+For more details refer following examples :
+- [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py)
+- [resnet-152-batch_image classifier handler](../examples/image_classifier/resnet_152_batch/resnet152_handler.py) 
 
 ## Creating a model archive with an entry point
 

@@ -2,8 +2,7 @@
 Module for image classification default handler
 """
 import io
-import numpy as np
-import torch
+
 import torch.nn.functional as F
 from PIL import Image
 from torch.autograd import Variable
@@ -18,8 +17,17 @@ class ImageClassifier(VisionHandler):
     and returns the name of object in that image.
     """
 
+    TOP_FIVE_CLASSES = 5
+
     def __init__(self):
         super(ImageClassifier, self).__init__()
+        self.topk = ImageClassifier.TOP_FIVE_CLASSES
+
+    def set_max_result_classes(self, topk):
+        self.topk = topk
+
+    def get_max_result_classes(self):
+        return self.topk
 
     def preprocess(self, data):
         """
@@ -39,23 +47,33 @@ class ImageClassifier(VisionHandler):
         ])
         image = Image.open(io.BytesIO(image))
         image = my_preprocess(image)
+
+        # Convert 2D image to 1D vector
+        image = image.unsqueeze(0)
+
         return image
 
     def inference(self, data):
         ''' Predict the class (or classes) of an image using a trained deep learning model.
         '''
-        # Convert 2D image to 1D vector
-        topk = 5
-        data = np.expand_dims(data, 0)
-        data = torch.from_numpy(data)
-
         inputs = Variable(data).to(self.device)
         outputs = self.model.forward(inputs)
+        return outputs
 
-        ps = F.softmax(outputs, dim=1)
-        topk = getattr(ps, self.device.type)().topk(topk)
+    def postprocess(self, data):
+        ps = F.softmax(data, dim=1)
+        output_tensor = getattr(ps, self.device.type)()
+
+        # output_tensor size -> [ m, n ] where n is number of clases
+        topk = min(self.get_max_result_classes(), list(output_tensor.size())[1])
+        topk = output_tensor.topk(topk)
 
         probs, classes = (e.cpu().data.numpy().squeeze().tolist() for e in topk)
+
+        # handle case when output has only one class
+        if not isinstance(probs, list):
+            probs = [probs]
+            classes = [classes]
 
         results = []
         for index, elem in enumerate(probs):
@@ -70,12 +88,9 @@ class ImageClassifier(VisionHandler):
 
                 results.append(tmp)
             else:
-                results.append({str(classes[i]):str(probs[i])})
+                results.append({str(classes[index]): str(probs[index])})
 
         return [results]
-
-    def postprocess(self, data):
-        return data
 
 
 _service = ImageClassifier()
@@ -98,4 +113,5 @@ def handle(data, context):
 
         return data
     except Exception as e:
-        raise Exception("Please provide a custom handler in the model archive." + e)
+        raise Exception("Please provide a custom handler in the model archive. Default handler failed with exception: "
+                        + e.__str__())
