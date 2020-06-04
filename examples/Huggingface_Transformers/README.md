@@ -84,7 +84,7 @@ index_to_name.json for question answering is not required.
 
 If intended to use Transformer handler for Token classification, the index_to_name.json should be formatted as follows for example:
 
-`{"label_list":"[O, B-MISC, I-MISC, B-PER,I-PER,B-ORG,I-ORG,B-LOC,I-LOC]"}`
+`{"label_list":"[O, B-MISC, I-MISC, B-PER, I-PER, B-ORG, I-ORG, B-LOC, I-LOC]"}`
 
 To use Transformer handler for question answering, the sample_text.txt should be formatted as follows.:
 
