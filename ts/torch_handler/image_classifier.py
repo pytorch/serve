@@ -32,7 +32,7 @@ class ImageClassifier(VisionHandler):
     def preprocess(self, data):
         """
          Scales, crops, and normalizes a PIL image for a PyTorch model,
-         returns an Numpy array
+         returns a tensor
         """
         image = data[0].get("data")
         if image is None:

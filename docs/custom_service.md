@@ -45,20 +45,19 @@ The following code shows an example custom service.
 # model_handler.py
 
 """
-ModelHandler defines a base model handler.
+ModelHandler defines a custom model handler.
 """
 import logging
 
 
 class ModelHandler(object):
     """
-    A base Model handler implementation.
+    A custom model handler implementation.
     """
 
     def __init__(self):
         self.error = None
         self._context = None
-        self._batch_size = 0
         self.initialized = False
 
     def initialize(self, context):
@@ -68,18 +67,22 @@ class ModelHandler(object):
         :return:
         """
         self._context = context
-        self._batch_size = context.system_properties["batch_size"]
         self.initialized = True
+        #  load the model
 
-    def preprocess(self, batch):
+    def preprocess(self, data):
         """
         Transform raw input into model input data.
         :param batch: list of raw requests, should match batch size
         :return: list of preprocessed model input data
         """
         # Take the input data and pre-process it make it inference ready
-        assert self._batch_size == len(batch), "Invalid input batch size: {}".format(len(batch))
-        return None
+        preprocessed_data = data[0].get("data")
+        if preprocessed_data is None:
+            preprocessed_data = data[0].get("body")
+
+        return preprocessed_data
+
 
     def inference(self, model_input):
         """
@@ -88,7 +91,8 @@ class ModelHandler(object):
         :return: list of inference output in NDArray
         """
         # Do some inference call to engine here and return output
-        return None
+        model_output = self.model.forward(model_input)
+        return model_output
 
     def postprocess(self, inference_output):
         """
@@ -97,12 +101,13 @@ class ModelHandler(object):
         :return: list of predict results
         """
         # Take output from network and post-process to desired format
-        return ["OK"] * self._batch_size
+        postprocess_output = inference_output
+        return postprocess_output
 
     def handle(self, data, context):
         model_input = self.preprocess(data)
-        model_out = self.inference(model_input)
-        return self.postprocess(model_out)
+        model_output = self.inference(model_input)
+        return self.postprocess(model_output)
 
 _service = ModelHandler()
 
@@ -124,6 +129,9 @@ The `initialize()` method is used to initialize the model at load time, so after
 The service doesn't need to be re-initialized in the the life cycle of the relevant worker.
 We recommend using an `initialize()` method to avoid initialization at prediction time.
 
+Refer [base_handler](../ts/torch_handler/base_handler.py) or [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) 
+for more details. 
+
 This entry point is engaged in two cases:
 
 1. TorchServe is asked to scale a model out to increase the number of backend workers (it is done either via a `PUT /models/{model_name}` request or a `POST /models` request with `initial-workers` option or during TorchServe startup when you use the `--models` option (`torchserve --start --models {model_name=model.mar}`), ie., you provide model(s) to load)
@@ -133,7 +141,7 @@ This entry point is engaged in two cases:
 Typically, you want code for model initialization to run at model load time.
 You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
 
-** For a working example of a custom service handler, see [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py) **
+** For a working example of a custom service handler, see [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) **
 
 ## Handling model execution on multiple GPUs
 
@@ -142,26 +150,29 @@ TorchServe scales backend workers on vCPUs or GPUs. In case of multiple GPUs Tor
 The following code snippet can be used in model handler to create the PyTorch device object:
 
 ```python
+import torch
+
 class ModelHandler(object):
     """
     A base Model handler implementation.
     """
 
     def __init__(self):
-        self.device
+        self.device = None
 
     def initialize(self, context):
         properties = context.system_properties
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 ```
 
-** For more details refer [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py) **
+** For more details refer [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) **
 
 ## Extend default handlers
 
 Torchserve has following default handlers.
 - base_handler
 - image_classifier
+- image_segmenter
 - object_detector
 - text_classifier
 - text_handler
@@ -220,7 +231,7 @@ The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver
 The following is an example that archives a model and specifies a custom handler:
 
 ```bash
-torch-model-archiver --model-name <model-name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <path_to_index_to_name_json_file> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
+torch-model-archiver --model-name <model-name> --version <model_version_number> --model-file <path_to_model_architecture_file> --serialized-file <path_to_state_dict_file> --extra-files <comma_seperarted_additional_files> --handler model_handler:handle --export-path <output-dir> --model-path <model_dir> --runtime python3
 ```
 
 This creates the file `<model-name>.mar` in the directory `<output-dir>`

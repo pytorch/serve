@@ -11,8 +11,8 @@ class BatchImageClassifier(ImageClassifier):
 
     def preprocess(self, request):
         """
-         Scales, crops, and normalizes a PIL image for a PyTorch model,
-         returns an Numpy array
+        Preprocesses images in request using base class preprocess method and returns
+        concatenated tensor of all images
         """
         image_tensor = None
 
@@ -29,11 +29,10 @@ class BatchImageClassifier(ImageClassifier):
     def postprocess(self, inference_output):
         num_rows, num_cols = inference_output.shape
         output_classes = []
+        self.set_max_result_classes(1)
         for i in range(num_rows):
             out = inference_output[i].unsqueeze(0)
-            _, y_hat = out.max(1)
-            predicted_idx = str(y_hat.item())
-            output_classes.append(self.mapping[predicted_idx])
+            output_classes.append(super(BatchImageClassifier, self).postprocess(out))
         return output_classes
 
 

@@ -7,11 +7,17 @@ from ts.torch_handler.image_classifier import ImageClassifier
 
 
 class MNISTDigitClassifier(ImageClassifier):
+    """
+    MNISTDigitClassifier handler class. This handler extends class ImageClassifier from image_classifier.py, a
+    default handler. This handler takes an image and returns the number in that image.
+
+    Here methods preprocess() and postprocess() have been overridden while others are reused from parent class.
+    """
 
     def preprocess(self, data):
         """
          Scales, crops, and normalizes a PIL image for a MNIST model,
-         returns an Numpy array
+         returns a tensor.
         """
         image = data[0].get("data")
         if image is None:
