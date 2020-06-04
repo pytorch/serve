@@ -10,28 +10,19 @@ from transformers import (AutoModelForSequenceClassification, AutoTokenizer, Aut
 """
 print('Transformers version',transformers.__version__)
 
-def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case,max_length,save_mode):
+def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case,max_length,torchscript):
     print("Download model and tokenizer", pretrained_model_name)
     #loading pre-trained model and tokenizer
     if mode== "sequence_classification":
-        if save_mode == "torchscript":
-            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=True)
-        else:
-            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
+        config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
         model = AutoModelForSequenceClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "question_answering":
-        if save_mode == "torchscript":
-            config = AutoConfig.from_pretrained(pretrained_model_name,torchscript=True)
-        else:
-            config = AutoConfig.from_pretrained(pretrained_model_name)
+        config = AutoConfig.from_pretrained(pretrained_model_name,torchscript=torchscript)
         model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model_name,config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "token_classification":
-        if save_mode == "torchscript":
-            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=True)
-        else:
-            config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels)
+        config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
         model = AutoModelForTokenClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
 
@@ -71,4 +62,9 @@ if __name__== "__main__":
     do_lower_case = options["do_lower_case"]
     max_length = options["max_length"]
     save_mode = options["save_mode"]
-    transformers_model_dowloader(mode,model_name, num_labels,do_lower_case, max_length, save_mode)
+    if save_mode == "torchscript":
+        torchscript = True
+    else:
+        torchscript = False
+
+    transformers_model_dowloader(mode,model_name, num_labels,do_lower_case, max_length, torchscript)
