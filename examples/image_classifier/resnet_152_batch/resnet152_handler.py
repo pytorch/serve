@@ -7,6 +7,8 @@ class BatchImageClassifier(ImageClassifier):
     """
     BatchImageClassifier handler class. This handler takes list of images
     and returns a corresponding list of classes
+
+    Here methods preprocess() and postprocess() have been overridden while others are reused from parent class.
     """
 
     def preprocess(self, request):

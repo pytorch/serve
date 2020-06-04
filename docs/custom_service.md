@@ -183,7 +183,8 @@ To import the default handler in a python script use the following import statem
 
 `from ts.torch_handler.<default_handler_name> import <DefaultHandlerClass>`
 
-Following is an example of custom service extending image_classifier default handler.
+Following is an example of custom handler extending image_classifier default handler.
+Here preprocess method has been being overidden to provide custom preprocessiong.
 ```python
 from ts.torch_handler.image_classifier import ImageClassifier
 
@@ -238,3 +239,8 @@ This creates the file `<model-name>.mar` in the directory `<output-dir>`
 
 This will create a model archive for the python3 runtime. The `--runtime` parameter enables usage of a specific python version at runtime.
 By default it uses the default python distribution of the system.
+
+Example
+```bash
+torch-model-archiver --model-name waveglow_synthesizer --version 1.0 --model-file waveglow_model.py --serialized-file nvidia_waveglowpyt_fp32_20190306.pth --handler waveglow_handler.py --extra-files tacotron.zip,nvidia_tacotron2pyt_fp32_20190306.pth
+```
