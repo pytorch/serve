@@ -55,9 +55,8 @@ public class ModelArchive {
         File modelLocation = new File(modelStore, marFileName);
 
         if (URL_PATTERN.matcher(url).matches()) {
-            // Required if you are re-executing test cases specially build
             if (modelLocation.exists()) {
-                modelLocation.delete();
+                throw new FileAlreadyExistsException(marFileName);
             }
 
             try {
