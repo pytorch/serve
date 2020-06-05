@@ -402,10 +402,17 @@ public class ModelServer {
                 if (defaultVersionId.equals(versionedModel.getKey())) {
                     continue;
                 }
-                logger.info("Unregistering model {} version {}", versionedModel.getValue().getModelName(), versionedModel.getKey());
-                modelMgr.unregisterModel(versionedModel.getValue().getModelName(), versionedModel.getKey(), true);
+                logger.info(
+                        "Unregistering model {} version {}",
+                        versionedModel.getValue().getModelName(),
+                        versionedModel.getKey());
+                modelMgr.unregisterModel(
+                        versionedModel.getValue().getModelName(), versionedModel.getKey(), true);
             }
-            logger.info("Unregistering model {} version {}", m.getValue().getModelName(), defaultVersionId);
+            logger.info(
+                    "Unregistering model {} version {}",
+                    m.getValue().getModelName(),
+                    defaultVersionId);
             modelMgr.unregisterModel(m.getValue().getModelName(), defaultVersionId, true);
         }
     }
