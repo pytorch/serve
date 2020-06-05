@@ -14,6 +14,9 @@ import org.pytorch.serve.util.messages.RequestInput;
 
 @ChannelHandler.Sharable
 public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> {
+    public ModelRequestEncoder(boolean preferDirect) {
+        super(preferDirect);
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, BaseModelRequest msg, ByteBuf out) {
