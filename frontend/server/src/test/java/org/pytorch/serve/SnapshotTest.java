@@ -117,7 +117,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testSyncScaleModelSnapshot"})
     public void testNoSnapshotOnListModels() throws InterruptedException {
-        Channel channel = TestUtils.getInferenceChannel(configManager);
+        Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.listModels(channel);
@@ -129,7 +129,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnListModels"})
     public void testNoSnapshotOnDescribeModel() throws InterruptedException {
-        Channel channel = TestUtils.getInferenceChannel(configManager);
+        Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.describeModel(channel, "noop_v1.0", null);
