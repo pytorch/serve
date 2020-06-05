@@ -85,17 +85,19 @@ public final class ModelManager {
 
         ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
 
-        Model tempModel = createModel(archive, modelInfo, preloadModel);
+        Model model = createModel(archive, modelInfo, preloadModel);
 
         String versionId = archive.getModelVersion();
 
-        createVersionedModel(tempModel, versionId);
+        createVersionedModel(model, versionId);
 
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
         }
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
+        startBackendServer(model);
+
+        logger.info("Model {} loaded.", model.getModelName());
 
         updateModel(modelName, versionId, true);
     }
@@ -116,14 +118,19 @@ public final class ModelManager {
         ModelArchive archive =
                 createModelArchive(modelName, url, handler, runtime, defaultModelName);
 
-        Model tempModel =
-                createModel(archive, batchSize, maxBatchDelay, responseTimeout, preloadModel);
+        Model model = createModel(archive, batchSize, maxBatchDelay, responseTimeout, preloadModel);
 
         String versionId = archive.getModelVersion();
 
-        createVersionedModel(tempModel, versionId);
+        createVersionedModel(model, versionId);
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
+        if (configManager.isDebug()) {
+            model.setPort(9000);
+        } else {
+            startBackendServer(model);
+        }
+
+        logger.info("Model {} loaded.", model.getModelName());
 
         return archive;
     }
@@ -170,13 +177,6 @@ public final class ModelManager {
         model.setBatchSize(batchSize);
         model.setMaxBatchDelay(maxBatchDelay);
         model.setResponseTimeout(responseTimeout);
-
-        if (configManager.isDebug()) {
-            model.setPort(9000);
-        } else {
-            startBackendServer(model);
-        }
-
         return model;
     }
 
@@ -184,7 +184,6 @@ public final class ModelManager {
             throws InterruptedException, ExecutionException, TimeoutException {
         Model model = new Model(archive, configManager.getJobQueueSize(), preloadModel);
         model.setModelState(modelInfo);
-        startBackendServer(model);
         return model;
     }
 
