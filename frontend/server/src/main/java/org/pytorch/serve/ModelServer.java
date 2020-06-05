@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -391,14 +392,21 @@ public class ModelServer {
     }
 
     private void exitModelStore() throws ModelNotFoundException {
-        ModelManager modelManager = ModelManager.getInstance();
-        for (Map.Entry<String, Model> m : modelManager.getDefaultModels().entrySet()) {
-            for (Map.Entry<String, Model> versionedModel :
-                    modelManager.getAllModelVersions(m.getKey())) {
-                logger.info(
-                        "Unregistering model {} version {}", m.getKey(), versionedModel.getKey());
-                modelManager.unregisterModel(m.getKey(), versionedModel.getKey(), true);
+        ModelManager modelMgr = ModelManager.getInstance();
+        Map<String, Model> defModels = modelMgr.getDefaultModels();
+
+        for (Map.Entry<String, Model> m : defModels.entrySet()) {
+            Set<Entry<String, Model>> versionModels = modelMgr.getAllModelVersions(m.getKey());
+            String defaultVersionId = m.getValue().getVersion();
+            for (Entry<String, Model> versionedModel : versionModels) {
+                if (defaultVersionId.equals(versionedModel.getKey())) {
+                    continue;
+                }
+                logger.info("Unregistering model {} version {}", versionedModel.getValue().getModelName(), versionedModel.getKey());
+                modelMgr.unregisterModel(versionedModel.getValue().getModelName(), versionedModel.getKey(), true);
             }
+            logger.info("Unregistering model {} version {}", m.getValue().getModelName(), defaultVersionId);
+            modelMgr.unregisterModel(m.getValue().getModelName(), defaultVersionId, true);
         }
     }
 
@@ -407,17 +415,19 @@ public class ModelServer {
             return;
         }
 
+        SnapshotManager.getInstance().saveShutdownSnapshot();
+
         stopped.set(true);
         for (ChannelFuture future : futures) {
             future.channel().close();
         }
 
-        SnapshotManager.getInstance().saveShutdownSnapshot();
         serverGroups.shutdown(true);
         serverGroups.init();
+
         try {
             exitModelStore();
-        } catch (ModelNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace(); // NOPMD
         }
     }
