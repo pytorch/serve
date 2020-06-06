@@ -1,0 +1,74 @@
+version: 2.1
+
+jobs:
+    build_docker_environment:
+        parameters:
+            pytorch_channel:
+                type: string
+                default: "pytorch"
+        machine:
+            image: ubuntu-1604:201903-01
+        environment:
+            - DOCKER_BUILDKIT=1
+        steps:
+            - checkout
+            - run:
+                name: Building docker image
+                command: |
+                    cat .circleci/Dockerfile | docker build \
+                        -t pytorch/serve-circleci-dev \
+                        --progress=plain \
+                        --build-arg PYTORCH_CHANNEL="<< parameters.pytorch_channel >>" -
+            - run:
+                name: Save docker image to archive
+                command: mkdir /tmp/workspace && docker image save pytorch/serve-circleci-dev -o /tmp/workspace/dev-image.tar
+            - persist_to_workspace:
+                root: /tmp/workspace
+                paths:
+                    - dev-image.tar
+    build_wheel:
+        parameters:
+            build_directory:
+                type: string
+                default: "."
+        machine:
+            image: ubuntu-1604:201903-01
+        steps:
+            - attach_workspace:
+                at: /tmp/workspace
+            - run:
+                name: Loading docker image
+                command: cat /tmp/workspace/dev-image.tar | docker load
+            - checkout
+            - run:
+                name: Build wheel
+                command: |
+                    docker run --rm -i \
+                        -v "$(pwd):/v" \
+                        -w "/v/<< parameters.build_directory >>" \
+                        pytorch/serve-circleci-dev \
+                        python setup.py bdist_wheel --release --universal
+            - run:
+                name: Chown workspace back to circleci user
+                command: |
+                    docker run --rm -v "$(pwd)":/v -w /v alpine chown -R "$(id -u):$(id -g)" .
+            - store_artifacts:
+                path: << parameters.build_directory >>/dist/
+            - persist_to_workspace:
+                root: << parameters.build_directory >>/dist
+                paths:
+                    - "*.whl"
+
+workflows:
+    build:
+        jobs:
+            - build_docker_environment
+            - build_wheel:
+                name: wheel_torchserve
+                requires:
+                    - build_docker_environment
+            - build_wheel:
+                name: wheel_model_archiver
+                requires:
+                    - build_docker_environment
+                build_directory: "model-archiver"
