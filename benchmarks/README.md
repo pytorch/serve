@@ -2,10 +2,6 @@
 
 The benchmarks measure the performance of TorchServe on various models and benchmarks.  It supports either a number of built-in models or a custom model passed in as a path or URL to the .model file.  It also runs various benchmarks using these models (see benchmarks section below).  The benchmarks are run through a python3 script on the user machine through jmeter.  TorchServe is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo because it executes the local code as the version of TorchServe (and it is recompiled between runs) for ease of development.
 
-We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
-
-# Benchmarking with JMeter
-
 ## Installation
 
 ### Ubuntu
@@ -134,68 +130,10 @@ Run verbose with only a single loop\
 
 The full list of options can be found by running with the -h or --help flags.
 
-# Benchmarking with Apache Bench
 
-## Installation 
+## Profiling
 
-### For Ubuntu
-
-```
-apt-get install apache2-utils
-
-```
-
-Apache Bench is installed in Mac by default. You can test by running ```ab -h```
-
-## Benchmark 
-
-To run benchmarks execute benchmark script as follows 
-
-```
-./benchmark-ab.sh --model  vgg11 --url https://torchserve-mar-files.s3.amazonaws.com/vgg11.mar --bsize 1 --bdelay 50 --worker 4 --input ../examples/image_classifier/kitten.jpg --requests 20 --concurrency 10
-```
-
-This would produce a output similar to in /tmp/benchmark/report.txt
-
-```
-Preparing config...
-starting torchserve...
-Waiting for torchserve to start...
-torchserve started successfully
-Registering model ...
-{
-  "status": "Workers scaled"
-}
-Executing Apache Bench tests ...
-Executing inference performance test
-Unregistering model ...
-{
-  "status": "Model \"vgg11\" unregistered"
-}
-Execution completed
-Grabing performance numbers
-
-CPU/GPU: cpu
-Model: vgg11
-Concurrency: 10
-Requests: 20
-Model latency P50: 269.49
-Model latency P90: 369.21
-Model latency P99: 370.55
-TS throughput: 12.57
-TS latency P50: 702
-TS latency P90: 907
-TS latency P99: 1012
-TS latency mean: 795.813
-TS error rate: 0.000000%
-CSV : cpu, vgg11, 1, 10, 20, 269.49, 369.21, 370.55, 12.57, 702, 907, 907, 1012, 795.813, 0.000000
-```
-
-
-
-# Profiling
-
-## Frontend
+### Frontend
 
 The benchmarks can be used in conjunction with standard profiling tools such as JProfiler to analyze the system performance.  JProfiler can be downloaded from their [website](https://www.ej-technologies.com/products/jprofiler/overview.html).  Once downloaded, open up JProfiler and follow these steps:
 
@@ -207,7 +145,7 @@ The benchmarks can be used in conjunction with standard profiling tools such as 
 
 Once you have stopped recording, you should be able to analyze the data.  One useful section to examine is CPU views > Call Tree and CPU views > Hot Spots to see where the processor time is going.
 
-## Backend
+### Backend
 
 The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
