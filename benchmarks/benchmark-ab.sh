@@ -146,6 +146,8 @@ sleep 10
 curl -X DELETE "http://localhost:8081/models/${MODEL}"
 sleep 10
 echo "Execution completed"
+torchserve --stop
+echo "Torchserve stopped"
 
 echo "Grabing performance numbers"
 
