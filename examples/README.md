@@ -75,6 +75,6 @@ The following example demonstrates how to create and serve a pretrained fcn NN m
 
 ## Example to serve Huggingface Transformers (Torchscripted)
 
-The following example demonstrates how to create and serve a pretrained transformer models from Hugginface, such as BERT, RoBERTA, XLM :
+The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
 
 * [Hugging Face Transformers](Huggingface_Transformers)
