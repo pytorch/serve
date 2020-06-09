@@ -28,6 +28,8 @@ install_torchserve_from_source() {
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src_ubuntu
+  echo "TS Branch : " $(git rev-parse --abbrev-ref HEAD) >> $3
+  echo "Build date : " $(date) >> $3
   echo "Torchserve Succesfully installed"
 }
 
@@ -127,7 +129,7 @@ cd $ROOT_DIR
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
-install_torchserve_from_source $TS_REPO $BRANCH
+install_torchserve_from_source $TS_REPO $BRANCH $TEST_EXECUTION_LOG_FILE
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
