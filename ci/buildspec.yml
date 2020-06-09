@@ -6,7 +6,7 @@ phases:
   install:
     commands:
       - apt-get update
-      - apt-get install -y curl
+      - apt-get install -y curl gnupg2
       - pip install pip -U
       - pip install future
       - pip install Pillow
@@ -20,12 +20,4 @@ phases:
   build:
     commands:
       - ./torchserve_sanity.sh
-      - cd serving-sdk/ && mvn clean deploy && cd ../
-
-artifacts:
-  files:
-    - dist/*.whl
-    - model_archiver/dist/*.whl
-    - frontend/server/build/reports/**/*
-    - frontend/modelarchive/build/reports/**/*
-    - frontend/cts/build/reports/**/*
+      - cd serving-sdk/ && mvn clean install -q && cd ../

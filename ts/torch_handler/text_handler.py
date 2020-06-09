@@ -1,14 +1,24 @@
-from abc import ABC
-from .base_handler import BaseHandler
-from .contractions import CONTRACTION_MAP
-from torchtext.data.utils import get_tokenizer
+# pylint: disable=W0223
+# Details : https://github.com/PyCQA/pylint/issues/3098
+"""
+Base module for all text based default handler.
+Contains various text based utility methods
+"""
 import re
 import string
-import torch
 import unicodedata
+from abc import ABC
+import torch
+from torchtext.data.utils import get_tokenizer
+from .base_handler import BaseHandler
+from .contractions import CONTRACTION_MAP
 
 
 class TextHandler(BaseHandler, ABC):
+    """
+    Base class for all text based default handler.
+    Contains various text based utility methods
+    """
     def __init__(self):
         super(TextHandler, self).__init__()
         self.source_vocab = None

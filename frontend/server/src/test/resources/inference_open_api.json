@@ -3,7 +3,7 @@
   "info": {
     "title": "TorchServe APIs",
     "description": "TorchServe is a flexible and easy to use tool for serving deep learning models",
-    "version": "1.0.0"
+    "version": "%s"
   },
   "paths": {
     "/": {
@@ -165,7 +165,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model Version not found",
             "content": {
               "application/json": {
                 "schema": {
