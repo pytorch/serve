@@ -192,9 +192,9 @@ Install the apache2-utils package to get access to ApacheBench.
 ```bash
 apt-get install apache2-utils
 ```
-The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
-On CPU based instance, use `./install_dependencies.sh`.
-On GPU based instance, use `./install_dependencies.sh True`.
+The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies-ab.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
+On CPU based instance, use `./install_dependencies-ab.sh`.
+On GPU based instance, use `./install_dependencies-ab.sh True`.
 
 ### MacOS
 
