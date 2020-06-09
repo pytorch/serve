@@ -163,6 +163,13 @@ cors_allowed_methods=GET, POST, PUT, OPTIONS
 cors_allowed_headers=X-Custom-Header
 ```
 
+### Prefer direct buffer
+Configuration parameter prefer_direct_buffer controls if the model server will be using direct memory specified by -XX:MaxDirectMemorySize. This parameter is for model server only and  doesn't affect other packages' usage of direct memory buffer. Default: false
+
+```properties
+prefer_direct_buffer=true
+```
+
 ### Restrict backend worker to access environment variables
 
 Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
@@ -191,3 +198,19 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `model_store` : Path of model store directory.
+* `model_server_home` : Torchserve home directory. 
+* `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
+* `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
+
+---
+**NOTE**
+
+All the above config properties can be set using environment variable as follows.
+- set `enable_envvars_config` to true in config.properties
+- export environment variable for property as`TS_<PROPERTY_NAME>`. 
+
+  eg: to set inference_address property run cmd
+  `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
+
+---

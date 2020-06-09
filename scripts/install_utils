@@ -1,0 +1,201 @@
+#!/bin/bash
+set -euo pipefail
+
+clean_slate()
+{
+	echo "Cleaning up state"
+	# uninstall any global installations
+	pip uninstall --yes torchserve || true
+	pip uninstall --yes torch-model-archiver || true
+	sleep 5
+}
+
+install_java_deps()
+{
+  set +e
+  JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+	if [ "$JAVA_VERSION" != "11" ]
+  then
+    sudo apt-get install -y openjdk-11-jdk
+  fi
+  set -e
+}
+
+install_torch_deps()
+{
+	# replace this with requirements.txt when ready
+	pip install torch torchtext torchvision sentencepiece psutil future
+}
+
+install_pytest_suite_deps()
+{
+	# set pylint to version 2.4.4 because of following bug with pylint 2.5 released on 27th April 2020
+  # https://github.com/PyCQA/pylint/issues/3524
+  pip install mock pytest pylint==2.4.4 pytest-mock pytest-cov
+}
+
+build_frontend() {
+  if frontend/gradlew -p frontend clean build;
+    then
+    echo "Frontend build suite execution successful"
+  else
+    echo "Frontend build suite execution failed!!! Check logs for more details"
+    exit 1
+  fi
+}
+
+run_backend_pytest()
+{
+  if python -m pytest --cov-report html:htmlcov --cov=ts/ ts/tests/unit_tests/;
+  then
+    echo "Backend test suite execution successful"
+  else
+    echo "Backend test suite execution failed!!! Check logs for more details"
+    exit 1
+  fi
+}
+
+run_backend_python_linting()
+{
+  if pylint -rn --rcfile=./ts/tests/pylintrc ts/.;
+  then
+    echo "Backend python linting suite execution successful"
+  else
+    echo "Backend python linting execution failed!!! Check logs for more details"
+    exit 1
+  fi
+}
+
+run_model_archiver_UT_suite()
+{
+  cd model-archiver
+  if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/;
+  then
+    echo "Model-archiver UT test suite execution successfully"
+  else
+    echo "Model-archiver UT test suite execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
+run_model_archiver_IT_suite()
+{
+  cd model-archiver
+  if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/;
+  then
+    echo "Model-archiver IT test suite execution successful"
+  else
+    echo "Model-archiver IT test suite execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
+build_install_server()
+{
+	pip install .
+}
+
+build_install_archiver()
+{
+	echo $PWD
+	cd model-archiver
+	if pip install .;
+  then
+    echo "Successfully installed torch-model-archiver"
+  else
+    echo "torch-model-archiver installation failed"
+    exit 1
+  fi
+  cd ..
+}
+
+start_torchserve()
+{
+  echo "Starting TorchServe"
+  torchserve --start --model-store model_store &
+  pid=$!
+  count=$(ps -A| grep $pid |wc -l)
+  if [[ $count -eq 1 ]]
+  then
+          if wait $pid; then
+                  echo "Successfully started TorchServe"
+          else
+                  echo "TorchServe start failed (returned $?)"
+                  exit 1
+          fi
+  else
+          echo "Successfully started TorchServe"
+  fi
+
+  sleep 10
+}
+
+stop_torchserve()
+{
+  torchserve --stop
+  sleep 10
+}
+
+
+# Takes model name and mar name from model zoo as input
+register_model()
+{
+  echo "Registering $1 model"
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$1.mar&initial_workers=1&synchronous=true")
+
+  if [ ! "$response" == 200 ]
+  then
+      echo "Failed to register model with torchserve"
+      cleanup
+      exit 1
+  else
+      echo "Successfully registered $1 model with torchserve"
+  fi
+}
+
+# Takes model URL and payload path as input
+run_inference()
+{
+  for i in {1..4}
+  do
+    echo "Running inference on $1 model"
+    response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST http://localhost:8080/predictions/$1 -T $2)
+
+    if [ ! "$response" == 200 ]
+    then
+        echo "Failed to run inference on $1 model"
+        cleanup
+        exit 1
+    else
+        echo "Successfully ran infernece on $1 model."
+    fi
+  done
+}
+
+
+unregister_model()
+{
+  echo "Unregistering $1 model"
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X DELETE "http://localhost:8081/models/$1")
+
+  if [ ! "$response" == 200 ]
+  then
+      echo "Failed to register $1 model with torchserve"
+      cleanup
+      exit 1
+  else
+      echo "Successfully registered $1 model with torchserve"
+  fi
+}
+
+clean_up_build_residuals()
+{
+  rm -rf ts/__pycache__/
+  rm -rf ts/metrics/__pycache__/
+  rm -rf ts/protocol/__pycache__/
+  rm -rf ts/utils/__pycache__/
+  rm -rf frontend/modelarchive/build
+  rm -rf frontend/server/build
+}
