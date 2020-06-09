@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-IMAGE="pytorch/torchserve:latest"
 set -e
 
 POSITIONAL=()
@@ -135,9 +134,8 @@ if [ ! "$(docker ps -q -f name="ts")" ]; then
     fi
     # run your container
     docker run ${DOCKER_RUNTIME} ${ENABLE_GPU} --name ts -p 8080:8080 -p 8081:8081 \
-        -v /tmp/benchmark/conf:/home/ubuntu/model-server \
-        -v /tmp/benchmark/logs:/home/ubuntu/model-server/logs \
-        -u root -itd ${IMAGE} torchserve --start \
+        -v /tmp/benchmark/logs:/home/model-server/logs \
+        -itd ${IMAGE} torchserve --start \
         --ts-config /home/model-server/config.properties
 fi
 set -e
@@ -157,8 +155,7 @@ echo "Docker started successfully with container id ${container_id}"
 sleep 10
 
 result_file="/tmp/benchmark/result.txt"
-#metric_log="/tmp/benchmark/logs/model_metrics.log"
-metric_log="/home/model-server/logs/model_metrics.log"
+metric_log="/tmp/benchmark/logs/model_metrics.log"
 
 if [[ -z "${BATCH_SIZE}" ]]; then
     BATCH_SIZE=1
@@ -181,6 +178,7 @@ fi
 echo "Executing ab"
 
 echo 'Executing inference performance test'
+
 ab -c ${CONCURRENCY} -n ${REQUESTS} -k -p /tmp/benchmark/input -T "${CONTENT_TYPE}" \
     http://127.0.0.1:8080/predictions/${MODEL} > ${result_file}
 
@@ -196,12 +194,12 @@ line50=$((${BATCHED_REQUESTS} / 2))
 line90=$((${BATCHED_REQUESTS} * 9 / 10))
 line99=$((${BATCHED_REQUESTS} * 99 / 100))
 
-#MODEL_P50=`sed -n "${line50}p" /tmp/benchmark/predict.txt`
-#MODEL_P90=`sed -n "${line90}p" /tmp/benchmark/predict.txt`
-#MODEL_P99=`sed -n "${line99}p" /tmp/benchmark/predict.txt`
-MODEL_P50=`docker exec -it ts grep "PredictionTime" ${metric_log} | cut -c55- | cut -d"|" -f1 | sort -g | sed -n "${line50}p"`
-MODEL_P90=`docker exec -it ts grep "PredictionTime" ${metric_log} | cut -c55- | cut -d"|" -f1 | sort -g | sed -n "${line90}p"`
-MODEL_P99=`docker exec -it ts grep "PredictionTime" ${metric_log} | cut -c55- | cut -d"|" -f1 | sort -g | sed -n "${line99}p"`
+MODEL_P50=`sed -n "${line50}p" /tmp/benchmark/predict.txt`
+MODEL_P90=`sed -n "${line90}p" /tmp/benchmark/predict.txt`
+MODEL_P99=`sed -n "${line99}p" /tmp/benchmark/predict.txt`
+#MODEL_P50=`docker exec -it ts grep "PredictionTime" ${metric_log} | cut -c55- | cut -d"|" -f1 | sort -g | sed -n "${line50}p"`
+#MODEL_P90=`docker exec -it ts grep "PredictionTime" ${metric_log} | cut -c55- | cut -d"|" -f1 | sort -g | sed -n "${line90}p"`
+#MODEL_P99=`docker exec -it ts grep "PredictionTime" ${metric_log} | cut -c55- | cut -d"|" -f1 | sort -g | sed -n "${line99}p"`
 
 TS_ERROR=`grep "Failed requests:" ${result_file} | awk '{ print $NF }'`
 TS_TPS=`grep "Requests per second:" ${result_file} | awk '{ print $4 }'`
