@@ -317,5 +317,5 @@ The benchmarking script will choose to run on CPU or GPU instance based on prese
 ./benchmark.sh -g -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 ```
 ## Troubleshooting Note:
-Make sure that you do not have any torchserve running on 8080/8081 ports.
+Make sure that you do not have any existing torchserve already running on 8080/8081 ports.
 
