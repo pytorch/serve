@@ -21,7 +21,7 @@ from ts.service import emit_metrics
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
-BENCHMARK = False
+BENCHMARK = os.getenv('TS_BENCHMARK', False)
 
 
 class TorchModelServiceWorker(object):

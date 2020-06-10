@@ -211,27 +211,19 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 
 The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
-1. Enable Benchmarks in TorchServe code with a boolean flag.
-2. Install TorchServe with the updated flag & start torchserve.
+1. Set environment variable `TS_BENCHMARK` to True.
+2. Install & start torchserve.
 3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
 4. Visualize SnakeViz results. 
 
-#### Enable Benchmarks in TorchServe code with a boolean flag
+#### Set environment variable `TS_BENCHMARK`
 
-In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-
-If running inside docker,
-
+```bash
+export TS_BENCHMARK=TRUE
 ```
-    cd docker
-    git clone https://github.com/pytorch/serve.git
-    cd serve
-    ## set BENCHMARK flag to true
-    vim ts/model_service_worker.py
-    cd ..
-```
+If running inside docker use `-e` or `--env` flag in docker run command to set this environment variable.
 
-#### Install TorchServe with the updated flag & Start Torchserve
+#### Install & start Torchserve
 
 ```
     pip install .
@@ -240,9 +232,15 @@ If running inside docker,
 If running inside docker
 
 ```
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+    cd docker
+    ./build_image.sh -b <branch_name>
 ```
-then start docker with /tmp directory mapped to local /tmp
+then start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
+
+```
+
+    docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+```
     
 #### Register a model & perform inference to collect profiling data.
 
