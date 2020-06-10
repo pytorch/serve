@@ -70,11 +70,11 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if  [[ -z "${URL}" ]]; then
     echo "URL is required, for example:"
-    echo "benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
-    echo "benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar"
-    echo "benchmark.sh -c 500 -n 50000 -i noop.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
-    echo "benchmark.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
-    echo "benchmark.sh --bsize 2 --bdelay 200 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
+    echo "benchmark-ab.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+    echo "benchmark-ab.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar"
+    echo "benchmark-ab.sh -c 500 -n 50000 -i noop.json -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+    echo "benchmark-ab.sh -d ts-cpu-local -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+    echo "benchmark-ab.sh --bsize 2 --bdelay 200 -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
     exit 1
 fi
 
@@ -180,9 +180,9 @@ echo "Apache Bench Execution completed"
 echo "Grabbing performance numbers"
 
 BATCHED_REQUESTS=$((${REQUESTS} / ${BATCH_SIZE}))
-echo "requests is $REQUESTS"
-echo "batch_size is $BATCH_SIZE"
-echo "batched_requests is $BATCHED_REQUESTS"
+echo "Total number of requests is $REQUESTS"
+echo "Batch_size is $BATCH_SIZE"
+echo "Number of batched_requests is $BATCHED_REQUESTS"
 line50=$((${BATCHED_REQUESTS} / 2))
 line90=$((${BATCHED_REQUESTS} * 9 / 10))
 line99=$((${BATCHED_REQUESTS} * 99 / 100))
