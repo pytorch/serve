@@ -2,7 +2,6 @@
 Module for object detection default handler
 """
 import io
-import logging
 import torch
 from PIL import Image
 from torchvision import transforms
