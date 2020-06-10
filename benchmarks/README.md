@@ -1,6 +1,39 @@
+
+
 # Torchserve Model Server Benchmarking
 
-The benchmarks measure the performance of TorchServe on various models and benchmarks.  It supports either a number of built-in models or a custom model passed in as a path or URL to the .model file.  It also runs various benchmarks using these models (see benchmarks section below).  The benchmarks are run through a python3 script on the user machine through jmeter.  TorchServe is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo because it executes the local code as the version of TorchServe (and it is recompiled between runs) for ease of development.
+The benchmarks measure the performance of TorchServe on various models and benchmarks. It supports either a number of built-in models or a custom model passed in as a path or URL to the .model file. It also runs various benchmarks using these models (see respective benchmarks sections below). We use Docker for running TorchServe(see '<b>Benchmarking by launching docker container section'</b> below). Torchserve is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo because it executes the local code as the version of TorchServe (and it is recompiled between runs) for ease of development.
+
+Bench marking can be done by using one of these two tools, namely JMETERS & Apache Bench. While JMETERS is used to do a full fledged performance benchmarking, on the other hand, Apache Bench being a simpler and quicker tool is used for benchmarking Inference API's ONLY. The following sections would give you step by step instructions on using both the tools.
+
+## Common Prerequisites
+The benchmarking script requires the following to run:
+- python3
+- A JDK and JRE
+- Docker-ce with the current user added to the docker group
+- Nvidia-docker (for GPU)
+
+
+## Benchmarking by launching docker container: [TBD]
+
+## Benchmarking in dev/local environment:
+
+#### Using local TorchServe instance:
+
+* Install TorchServe using the [install guide](../README.md#install-torchserve)
+* Start TorchServe using following command :
+
+```bash
+torchserve --start --model-store <path_to_your_model_store>
+```
+
+#### By using external docker container for TorchServe:
+
+* Create and start a [docker container for TorchServe](../docker/README.md).
+
+
+## I) Benchmarking using JMETERS
+
 
 ## Installation
 
@@ -19,17 +52,12 @@ For mac, you should have python3 and java installed.  If you wish to run the def
 For other environments, manual installation is necessary.  The list of dependencies to be installed can be found below or by reading the ubuntu installation script.
 
 The benchmarking script requires the following to run:
-- python3
-- A JDK and JRE
 - jmeter installed through homebrew or linuxbrew with the plugin manager and the following plugins: jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
-- Docker-ce with the current user added to the docker group
-- Nvidia-docker (for GPU)
-
 
 ## Models
 
 The pre-loaded models for the benchmark can be mostly found in the [TorchServe model zoo]
-TBD
+https://github.com/pytorch/serve/blob/staging_0_1_1/docs/model_zoo.md
 
 ## Benchmarks
 
@@ -49,25 +77,6 @@ TBD :
 ## Benchmarking by launching docker container: [TBD]
 
 ## Benchmarking in dev/local environment:
-
-#### Using local TorchServe instance:
-
-* Install TorchServe using the [install guide](../README.md#install-torchserve)
-* Start TorchServe using following command :
-
-```bash
-torchserve --start --model-store <path_to_your_model_store>
-```
-* To start benchmarking execute following commands
-
-```bash
-cd serve/benchmarks
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
-
-#### By using external docker container for TorchServe:
-
-* Create and start a [docker container for TorchServe](../docker/README.md).
 * To start benchmarking execute following commands
 
 ```bash
@@ -156,39 +165,53 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 5. Run `snakeviz /tmp/tsPythonProfile.prof` to view the profiling data.  It should start up a web server on your machine and automatically open the page.
 6. Don't forget to set BENCHMARK = False in the model_service_worker.py file after you are finished.
 
-# Benchmarking with Apache Bench
-Apaceh Bench can also be used in torchserve for Benchmarking performance of inference API's. The ApacheBench tool (ab) can load test servers by sending an arbitrary number of concurrent requests. Installation is very simple. Please follow this guide for setting up Apache Bench for benchmarking inference API's.
 
-### Installation:
+## II) Benchmarking Inference API using Apache Bench
+
+Apache Bench can also be used in torchserve for Benchmarking performance of inference API's. The ApacheBench tool (ab) can load test servers by sending an arbitrary number of concurrent requests.
+
+The benchmarks measure the performance of torchserve on ONLY inference API for various models and benchmarks. It supports passed in a URL to the .mar file. It also runs various benchmarks using these models (see benchmarks section below). Torchserve is run on the same machine in a docker instance against Torchserve nightly docker image from docker hub.
+
+## Installation
+
+### Ubuntu
+
+First check if you already have Apache Bench(ab) installed on your Ubuntu box(local/EC2 instance). The following code will help verify the installation −
+
+#### ab -V
+
+If ab is not installed on your machine, then please follow the following steps:
+
 Refresh the package database.
 
+```bash
 apt-get update
+```
 Install the apache2-utils package to get access to ApacheBench.
 
+```bash
 apt-get install apache2-utils
+```
+The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies-ab.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
+On CPU based instance, use `./install_dependencies-ab.sh`.
+On GPU based instance, use `./install_dependencies-ab.sh True`.
 
-### Limited Privilege User
-Optional: A limited privilege user account can also be created to carry out load testing using ab. The user account can be created like this:
-useradd -m -d /home/test -s /bin/bash -g sudo test
+### MacOS
 
-#### Set the password for the new user
+For mac, you should have python3 and java installed.  If you wish to run the default benchmarks featuring a docker-based instance of TorchServe, you will need to install docker as well.  Finally, you will be using 'ab' which is by default installed in Mac OS.
 
-passwd test
+### Other
 
-#### Switch to the new user
+For other environments, manual installation is necessary.  The list of dependencies to be installed can be found below or by reading the ubuntu installation script.
 
-su test
-
-# Pytorch Torch Serve Benchmarking using Apache Bench
-The benchmarks measure the performance of torchserve on various models and benchmarks. It supports passed in a URL to the .mar file. It also runs various benchmarks using these models (see benchmarks section below). Torchserve is run on the same machine in a docker instance against Torchserve nightly docker image from docker hub.
-
-### Installation
-The benchmarking script requires the following tools to run:
-
-- Docker-ce with the current user added to the docker group
-- Nvidia-docker (for GPU)
+The benchmarking script requires the following to run:
 - ab: Apache bench to run bench mark
 - bc: for metric percentile calculation
+
+## Models
+
+The pre-loaded models for the benchmark can be mostly found in the [TorchServe model zoo]
+https://github.com/pytorch/serve/blob/staging_0_1_1/docs/model_zoo.md
 
 ### Benchmarks
 We support several basic benchmarks:
@@ -204,8 +227,12 @@ We support several basic benchmarks:
 - Model latency P99
 
 #### Note:
-Please use the models from torchserve S3 repository buckets.
+Please use the models from torchserve S3 repository buckets/Model Zoo. Please see Models section above for TorchServe model zoo.
 For eg. ./benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+
+## Accessing benchmark reports :
+
+The benchmark reports are available at /tmp/benchmark/
 
 ## Usage & Examples:
 
@@ -220,7 +247,7 @@ Run benchmark test on lstm_ptb model with json input
 benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar
 ```
 
-By default, the script will use 100 concurrency and run 1000 requests. to change concurrent:
+By default, the script will use 1 concurrency and run 1000 requests.  You can change those parameters like this below:
 ```bash
 ./benchmark.sh -c 200 -n 2000 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
 ```
@@ -234,8 +261,12 @@ You can also choose your local docker image to run benchmark
 ```bash
 ./benchmark.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
 ```
+For batch registration test, first register a model with batch related parameters like this:
+```bash
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&batch_size=2&max_batch_delay=200&synchronous=true&url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+```
 
-You can also choose desired batch size and batch delay for batch inferencing benchmark
+Then you can choose the exact same values for batch size and batch delay parameters for batch inferencing benchmark as shown below:
 ```bash
 ./benchmark.sh --bsize 2 --batch_delay 200 -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 ```
@@ -244,3 +275,6 @@ The benchmarking script will choose to run on CPU or GPU instance based on prese
 ```bash
 ./benchmark.sh -g -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 ```
+## Troubleshooting Note:
+Make sure that you do not have any torchserve running on 8080/8081 ports.
+
