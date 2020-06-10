@@ -57,7 +57,7 @@ The benchmarking script requires the following to run:
 ## Models
 
 The pre-loaded models for the benchmark can be mostly found in the [TorchServe model zoo]
-https://github.com/pytorch/serve/blob/staging_0_1_1/docs/model_zoo.md
+https://github.com/pytorch/serve/blob/master/docs/model_zoo.md
 
 ## Benchmarks
 
@@ -252,7 +252,7 @@ The benchmarking script requires the following to run:
 ## Models
 
 The pre-loaded models for the benchmark can be mostly found in the [TorchServe model zoo]
-https://github.com/pytorch/serve/blob/staging_0_1_1/docs/model_zoo.md
+https://github.com/pytorch/serve/blob/master/docs/model_zoo.md
 
 ### Benchmarks
 We support several basic benchmarks:
