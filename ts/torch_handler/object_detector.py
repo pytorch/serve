@@ -10,8 +10,6 @@ from torchvision import __version__ as torchvision_version
 from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
-logger = logging.getLogger(__name__)
-
 
 class ObjectDetector(VisionHandler):
     """
