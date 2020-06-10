@@ -269,7 +269,7 @@ We support several basic benchmarks:
 
 #### Note:
 Please use the models from torchserve S3 repository buckets/Model Zoo. Please see Models section above for TorchServe model zoo.
-For eg. ./benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+For eg. ./benchmark-ab.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 
 ## Accessing benchmark reports :
 
@@ -280,27 +280,27 @@ The benchmark reports are available at /tmp/benchmark/
 Run benchmark test on resnet-18 model.
 It use kitten.jpg image as input from: https://s3.amazonaws.com/model-server/inputs/kitten.jpg 
 ```bash
-./benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+./benchmark-ab.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 ```
 
 Run benchmark test on lstm_ptb model with json input
 ```bash
-benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar
+benchmark-ab.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar
 ```
 
 By default, the script will use 1 concurrency and run 1000 requests.  You can change those parameters like this below:
 ```bash
-./benchmark.sh -c 200 -n 2000 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+./benchmark-ab.sh -c 200 -n 2000 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
 ```
 
 You can pass `-s` parameter to upload results to S3:
 ```bash
-./benchmark.sh -s -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+./benchmark-ab.sh -s -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
 ```
 
 You can also choose your local docker image to run benchmark
 ```bash
-./benchmark.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+./benchmark-ab.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
 ```
 For batch registration test, first register a model with batch related parameters like this:
 ```bash
@@ -309,12 +309,12 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&batch_size=2&max
 
 Then you can choose the exact same values for batch size and batch delay parameters for batch inferencing benchmark as shown below:
 ```bash
-./benchmark.sh --bsize 2 --batch_delay 200 -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+./benchmark-ab.sh --bsize 2 --batch_delay 200 -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 ```
 
 The benchmarking script will choose to run on CPU or GPU instance based on presence of -g or --gpu flag. Underlying assumption is that nvidia-docker is required to be already present/installed on that gpu machine if gpu flag is true.
 ```bash
-./benchmark.sh -g -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
+./benchmark-ab.sh -g -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar
 ```
 ## Troubleshooting Note:
 Make sure that you do not have any existing torchserve already running on 8080/8081 ports.
