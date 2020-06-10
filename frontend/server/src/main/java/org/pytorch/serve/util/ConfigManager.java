@@ -76,6 +76,7 @@ public final class ConfigManager {
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
+    private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -262,6 +263,10 @@ public final class ConfigManager {
             binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
         return Connector.parse(binding, management);
+    }
+
+    public boolean getPreferDirectBuffer() {
+        return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
     }
 
     public int getNettyThreads() {
@@ -524,7 +529,9 @@ public final class ConfigManager {
                 + "\nMaximum Response Size: "
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
-                + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500");
+                + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nPrefer direct buffer: "
+                + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false");
     }
 
     public boolean useNativeIo() {
