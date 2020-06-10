@@ -290,17 +290,17 @@ benchmark-ab.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_arch
 
 By default, the script will use 1 concurrency and run 1000 requests.  You can change those parameters like this below:
 ```bash
-./benchmark-ab.sh -c 200 -n 2000 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+./benchmark-ab.sh -c 200 -n 2000 -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar
 ```
 
 You can pass `-s` parameter to upload results to S3:
 ```bash
-./benchmark-ab.sh -s -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+./benchmark-ab.sh -s -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar
 ```
 
 You can also choose your local docker image to run benchmark
 ```bash
-./benchmark-ab.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar
+./benchmark-ab.sh -d ts-local-cpu -n 100 -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar
 ```
 For batch registration test, first register a model with batch related parameters like this:
 ```bash
