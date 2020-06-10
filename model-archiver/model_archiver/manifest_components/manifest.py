@@ -2,7 +2,9 @@
 
 # pylint: disable=redefined-builtin
 # pylint: disable=missing-docstring
+from datetime import datetime
 import json
+from model_archiver import __version__
 from enum import Enum
 
 
@@ -18,16 +20,14 @@ class Manifest(object):
     The main manifest object which gets written into the model archive as MANIFEST.json
     """
 
-    def __init__(self, runtime, model, engine=None, specification_version='1.0', implementation_version='1.0',
-                 description=None, publisher=None, model_server_version='1.0', license=None, user_data=None):
+    def __init__(self, runtime, model, engine=None, description=None, publisher=None, license=None, user_data=None):
 
+        self.creation_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.runtime = RuntimeType(runtime)
         self.engine = engine
         self.model = model
+        self.archiver_version = __version__
         self.publisher = publisher
-        self.specification_version = specification_version
-        self.implementation_version = implementation_version
-        self.model_server_version = model_server_version
         self.license = license
         self.description = description
         self.user_data = user_data
@@ -35,6 +35,8 @@ class Manifest(object):
 
     def __to_dict__(self):
         manifest_dict = dict()
+
+        manifest_dict['createdOn'] = self.creation_time
 
         manifest_dict['runtime'] = self.runtime.value
 
@@ -46,17 +48,11 @@ class Manifest(object):
         if self.license is not None:
             manifest_dict['license'] = self.license
 
-        if self.model_server_version is not None:
-            manifest_dict['modelServerVersion'] = self.model_server_version
+        if self.archiver_version is not None:
+            manifest_dict['archiverVersion'] = self.archiver_version
 
         if self.description is not None:
             manifest_dict['description'] = self.description
-
-        if self.implementation_version is not None:
-            manifest_dict['implementationVersion'] = self.implementation_version
-
-        if self.specification_version is not None:
-            manifest_dict['specificationVersion'] = self.specification_version
 
         if self.user_data is not None:
             manifest_dict['userData'] = self.user_data
