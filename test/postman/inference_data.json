@@ -74,5 +74,47 @@
 		"worker": 1,
 		"synchronous": "true",
 		"file": "../examples/image_classifier/kitten.jpg"
-	}
+	},
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_torchscript.mar",
+                "model_name": "roberta_qa_torchscript.mar",
+                "worker": 1,
+                "synchronous": "true",
+                "file": "../examples/Huggingface_Transformers/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
+                "model_name": "roberta_qa_no_torchscript",
+                "worker": 1,
+                "synchronous": "true",
+                "file": "../examples/Huggingface_Transformers/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_torchscript.mar",
+                "model_name": "bert_token_classification_torchscript",
+                "worker": 1,
+                "synchronous": "true",
+                "file": "../examples/text_classification/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_no_torchscript.mar",
+                "model_name": "bert_token_classification_no_torchscript",
+                "worker": "1",
+                "synchronous": "true",
+                "file" : "../examples/text_classification/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_with_torchscript.mar",
+                "model_name": "bert_seqc_with_torchscript",
+                "worker": "1",
+                "synchronous": "true",
+                "file" : "../examples/text_classification/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_without_torchscript.mar",
+                "model_name": "bert_seqc_without_torchscript",
+                "worker": "1",
+                "synchronous": "true",
+                "file" : "../examples/text_classification/sample_text.txt"
+        }
 ]

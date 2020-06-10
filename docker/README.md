@@ -1,10 +1,10 @@
 ## Contents of this Document
 
-* [Prerequisites](#docker_prerequisite)
-* [Create TorchServe docker image](#docker_image_production)
-* [Create TorchServe docker image from source](#docker_image_source)
-* [Create torch-model-archiver from container](#docker_torch_model_archiver)
-* [Running TorchServe docker image in production](#docker_image_production)
+* [Prerequisites](#prerequisites)
+* [Create TorchServe docker image](#create-torchserve-docker-image)
+* [Create TorchServe docker image from source](#create-torchserve-docker-image-from-source)
+* [Create torch-model-archiver from container](#create-torch-model-archiver-from-container)
+* [Running TorchServe docker image in production](#running-torchserve-in-a-production-docker-environment)
 
 # Prerequisites
 
@@ -14,10 +14,12 @@
   * [Nvidia container toolkit](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster)
   * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
 
-## Make sure you are in docker folder as follows
+## First things first
 
 ```bash
-cd serve/docker
+1. If you have not clone torchserve source then:
+git clone https://github.com/pytorch/serve.git
+2. cd serve/docker
 ```
 
 # Create TorchServe docker image
@@ -82,11 +84,10 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ./build_image.sh
 ```
 
-Alternatively, you can use following direct command- 
+Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))- 
 ```bash 
-Make sure you are inside serve/docker and use following commands
-1. git clone https://github.com/pytorch/serve.git
-2. cd serve;git checkout <branch>;cd docker
+1. Do one more clone -> `git clone https://github.com/pytorch/serve.git`
+2. cd serve;git checkout <branch>;cd ..
 
 For cpu -
 3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
@@ -132,7 +133,7 @@ For GPU with specific GPU device ids run the following command:
 ```bash
 ./start.sh --gpu_devices 1,2,3
 ```
-Alternatively, you can use direct commands describe in **Start a container with a TorchServe image** above for cpu and gpu by changing image name
+Alternatively, you can use direct commands describe in [Start a container with a TorchServe image](#start-a-container-with-a-torchserve-image) above for cpu and gpu by changing image name
 
 # Create torch-model-archiver from container
 
