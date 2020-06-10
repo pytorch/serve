@@ -142,7 +142,9 @@ docker run ${DOCKER_RUNTIME} --name ts -p 8080:8080 -p 8081:8081 \
     -itd ${IMAGE} torchserve --start \
     --ts-config /opt/ml/conf/config.properties
 
+set +e
 TS_VERSION=`docker exec -it ts pip freeze | grep torchserve`
+set -e
 echo "ts_version is ${TS_VERSION}"
 
 until curl -s "http://localhost:8080/ping" > /dev/null
