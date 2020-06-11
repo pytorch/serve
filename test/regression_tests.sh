@@ -28,9 +28,6 @@ install_torchserve_from_source() {
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src_ubuntu
-  echo "TS Branch : " $(git rev-parse --abbrev-ref HEAD) >> $3
-  echo "TS Branch Commit Id : " $(git rev-parse HEAD) >> $3
-  echo "Build date : " $(date) >> $3
   echo "Torchserve Succesfully installed"
 }
 
@@ -58,7 +55,7 @@ start_torchserve() {
   torchserve --start --model-store $1 --models $1/densenet161_v1.mar &> $2
   sleep 10
   curl http://127.0.0.1:8081/models
-  
+
 }
 
 start_secure_torchserve() {
@@ -130,7 +127,7 @@ cd $ROOT_DIR
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
-install_torchserve_from_source $TS_REPO $BRANCH $TEST_EXECUTION_LOG_FILE
+install_torchserve_from_source $TS_REPO $BRANCH
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
