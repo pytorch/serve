@@ -1,8 +1,6 @@
 package org.pytorch.serve.archive;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class Manifest {
 
@@ -63,7 +61,6 @@ public class Manifest {
         private String version;
         private String description;
         private String modelVersion;
-        private Map<String, Object> extensions;
         private String handler;
 
         public Model() {}
@@ -98,21 +95,6 @@ public class Manifest {
 
         public void setModelVersion(String modelVersion) {
             this.modelVersion = modelVersion;
-        }
-
-        public Map<String, Object> getExtensions() {
-            return extensions;
-        }
-
-        public void setExtensions(Map<String, Object> extensions) {
-            this.extensions = extensions;
-        }
-
-        public void addExtension(String key, Object value) {
-            if (extensions == null) {
-                extensions = new LinkedHashMap<>();
-            }
-            extensions.put(key, value);
         }
 
         public String getHandler() {

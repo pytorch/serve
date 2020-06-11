@@ -171,6 +171,11 @@ public class ModelArchive {
                 logger.warn(
                         "Model archive version is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
             }
+
+            if (manifest.getCreatedOn() == null) {
+                logger.warn(
+                        "Model archive createdOn is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
+            }
         } catch (InvalidModelException e) {
             clean();
             throw e;
