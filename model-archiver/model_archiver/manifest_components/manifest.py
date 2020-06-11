@@ -1,5 +1,3 @@
-
-
 # pylint: disable=redefined-builtin
 # pylint: disable=missing-docstring
 from datetime import datetime
@@ -20,14 +18,12 @@ class Manifest(object):
     The main manifest object which gets written into the model archive as MANIFEST.json
     """
 
-    def __init__(self, runtime, model, engine=None, description=None, publisher=None, license=None, user_data=None):
+    def __init__(self, runtime, model, description=None,license=None, user_data=None):
 
         self.creation_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.runtime = RuntimeType(runtime)
-        self.engine = engine
         self.model = model
         self.archiver_version = __version__
-        self.publisher = publisher
         self.license = license
         self.description = description
         self.user_data = user_data
@@ -42,9 +38,6 @@ class Manifest(object):
 
         manifest_dict['model'] = self.model.__to_dict__()
 
-        if self.engine is not None:
-            manifest_dict['engine'] = self.engine.__to_dict__()
-
         if self.license is not None:
             manifest_dict['license'] = self.license
 
@@ -56,9 +49,6 @@ class Manifest(object):
 
         if self.user_data is not None:
             manifest_dict['userData'] = self.user_data
-
-        if self.publisher is not None:
-            manifest_dict['publisher'] = self.publisher.__to_dict__()
 
         return manifest_dict
 
