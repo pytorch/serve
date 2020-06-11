@@ -211,51 +211,42 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 
 The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
-1. Set environment variable `TS_BENCHMARK` to True.
-2. Install & start torchserve.
-3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
-4. Visualize SnakeViz results. 
+1. Install Torchserve
 
-#### Set environment variable `TS_BENCHMARK`
+    Using local TorchServe instance:
 
-```bash
-export TS_BENCHMARK=TRUE
-```
-If running inside docker use `-e` or `--env` flag in docker run command to set this environment variable.
-
-#### Install & start Torchserve
-
-```
-    pip install .
-```
-
-If running inside docker
-
-```
-    cd docker
-    ./build_image.sh -b <branch_name>
-```
-then start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
-
-```
-
-    docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
-```
+    * Install TorchServe using the [install guide](../README.md#install-torchserve)
     
-#### Register a model & perform inference to collect profiling data.
+    By using external docker container for TorchServe:
 
-```
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
+    * Create a [docker container for TorchServe](../docker/README.md).
 
-#### Visualize SnakeViz results
+2. Set environment variable and start Torchserve
+
+    If using local TorchServe instance:
+    ```bash
+    export TS_BENCHMARK=TRUE
+    torchserve --start --model-store <path_to_your_model_store>
+    ```
+    If using external docker container for TorchServe:
+    * start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
+    ```
+        docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+    ```
+
+3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
+    ```
+    python benchmark.py throughput --ts http://127.0.0.1:8080
+    ```
+
+4. Visualize SnakeViz results.
  
-To visualize the profiling data using `snakeviz` use following commands:
+    To visualize the profiling data using `snakeviz` use following commands:
 
-```bash
-pip install snakeviz
-snakeviz tsPythonProfile.prof
-```
-![](snake_viz.png)
+    ```bash
+    pip install snakeviz
+    snakeviz tsPythonProfile.prof
+    ```
+    ![](snake_viz.png)
 
-It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
+    It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
