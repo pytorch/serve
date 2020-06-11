@@ -59,5 +59,4 @@ Specifically to test for inference against a new model
 
 ![POSTMAN UI](screenshot/postman.png)
 
-Afterwards, export the collection as a v2.1 collection and replace the existing exported collection.
 To add a new suite of tests, add a new collection to /postman and update regression_tests.sh to run the new collection and buldsepc.yml to keep track of the report.
