@@ -87,7 +87,7 @@ AGGREGATE_REPORT_CSV_LABELS_MAP = {
 }
 
 
-CELLAR = '/home/ubuntu/.linuxbrew/Cellar/jmeter' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
+CELLAR = '/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
 JMETER_VERSION = os.listdir(CELLAR)[0]
 CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
 JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)

@@ -1,0 +1,58 @@
+# syntax = docker/dockerfile:experimental
+#
+# Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
+# 
+# NOTE: To build this you will need a docker version > 18.06 with
+#       experimental enabled and DOCKER_BUILDKIT=1
+#
+#       If you do not use buildkit you are not going to have a good time
+#
+#       For reference: 
+#           https://docs.docker.com/develop/develop-images/build_enhancements/
+
+FROM ubuntu:18.04
+
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    fakeroot \
+    ca-certificates \
+    dpkg-dev \
+    g++ \
+    python3-dev \
+    openjdk-11-jdk \
+    curl \
+    vim \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp \
+    && curl -O https://bootstrap.pypa.io/get-pip.py \
+    && python3 get-pip.py
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+
+RUN pip install --no-cache-dir psutil future torch torchvision torchtext
+ADD serve serve
+RUN pip install ../serve/
+RUN pip install ../serve/model-archiver/
+
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp
+
+COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
+    && chown -R model-server /home/model-server
+
+COPY config.properties /home/model-server/config.properties
+RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
+
+EXPOSE 8080 8081
+
+USER model-server
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]

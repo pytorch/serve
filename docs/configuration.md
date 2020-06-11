@@ -163,6 +163,13 @@ cors_allowed_methods=GET, POST, PUT, OPTIONS
 cors_allowed_headers=X-Custom-Header
 ```
 
+### Prefer direct buffer
+Configuration parameter prefer_direct_buffer controls if the model server will be using direct memory specified by -XX:MaxDirectMemorySize. This parameter is for model server only and  doesn't affect other packages' usage of direct memory buffer. Default: false
+
+```properties
+prefer_direct_buffer=true
+```
+
 ### Restrict backend worker to access environment variables
 
 Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
@@ -181,8 +188,8 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
 * `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
-* `number_of_netty_threads`: number frontend netty thread. Default: number of logical processors available to the JVM.
-* `netty_client_threads`: number of backend netty thread. Default: number of logical processors available to the JVM.
+* `number_of_netty_threads`: number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
+* `netty_client_threads`: number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
 * `default_workers_per_model`: number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
 * `job_queue_size`: number inference jobs that frontend will queue before backend can serve. Default: 100.
 * `async_logging`: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
@@ -191,3 +198,19 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `model_store` : Path of model store directory.
+* `model_server_home` : Torchserve home directory. 
+* `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
+* `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
+
+---
+**NOTE**
+
+All the above config properties can be set using environment variable as follows.
+- set `enable_envvars_config` to true in config.properties
+- export environment variable for property as`TS_<PROPERTY_NAME>`. 
+
+  eg: to set inference_address property run cmd
+  `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
+
+---

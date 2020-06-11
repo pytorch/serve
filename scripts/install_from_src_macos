@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+source scripts/install_utils
+
+echo "                      =============================================="
+echo "                      If you are within a conda env please deactivate it and come back"
+echo "                      If you don't want to proceed kill this script in the next 10 seconds!"
+echo "                      =============================================="
+
+sleep 10
+
+install_java_deps_mac()
+{
+  set +e
+  JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+	if [ "$JAVA_VERSION" != "11" ]
+  then
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk11
+  fi
+  set -e
+}
+
+clean_slate
+install_java_deps_mac
+install_torch_deps
+
+build_install_server
+build_install_archiver

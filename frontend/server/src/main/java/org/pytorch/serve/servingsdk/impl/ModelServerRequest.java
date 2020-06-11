@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import software.amazon.ai.mms.servingsdk.http.Request;
+import org.pytorch.serve.servingsdk.http.Request;
 
 public class ModelServerRequest implements Request {
     private FullHttpRequest req;

@@ -113,7 +113,9 @@ public class WorkLoadManager {
 
                     Process workerProcess = lifecycle.getProcess();
 
-                    if (workerProcess.isAlive()) {
+                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
+                    // -> This may nullify process object per destroyForcibly doc.
+                    if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
                         workerProcess.destroyForcibly();
                         try {
@@ -123,7 +125,7 @@ public class WorkLoadManager {
                                             TimeUnit.SECONDS);
                         } catch (InterruptedException e) {
                             logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible asynch resource cleanup.");
+                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
                             future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
                             return future;
                         }
