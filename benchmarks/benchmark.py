@@ -374,16 +374,6 @@ class Benchmarks:
         return run_single_benchmark(JMX_PING_PLAN, dict(), threads=5000)
 
     @staticmethod
-    def load():
-        """
-        Benchmarks number of concurrent inference requests
-        """
-        plan, jmeter_args = parseModel()
-        plan = JMX_CONCURRENT_LOAD_PLAN
-        jmeter_args['count'] = 8
-        return run_single_benchmark(plan, jmeter_args)
-
-    @staticmethod
     def repeated_scale_calls():
         """
         Benchmarks number of concurrent inference requests
