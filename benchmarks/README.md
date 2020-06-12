@@ -41,16 +41,9 @@ We support several basic benchmarks:
 - throughput: Run inference with enough threads to occupy all workers and ensure full saturation of resources to find the throughput.  The number of threads defaults to 100.
 - latency: Run inference with a single thread to determine the latency
 - ping: Test the throughput of pinging against the frontend
-- load: Loads the same model many times in parallel.  The number of loads is given by the "count" option and defaults to 16.
 - repeated_scale_calls: Will scale the model up to "scale_up_workers"=16 then down to "scale_down_workers"=1 then up and down repeatedly.
-TBD :
 - multiple_models: Loads and scales up three models (1. squeeze-net and 2. resnet), at the same time, runs inferences on them, and then scales them down.  Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively.  data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
-
-We also support compound benchmarks:
-TBD :
 - concurrent_inference: Runs the basic benchmark with different numbers of threads
-
-## Benchmarking by launching docker container: [TBD]
 
 ## Benchmarking in dev/local environment:
 
@@ -89,42 +82,41 @@ The benchmark reports are available at /tmp/TSBenchmark/
 ## Examples
 
 Run basic latency test on default resnet-18 model\
-```./benchmark.py latency```
+```./benchmark.py latency --ts http://127.0.0.1:8080```
 
 
 Run basic throughput test on default resnet-18 model.\
-```./benchmark.py throughput```
+```./benchmark.py throughput --ts http://127.0.0.1:8080```
 
+Run basic throughput on multiple models model.\
+```./benchmark.py multiple_models --ts http://127.0.0.1:8080```
 
 Run all benchmarks\
-```./benchmark.py --all```
+```./benchmark.py --all --ts http://127.0.0.1:8080```
 
 
 Run using the squeeze-net model\
-```./benchmark.py latency -m squeeze-net```
+```./benchmark.py latency -m squeezenet1_1 --ts http://127.0.0.1:8080```
 
 
 Run on GPU (4 gpus)\
-```./benchmark.py latency -g 4```
+```./benchmark.py latency -g 4 --ts http://127.0.0.1:8080 ```
 
 
 Run with a custom image\
-```./benchmark.py latency -i {imageFilePath}```
+```./benchmark.py latency -i {imageFilePath} --ts http://127.0.0.1:8080 ```
 
 
 Run with a custom model (works only for CNN based models, which accept image as an input for now. We will add support for more input types in future to this command. )\
-```./benchmark.py latency -c {modelUrl} -i {imageFilePath}```
+```./benchmark.py latency -c {modelUrl} -i {imageFilePath} --ts http://127.0.0.1:8080 ```
 
 
 Run with custom options\
-```./benchmark.py repeated_scale_calls --options scale_up_workers 100 scale_down_workers 10```
+```./benchmark.py repeated_scale_calls --options scale_up_workers 100 scale_down_workers 10 --ts http://127.0.0.1:8080 ```
 
 
-Run against an already running instance of TorchServe\
-```./benchmark.py latency --ts 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
-```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```\
-```./benchmark.py latency --ts https://127.0.0.1:8443```
-
+Run with multiple models \
+```./benchmark.py multiple_models --ts http://127.0.0.1:8080 ```
 
 Run verbose with only a single loop\
 ```./benchmark.py latency -v -l 1```
@@ -209,12 +201,7 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 
 ## Backend
 
-The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
-
-1. Enable Benchmarks in TorchServe code with a boolean flag.
-2. Install TorchServe with the updated flag & start torchserve.
-3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
-4. Visualize SnakeViz results. 
+The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark backend code, 
 
 #### Enable Benchmarks in TorchServe code with a boolean flag
 
@@ -233,16 +220,18 @@ If running inside docker,
 
 #### Install TorchServe with the updated flag & Start Torchserve
 
+For local installation :
 ```
     pip install .
+    torchserve --start --model-store <path_to_model_store>
 ```
 
-If running inside docker
+To create docker image and start TorchServe inside docker container :
 
 ```
     DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+    docker run --rm -it -p 8080:8080 -p 8081:8081 -v /tmp:/tmp torchserve:dev
 ```
-then start docker with /tmp directory mapped to local /tmp
     
 #### Register a model & perform inference to collect profiling data.
 
