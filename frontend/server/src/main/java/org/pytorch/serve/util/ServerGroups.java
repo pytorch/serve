@@ -21,6 +21,7 @@ public class ServerGroups {
 
     private EventLoopGroup serverGroup;
     private EventLoopGroup childGroup;
+    private EventLoopGroup metricsGroup;
     private EventLoopGroup backendGroup;
 
     private ConfigManager configManager;
@@ -35,6 +36,7 @@ public class ServerGroups {
 
         serverGroup = Connector.newEventLoopGroup(2);
         childGroup = Connector.newEventLoopGroup(configManager.getNettyThreads());
+        metricsGroup = Connector.newEventLoopGroup(1);
         backendGroup = Connector.newEventLoopGroup(configManager.getNettyClientThreads());
     }
 
@@ -45,6 +47,7 @@ public class ServerGroups {
 
         allEventLoopGroups.add(serverGroup);
         allEventLoopGroups.add(childGroup);
+        allEventLoopGroups.add(metricsGroup);
 
         for (EventLoopGroup group : allEventLoopGroups) {
             if (graceful) {
@@ -71,6 +74,10 @@ public class ServerGroups {
 
     public EventLoopGroup getChildGroup() {
         return childGroup;
+    }
+
+    public EventLoopGroup getMetricsGroup() {
+        return metricsGroup;
     }
 
     public EventLoopGroup getBackendGroup() {

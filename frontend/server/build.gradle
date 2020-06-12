@@ -1,4 +1,6 @@
 dependencies {
+    compile "io.prometheus:simpleclient:${prometheus_version}"
+    compile "io.prometheus:simpleclient_servlet:${prometheus_version}"
     implementation "io.netty:netty-all:${netty_version}"
     implementation project(":modelarchive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"

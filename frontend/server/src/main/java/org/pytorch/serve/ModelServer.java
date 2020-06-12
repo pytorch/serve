@@ -307,14 +307,16 @@ public class ModelServer {
 
         initModelStore();
 
-        Connector inferenceConnector = configManager.getListener(false);
-        Connector managementConnector = configManager.getListener(true);
+        Connector inferenceConnector = configManager.getListener(ConnectorType.INFERENCE_CONNECTOR);
+        Connector managementConnector =
+                configManager.getListener(ConnectorType.MANAGEMENT_CONNECTOR);
 
         inferenceConnector.clean();
         managementConnector.clean();
 
         EventLoopGroup serverGroup = serverGroups.getServerGroup();
         EventLoopGroup workerGroup = serverGroups.getChildGroup();
+        EventLoopGroup metricsGroup = serverGroups.getMetricsGroup();
 
         futures.clear();
 
@@ -336,6 +338,15 @@ public class ModelServer {
                     initializeServer(
                             inferenceConnector, serverGroup, workerGroup, ConnectorType.BOTH));
         }
+
+        Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);
+        metricsConnector.clean();
+        futures.add(
+                initializeServer(
+                        metricsConnector,
+                        serverGroup,
+                        metricsGroup,
+                        ConnectorType.METRICS_CONNECTOR));
 
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;

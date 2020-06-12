@@ -51,6 +51,7 @@ public final class ConfigManager {
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
+    private static final String TS_METRICS_ADDRESS = "metrics_address";
     private static final String TS_LOAD_MODELS = "load_models";
     private static final String TS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
     private static final String TS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
@@ -255,14 +256,19 @@ public final class ConfigManager {
                 || Boolean.parseBoolean(prop.getProperty(TS_DEBUG, "false"));
     }
 
-    public Connector getListener(boolean management) {
+    public Connector getListener(ConnectorType connectorType) {
         String binding;
-        if (management) {
-            binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
-        } else {
-            binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                binding = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
-        return Connector.parse(binding, management);
+        return Connector.parse(binding, connectorType);
     }
 
     public boolean getPreferDirectBuffer() {
@@ -507,9 +513,11 @@ public final class ConfigManager {
                 + "\nConfig file: "
                 + prop.getProperty("tsConfigFile", "N/A")
                 + "\nInference address: "
-                + getListener(false)
+                + getListener(ConnectorType.INFERENCE_CONNECTOR)
                 + "\nManagement address: "
-                + getListener(true)
+                + getListener(ConnectorType.MANAGEMENT_CONNECTOR)
+                + "\nMetrics address: "
+                + getListener(ConnectorType.METRICS_CONNECTOR)
                 + "\nModel Store: "
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "

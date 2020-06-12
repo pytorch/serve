@@ -14,6 +14,7 @@ import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.metrics.PrometheusMetricManager;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.NettyUtils;
@@ -110,7 +111,6 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (segments.length == 4) {
             modelVersion = segments[3];
         }
-
         predict(ctx, req, null, segments[2], modelVersion);
     }
 
@@ -195,6 +195,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
             throw new ServiceUnavailableException(responseMessage);
         }
+        PrometheusMetricManager.getInstance().incInferValidCount(modelName);
     }
 
     private static RequestInput parseRequest(
