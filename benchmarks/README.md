@@ -191,7 +191,11 @@ TS error rate: 0.000000%
 CSV : cpu, vgg11, 1, 10, 20, 269.49, 369.21, 370.55, 12.57, 702, 907, 907, 1012, 795.813, 0.000000
 ```
 
+To run benchmarks against an already running TorchServe instance, execute the benchmark script with the `--ts` argument as follows
 
+```
+./benchmark-ab.sh --model  vgg11 --url https://torchserve-mar-files.s3.amazonaws.com/vgg11.mar --ts http://localhost --bsize 1 --bdelay 50 --worker 4 --input ../examples/image_classifier/kitten.jpg --requests 20 --concurrency 10
+```
 
 # Profiling
 

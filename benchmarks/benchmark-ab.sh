@@ -19,6 +19,11 @@ do
         shift
         shift
         ;;
+        --ts)
+        TS_URL="$2"
+        shift
+        shift
+        ;;
         -g|--gpu)
         GPU=gpu
         shift
@@ -95,59 +100,69 @@ if [[ -z "${WORKER}" ]]; then
     WORKER=1
 fi
 
-
-torchserve --stop
-
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-echo "Preparing config..."
-mkdir -p /tmp/model_store
-rm -rf /tmp/model_store/*
-rm -rf /tmp/benchmark
-mkdir -p /tmp/benchmark/conf
-mkdir -p /tmp/benchmark/logs
-cp -f ${BASEDIR}/config.properties /tmp/benchmark/conf/config.properties
-cp $INPUT /tmp/benchmark/input
-echo "" >> /tmp/benchmark/conf/config.properties
-if [[ ! -z "${WORKER}" ]]; then
-    echo "default_workers_per_model=${WORKER}" >> /tmp/benchmark/conf/config.properties
-fi
-
-echo "starting torchserve..."
-
-torchserve --model-store /tmp/model_store --ts-config /tmp/benchmark/conf/config.properties  &> /tmp/benchmark/logs/model_metrics.log
-
-until curl -s "http://localhost:8080/ping" > /dev/null
-do
-  echo "Waiting for torchserve to start..."
-  sleep 3
-done
-
-echo "torchserve started successfully"
-
-sleep 10
 
 result_file="/tmp/benchmark/result.txt"
 metric_log="/tmp/benchmark/logs/model_metrics.log"
 
+prepare_config() {
+    echo "Preparing config..."
+    mkdir -p /tmp/model_store
+    rm -rf /tmp/model_store/*
+    rm -rf /tmp/benchmark
+    mkdir -p /tmp/benchmark/conf
+    mkdir -p /tmp/benchmark/logs
+    cp -f ${BASEDIR}/config.properties /tmp/benchmark/conf/config.properties
+    cp $INPUT /tmp/benchmark/input
+    echo "" >> /tmp/benchmark/conf/config.properties
+    if [[ ! -z "${WORKER}" ]]; then
+        echo "default_workers_per_model=${WORKER}" >> /tmp/benchmark/conf/config.properties
+    fi
+}
+
+restart_torchserve() {
+    torchserve --stop
+    prepare_config
+
+    echo "starting torchserve..."
+    torchserve --model-store /tmp/model_store --ts-config /tmp/benchmark/conf/config.properties  &> ${metric_log}
+
+    until curl -s "http://localhost:8080/ping" > /dev/null
+    do
+        echo "Waiting for torchserve to start..."
+        sleep 3
+    done
+    echo "torchserve started successfully"
+}
+
+if [[ -z "${TS_URL}" ]]; then
+    restart_torchserve
+    TORCHSERVE_STARTED=1
+    sleep 10
+    TS_URL="http://localhost"
+fi
+
 echo "Registering model ..."
 
 RURL="?model_name=${MODEL}&url=${URL}&batch_size=${BATCH_SIZE}&max_batch_delay=${BATCH_DELAY}&initial_workers=${WORKERS}&synchronous=true"
-curl -X POST "http://localhost:8081/models${RURL}"
+curl -X POST "${TS_URL}:8081/models${RURL}"
 
 echo "Executing Apache Bench tests ..."
 
 echo 'Executing inference performance test'
 ab -c ${CONCURRENCY} -n ${REQUESTS} -k -p /tmp/benchmark/input -T "${CONTENT_TYPE}" \
-http://127.0.0.1:8080/predictions/${MODEL} > ${result_file}
+${TS_URL}:8080/predictions/${MODEL} > ${result_file}
 
 echo "Unregistering model ..."
 sleep 10
-curl -X DELETE "http://localhost:8081/models/${MODEL}"
+curl -X DELETE "${TS_URL}:8081/models/${MODEL}"
 sleep 10
 echo "Execution completed"
-torchserve --stop
-echo "Torchserve stopped"
+
+if [[ ! -z "${TORCHSERVE_STARTED}" ]]; then
+    torchserve --stop
+    echo "Torchserve stopped"
+fi
 
 echo "Grabing performance numbers"
 
