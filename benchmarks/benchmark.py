@@ -387,8 +387,11 @@ class Benchmarks:
     @staticmethod
     def multiple_models():
         """
-        Tests with 3 models
+        Tests with 5 models
         """
+        if not pargs.workers:
+            pargs.workers = "4"
+
         plan = JMX_MULTIPLE_MODELS_LOAD_PLAN
         jmeter_args = {
             'url1': MODEL_MAP[MODEL_ALEX_NET][1]['url'],
