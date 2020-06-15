@@ -88,3 +88,12 @@ class BaseHandler(abc.ABC):
     @abc.abstractmethod
     def postprocess(self, data):
         pass
+
+    def handle(self, data, context):
+        """
+        Entry point for default handler
+        """
+        data = self.preprocess(data)
+        data = self.inference(data)
+        data = self.postprocess(data)
+        return data

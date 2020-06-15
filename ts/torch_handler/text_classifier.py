@@ -61,26 +61,3 @@ class TextClassifier(TextHandler):
 
     def postprocess(self, data):
         return data
-
-
-_service = TextClassifier()
-
-
-def handle(data, context):
-    """
-    Entry point for text classifier default handler
-    """
-    try:
-        if not _service.initialized:
-            _service.initialize(context)
-
-        if data is None:
-            return None
-
-        data = _service.preprocess(data)
-        data = _service.inference(data)
-        data = _service.postprocess(data)
-
-        return data
-    except Exception as e:
-        raise Exception("Please provide a custom handler in the model archive." + e)

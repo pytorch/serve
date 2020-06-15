@@ -73,26 +73,3 @@ class ObjectDetector(VisionHandler):
         except Exception as e:
             raise Exception('Object name list file should be json format - {"object_type_names":["person","car"...]}"'
                             + e)
-
-
-_service = ObjectDetector()
-
-
-def handle(data, context):
-    """
-    Entry point for object detector default handler
-    """
-    try:
-        if not _service.initialized:
-            _service.initialize(context)
-
-        if data is None:
-            return None
-
-        data = _service.preprocess(data)
-        data = _service.inference(data)
-        data = _service.postprocess(data)
-
-        return data
-    except Exception as e:
-        raise Exception("Please provide a custom handler in the model archive." + e)
