@@ -145,7 +145,7 @@ The benchmarks measure the performance of torchserve on inference API for variou
 
 ## Installation
 
-It assumes that you have following quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
+It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
 
 ### Ubuntu
 
@@ -177,8 +177,7 @@ Apart from ab, You will also need to have following:
 
 ## Models
 
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo]
-https://github.com/pytorch/serve/blob/master/docs/model_zoo.md
+The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md)
 
 ### Benchmarks
 We support several basic benchmarks:
