@@ -164,18 +164,16 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             port = 80
     else:
         # Start TorchServe
-        '''
-        Default docker files do not exist and same needs to be added.
-        '''
-        raise Exception('Docker not supported at this moment. Use --ts switch.')
-
         docker = 'nvidia-docker' if pargs.gpus else 'docker'
         container = 'ts_benchmark_gpu' if pargs.gpus else 'ts_benchmark_cpu'
-        docker_path = 'torchserve-model-server:nightly-torch-gpu' \
-            if pargs.gpus else 'torchserve-model-server:nightly-torch-cpu'
-        if pargs.docker:
+        docker_path = 'pytorch/torchserve:latest-gpu' \
+            if pargs.gpus else 'pytorch/torchserve:latest'
+        if pargs.docker and '/' in pargs.docker:
             container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
             docker_path = pargs.docker[0]
+        else:
+            container = 'ts_benchmark_{}'.format(pargs.docker[0].split(':')[1])
+            docker_path = pargs.docker
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
         run_process(docker_run_call)

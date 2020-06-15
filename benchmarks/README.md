@@ -1,260 +1,268 @@
-# Torchserve Model Server Benchmarking
+# TorchServe
 
-The benchmarks measure the performance of TorchServe on various models and benchmarks.  It supports either a number of built-in models or a custom model passed in as a path or URL to the .mar file.  It also runs various benchmarks using these models (see benchmarks section below).  The benchmarks are run through a python3 script on the user machine through jmeter or apache benchmark.  TorchServe is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo because it executes the local code as the version of TorchServe (and it is recompiled between runs) for ease of development.
+TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
+**For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
 
-* [Benchmarking with JMeter](#benchmarking-with-jmeter)
-* [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
+## TorchServe Architecture
+![Architecture Diagram](https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg)
 
-# Benchmarking with JMeter
+### Terminology:
+* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients as well manages the models lifecycle.
+* **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
+* **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
+* **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
+* **Model Store**: This is a directory in which all the loadable models exist.
 
-## Installation
+## Contents of this Document
 
-### Ubuntu
+* [Install TorchServe](#install-torchserve)
+* [Serve a Model](#serve-a-model)
+* [Quick start with docker](#quick-start-with-docker)
+* [Contributing](#contributing)
 
-The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
-On CPU based instance, use `./install_dependencies.sh`.
-On GPU based instance, use `./install_dependencies.sh True`.
+## Install TorchServe
 
-### MacOS
+Conda instructions are provided in more detail, but you may also use `pip` and `virtualenv` if that is your preference.
+**Note:** Java 11 is required. Instructions for installing Java 11 for Ubuntu or macOS are provided in the [Install with Conda](#install-with-conda) section.
 
-For mac, you should have python3 and java installed.  If you wish to run the default benchmarks featuring a docker-based instance of TorchServe, you will need to install docker as well.  Finally, you will need to install jmeter with plugins which can be accomplished by running `mac_install_dependencies.sh`.
+### Install with pip
 
-### Other
+1. Install Java 11
 
-For other environments, manual installation is necessary.  The list of dependencies to be installed can be found below or by reading the ubuntu installation script.
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
 
-The benchmarking script requires the following to run:
-- python3
-- JDK or OpenJDK
-- jmeter installed through homebrew or linuxbrew with the plugin manager and the following plugins: jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
+1. Use `pip` to install TorchServe and the model archiver:
 
-## Models
+    ``` bash
+    pip install torch torchtext torchvision sentencepiece psutil future
+    pip install torchserve torch-model-archiver
+    ```
 
-The pre-loaded models for the benchmark can be mostly found in the [TorchServe model zoo][https://github.com/pytorch/serve/blob/master/docs/model_zoo.md]
+### Install with Conda
+**Note:** For Conda, Python 3.8 is required to run Torchserve
 
-## Benchmarks
+#### Ubuntu
 
-We support several basic benchmarks:
-- throughput: Run inference with enough threads to occupy all workers and ensure full saturation of resources to find the throughput.  The number of threads defaults to 100.
-- latency: Run inference with a single thread to determine the latency
-- ping: Test the throughput of pinging against the frontend
-- load: Loads the same model many times in parallel.  The number of loads is given by the "count" option and defaults to 16.
-- repeated_scale_calls: Will scale the model up to "scale_up_workers"=16 then down to "scale_down_workers"=1 then up and down repeatedly.
-- multiple_models: Loads and scales up three models (1. squeeze-net and 2. resnet), at the same time, runs inferences on them, and then scales them down.  Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively.  data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
+1. Install Java 11
 
-We also support compound benchmarks:
-- concurrent_inference: Runs the basic benchmark with different numbers of threads
+    ```bash
+    sudo apt-get install openjdk-11-jdk
+    ```
 
-## Benchmarking by launching docker container:
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+1. Create an environment and install torchserve and torch-model-archiver
+    For CPU
 
-## Benchmarking in dev/local environment:
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    ```
 
-#### Using local TorchServe instance:
+    For GPU
 
-* Install TorchServe using the [install guide](../README.md#install-torchserve)
-* Start TorchServe using following command :
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
+    ```
+
+1. Activate the environment
+
+    ```bash
+    source activate torchserve
+    ```
+
+2. Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
+    ```
+
+#### macOS
+
+1. Install Java 11
+
+    ```bash
+    brew tap AdoptOpenJDK/openjdk
+    brew cask install adoptopenjdk11
+    ```
+
+1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
+1. Create an environment and install torchserve and torch-model-archiver
+
+    ```bash
+    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    ```
+
+1. Activate the environment
+
+    ```bash
+    source activate torchserve
+    ```
+
+2. Optional if using torchtext models
+    ```bash
+    pip install sentencepiece
+    ```
+
+Now you are ready to [package and serve models with TorchServe](#serve-a-model).
+
+### Install TorchServe for development
+
+If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+
+Please deactivate any conda env that you might be within.
+Run the following script from the top of the source directory.
+
+NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
+
+#### For Debian Based Systems
+Verified on EC2 instances running Ubuntu DL AMI 28.x
+
+```
+./scripts/install_from_src_ubuntu
+```
+#### For MAC OS
+
+```
+./scripts/install_from_src_macos
+```
+
+For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+
+## Serve a model
+
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
+
+To run this example, clone the TorchServe repository:
 
 ```bash
-torchserve --start --model-store <path_to_your_model_store>
+git clone https://github.com/pytorch/serve.git
 ```
-* To start benchmarking execute following commands
+
+Then run the following steps from the parent directory of the root of the repository.
+For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`.
+
+### Store a Model
+
+To serve a model with TorchServe, first archive the model as a MAR file. You can use the model archiver to package a model.
+You can also create model stores to store your archived models.
+
+1. Create a directory to store your models.
+
+    ```bash
+    mkdir model_store
+    ```
+
+1. Download a trained model.
+
+    ```bash
+    wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+    ```
+
+1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
+
+    ```bash
+    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    ```
+
+For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
+
+### Start TorchServe to serve the model
+
+After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-cd serve/benchmarks
-python benchmark.py throughput --ts http://127.0.0.1:8080
+torchserve --start --ncs --model-store model_store --models densenet161.mar
 ```
 
-#### By using external docker container for TorchServe:
+After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
 
-* Create and start a [docker container for TorchServe](../docker/README.md).
-* To start benchmarking execute following commands
+**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs). This start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
+
+### Get predictions from a model
+
+To test the model server, send a request to the server's `predictions` API.
+
+Complete the following steps:
+
+* Open a new terminal window (other than the one running TorchServe).
+* Use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images)
+  and use the  `-o` flag to name it `kitten.jpg` for you.
+* Use `curl` to send `POST` to the TorchServe `predict` endpoint with the kitten's image.
+
+![kitten](docs/images/kitten_small.jpg)
+
+The following code completes all three steps:
 
 ```bash
-cd serve/benchmarks
-python benchmark.py throughput --ts http://127.0.0.1:8080
+curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
-Note:
-1) Refer the examples below to run different benchmarking suites on TorchServe.
+The predict endpoint returns a prediction response in JSON. It will look something like the following result:
 
-## Accessing benchmark reports :
-
-The benchmark reports are available at /tmp/TSBenchmark/
-
-## Examples
-
-Run basic latency test on default resnet-18 model\
-```./benchmark.py latency```
-
-
-Run basic throughput test on default resnet-18 model.\
-```./benchmark.py throughput```
-
-
-Run all benchmarks\
-```./benchmark.py --all```
-
-
-Run using the squeeze-net model\
-```./benchmark.py latency -m squeeze-net```
-
-
-Run on GPU (4 gpus)\
-```./benchmark.py latency -g 4```
-
-
-Run with a custom image\
-```./benchmark.py latency -i {imageFilePath}```
-
-
-Run with a custom model (works only for CNN based models, which accept image as an input for now. We will add support for more input types in future to this command. )\
-```./benchmark.py latency -c {modelUrl} -i {imageFilePath}```
-
-
-Run with custom options\
-```./benchmark.py repeated_scale_calls --options scale_up_workers 100 scale_down_workers 10```
-
-
-Run against an already running instance of TorchServe\
-```./benchmark.py latency --ts 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
-```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```\
-```./benchmark.py latency --ts https://127.0.0.1:8443```
-
-
-Run verbose with only a single loop\
-```./benchmark.py latency -v -l 1```
-
-
-## Benchmark options
-
-The full list of options can be found by running with the -h or --help flags.
-
-# Benchmarking with Apache Bench
-
-## Installation 
-
-### For Ubuntu
-
-```
-apt-get install apache2-utils
-
+```json
+[
+  {
+    "tiger_cat": 0.46933549642562866
+  },
+  {
+    "tabby": 0.4633878469467163
+  },
+  {
+    "Egyptian_cat": 0.06456148624420166
+  },
+  {
+    "lynx": 0.0012828214094042778
+  },
+  {
+    "plastic_bag": 0.00023323034110944718
+  }
+]
 ```
 
-Apache Bench is installed in Mac by default. You can test by running ```ab -h```
+You will see this result in the response to your `curl` call to the predict endpoint, and in the server logs in the terminal window running TorchServe. It's also being [logged locally with metrics](docs/metrics.md).
 
-## Benchmark 
+Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
 
-To run benchmarks execute benchmark script as follows 
+### Stop the running TorchServe
 
-```
-./benchmark-ab.sh --model  vgg11 --url https://torchserve-mar-files.s3.amazonaws.com/vgg11.mar --bsize 1 --bdelay 50 --worker 4 --input ../examples/image_classifier/kitten.jpg --requests 20 --concurrency 10
-```
-
-This would produce a output similar to in /tmp/benchmark/report.txt
-
-```
-Preparing config...
-starting torchserve...
-Waiting for torchserve to start...
-torchserve started successfully
-Registering model ...
-{
-  "status": "Workers scaled"
-}
-Executing Apache Bench tests ...
-Executing inference performance test
-Unregistering model ...
-{
-  "status": "Model \"vgg11\" unregistered"
-}
-Execution completed
-Grabing performance numbers
-
-CPU/GPU: cpu
-Model: vgg11
-Concurrency: 10
-Requests: 20
-Model latency P50: 269.49
-Model latency P90: 369.21
-Model latency P99: 370.55
-TS throughput: 12.57
-TS latency P50: 702
-TS latency P90: 907
-TS latency P99: 1012
-TS latency mean: 795.813
-TS error rate: 0.000000%
-CSV : cpu, vgg11, 1, 10, 20, 269.49, 369.21, 370.55, 12.57, 702, 907, 907, 1012, 795.813, 0.000000
-```
-
-
-
-# Profiling
-
-## Frontend
-
-The benchmarks can be used in conjunction with standard profiling tools such as JProfiler to analyze the system performance.  JProfiler can be downloaded from their [website](https://www.ej-technologies.com/products/jprofiler/overview.html).  Once downloaded, open up JProfiler and follow these steps:
-
-1. Run TorchServe directly through gradle (do not use docker).  This can be done either on your machine or on a remote machine accessible through SSH.
-2. In JProfiler, select "Attach" from the ribbon and attach to the ModelServer.  The process name in the attach window should be "com.amazonaws.ml.ts.ModelServer".  If it is on a remote machine, select "On another computer" in the attach window and enter the SSH details.  For the session startup settings, you can leave it with the defaults.  At this point, you should see live CPU and Memory Usage data on JProfiler's Telemetries section.
-3. Select Start Recordings in JProfiler's ribbon
-4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
-5. Once the benchmark script has finished running, select Stop Recordings in JProfiler's ribbon
-
-Once you have stopped recording, you should be able to analyze the data.  One useful section to examine is CPU views > Call Tree and CPU views > Hot Spots to see where the processor time is going.
-
-## Backend
-
-The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
-
-1. Enable Benchmarks in TorchServe code with a boolean flag.
-2. Install TorchServe with the updated flag & start torchserve.
-3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
-4. Visualize SnakeViz results. 
-
-#### Enable Benchmarks in TorchServe code with a boolean flag
-
-In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-
-If running inside docker,
-
-```
-    cd docker
-    git clone https://github.com/pytorch/serve.git
-    cd serve
-    ## set BENCHMARK flag to true
-    vim ts/model_service_worker.py
-    cd ..
-```
-
-#### Install TorchServe with the updated flag & Start Torchserve
-
-```
-    pip install .
-```
-
-If running inside docker
-
-```
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
-```
-then start docker with /tmp directory mapped to local /tmp
-    
-#### Register a model & perform inference to collect profiling data.
-
-```
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
-
-#### Visualize SnakeViz results
- 
-To visualize the profiling data using `snakeviz` use following commands:
+To stop the currently running TorchServe instance, run the following command:
 
 ```bash
-pip install snakeviz
-snakeviz tsPythonProfile.prof
+torchserve --stop
 ```
-![](snake_viz.png)
 
-It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
+You see output specifying that TorchServe has stopped.
+
+
+### Concurrency And Number of Workers
+TorchServe exposes configurations which allows the user to configure the number of worker threads on CPU and GPUs. This is an important config property that can speed up the server depending on the workload.
+*Note: the following property has bigger impact under heavy workloads.*
+If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` which tells the server to use a specific number of GPU per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
+```
+ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
+```
+
+
+## Quick Start with Docker
+Refer [torchserve docker](docker/README.md) for details.
+
+## Learn More
+
+* [Full documentation on TorchServe](docs/README.md)
+* [Manage models API](docs/management_api.md)
+* [Inference API](docs/inference_api.md)
+* [Package models for use with TorchServe](model-archiver/README.md)
+* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
+
+## Contributing
+
+We welcome all contributions!
+
+To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
+
+To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md). Cheers!
+
+
+*TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*
