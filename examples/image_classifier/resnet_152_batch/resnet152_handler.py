@@ -36,20 +36,3 @@ class BatchImageClassifier(ImageClassifier):
             out = inference_output[i].unsqueeze(0)
             output_classes.append(super(BatchImageClassifier, self).postprocess(out))
         return output_classes
-
-
-_service = BatchImageClassifier()
-
-
-def handle(data, context):
-    if not _service.initialized:
-        _service.initialize(context)
-
-    if data is None:
-        return None
-
-    data = _service.preprocess(data)
-    data = _service.inference(data)
-    data = _service.postprocess(data)
-
-    return data
