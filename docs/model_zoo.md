@@ -7,7 +7,7 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 
 
 | Model | Type | Dataset | Size | Download | Sample Input| Model mode |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- |
 | AlexNet | Image Classification | ImageNet | 216 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg) |Eager|
 | Densenet161 | Image Classification | ImageNet | 106 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg) |Eager|
 | Resnet18 | Image Classification | ImageNet | 41 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg) |Eager|
