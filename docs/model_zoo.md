@@ -30,11 +30,3 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | FCN Resenet 101 Scripted | Image Segmentation | COCO | 193 MB | [.mar](https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101_scripted.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/fcn/persons.jpg) |Torchscripted |
 
 Refer [example](../examples) for more details on above models.
-
-This page lists model archives that are pre-trained and pre-packaged, ready to be served for inference with TorchServe.
-To propose a model for inclusion, please submit a [pull request](https://github.com/pytorch/serve/pulls).
-
-*Special thanks to the [PyTorch](https://pytorch.org/) community whose Model Zoo and Model Examples were used in generating these model archives.*
-
-
-| Model File | Type | Dataset | Size | Download | Sample Input| Model mode |
