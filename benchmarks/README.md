@@ -30,7 +30,7 @@ The benchmarking script requires the following to run:
 
 ## Models
 
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo][https://github.com/pytorch/serve/blob/master/docs/model_zoo.md]. We currently support the following:
+The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). We currently support the following:
 - [resnet: ResNet-18 (Default)](https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar)
 - [squeezenet: SqueezeNet V1.1](https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar)
 
