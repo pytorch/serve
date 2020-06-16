@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -27,7 +28,7 @@ public class ModelArchive {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static final Pattern URL_PATTERN =
+    private static final Pattern DEFAULT_URL_PATTERN =
             Pattern.compile("http(s)?://.*", Pattern.CASE_INSENSITIVE);
 
     private static final String MANIFEST_FILE = "MANIFEST.json";
@@ -44,7 +45,7 @@ public class ModelArchive {
         this.extracted = extracted;
     }
 
-    public static ModelArchive downloadModel(String modelStore, String url)
+    public static ModelArchive downloadModel(List<String> URL_PATTERN, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
 
         if (modelStore == null) {
@@ -54,7 +55,7 @@ public class ModelArchive {
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
 
-        if (URL_PATTERN.matcher(url).matches()) {
+        if (isUrlWhitelisted(URL_PATTERN, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
@@ -64,6 +65,10 @@ public class ModelArchive {
                 FileUtils.deleteQuietly(modelLocation);
                 throw new DownloadModelException("Failed to download model from: " + url, e);
             }
+        }
+
+        if (DEFAULT_URL_PATTERN.matcher(url).matches()) {
+            throw new ModelNotFoundException("Given URL "+url+" does not match any whitelisted URL(s)");
         }
 
         if (url.contains("..")) {
@@ -82,6 +87,17 @@ public class ModelArchive {
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
+    }
+
+    public static boolean isUrlWhitelisted(List<String> URL_PATTERN, String url) {
+        boolean patternMatch = false;
+        for (String temp : URL_PATTERN) {
+            if (Pattern.compile(temp, Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
+                patternMatch = true;
+                break;
+            }
+        }
+        return patternMatch;
     }
 
     private static ModelArchive load(String url, File dir, boolean extracted)
@@ -177,7 +193,7 @@ public class ModelArchive {
     }
 
     public static void removeModel(String modelStore, String marURL) {
-        if (URL_PATTERN.matcher(marURL).matches()) {
+        if (DEFAULT_URL_PATTERN.matcher(marURL).matches()) {
             String marFileName = FilenameUtils.getName(marURL);
             File modelLocation = new File(modelStore, marFileName);
             FileUtils.deleteQuietly(modelLocation);
