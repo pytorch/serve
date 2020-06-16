@@ -54,5 +54,3 @@ public final class EnvironmentUtils {
         return envList.toArray(new String[0]); // NOPMD
     }
 }
-
-
