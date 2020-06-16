@@ -48,7 +48,7 @@ class Model(object):
             model_dict['extensions'] = self.extensions
 
         if self.requirements_file:
-            model_dict['requirements_file'] = self.requirements_file
+            model_dict['requirementsFile'] = self.requirements_file
 
         return model_dict
 
