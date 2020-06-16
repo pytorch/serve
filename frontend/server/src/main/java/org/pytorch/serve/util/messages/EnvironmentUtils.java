@@ -9,9 +9,9 @@ import org.pytorch.serve.util.ConfigManager;
 
 public final class EnvironmentUtils {
 
-    private EnvironmentUtils() {}
-
     private static ConfigManager configManager = ConfigManager.getInstance();
+    
+    private EnvironmentUtils() {}
 
     public static String[] getEnvString(String cwd, String modelPath, String handler) {
         ArrayList<String> envList = new ArrayList<>();
