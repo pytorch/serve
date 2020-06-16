@@ -1379,6 +1379,16 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelFailure"})
+    public void testModelWithCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("allow_custom_python_dependencies", "true");
+        testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
+        setConfiguration("allow_custom_python_dependencies", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterModelFailure"})
     public void testTSValidPort()
             throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
                     IOException {
