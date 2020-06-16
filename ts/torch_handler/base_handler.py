@@ -25,17 +25,18 @@ class BaseHandler(abc.ABC):
         self.device = None
         self.initialized = False
         self.context = None
+        self.manifest = None
 
     def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
 
-        manifest = context.manifest
+        self.manifest = context.manifest
         properties = context.system_properties
         model_dir = properties.get("model_dir")
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 
         # Read model serialize/pt file
-        serialized_file = manifest['model']['serializedFile']
+        serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
@@ -45,7 +46,7 @@ class BaseHandler(abc.ABC):
             self.model = torch.jit.load(model_pt_path)
         except RuntimeError as e:
             # Read model definition file
-            model_file = manifest['model']['modelFile']
+            model_file = self.manifest['model']['modelFile']
             model_def_path = os.path.join(model_dir, model_file)
             if not os.path.isfile(model_def_path):
                 raise RuntimeError("Missing the model.py file")
