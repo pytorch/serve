@@ -21,7 +21,7 @@ def package_model(args, manifest):
     extra_files = args.extra_files
     export_file_path = args.export_path
     source_vocab = args.source_vocab
-    requirements_file = args.python_requirements
+    requirements_file = args.requirements_file
     temp_files = []
 
     try:

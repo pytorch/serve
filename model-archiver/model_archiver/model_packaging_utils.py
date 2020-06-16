@@ -28,6 +28,7 @@ MODEL_ARCHIVE_VERSION = '1.0'
 MANIFEST_FILE_NAME = 'MANIFEST.json'
 MAR_INF = 'MAR-INF'
 
+
 class ModelExportUtils(object):
     """
     Helper utils for Model Archiver tool.
@@ -98,7 +99,7 @@ class ModelExportUtils(object):
     def generate_model(modelargs):
         model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
                       model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version,
-                      source_vocab=modelargs.source_vocab, requriements_file=modelargs.requirements_file)
+                      source_vocab=modelargs.source_vocab, requirements_file=modelargs.requirements_file)
         return model
 
     @staticmethod
