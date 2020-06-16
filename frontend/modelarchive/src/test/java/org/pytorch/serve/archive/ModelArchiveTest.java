@@ -22,10 +22,10 @@ public class ModelArchiveTest {
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
-    public void test() throws ModelException, IOException {
+    public void test() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
 
-        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
+        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar", false);
         archive.validate();
         archive.clean();
         Assert.assertEquals(archive.getModelName(), "noop");
@@ -36,33 +36,37 @@ public class ModelArchiveTest {
         archive =
                 ModelArchive.downloadModel(
                         modelStore,
-                        "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
+                        "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model",
+                        false);
         Assert.assertEquals(archive.getModelName(), null);
         ModelArchive.removeModel(
                 modelStore,
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
         Assert.assertTrue(!new File(modelStore, "squeezenet_v1.1.model").exists());
-        ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
+        ModelArchive.downloadModel(modelStore, "/../noop-v1.0", false);
     }
 
     @Test(expectedExceptions = DownloadModelException.class)
-    public void testInvalidURL() throws ModelException, IOException {
+    public void testInvalidURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
         // load model for s3 --> This will fail as this model is not compatible with
         // new implementation.
         // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
                 modelStore,
-                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
+                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod",
+                false);
     }
 
     @Test(expectedExceptions = DownloadModelException.class)
-    public void testMalformURL() throws ModelException, IOException {
+    public void testMalformURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
         // load model for s3 --> This will fail as this model is not compatible with
         // new implementation.
         // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
-                modelStore, "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
+                modelStore,
+                "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod",
+                false);
     }
 }
