@@ -20,7 +20,7 @@ class Model(object):
         self.extensions = extensions
         self.handler = handler.split("/")[-1]
         self.source_vocab = source_vocab
-        self.requirements_file = requirements_file.split("/")[-1]
+        self.requirements_file = requirements_file
         self.model_dict = self.__to_dict__()
 
     def __to_dict__(self):
@@ -48,7 +48,7 @@ class Model(object):
             model_dict['extensions'] = self.extensions
 
         if self.requirements_file:
-            model_dict['requirementsFile'] = self.requirements_file
+            model_dict['requirementsFile'] = self.requirements_file.split("/")[-1]
 
         return model_dict
 
