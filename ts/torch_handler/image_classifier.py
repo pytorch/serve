@@ -91,4 +91,3 @@ class ImageClassifier(VisionHandler):
                 results.append({str(classes[index]): str(probs[index])})
 
         return [results]
-

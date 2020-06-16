@@ -24,8 +24,8 @@ class TextHandler(BaseHandler, ABC):
         self.source_vocab = None
         self.tokenizer = get_tokenizer('basic_english')
 
-    def initialize(self, ctx):
-        super(TextHandler, self).initialize(ctx)
+    def initialize(self, context):
+        super(TextHandler, self).initialize(context)
         self.initialized = False
         self.source_vocab = torch.load(self.manifest['model']['sourceVocab'])
         self.initialized = True

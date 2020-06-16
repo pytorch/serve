@@ -19,8 +19,8 @@ class ObjectDetector(VisionHandler):
     def __init__(self):
         super(ObjectDetector, self).__init__()
 
-    def initialize(self, ctx):
-        super(ObjectDetector, self).initialize(ctx)
+    def initialize(self, context):
+        super(ObjectDetector, self).initialize(context)
         version = torchvision_version.split(".")
 
         if int(version[0]) == 0 and int(version[1]) < 6:

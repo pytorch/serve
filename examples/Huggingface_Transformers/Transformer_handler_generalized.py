@@ -107,7 +107,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """ Predict the class (or classes) of the received text using the serialized transformers checkpoint.
         """
 
-
         input_ids = inputs["input_ids"].to(self.device)
         # Handling inference for sequence_classification.
         if self.setup_config["mode"]== "sequence_classification":
@@ -142,27 +141,3 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Model predicted: '%s'", prediction)
 
         return [prediction]
-
-    def postprocess(self, inference_output):
-        # TODO: Add any needed post-processing of the model predictions here
-        return inference_output
-
-
-_service = TransformersSeqClassifierHandler()
-
-
-def handle(data, context):
-    try:
-        if not _service.initialized:
-            _service.initialize(context)
-
-        if data is None:
-            return None
-
-        data = _service.preprocess(data)
-        data = _service.inference(data)
-        data = _service.postprocess(data)
-
-        return data
-    except Exception as e:
-        raise e
