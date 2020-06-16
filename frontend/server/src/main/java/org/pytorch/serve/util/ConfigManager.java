@@ -77,7 +77,8 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
-    private static final String TS_ALLOW_CUSTOM_PYTHON_DEPENDENCIES = "allow_custom_python_dependencies";
+    private static final String TS_ALLOW_CUSTOM_PYTHON_DEPENDENCIES =
+            "allow_custom_python_dependencies";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
