@@ -16,6 +16,7 @@ import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,45 +43,6 @@ public class WorkerLifeCycle {
         return process;
     }
 
-    private String[] getEnvString(String cwd, String modelPath, String handler) {
-        ArrayList<String> envList = new ArrayList<>();
-        Pattern blackList = configManager.getBlacklistPattern();
-        StringBuilder pythonPath = new StringBuilder();
-
-        if (handler != null && handler.contains(":")) {
-            String handlerFile = handler;
-            handlerFile = handler.split(":")[0];
-            if (handlerFile.contains("/")) {
-                handlerFile = handlerFile.substring(0, handlerFile.lastIndexOf('/'));
-            }
-
-            pythonPath.append(handlerFile).append(File.pathSeparatorChar);
-        }
-
-        HashMap<String, String> environment = new HashMap<>(System.getenv());
-        environment.putAll(configManager.getBackendConfiguration());
-
-        if (System.getenv("PYTHONPATH") != null) {
-            pythonPath.append(System.getenv("PYTHONPATH")).append(File.pathSeparatorChar);
-        }
-
-        pythonPath.append(modelPath);
-
-        if (!cwd.contains("site-packages") && !cwd.contains("dist-packages")) {
-            pythonPath.append(File.pathSeparatorChar).append(cwd);
-        }
-
-        environment.put("PYTHONPATH", pythonPath.toString());
-
-        for (Map.Entry<String, String> entry : environment.entrySet()) {
-            if (!blackList.matcher(entry.getKey()).matches()) {
-                envList.add(entry.getKey() + '=' + entry.getValue());
-            }
-        }
-
-        return envList.toArray(new String[0]); // NOPMD
-    }
-
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
@@ -105,7 +67,7 @@ public class WorkerLifeCycle {
         args[5] = connector.getSocketPath();
 
         String[] envp =
-                getEnvString(
+                EnvironmentUtils.getEnvString(
                         workingDir.getAbsolutePath(),
                         modelPath.getAbsolutePath(),
                         model.getModelArchive().getManifest().getModel().getHandler());
