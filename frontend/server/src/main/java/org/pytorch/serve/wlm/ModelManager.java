@@ -5,6 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,20 +83,15 @@ public final class ModelManager {
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
-        ModelArchive archive =
-                createModelArchive(
-                        modelName,
-                        url,
-                        null,
-                        null,
-                        modelName,
-                        configManager.getAllowCustomPythonDependencies());
+        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
 
         Model tempModel = createModel(archive, modelInfo);
 
         String versionId = archive.getModelVersion();
 
         createVersionedModel(tempModel, versionId);
+
+        setupModelDependencies(tempModel);
 
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
@@ -115,13 +114,7 @@ public final class ModelManager {
             throws ModelException, IOException, InterruptedException {
 
         ModelArchive archive =
-                createModelArchive(
-                        modelName,
-                        url,
-                        handler,
-                        runtime,
-                        defaultModelName,
-                        configManager.getAllowCustomPythonDependencies());
+                createModelArchive(modelName, url, handler, runtime, defaultModelName);
 
         Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
 
@@ -131,6 +124,8 @@ public final class ModelManager {
 
         logger.info("Model {} loaded.", tempModel.getModelName());
 
+        setupModelDependencies(tempModel);
+
         return archive;
     }
 
@@ -139,12 +134,9 @@ public final class ModelManager {
             String url,
             String handler,
             Manifest.RuntimeType runtime,
-            String defaultModelName,
-            boolean customPythonDependencyAllowed)
-            throws FileAlreadyExistsException, ModelException, IOException, InterruptedException {
-        ModelArchive archive =
-                ModelArchive.downloadModel(
-                        configManager.getModelStore(), url, customPythonDependencyAllowed);
+            String defaultModelName)
+            throws FileAlreadyExistsException, ModelException, IOException {
+        ModelArchive archive = ModelArchive.downloadModel(configManager.getModelStore(), url);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
@@ -166,6 +158,30 @@ public final class ModelManager {
         archive.validate();
 
         return archive;
+    }
+
+    private void setupModelDependencies(Model model) throws IOException, InterruptedException {
+        String requirementsFile =
+                model.getModelArchive().getManifest().getModel().getRequirementsFile();
+
+        if (configManager.getAllowCustomPythonDependencies() && requirementsFile != null) {
+            Path requirementsFilePath =
+                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
+
+            if (Files.exists(requirementsFilePath)) {
+                String packageInstallCommand =
+                        "pip install --ignore-installed -t "
+                                + model.getModelDir().getAbsolutePath()
+                                + " -r "
+                                + requirementsFilePath; // NOPMD
+                String[] envp =
+                        EnvironmentUtils.getEnvString(
+                                configManager.getModelServerHome(), null, null);
+                Process process = Runtime.getRuntime().exec(packageInstallCommand, envp);
+                process.waitFor();
+                logger.info("" + process.exitValue());
+            }
+        }
     }
 
     private Model createModel(
