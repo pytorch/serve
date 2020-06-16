@@ -40,7 +40,7 @@ JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
 
 # Listing out the models tested
 MODEL_RESNET_18 = 'resnet-18'
-MODEL_SQUEEZE_NET = 'squeezenet'
+MODEL_SQUEEZE_NET = 'squeezenet1_1'
 
 MODEL_MAP = {
     MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
@@ -168,12 +168,19 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         container = 'ts_benchmark_gpu' if pargs.gpus else 'ts_benchmark_cpu'
         docker_path = 'pytorch/torchserve:latest-gpu' \
             if pargs.gpus else 'pytorch/torchserve:latest'
-        if pargs.docker and '/' in pargs.docker:
-            container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
-            docker_path = pargs.docker[0]
-        else:
-            container = 'ts_benchmark_{}'.format(pargs.docker[0].split(':')[1])
-            docker_path = pargs.docker
+        if pargs.docker:
+            s_pargs_docker = ''.join([str(elem) for elem in pargs.docker]) 
+            if '/' in s_pargs_docker:
+                #Fixed the logic to get the container name correctly
+                delim_1_pos = pargs.docker[0].find('/')
+                delim_2_pos = pargs.docker[0].find(':')
+                container = 'ts_benchmark_{}'.format(pargs.docker[0][delim_1_pos+1:delim_2_pos])
+                #container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
+                docker_path = pargs.docker[0]
+            else:
+                container = 'ts_benchmark_{}'.format(pargs.docker[0].split(':')[1])
+                docker_path = pargs.docker
+        docker_path = ''.join([str(elem) for elem in docker_path]) 
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
         run_process(docker_run_call)
