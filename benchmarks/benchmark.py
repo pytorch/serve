@@ -172,10 +172,7 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             s_pargs_docker = ''.join([str(elem) for elem in pargs.docker]) 
             if '/' in s_pargs_docker:
                 #Fixed the logic to get the container name correctly
-                delim_1_pos = pargs.docker[0].find('/')
-                delim_2_pos = pargs.docker[0].find(':')
-                container = 'ts_benchmark_{}'.format(pargs.docker[0][delim_1_pos+1:delim_2_pos])
-                #container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
+                container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[-1].split(':')[0])
                 docker_path = pargs.docker[0]
             else:
                 container = 'ts_benchmark_{}'.format(pargs.docker[0].split(':')[1])
@@ -183,7 +180,9 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         docker_path = ''.join([str(elem) for elem in docker_path]) 
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
-        run_process(docker_run_call)
+        retval = run_process(docker_run_call)
+        if retval != 0:
+            raise Exception("docker run command failed!! Please provide a valid docker image")
 
     management_port = int(pargs.management[0]) if pargs.management else port + 1
     time.sleep(300)
