@@ -153,6 +153,7 @@ public class Manifest {
         private String modelVersion;
         private Map<String, Object> extensions;
         private String handler;
+        private String requirementsFile;
 
         public Model() {}
 
@@ -186,6 +187,14 @@ public class Manifest {
 
         public void setModelVersion(String modelVersion) {
             this.modelVersion = modelVersion;
+        }
+
+        public String getRequirementsFile() {
+            return requirementsFile;
+        }
+
+        public void setRequirementsFile(String requirementsFile) {
+            this.requirementsFile = requirementsFile;
         }
 
         public Map<String, Object> getExtensions() {

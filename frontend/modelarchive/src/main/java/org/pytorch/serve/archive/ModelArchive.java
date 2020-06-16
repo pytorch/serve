@@ -12,6 +12,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -44,8 +46,9 @@ public class ModelArchive {
         this.extracted = extracted;
     }
 
-    public static ModelArchive downloadModel(String modelStore, String url)
-            throws ModelException, FileAlreadyExistsException, IOException {
+    public static ModelArchive downloadModel(
+            String modelStore, String url, boolean customPythonDependencyAllowed)
+            throws ModelException, FileAlreadyExistsException, IOException, InterruptedException {
 
         if (modelStore == null) {
             throw new ModelNotFoundException("Model store has not been configured.");
@@ -77,15 +80,16 @@ public class ModelArchive {
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
                 File unzipDir = unzip(is, null);
-                return load(url, unzipDir, true);
+                return load(url, unzipDir, true, customPythonDependencyAllowed);
             }
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
     }
 
-    private static ModelArchive load(String url, File dir, boolean extracted)
-            throws InvalidModelException, IOException {
+    private static ModelArchive load(
+            String url, File dir, boolean extracted, boolean customPythonDependencyAllowed)
+            throws InvalidModelException, IOException, InterruptedException {
         boolean failed = true;
         try {
             File manifestFile = new File(dir, "MAR-INF/" + MANIFEST_FILE);
@@ -93,8 +97,24 @@ public class ModelArchive {
             if (manifestFile.exists()) {
                 manifest = readFile(manifestFile, Manifest.class);
             } else {
-
                 manifest = new Manifest();
+            }
+
+            String requirementsFile = manifest.getModel().getRequirementsFile();
+
+            if (customPythonDependencyAllowed && requirementsFile != null) {
+                Path requirementsFilePath =
+                        Paths.get(dir.getAbsolutePath(), manifest.getModel().getRequirementsFile());
+
+                if (Files.exists(requirementsFilePath)) {
+                    String packageInstallCommand =
+                            "pip install --ignore-installed -t="
+                                    + dir.getAbsolutePath()
+                                    + " -r "
+                                    + requirementsFilePath; // NOPMD
+                    Process process = Runtime.getRuntime().exec(packageInstallCommand);
+                    process.waitFor();
+                }
             }
 
             failed = false;

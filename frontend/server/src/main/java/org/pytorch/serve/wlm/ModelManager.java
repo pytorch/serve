@@ -61,7 +61,7 @@ public final class ModelManager {
     }
 
     public ModelArchive registerModel(String url, String defaultModelName)
-            throws ModelException, IOException {
+            throws ModelException, IOException, InterruptedException {
         return registerModel(
                 url,
                 null,
@@ -74,12 +74,19 @@ public final class ModelManager {
     }
 
     public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
-            throws ModelException, IOException {
+            throws ModelException, IOException, InterruptedException {
 
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
-        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
+        ModelArchive archive =
+                createModelArchive(
+                        modelName,
+                        url,
+                        null,
+                        null,
+                        modelName,
+                        configManager.getAllowCustomPythonDependencies());
 
         Model tempModel = createModel(archive, modelInfo);
 
@@ -105,10 +112,16 @@ public final class ModelManager {
             int maxBatchDelay,
             int responseTimeout,
             String defaultModelName)
-            throws ModelException, IOException {
+            throws ModelException, IOException, InterruptedException {
 
         ModelArchive archive =
-                createModelArchive(modelName, url, handler, runtime, defaultModelName);
+                createModelArchive(
+                        modelName,
+                        url,
+                        handler,
+                        runtime,
+                        defaultModelName,
+                        configManager.getAllowCustomPythonDependencies());
 
         Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
 
@@ -126,9 +139,12 @@ public final class ModelManager {
             String url,
             String handler,
             Manifest.RuntimeType runtime,
-            String defaultModelName)
-            throws FileAlreadyExistsException, ModelException, IOException {
-        ModelArchive archive = ModelArchive.downloadModel(configManager.getModelStore(), url);
+            String defaultModelName,
+            boolean customPythonDependencyAllowed)
+            throws FileAlreadyExistsException, ModelException, IOException, InterruptedException {
+        ModelArchive archive =
+                ModelArchive.downloadModel(
+                        configManager.getModelStore(), url, customPythonDependencyAllowed);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
