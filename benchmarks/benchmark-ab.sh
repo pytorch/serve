@@ -52,10 +52,6 @@ do
         shift
         shift
         ;;
-        -s|--s3)
-        UPLOAD="$2"
-        shift
-        ;;
         --default)
         DEFAULT=YES
         shift
@@ -70,11 +66,10 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if  [[ -z "${URL}" ]]; then
     echo "URL is required, for example:"
-    echo "benchmark.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
-    echo "benchmark.sh -i lstm.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/lstm_ptb.mar"
-    echo "benchmark.sh -c 500 -n 50000 -i noop.json -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
-    echo "benchmark.sh -d mms-cpu-local -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
-    echo "benchmark.sh --bsize 2 --bdelay 200 -u https://s3.amazonaws.com/model-server/model_archive_1.0/noop-v1.0.mar"
+    echo "benchmark-ab.sh -u https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+    echo "benchmark-ab.sh -c 500 -n 50000 -i noop.json -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+    echo "benchmark-ab.sh -d ts-cpu-local -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+    echo "benchmark-ab.sh --bsize 2 --bdelay 200 -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
     exit 1
 fi
 
@@ -142,7 +137,9 @@ docker run ${DOCKER_RUNTIME} --name ts -p 8080:8080 -p 8081:8081 \
     -itd ${IMAGE} torchserve --start \
     --ts-config /opt/ml/conf/config.properties
 
+set +e
 TS_VERSION=`docker exec -it ts pip freeze | grep torchserve`
+set -e
 echo "ts_version is ${TS_VERSION}"
 
 until curl -s "http://localhost:8080/ping" > /dev/null
