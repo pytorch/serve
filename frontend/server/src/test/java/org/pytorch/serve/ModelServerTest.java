@@ -639,6 +639,16 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
+    public void testModelWithCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("allow_custom_python_dependencies", "true");
+        testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
+        setConfiguration("allow_custom_python_dependencies", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelWithCustomPythonDependency"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertTrue(!new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
@@ -1374,16 +1384,6 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelFailure"})
-    public void testModelWithCustomPythonDependency()
-            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
-        setConfiguration("allow_custom_python_dependencies", "true");
-        testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
-        setConfiguration("allow_custom_python_dependencies", "false");
     }
 
     @Test(
