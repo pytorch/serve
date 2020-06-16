@@ -1,7 +1,8 @@
 
+
 # Torchserve Model Server Benchmarking
 
-The benchmarks measure the performance of TorchServe on various models and benchmarks.  It supports either a number of built-in models or a custom model passed in as a path or URL to the .mar file.  It also runs various benchmarks using these models (see benchmarks section below).  The benchmarks are executed in the user machine through a python3 script in case of jmeter and a shell script in case of apache benchmark.  TorchServe is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo(meaning you should be inside serve/benchmarks folder while executing the benchmark tests) because it executes the local code as the version of TorchServe (and it is recompiled between runs) for ease of development.
+The benchmarks measure the performance of TorchServe on various models and benchmarks.  It supports either a number of built-in models or a custom model passed in as a path or URL to the .mar file.  It also runs various benchmarks using these models (see benchmarks section below).  The benchmarks are executed in the user machine through a python3 script in case of jmeter and a shell script in case of apache benchmark.  TorchServe is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo(meaning you should be inside serve/benchmarks folder while executing the benchmark tests).
 
 We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
 
@@ -18,7 +19,12 @@ It assumes that you have followed quick start/installation section and have requ
 
 ### Ubuntu
 
-The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is first clone the TorchServe repo and then execute this file.
+We have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on user's Ubuntu environment. First clone the TorchServe repository:
+
+```bash
+git clone https://github.com/pytorch/serve.git
+```
+Now execute this script as below.
 On CPU based instance, use `./install_dependencies.sh`.
 On GPU based instance, use `./install_dependencies.sh True`.
 
@@ -139,12 +145,15 @@ Run with custom options\
 
 Run against an already running instance of TorchServe\
 ```./benchmark.py latency --ts 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
-```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```\
-```./benchmark.py latency --ts https://127.0.0.1:8443```
+```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```
 
 
 Run verbose with only a single loop\
 ```./benchmark.py latency -v -l 1```
+
+## Known Issues(Running with SSL):
+Using ```https``` instead of  ```http``` as the choice of protocol might not work properly currently. This is not a tested option.
+```./benchmark.py latency --ts https://127.0.0.1:8443```
 
 
 ## Benchmark options
@@ -230,7 +239,7 @@ You can pass `-s` parameter to upload results to S3:
 
 You can also choose your local docker image to run benchmark
 ```bash
-./benchmark-ab.sh -d ts-local-cpu -n 100 -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar
+./benchmark-ab.sh -d pytorch/torchserve:0.1.1-cpu -n 100 -u https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar
 ```
 
 For batch registration test, first register a model with batch related parameters like this:
