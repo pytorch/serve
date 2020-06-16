@@ -1,7 +1,7 @@
 ## Contents of this Document
 
 * [Custom handlers](#custom-handlers)
-* [Creating model archive with entry point](#creating-model-archive-with-entry-point)
+* [Creating model archive with entry point](#creating-a-model-archive-with-an-entry-point)
 * [Handling model execution on GPU](#handling-model-execution-on-multiple-gpus)
 
 ## Custom handlers
@@ -20,7 +20,7 @@ Following is applicable to all types of custom handlers
 * **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.
 
-### Custom handler with module level entry point
+### Custom handler with `module` level entry point
 
 The custom handler file must define a module level function that acts as an entry point for execution. 
 The function can have any name, but it must accept the following parameters and return prediction results.
@@ -72,7 +72,7 @@ This entry point is engaged in two cases:
 Typically, you want code for model initialization to run at model load time.
 You can find out more about these and other TorchServe APIs in [TorchServe Management API](./management_api.md) and [TorchServe Inference API](./inference_api.md)
 
-#### Custom handler with class level entry point
+### Custom handler with `class` level entry point
 
 You can create custom handler by having class with any name, but it must have an `initialize` and a `handle` method.
 
@@ -94,7 +94,7 @@ class ModelHandler(object):
 
     def initialize(self, context):
         """
-        Initialize model. This will be called during model loading time
+        Invoke by torchserve for loading a model
         :param context: context contains model server system properties
         :return:
         """
@@ -133,7 +133,7 @@ class ModelHandler(object):
 
 #### Writing intuitive and maintainable custom handler
 
-The following code shows an example of well written custom handler. Basically, it follows a typical Init-Pre-Infer-Post pattern to create maintainable custom handler.
+Following is an example of well written custom handler. Basically, it follows a typical Init-Pre-Infer-Post pattern to create maintainable custom handler.
 
 ```python
 # custom handler file
@@ -169,7 +169,7 @@ class ModelHandler(object):
         :param batch: list of raw requests, should match batch size
         :return: list of preprocessed model input data
         """
-        # Take the input data and pre-process it make it inference ready
+        # Take the input data and make it inference ready
         preprocessed_data = data[0].get("data")
         if preprocessed_data is None:
             preprocessed_data = data[0].get("body")
