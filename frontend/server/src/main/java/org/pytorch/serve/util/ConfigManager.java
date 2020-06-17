@@ -77,7 +77,6 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
-    private static final String TS_WHITELIST_URLS = "whitelist_urls";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -650,11 +649,6 @@ public final class ConfigManager {
         } catch (IOException | InterruptedException e) {
             return 0;
         }
-    }
-
-    public List<String> getWhitelistUrls(){
-        String whiltelistURL = prop.getProperty(TS_WHITELIST_URLS, "http(s)?://.*");
-        return Arrays.asList(whiltelistURL.split(","));
     }
 
     public boolean isSnapshotDisabled() {
