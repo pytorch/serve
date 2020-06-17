@@ -13,8 +13,7 @@ import org.testng.annotations.Test;
 public class ModelArchiveTest {
 
     private File output;
-    private static final List<String> URL_PATTERN_LIST =
-            Collections.singletonList("https://s3.amazonaws.com.*");
+    private static final List<String> URL_PATTERN_LIST = Collections.singletonList("http(s)?://.*");
 
     @BeforeTest
     public void beforeTest() {
@@ -66,7 +65,7 @@ public class ModelArchiveTest {
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
 
-    @Test(expectedExceptions = ModelNotFoundException.class)
+    @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         // load model for s3 --> This will fail as this model is not compatible with
@@ -81,8 +80,10 @@ public class ModelArchiveTest {
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testWhitelistURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
+        final List<String> customUrlPatternList =
+                Collections.singletonList("http(s)?://s3.amazonaws.com.*");
         ModelArchive.downloadModel(
-                URL_PATTERN_LIST,
+                customUrlPatternList,
                 modelStore,
                 "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
     }

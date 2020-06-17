@@ -67,6 +67,7 @@ public class ModelArchive {
                 throw new DownloadModelException("Failed to download model from: " + url, e);
             }
         } else if (DEFAULT_URL_PATTERN.matcher(url).matches()) {
+            // case when url is valid but not whitelisted
             throw new ModelNotFoundException(
                     "Given URL " + url + " does not match any whitelisted URL(s)");
         }
