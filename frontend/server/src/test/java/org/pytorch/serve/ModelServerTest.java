@@ -641,9 +641,9 @@ public class ModelServerTest {
             dependsOnMethods = {"testLoadModelFromURL"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
-        setConfiguration("allow_custom_python_dependencies", "true");
+        setConfiguration("install_py_dep_per_model", "true");
         testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
-        setConfiguration("allow_custom_python_dependencies", "false");
+        setConfiguration("install_py_dep_per_model", "false");
     }
 
     @Test(
