@@ -172,10 +172,10 @@ prefer_direct_buffer=true
 
 ### Allow model specific custom python packages.
 Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup. User can supply a requirements.txt file containing the required list of python packages to be installed by `TorchServe` for seamless model serving.
-Configuration parameter `allow_custom_python_dependencies` controls if the model server will install the python packages using the `requirements` file supplied with the model archive. Default: false
+Configuration parameter `install_py_dep_per_model` controls if the model server will install the python packages using the `requirements` file supplied with the model archive. Default: false
 
 ```properties
-allow_custom_python_dependencies=true
+install_py_dep_per_model=true
 ```
 
 ### Restrict backend worker to access environment variables

@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -164,23 +163,20 @@ public final class ModelManager {
         String requirementsFile =
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
-        if (configManager.getAllowCustomPythonDependencies() && requirementsFile != null) {
+        if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
             Path requirementsFilePath =
                     Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
 
-            if (Files.exists(requirementsFilePath)) {
-                String packageInstallCommand =
-                        "pip install --ignore-installed -t "
-                                + model.getModelDir().getAbsolutePath()
-                                + " -r "
-                                + requirementsFilePath; // NOPMD
-                String[] envp =
-                        EnvironmentUtils.getEnvString(
-                                configManager.getModelServerHome(), null, null);
-                Process process = Runtime.getRuntime().exec(packageInstallCommand, envp);
-                process.waitFor();
-                logger.info("" + process.exitValue());
-            }
+            String packageInstallCommand =
+                    "pip install -U -t "
+                            + model.getModelDir().getAbsolutePath()
+                            + " -r "
+                            + requirementsFilePath; // NOPMD
+
+            String[] envp =
+                    EnvironmentUtils.getEnvString(configManager.getModelServerHome(), null, null);
+            Process process = Runtime.getRuntime().exec(packageInstallCommand, envp);
+            process.waitFor();
         }
     }
 

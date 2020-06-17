@@ -77,8 +77,7 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
-    private static final String TS_ALLOW_CUSTOM_PYTHON_DEPENDENCIES =
-            "allow_custom_python_dependencies";
+    private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -271,8 +270,8 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
     }
 
-    public boolean getAllowCustomPythonDependencies() {
-        return Boolean.parseBoolean(getProperty(TS_ALLOW_CUSTOM_PYTHON_DEPENDENCIES, "false"));
+    public boolean getInstallPyDepPerModel() {
+        return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
     }
 
     public int getNettyThreads() {
@@ -539,7 +538,7 @@ public final class ConfigManager {
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nCustom python dependency for model allowed: "
-                + prop.getProperty(TS_ALLOW_CUSTOM_PYTHON_DEPENDENCIES, "false");
+                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false");
     }
 
     public boolean useNativeIo() {
