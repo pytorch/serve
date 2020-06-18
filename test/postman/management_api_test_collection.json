@@ -1219,28 +1219,6 @@
 			},
 			"response": []
 		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"id": "9421de73-e415-404c-a41b-363fb02a6cb3",
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"id": "7d4715cb-d48a-4586-9177-6faa347d9921",
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
+	],	
 	"protocolProfileBehavior": {}
 }
