@@ -106,7 +106,7 @@ $ curl -X POST "localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_
 $ curl localhost:8081/models/resnet-152
 {
   "modelName": "resnet-152",
-  "modelUrl": "https://s3.amazonaws.com/model-server/model_archive_1.0/examples/resnet-152-batching/resnet-152.mar",
+  "modelUrl": "https://endpoint/model-server/model_archive_1.0/examples/resnet-152-batching/resnet-152.mar",
   "runtime": "python",
   "minWorkers": 1,
   "maxWorkers": 1,
@@ -129,7 +129,7 @@ $ curl localhost:8081/models/resnet-152
   * Get an image to test this service
 
     ```text
-    $ curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+    $ curl -O https://raw.github.com/pytorch/serve/images/kitten.jpg
     ```
 
   * Run inference to test the model.
