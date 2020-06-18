@@ -43,7 +43,7 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 The asynchronous call returns with HTTP code 202 before trying to create workers.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_or_azureblob_path>/squeezenet_v1.1.mar"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
@@ -59,7 +59,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=fals
 The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_or_azureblob_path>/squeezenet_v1.1.mar"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
