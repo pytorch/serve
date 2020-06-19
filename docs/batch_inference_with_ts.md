@@ -129,7 +129,7 @@ $ curl localhost:8081/models/resnet-152
   * Get an image to test this service
 
     ```text
-    $ curl -O https://raw.github.com/pytorch/serve/images/kitten.jpg
+    $ curl -O https://github.com/pytorch/serve/examples/image_classifier/resnet_18/kitten.jpg
     ```
 
   * Run inference to test the model.
