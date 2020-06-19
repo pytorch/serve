@@ -207,7 +207,9 @@ eg : To whitelist base URLs "https://s3.amazonaws.com/" and "https://torchserve.
 ```
 whitelist_urls=https://s3.amazonaws.com/.*,https://torchserve.s3.amazonaws.com/.*
 ```
+
 ---
+
 **NOTE**
 
 All the above config properties can be set using environment variable as follows.
