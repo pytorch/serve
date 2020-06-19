@@ -49,7 +49,6 @@ class ObjectDetector(VisionHandler):
         # Predict the classes and bounding boxes in an image using a trained deep learning model.
         data = Variable(data).to(self.device)
         pred = self.model([data])  # Pass the image to the model
-
         if pred[0]['labels'].nelement() == 0:
             return []
 
