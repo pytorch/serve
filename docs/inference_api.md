@@ -45,7 +45,7 @@ To get predictions from the default version of each loaded model, make a REST ca
 ### curl Example
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+curl -O https://github.com/pytorch/serve/examples/image_classifier/resnet_18/kitten.jpg
 
 curl http://localhost:8080/predictions/resnet-18 -T kitten.jpg
 
@@ -61,7 +61,7 @@ To get predictions from a specific version of each loaded model, make a REST cal
 ## curl Example
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+curl -O https://github.com/pytorch/serve/examples/image_classifier/resnet_18/kitten.jpg
 
 curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
 
