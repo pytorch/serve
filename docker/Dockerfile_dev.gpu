@@ -37,8 +37,7 @@ RUN export USE_CUDA=1
 
 ADD serve serve
 RUN pip install -r ../serve/requirements.txt
-RUN pip install ../serve/
-RUN pip install ../serve/model-archiver/
+RUN cd ../serve && scripts/install_from_src_ubuntu
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
