@@ -24,6 +24,7 @@ DEBUG = False
 BENCHMARK = os.getenv('TS_BENCHMARK')
 BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
 
+
 class TorchModelServiceWorker(object):
     """
     Backend worker to handle Model Server's python service code
