@@ -23,6 +23,7 @@
     mv densenet161.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161.mar
     curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
+    ```
 
 
 #### TorchScript example using DenseNet161 image classifier:
