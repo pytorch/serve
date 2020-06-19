@@ -39,29 +39,29 @@ The following examples will start the container with 8080/81 port exposed to out
 
 #### Start CPU container
 
-For the latest version, you can use the `latest` tag:
+For the latest version, you can use the `latest-cpu` tag:
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-cpu
 ```
 
-For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
+For specific versions you can pass in the specific tag to use (ex: pytorch/torchserve:0.1.1-cpu):
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:0.1-cpu
+docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
 ```
 
 #### Start GPU container
 
 For GPU latest image with gpu devices 1 and 2:
 ```bash
-docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 torchserve:latest
+docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
 ```
 
-For specific versions you can pass in the specific tag to use (ex: 0.1-cuda10.1-cudnn7-runtime):
+For specific versions you can pass in the specific tag to use (ex: 0.1.1-cuda10.1-cudnn7-runtime):
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:0.1-cuda10.1-cudnn7-runtime
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
 ```
 
-For the latest version, you can use the `gpu-latest` tag:
+For the latest version, you can use the `latest-gpu` tag:
 ```bash
 docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest
 ```
@@ -104,9 +104,22 @@ To create a Docker image for a specific branch, use the following command:
 
 To create a Docker image for a specific branch and specific tag, use the following command:
 
+To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
+
+```bash
+./start.sh
+```
+For GPU run the following command:
+```bash
+./start.sh --gpu
+```
+For GPU with specific GPU device ids run the following command:
 ```bash
 ./build_image.sh -b <branch_name> -t <tagname:latest>
 ```
+Alternatively, you can use direct commands describe in [Start a container with a TorchServe image](#start-a-container-with-a-torchserve-image) above for cpu and gpu by changing image name
+
+# Create torch-model-archiver from container
 
 To create a Docker image for a GPU device, use the following command:
 
