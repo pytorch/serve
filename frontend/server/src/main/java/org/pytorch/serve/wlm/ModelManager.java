@@ -91,7 +91,6 @@ public final class ModelManager {
         createVersionedModel(tempModel, versionId);
 
         setupModelDependencies(tempModel);
-
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
         }
