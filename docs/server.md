@@ -85,7 +85,9 @@ There are no default required arguments to start the server
 
 1. **models**: optional, <model_name>=<model_path> pairs.
 
-    a) Model path can be mar file name in model store or URI (s3 link, azure blob link, or http link). s3 link: s3://S3_endpoint[:port]/…, azure blob link: https://blob_container_link/path/to/resource, http link: http://hostname/path/to/resource 
+    a) Model path can be mar file name in model store or URI (s3 link, or http link).
+        s3 link: s3://S3_endpoint[:port]/...
+        http link: http://hostname/path/to/resource
 
     b) to load all the models in model store set model value to "all"
 
