@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import java.util.ArrayList;
 import java.util.List;
 import org.pytorch.serve.archive.Manifest;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.wlm.Model;
@@ -18,7 +19,8 @@ public final class OpenApiUtils {
         info.setTitle("TorchServe APIs");
         info.setDescription(
                 "TorchServe is a flexible and easy to use tool for serving deep learning models");
-        info.setVersion("1.0.0");
+        ConfigManager config = ConfigManager.getInstance();
+        info.setVersion(config.getProperty("version", null));
         openApi.setInfo(info);
 
         if (ConnectorType.BOTH.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {

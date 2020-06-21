@@ -4,6 +4,16 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 **For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
 
+## TorchServe Architecture
+![Architecture Diagram](https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg)
+
+### Terminology:
+* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients as well manages the models lifecycle.
+* **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
+* **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
+* **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
+* **Model Store**: This is a directory in which all the loadable models exist.
+
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
@@ -186,7 +196,7 @@ The following code completes all three steps:
 
 ```bash
 curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:
@@ -225,60 +235,18 @@ torchserve --stop
 
 You see output specifying that TorchServe has stopped.
 
+
+### Concurrency And Number of Workers
+TorchServe exposes configurations which allows the user to configure the number of worker threads on CPU and GPUs. This is an important config property that can speed up the server depending on the workload.
+*Note: the following property has bigger impact under heavy workloads.*
+If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` which tells the server to use a specific number of GPU per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
+```
+ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
+```
+
+
 ## Quick Start with Docker
-
-### Prerequisites
-
-* docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
-* git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
-* TorchServe source code. Clone and enter the repo as follows:
-
-```bash
-git clone https://github.com/pytorch/serve.git
-cd serve
-```
-
-### Build the TorchServe Docker image
-
-The following are examples on how to use the `build_image.sh` script to build Docker images to support CPU or GPU inference.
-
-To build the TorchServe image for a CPU device using the `master` branch, use the following command:
-
-```bash
-./build_image.sh
-```
-
-To create a Docker image for a specific branch, use the following command:
-
-```bash
-./build_image.sh -b <branch_name>
-```
-
-To create a Docker image for a GPU device, use the following command:
-
-```bash
-./build_image.sh --gpu
-```
-
-To create a Docker image for a GPU device with a specific branch, use following command:
-
-```bash
-./build_image.sh -b <branch_name> --gpu
-```
-
-To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
-
-```bash
-./start.sh
-```
-For GPU run the following command:
-```bash
-./start.sh --gpu
-```
-For GPU with specific GPU device ids run the following command:
-```bash
-./start.sh --gpu_devices 1,2,3
-```
+Refer [torchserve docker](docker/README.md) for details.
 
 ## Learn More
 
@@ -295,3 +263,6 @@ We welcome all contributions!
 To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
 
 To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md). Cheers!
+
+
+*TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*
