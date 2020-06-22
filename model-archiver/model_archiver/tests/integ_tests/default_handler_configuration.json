@@ -16,22 +16,9 @@
     "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
     "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
     "handler": "text_classifier",
-    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json,model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt",
     "iterations": 1,
     "export-path": "/tmp/model",
-    "version": "1.0",
-    "source-vocab": "model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt"
-  },
-  {
-    "name": "text_no_source_vocab",
-    "model-name": "model",
-    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
-    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
-    "handler": "text_classifier",
-    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
-    "iterations": 1,
-    "export-path": "/tmp/model",
-    "version": "1.0",
-    "expect-error": true
+    "version": "1.0"
   }
 ]
