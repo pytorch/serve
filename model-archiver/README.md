@@ -112,7 +112,8 @@ optional arguments:
                         name in the path specified by --export-path will
                         overwritten
   -v, --version         Model's version.
-  -requirements-file    Path to requirements.txt file containing a list of model specific python
+  -r, -requirements-file
+                        Path to requirements.txt file containing a list of model specific python
                         packages to be installed by TorchServe for seamless model serving.
 ```
 
