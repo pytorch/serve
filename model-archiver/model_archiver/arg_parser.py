@@ -115,7 +115,7 @@ class ArgParser(object):
                                    default=None,
                                    help='Model\'s version')
 
-        parser_export.add_argument('--requirements-file',
+        parser_export.add_argument('-r', '--requirements-file',
                                    required=False,
                                    type=str,
                                    default=None,
