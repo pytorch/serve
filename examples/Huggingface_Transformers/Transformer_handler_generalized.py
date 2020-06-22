@@ -5,11 +5,11 @@ import os
 import ast
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering,AutoModelForTokenClassification
-
+from transformers import set_seed
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
-
+set_seed(1)
 
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
@@ -84,7 +84,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         logger.info("Received text: '%s'", input_text)
         #preprocessing text for sequence_classification and token_classification.
         if self.setup_config["mode"]== "sequence_classification" or self.setup_config["mode"]== "token_classification" :
-            inputs = self.tokenizer.encode_plus(input_text,max_length = int(max_length), add_special_tokens = True, return_tensors = 'pt')
+            inputs = self.tokenizer.encode_plus(input_text,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
         #preprocessing text for question_answering.
         elif self.setup_config["mode"]== "question_answering":
             #TODO Reading the context from a pickeled file or other fromats that
@@ -99,7 +99,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             question_context= ast.literal_eval(input_text)
             question = question_context["question"]
             context = question_context["context"]
-            inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length), add_special_tokens=True, return_tensors="pt")
+            inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length),pad_to_max_length = True, add_special_tokens=True, return_tensors="pt")
 
         return inputs
 
