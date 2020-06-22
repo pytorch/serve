@@ -18,8 +18,7 @@ class Model(object):
         self.description = description
         self.model_version = model_version
         self.extensions = extensions
-        self.handler = handler.split("/")[-1]
-        self.source_vocab = source_vocab
+        self.handler = handler.split("/")[-1] if '.py' in handler else handler
         self.model_dict = self.__to_dict__()
 
     def __to_dict__(self):
@@ -30,9 +29,6 @@ class Model(object):
         model_dict['serializedFile'] = self.serialized_file
 
         model_dict['handler'] = self.handler
-
-        if self.source_vocab:
-            model_dict['sourceVocab'] = self.source_vocab.split("/")[-1]
 
         if self.model_file:
             model_dict['modelFile'] = self.model_file.split("/")[-1]
