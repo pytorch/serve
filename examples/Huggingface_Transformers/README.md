@@ -58,6 +58,8 @@ In the setup_config.json :
 
 *model_name* : bert-base-uncased , roberta-base or other available pre-trained models.
 
+*fine_tuned* : name or path to the finetuned model if available, for example "distilbert-base-cased-distilled-squad", leave it blank if not available.
+
 *mode:* "sequence_classification "for sequence classification, "question_answering"for question answering and "token_classification" for token classification.
 
 *do_lower_case* : True or False for use of the Tokenizer.
@@ -122,4 +124,3 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
-
