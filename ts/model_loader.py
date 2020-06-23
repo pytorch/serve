@@ -114,17 +114,7 @@ class TsModelLoader(ModelLoader):
             service = Service(model_name, model_dir, manifest, model_service.handle, gpu_id, batch_size)
             initialize = getattr(model_service, "initialize")
             if initialize is not None:
-                # # noinspection PyBroadException
-                # try:
                 model_service.initialize(service.context)
-                    # pylint: disable=broad-except
-                # except Exception:
-                #     # noinspection PyBroadException
-                #     try:
-                #         sys.exc_clear()
-                #         # pylint: disable=broad-except
-                #     except Exception:
-                #         pass
             else:
                 raise ValueError("Expect initialize method in class {}".format(str(model_class)))
 
