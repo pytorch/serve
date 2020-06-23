@@ -45,10 +45,7 @@ class BaseHandler(abc.ABC):
         model_file = self.manifest['model']['modelFile']
         model_def_path = os.path.join(model_dir, model_file)
 
-        if torch.cuda.is_available():
-            map_location = "cuda"
-        else:
-            map_location = 'cpu'
+        map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         if os.path.isfile(model_def_path):
             module = importlib.import_module(model_file.split(".")[0])
