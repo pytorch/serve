@@ -132,9 +132,9 @@ Handler can be TorchServe's inbuilt handler name or path to a py file to handle 
 3. `text_classifier`
 4. `image_segmenter`
 
-In case of custom handler, if you plan to provide just `module_name` or `module_name:entry_point_function_name` then make sure that `<module_name>.py` file is in current working directory.
-e.g. if your custom handler custom_image_classifier.py is in current working directory then
-`--handler custom_image_classifier` or if it has my_entry_point module level function then `--handler custom_image_classifier:my_entry_point_func`
+In case of custom handler, if you plan to provide just `module_name` or `module_name:entry_point_function_name` then make sure that it is prefixed with absolute or relative path of python file.
+e.g. if your custom handler custom_image_classifier.py is in /home/serve/examples then
+`--handler /home/serve/examples/custom_image_classifier` or if it has my_entry_point module level function then `--handler /home/serve/examples/custom_image_classifier:my_entry_point_func`
 
 For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
 ## Creating a Model Archive

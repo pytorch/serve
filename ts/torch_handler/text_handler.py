@@ -28,7 +28,12 @@ class TextHandler(BaseHandler, ABC):
     def initialize(self, ctx):
         super(TextHandler, self).initialize(ctx)
         self.initialized = False
-        self.source_vocab = torch.load(self.get_source_vocab_path(ctx))
+        source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
+        if source_vocab:
+            # Backward compatibility
+            self.source_vocab = torch.load(source_vocab)
+        else:
+            self.source_vocab = torch.load(self.get_source_vocab_path(ctx))
         self.initialized = True
 
     def get_source_vocab_path(self, ctx):
