@@ -9,7 +9,6 @@ from transformers import set_seed
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
-set_seed(1)
 
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
