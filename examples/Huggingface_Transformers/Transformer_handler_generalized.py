@@ -5,7 +5,6 @@ import os
 import ast
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering,AutoModelForTokenClassification
-from transformers import set_seed
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
