@@ -11,20 +11,22 @@ from transformers import set_seed
 """
 print('Transformers version',transformers.__version__)
 set_seed(1)
-def transformers_model_dowloader(mode,pretrained_model_name, pretrained_model ,num_labels,do_lower_case,max_length,torchscript):
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case,max_length,torchscript):
     print("Download model and tokenizer", pretrained_model_name)
     #loading pre-trained model and tokenizer
     if mode== "sequence_classification":
         config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
-        model = AutoModelForSequenceClassification.from_pretrained(pretrained_model, config=config)
+        model = AutoModelForSequenceClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "question_answering":
         config = AutoConfig.from_pretrained(pretrained_model_name,torchscript=torchscript)
-        model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model,config=config)
+        model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model_name,config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "token_classification":
         config= AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
-        model = AutoModelForTokenClassification.from_pretrained(pretrained_model, config=config)
+        model = AutoModelForTokenClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
 
         # NOTE : for demonstration purposes, we do not go through the fine-tune processing here.
@@ -46,8 +48,8 @@ def transformers_model_dowloader(mode,pretrained_model_name, pretrained_model ,n
     elif save_mode == "torchscript":
         dummy_input = "This is a dummy input for torch jit trace"
         inputs = tokenizer.encode_plus(dummy_input,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
-        input_ids = inputs["input_ids"]
-        model.eval()
+        input_ids = inputs["input_ids"].to(device)
+        model.to(device).eval()
         traced_model = torch.jit.trace(model, [input_ids])
         torch.jit.save(traced_model,os.path.join(NEW_DIR, "traced_model.pt"))
     return
@@ -62,15 +64,9 @@ if __name__== "__main__":
     do_lower_case = settings["do_lower_case"]
     max_length = settings["max_length"]
     save_mode = settings["save_mode"]
-    fine_tuned = settings["fine_tuned"]
-    if fine_tuned:
-        pretrained_model = fine_tuned
-    else:
-        pretrained_model = model_name
-
     if save_mode == "torchscript":
         torchscript = True
     else:
         torchscript = False
 
-    transformers_model_dowloader(mode,model_name,pretrained_model, num_labels,do_lower_case, max_length, torchscript)
+    transformers_model_dowloader(mode,model_name, num_labels,do_lower_case, max_length, torchscript)
