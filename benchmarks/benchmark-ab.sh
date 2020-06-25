@@ -132,7 +132,7 @@ metric_log="/tmp/benchmark/logs/model_metrics.log"
 
 echo "Registering model ..."
 
-RURL="?model_name=${MODEL}&url=${URL}&batch_size=${BATCH_SIZE}&max_batch_delay=${BATCH_DELAY}&initial_workers=${WORKERS}&synchronous=true"
+RURL="?model_name=${MODEL}&url=${URL}&batch_size=${BATCH_SIZE}&max_batch_delay=${BATCH_DELAY}&initial_workers=${WORKER}&synchronous=true"
 curl -X POST "http://localhost:8081/models${RURL}"
 
 echo "Executing Apache Bench tests ..."
