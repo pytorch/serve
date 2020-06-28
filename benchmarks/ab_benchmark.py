@@ -150,10 +150,9 @@ def docker_torchserve_start():
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image}", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts " \
-                     f"-p 8080:8080 -p 8081:8081 " \
-                     f"-v /tmp/benchmark/conf:/opt/ml/conf -v /tmp/benchmark/logs:/home/model-server/logs" \
-                     f" {enable_gpu} -itd {docker_image} torchserve --start --ts-config /opt/ml/conf/config.properties"
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts --user root:root -p 8080:8080 -p 8081:8081 " \
+                     f"-v /tmp/benchmark:/tmp/benchmark -itd pytorch/torchserve:latest " \
+                     f"\"torchserve --start --ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
     time.sleep(5)
 
