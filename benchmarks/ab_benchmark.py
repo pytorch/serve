@@ -73,18 +73,20 @@ def ab_benchmark(preset, url, device, exec_env, concurrency, requests, batch_siz
     # set ab params
     preset_ab_run[preset]()
     update_exec_params(input_params)
-    click.secho("Starting AB benchmark suite..", fg='green')
+    click.secho("Starting AB benchmark suite...", fg='green')
     click.secho(f"\n\nConfigured execution parameters are:", fg='green')
     click.secho(f"{execution_params}", fg="blue")
 
     # Setup execution env
     if not ts:
         if execution_params['exec_env'] is 'local':
-            click.secho("\n\nSetting up local execution..", fg='green')
+            click.secho("\n\nSetting up local execution...", fg='green')
             local_torserve_start()
         else:
-            click.secho("\n\nSetting up docker execution..", fg='green')
+            click.secho("\n\nSetting up docker execution...", fg='green')
             docker_torchserve_start()
+    else:
+        click.secho("\n\nExpecting torchserve instance already running...", fg='green')
     exec_ab_benchmark()
     report_generate()
 
@@ -96,7 +98,7 @@ def exec_ab_benchmark():
     execute(f"curl -X POST \"http://localhost:8081/models{RURL}\"", wait=True)
 
     click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
-    click.secho("*Executing inference performance test", fg='green')
+    click.secho("*Executing inference performance test...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p /tmp/benchmark/input -T " \
              f"{execution_params['content_type']} http://127.0.0.1:8080/predictions/benchmark > {result_file}"
     execute(ab_cmd, wait=True)
@@ -137,6 +139,8 @@ def docker_torchserve_start():
     enable_gpu = ''
     if execution_params['image']:
         docker_image = execution_params['image']
+        if execution_params['device'] is 'gpu':
+            enable_gpu = "--gpus 4"
     else:
         if execution_params['device'] is 'cpu':
             docker_image = "pytorch/torchserve:latest"
@@ -149,9 +153,9 @@ def docker_torchserve_start():
     click.secho("*Removing existing ts conatiner instance", fg='green')
     execute('docker rm -f ts', wait=True)
 
-    click.secho(f"*Starting docker container of image {docker_image}", fg='green')
+    click.secho(f"*Starting docker container of image {docker_image} ", fg='green')
     docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts --user root:root -p 8080:8080 -p 8081:8081 " \
-                     f"-v /tmp/benchmark:/tmp/benchmark -itd pytorch/torchserve:latest " \
+                     f"-v /tmp/benchmark:/tmp/benchmark {enable_gpu} -itd pytorch/torchserve:latest " \
                      f"\"torchserve --start --ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
     time.sleep(5)
@@ -183,13 +187,16 @@ def update_exec_params(input_param):
 
 
 def report_generate():
-    click.secho("\n\nGenerating Reports", fg='green')
+    click.secho("\n\nGenerating Reports...", fg='green')
     generate_csv_output()
     generate_latency_graph()
+    click.secho("\nTest suite execution complete.", fg='green')
+
+
 
 
 def generate_csv_output():
-    click.secho(" Generating CSV output...", fg='green')
+    click.secho("*Generating CSV output...", fg='green')
     execute(f"grep \"PredictionTime\" {metric_log} |  cut -d\"|\" -f1 | cut -d \":\" -f4 > /tmp/benchmark/predict.txt",
             wait=True)
     batched_requests = execution_params['requests'] / execution_params['batch_size']
