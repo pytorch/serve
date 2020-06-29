@@ -192,7 +192,6 @@ CSV : cpu, vgg11, 1, 10, 20, 269.49, 369.21, 370.55, 12.57, 702, 907, 907, 1012,
 ```
 
 
-
 # Profiling
 
 ## Frontend
@@ -211,53 +210,42 @@ Once you have stopped recording, you should be able to analyze the data.  One us
 
 The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
-1. Enable Benchmarks in TorchServe code with a boolean flag.
-2. Install TorchServe with the updated flag & start torchserve.
-3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
-4. Visualize SnakeViz results. 
+1. Install Torchserve
 
-#### Enable Benchmarks in TorchServe code with a boolean flag
+    Using local TorchServe instance:
 
-In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-
-If running inside docker,
-
-```
-    cd docker
-    git clone https://github.com/pytorch/serve.git
-    cd serve
-    ## set BENCHMARK flag to true
-    vim ts/model_service_worker.py
-    cd ..
-```
-
-#### Install TorchServe with the updated flag & Start Torchserve
-
-```
-    pip install .
-```
-
-If running inside docker
-
-```
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
-```
-then start docker with /tmp directory mapped to local /tmp
+    * Install TorchServe using the [install guide](../README.md#install-torchserve)
     
-#### Register a model & perform inference to collect profiling data.
+    By using external docker container for TorchServe:
 
-```
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
+    * Create a [docker container for TorchServe](../docker/README.md).
 
-#### Visualize SnakeViz results
+2. Set environment variable and start Torchserve
+
+    If using local TorchServe instance:
+    ```bash
+    export TS_BENCHMARK=TRUE
+    torchserve --start --model-store <path_to_your_model_store>
+    ```
+    If using external docker container for TorchServe:
+    * start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
+    ```
+        docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+    ```
+
+3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
+    ```
+    python benchmark.py throughput --ts http://127.0.0.1:8080
+    ```
+
+4. Visualize SnakeViz results.
  
-To visualize the profiling data using `snakeviz` use following commands:
+    To visualize the profiling data using `snakeviz` use following commands:
 
-```bash
-pip install snakeviz
-snakeviz tsPythonProfile.prof
-```
-![](snake_viz.png)
+    ```bash
+    pip install snakeviz
+    snakeviz tsPythonProfile.prof
+    ```
+    ![](snake_viz.png)
 
-It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
+    It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
