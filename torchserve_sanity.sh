@@ -14,6 +14,8 @@ cleanup()
 
 install_pytest_suite_deps
 
+install_bert_dependencies
+
 run_backend_pytest
 
 run_backend_python_linting
@@ -29,9 +31,13 @@ mkdir -p model_store
 start_torchserve
 
 
-models=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18")
-model_inputs=("examples/object_detector/persons.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg")
-handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier")
+models=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18" "roberta_qa_torchscript" "roberta_qa_no_torchscript" "bert_token_classification_torchscript" "bert_token_classification_no_torchscript" "bert_seqc_with_torchscript" "bert_seqc_without_torchscript")
+model_inputs=("examples/object_detector/persons.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg"
+              "examples/Huggingface_Transformers/sample_text.txt" "examples/Huggingface_Transformers/sample_text.txt" "examples/Huggingface_Transformers/sample_text.txt" "examples/Huggingface_Transformers/sample_text.txt"
+              "examples/Huggingface_Transformers/sample_text.txt" "examples/Huggingface_Transformers/sample_text.txt")
+
+handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier"
+          "custom" "custom" "custom" "custom" "custom" "custom")
 
 for i in ${!models[@]};
 do
