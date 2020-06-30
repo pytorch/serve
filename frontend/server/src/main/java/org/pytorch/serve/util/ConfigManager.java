@@ -427,7 +427,10 @@ public final class ConfigManager {
             chain = new X509Certificate[] {ssc.cert()};
         }
 
-        return SslContextBuilder.forServer(privateKey, chain).ciphers(supportedCiphers).build();
+        return SslContextBuilder.forServer(privateKey, chain)
+                .protocols(new String[] {"TLSv1.2"})
+                .ciphers(supportedCiphers)
+                .build();
     }
 
     private PrivateKey loadPrivateKey(String keyFile) throws IOException, GeneralSecurityException {
