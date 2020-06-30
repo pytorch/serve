@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo apt-get update
 sudo apt-get install -y \
 g++ \
@@ -8,4 +9,4 @@ python3-dev \
 && cd -
 
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-sudo update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+sudo update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3 1

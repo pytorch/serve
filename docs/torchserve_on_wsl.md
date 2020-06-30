@@ -18,6 +18,8 @@
 
 ```bash
 wget -O - https://raw.githubusercontent.com/pytorch/serve/master/scripts/setup_wsl_ubuntu | bash
+echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 1. Install JDK 11
@@ -33,6 +35,7 @@ pip install torch torchtext torchvision sentencepiece psutil future
 pip install torchserve torch-model-archiver
 ```
 
+
 ## Install from source
 
 1. Clone and install TorchServe
@@ -41,4 +44,6 @@ pip install torchserve torch-model-archiver
 git clone https://github.com/pytorch/serve.git
 cd serve
 ./scripts/install_from_src_wsl
+echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
 ```
