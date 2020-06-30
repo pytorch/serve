@@ -1,5 +1,3 @@
-
-
 """
 Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification
@@ -8,13 +6,19 @@ import abc
 import logging
 import os
 import json
+import importlib
 
 import torch
+from ..utils.util import list_classes_from_module
 
 logger = logging.getLogger(__name__)
 
 
 class BaseHandler(abc.ABC):
+    """
+    Base default handler to load torchscript or eager mode [state_dict] models
+    Also, provides handle method per torch serve custom model specification
+    """
     def __init__(self):
         self.model = None
         self.mapping = None
@@ -39,16 +43,13 @@ class BaseHandler(abc.ABC):
 
         try:
             logger.debug('Loading torchscript model')
-            self.model = torch.jit.load(model_pt_path)
-        except Exception as e:
+            self.model = torch.jit.load(model_pt_path, map_location=self.device)
+        except RuntimeError as e:
             # Read model definition file
             model_file = self.manifest['model']['modelFile']
             model_def_path = os.path.join(model_dir, model_file)
             if not os.path.isfile(model_def_path):
                 raise RuntimeError("Missing the model.py file")
-
-            import importlib
-            from ..utils.util import list_classes_from_module
 
             module = importlib.import_module(model_file.split(".")[0])
             model_class_definitions = list_classes_from_module(module)
@@ -57,13 +58,13 @@ class BaseHandler(abc.ABC):
                     model_class_definitions))
 
             model_class = model_class_definitions[0]
-            state_dict = torch.load(model_pt_path)
+            state_dict = torch.load(model_pt_path, map_location=self.device)
             self.model = model_class()
             self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()
 
-        logger.debug('Model file {0} loaded successfully'.format(model_pt_path))
+        logger.debug('Model file %s loaded successfully', model_pt_path)
 
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")

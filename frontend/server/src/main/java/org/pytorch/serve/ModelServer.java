@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.ServerChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -29,6 +30,9 @@ import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.metrics.MetricManager;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.servingsdk.annotations.Endpoint;
+import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.snapshot.SnapshotManager;
@@ -40,9 +44,6 @@ import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
-import software.amazon.ai.mms.servingsdk.annotations.Endpoint;
-import software.amazon.ai.mms.servingsdk.annotations.helpers.EndpointTypes;
 
 public class ModelServer {
 
@@ -52,6 +53,7 @@ public class ModelServer {
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
+    public static final int MAX_RCVBUF_SIZE = 4096;
 
     /** Creates a new {@code ModelServer} instance. */
     public ModelServer(ConfigManager configManager) {
@@ -240,7 +242,10 @@ public class ModelServer {
                 .channel(channelClass)
                 .childOption(ChannelOption.SO_LINGER, 0)
                 .childOption(ChannelOption.SO_REUSEADDR, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true);
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(
+                        ChannelOption.RCVBUF_ALLOCATOR,
+                        new FixedRecvByteBufAllocator(MAX_RCVBUF_SIZE));
         b.group(serverGroup, workerGroup);
 
         SslContext sslCtx = null;

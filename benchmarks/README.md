@@ -2,25 +2,17 @@
 
 The benchmarks measure the performance of TorchServe on various models and benchmarks.  It supports either a number of built-in models or a custom model passed in as a path or URL to the .model file.  It also runs various benchmarks using these models (see benchmarks section below).  The benchmarks are run through a python3 script on the user machine through jmeter.  TorchServe is run on the same machine in a docker instance to avoid network latencies.  The benchmark must be run from within the context of the full TorchServe repo because it executes the local code as the version of TorchServe (and it is recompiled between runs) for ease of development.
 
+We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
+
+# Benchmarking with JMeter
+
 ## Installation
 
 ### Ubuntu
 
 The script is mainly intended to run on a Ubuntu EC2 instance.  For this reason, we have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on this environment.  All you need to do is run this file and clone the TorchServe repo.
-
-While installing JMeter through brew, the `install_depdendencies.sh` script asks for following command line input.  
-```bash
-Installing JMeter through Brew
-+ yes ''
-+ brew update
-==> Select the Linuxbrew installation directory
-- Enter your password to install to /home/linuxbrew/.linuxbrew (recommended)
-- Press Control-D to install to /home/ubuntu/.linuxbrew
-- Press Control-C to cancel installation
-[sudo] password for ubuntu: 
-```
-
-Here `Press Control-D to install to /home/ubuntu/.linuxbrew` as the `ubuntu` user on EC2 node has password-less sudo access.
+On CPU based instance, use `./install_dependencies.sh`.
+On GPU based instance, use `./install_dependencies.sh True`.
 
 ### MacOS
 
@@ -142,10 +134,67 @@ Run verbose with only a single loop\
 
 The full list of options can be found by running with the -h or --help flags.
 
+# Benchmarking with Apache Bench
 
-## Profiling
+## Installation 
 
-### Frontend
+### For Ubuntu
+
+```
+apt-get install apache2-utils
+
+```
+
+Apache Bench is installed in Mac by default. You can test by running ```ab -h```
+
+## Benchmark 
+
+To run benchmarks execute benchmark script as follows 
+
+```
+./benchmark-ab.sh --model  vgg11 --url https://torchserve-mar-files.s3.amazonaws.com/vgg11.mar --bsize 1 --bdelay 50 --worker 4 --input ../examples/image_classifier/kitten.jpg --requests 20 --concurrency 10
+```
+
+This would produce a output similar to in /tmp/benchmark/report.txt
+
+```
+Preparing config...
+starting torchserve...
+Waiting for torchserve to start...
+torchserve started successfully
+Registering model ...
+{
+  "status": "Workers scaled"
+}
+Executing Apache Bench tests ...
+Executing inference performance test
+Unregistering model ...
+{
+  "status": "Model \"vgg11\" unregistered"
+}
+Execution completed
+Grabing performance numbers
+
+CPU/GPU: cpu
+Model: vgg11
+Concurrency: 10
+Requests: 20
+Model latency P50: 269.49
+Model latency P90: 369.21
+Model latency P99: 370.55
+TS throughput: 12.57
+TS latency P50: 702
+TS latency P90: 907
+TS latency P99: 1012
+TS latency mean: 795.813
+TS error rate: 0.000000%
+CSV : cpu, vgg11, 1, 10, 20, 269.49, 369.21, 370.55, 12.57, 702, 907, 907, 1012, 795.813, 0.000000
+```
+
+
+# Profiling
+
+## Frontend
 
 The benchmarks can be used in conjunction with standard profiling tools such as JProfiler to analyze the system performance.  JProfiler can be downloaded from their [website](https://www.ej-technologies.com/products/jprofiler/overview.html).  Once downloaded, open up JProfiler and follow these steps:
 
@@ -157,13 +206,46 @@ The benchmarks can be used in conjunction with standard profiling tools such as 
 
 Once you have stopped recording, you should be able to analyze the data.  One useful section to examine is CPU views > Call Tree and CPU views > Hot Spots to see where the processor time is going.
 
-### Backend
+## Backend
 
-The benchmarks can also be used to analyze the backend performance using cProfile.  It does not require any additional packages to run the benchmark, but viewing the logs does require an additional package.  Run `pip install snakeviz` to install this.  To run the python profiling, follow these steps:
+The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
-1. In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-2. Run the benchmark and TorchServe.  They can either be done automatically inside the docker container or separately with the "--ts" flag.
-3. Run TorchServe directly through gradle (do not use docker).  This can be done either on your machine or on a remote machine accessible through SSH.
-4. Run the Benchmark script targeting your running TorchServe instance.  It might run something like `./benchmark.py throughput --ts https://127.0.0.1:8443`.  It can be run on either your local machine or a remote machine (if you are running remote), but we recommend running the benchmark on the same machine as the model server to avoid confounding network latencies.
-5. Run `snakeviz /tmp/tsPythonProfile.prof` to view the profiling data.  It should start up a web server on your machine and automatically open the page.
-6. Don't forget to set BENCHMARK = False in the model_service_worker.py file after you are finished.
+1. Install Torchserve
+
+    Using local TorchServe instance:
+
+    * Install TorchServe using the [install guide](../README.md#install-torchserve)
+    
+    By using external docker container for TorchServe:
+
+    * Create a [docker container for TorchServe](../docker/README.md).
+
+2. Set environment variable and start Torchserve
+
+    If using local TorchServe instance:
+    ```bash
+    export TS_BENCHMARK=TRUE
+    torchserve --start --model-store <path_to_your_model_store>
+    ```
+    If using external docker container for TorchServe:
+    * start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
+    ```
+        docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+    ```
+
+3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
+    ```
+    python benchmark.py throughput --ts http://127.0.0.1:8080
+    ```
+
+4. Visualize SnakeViz results.
+ 
+    To visualize the profiling data using `snakeviz` use following commands:
+
+    ```bash
+    pip install snakeviz
+    snakeviz tsPythonProfile.prof
+    ```
+    ![](snake_viz.png)
+
+    It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 

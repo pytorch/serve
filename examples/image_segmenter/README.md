@@ -15,7 +15,7 @@ wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
     mkdir model_store
     mv fcn_resnet_101.mar model_store/
     torchserve --start --model-store model_store --models fcn=fcn_resnet_101.mar
-    curl -X POST http://127.0.0.1:8080/predictions/fcn -T examples/image_segmenter/fcn/persons.jpg
+    curl http://127.0.0.1:8080/predictions/fcn -T examples/image_segmenter/fcn/persons.jpg
     ```
 * Output
 

@@ -73,16 +73,18 @@ public final class ConfigManager {
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
-    private static final String MODEL_SERVER_HOME = "model_server_home";
+    private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
-    private static final String TS_MODEL_SNAPSHOT = "model_snapshot";
+    private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
     private static final String IO_RATIO = "io_ratio";
     private static final String METRIC_TIME_INTERVAL = "metric_time_interval";
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
+    private static final String MODEL_SNAPSHOT = "model_snapshot";
+    private static final String VERSION = "version";
 
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
@@ -97,13 +99,17 @@ public final class ConfigManager {
     private boolean snapshotDisabled;
 
     private static ConfigManager instance;
-
     private String hostName;
 
-    private ConfigManager(Arguments args) {
+    private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
 
         this.snapshotDisabled = args.isSnapshotDisabled();
+        String version = readFile(getModelServerHome() + "/ts/version.txt");
+        if (version != null) {
+            version = version.replaceAll("[\\n\\t ]", "");
+            prop.setProperty(VERSION, version);
+        }
 
         String logLocation = System.getenv("LOG_LOCATION");
         if (logLocation != null) {
@@ -186,6 +192,10 @@ public final class ConfigManager {
         }
     }
 
+    public static String readFile(String path) throws IOException {
+        return Files.readString(Paths.get(path));
+    }
+
     private void resolveEnvVarVals(Properties prop) {
         Set<String> keys = prop.stringPropertyNames();
         for (String key : keys) {
@@ -232,7 +242,7 @@ public final class ConfigManager {
         return hostName;
     }
 
-    public static void init(Arguments args) {
+    public static void init(Arguments args) throws IOException {
         instance = new ConfigManager(args);
     }
 
@@ -253,6 +263,10 @@ public final class ConfigManager {
             binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
         return Connector.parse(binding, management);
+    }
+
+    public boolean getPreferDirectBuffer() {
+        return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
     }
 
     public int getNettyThreads() {
@@ -308,11 +322,11 @@ public final class ConfigManager {
     }
 
     public String getModelServerHome() {
-        String tsHome = System.getenv("MODEL_SERVER_HOME");
+        String tsHome = System.getenv("TS_MODEL_SERVER_HOME");
         if (tsHome == null) {
-            tsHome = System.getProperty(MODEL_SERVER_HOME);
+            tsHome = System.getProperty(TS_MODEL_SERVER_HOME);
             if (tsHome == null) {
-                tsHome = getProperty(MODEL_SERVER_HOME, null);
+                tsHome = getProperty(TS_MODEL_SERVER_HOME, null);
                 if (tsHome == null) {
                     tsHome = getCanonicalPath(findTsHome());
                     return tsHome;
@@ -341,7 +355,7 @@ public final class ConfigManager {
     }
 
     public String getModelSnapshot() {
-        return prop.getProperty(TS_MODEL_SNAPSHOT, null);
+        return prop.getProperty(MODEL_SNAPSHOT, null);
     }
 
     public String getLoadModels() {
@@ -471,7 +485,9 @@ public final class ConfigManager {
 
     public String dumpConfigurations() {
         Runtime runtime = Runtime.getRuntime();
-        return "\nTS Home: "
+        return "\nTorchserve version: "
+                + prop.getProperty(VERSION)
+                + "\nTS Home: "
                 + getModelServerHome()
                 + "\nCurrent directory: "
                 + getCanonicalPath(".")
@@ -510,7 +526,9 @@ public final class ConfigManager {
                 + "\nMaximum Response Size: "
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
-                + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500");
+                + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nPrefer direct buffer: "
+                + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false");
     }
 
     public boolean useNativeIo() {

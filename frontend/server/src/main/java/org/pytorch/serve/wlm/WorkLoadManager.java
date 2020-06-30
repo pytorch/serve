@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -113,17 +114,21 @@ public class WorkLoadManager {
 
                     Process workerProcess = lifecycle.getProcess();
 
-                    if (workerProcess.isAlive()) {
+                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
+                    // -> This may nullify process object per destroyForcibly doc.
+                    if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
-                        workerProcess.destroyForcibly();
                         try {
+                            // TODO : Add OS specific handling for windows support.
+                            String cmd = String.format("kill -9 %s", workerProcess.pid());
+                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
-                                    workerProcess.waitFor(
+                                    workerKillProcess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
                                             TimeUnit.SECONDS);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException | IOException e) {
                             logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible asynch resource cleanup.");
+                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
                             future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
                             return future;
                         }

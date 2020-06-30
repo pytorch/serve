@@ -1,0 +1,19 @@
+dependencies {
+    compile "com.google.code.gson:gson:${gson_version}"
+    compile "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+}
+
+project.ext{
+    sagemaker = true
+}
+
+jar {
+    includeEmptyDirs = false
+
+    exclude "META-INF/maven/**"
+    exclude "META-INF/INDEX.LIST"
+    exclude "META-INF/MANIFEST*"
+    exclude "META-INF//LICENSE*"
+    exclude "META-INF//NOTICE*"
+}
+

@@ -43,31 +43,38 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
     ```  
 
-## Examples torchvision image classification models in TorchServe
+## Example torchvision image classification models in TorchServe (Eager mode)
 The following example demonstrates how to create image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
 
 * [Image classification models](image_classifier/)
 
-## Example to serve a Custom Model with Custom Service Handler
+## Example to serve a Custom Model with Custom Service Handler (Eager mode)
 
 The following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
 * [Digit recognition with MNIST](image_classifier/mnist)
 
-## Example to serve Text classification model
+## Example to serve Text classification model (Eager mode)
 
 The following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TorchServe :
 
 * [Text classification example](text_classification)
 
-## Example to serve Object Detection model
+## Example to serve Object Detection model (Eager mode)
 
 The following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TorchServe :
 
 * [Object detection example](object_detector)
 
-## Example to serve Image Segmentation model
+## Example to serve Image Segmentation model (Eager mode)
 
 The following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TorchServe :
 
 * [Image segmentation example](image_segmenter)
+
+
+## Example to serve Huggingface Transformers (Torchscripted)
+
+The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
+
+* [Hugging Face Transformers](Huggingface_Transformers)

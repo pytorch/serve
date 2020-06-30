@@ -1,0 +1,120 @@
+[{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar",
+		"model_name": "my_text_classifier",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/text_classification/sample_text.txt"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+		"model_name": "squeezenet1_1",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/kitten.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar",
+		"model_name": "densenet161",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/kitten.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar",
+		"model_name": "alexnet",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/kitten.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
+		"model_name": "resnet-18",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/kitten.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar",
+		"model_name": "vgg11",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/kitten.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar",
+		"model_name": "mnist",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/mnist/test_data/0.png"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar",
+		"model_name": "fastrcnn",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/object_detector/persons.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar",
+		"model_name": "maskrcnn",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/object_detector/persons.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar",
+		"model_name": "fcn_resnet_101",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/object_detector/persons.jpg"
+	},
+	{
+		"url": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar",
+		"model_name": "resnet152",
+		"worker": 1,
+		"synchronous": "true",
+		"file": "../examples/image_classifier/kitten.jpg"
+	},
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_torchscript.mar",
+                "model_name": "roberta_qa_torchscript.mar",
+                "worker": 1,
+                "synchronous": "true",
+                "file": "../examples/Huggingface_Transformers/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
+                "model_name": "roberta_qa_no_torchscript",
+                "worker": 1,
+                "synchronous": "true",
+                "file": "../examples/Huggingface_Transformers/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_torchscript.mar",
+                "model_name": "bert_token_classification_torchscript",
+                "worker": 1,
+                "synchronous": "true",
+                "file": "../examples/text_classification/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_no_torchscript.mar",
+                "model_name": "bert_token_classification_no_torchscript",
+                "worker": "1",
+                "synchronous": "true",
+                "file" : "../examples/text_classification/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_with_torchscript.mar",
+                "model_name": "bert_seqc_with_torchscript",
+                "worker": "1",
+                "synchronous": "true",
+                "file" : "../examples/text_classification/sample_text.txt"
+        },
+        {
+                "url": "https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_without_torchscript.mar",
+                "model_name": "bert_seqc_without_torchscript",
+                "worker": "1",
+                "synchronous": "true",
+                "file" : "../examples/text_classification/sample_text.txt"
+        }
+]
