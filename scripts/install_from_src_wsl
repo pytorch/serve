@@ -1,0 +1,2 @@
+./scripts/setup_wsl_ubuntu
+./scripts/install_from_src_ubuntu
