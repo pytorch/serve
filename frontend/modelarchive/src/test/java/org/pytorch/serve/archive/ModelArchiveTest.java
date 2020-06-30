@@ -13,7 +13,8 @@ import org.testng.annotations.Test;
 public class ModelArchiveTest {
 
     private File output;
-    private static final List<String> URL_PATTERN_LIST = Collections.singletonList("http(s)?://.*");
+    private static final List<String> WHITELIST_URL_LIST =
+            Collections.singletonList("http(s)?://.*");
 
     @BeforeTest
     public void beforeTest() {
@@ -25,42 +26,21 @@ public class ModelArchiveTest {
         FileUtils.deleteQuietly(new File(tmp, "models"));
     }
 
-    @Test(expectedExceptions = FileAlreadyExistsException.class)
+    @Test
     public void test() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-
-        ModelArchive archive = ModelArchive.downloadModel(URL_PATTERN_LIST, modelStore, "noop.mar");
+        ModelArchive archive =
+                ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "noop.mar");
         archive.validate();
         archive.clean();
         Assert.assertEquals(archive.getModelName(), "noop");
-
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
-        archive =
-                ModelArchive.downloadModel(
-                        URL_PATTERN_LIST,
-                        modelStore,
-                        "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
-        Assert.assertEquals(archive.getModelName(), null);
-        ModelArchive.downloadModel(
-                URL_PATTERN_LIST,
-                modelStore,
-                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
-        ModelArchive.removeModel(
-                modelStore,
-                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model");
-        Assert.assertTrue(!new File(modelStore, "squeezenet_v1.1.model").exists());
     }
 
     @Test(expectedExceptions = DownloadModelException.class)
     public void testInvalidURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
-                URL_PATTERN_LIST,
+                WHITELIST_URL_LIST,
                 modelStore,
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
@@ -68,11 +48,8 @@ public class ModelArchiveTest {
     @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
-                URL_PATTERN_LIST,
+                WHITELIST_URL_LIST,
                 modelStore,
                 "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
@@ -91,19 +68,29 @@ public class ModelArchiveTest {
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testRelativePath() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-        ModelArchive.downloadModel(URL_PATTERN_LIST, modelStore, "../mnist.mar");
+        ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "../mnist.mar");
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testNullModelstore() throws ModelException, IOException {
         String modelStore = null;
-        ModelArchive.downloadModel(URL_PATTERN_LIST, modelStore, "../mnist.mar");
+        ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "../mnist.mar");
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testMarFileNotexist() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive archive =
-                ModelArchive.downloadModel(URL_PATTERN_LIST, modelStore, "noop1.mar");
+                ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "noop1.mar");
+    }
+
+    @Test(expectedExceptions = FileAlreadyExistsException.class)
+    public void testFileAlreadyExist() throws ModelException, IOException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive archive =
+                ModelArchive.downloadModel(
+                        WHITELIST_URL_LIST,
+                        modelStore,
+                        "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
     }
 }
