@@ -28,6 +28,9 @@ install_torchserve_from_source() {
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src_ubuntu
+  echo "TS Branch : " $(git rev-parse --abbrev-ref HEAD) >> $3
+  echo "TS Branch Commit Id : " $(git rev-parse HEAD      ) >> $3
+  echo "Build date : " $(date) >> $3
   echo "Torchserve Succesfully installed"
 }
 
@@ -94,7 +97,7 @@ run_postman_test() {
   stop_torch_serve
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --bail --verbose postman/inference_api_test_collection.json \
+  newman run -e postman/environment.json --verbose postman/inference_api_test_collection.json \
 	  -d postman/inference_data.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
 
   # Run Https test cases
@@ -132,7 +135,7 @@ sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
-install_torchserve_from_source $TS_REPO $BRANCH
+install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
