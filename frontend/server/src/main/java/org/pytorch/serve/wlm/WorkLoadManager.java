@@ -94,6 +94,9 @@ public class WorkLoadManager {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
+                    if (!isStartup) {
+                        SnapshotManager.getInstance().saveSnapshot();
+                    }
                     return future;
                 }
             } else {
