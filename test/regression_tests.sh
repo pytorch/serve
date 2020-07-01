@@ -29,7 +29,7 @@ install_torchserve_from_source() {
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src_ubuntu
   echo "TS Branch : " $(git rev-parse --abbrev-ref HEAD) >> $3
-  echo "TS Branch Commit Id : " $(git rev-parse HEAD      ) >> $3
+  echo "TS Branch Commit Id : " $(git rev-parse HEAD) >> $3
   echo "Build date : " $(date) >> $3
   echo "Torchserve Succesfully installed"
 }
@@ -58,7 +58,7 @@ start_torchserve() {
   torchserve --start --model-store $1 --models $1/densenet161_v1.mar &>> $2
   sleep 10
   curl http://127.0.0.1:8081/models
-
+  
 }
 
 start_secure_torchserve() {
