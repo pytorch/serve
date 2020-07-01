@@ -87,6 +87,7 @@ def start():
             props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
+                print("Warning: TorchServe is using non-default JVM parameters: {}".format(vm_args))
                 arg_list = vm_args.split()
                 if args.log_config:
                     for word in arg_list[:]:

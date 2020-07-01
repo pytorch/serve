@@ -4,6 +4,16 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 **For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
 
+## TorchServe Architecture
+![Architecture Diagram](https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg)
+
+### Terminology:
+* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients as well manages the models lifecycle.
+* **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
+* **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
+* **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
+* **Model Store**: This is a directory in which all the loadable models exist.
+
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
@@ -224,6 +234,16 @@ torchserve --stop
 ```
 
 You see output specifying that TorchServe has stopped.
+
+
+### Concurrency And Number of Workers
+TorchServe exposes configurations which allows the user to configure the number of worker threads on CPU and GPUs. This is an important config property that can speed up the server depending on the workload.
+*Note: the following property has bigger impact under heavy workloads.*
+If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` which tells the server to use a specific number of GPU per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
+```
+ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
+```
+
 
 ## Quick Start with Docker
 Refer [torchserve docker](docker/README.md) for details.
