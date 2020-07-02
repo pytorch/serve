@@ -231,6 +231,20 @@ public class SnapshotTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testAsyncScaleModelSnapshot"})
+    private void testUnregisterModelWithZeroWorkerSnapshot() throws InterruptedException {
+        Channel managementChannel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(managementChannel, "noop.mar", "noop_zero", false, false);
+        waitForSnapshot(2000);
+        TestUtils.unregisterModel(managementChannel, "noop_zero", null, true);
+        validateSnapshot("snapshot9.cfg");
+        waitForSnapshot();
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterModelWithZeroWorkerSnapshot"})
     public void testStopTorchServeSnapshot() {
         server.stop();
         validateSnapshot("snapshot9.cfg");
