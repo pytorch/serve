@@ -4,21 +4,25 @@ Description: >-
   an EC2 autoscaling group running Ubuntu 18.04, installss the packages
   and files necessary to deploy.
   **WARNING** This template creates an Amazon EC2 instance. You will be billed for
-  the AWS resources used if you create a stack from this template.AWSTemplateFormatVersion: '2010-09-09'
+  the AWS resources used if you create a stack from this template.
 Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
-  ServerCertPassword:
-    Description: Server certifiate password
-    Type: String
-    Default: changeit
   InstanceType:
     Description: TorchServe EC2 instance type
     Type: String
     Default: c5.4xlarge
     ConstraintDescription: Must be a valid EC2 instance type.
+  MinNodeNumber:
+    Description: Minimum number of nodes ins the ASG
+    Type: String
+    Default: '3'
+  MaxNodeNumber:
+    Description: Minimum number of nodes ins the ASG
+    Type: String
+    Default: '5'
   ManagementLocation:
     Description: 'The IP address range that can call management endpoint of TorchServe'
     Type: String
@@ -35,16 +39,6 @@ Parameters:
     Default: '0.0.0.0/0'
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-    Description: VpcId of your existing Virtual Private Cloud (VPC)
-    ConstraintDescription: must be the VPC Id of an existing Virtual Private Cloud.
-  Subnets:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
-    ConstraintDescription: must be a list of at least two existing subnets associated
-      with at least two different availability zones. They should be residing in the
-      selected Virtual Private Cloud.
 Mappings:
   AWSRegion2AMI:
     us-east-1:
@@ -69,17 +63,270 @@ Mappings:
       AMI: ami-0f7719e8b7ba25c61
     us-west-1:
       AMI: ami-0f56279347d2fa43e
+  SubnetConfig:
+    VPC:
+      CIDR: 10.0.0.0/16
+    PublicA:
+      CIDR: 10.0.0.0/24
+    PublicB:
+      CIDR: 10.0.1.0/24
 Resources:
+  CloudwatchIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - ec2.amazonaws.com
+              Action:
+                - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+  CloudwatchInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref CloudwatchIAMRole
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - VPC
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - PublicA
+        - CIDR
+      AvailabilityZone: !Select [ 0, !GetAZs "" ]
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - PublicB
+        - CIDR
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref 'VPC'
+      InternetGatewayId: !Ref 'InternetGateway'
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref 'InternetGateway'
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnetA'
+      RouteTableId: !Ref 'PublicRouteTable'
+  PublicSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnetB'
+      RouteTableId: !Ref 'PublicRouteTable'
+  PublicNetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref 'VPC'
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  InboundManagementPublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: !Ref 'ManagementLocation'
+      PortRange:
+        From: '8081'
+        To: '8081'
+  InboundInferencePublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '101'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: '0.0.0.0/0'
+      PortRange:
+        From: '8080'
+        To: '8080'
+  InboundSSHPublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: !Ref 'SSHLocation'
+      PortRange:
+        From: '22'
+        To: '22'
+  InboundEphemeralPublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '103'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: '0.0.0.0/0'
+      PortRange:
+        From: '10000'
+        To: '65535'
+  OutboundPublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: '0.0.0.0/0'
+      PortRange:
+        From: '0'
+        To: '65535'
+  PublicSubnetANetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnetA'
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+  PublicSubnetBNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnetB'
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+  TorcheServeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable access for ssh, inference and management endpoints
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '8080'
+          ToPort: '8080'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: '8081'
+          ToPort: '8081'
+          CidrIp: !Ref 'ManagementLocation'
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref 'SSHLocation'
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: [!Ref PublicSubnetA, !Ref PublicSubnetB]
+      SecurityGroups: [!Ref TorcheServeSecurityGroup]
+  ALBManagementTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      HealthCheckPath: /ping
+      HealthCheckPort: 8080
+      HealthCheckProtocol: HTTP
+      Port: 8081
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref 'VPC'
+  ALBInferenceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      HealthCheckPath: /ping
+      HealthCheckProtocol: HTTP
+      Port: 8080
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref 'VPC'
+  ALBManagementListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'ALBManagementTargetGroup'
+      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
+      Port: '8081'
+      Protocol: HTTP
+  ALBInferenceListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'ALBInferenceTargetGroup'
+      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
+      Port: '8080'
+      Protocol: HTTP
   TorchServeASG:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: GatewayToInternet
     Properties:
-      VPCZoneIdentifier: !Ref 'Subnets'
+      VPCZoneIdentifier: [!Ref PublicSubnetA, !Ref PublicSubnetB]
       LaunchConfigurationName: !Ref 'LaunchConfig'
-      MinSize: '3'
-      MaxSize: '5'
+      MinSize: !Ref 'MinNodeNumber'
+      MaxSize: !Ref 'MaxNodeNumber'
       TargetGroupARNs:
-        - !Ref 'ALBTargetGroupInference'
-        - !Ref 'ALBTargetGroupManagement'
+        - !Ref 'ALBInferenceTargetGroup'
+        - !Ref 'ALBManagementTargetGroup'
     CreationPolicy:
       ResourceSignal:
         Timeout: PT30M
@@ -92,6 +339,7 @@ Resources:
         WaitOnResourceSignals: 'true'
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
+    DependsOn: GatewayToInternet
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -103,8 +351,8 @@ Resources:
           files:
             /etc/torchserve/config.properties:
                content: !Sub |
-                 inference_address=https://0.0.0.0:8080
-                 management_address=https://0.0.0.0:8081
+                 inference_address=http://0.0.0.0:8080
+                 management_address=http://0.0.0.0:8081
                  private_key_file=/etc/torchserve/server.key
                  certificate_file=/etc/torchserve/server.pem
                mode: '000400'
@@ -189,8 +437,8 @@ Resources:
                content: !Sub |
                  [cfn-auto-reloader-hook]
                  triggers=post.update
-                 path=Resources.TorchServeASG.Metadata.AWS::CloudFormation::Init
-                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource TorchServeASG --region ${AWS::Region} --configsets InstallAndRun
+                 path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
+                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource LaunchConfig --region ${AWS::Region} --configsets InstallAndRun
                  runas=root
                mode: '000400'
                owner: root
@@ -213,14 +461,16 @@ Resources:
               command: !Sub |
                 systemctl start cfn-hup.service
     Properties:
-      KeyName: !Ref 'KeyName'
+      AssociatePublicIpAddress: 'true'
       ImageId: !FindInMap
         - AWSRegion2AMI
         - !Ref 'AWS::Region'
         - AMI
-      SecurityGroups:
-        - !Ref 'InstanceSecurityGroup'
       InstanceType: !Ref 'InstanceType'
+      IamInstanceProfile: !Ref CloudwatchInstanceProfile
+      SecurityGroups:
+        - !Ref 'TorcheServeSecurityGroup'
+      KeyName: !Ref 'KeyName'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -228,7 +478,7 @@ Resources:
           dpkg -i /tmp/amazon-cloudwatch-agent.deb
           apt-get update -y
           apt-get install -y python-pip python-setuptools openjdk-11-jdk openssl
-          python /usr/lib/python2.7/dist-packages/easy_install.py --script-dir /opt/aws/bin https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+          python /usr/lib/python2.7/dist-packages/easy_install.py --script-dir /opt/aws/bin  https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
           # Install miniconda https://docs.anaconda.com/anaconda/install/silent-mode/
           wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
           rm -rf /home/ubuntu/miniconda && bash /tmp/miniconda.sh -b -p /home/ubuntu/miniconda
@@ -238,10 +488,7 @@ Resources:
           conda config --set always_yes yes
           conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
           conda activate torchserve
-          # Setup private-key file and self-signed certificate files
           mkdir /etc/torchserve/
-          openssl req -new -x509 -days 365 -nodes -out /etc/torchserve/server.pem -keyout /etc/torchserve/server.key -subj "/C=US/ST=Washington/L=Seattle/O=Amazon Web Services/OU=Torchserve"
-          keytool -import -alias torchserve -keystore /etc/torchserve/keystore -trustcacerts -file /etc/torchserve/server.pem -storepass ${ServerCertPassword} -noprompt
           # Start cfn-hup
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource LaunchConfig --region ${AWS::Region} --configsets InstallAndRun
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeASG --region ${AWS::Region}
@@ -249,133 +496,21 @@ Resources:
           mkdir model_store
           export LOG_LOCATION="/var/log/torchserve"
           torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
-  TorchServeScaleUpPolicy:
-    Type: AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AdjustmentType: ChangeInCapacity
-      AutoScalingGroupName: !Ref 'TorchServeASG'
-      Cooldown: '60'
-      ScalingAdjustment: '1'
-  TorchServeScaleDownPolicy:
-    Type: AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AdjustmentType: ChangeInCapacity
-      AutoScalingGroupName: !Ref 'TorchServeASG'
-      Cooldown: '60'
-      ScalingAdjustment: '-1'
-  CPUAlarmHigh:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Scale-up if CPU > 90% for 10 minutes
-      MetricName: CPUUtilization
-      Namespace: AWS/EC2
-      Statistic: Average
-      Period: '300'
-      EvaluationPeriods: '2'
-      Threshold: '90'
-      AlarmActions:
-        - !Ref 'TorchServeScaleUpPolicy'
-      Dimensions:
-        - Name: AutoScalingGroupName
-          Value: !Ref 'TorchServeASG'
-      ComparisonOperator: GreaterThanThreshold
-  CPUAlarmLow:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Scale-down if CPU < 70% for 10 minutes
-      MetricName: CPUUtilization
-      Namespace: AWS/EC2
-      Statistic: Average
-      Period: '300'
-      EvaluationPeriods: '2'
-      Threshold: '70'
-      AlarmActions:
-        - !Ref 'TorchServeScaleDownPolicy'
-      Dimensions:
-        - Name: AutoScalingGroupName
-          Value: !Ref 'TorchServeASG'
-      ComparisonOperator: LessThanThreshold
-  ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Subnets: !Ref 'Subnets'
-  ALBManagementListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref 'ALBTargetGroupManagement'
-      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
-      Port: '8080'
-      Protocol: HTTP
-  ALBInferenceListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref 'ALBTargetGroupInference'
-      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
-      Port: '8081'
-      Protocol: HTTP
-  ALBTargetGroupManagement:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      HealthCheckIntervalSeconds: 30
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 3
-      HealthCheckPath: /ping
-      HealthCheckProtocol: HTTP
-      Port: 8080
-      Protocol: HTTP
-      UnhealthyThresholdCount: 5
-      VpcId: !Ref 'VpcId'
-  ALBTargetGroupInference:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      HealthCheckIntervalSeconds: 30
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 3
-      HealthCheckPort: 8080
-      HealthCheckPath: /ping
-      HealthCheckProtocol: HTTP
-      Port: 8081
-      Protocol: HTTP
-      UnhealthyThresholdCount: 5
-      VpcId: !Ref 'VpcId'
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable SSH access and HTTP from the load balancer only
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: !Ref 'SSHLocation'
-        - IpProtocol: tcp
-          FromPort: '8080'
-          ToPort: '8080'
-          SourceSecurityGroupId: !Select
-            - 0
-            - !GetAtt 'ApplicationLoadBalancer.SecurityGroups'
-        - IpProtocol: tcp
-          FromPort: '8081'
-          ToPort: '8081'
-          SourceSecurityGroupId: !Select
-            - 0
-            - !GetAtt 'ApplicationLoadBalancer.SecurityGroups'
-      VpcId: !Ref 'VpcId'
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT30M
 Outputs:
   TorchServeManagementURL:
     Description: Management URL for newly created TorchServe stack
     Value: !Join
       - ''
-      - - https://
+      - - http://
         - !GetAtt 'ApplicationLoadBalancer.DNSName'
         - :8081
   TorchServeInferenceURL:
     Description: Inference URL for newly created TorchServe stack
     Value: !Join
       - ''
-      - - https://
+      - - http://
         - !GetAtt 'ApplicationLoadBalancer.DNSName'
         - :8080
