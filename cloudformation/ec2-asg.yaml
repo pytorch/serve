@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
   AWS CloudFormation TorchServe: Creates a TorchServe stack using
-  an EC2 autoscaling group running Ubuntu 18.04, installss the packages
-  and files necessary to deploy.
+  an EC2 autoscaling group running Ubuntu 18.04 behind an Elastic Load Balancer,
+  installss the packages and files necessary to deploy.
+  Additionally, creates a CPUUtilization based scale up/down policy as an example.
   **WARNING** This template creates an Amazon EC2 instance. You will be billed for
   the AWS resources used if you create a stack from this template.
 Parameters:
@@ -268,6 +269,52 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: !Ref 'SSHLocation'
+  TorchServeScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref 'TorchServeASG'
+      Cooldown: '60'
+      ScalingAdjustment: '1'
+  TorchServeScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref 'TorchServeASG'
+      Cooldown: '60'
+      ScalingAdjustment: '-1'
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-up if CPU > 90% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '300'
+      EvaluationPeriods: '2'
+      Threshold: '90'
+      AlarmActions:
+        - !Ref 'TorchServeScaleUpPolicy'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'TorchServeASG'
+      ComparisonOperator: GreaterThanThreshold
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-down if CPU < 70% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '300'
+      EvaluationPeriods: '2'
+      Threshold: '70'
+      AlarmActions:
+        - !Ref 'TorchServeScaleDownPolicy'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'TorchServeASG'
+      ComparisonOperator: LessThanThreshold
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
