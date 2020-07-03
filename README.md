@@ -8,7 +8,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ![Architecture Diagram](https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg)
 
 ### Terminology:
-* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients as well manages the models lifecycle.
+* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients and manages the lifecycles of the models.
 * **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
 * **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
 * **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
@@ -73,7 +73,7 @@ Verified on EC2 instances running Ubuntu DL AMI 28.x
 ```
 ./scripts/install_from_src_ubuntu
 ```
-#### For MAC OS
+#### For macOS
 
 ```
 ./scripts/install_from_src_macos
@@ -129,7 +129,7 @@ torchserve --start --ncs --model-store model_store --models densenet161.mar
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
 
-**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs). This start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
+**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
 
 ### Get predictions from a model
 
@@ -189,9 +189,9 @@ You see output specifying that TorchServe has stopped.
 
 
 ### Concurrency And Number of Workers
-TorchServe exposes configurations which allows the user to configure the number of worker threads on CPU and GPUs. This is an important config property that can speed up the server depending on the workload.
+TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 *Note: the following property has bigger impact under heavy workloads.*
-If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` which tells the server to use a specific number of GPU per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
+If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
 ```
 ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 ```
