@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.wlm.Model;
 
 public final class EnvironmentUtils {
 
@@ -52,5 +54,16 @@ public final class EnvironmentUtils {
         }
 
         return envList.toArray(new String[0]); // NOPMD
+    }
+
+    public static String getPythonRunTime(Model model) {
+        String pythonRuntime;
+        Manifest.RuntimeType runtime = model.getModelArchive().getManifest().getRuntime();
+        if (runtime == Manifest.RuntimeType.PYTHON) {
+            pythonRuntime = configManager.getPythonExecutable();
+        } else {
+            pythonRuntime = runtime.getValue();
+        }
+        return pythonRuntime;
     }
 }

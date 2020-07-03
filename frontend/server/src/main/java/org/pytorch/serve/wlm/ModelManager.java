@@ -166,8 +166,11 @@ public final class ModelManager {
             Path requirementsFilePath =
                     Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
 
+            String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+
             String packageInstallCommand =
-                    "pip install -U -t "
+                    pythonRuntime
+                            + " -m pip install -U -t "
                             + model.getModelDir().getAbsolutePath()
                             + " -r "
                             + requirementsFilePath; // NOPMD

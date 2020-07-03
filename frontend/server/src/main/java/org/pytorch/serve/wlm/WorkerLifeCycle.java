@@ -8,7 +8,6 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -50,12 +49,7 @@ public class WorkerLifeCycle {
         }
 
         String[] args = new String[6];
-        Manifest.RuntimeType runtime = model.getModelArchive().getManifest().getRuntime();
-        if (runtime == Manifest.RuntimeType.PYTHON) {
-            args[0] = configManager.getPythonExecutable();
-        } else {
-            args[0] = runtime.getValue();
-        }
+        args[0] = EnvironmentUtils.getPythonRunTime(model);
         args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
         args[2] = "--sock-type";
         args[3] = connector.getSocketType();
