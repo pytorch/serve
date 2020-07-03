@@ -71,6 +71,18 @@ def test_start_from_latest():
     assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
     stop_torchserve()
 
+def test_start_from_read_only_snapshot():
+    return
+    '''
+    Validates if we can restore state from snapshot.
+    '''
+    snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
+    file_status = os.stat(snapshot_cfg)
+    os.chmod(snapshot_cfg, 0o444)
+    start_torchserve(snapshot_file=snapshot_cfg)
+    os.chmod(snapshot_cfg, (file_status.st_mode & 0o777))
+    assert (0 == subprocess.call("ps -ef | grep -i \"org.torchserve.ModelServer\"", shell=True))
+
 def test_no_config_snapshots_cli_option():
     '''
     Validates that --no-config-snapshots works as expected.
@@ -88,3 +100,58 @@ def test_start_from_default():
     start_torchserve()
     response = requests.get('http://127.0.0.1:8081/models/')
     assert len(json.loads(response.content)['models']) == 0
+
+#Negative Regression test cases (test_snapshot.py)
+
+def test_access_log_created():
+    '''
+    Validates that access logs are getting created correctly.
+    '''
+    stop_torchserve()
+    test_start_from_default()
+    assert len(glob.glob('logs/access_log.log')) == 1
+    stop_torchserve()
+
+def test_model_log_created():
+    '''
+    Validates that model logs are getting created correctly.
+    '''
+    stop_torchserve()
+    test_start_from_default()
+    assert len(glob.glob('logs/model_log.log')) == 1
+    stop_torchserve()
+
+def test_ts_log_created():
+    '''
+    Validates that ts logs are getting created correctly.
+    '''
+    stop_torchserve()
+    test_start_from_default()
+    assert len(glob.glob('logs/ts_log.log')) == 1
+    stop_torchserve()
+
+def test_model_metrics_created():
+    '''
+    Validates that model metrics is getting created.
+    '''
+    stop_torchserve()
+    test_start_from_default()
+    assert len(glob.glob('logs/model_metrics.log')) == 1
+    stop_torchserve()
+
+def test_ts_metrics_created():
+    '''
+    Validates that ts metrics is getting created correctly.
+    '''
+    stop_torchserve()
+    test_start_from_default()
+    assert len(glob.glob('logs/ts_metrics.log')) == 1
+    stop_torchserve()
+
+def test_start_from_non_existing_snapshot():
+    '''
+    Validates if we can restore state from snapshot.
+    '''
+    stop_torchserve()
+    start_torchserve(snapshot_file="logs/config/junk-snapshot.cfg")
+    assert (0 == subprocess.call("ps -ef | grep -i \"org.torchserve.ModelServer\"", shell=True))
