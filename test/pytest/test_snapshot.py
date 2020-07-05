@@ -72,7 +72,6 @@ def test_start_from_latest():
     stop_torchserve()
 
 def test_start_from_read_only_snapshot():
-    return
     '''
     Validates if we can restore state from snapshot.
     '''
@@ -81,7 +80,13 @@ def test_start_from_read_only_snapshot():
     os.chmod(snapshot_cfg, 0o444)
     start_torchserve(snapshot_file=snapshot_cfg)
     os.chmod(snapshot_cfg, (file_status.st_mode & 0o777))
-    assert (0 == subprocess.call("ps -ef | grep -i \"org.torchserve.ModelServer\"", shell=True))
+    try:
+        response = requests.get('http://127.0.0.1:8081/models/')
+    except:
+        assert False, "Test case failed"
+    else:
+        assert True, "Test case passed"
+    #assert (0 == subprocess.call("ps -ef | grep -i \"org.torchserve.ModelServer\"", shell=True))
 
 def test_no_config_snapshots_cli_option():
     '''
@@ -154,4 +159,9 @@ def test_start_from_non_existing_snapshot():
     '''
     stop_torchserve()
     start_torchserve(snapshot_file="logs/config/junk-snapshot.cfg")
-    assert (0 == subprocess.call("ps -ef | grep -i \"org.torchserve.ModelServer\"", shell=True))
+    try:
+        response = requests.get('http://127.0.0.1:8081/models/')
+    except:
+        assert False, "Test case failed"
+    else:
+        assert True, "Test case passed"
