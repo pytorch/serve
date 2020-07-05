@@ -29,6 +29,16 @@ def delete_all_snapshots():
     assert len(glob.glob('logs/config/*')) == 0
 
 
+def delete_model_store(model_store=None, model_mar=None):
+    model_store = model_store if (model_store != None) else "/workspace/model_store/"
+    if model_mar !=None:
+        for f in glob.glob(model_store+"/"+model_mar+"*"):
+            os.remove(f)
+    else:
+        for f in glob.glob(model_store+"/*"):
+            os.remove(f)
+
+
 def test_snapshot_created_on_start_and_stop():
     '''
     Validates that startup.cfg & shutdown.cfg are created upon start & stop.
@@ -165,3 +175,7 @@ def test_start_from_non_existing_snapshot():
         assert False, "Test case failed"
     else:
         assert True, "Test case passed"
+    finally:
+        delete_model_store()
+        delete_all_snapshots()
+        stop_torchserve()
