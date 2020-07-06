@@ -51,6 +51,7 @@ class TextClassifier(TextHandler):
         """
 
         inputs = torch.as_tensor(data, device=self.device)
+        # as per https://pytorch.org/docs/master/generated/torch.no_grad.html
         with torch.no_grad():
             output = self.model.forward(inputs, torch.tensor([0]).to(self.device))
 
