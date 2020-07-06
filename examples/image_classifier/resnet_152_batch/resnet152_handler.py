@@ -4,7 +4,6 @@ import numpy as np
 import os
 import torch
 from PIL import Image
-from torch.autograd import Variable
 from torchvision import transforms
 
 logger = logging.getLogger(__name__)
@@ -97,7 +96,8 @@ class BatchImageClassifier(object):
         return image_tensor
 
     def inference(self, img):
-        return self.model.forward(img)
+        with torch.no_grad():
+            return self.model.forward(img)
 
     def postprocess(self, inference_output):
         num_rows, num_cols = inference_output.shape

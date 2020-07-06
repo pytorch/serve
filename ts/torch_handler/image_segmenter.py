@@ -3,8 +3,8 @@ Module for image segmentation default handler
 """
 import io
 from PIL import Image
+import torch
 from torchvision import transforms as T
-from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
 
@@ -40,8 +40,9 @@ class ImangeSegmenter(VisionHandler):
 
     def inference(self, data):
         # Predict the pixel classes for segmentation
-        data = Variable(data).to(self.device)
-        pred = self.model(data)['out']
+        inputs = torch.as_tensor(data, device=self.device)
+        with torch.no_grad():
+            pred = self.model(inputs)['out']
         pred = pred.squeeze().detach().cpu().numpy()
         return [str(pred)]
 

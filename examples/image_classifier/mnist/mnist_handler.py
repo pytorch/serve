@@ -4,7 +4,6 @@ import numpy as np
 import os
 import torch
 from PIL import Image
-from torch.autograd import Variable
 from torchvision import transforms
 
 logger = logging.getLogger(__name__)
@@ -70,9 +69,9 @@ class MNISTDigitClassifier(object):
         img = np.expand_dims(img, 0)
         img = torch.from_numpy(img)
 
-        self.model.eval()
-        inputs = Variable(img).to(self.device)
-        outputs = self.model.forward(inputs)
+        inputs = torch.as_tensor(img, device=self.device)
+        with torch.no_grad():
+            outputs = self.model.forward(inputs)
 
         _, y_hat = outputs.max(1)
         predicted_idx = str(y_hat.item())

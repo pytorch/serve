@@ -108,7 +108,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         input_ids = inputs["input_ids"].to(self.device)
         # Handling inference for sequence_classification.
         if self.setup_config["mode"]== "sequence_classification":
-            predictions = self.model(input_ids)
+            with torch.no_grad():
+                predictions = self.model(input_ids)
             prediction = predictions[0].argmax(1).item()
 
             logger.info("Model predicted: '%s'", prediction)
@@ -119,7 +120,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         elif self.setup_config["mode"]== "question_answering":
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
-            answer_start_scores, answer_end_scores = self.model(input_ids)
+            with torch.no_grad():
+                answer_start_scores, answer_end_scores = self.model(input_ids)
             answer_start = torch.argmax(answer_start_scores)  # Get the most likely beginning of answer with the argmax of the score
             answer_end = torch.argmax(answer_end_scores) + 1  # Get the most likely end of answer with the argmax of the score
             input_ids = inputs["input_ids"].tolist()[0]
@@ -128,7 +130,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Model predicted: '%s'", prediction)
         # Handling inference for token_classification.
         elif self.setup_config["mode"]== "token_classification":
-            outputs = self.model(input_ids)[0]
+            with torch.no_grad():
+                outputs = self.model(input_ids)[0]
             predictions = torch.argmax(outputs, dim=2)
             tokens = self.tokenizer.tokenize(self.tokenizer.decode(inputs["input_ids"][0]))
             if self.mapping:

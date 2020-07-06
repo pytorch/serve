@@ -4,7 +4,6 @@
 Module for text classification default handler
 """
 import torch
-from torch.autograd import Variable
 from torchtext.data.utils import ngrams_iterator
 from .text_handler import TextHandler
 
@@ -51,8 +50,10 @@ class TextClassifier(TextHandler):
         Predict the class of a text using a trained deep learning model and vocabulary.
         """
 
-        inputs = Variable(data).to(self.device)
-        output = self.model.forward(inputs, torch.tensor([0]).to(self.device))
+        inputs = torch.as_tensor(data, device=self.device)
+        with torch.no_grad():
+            output = self.model.forward(inputs, torch.tensor([0]).to(self.device))
+
         output = output.argmax(1).item() + 1
         if self.mapping:
             output = self.mapping[str(output)]

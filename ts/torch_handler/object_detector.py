@@ -6,7 +6,6 @@ import torch
 from PIL import Image
 from torchvision import transforms
 from torchvision import __version__ as torchvision_version
-from torch.autograd import Variable
 from .vision_handler import VisionHandler
 
 
@@ -47,8 +46,9 @@ class ObjectDetector(VisionHandler):
     def inference(self, data):
         threshold = 0.5
         # Predict the classes and bounding boxes in an image using a trained deep learning model.
-        data = Variable(data).to(self.device)
-        pred = self.model([data])  # Pass the image to the model
+        inputs = torch.as_tensor(data, device=self.device)
+        with torch.no_grad():
+            pred = self.model([inputs])
         pred_class = list(pred[0]['labels'].cpu().numpy()) # Get the Prediction Score
         # Bounding boxes
         pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].cpu().detach().numpy())]

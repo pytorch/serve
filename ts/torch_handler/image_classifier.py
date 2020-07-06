@@ -6,7 +6,6 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from torch.autograd import Variable
 from torchvision import transforms
 
 from .vision_handler import VisionHandler
@@ -49,8 +48,9 @@ class ImageClassifier(VisionHandler):
         data = np.expand_dims(data, 0)
         data = torch.from_numpy(data)
 
-        inputs = Variable(data).to(self.device)
-        outputs = self.model.forward(inputs)
+        inputs = torch.as_tensor(data, device=self.device)
+        with torch.no_grad():
+            outputs = self.model.forward(inputs)
 
         ps = F.softmax(outputs, dim=1)
         topk = getattr(ps, self.device.type)().topk(topk)
