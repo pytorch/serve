@@ -147,7 +147,7 @@ def test_duplicate_model_registration_using_local_and_http_url():
     finally:
         torchserve_cleanup()
 
-def test_model_archiver_to_regenerate_model_mar_without_force_flag():
+def test_model_archiver_to_regenerate_model_mar_without_force_flag(force_flag=None):
     torchserve_cleanup()
     # Download resnet-18 model serialized file
     cmd = ["wget", "https://download.pytorch.org/models/resnet18-5c106cde.pth"]
@@ -161,6 +161,8 @@ def test_model_archiver_to_regenerate_model_mar_without_force_flag():
           +CODEBUILD_WD+"/examples" \
           "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
+    if force_flag !=None:
+        v1_cmd_list.extend(["--force"])
     retval1 = subprocess.run(v1_cmd_list)
     #Now regenerate the same model file using same process as above without force flag
     v2_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
@@ -170,9 +172,15 @@ def test_model_archiver_to_regenerate_model_mar_without_force_flag():
           +CODEBUILD_WD+"/examples" \
           "/image_classifier/index_to_name.json"
     v2_cmd_list = v2_cmd.split(" ")
+    if force_flag !=None:
+        v2_cmd_list.extend(["--force"])
     try:
         assert (0 == subprocess.run(v2_cmd_list).returncode), "Mar file couldn't be created.use -f option"
     finally:
         for f in glob.glob("resnet*.mar"):
             os.remove(f)
         torchserve_cleanup()
+
+
+def test_model_archiver_to_regenerate_model_mar_with_force_flag():
+    test_model_archiver_to_regenerate_model_mar_without_force_flag("--force")
