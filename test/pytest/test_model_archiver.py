@@ -173,4 +173,6 @@ def test_model_archiver_to_regenerate_model_mar_without_force_flag():
     try:
         assert (0 == subprocess.run(v2_cmd_list).returncode), "Mar file couldn't be created.use -f option"
     finally:
+        for f in glob.glob("resnet*.mar"):
+            os.remove(f)
         torchserve_cleanup()
