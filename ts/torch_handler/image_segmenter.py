@@ -1,9 +1,9 @@
 """
 Module for image segmentation default handler
 """
-import io
-from PIL import Image
 from torchvision import transforms as T
+import torch
+import torch.nn.functional as F
 from .vision_handler import VisionHandler
 
 class ImageSegmenter(VisionHandler):
@@ -14,10 +14,14 @@ class ImageSegmenter(VisionHandler):
     """
 
     image_processing = T.Compose([T.Resize(256),
-                     T.CenterCrop(224),
-                     T.ToTensor(),
-                     T.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])])
+                 T.CenterCrop(224),
+                 T.ToTensor(),
+                 T.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])])
+
+    def inference(self, data):
+        result = super().inference(data)
+        return result['out']
 
 class ImangeSegmenter(ImageSegmenter):
     """

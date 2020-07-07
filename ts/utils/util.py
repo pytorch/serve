@@ -5,6 +5,9 @@ import inspect
 import os
 import json
 import itertools
+import logging
+
+logger = logging.getLogger(__name__)
 
 def list_classes_from_module(module, parent_class=None):
     """

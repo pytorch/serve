@@ -7,6 +7,8 @@ import logging
 import os
 import json
 import importlib.util
+import pathlib
+
 
 import torch
 from ..utils.util import list_classes_from_module, load_label_mapping
@@ -78,7 +80,8 @@ class BaseHandler(abc.ABC):
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
 
-        module_name = model_file.split('.')[0]
+        module_path = pathlib.PurePath(model_def_path)
+        module_name = str(module_path.with_suffix('')).replace('/', '.')
         module_spec = importlib.util.spec_from_file_location(module_name, model_def_path)
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
@@ -113,8 +116,7 @@ class BaseHandler(abc.ABC):
         marshalled_data = data.to(self.device)
         with torch.no_grad():
             results = self.model(marshalled_data)
-        marshalled_results = results.to('cpu')
-        return marshalled_results
+        return results
 
     def postprocess(self, data):
         """
