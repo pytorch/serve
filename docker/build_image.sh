@@ -3,6 +3,8 @@
 MACHINE=cpu
 BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest"
+BUILD_TYPE="dev"
+BASE_IMAGE="ubuntu:18.04"
 
 for arg in "$@"
 do
@@ -12,6 +14,8 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
+          echo "-c, --codebuild specify to created image for codebuild"
+          echo "-t, --tag specify tag name for docker image"
           exit 0
           ;;
         -b|--branch_name)
@@ -28,18 +32,19 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
+          BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
           shift
           ;;
-	-t|--tag)
+        -c|--codebuild)
+          BUILD_TYPE="codebuild"
+          shift
+          ;;
+        -t|--tag)
           DOCKER_TAG="$2"
+          shift
           shift
           ;;
     esac
 done
 
-rm -rf serve
-git clone https://github.com/pytorch/serve.git
-cd serve
-git checkout $BRANCH_NAME
-cd ..
-DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.$MACHINE -t $DOCKER_TAG .
+DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg MACHINE_TYPE=$MACHINE  .
