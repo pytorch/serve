@@ -134,8 +134,6 @@ class TestExportModelUtils:
             def __init__(self, **kwargs):
                 self.__dict__.update(kwargs)
 
-        author = 'ABC'
-        email = 'ABC@XYZ.com'
         model_name = 'my-model'
         handler = 'a.py::my-awesome-func'
         serialized_file = 'model.pt'
@@ -143,9 +141,9 @@ class TestExportModelUtils:
         version = "1.0"
         source_vocab = None
 
-        args = Namespace(author=author, email=email, model_name=model_name, handler=handler,
-                         runtime=RuntimeType.PYTHON.value, serialized_file=serialized_file, model_file=model_file,
-                         version=version, source_vocab=source_vocab)
+        args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value,
+                         serialized_file=serialized_file, model_file=model_file, version=version,
+                         source_vocab=source_vocab)
 
         def test_model(self):
             mod = ModelExportUtils.generate_model(self.args)

@@ -18,15 +18,12 @@ class Manifest(object):
     The main manifest object which gets written into the model archive as MANIFEST.json
     """
 
-    def __init__(self, runtime, model, description=None,license=None, user_data=None):
+    def __init__(self, runtime, model):
 
         self.creation_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.runtime = RuntimeType(runtime)
         self.model = model
         self.archiver_version = __version__
-        self.license = license
-        self.description = description
-        self.user_data = user_data
         self.manifest_dict = self.__to_dict__()
 
     def __to_dict__(self):
@@ -38,17 +35,8 @@ class Manifest(object):
 
         manifest_dict['model'] = self.model.__to_dict__()
 
-        if self.license is not None:
-            manifest_dict['license'] = self.license
-
         if self.archiver_version is not None:
             manifest_dict['archiverVersion'] = self.archiver_version
-
-        if self.description is not None:
-            manifest_dict['description'] = self.description
-
-        if self.user_data is not None:
-            manifest_dict['userData'] = self.user_data
 
         return manifest_dict
 
