@@ -9,7 +9,7 @@ def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=F
     stop_torchserve()
     cmd = ["torchserve","--start"]
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    cmd.extend(["--model-store", "/workspace/model_store/"])
+    cmd.extend(["--model-store", model_store])
     if(snapshot_file != None):
         cmd.extend(["--ts-config", snapshot_file])
     if(no_config_snapshots):
@@ -29,14 +29,33 @@ def delete_all_snapshots():
     assert len(glob.glob('logs/config/*')) == 0
 
 
-def delete_model_store(model_store=None, model_mar=None):
+def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
     if model_mar !=None:
         for f in glob.glob(model_store+"/"+model_mar+"*"):
             os.remove(f)
-    else:
-        for f in glob.glob(model_store+"/*"):
-            os.remove(f)
+
+
+def replace_mar_file_with_dummy_mar_in_model_store(model_store=None, model_mar=None):
+    model_store = model_store if (model_store != None) else "/workspace/model_store/"
+    if model_mar != None:
+        myfilepath = model_store + "/" + model_mar
+        if os.path.exists(model_store + "/" + model_mar):
+            os.remove(myfilepath)
+            with open(myfilepath, "w+") as f:
+                f.write("junk data")
+
+
+def delete_model_store(model_store=None):
+    model_store = model_store if (model_store != None) else "/workspace/model_store/"
+    for f in glob.glob(model_store+"/*"):
+        os.remove(f)
+
+
+def torchserve_cleanup():
+    stop_torchserve()
+    delete_model_store()
+    delete_all_snapshots()
 
 
 def test_snapshot_created_on_start_and_stop():
@@ -50,13 +69,14 @@ def test_snapshot_created_on_start_and_stop():
     assert len(glob.glob('logs/config/*shutdown.cfg')) == 1
 
 
-def test_snapshot_created_on_management_api_invoke():
+def test_snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
     '''
     Validates that snapshot.cfg is created when management apis are invoked.
     '''
     delete_all_snapshots()
     start_torchserve()
-    requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar')
+    requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/'
+                  +model_mar)
     time.sleep(10)
     stop_torchserve()
     assert len(glob.glob('logs/config/*snap*.cfg')) == 1
@@ -83,7 +103,7 @@ def test_start_from_latest():
 
 def test_start_from_read_only_snapshot():
     '''
-    Validates if we can restore state from snapshot.
+    Validates if we can restore state from a read-only snapshot.
     '''
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
     file_status = os.stat(snapshot_cfg)
@@ -93,10 +113,11 @@ def test_start_from_read_only_snapshot():
     try:
         response = requests.get('http://127.0.0.1:8081/models/')
     except:
-        assert False, "Test case failed"
+        assert False, "Failed to start Torchserve using Read Only Snapshot"
     else:
-        assert True, "Test case passed"
-    #assert (0 == subprocess.call("ps -ef | grep -i \"org.torchserve.ModelServer\"", shell=True))
+        assert True, "Successfully started Torchserve using Read Only Snapshot"
+    finally:
+        torchserve_cleanup()
 
 def test_no_config_snapshots_cli_option():
     '''
@@ -116,52 +137,6 @@ def test_start_from_default():
     response = requests.get('http://127.0.0.1:8081/models/')
     assert len(json.loads(response.content)['models']) == 0
 
-#Negative Regression test cases (test_snapshot.py)
-
-def test_access_log_created():
-    '''
-    Validates that access logs are getting created correctly.
-    '''
-    stop_torchserve()
-    test_start_from_default()
-    assert len(glob.glob('logs/access_log.log')) == 1
-    stop_torchserve()
-
-def test_model_log_created():
-    '''
-    Validates that model logs are getting created correctly.
-    '''
-    stop_torchserve()
-    test_start_from_default()
-    assert len(glob.glob('logs/model_log.log')) == 1
-    stop_torchserve()
-
-def test_ts_log_created():
-    '''
-    Validates that ts logs are getting created correctly.
-    '''
-    stop_torchserve()
-    test_start_from_default()
-    assert len(glob.glob('logs/ts_log.log')) == 1
-    stop_torchserve()
-
-def test_model_metrics_created():
-    '''
-    Validates that model metrics is getting created.
-    '''
-    stop_torchserve()
-    test_start_from_default()
-    assert len(glob.glob('logs/model_metrics.log')) == 1
-    stop_torchserve()
-
-def test_ts_metrics_created():
-    '''
-    Validates that ts metrics is getting created correctly.
-    '''
-    stop_torchserve()
-    test_start_from_default()
-    assert len(glob.glob('logs/ts_metrics.log')) == 1
-    stop_torchserve()
 
 def test_start_from_non_existing_snapshot():
     '''
@@ -172,10 +147,113 @@ def test_start_from_non_existing_snapshot():
     try:
         response = requests.get('http://127.0.0.1:8081/models/')
     except:
-        assert False, "Test case failed"
+        assert False, "Cannot start Torchserve using a Non Existing Snapshot"
     else:
-        assert True, "Test case passed"
+        assert True, "Torchserve started successfully using Non Existing Snapshot File"
     finally:
-        delete_model_store()
-        delete_all_snapshots()
-        stop_torchserve()
+        torchserve_cleanup()
+
+
+def test_torchserve_init_with_non_existent_model_store():
+    start_torchserve(model_store="/invalid_model_store", snapshot_file=None, no_config_snapshots=True)
+    try:
+        response = requests.get('http://127.0.0.1:8081/models/')
+    except:
+        assert False, "Failed to start Torchserve using non existent model-store directory"
+    else:
+        assert True, "Successfully started Torchserve using non existent directory"
+
+
+def test_restart_torchserve_with_last_snapshot_with_model_mar_removed():
+    # Run torchserve normally
+    # Register a model
+    # Stop torchserve
+    # Check if snapshot file is generated
+    test_snapshot_created_on_management_api_invoke()
+
+    #Now remove the registered model mar file (delete_mar_ fn)
+    delete_mar_file_from_model_store(model_store="/workspace/model_store",
+                                     model_mar="densenet")
+
+    #Start Torchserve again normally (test_start_with_default)
+    snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
+    start_torchserve(snapshot_file=snapshot_cfg)
+    try:
+        response = requests.get('http://127.0.0.1:8081/models/')
+    except:
+        assert False, "Failed to start Torchserve as one of reqd model mar file is missing"
+    else:
+        assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
+        # UnRegister densenet161 model
+        response = requests.delete('http://localhost:8081/models/densenet161')
+        time.sleep(10)
+    finally:
+        torchserve_cleanup()
+
+
+def test_replace_mar_file_with_dummy():
+    # Run torchserve normally
+    # Register a model
+    # Stop torchserve
+    # Check if snapshot file is generated
+    test_snapshot_created_on_management_api_invoke()
+
+    #Start Torchserve again normally (test_start_with_default)
+    snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
+    start_torchserve(snapshot_file=snapshot_cfg)
+    response = requests.get('http://127.0.0.1:8081/models/')
+    assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
+    stop_torchserve()
+
+    #Now replace the registered model mar with dummy file
+    replace_mar_file_with_dummy_mar_in_model_store(
+        model_store="/workspace/model_store", model_mar="densenet161.mar")
+    snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
+    start_torchserve(snapshot_file=snapshot_cfg)
+    try:
+        response = requests.get('http://127.0.0.1:8081/models/')
+        assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
+    except:
+        assert False, "Correct Model mar file not found"
+    else:
+        # UnRegister densenet161 model
+        response = requests.delete('http://localhost:8081/models/densenet161')
+        time.sleep(10)
+    finally:
+        torchserve_cleanup()
+
+
+def test_restart_torchserve_with_one_of_model_mar_removed():
+    # Register multiple models
+    #1st model
+    start_torchserve()
+    requests.post(
+        'http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar')
+    time.sleep(15)
+    #2nd model
+    requests.post(
+        'http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar')
+    time.sleep(15)
+    stop_torchserve()
+
+    #Start Torchserve with last snapshot
+    snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
+    start_torchserve()
+    response = requests.get('http://127.0.0.1:8081/models/')
+    num_of_regd_models = len(json.loads(response.content)['models'])
+    stop_torchserve()
+
+    #Now remove the registered model mar file (delete_mar_ fn)
+    delete_mar_file_from_model_store(model_store="/workspace/model_store",
+                                     model_mar="densenet")
+
+    #Start Torchserve again normally (test_start_with_default)
+    snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
+    start_torchserve(snapshot_file=snapshot_cfg)
+    try:
+        response = requests.get('http://127.0.0.1:8081/models/')
+        assert len(json.loads(response.content)['models']) == num_of_regd_models
+    except:
+        assert False, "Failed to start Torchserve as one of reqd model mar file is missing"
+    finally:
+        torchserve_cleanup()

@@ -5,6 +5,10 @@ import glob
 import requests
 import json
 
+ROOT_DIR="/workspace/"
+MODEL_STORE=ROOT_DIR+"model_store"
+#CHANGE THIS TO CORRECT PYTORCH CODE REPOSITORY
+CODEBUILD_WD="/home/deepak/projects/ofc/db_torch/torch_issue_394/serve"
 
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
     stop_torchserve()
@@ -30,17 +34,22 @@ def delete_all_snapshots():
     assert len(glob.glob('logs/config/*')) == 0
 
 
-def delete_model_store(model_store=None, model_mar=None):
+def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
     if model_mar !=None:
         for f in glob.glob(model_store+"/"+model_mar+"*"):
             os.remove(f)
-    else:
-        for f in glob.glob(model_store+"/*"):
-            os.remove(f)
+
+
+def delete_model_store(model_store=None):
+    model_store = model_store if (model_store != None) else "/workspace/model_store/"
+    for f in glob.glob(model_store+"/*"):
+        os.remove(f)
+
 
 def torchserve_cleanup():
     stop_torchserve()
+    delete_model_store()
     delete_all_snapshots()
 
 
@@ -82,7 +91,8 @@ def test_mnist_model_register_and_inference_on_valid_model():
 
 def test_mnist_model_register_using_non_existent_handler_with_nonzero_workers():
     '''
-    Validates that snapshot.cfg is created when management apis are invoked.
+    Validates that a model cannot be registered with a non existent handler if
+    the initial number of workers is greater than zero.
     '''
     torchserve_cleanup()
     start_torchserve(no_config_snapshots=True)
@@ -90,14 +100,19 @@ def test_mnist_model_register_using_non_existent_handler_with_nonzero_workers():
     response = requests.post(
         'http://127.0.0.1:8081/models?handler=nehandler&initial_workers=1&url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar')
     time.sleep(20)
-    assert json.loads(response.content)['code'] == 500
-    assert json.loads(response.content)['type'] == "InternalServerException"
+    try:
+        if json.loads(response.content)['code'] == 500 and \
+                json.loads(response.content)['type'] == "InternalServerException":
+            assert False, "Internal Server Exception, " \
+                          "Cannot register model with non existent handler with non zero workers"
+        else:
+            assert True, "Successfully registered model with " \
+                         "non existent handler with non zero workers"
+    finally:
+        torchserve_cleanup()
 
-    torchserve_cleanup()
-    # run_inference('http://127.0.0.1:8080/predictions/mnist',files)
 
-
-def mnist_model_register_and_scale_using_non_existent_handler():
+def mnist_model_register_using_non_existent_handler_then_scale_up():
     '''
     Validates that snapshot.cfg is created when management apis are invoked.
     '''
@@ -114,13 +129,14 @@ def mnist_model_register_and_scale_using_non_existent_handler():
     time.sleep(20)
     # Check if workers got scaled
     response = requests.get('http://127.0.0.1:8081/models/mnist')
-    mnist_list = json.loads(response.content)
-    assert len(mnist_list[0]['workers']) > 1
+    return response
 
 
 def test_mnist_model_register_and_scale_using_non_existent_handler():
     # Register & Scale model
-    mnist_model_register_and_scale_using_non_existent_handler()
+    response = mnist_model_register_using_non_existent_handler_then_scale_up()
+    mnist_list = json.loads(response.content)
+    assert len(mnist_list[0]['workers']) > 1
     # Cleanup
 
     # UnRegister mnist model
@@ -131,7 +147,9 @@ def test_mnist_model_register_and_scale_using_non_existent_handler():
 
 
 def test_mnist_model_register_scale_inference_with_non_existent_handler():
-    mnist_model_register_and_scale_using_non_existent_handler()
+    response = mnist_model_register_using_non_existent_handler_then_scale_up()
+    mnist_list = json.loads(response.content)
+    assert len(mnist_list[0]['workers']) > 1
     files = {
         'data': ('../../examples/image_classifier/mnist/test_data/1.png',
                  open('../../examples/image_classifier/mnist/test_data/1.png', 'rb')),
@@ -143,6 +161,7 @@ def test_mnist_model_register_scale_inference_with_non_existent_handler():
         response = requests.delete('http://localhost:8081/models/mnist')
         time.sleep(10)
     finally:
-        delete_model_store("/workspace/model_store/", "mnist")
+        #Remove the non-existent/invalid handler based model mar file from model-store
+        delete_mar_file_from_model_store("/workspace/model_store/", "mnist")
         # Cleanup
         torchserve_cleanup()
