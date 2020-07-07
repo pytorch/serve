@@ -14,28 +14,10 @@ class MNISTDigitClassifier(ImageClassifier):
     Here methods preprocess() and postprocess() have been overridden while others are reused from parent class.
     """
 
-    def preprocess(self, data):
-        """
-         Scales, crops, and normalizes a PIL image for a MNIST model,
-         returns a tensor.
-        """
-        image = data[0].get("data")
-        if image is None:
-            image = data[0].get("body")
+    image_processing = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
 
-        mnist_transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
-        image = Image.open(io.BytesIO(image))
-        image = mnist_transform(image)
-
-        # Convert 2D image to 1D vector
-        image = image.unsqueeze(0)
-
-        return image
-
-    def postprocess(self, inference_output):
-        _, y_hat = inference_output.max(1)
-        predicted_idx = str(y_hat.item())
-        return [predicted_idx]
+    def postprocess(self, data):
+        return data.argmax(1).tolist()
