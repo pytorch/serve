@@ -38,6 +38,17 @@ test_base_handler () {
   rm -rf $TEST_DIR/models/tmp
 }
 
+test_object_detector () {
+  mkdir -p $TEST_DIR/models/tmp
+  wget -nc -q -O \
+    $TEST_DIR/models/tmp/model.pt \
+    https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
+  cp -r examples/object_detector/fast-rcnn/* $TEST_DIR/models/tmp
+  python -m pytest $TEST_DIR/test_object_detector.py
+  rm -rf $TEST_DIR/models/tmp
+}
+
 test_base_handler
 test_image_classifier
 test_image_segmenter
+test_object_detector

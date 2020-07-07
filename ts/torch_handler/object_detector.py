@@ -8,7 +8,8 @@ from torchvision import transforms
 from torchvision import __version__ as torchvision_version
 from torch.autograd import Variable
 from .vision_handler import VisionHandler
-
+from packaging import version
+from ..utils.util import map_class_to_label
 
 class ObjectDetector(VisionHandler):
     """
@@ -16,60 +17,29 @@ class ObjectDetector(VisionHandler):
     and returns list of detected classes and bounding boxes respectively
     """
 
-    def __init__(self):
-        super(ObjectDetector, self).__init__()
+    image_processing = transforms.Compose([transforms.ToTensor()])
+    threshold = 0.5
 
     def initialize(self, context):
         super(ObjectDetector, self).initialize(context)
-        version = torchvision_version.split(".")
 
-        if int(version[0]) == 0 and int(version[1]) < 6:
+        # Torchvision breaks with object detector models before 0.6.0
+        if version.parse(torchvision_version) < version.parse("0.6.0"):
             self.initialized = False
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model.to(self.device)
             self.model.eval()
             self.initialized = True
 
-    def preprocess(self, data):
-        """
-         Scales, crops, and normalizes a image for a PyTorch model,
-         returns an Numpy array
-        """
-        image = data[0].get("data")
-        if image is None:
-            image = data[0].get("body")
-
-        my_preprocess = transforms.Compose([transforms.ToTensor()])
-        image = Image.open(io.BytesIO(image))
-        image = my_preprocess(image)
-        return image
-
-    def inference(self, data):
-        threshold = 0.5
-        # Predict the classes and bounding boxes in an image using a trained deep learning model.
-        data = Variable(data).to(self.device)
-        pred = self.model([data])  # Pass the image to the model
-        pred_class = list(pred[0]['labels'].cpu().numpy()) # Get the Prediction Score
-        # Bounding boxes
-        pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].cpu().detach().numpy())]
-        pred_score = list(pred[0]['scores'].cpu().detach().numpy())
-        # Get list of index with score greater than threshold.
-        pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
-        pred_boxes = pred_boxes[:pred_t + 1]
-        pred_class = pred_class[:pred_t + 1]
-        return [pred_class, pred_boxes]
-
     def postprocess(self, data):
-        pred_class = data[0]
-        try:
-            if self.mapping:
-                pred_class = [self.mapping['object_type_names'][i] for i in pred_class]  # Get the Prediction Score
+        box_filters = [ row['scores'] >= self.threshold for row in data ]
 
-            retval = []
-            for idx, box in enumerate(data[1]):
-                class_name = pred_class[idx]
-                retval.append({class_name: str(box)})
-            return [retval]
-        except Exception as e:
-            raise Exception('Object name list file should be json format - {"object_type_names":["person","car"...]}"'
-                            + e)
+        filtered_boxes, filtered_classes = [
+            [row[key][box_filter].tolist() for row, box_filter in zip(data, box_filters) ]
+            for key in ['boxes', 'labels']
+        ]
+        return map_class_to_label(
+            filtered_boxes,
+            self.mapping,
+            filtered_classes
+        )
