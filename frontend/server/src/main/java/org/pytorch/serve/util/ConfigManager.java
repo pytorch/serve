@@ -303,17 +303,13 @@ public final class ConfigManager {
         }
         int workers = getConfiguredDefaultWorkersPerModel();
 
-        if ((workers == 0) && (prop.getProperty("NUM_WORKERS", null) != null)) {
-            workers = getIntProperty("NUM_WORKERS", 0);
-        }
-
         if (workers == 0) {
             workers = getNumberOfGpu();
         }
         if (workers == 0) {
             workers = Runtime.getRuntime().availableProcessors();
         }
-        setProperty("NUM_WORKERS", Integer.toString(workers));
+        setProperty("default_workers_per_model", Integer.toString(workers));
         return workers;
     }
 
