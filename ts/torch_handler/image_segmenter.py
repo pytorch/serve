@@ -22,9 +22,3 @@ class ImageSegmenter(VisionHandler):
     def inference(self, data):
         result = super().inference(data)
         return result['out']
-
-class ImangeSegmenter(ImageSegmenter):
-    """
-    ImageSegmenter was originally misspelled. This is a compat layer
-    """
-    pass

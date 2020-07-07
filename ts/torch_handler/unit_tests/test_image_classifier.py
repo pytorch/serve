@@ -1,4 +1,7 @@
 import pytest
+import sys
+
+sys.path.append('ts/torch_handler/unit_tests/models/tmp')
 
 @pytest.fixture
 def model_setup():

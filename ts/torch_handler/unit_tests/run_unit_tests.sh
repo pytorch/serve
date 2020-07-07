@@ -26,7 +26,7 @@ test_image_segmenter () {
     https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
   cp -r examples/image_segmenter/fcn/* $TEST_DIR/models/tmp
   python -m pytest $TEST_DIR/test_image_segmenter.py
-  #rm -rf $TEST_DIR/models/tmp
+  rm -rf $TEST_DIR/models/tmp
 }
 
 test_base_handler () {
@@ -38,6 +38,6 @@ test_base_handler () {
   rm -rf $TEST_DIR/models/tmp
 }
 
-#test_base_handler
-#test_image_classifier
+test_base_handler
+test_image_classifier
 test_image_segmenter

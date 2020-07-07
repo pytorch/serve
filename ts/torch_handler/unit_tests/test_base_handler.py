@@ -1,14 +1,13 @@
 import pytest
+import sys
+
+sys.path.append('ts/torch_handler/unit_tests/models/tmp')
 
 @pytest.fixture
 def model_context():
     from .test_utils.mock_context import MockContext
 
-    return MockContext(
-        model_file='base_model.py',
-        model_pt_file='base_model.pt',
-        model_dir='ts/torch_handler/unit_tests/models/tmp'
-    )
+    return MockContext()
 
 def test_initialize(model_context):
     from ts.torch_handler.base_handler import BaseHandler

@@ -80,12 +80,7 @@ class BaseHandler(abc.ABC):
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
 
-        module_path = pathlib.PurePath(model_def_path)
-        module_name = str(module_path.with_suffix('')).replace('/', '.')
-        module_spec = importlib.util.spec_from_file_location(module_name, model_def_path)
-        module = importlib.util.module_from_spec(module_spec)
-        module_spec.loader.exec_module(module)
-
+        module = importlib.import_module(model_file.split(".")[0])
         model_class_definitions = list_classes_from_module(module)
         if len(model_class_definitions) != 1:
             raise ValueError("Expected only one class as model definition. {}".format(
