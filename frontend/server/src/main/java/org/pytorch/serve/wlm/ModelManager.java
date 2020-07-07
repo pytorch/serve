@@ -177,7 +177,12 @@ public final class ModelManager {
 
             String[] envp =
                     EnvironmentUtils.getEnvString(configManager.getModelServerHome(), null, null);
-            Process process = Runtime.getRuntime().exec(packageInstallCommand, envp);
+            Process process =
+                    Runtime.getRuntime()
+                            .exec(
+                                    packageInstallCommand,
+                                    envp,
+                                    model.getModelDir().getAbsoluteFile());
             process.waitFor();
         }
     }
