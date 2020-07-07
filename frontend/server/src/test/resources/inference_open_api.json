@@ -8,6 +8,7 @@
   "paths": {
     "/": {
       "options": {
+        "description": "Get openapi description.",
         "operationId": "apiDescription",
         "parameters": [],
         "responses": {
@@ -71,6 +72,7 @@
     },
     "/ping": {
       "get": {
+        "description": "Get TorchServe status.",
         "operationId": "ping",
         "parameters": [],
         "responses": {
@@ -125,9 +127,9 @@
         }
       }
     },
-    "/predictions/{model_name}[/{model_version}]": {
+    "/predictions/{model_name}": {
       "post": {
-        "description": "Predictions entry point for each model. Use OPTIONS method to get detailed model API input and output description.",
+        "description": "Predictions entry point to get inference using default model version.",
         "operationId": "predictions",
         "parameters": [
           {
@@ -141,7 +143,7 @@
           }
         ],
         "requestBody": {
-          "description": "Input data format is defined by each model. Use OPTIONS method to get details for model input format.",
+          "description": "Input data format is defined by each model.",
           "content": {
             "*/*": {
               "schema": {
@@ -154,7 +156,7 @@
         },
         "responses": {
           "200": {
-            "description": "Output data format is defined by each model. Use OPTIONS method to get details for model output and output format.",
+            "description": "Output data format is defined by each model.",
             "content": {
               "*/*": {
                 "schema": {
@@ -252,10 +254,12 @@
             }
           }
         }
-      },
-      "options": {
-        "description": "Display details of per model input and output.",
-        "operationId": "predictionsApi",
+      }
+    },
+    "/predictions/{model_name}/{model_version}": {
+      "post": {
+        "description": "Predictions entry point to get inference using specific model version.",
+        "operationId": "version_predictions",
         "parameters": [
           {
             "in": "path",
@@ -265,15 +269,124 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Name of model version.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
+        "requestBody": {
+          "description": "Input data format is defined by each model.",
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Output data format is defined by each model.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Model not found or Model Version not found",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No worker is available to serve request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
                 }
               }
             }
@@ -283,7 +396,8 @@
     },
     "/api-description": {
       "get": {
-        "operationId": "apiDescription",
+        "description": "Get openapi description.",
+        "operationId": "api-description",
         "parameters": [],
         "responses": {
           "200": {
