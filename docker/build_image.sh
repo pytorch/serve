@@ -2,7 +2,7 @@
 
 MACHINE=cpu
 BRANCH_NAME="master"
-DOCKER_TAG="pytorch/torchserve:latest"
+DOCKER_TAG="pytorch/torchserve:dev-cpu"
 BUILD_TYPE="dev"
 BASE_IMAGE="ubuntu:18.04"
 
@@ -31,12 +31,13 @@ do
           ;;
         -g|--gpu)
           MACHINE=gpu
-          DOCKER_TAG="pytorch/torchserve:latest-gpu"
+          DOCKER_TAG="pytorch/torchserve:dev-gpu"
           BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
           shift
           ;;
         -c|--codebuild)
           BUILD_TYPE="codebuild"
+          DOCKER_TAG="pytorch/torchserve:codebuild-cpu"
           shift
           ;;
         -t|--tag)
@@ -46,5 +47,9 @@ do
           ;;
     esac
 done
+
+if [ "${BUILD_TYPE}" == "codebuild" && "${MACHINE}" == "gpu"]; then
+  DOCKER_TAG="pytorch/torchserve:codebuild-gpu"
+fi
 
 DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg MACHINE_TYPE=$MACHINE  .
