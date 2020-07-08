@@ -40,6 +40,12 @@ def load_label_mapping(mapping_file_path):
         mapping = json.load(f)
     if not isinstance(mapping, dict):
         raise Exception('index_to_name mapping should be in "class":"label" json format')
+
+    # Older examples had a different syntax than others. This code accommodates those.
+    if 'object_type_names' in mapping and isinstance(mapping['object_type_names'], list):
+        mapping = {str(k): v for k, v in enumerate(mapping['object_type_names'])}
+        return mapping
+
     for key, value in mapping.items():
         new_value = value
         if isinstance(new_value, list):
