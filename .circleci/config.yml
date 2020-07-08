@@ -1,74 +1,194 @@
 version: 2.1
 
+
+executors:
+  py36:
+    docker:
+      - image: prashantsail/pytorch-serve-build
+    environment:
+      _JAVA_OPTIONS: "-Xmx2048m"
+
+
+commands:
+  attach-torchserve-workspace:
+    description: "Attach the torchserve directory which was saved into workspace"
+    steps:
+      - attach_workspace:
+          at: .
+
+  install-torchserve:
+    description: "Install torchserve from a wheel"
+    steps:
+      - run:
+          name: Install torchserve
+          command: pip install dist/*.whl
+
+  exeucute-api-tests:
+    description: "Execute API tests from a collection"
+    parameters:
+      collection:
+        type: enum
+        enum: [management, inference, https]
+        default: management
+    steps:
+      - run:
+          name: Start torchserve, Execute << parameters.collection >> API Tests, Stop torchserve
+          command: .circleci/scripts/linux_test_api.sh << parameters.collection >>
+          when: always
+
+
 jobs:
-    build_docker_environment:
-        parameters:
-            pytorch_channel:
-                type: string
-                default: "pytorch"
-        machine:
-            image: ubuntu-1604:201903-01
-        environment:
-            - DOCKER_BUILDKIT=1
-        steps:
-            - checkout
-            - run:
-                name: Building docker image
-                command: |
-                    cat .circleci/Dockerfile | docker build \
-                        -t pytorch/serve-circleci-dev \
-                        --progress=plain \
-                        --build-arg PYTORCH_CHANNEL="<< parameters.pytorch_channel >>" -
-            - run:
-                name: Save docker image to archive
-                command: mkdir /tmp/workspace && docker image save pytorch/serve-circleci-dev -o /tmp/workspace/dev-image.tar
-            - persist_to_workspace:
-                root: /tmp/workspace
-                paths:
-                    - dev-image.tar
-    build_wheel:
-        parameters:
-            build_directory:
-                type: string
-                default: "."
-        machine:
-            image: ubuntu-1604:201903-01
-        steps:
-            - attach_workspace:
-                at: /tmp/workspace
-            - run:
-                name: Loading docker image
-                command: cat /tmp/workspace/dev-image.tar | docker load
-            - checkout
-            - run:
-                name: Build wheel
-                command: |
-                    docker run --rm -i \
-                        -v "$(pwd):/v" \
-                        -w "/v/<< parameters.build_directory >>" \
-                        pytorch/serve-circleci-dev \
-                        python setup.py bdist_wheel --release --universal
-            - run:
-                name: Chown workspace back to circleci user
-                command: |
-                    docker run --rm -v "$(pwd)":/v -w /v alpine chown -R "$(id -u):$(id -g)" .
-            - store_artifacts:
-                path: << parameters.build_directory >>/dist/
-            - persist_to_workspace:
-                root: << parameters.build_directory >>/dist
-                paths:
-                    - "*.whl"
+    build:
+      parameters:
+        executor:
+          type: executor
+      executor: << parameters.executor >>
+      steps:
+        - checkout
+        - run:
+            name: Build Pytorch Serve
+            command: .circleci/scripts/linux_build.sh
+        - store_artifacts:
+            name: Store gradle testng results
+            path: frontend/server/build/reports/tests/test
+        - persist_to_workspace:
+            root: .
+            paths:
+              - .
+
+    python-tests:
+      parameters:
+        executor:
+          type: executor
+      executor: << parameters.executor >>
+      steps:
+        - attach-torchserve-workspace
+        - run:
+            name: Execute python lint and unit tests
+            command: .circleci/scripts/linux_test_python.sh
+        - store_artifacts:
+            name: Store python Test results
+            path: result_units
+            destination: units
+
+    api-tests:
+      parameters:
+        executor:
+          type: executor
+      executor: << parameters.executor >>
+      steps:
+        - attach-torchserve-workspace
+        - install-torchserve
+        - exeucute-api-tests:
+            collection: management
+        - exeucute-api-tests:
+            collection: inference
+        - exeucute-api-tests:
+            collection: https
+        - store_artifacts:
+            name: Store server logs and test results
+            path: test/artifacts/
+
+    benchmark:
+      parameters:
+        executor:
+          type: executor
+      executor: << parameters.executor >>
+      steps:
+        - attach-torchserve-workspace
+        - install-torchserve
+        - run:
+            name: Start torchserve, Execute benchmark tests, Stop torchserve
+            command: .circleci/scripts/linux_test_benchmark.sh
+        - store_artifacts:
+            name: Store server logs from benchmark tests
+            path: logs/
+        - store_artifacts:
+            name: Store Benchmark Latency resnet-18 results
+            path: /tmp/TSBenchmark
+
+    modelarchiver:
+      parameters:
+        executor:
+          type: executor
+      executor: << parameters.executor >>
+      steps:
+        - checkout
+        - run:
+            name: Execute python lint, unit and integration tests
+            command: .circleci/scripts/linux_test_modelarchiver.sh
+        - store_artifacts:
+            name: Store unit tests results from model archiver tests
+            path: model-archiver/result_units
+            destination: units
+
 
 workflows:
-    build:
-        jobs:
-            - build_docker_environment
-            - build_wheel:
-                name: wheel_torchserve
-                requires:
-                    - build_docker_environment
-            - build_wheel:
-                name: wheel_model_archiver
-                requires:
-                    - build_docker_environment
-                build_directory: "model-archiver"
+  version: 2
+
+  smoke:
+    jobs:
+      - &build
+        build:
+          name: build-<< matrix.executor >>
+          matrix: &matrix
+            parameters:
+              executor: ["py36"]
+      - &modelarchiver
+        modelarchiver:
+          name: modelarchiver-<< matrix.executor >>
+          matrix: *matrix
+      - &python-tests
+        python-tests:
+          name: python-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      ####### Remove later #################################
+      - api-tests:
+          name: api-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - benchmark:
+          name: benchmark-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      #######################################################
+
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - *build
+      - *modelarchiver
+      - *python-tests
+      - &api-tests
+        api-tests:
+          name: api-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+
+  weekly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - *build
+      - benchmark:
+          name: benchmark-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+
