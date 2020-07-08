@@ -4,10 +4,10 @@
 Base module for all vision handlers
 """
 from abc import ABC
-from .base_handler import BaseHandler
-from PIL import Image
 import io
 import torch
+from PIL import Image
+from .base_handler import BaseHandler
 
 class VisionHandler(BaseHandler, ABC):
     """

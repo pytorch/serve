@@ -39,7 +39,13 @@ class TextClassifier(TextHandler):
             text = self._remove_accented_characters(text)
             text = self._remove_puncutation(text)
             text = self._tokenize(text)
-            text = torch.as_tensor([self.source_vocab[token] for token in ngrams_iterator(text, self.ngrams)], device=self.device)
+            text = torch.as_tensor(
+                [
+                    self.source_vocab[token]
+                    for token in ngrams_iterator(text, self.ngrams)
+                ],
+                device=self.device
+            )
             tensor_stack.append(text)
 
         return torch.stack(tensor_stack)

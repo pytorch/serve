@@ -28,6 +28,10 @@ def list_classes_from_module(module, parent_class=None):
     return classes
 
 def load_label_mapping(mapping_file_path):
+    """
+    Load a JSON mapping { class ID -> friendly class name }.
+    Used in BaseHandler.
+    """
     if not os.path.isfile(mapping_file_path):
         logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
         return None
@@ -46,6 +50,10 @@ def load_label_mapping(mapping_file_path):
     return mapping
 
 def map_class_to_label(probs, mapping=None, lbl_classes=None):
+    """
+    Given a list of classes & probabilities, return a dictionary of
+    { friendly class name -> probability }
+    """
     if not (isinstance(probs, list) and isinstance(probs, list)):
         raise Exception('Convert classes to list before doing mapping')
     if mapping is not None and not isinstance(mapping, dict):

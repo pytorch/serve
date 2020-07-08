@@ -1,14 +1,11 @@
 """
 Module for object detection default handler
 """
-import io
 import torch
-from PIL import Image
 from torchvision import transforms
 from torchvision import __version__ as torchvision_version
-from torch.autograd import Variable
-from .vision_handler import VisionHandler
 from packaging import version
+from .vision_handler import VisionHandler
 from ..utils.util import map_class_to_label
 
 class ObjectDetector(VisionHandler):
@@ -32,10 +29,10 @@ class ObjectDetector(VisionHandler):
             self.initialized = True
 
     def postprocess(self, data):
-        box_filters = [ row['scores'] >= self.threshold for row in data ]
+        box_filters = [row['scores'] >= self.threshold for row in data]
 
         filtered_boxes, filtered_classes = [
-            [row[key][box_filter].tolist() for row, box_filter in zip(data, box_filters) ]
+            [row[key][box_filter].tolist() for row, box_filter in zip(data, box_filters)]
             for key in ['boxes', 'labels']
         ]
         return map_class_to_label(

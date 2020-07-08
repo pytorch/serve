@@ -61,7 +61,7 @@ class TextHandler(BaseHandler, ABC):
             Mispelled in original version. This is a compat layer
         """
         return self._remove_punctuation(*args, **kwargs)
-        
+
     def _remove_punctuation(self, text):
         return text.translate(str.maketrans('', '', string.punctuation))
 

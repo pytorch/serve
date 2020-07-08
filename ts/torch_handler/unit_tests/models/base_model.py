@@ -1,8 +1,14 @@
+# pylint: disable=W0622
+# "input" is a built-in, but it's the name used by torch
+"""
+Simple feed-forward model used only to test BaseHandler
+"""
+
 import torch
 
 class ArgmaxModel(torch.nn.Module):
-    def forward(self, x):
-        return torch.argmax(x, 1)
+    def forward(self, *input):
+        return torch.argmax(input[0], 1)
 
 if __name__ == '__main__':
     model = ArgmaxModel()

@@ -5,11 +5,7 @@ Also, provides handle method per torch serve custom model specification
 import abc
 import logging
 import os
-import json
 import importlib.util
-import pathlib
-
-
 import torch
 from ..utils.util import list_classes_from_module, load_label_mapping
 
@@ -50,7 +46,7 @@ class BaseHandler(abc.ABC):
         try:
             logger.debug('Loading torchscript model')
             self.model = self._load_torchscript_model(model_pt_path)
-        except Exception as e:
+        except RuntimeError as e:
             is_torchscript = False
 
         if not is_torchscript:
