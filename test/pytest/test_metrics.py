@@ -139,15 +139,16 @@ def test_malformed_ts_config():
     subprocess.run(cmd2)
 
 
-def run_LOG_LOCATION_var(no_config_snapshots=False):
+def run_LOG_LOCATION_var(custom_path=ROOT_DIR, no_config_snapshots=False):
     delete_all_snapshots()
     if (no_config_snapshots):
         start_torchserve(no_config_snapshots=True)
     else:
         start_torchserve()
-    assert len(glob.glob(ROOT_DIR+'/access_log.log')) == 1
-    assert len(glob.glob(ROOT_DIR+'/model_log.log')) == 1
-    assert len(glob.glob(ROOT_DIR+'/ts_log.log')) == 1
+    if os.access(custom_path, os.W_OK):
+        assert len(glob.glob(custom_path+'/access_log.log')) == 1
+        assert len(glob.glob(custom_path+'/model_log.log')) == 1
+        assert len(glob.glob(custom_path+'/ts_log.log')) == 1
 
 
 def test_LOG_LOCATION_var_snapshot_disabled():
@@ -218,14 +219,15 @@ def test_async_logging_non_boolean():
     delete_all_snapshots()
 
 
-def run_METRICS_LOCATION_var(no_config_snapshots=False):
+def run_METRICS_LOCATION_var(custom_path=ROOT_DIR, no_config_snapshots=False):
     delete_all_snapshots()
     if (no_config_snapshots):
         start_torchserve(no_config_snapshots=True)
     else:
         start_torchserve()
-    assert len(glob.glob(ROOT_DIR+'/ts_metrics.log')) == 1
-    assert len(glob.glob(ROOT_DIR+'/model_metrics.log')) == 1
+    if os.access(custom_path, os.W_OK):
+        assert len(glob.glob(custom_path+'/ts_metrics.log')) == 1
+        assert len(glob.glob(custom_path+'/model_metrics.log')) == 1
 
 
 def test_METRICS_LOCATION_var_snapshot_disabled():
@@ -289,3 +291,56 @@ def test_LOG_LOCATION_METRICS_LOCATION_vars_snapshot_enabled():
     delete_model_store()
     #Remove any old snapshots
     delete_all_snapshots()
+
+
+def test_LOG_LOCATION_var_snapshot_disabled_custom_path_read_only():
+    '''
+    Validates that access logs are getting created correctly.
+    '''
+    stop_torchserve()
+    #First remove existing logs otherwise it may be a false positive case
+    for f in glob.glob('logs/*.log'):
+        os.remove(f)
+    RDONLY_DIR = '/workspace/rdonly_dir'
+    os.environ['LOG_LOCATION'] = RDONLY_DIR
+    try:
+        run_LOG_LOCATION_var(custom_path=RDONLY_DIR, no_config_snapshots=True)
+        assert len(glob.glob('logs/access_log.log')) == 1
+        assert len(glob.glob('logs/model_log.log')) == 1
+        assert len(glob.glob('logs/ts_log.log')) == 1
+        assert len(glob.glob('logs/model_metrics.log')) == 1
+        assert len(glob.glob('logs/ts_metrics.log')) == 1
+    finally:
+        stop_torchserve()
+        del os.environ['LOG_LOCATION']
+        delete_model_store()
+        # Remove any old snapshots
+        delete_all_snapshots()
+
+
+def test_METRICS_LOCATION_var_snapshot_enabled_rdonly_dir():
+    '''
+    Validates that access logs are getting created correctly.
+    '''
+    stop_torchserve()
+    #First remove existing logs otherwise it may be a false positive case
+    for f in glob.glob('logs/*.log'):
+        os.remove(f)
+    RDONLY_DIR = '/workspace/rdonly_dir'
+    os.environ['METRICS_LOCATION'] = RDONLY_DIR
+    try:
+        run_METRICS_LOCATION_var(custom_path=RDONLY_DIR, no_config_snapshots=False)
+        requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/'
+                      'mar_files/densenet161.mar')
+        time.sleep(10)
+        assert len(glob.glob('logs/access_log.log')) == 1
+        assert len(glob.glob('logs/model_log.log')) == 1
+        assert len(glob.glob('logs/ts_log.log')) == 1
+        assert len(glob.glob('logs/model_metrics.log')) == 1
+        assert len(glob.glob('logs/ts_metrics.log')) == 1
+        assert len(glob.glob('logs/config/*snap*.cfg')) >= 1
+    finally:
+        stop_torchserve()
+        del os.environ['METRICS_LOCATION']
+        delete_all_snapshots()
+        delete_model_store()

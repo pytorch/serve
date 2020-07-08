@@ -147,7 +147,7 @@ def test_duplicate_model_registration_using_local_and_http_url():
     finally:
         torchserve_cleanup()
 
-def test_model_archiver_to_regenerate_model_mar_without_force_flag(force_flag=None):
+def run_model_archiver_to_regenerate_model_mar(force_flag=None):
     torchserve_cleanup()
     # Download resnet-18 model serialized file
     cmd = ["wget", "https://download.pytorch.org/models/resnet18-5c106cde.pth"]
@@ -182,5 +182,91 @@ def test_model_archiver_to_regenerate_model_mar_without_force_flag(force_flag=No
         torchserve_cleanup()
 
 
-def test_model_archiver_to_regenerate_model_mar_with_force_flag():
-    test_model_archiver_to_regenerate_model_mar_without_force_flag("--force")
+def test_model_archiver_to_regenerate_model_mar_without_force():
+    run_model_archiver_to_regenerate_model_mar()
+
+
+def test_model_archiver_to_regenerate_model_mar_with_force():
+    run_model_archiver_to_regenerate_model_mar("--force")
+
+
+def test_model_archiver_without_handler_flag():
+    cmd = ["wget", "https://download.pytorch.org/models/resnet18-5c106cde.pth"]
+    subprocess.run(cmd)
+    cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
+    subprocess.run(cmd2)
+    v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
+          +CODEBUILD_WD+"/examples/" \
+          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
+          " --extra-files " \
+          +CODEBUILD_WD+"/examples" \
+          "/image_classifier/index_to_name.json"
+    v1_cmd_list = v1_cmd.split(" ")
+    try:
+        assert (0 == subprocess.run(v1_cmd_list).returncode), "Mar file couldn't be created." \
+                                                              "No handler specified"
+    finally:
+        for f in glob.glob("resnet*.mar"):
+            os.remove(f)
+        torchserve_cleanup()
+
+
+def test_model_archiver_without_model_name_flag():
+    cmd = ["wget", "https://download.pytorch.org/models/resnet18-5c106cde.pth"]
+    subprocess.run(cmd)
+    cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
+    subprocess.run(cmd2)
+    v1_cmd = "torch-model-archiver --version 1.0 --model-file " \
+          +CODEBUILD_WD+"/examples/" \
+          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
+          " --handler image_classifier --extra-files " \
+          +CODEBUILD_WD+"/examples" \
+          "/image_classifier/index_to_name.json"
+    v1_cmd_list = v1_cmd.split(" ")
+    try:
+        assert (0 == subprocess.run(v1_cmd_list).returncode), "Mar file couldn't be created." \
+                                                              "No model_name specified"
+    finally:
+        for f in glob.glob("resnet*.mar"):
+            os.remove(f)
+        torchserve_cleanup()
+
+
+def test_model_archiver_without_model_file_flag():
+    cmd = ["wget", "https://download.pytorch.org/models/resnet18-5c106cde.pth"]
+    subprocess.run(cmd)
+    cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
+    subprocess.run(cmd2)
+    v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0" \
+             " --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
+          " --handler image_classifier --extra-files " \
+          +CODEBUILD_WD+"/examples" \
+          "/image_classifier/index_to_name.json"
+    v1_cmd_list = v1_cmd.split(" ")
+    try:
+        assert (0 == subprocess.run(v1_cmd_list).returncode)
+    finally:
+        for f in glob.glob("resnet*.mar"):
+            os.remove(f)
+        torchserve_cleanup()
+
+
+def test_model_archiver_without_serialized_flag():
+    cmd = ["wget", "https://download.pytorch.org/models/resnet18-5c106cde.pth"]
+    subprocess.run(cmd)
+    cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
+    subprocess.run(cmd2)
+    v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
+          +CODEBUILD_WD+"/examples/" \
+          "image_classifier/resnet_18/model.py" \
+          " --handler image_classifier --extra-files " \
+          +CODEBUILD_WD+"/examples" \
+          "/image_classifier/index_to_name.json"
+    v1_cmd_list = v1_cmd.split(" ")
+    try:
+        assert (0 == subprocess.run(v1_cmd_list).returncode), "Mar file couldn't be created." \
+                                                              "No serialized flag specified"
+    finally:
+        for f in glob.glob("resnet*.mar"):
+            os.remove(f)
+        torchserve_cleanup()
