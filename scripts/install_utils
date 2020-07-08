@@ -76,6 +76,7 @@ run_model_archiver_python_linting()
     echo "Model archiver python linting execution failed!!! Check logs for more details"
     exit 1
   fi
+  cd ..
 }
 
 run_model_archiver_UT_suite()
