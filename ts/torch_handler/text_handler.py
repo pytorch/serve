@@ -58,7 +58,7 @@ class TextHandler(BaseHandler, ABC):
 
     def _remove_puncutation(self, *args, **kwargs):
         """
-            Mispelled in original version. This is a compat layer
+        Mispelled in original version. This is a compat layer
         """
         return self._remove_punctuation(*args, **kwargs)
 

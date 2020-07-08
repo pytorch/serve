@@ -2,6 +2,7 @@
 # TODO remove pylint disable comment after https://github.com/pytorch/pytorch/issues/24807 gets merged.
 """
 Module for text classification default handler
+DOES NOT SUPPORT BATCH!
 """
 import torch
 from torchtext.data.utils import ngrams_iterator
@@ -28,27 +29,28 @@ class TextClassifier(TextHandler):
         Returns a Tensor
         """
 
-        tensor_stack = []
-        for line in data:
-            text = line.get("data") or line.get("body")
-            text = text.decode('utf-8')
+        line = data[0]
+        text = line.get("data") or line.get("body")
+        text = text.decode('utf-8')
 
-            text = self._remove_html_tags(text)
-            text = text.lower()
-            text = self._expand_contractions(text)
-            text = self._remove_accented_characters(text)
-            text = self._remove_puncutation(text)
-            text = self._tokenize(text)
-            text = torch.as_tensor(
-                [
-                    self.source_vocab[token]
-                    for token in ngrams_iterator(text, self.ngrams)
-                ],
-                device=self.device
-            )
-            tensor_stack.append(text)
+        text = self._remove_html_tags(text)
+        text = text.lower()
+        text = self._expand_contractions(text)
+        text = self._remove_accented_characters(text)
+        text = self._remove_punctuation(text)
+        text = self._tokenize(text)
+        text = torch.as_tensor(
+            [
+                self.source_vocab[token]
+                for token in ngrams_iterator(text, self.ngrams)
+            ],
+            device=self.device
+        )
+        return text
 
-        return torch.stack(tensor_stack)
+    def inference(self, data, *args, **kwargs):
+        offsets = torch.as_tensor([0], device=self.device)
+        return super().inference(data, offsets)
 
     def postprocess(self, data):
         data = data.tolist()

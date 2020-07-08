@@ -98,7 +98,7 @@ class BaseHandler(abc.ABC):
         """
         return torch.as_tensor(data, device=self.device)
 
-    def inference(self, data):
+    def inference(self, data, *args, **kwargs):
         """
         Override to customize the inference
         :param data: Torch tensor, matching the model input shape
@@ -106,7 +106,7 @@ class BaseHandler(abc.ABC):
         """
         marshalled_data = data.to(self.device)
         with torch.no_grad():
-            results = self.model(marshalled_data)
+            results = self.model(marshalled_data, *args, **kwargs)
         return results
 
     def postprocess(self, data):
