@@ -40,7 +40,7 @@ class BaseHandler(abc.ABC):
         model_pt_path = os.path.join(model_dir, serialized_file)
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
-        
+
         # model def file
         model_file = self.manifest['model']['modelFile']
         model_def_path = os.path.join(model_dir, model_file)
