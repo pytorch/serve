@@ -5,6 +5,7 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:dev-cpu"
 BUILD_TYPE="dev"
 BASE_IMAGE="ubuntu:18.04"
+CUSTOM_TAG=false
 
 for arg in "$@"
 do
@@ -37,19 +38,20 @@ do
           ;;
         -c|--codebuild)
           BUILD_TYPE="codebuild"
-          DOCKER_TAG="pytorch/torchserve:codebuild-cpu"
           shift
           ;;
         -t|--tag)
           DOCKER_TAG="$2"
+          CUSTOM_TAG=true
           shift
           shift
           ;;
     esac
 done
 
-if [ "${BUILD_TYPE}" == "codebuild" && "${MACHINE}" == "gpu"]; then
-  DOCKER_TAG="pytorch/torchserve:codebuild-gpu"
+if [ "${BUILD_TYPE}" == "codebuild" ] && ! $CUSTOM_TAG ;
+then
+  DOCKER_TAG="pytorch/torchserve:codebuild-$MACHINE"
 fi
 
 DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg MACHINE_TYPE=$MACHINE  .
