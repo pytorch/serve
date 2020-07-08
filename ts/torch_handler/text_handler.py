@@ -56,7 +56,7 @@ class TextHandler(BaseHandler, ABC):
         clean_text = CLEANUP_REGEX.sub('', text)
         return clean_text
 
-    def _remove_puncuation(self, *args, **kwargs):
+    def _remove_puncutation(self, *args, **kwargs):
         """
             Mispelled in original version. This is a compat layer
         """
