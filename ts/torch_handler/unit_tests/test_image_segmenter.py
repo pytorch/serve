@@ -33,4 +33,4 @@ def test_handle(model_setup):
     test_data = [{'data': image_bytes}] * 2
     results = handler.handle(test_data, image_bytes)
     assert(len(results) == 2)
-    assert(len(results[0]) == 21)
+    assert(len(results[0]) == 224)

@@ -1,6 +1,7 @@
 """
 Module for image segmentation default handler
 """
+import torch
 from torchvision import transforms as T
 from .vision_handler import VisionHandler
 
@@ -21,4 +22,11 @@ class ImageSegmenter(VisionHandler):
         )])
 
     def postprocess(self, data):
-        return data['out'].tolist()
+        # Returning the class for every pixel makes the response size too big
+        # (> 24mb). Instead, we'll only return the top class for each image
+        data = data['out']
+        data = torch.nn.functional.softmax(data, dim=1)
+        data = torch.max(data, dim=1)
+        data = torch.stack([data.indices.type(data.values.dtype), data.values], dim=3)
+
+        return data.tolist()
