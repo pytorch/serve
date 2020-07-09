@@ -1,12 +1,12 @@
 # TorchServe default inference handlers
 
-TorchServe provides following inference handlers out of box:
+TorchServe provides following inference handlers out of box. It's expected that the models consumed by each support batched inference.
 
 ## image_classifier
 
 * Description : Handles image classification models trained on the ImageNet dataset.
 * Input : RGB image
-* Output : Top 5 predictions and their respective probability of the image
+* Output : Batch of top 5 predictions and their respective probability of the image
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/image_classifier)
 
@@ -14,7 +14,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 
 * Description : Handles image segmentation models trained on the ImageNet dataset.
 * Input : RGB image
-* Output : Output shape as [CL H W], CL - number of classes, H - height and W - width.
+* Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/image_segmenter)
 
@@ -22,7 +22,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 
 * Description : Handles object detection models.
 * Input : RGB image
-* Output : List of detected classes and bounding boxes respectively
+* Output : Batch of lists of detected classes and bounding boxes respectively
 
 Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.
 
@@ -32,7 +32,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 
 * Description : Handles models trained on the ImageNet dataset.
 * Input : text file
-* Output : Class of input text
+* Output : Class of input text. NO BATCHING SUPPORTED!
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/text_classification)
 
@@ -44,3 +44,6 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 - [image_classifier](https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json)
 - [text_classifier](https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json)
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json)
+
+# Contributing
+If you'd like to edit or create a new default_handler class, make sure to run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.sh](https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh) before submitting.
