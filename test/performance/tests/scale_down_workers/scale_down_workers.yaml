@@ -69,18 +69,11 @@ services:
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
-      subject: ServerLocalClient/sum_workers_file_descriptors
-      condition: '<'
-      threshold: ${TOTAL_WRKRS_FDS_AFTR_SCL_DWN}
-      timeframe: 10s
-      stop : ${STOP}
-      fail : true
-    - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/frontend_memory_rss
       condition: '>'
       threshold: ${FRNTEND_MEM}
       timeframe: 10s
-      stop : true
+      stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_memory_rss

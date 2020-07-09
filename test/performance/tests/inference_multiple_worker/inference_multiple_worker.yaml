@@ -18,5 +18,5 @@ reporting:
       condition: '<'
       threshold: ${TOTAL_PROCS}
       timeframe: 5s
-      stop : {STOP}
+      stop : ${STOP}
       fail : true

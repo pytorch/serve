@@ -80,19 +80,12 @@ services:
       condition: '>'
       threshold: ${FRNTEND_MEM}
       timeframe: 10s
-      stop : true
+      stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_memory_rss
       condition: '>'
       threshold: ${TOTAL_WRKRS_MEM_AFTR_SCL_UP}
-      timeframe: 10s
-      stop : ${STOP}
-      fail : true
-    - class: bzt.modules.monitoring.MonitoringCriteria
-      subject: ServerLocalClient/sum_workers_memory_rss
-      condition: '<'
-      threshold: ${TOTAL_WRKRS_MEM_B4_SCL_UP}
       timeframe: 10s
       stop : ${STOP}
       fail : true
@@ -105,7 +98,7 @@ services:
       fail: true
       diff_percent_previous: ${TOTAL_ORPHANS_DIFF}
     - class: bzt.modules.monitoring.MonitoringCriteria
-      subject: ServerLocalClient/zombies
+      subject: ServerLocalClient/zombiesx
       condition: '>'
       threshold: ${TOTAL_ZOMBIES}
       timeframe: 10s

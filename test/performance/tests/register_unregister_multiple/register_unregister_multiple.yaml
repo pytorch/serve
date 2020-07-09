@@ -9,7 +9,7 @@ scenarios:
 - module: passfail # this is to enable passfail module
 - module: junit-xml
   data-source: pass-fail
-- module: junit-xml`
+- module: junit-xml
   data-source: sample-labels
 - module: final-stats
   dump-csv : ${BASEDIR}/final_stats.csv

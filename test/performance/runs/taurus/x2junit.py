@@ -127,7 +127,11 @@ class X2Junit(object):
 
         self.update_metrics()
         xunit_file = os.path.join(self.artifacts_dir, "xunit.xml")
-        if os.path.exists(xunit_file):
+        if self.code == 1:
+            tc = TestCase(self.name)
+            tc.result = Error(self.err)
+            self.ts.add_testcase(tc)
+        elif os.path.exists(xunit_file):
             xml = JUnitXml.fromfile(xunit_file)
             for i, suite in enumerate(xml):
                 for case in suite:
@@ -153,11 +157,6 @@ class X2Junit(object):
                     tc = TestCase(name)
                     tc.result = result
                     self.ts.add_testcase(tc)
-
-        elif self.code:
-            tc = TestCase(self.name)
-            tc.result = Error(self.err)
-            self.ts.add_testcase(tc)
         else:
             tc = TestCase(self.name)
             tc.result = Skipped("Skipped criteria test cases as Taurus XUnit file is not generated.")
