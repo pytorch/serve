@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
@@ -43,11 +46,15 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             throws ModelException {
         if (segments.length >= 2 && "metrics".equals(segments[1])) {
             ByteBuf resBuf = Unpooled.directBuffer();
+            List<String> params =
+                    decoder.parameters().getOrDefault("name[]", Collections.emptyList());
             FullHttpResponse resp;
             try (OutputStream outputStream = new ByteBufOutputStream(resBuf);
                     Writer writer = new OutputStreamWriter(outputStream)) {
                 TextFormat.write004(
-                        writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
+                        writer,
+                        CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(
+                                new HashSet<>(params)));
                 resp =
                         new DefaultFullHttpResponse(
                                 HttpVersion.HTTP_1_1, HttpResponseStatus.OK, resBuf);

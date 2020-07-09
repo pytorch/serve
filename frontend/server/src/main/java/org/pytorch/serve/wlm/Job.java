@@ -102,8 +102,8 @@ public class Job {
          */
         if (ctx != null) {
             PrometheusMetricManager metrics = PrometheusMetricManager.getInstance();
-            metrics.incInferLatency(inferTime, modelName);
-            metrics.incQueueLatency(scheduled - begin, modelName);
+            metrics.incInferLatency(inferTime, modelName, modelVersion);
+            metrics.incQueueLatency(scheduled - begin, modelName, modelVersion);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
         logger.debug(

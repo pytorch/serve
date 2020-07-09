@@ -266,39 +266,47 @@ public final class TestUtils {
         return getChannel(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
     }
 
+    public static Channel getMetricsChannel(ConfigManager configManager)
+            throws InterruptedException {
+        return getChannel(ConnectorType.METRICS_CONNECTOR, configManager);
+    }
+
     private static Channel getChannel(ConnectorType connectorType, ConfigManager configManager)
             throws InterruptedException {
         if (ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)
                 && managementChannel != null
                 && managementChannel.isActive()) {
             return managementChannel;
-        } else if (ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)
+        }
+        if (ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)
                 && inferenceChannel != null
                 && inferenceChannel.isActive()) {
             return inferenceChannel;
-        } else {
-            Channel channel = null;
-            if (channel == null) {
-                for (int i = 0; i < 5; ++i) {
-                    channel = TestUtils.connect(connectorType, configManager);
-                    if (channel != null) {
-                        break;
-                    }
-                    Thread.sleep(100);
-                }
-            }
-            switch (connectorType) {
-                case MANAGEMENT_CONNECTOR:
-                    managementChannel = channel;
-                    break;
-                case METRICS_CONNECTOR:
-                    metricsChannel = channel;
-                    break;
-                default:
-                    inferenceChannel = channel;
-            }
-            return channel;
         }
+        if (ConnectorType.METRICS_CONNECTOR.equals(connectorType)
+                && metricsChannel != null
+                && metricsChannel.isActive()) {
+            return metricsChannel;
+        }
+        Channel channel = null;
+        for (int i = 0; i < 5; ++i) {
+            channel = TestUtils.connect(connectorType, configManager);
+            if (channel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                managementChannel = channel;
+                break;
+            case METRICS_CONNECTOR:
+                metricsChannel = channel;
+                break;
+            default:
+                inferenceChannel = channel;
+        }
+        return channel;
     }
 
     public static void closeChannels() throws InterruptedException {

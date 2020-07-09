@@ -1,33 +1,43 @@
 package org.pytorch.serve.metrics;
 
 import io.prometheus.client.Counter;
+import java.util.UUID;
 
 public final class PrometheusMetricManager {
 
     private static final PrometheusMetricManager METRIC_MANAGER = new PrometheusMetricManager();
+    private static final String METRICS_UUID = UUID.randomUUID().toString();
     private Counter inferRequestCount;
     private Counter inferLatency;
     private Counter queueLatency;
 
     private PrometheusMetricManager() {
+        String[] metricsLabels = {"uuid", "model_name", "model_version"};
         inferRequestCount =
                 Counter.build()
                         .name("ts_inference_requests_total")
-                        .labelNames("model_name")
+                        .labelNames(metricsLabels)
                         .help("Total number of inference requests.")
                         .register();
         inferLatency =
                 Counter.build()
                         .name("ts_inference_latency_microseconds")
-                        .labelNames("model_name")
+                        .labelNames(metricsLabels)
                         .help("Cumulative inference duration in microseconds")
                         .register();
         queueLatency =
                 Counter.build()
                         .name("ts_queue_latency_microseconds")
-                        .labelNames("model_name")
+                        .labelNames(metricsLabels)
                         .help("Cumulative queue duration in microseconds")
                         .register();
+    }
+
+    private static String getOrDefaultModelVersion(String modelVersion) {
+        if (modelVersion == null) {
+            return "default";
+        }
+        return modelVersion;
     }
 
     public static PrometheusMetricManager getInstance() {
@@ -39,9 +49,12 @@ public final class PrometheusMetricManager {
      *
      * @param inferTime time in nanoseconds
      * @param modelName name of the model
+     * @param modelVersion version of the model
      */
-    public void incInferLatency(long inferTime, String modelName) {
-        inferLatency.labels(modelName).inc(inferTime / 1000.0);
+    public void incInferLatency(long inferTime, String modelName, String modelVersion) {
+        inferLatency
+                .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
+                .inc(inferTime / 1000.0);
     }
 
     /**
@@ -49,17 +62,23 @@ public final class PrometheusMetricManager {
      *
      * @param queueTime time in nanoseconds
      * @param modelName name of the model
+     * @param modelVersion version of the model
      */
-    public void incQueueLatency(long queueTime, String modelName) {
-        queueLatency.labels(modelName).inc(queueTime / 1000.0);
+    public void incQueueLatency(long queueTime, String modelName, String modelVersion) {
+        queueLatency
+                .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
+                .inc(queueTime / 1000.0);
     }
 
     /**
      * Counts a valid inference request to be processed
      *
      * @param modelName name of the model
+     * @param modelVersion version of the model
      */
-    public void incInferValidCount(String modelName) {
-        inferRequestCount.labels(modelName).inc();
+    public void incInferCount(String modelName, String modelVersion) {
+        inferRequestCount
+                .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
+                .inc();
     }
 }

@@ -177,6 +177,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             return;
         }
 
+        PrometheusMetricManager.getInstance().incInferCount(modelName, modelVersion);
         Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage =
@@ -195,7 +196,6 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
             throw new ServiceUnavailableException(responseMessage);
         }
-        PrometheusMetricManager.getInstance().incInferValidCount(modelName);
     }
 
     private static RequestInput parseRequest(
