@@ -16,6 +16,8 @@ class ImageClassifier(VisionHandler):
     """
 
     topk = 5
+    # These are the standard Imagenet dimensions
+    # and statistics
     image_processing = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),

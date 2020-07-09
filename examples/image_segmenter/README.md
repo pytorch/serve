@@ -19,3 +19,17 @@ wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
     ```
 * Output
 An array of shape [ Batch, Height, Width, 2] where the final dimensions are [class, probability]
+
+```json
+[[
+  [
+    [1, 0.95], [1, 0.99], ..., [2, 0.75]
+  ],
+  [
+    [1, 0.93], [1, 0.92], ..., [2, 0.80]
+  ],
+  ...,
+  [
+    [3, 0.93], [3, 0.92], ..., [3, 0.80]
+  ]
+]]
