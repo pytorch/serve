@@ -157,6 +157,21 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeApi"})
+    public void testInitialWorkers() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop", null);
+        TestUtils.getLatch().await();
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(resp[0].getMinWorkers(), configManager.getDefaultWorkers());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testInitialWorkers"})
     public void testUnregisterNoopModel() throws InterruptedException {
         testUnregisterModel("noop", null);
     }
