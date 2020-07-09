@@ -30,7 +30,7 @@ services:
     prepare:
       - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
       - "mkdir /tmp/model_server"
-      - "ps aux | grep 'org.pytorch.serve.ModelServer' | awk '{print $2}' | xargs kill -9"
+      - "ps aux | grep '[o]rg.pytorch.serve.ModelServer' | awk '{print $2}' | xargs kill -9"
       - "torchserve --start --model-store /tmp/model_server > /dev/null 2>&1"
       - "sleep 20s"
     post-process:
