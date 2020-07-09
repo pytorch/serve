@@ -22,7 +22,7 @@
           </elementProp>
           <elementProp name="model_url" elementType="Argument">
             <stringProp name="Argument.name">model_url</stringProp>
-            <stringProp name="Argument.value">https://torchserve.s3.amazonaws.com/mar_files/squeezenet_v1.1.mar</stringProp>
+            <stringProp name="Argument.value">https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar</stringProp>
             <stringProp name="Argument.desc">URL to model store on s3</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
