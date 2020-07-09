@@ -9,6 +9,6 @@ services:
     prepare:
       - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&batch_size=8&max_batch_delay=50"
       # uncomment below and comment prev and use downloaded model with model-store
-      #- "curl -s -X POST http://localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_delay=60&initial_workers=1"
-      - "curl -s -X PUT  http://localhost:8081/models/resnet-152?min_worker=2&synchronous=true"
+      #- "curl -s -X POST http://localhost:8081/models?url=resnet-152-batch.mar&batch_size=8&max_batch_delay=60&initial_workers=1"
+      - "curl -s -X PUT  http://localhost:8081/models/resnet-152-batch?min_worker=2&synchronous=true"
 

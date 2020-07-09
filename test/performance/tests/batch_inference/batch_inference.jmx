@@ -16,7 +16,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="model" elementType="Argument">
             <stringProp name="Argument.name">model</stringProp>
-            <stringProp name="Argument.value">${__P(model_name,resnet-152)}</stringProp>
+            <stringProp name="Argument.value">${__P(model_name,resnet-152-batch)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>

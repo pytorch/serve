@@ -16,7 +16,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="model1" elementType="Argument">
             <stringProp name="Argument.name">model1</stringProp>
-            <stringProp name="Argument.value">squeezenet_v1.1</stringProp>
+            <stringProp name="Argument.value">squeezenet1_1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">Model1 Name</stringProp>
           </elementProp>
