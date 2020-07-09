@@ -1,0 +1,19 @@
+
+#reporting:
+#- module: passfail
+#  criteria:
+#    # Inbuilt Criteria
+#    - success of ManagementAPIDescription<${MGMT_DESC_SUCC}, ${STOP_ALIAS} as failed
+#    - avg-rt of ManagementAPIDescription>${MGMT_DESC_AVG_RT}, ${STOP_ALIAS} as failed
+#    # Custom Criteria
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/total_processes
+#      condition: '<'
+#      threshold: ${TOTAL_PROCS}
+#      timeframe: 1s
+#      stop : ${STOP}
+#      fail : true
+
+scenarios:
+  ~scenario_0:
+    script: api_description.jmx

@@ -1,0 +1,26 @@
+---
+~execution:
+  - concurrency: 1
+    ramp-up: 1s
+    hold-for: 40s
+    scenario: Inference
+
+~scenarios:
+  Inference:
+    script: examples_starter.jmx
+
+~services:
+  - module: shellexec
+    prepare:
+      - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+      - "multi-model-server --start > /dev/null 2>&1"
+      - "sleep 10s"
+    post-process:
+      - "multi-model-server --stop > /dev/null 2>&1"
+      - "rm kitten.jpg"
+
+~reporting:
+  - module: passfail
+
+~compare_criteria:
+  -

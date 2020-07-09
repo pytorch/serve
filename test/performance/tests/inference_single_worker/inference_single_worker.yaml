@@ -1,0 +1,21 @@
+---
+scenarios:
+  inference_single_worker:
+    script: inference_single_worker.jmx
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+      - "curl -s -X PUT  http://localhost:8081/models/squeezenet_v1.1?min_worker=1&synchronous=true"
+
+reporting:
+- module: passfail
+  criteria:
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS}
+      timeframe: 1s
+      stop : true
+      fail : true

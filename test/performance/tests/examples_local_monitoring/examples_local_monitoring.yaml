@@ -1,0 +1,39 @@
+---
+~execution:
+- concurrency: 1
+  ramp-up: 5s
+  hold-for: 20s
+  scenario: Inference
+
+~scenarios:
+  Inference:
+    script: examples_local_monitoring.jmx
+
+modules:
+  server_local_monitoring:
+    # metrics_monitoring_inproc and dependencies should be in python path
+    class : metrics_monitoring_inproc.Monitor # monitoring class.
+
+~services:
+  - module: shellexec
+    prepare:
+      - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+      - "multi-model-server --start > /dev/null 2>&1"
+      - "sleep 10s"
+    post-process:
+      - "multi-model-server --stop > /dev/null 2>&1"
+      - "rm kitten.jpg"
+  - module: server_local_monitoring # should be added in modules section
+    ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
+      - interval: 1s
+        metrics:
+          - cpu
+          - disk-space
+          - mem
+          - sum_workers_memory_percent
+
+~reporting:
+  - module: passfail
+
+~compare_criteria:
+  -

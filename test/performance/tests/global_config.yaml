@@ -1,0 +1,174 @@
+---
+execution:
+- concurrency: ${CONCURRENCY}
+  ramp-up: ${RAMP-UP}
+  hold-for: ${HOLD-FOR}
+  scenario: scenario_0
+
+scenarios:
+  scenario_0:
+    script: ${SCRIPT}
+
+modules:
+  jmeter:
+    # These are JMeter test case properties. These variables are used in jmx files.
+    # Change the vaues as per your setup
+    properties:
+      hostname: 127.0.0.1 # Model Server properties
+      port: 8080
+      management_port: 8081
+      protocol: http
+      input_filepath: kitten.jpg # make sure jpg is available at this path
+      # if relative path is provided this will be relative to current working directory
+
+  server_local_monitoring:
+    # metrics_monitoring_inproc and dependencies should be in python path
+    class : metrics_monitoring_inproc.Monitor # monitoring class.
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+      - "mkdir /tmp/model_server"
+      - "torchserve --start --model-store /tmp/model_server > /dev/null 2>&1"
+      - "sleep 20s"
+    post-process:
+      - "torchserve --stop > /dev/null 2>&1"
+      - "rm kitten.jpg"
+      - "rm -r /tmp/model_server"
+  - module: server_local_monitoring # should be added in modules section
+    ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
+    - interval: 1s
+      logging : True
+      metrics:
+        - sum_workers_memory_rss
+        - sum_workers_file_descriptors
+        - total_workers
+        - orphans
+        - zombies
+        - frontend_memory_rss
+        - sum_all_memory_rss
+        - total_processes
+        - sum_all_file_descriptors
+
+reporting:
+- module: passfail # this is to enable passfail module
+- module: junit-xml
+  data-source: pass-fail
+- module: junit-xml
+  data-source: sample-labels
+- module: final-stats
+  dump-csv : ${BASEDIR}/final_stats.csv
+
+- module: passfail
+  criteria:
+    # API requests KPI crieteria
+    - success of ${API_LABEL}<${API_SUCCESS}, ${STOP_ALIAS} as failed
+    - avg-rt of ${API_LABEL}>${API_AVG_RT}, ${STOP_ALIAS} as failed
+#
+#    # Monitoring metrics criteria
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/total_workers
+#      condition: '>'
+#      threshold: ${TOTAL_WORKERS}
+#      timeframe: 5s
+#      stop: ${STOP}
+#      fail: true
+#      diff_percent_previous: ${TOTAL_WORKERS_DIFF}
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_workers_memory_rss
+#      condition: '>'
+#      threshold: ${TOTAL_WORKERS_MEM}
+#      timeframe: 5s
+#      stop : ${STOP}
+#      fail : true
+#      diff_percent_previous : ${TOTAL_WORKERS_MEM_DIFF}
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_workers_file_descriptors
+#      condition: '>'
+#      threshold: ${TOTAL_WORKERS_FDS}
+#      timeframe: 5s
+#      stop: ${STOP}
+#      fail: true
+#      diff_percent_previous: ${TOTAL_WORKERS_FDS_DIFF}
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_all_memory_rss
+#      condition: '>'
+#      threshold: ${TOTAL_MEM}
+#      timeframe: 5s
+#      stop : ${STOP}
+#      fail : true
+#      diff_percent_previous: ${TOTAL_MEM_DIFF}
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/total_processes
+#      condition: '>'
+#      threshold: ${TOTAL_PROCS}
+#      timeframe: 5s
+#      stop: ${STOP}
+#      fail: true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_all_file_descriptors
+#      condition: '>'
+#      threshold: ${TOTAL_FDS}
+#      timeframe: 1s
+#      stop: ${STOP}
+#      fail: true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/frontend_memory_rss
+#      condition: '>'
+#      threshold: ${FRNTEND_MEM}
+#      timeframe: 5s
+#      stop: ${STOP}
+#      fail: true
+#      diff_percent_previous: ${FRNTEND_MEM_DIFF}
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/orphans
+#      condition: '>'
+#      threshold: ${TOTAL_ORPHANS}
+#      timeframe: 5s
+#      stop: ${STOP}
+#      fail: true
+#      diff_percent_previous: ${TOTAL_ORPHANS_DIFF}
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/zombies
+#      condition: '>'
+#      threshold: ${TOTAL_ZOMBIES}
+#      timeframe: 5s
+#      stop: ${STOP}
+#      fail: true
+#      diff_percent_previous: ${TOTAL_ZOMBIES_DIFF}
+
+compare_criteria:
+  # Monitoring metrics criteria
+  - subject: ServerLocalClient/total_workers
+    diff_percent_previous: ${TOTAL_WORKERS_PREV_DIFF}
+    diff_percent_run: ${TOTAL_WORKERS_RUN_DIFF}
+  - subject: ServerLocalClient/sum_workers_memory_rss
+    diff_percent_previous: ${TOTAL_WORKERS_MEM_PREV_DIFF}
+    diff_percent_run : ${TOTAL_WORKERS_MEM_RUN_DIFF}
+  - subject: ServerLocalClient/sum_workers_file_descriptors
+    diff_percent_previous: ${TOTAL_WORKERS_FDS_PREV_DIFF}
+    diff_percent_run: ${TOTAL_WORKERS_FDS_RUN_DIFF}
+  - subject: ServerLocalClient/sum_all_memory_rss
+    diff_percent_previous: ${TOTAL_MEM_PREV_DIFF}
+    diff_percent_run: ${TOTAL_MEM_RUN_DIFF}
+  - subject: ServerLocalClient/total_processes
+    diff_percent_previous: ${TOTAL_PROCS_PREV_DIFF}
+    diff_percent_run: ${TOTAL_PROCS_RUN_DIFF}
+  - subject: ServerLocalClient/sum_all_file_descriptors
+    diff_percent_previous : ${TOTAL_FDS_PREV_DIFF}
+    diff_percent_run : ${TOTAL_FDS_RUN_DIFF}
+  - subject: ServerLocalClient/frontend_memory_rss
+    diff_percent_previous: ${FRNTEND_MEM_PREV_DIFF}
+    diff_percent_run: ${FRNTEND_MEM_RUN_DIFF}
+  - subject: ServerLocalClient/orphans
+    diff_percent_previous: ${TOTAL_ORPHANS_PREV_DIFF}
+    diff_percent_run: ${TOTAL_ORPHANS_RUN_DIFF}
+  - subject: ServerLocalClient/zombies
+    diff_percent_previous: ${TOTAL_ZOMBIES_PREV_DIFF}
+    diff_percent_run: ${TOTAL_ZOMBIES_RUN_DIFF}
+
+
+settings:
+  env:
+    BASEDIR : '.'

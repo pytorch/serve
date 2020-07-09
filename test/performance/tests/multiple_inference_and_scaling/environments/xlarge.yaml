@@ -1,0 +1,57 @@
+
+---
+settings:
+  env:
+    API_LABEL : Inference1
+    API_SUCCESS : 100%
+    API_AVG_RT : 290ms
+
+    INFR2_SUCC: 100%
+    INFR2_RT: 450ms
+    SCALEUP1_RT : 500ms
+    SCALEUP2_RT : 500ms
+    SCALEDOWN1_RT : 100ms
+    SCALEDOWN2_RT : 100ms
+
+    TOTAL_WORKERS: 9
+    TOTAL_WORKERS_MEM: 2668554752
+    TOTAL_WORKERS_FDS: 100
+
+    TOTAL_MEM : 2000000000
+    TOTAL_PROCS : 11
+    TOTAL_FDS : 300
+
+    FRNTEND_MEM: 1000000000
+
+    TOTAL_ORPHANS : 0
+    TOTAL_ZOMBIES : 0
+
+    ## Percent diff values to do a compare across runs
+    TOTAL_WORKERS_PREV_DIFF: 0
+    TOTAL_WORKERS_MEM_PREV_DIFF: 30
+    TOTAL_WORKERS_FDS_PREV_DIFF: 30
+    TOTAL_MEM_PREV_DIFF: 30
+    TOTAL_PROCS_PREV_DIFF: 30
+    TOTAL_FDS_PREV_DIFF: 30
+    FRNTEND_MEM_PREV_DIFF: 30
+    TOTAL_ORPHANS_PREV_DIFF: 0
+    TOTAL_ZOMBIES_PREV_DIFF: 0
+
+    TOTAL_WORKERS_RUN_DIFF: 100
+    TOTAL_WORKERS_MEM_RUN_DIFF: 130
+    TOTAL_WORKERS_FDS_RUN_DIFF: 130
+    TOTAL_MEM_RUN_DIFF: 130
+    TOTAL_PROCS_RUN_DIFF: 80
+    TOTAL_FDS_RUN_DIFF: 40
+    FRNTEND_MEM_RUN_DIFF: 130
+    TOTAL_ORPHANS_RUN_DIFF: 0
+    TOTAL_ZOMBIES_RUN_DIFF: 0
+    TOTAL_ZOMBIES_RUN_DIFF: 0
+
+    CONCURRENCY : 10
+    RAMP-UP : 1s
+    HOLD-FOR : 300s
+    SCRIPT : multiple_inference_and_scaling.jmx
+
+    STOP :  ''    #possible values true, false. Bug in bzt so for false use ''
+    STOP_ALIAS: continue  #possible values continue, stop

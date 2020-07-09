@@ -1,0 +1,26 @@
+---
+settings:
+  env:
+    SCL_UP_SUCC : 100%
+    SCL_UP_RT : 10ms
+    TOTAL_PROCS_AFTR_SCL_UP : 6
+    TOTAL_PROCS_B4_SCL_UP : 3
+    TOTAL_WRKRS_AFTR_SCL_UP : 4
+    TOTAL_WRKRS_B4_SCL_UP  : 1
+    FRNTEND_FDS : 88
+    TOTAL_WRKRS_FDS_AFTR_SCL_UP : 38
+    TOTAL_WRKRS_FDS_B4_SCL_UP : 11
+    FRNTEND_MEM : 290000000 #290MB
+    TOTAL_WRKRS_MEM_AFTR_SCL_UP : 650000000
+    TOTAL_WRKRS_MEM_B4_SCL_UP : 115000000 #115MB
+    TOTAL_ORPHANS : 0
+    TOTAL_ZOMBIES : 0
+
+
+    CONCURRENCY: 10
+    RAMP-UP: 1s
+    HOLD-FOR: 300s
+    SCRIPT: scale_up_workers.jmx
+
+    STOP : ''    #possible values true, false. Bug in bzt so for false use ''
+    STOP_ALIAS: continue  #possible values continue, stop

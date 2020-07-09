@@ -1,0 +1,18 @@
+---
+reporting:
+- module: passfail
+  criteria:
+    # Custom Criteria
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true
+
+scenarios:
+  ~scenario_0:
+    script: health_check.jmx
+
+

@@ -1,0 +1,33 @@
+---
+scenarios:
+  scenario_0:
+    script: multiple_inference_and_scaling.jmx
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet_v1.1.mar"
+      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+      - "curl -s -X PUT  http://localhost:8081/models/squeezenet_v1.1?min_worker=1&synchronous=true"
+      - "curl -s -X PUT  http://localhost:8081/models/resnet-18?min_worker=1&synchronous=true"
+
+
+reporting:
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of Inference2<${INFR2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of Inference2>${INFR2_RT}, ${STOP_ALIAS} as failed
+    - success of Inference11<${INFR1_SUCC}, ${STOP_ALIAS} as failed
+    - success of Inference21<${INFR2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of Inference11>${INFR1_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of Inference21>${INFR2_RT}, ${STOP_ALIAS} as failed
+    - success of ScaleUp1<${INFR2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleUp1>${SCALEUP1_RT}, ${STOP_ALIAS} as failed
+    - success of ScaleUp2<${INFR2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleUp2>${SCALEUP2_RT}, ${STOP_ALIAS} as failed
+    - success of ScaleDown1<${INFR2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleDown1>${SCALEDOWN1_RT}, ${STOP_ALIAS} as failed
+    - success of ScaleDown2<${INFR2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleDown2>${SCALEDOWN2_RT}, ${STOP_ALIAS} as failed
+

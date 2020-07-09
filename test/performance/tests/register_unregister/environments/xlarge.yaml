@@ -1,0 +1,53 @@
+---
+settings:
+  env:
+    API_LABEL : RegisterModel
+    API_SUCCESS : 100%
+    API_AVG_RT : 290ms
+
+    UNREG_SUCC: 100%
+    UNREG_RT: 290ms
+
+    TOTAL_WORKERS: 1
+    TOTAL_WORKERS_MEM: 14054528
+    TOTAL_WORKERS_FDS: 50
+
+    TOTAL_MEM : 1400000000
+    TOTAL_PROCS : 2
+    TOTAL_FDS : 100
+
+    FRNTEND_MEM: 1200000000
+
+    TOTAL_ORPHANS : 0
+    TOTAL_ZOMBIES : 0
+
+    ## Percent diff values to do a compare across runs
+    TOTAL_WORKERS_PREV_DIFF: 0
+    TOTAL_WORKERS_MEM_PREV_DIFF: 30
+    TOTAL_WORKERS_FDS_PREV_DIFF: 30
+    TOTAL_MEM_PREV_DIFF: 30
+    TOTAL_PROCS_PREV_DIFF: 30
+    TOTAL_FDS_PREV_DIFF: 30
+    FRNTEND_MEM_PREV_DIFF: 30
+    TOTAL_ORPHANS_PREV_DIFF: 0
+    TOTAL_ZOMBIES_PREV_DIFF: 0
+
+    TOTAL_WORKERS_RUN_DIFF: 0
+    TOTAL_WORKERS_MEM_RUN_DIFF: 220
+    TOTAL_WORKERS_FDS_RUN_DIFF: 220
+    TOTAL_MEM_RUN_DIFF: 150
+    TOTAL_PROCS_RUN_DIFF: 70
+    TOTAL_FDS_RUN_DIFF: 30
+    FRNTEND_MEM_RUN_DIFF: 140
+    TOTAL_ORPHANS_RUN_DIFF: 0
+    TOTAL_ZOMBIES_RUN_DIFF: 0
+
+
+
+    CONCURRENCY : 10
+    RAMP-UP : 1s
+    HOLD-FOR : 300s
+    SCRIPT : register_unregister.jmx
+
+    STOP : false    #possible values true, false. Bug in bzt so for false use ''
+    STOP_ALIAS: continue  #possible values continue, stop

@@ -1,0 +1,22 @@
+---
+scenarios:
+  scenario_0:
+    script: batch_and_single_inference.jmx
+
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&batch_size=8&max_batch_delay=50"
+      # uncomment below and comment prev and use downloaded model with model-store
+      #- curl -s -X POST "http://localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_delay=60&initial_workers=1"
+      - "curl -s -X PUT  http://localhost:8081/models/resnet-152?min_worker=2&synchronous=true"
+      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+      - "curl -s -X PUT  http://localhost:8081/models/squeezenet_v1.1?min_worker=2&synchronous=true"
+
+reporting:
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of ManagementAPIDescription<${INF2_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of ManagementAPIDescription>${INF2_AVG_RT}, ${STOP_ALIAS} as failed

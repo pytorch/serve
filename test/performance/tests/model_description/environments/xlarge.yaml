@@ -1,0 +1,49 @@
+
+---
+settings:
+  env:
+    API_LABEL : ModelDescription
+    API_SUCCESS : 100%
+    API_AVG_RT : 14ms
+
+    TOTAL_WORKERS: 1
+    TOTAL_WORKERS_MEM: 150205952
+    TOTAL_WORKERS_FDS: 40
+
+    TOTAL_MEM : 1400000000
+    TOTAL_PROCS : 3
+    TOTAL_FDS : 150
+
+    FRNTEND_MEM: 800000000
+
+    TOTAL_ORPHANS : 0
+    TOTAL_ZOMBIES : 0
+
+    ## Percent diff values to do a compare across runs
+    TOTAL_WORKERS_PREV_DIFF: 0
+    TOTAL_WORKERS_MEM_PREV_DIFF: 30
+    TOTAL_WORKERS_FDS_PREV_DIFF: 30
+    TOTAL_MEM_PREV_DIFF: 30
+    TOTAL_PROCS_PREV_DIFF: 30
+    TOTAL_FDS_PREV_DIFF: 30
+    FRNTEND_MEM_PREV_DIFF: 50
+    TOTAL_ORPHANS_PREV_DIFF: 0
+    TOTAL_ZOMBIES_PREV_DIFF: 0
+
+    TOTAL_WORKERS_RUN_DIFF: 0
+    TOTAL_WORKERS_MEM_RUN_DIFF: 30
+    TOTAL_WORKERS_FDS_RUN_DIFF: 30
+    TOTAL_MEM_RUN_DIFF: 30
+    TOTAL_PROCS_RUN_DIFF: 30
+    TOTAL_FDS_RUN_DIFF: 30
+    FRNTEND_MEM_RUN_DIFF: 30
+    TOTAL_ORPHANS_RUN_DIFF: 0
+    TOTAL_ZOMBIES_RUN_DIFF: 0
+
+    CONCURRENCY : 10
+    RAMP-UP : 1s
+    HOLD-FOR : 300s
+    SCRIPT : model_description.jmx
+
+    STOP :  ''    #possible values true, false. Bug in bzt so for false use ''
+    STOP_ALIAS: continue  #possible values continue, stop

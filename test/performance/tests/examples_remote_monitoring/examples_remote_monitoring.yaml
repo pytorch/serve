@@ -1,0 +1,38 @@
+
+~execution:
+- concurrency: 4
+  ramp-up: 1s
+  hold-for: 20s
+  scenario: Inference
+
+~scenarios:
+  Inference:
+    script: examples_remote_monitoring.jmx
+
+
+
+~services:
+  - module: shellexec
+    prepare:
+      - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+      - "multi-model-server --start > /dev/null 2>&1"
+      - "sleep 10s"
+    post-process:
+      - "multi-model-server --stop > /dev/null 2>&1"
+      - "rm kitten.jpg"
+  - module: monitoring
+    server-agent:
+      - address: localhost:9009 # metric monitoring service address
+        label: model-server  # if you specify label, it will be used in reports instead of ip:port
+        interval: 1s    # polling interval
+        logging: True # those logs will be saved to "SAlogs_192.168.0.1_9009.csv" in the artifacts dir
+        metrics: # metrics should be supported by monitoring service
+          - sum_all_cpu_percent # cpu percent used by all the Model server processes and workers
+          - sum_workers_memory_percent
+          - frontend_file_descriptors
+          - total_workers # no of Model Server workers
+
+~reporting:
+  - module: passfail
+
+~compare_criteria:

@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Model Server Model Register-Unregister Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"/>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"/>
+    </TestPlan>
+    <hashTree>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="model" elementType="Argument">
+            <stringProp name="Argument.name">model</stringProp>
+            <stringProp name="Argument.value">squeezenet_v1.1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">Model name</stringProp>
+          </elementProp>
+          <elementProp name="model_url" elementType="Argument">
+            <stringProp name="Argument.name">model_url</stringProp>
+            <stringProp name="Argument.value">https://torchserve.s3.amazonaws.com/mar_files/squeezenet_v1.1.mar</stringProp>
+            <stringProp name="Argument.desc">URL to model store on s3</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="scale_up_workers" elementType="Argument">
+            <stringProp name="Argument.name">scale_up_workers</stringProp>
+            <stringProp name="Argument.value">2</stringProp>
+            <stringProp name="Argument.desc">Numer of workers to scale up to</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
+      <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments"/>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain">${__P(hostname,127.0.0.1)}</stringProp>
+        <stringProp name="HTTPSampler.port">${__P(port,8443)}</stringProp>
+        <stringProp name="HTTPSampler.protocol">${__P(protocol,https)}</stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"/>
+        <stringProp name="HTTPSampler.path"/>
+        <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"/>
+        <stringProp name="HTTPSampler.response_timeout"/>
+      </ConfigTestElement>
+      <hashTree/>
+      <com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup guiclass="com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroupGui" testclass="com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup" testname="${model} - Register, Scale Up and Unregister" enabled="true"><elementProp name="ThreadGroup.main_controller" elementType="com.blazemeter.jmeter.control.VirtualUserController"/><stringProp name="ThreadGroup.on_sample_error">continue</stringProp><stringProp name="TargetLevel">10</stringProp><stringProp name="RampUp">1</stringProp><stringProp name="Steps">0</stringProp><stringProp name="Hold">300</stringProp><stringProp name="LogFilename"></stringProp><stringProp name="Iterations"></stringProp><stringProp name="Unit">S</stringProp></com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup><hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="RegisterModel" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"/>
+          <stringProp name="HTTPSampler.port">${__P(management_port,8444)}</stringProp>
+          <stringProp name="HTTPSampler.protocol"/>
+          <stringProp name="HTTPSampler.contentEncoding"/>
+          <stringProp name="HTTPSampler.path">/models?url=${model_url}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"/>
+          <stringProp name="HTTPSampler.connect_timeout"/>
+          <stringProp name="HTTPSampler.response_timeout"/>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="ScaleUp" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"/>
+          <stringProp name="HTTPSampler.port">${__P(management_port,8444)}</stringProp>
+          <stringProp name="HTTPSampler.protocol"/>
+          <stringProp name="HTTPSampler.contentEncoding"/>
+          <stringProp name="HTTPSampler.path">/models/${model}?min_worker=${scale_up_workers}&amp;synchronous=true</stringProp>
+          <stringProp name="HTTPSampler.method">PUT</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"/>
+          <stringProp name="HTTPSampler.connect_timeout"/>
+          <stringProp name="HTTPSampler.response_timeout"/>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="UnregisterModel" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"/>
+          <stringProp name="HTTPSampler.port">${__P(management_port,8444)}</stringProp>
+          <stringProp name="HTTPSampler.protocol"/>
+          <stringProp name="HTTPSampler.contentEncoding"/>
+          <stringProp name="HTTPSampler.path">/models/${model}</stringProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"/>
+          <stringProp name="HTTPSampler.connect_timeout"/>
+          <stringProp name="HTTPSampler.response_timeout"/>
+        </HTTPSamplerProxy>
+        <hashTree/>
+      </hashTree>
+    <ResultCollector testname="KPI Writer" testclass="ResultCollector" guiclass="SimpleDataWriter"><stringProp name="filename">/Users/mahesh/git/multi-model-server/tests/performance/run_artifacts/xlarge__ae7622a__1594200190/register_unregister_multiple/kpi.jtl</stringProp><objProp><name>saveConfig</name><value class="SampleSaveConfiguration"><xml>false</xml><fieldNames>true</fieldNames><time>true</time><timestamp>true</timestamp><latency>true</latency><connectTime>true</connectTime><success>true</success><label>true</label><code>true</code><message>true</message><threadName>true</threadName><dataType>false</dataType><encoding>false</encoding><assertions>false</assertions><subresults>false</subresults><responseData>false</responseData><samplerData>false</samplerData><responseHeaders>false</responseHeaders><requestHeaders>false</requestHeaders><responseDataOnError>false</responseDataOnError><saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage><bytes>true</bytes><hostname>true</hostname><threadCounts>true</threadCounts><url>false</url></value></objProp></ResultCollector><hashTree/><ResultCollector testname="Errors Writer" testclass="ResultCollector" guiclass="SimpleDataWriter"><stringProp name="filename">/Users/mahesh/git/multi-model-server/tests/performance/run_artifacts/xlarge__ae7622a__1594200190/register_unregister_multiple/error.jtl</stringProp><objProp><name>saveConfig</name><value class="SampleSaveConfiguration"><xml>true</xml><fieldNames>true</fieldNames><time>true</time><timestamp>true</timestamp><latency>true</latency><success>true</success><label>true</label><code>true</code><message>true</message><threadName>true</threadName><dataType>true</dataType><encoding>true</encoding><assertions>true</assertions><subresults>true</subresults><responseData>false</responseData><samplerData>false</samplerData><responseHeaders>true</responseHeaders><requestHeaders>true</requestHeaders><responseDataOnError>true</responseDataOnError><saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage><bytes>true</bytes><threadCounts>true</threadCounts><url>true</url></value></objProp><boolProp name="ResultCollector.error_logging">true</boolProp></ResultCollector><hashTree/></hashTree>
+  </hashTree>
+</jmeterTestPlan>

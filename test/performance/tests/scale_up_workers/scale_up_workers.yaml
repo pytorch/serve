@@ -1,0 +1,115 @@
+---
+scenarios:
+  scenario_0:
+    script: scale_up_workers.jmx
+
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet_v1.1.mar"
+      - "curl -s -X PUT  http://localhost:8081/models/squeezenet_v1.1?min_worker=1&synchronous=true"
+
+
+~reporting:
+- module: passfail # this is to enable passfail module
+- module: junit-xml
+  data-source: pass-fail
+- module: junit-xml
+  data-source: sample-labels
+- module: final-stats
+  dump-csv : ${BASEDIR}/final_stats.csv
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of ScaleUp<${SCL_UP_SUCC}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleUp>${SCL_UP_RT}, ${STOP_ALIAS} as failed
+    # Custom Criteria
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '>'
+      threshold: ${TOTAL_PROCS_AFTR_SCL_UP}
+      timeframe: 1s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS_B4_SCL_UP}
+      timeframe: 1s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_workers
+      condition: '>'
+      threshold: ${TOTAL_WRKRS_AFTR_SCL_UP}
+      timeframe: 1s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_workers
+      condition: '<'
+      threshold: ${TOTAL_WRKRS_B4_SCL_UP}
+      timeframe: 1s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/frontend_file_descriptors
+      condition: '>'
+      threshold: ${FRNTEND_FDS}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/sum_workers_file_descriptors
+      condition: '>'
+      threshold: ${TOTAL_WRKRS_FDS_AFTR_SCL_UP}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/sum_workers_file_descriptors
+      condition: '<'
+      threshold: ${TOTAL_WRKRS_FDS_B4_SCL_UP}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/frontend_memory_rss
+      condition: '>'
+      threshold: ${FRNTEND_MEM}
+      timeframe: 5s
+      stop : true
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/sum_workers_memory_rss
+      condition: '>'
+      threshold: ${TOTAL_WRKRS_MEM_AFTR_SCL_UP}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/sum_workers_memory_rss
+      condition: '<'
+      threshold: ${TOTAL_WRKRS_MEM_B4_SCL_UP}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/orphans
+      condition: '>'
+      threshold: ${TOTAL_ORPHANS}
+      timeframe: 5s
+      stop: ${STOP}
+      fail: true
+      diff_percent_previous: ${TOTAL_ORPHANS_DIFF}
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/zombies
+      condition: '>'
+      threshold: ${TOTAL_ZOMBIES}
+      timeframe: 5s
+      stop: ${STOP}
+      fail: true
+
+~compare_criteria:
+  -
