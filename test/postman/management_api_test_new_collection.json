@@ -1102,7 +1102,7 @@
 			"response": []
 		},
 		{
-			"name": "Scale Min Workers for a Invalid Version",
+			"name": "Scale Min Workers for a Valid model but Invalid Version",
 			"event": [
 				{
 					"listen": "test",
@@ -1127,7 +1127,7 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet0_0/0.0?min_worker=5&synchronous=true",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1/0.0?min_worker=5&synchronous=true",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1135,7 +1135,7 @@
 					"port": "{{mgmt-port}}",
 					"path": [
 						"models",
-						"squeezenet0_0",
+						"squeezenet1_1",
 						"0.0"
 					],
 					"query": [
@@ -1409,6 +1409,93 @@
 			"response": []
 		},
 		{
+			"name": "Register Model with response_timeout as 0",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "253e5c83-2053-4b4c-9a7f-1992d3eab176",
+						"exec": [
+							"pm.test(\"Failed Register Model POST request with response_time_out as 0\", function () {",
+							"    pm.expect(pm.response.code).to.be.eql(500);",
+							"});",
+							"pm.test(pm.response.json().type, function () {",
+							"    pm.expect(pm.response.json().type).to.eql(\"InternalServerException\");    ",
+							"});",
+							"pm.test(pm.response.json().message, function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Failed to start workers\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&response_timeout=0",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						},
+						{
+							"key": "response_timeout",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnRegister Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6fca02d1-cb0c-4c4a-a516-e5075a9a057c",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Register Model with Batch Size",
 			"event": [
 				{
@@ -1575,7 +1662,96 @@
 			"response": []
 		},
 		{
-			"name": "Register Vgg Model Initial Workers 0",
+			"name": "Register Model with integer Batch Size but non integer max batch delay parameter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2e04ee5a-ff84-4f26-9ae3-cdb9c7c06311",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2&initial_workers=1&max_batch_delay=junk",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet152"
+						},
+						{
+							"key": "batch_size",
+							"value": "2"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "max_batch_delay",
+							"value": "junk"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnRegister Model Resnet152",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "968178d7-2ca4-4ebb-a274-f9bdba4aa211",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet152",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet152"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Vgg Model Negative initial workers",
 			"event": [
 				{
 					"listen": "test",
@@ -1594,7 +1770,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar&model_name=vgg11&initial_workers=0",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar&model_name=vgg11&initial_workers=-1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1614,7 +1790,7 @@
 						},
 						{
 							"key": "initial_workers",
-							"value": "0"
+							"value": "-1"
 						}
 					]
 				}
@@ -1675,6 +1851,87 @@
 					"listen": "test",
 					"script": {
 						"id": "63532cc7-f094-414d-bc88-0bca77eb286f",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/resnet-18",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"resnet-18"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model non boolean Synchronous value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "24f88a01-9a3e-4c28-8b82-3a5688eb1d46",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=-1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "resnet-18"
+						},
+						{
+							"key": "synchronous",
+							"value": "-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnRegister Model Resnet-18",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c28d29ed-e739-4c1d-a49e-377c65eea2e2",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -2769,7 +3026,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f2bc73cf-677e-4741-a605-81ac2f942230",
+						"id": "c10aa254-d2c5-4ac3-b321-b70f9fb69550",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
