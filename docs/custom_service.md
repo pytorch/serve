@@ -20,9 +20,12 @@ Following is applicable to all types of custom handlers
 * **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.
 
+### Start with BaseHandler!
+`BaseHandler` implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you'll only need to override `preprocess` or `postprocess`.
+
 ### Custom handler with `module` level entry point
 
-The custom handler file must define a module level function that acts as an entry point for execution. 
+The custom handler file must define a module level function that acts as an entry point for execution.
 The function can have any name, but it must accept the following parameters and return prediction results.
 
 The signature of a entry point function is:
@@ -34,37 +37,37 @@ model = None
 def entry_point_function_name(data, context):
     """
     Works on data and context to create model object or process inference request.
-    Following sample demonstrates how model object can be initialized for jit mode. 
+    Following sample demonstrates how model object can be initialized for jit mode.
     Similarly you can do it for eager mode models.
     :param data: Input data for prediction
     :param context: context contains model server system properties
     :return: prediction output
     """
     global model
-    
+
     if not data:
         manifest = context.manifest
-    
+
         properties = context.system_properties
         model_dir = properties.get("model_dir")
         device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
-    
+
         # Read model serialize/pt file
         serialized_file = manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
-    
-        model = torch.jit.load(model_pt_path) 
+
+        model = torch.jit.load(model_pt_path)
     else:
         #infer and return result
         return model(data)
-    
+
 ```
 
 This entry point is engaged in two cases:
 
-1. TorchServe is asked to scale a model out to increase the number of backend workers (it is done either via a `PUT /models/{model_name}` request 
+1. TorchServe is asked to scale a model out to increase the number of backend workers (it is done either via a `PUT /models/{model_name}` request
     or a `POST /models` request with `initial-workers` option or during TorchServe startup when you use the `--models` option (`torchserve --start --models {model_name=model.mar}`), ie., you provide model(s) to load)
 2. TorchServe gets a `POST /predictions/{model_name}` request.
 
@@ -98,7 +101,7 @@ class ModelHandler(object):
         :param context: context contains model server system properties
         :return:
         """
-        
+
         #  load the model
         self.manifest = context.manifest
 
@@ -113,10 +116,10 @@ class ModelHandler(object):
             raise RuntimeError("Missing the model.pt file")
 
         self.model = torch.jit.load(model_pt_path)
-        
+
         self.initialized = True
-        
-    
+
+
     def handle(self, data, context):
         """
         Invoke by TorchServe for prediction request.
@@ -129,11 +132,13 @@ class ModelHandler(object):
         return pred_out
 ```
 
-### Advance custom handlers
+### Advanced custom handlers
 
-#### Writing intuitive and maintainable custom handler
+#### Writing a custom handler from scratch
 
-Following is an example of well written custom handler. Basically, it follows a typical Init-Pre-Infer-Post pattern to create maintainable custom handler.
+*You should generally derive from BaseHandler and ONLY override methods whose behavior needs to change!* As you can see in the examples, most of the time you only need to override `preprocess` or `postprocess`
+
+Nonetheless, you are able to write a class from scratch. Below is an example. Basically, it follows a typical Init-Pre-Infer-Post pattern to create maintainable custom handler.
 
 ```python
 # custom handler file
@@ -144,7 +149,9 @@ Following is an example of well written custom handler. Basically, it follows a 
 ModelHandler defines a custom model handler.
 """
 
-class ModelHandler(object):
+from ts.torch_handler.base_handler import BaseHandler
+
+class ModelHandler(BaseHandler):
     """
     A custom model handler implementation.
     """
@@ -211,7 +218,7 @@ class ModelHandler(object):
 
 ```
 
-Refer [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) for more details. 
+Refer [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) for more details.
 
 #### Extend default handlers
 
@@ -246,7 +253,7 @@ class CustomImageClassifier(ImageClassifier):
 ```
 For more details refer following examples :
 - [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py)
-- [resnet-152-batch_image classifier handler](../examples/image_classifier/resnet_152_batch/resnet152_handler.py) 
+- [resnet-152-batch_image classifier handler](../examples/image_classifier/resnet_152_batch/resnet152_handler.py)
 
 ## Creating a model archive with an entry point
 
@@ -259,7 +266,7 @@ The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver
 torch-model-archiver --model-name <model-name> --version <model_version_number> --handler model_handler[:<entry_point_function_name>] [--model-file <path_to_model_architecture_file>] --serialized-file <path_to_state_dict_file> [--extra-files <comma_seperarted_additional_files>] [--export-path <output-dir> --model-path <model_dir>] [--runtime python3]
 ```
 
-NOTE - 
+NOTE -
 1. Options in [] are optional.
 2. `entry_point_function_name` can be skipped if it is named as `handle` in your [handler module](#custom-handler-with-module-level-entry-point) or handler is [python class](#custom-handler-with-class-level-entry-point)
 
@@ -273,7 +280,7 @@ torch-model-archiver --model-name waveglow_synthesizer --version 1.0 --model-fil
 
 ## Handling model execution on multiple GPUs
 
-TorchServe scales backend workers on vCPUs or GPUs. In case of multiple GPUs TorchServe selects the gpu device in round-robin fashion and passes on this device id to the model handler in context object. 
+TorchServe scales backend workers on vCPUs or GPUs. In case of multiple GPUs TorchServe selects the gpu device in round-robin fashion and passes on this device id to the model handler in context object.
 User should use this GPU ID for creating pytorch device object to ensure that all the workers are not created in the same GPU.
 The following code snippet can be used in model handler to create the PyTorch device object:
 

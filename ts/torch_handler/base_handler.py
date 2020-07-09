@@ -42,14 +42,10 @@ class BaseHandler(abc.ABC):
             raise RuntimeError("Missing the model.pt file")
 
         # Torchscript is better, so try to read that first
-        is_torchscript = True
         try:
             logger.debug('Loading torchscript model')
             self.model = self._load_torchscript_model(model_pt_path)
         except RuntimeError as e:
-            is_torchscript = False
-
-        if not is_torchscript:
             logger.debug('Torchscript load failed; trying pickle')
             model_file = self.manifest['model']['modelFile']
             self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
@@ -58,9 +54,6 @@ class BaseHandler(abc.ABC):
         self.model.eval()
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
-
-        # Read the mapping file, index to object name
-        mapping_file_path = os.path.join(model_dir, "index_to_name.json")
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
