@@ -177,10 +177,48 @@ apt-get install apache2-utils
 Apache Bench is installed in Mac by default. You can test by running ```ab -h```
 
 ### pip dependencies
-`pip install -r ab_requirements.txt`
+`pip install -r requirements-ab.txt`
 
-## Benchmark 
+## Benchmark
+### Run benchmark
+This command will run the AB benchmark with default parameters. It will start a Torchserve instance locally, register Resnet-18 model, and run 100 inference requests with a concurrency of 10.
+Refer [parameters section](#benchmark-parameters) for more details on configurable parameters.
 
+`python benchmark-ab.py`
+
+### Run benchmark with a test plan
+The benchmark comes with pre-configured test plans which can be used directly to set parameters. Refer available [test plans](#test-plans ) for more details.
+`python benchmark-ab.py <test plan>`
+
+### Run benchmark with a customized test plan
+This command will run Torchserve locally and perform benchmarking on the VGG11 model with test plan `soak` test plan soak has been configured with default Resnet-18 model, here we override it by providing extra parameters. Similarly, all parameters can be customized with a Test plan
+
+`python benchmark-ab.py soak --url https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar`
+
+### Run benchmark in docker
+This command will run Torchserve inside a docker container and perform benchmarking with default parameters. The docker image used here is the latest CPU based torchserve image available on the docker hub. The custom image can also be used using the `--image` parameter.
+`python benchmark-ab.py --exec_env docker`
+
+### Run benchmark in GPU docker
+This command will run Torchserve inside a docker container with 4 GPUs and perform benchmarking with default parameters.  The docker image used here is the latest GPU based torchserve image available on the docker hub. The custom image can also be used using the `--image` parameter.
+`python benchmark-ab.py --exec_env docker --gpus 4`
+
+### Run benchmark using a config file
+The config parameters can be provided using cmd line args and a config json file as well.
+This command will use all the configuration parameters given in config.json file.
+`python benchmark-ab.py --config config.json`
+
+### Sample config file
+```json
+{
+  "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+  "requests": 1000,
+  "concurrency": 10,
+  "input": "../examples/image_classifier/kitten.jpg",
+  "exec_env": "docker",
+  "gpus": "2"
+}
+```
 ### Benchmark parameters
 The following parameters can be used to run the AB benchmark suite.
 - url: Input model URL. Default: "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
@@ -192,44 +230,19 @@ The following parameters can be used to run the AB benchmark suite.
 - batch_delay: Max batch delay of the model. Default:200
 - workers: Number of worker thread(s) for model
 - input: Input file for model
-- content_type: Input file content type. 
-- image: Custom docker image to run Torchserve on. Default: Standard public Torchserve image  
+- content_type: Input file content type.
+- image: Custom docker image to run Torchserve on. Default: Standard public Torchserve image
 - docker_runtime: Specify docker runtime if required
 - ts: Use Already running Torchserve instance. Default: False
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
 
-### Presets
+### Test plans
 Benchmark supports pre-defined, pre-configured params that can be selected based on the use case.
 1. soak: default model url with requests =100000 and concurrency=10
 2. vgg11_1000r_10c: vgg11 model with requests =1000 and concurrency=10
 3. vgg11_10000r_100c: vgg11 model with requests =10000 and concurrency=100
 
-Note: These pre-defined parameters in preset can be overwritten by cmd line args.
-
-### Run benchmark locally
-This command will run Torchserve locally and perform benchmarking on the VGG11 model. 
-`python ab_benchmark.py soak --url https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar`
-
-### Run benchmark on docker
-`python ab_benchmark.py --exec docker`
-
-### Run benchmark on already running Torchserve instance
-`python ab_benchmark.py --ts true`
-
-### Run benchmark using a config file
-`python ab_benchmark.py --config config.json`
-
-### Sample config file
-```json
-{
-    "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
-    "requests": 1000,
-    "concurrency": 10,
-    "input": "../examples/image_classifier/kitten.jpg",
-    "exec_env": "docker",
-    "device": "gpu" 
-}
-```
+Note: These pre-defined parameters in test plan can be overwritten by cmd line args.
 
 ### Benchmark reports
 The reports are generated at location "/tmp/benchmark/"
@@ -238,6 +251,13 @@ The reports are generated at location "/tmp/benchmark/"
 - torhcserve logs: /tmp/benchmark/logs/model_metrics.log
 - raw ab output: /tmp/benchmark/result.txt
 
+### Sample output CSV
+| Benchmark | Model | Concurrency | Requests | TS failed requests | TS throughput | TS latency P50 | TS latency P90| TS latency P90 | TS latency mean | TS error rate | Model_p50 | Model_p90 | Model_p99 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---| ---|
+| AB | https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar | 10 | 100 | 0 |  15.66 | 512 | 1191 | 2024 |  638.695 | 0 | 196.57 | 270.9 | 106.53|
+
+### Sample latency graph
+![](predict_latency.png)
 
 # Profiling
 

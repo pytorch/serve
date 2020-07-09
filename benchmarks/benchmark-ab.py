@@ -13,11 +13,11 @@ import pandas as pd
 import requests
 
 default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
-                     'device': 'cpu',
-                     'exec_env': 'docker',
+                     'gpus': '',
+                     'exec_env': 'local',
                      'batch_size': 1,
                      'batch_delay': 200,
-                     'workers': 4,
+                     'workers': 1,
                      'concurrency': 10,
                      'requests': 100,
                      'input': '../examples/image_classifier/kitten.jpg',
@@ -25,7 +25,7 @@ default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resne
                      'image': '',
                      'docker_runtime': ''}
 
-execution_params = default_ab_params
+execution_params = default_ab_params.copy()
 result_file = "/tmp/benchmark/result.txt"
 metric_log = "/tmp/benchmark/logs/model_metrics.log"
 
@@ -36,31 +36,29 @@ def json_provider(file_path, cmd_name):
 
 
 @click.command()
-@click.argument('preset', default='custom')
+@click.argument('test_plan', default='custom')
 @click.option('--url', '-u', default='https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar',
-              help='input model url')
-@click.option('--device', '-d', type=click.Choice(['cpu', 'gpu'], case_sensitive=False), default='cpu',
-              help='execution device type')
-@click.option('--exec_env', '-e', type=click.Choice(['local', 'docker'], case_sensitive=False), default='docker',
-              help='execution environment')
-@click.option('--concurrency', '-c', default=10, help='concurrency')
-@click.option('--requests', '-r', default=100, help='number of requests')
-@click.option('--batch_size', '-bs', default=1, help='batch size')
-@click.option('--batch_delay', '-bd', default=200, help='batch delay')
+              help='Input model url')
+@click.option('--exec_env', '-e', type=click.Choice(['local', 'docker'], case_sensitive=False), default='local',
+              help='Execution environment')
+@click.option('--gpus', '-g', default='',
+              help='Number of gpus to run docker container with.  Leave empty to run CPU based docker container')
+@click.option('--concurrency', '-c', default=10, help='Number of concurrent requests to run')
+@click.option('--requests', '-r', default=100, help='Number of requests')
+@click.option('--batch_size', '-bs', default=1, help='Batch size of model')
+@click.option('--batch_delay', '-bd', default=200, help='Batch delay of model')
 @click.option('--input', '-i', 'input_file', default='../examples/image_classifier/kitten.jpg',
-              type=click.Path(exists=True),
-              help='model input')
-@click.option('--workers', '-w', default=4, help='model workers')
-@click.option('--content_type', '-ic', default='application/jpg', help='content type')
-@click.option('--image', '-di', default='', help='custom docker image')
-@click.option('--docker_runtime', '-dr', default='', help='docker runtime')
-@click.option('--ts', '-ts', type=click.BOOL, default=False, help='use already running Torchserve instance')
+              type=click.Path(exists=True), help='The input file path for model')
+@click.option('--content_type', '-ic', default='application/jpg', help='Input file content type')
+@click.option('--workers', '-w', default=1, help='Number model workers')
+@click.option('--image', '-di', default='', help='Use custom docker image for benchmark')
+@click.option('--docker_runtime', '-dr', default='', help='Specify required docker runtime')
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
-                                        help="read configuration from a JSON file")
-def ab_benchmark(preset, url, device, exec_env, concurrency, requests, batch_size, batch_delay, input_file, workers,
-                 content_type, image, docker_runtime, ts):
+                                        help="Read configuration from a JSON file")
+def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input_file, workers,
+              content_type, image, docker_runtime):
     input_params = {'url': url,
-                    'device': device,
+                    'gpus': gpus,
                     'exec_env': exec_env,
                     'batch_size': batch_size,
                     'batch_delay': batch_delay,
@@ -74,28 +72,26 @@ def ab_benchmark(preset, url, device, exec_env, concurrency, requests, batch_siz
                     }
 
     # set ab params
-    preset_ab_run[preset]()
+    update_plan_params[test_plan]()
     update_exec_params(input_params)
     click.secho("Starting AB benchmark suite...", fg='green')
     click.secho(f"\n\nConfigured execution parameters are:", fg='green')
     click.secho(f"{execution_params}", fg="blue")
 
     # Setup execution env
-    if not ts:
-        if execution_params['exec_env'] == 'local':
-            click.secho("\n\nSetting up local execution...", fg='green')
-            local_torserve_start()
-        else:
-            click.secho("\n\nSetting up docker execution...", fg='green')
-            docker_torchserve_start()
+    if execution_params['exec_env'] == 'local':
+        click.secho("\n\nPreparing local execution...", fg='green')
+        local_torserve_start()
     else:
-        click.secho("\n\nExpecting torchserve instance already running...", fg='green')
-    check_torchserve_running()
-    exec_ab_benchmark()
-    report_generate()
+        click.secho("\n\nPreparing docker execution...", fg='green')
+        docker_torchserve_start()
+
+    check_torchserve_health()
+    run_benchmark()
+    generate_report()
 
 
-def check_torchserve_running():
+def check_torchserve_health():
     attempts = 3
     retry = 0
     click.secho("*Testing system health...", fg='green')
@@ -111,7 +107,7 @@ def check_torchserve_running():
     failure_exit("Could not connect to Tochserve instance at http://localhost:8080/.")
 
 
-def exec_ab_benchmark():
+def run_benchmark():
     register_model()
 
     click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
@@ -121,9 +117,7 @@ def exec_ab_benchmark():
     execute(ab_cmd, wait=True)
 
     unregister_model()
-    click.secho("*Terminating Torchserve instance...", fg='green')
-    execute("torchserve --stop", wait=True)
-    click.secho("Apache Bench Execution completed.", fg='green')
+    stop_torchserve()
 
 
 def register_model():
@@ -163,7 +157,7 @@ def local_torserve_start():
     click.secho("*Terminating any existing Torchserve instance ...", fg='green')
     execute("torchserve --stop", wait=True)
     click.secho("*Setting up model store...", fg='green')
-    resolve_local_exec_dependency(execution_params['input'])
+    prepare_local_dependency()
     click.secho("*Starting local Torchserve instance...", fg='green')
     execute("torchserve --start --model-store /tmp/model_store "
             "--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log")
@@ -171,18 +165,18 @@ def local_torserve_start():
 
 
 def docker_torchserve_start():
-    resolve_docker_exec_dependency(execution_params['input'])
+    prepare_docker_dependency()
     enable_gpu = ''
     if execution_params['image']:
         docker_image = execution_params['image']
-        if execution_params['device'] == 'gpu':
-            enable_gpu = "--gpus 4"
+        if execution_params['gpus']:
+            enable_gpu = f"--gpus {execution_params['gpus']}"
     else:
-        if execution_params['device'].lower() == 'cpu':
-            docker_image = "pytorch/torchserve:latest"
-        else:
+        if execution_params['gpus']:
             docker_image = "pytorch/torchserve:latest-gpu"
-            enable_gpu = "--gpus 4"
+            enable_gpu = f"--gpus {execution_params['gpus']}"
+        else:
+            docker_image = "pytorch/torchserve:latest"
         execute(f"docker pull {docker_image}", wait=True)
 
     # delete existing ts conatiner instance
@@ -190,26 +184,26 @@ def docker_torchserve_start():
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts --user root:root -p 8080:8080 -p 8081:8081 " \
-                     f"-v /tmp/benchmark:/tmp/benchmark {enable_gpu} -itd pytorch/torchserve:latest " \
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts --user root -p 8080:8080 -p 8081:8081 " \
+                     f"-v /tmp/benchmark:/tmp/benchmark {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
                      f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
     time.sleep(5)
 
 
-def resolve_local_exec_dependency(input_file):
+def prepare_local_dependency():
     shutil.rmtree('/tmp/model_store/', ignore_errors=True)
     os.makedirs("/tmp/model_store/", exist_ok=True)
-    resolve_common_exec_dependency(input_file)
+    prepare_common_dependency()
 
 
-def resolve_docker_exec_dependency(input_file):
-    resolve_common_exec_dependency(input_file)
+def prepare_docker_dependency():
+    prepare_common_dependency()
 
 
-def resolve_common_exec_dependency(input_file):
-    input = input_file
+def prepare_common_dependency():
+    input = execution_params['input']
     shutil.rmtree("/tmp/benchmark", ignore_errors=True)
     os.makedirs("/tmp/benchmark/conf", exist_ok=True)
     os.makedirs("/tmp/benchmark/logs", exist_ok=True)
@@ -223,7 +217,7 @@ def update_exec_params(input_param):
             execution_params[k] = input_param[k]
 
 
-def report_generate():
+def generate_report():
     click.secho("\n\nGenerating Reports...", fg='green')
     extract_prediction_latency()
     generate_csv_output()
@@ -254,19 +248,23 @@ def generate_csv_output():
     artifacts = {}
     with open('/tmp/benchmark/result.txt') as f:
         data = f.readlines()
-    artifacts['ts_error'] = extract_entity(data, 'Failed requests:', -1)
-    artifacts['ts_rps'] = extract_entity(data, 'Requests per second:', -3)
-    artifacts['ts_p50'] = extract_entity(data, '50%', -1)
-    artifacts['ts_p90'] = extract_entity(data, '90%', -1)
-    artifacts['ts_p99'] = extract_entity(data, '99%', -1)
-    artifacts['ts_mean'] = extract_entity(data, 'Time per request:.*mean\)', -3)
-    artifacts['ts_error_rate'] = int(artifacts['ts_error']) / execution_params['requests'] * 100
+    artifacts['Benchmark'] = "AB"
+    artifacts['Model'] = execution_params['url']
+    artifacts['Concurrency'] = execution_params['concurrency']
+    artifacts['Requests'] = execution_params['requests']
+    artifacts['TS failed requests'] = extract_entity(data, 'Failed requests:', -1)
+    artifacts['TS throughput'] = extract_entity(data, 'Requests per second:', -3)
+    artifacts['TS latency P50'] = extract_entity(data, '50%', -1)
+    artifacts['TS latency P90'] = extract_entity(data, '90%', -1)
+    artifacts['TS latency P99'] = extract_entity(data, '99%', -1)
+    artifacts['TS latency mean'] = extract_entity(data, 'Time per request:.*mean\)', -3)
+    artifacts['TS error rate'] = int(artifacts['TS failed requests']) / execution_params['requests'] * 100
 
     with open('/tmp/benchmark/predict.txt') as f:
         lines = f.readlines()
-        artifacts['model_p50'] = lines[line50].strip()
-        artifacts['model_p90'] = lines[line90].strip()
-        artifacts['model_p99'] = lines[line99].strip()
+        artifacts['Model_p50'] = lines[line50].strip()
+        artifacts['Model_p90'] = lines[line90].strip()
+        artifacts['Model_p99'] = lines[line99].strip()
 
     with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
@@ -295,7 +293,17 @@ def generate_latency_graph():
     plt.savefig("/tmp/benchmark/predict_latency.png")
 
 
-# Preset test plans (soak, vgg11_1000r_10c,  vgg11_10000r_100c)
+def stop_torchserve():
+    if execution_params['exec_env'] == 'local':
+        click.secho("*Terminating Torchserve instance...", fg='green')
+        execute("torchserve --stop", wait=True)
+    else:
+        click.secho("*Removing benchmark container 'ts'...", fg='green')
+        execute('docker rm -f ts', wait=True)
+    click.secho("Apache Bench Execution completed.", fg='green')
+
+
+# Test plans (soak, vgg11_1000r_10c,  vgg11_10000r_100c,...)
 def soak():
     execution_params['requests'] = 100000
     execution_params['concurrency'] = 10
@@ -313,14 +321,31 @@ def vgg11_10000r_100c():
     execution_params['concurrency'] = 100
 
 
+def resnet152_batch():
+    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar'
+    execution_params['requests'] = 1000
+    execution_params['concurrency'] = 10
+    execution_params['batch_size'] = 4
+
+
+def resnet152_batch_docker():
+    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar'
+    execution_params['requests'] = 1000
+    execution_params['concurrency'] = 10
+    execution_params['batch_size'] = 4
+    execution_params['exec_env'] = 'docker'
+
+
 def custom():
     pass
 
 
-preset_ab_run = {
+update_plan_params = {
     "soak": soak,
     "vgg11_1000r_10c": vgg11_1000r_10c,
     "vgg11_10000r_100c": vgg11_10000r_100c,
+    "resnet152_batch": resnet152_batch,
+    "resnet152_batch_docker": resnet152_batch_docker,
     "custom": custom
 }
 
@@ -333,4 +358,4 @@ def failure_exit(msg):
 
 
 if __name__ == '__main__':
-    ab_benchmark()
+    benchmark()
