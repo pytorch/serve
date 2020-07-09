@@ -34,10 +34,7 @@ public final class PrometheusMetricManager {
     }
 
     private static String getOrDefaultModelVersion(String modelVersion) {
-        if (modelVersion == null) {
-            return "default";
-        }
-        return modelVersion;
+        return modelVersion == null ? "default" : modelVersion;
     }
 
     public static PrometheusMetricManager getInstance() {

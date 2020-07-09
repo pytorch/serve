@@ -26,6 +26,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import org.pytorch.serve.util.ConfigManager;
@@ -43,6 +44,11 @@ public final class TestUtils {
     private static Channel inferenceChannel;
     private static Channel managementChannel;
     private static Channel metricsChannel;
+    private static String tsInferLatencyPattern =
+            "ts_inference_latency_microseconds\\{"
+                    + "uuid=\"[\\w]{8}(-[\\w]{4}){3}-[\\w]{12}\","
+                    + "model_name=\"%s\","
+                    + "model_version=\"%s\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 
@@ -319,6 +325,12 @@ public final class TestUtils {
         if (metricsChannel != null) {
             metricsChannel.closeFuture().sync();
         }
+    }
+
+    public static Pattern getTSInferLatencyMatcher(String modelName, String modelVersion) {
+        modelVersion = modelVersion == null ? "default" : modelVersion;
+        return Pattern.compile(
+                String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
     }
 
     @ChannelHandler.Sharable

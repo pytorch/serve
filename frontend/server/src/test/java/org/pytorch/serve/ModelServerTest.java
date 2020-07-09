@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
@@ -55,6 +56,7 @@ public class ModelServerTest {
     private ModelServer server;
     private String listInferenceApisResult;
     private String listManagementApisResult;
+    private String listMetricsApisResult;
     private String noopApiResult;
 
     static {
@@ -81,6 +83,11 @@ public class ModelServerTest {
 
         try (InputStream is = new FileInputStream("src/test/resources/management_open_api.json")) {
             listManagementApisResult =
+                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
+        }
+
+        try (InputStream is = new FileInputStream("src/test/resources/metrics_open_api.json")) {
+            listMetricsApisResult =
                     String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
 
@@ -132,6 +139,19 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRootManagement"})
+    public void testRootMetrics() throws InterruptedException {
+        Channel channel = TestUtils.getMetricsChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.getRoot(channel);
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getResult(), listMetricsApisResult);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRootMetrics"})
     public void testApiDescription() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -1544,6 +1564,16 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+
+        Channel metricsChannel = TestUtils.getMetricsChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest metricsReq =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/metrics");
+        metricsChannel.writeAndFlush(metricsReq);
+        TestUtils.getLatch().await();
+        Pattern inferLatencyMatcher = TestUtils.getTSInferLatencyMatcher(modelName, version);
+        Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
     }
 
     private void loadTests(Channel channel, String model, String modelName)

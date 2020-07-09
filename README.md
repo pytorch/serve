@@ -273,7 +273,7 @@ Navigate to http://localhost:9090/ on a browser to execute queries and create gr
 
 #### Grafana
 
-Once you have the Torchserve and Prometheus servers running, you can further [setup](https://prometheus.io/docs/visualization/grafana/) Grafana, point it to Prometheus server, to create dashboards and graphs.
+Once you have the Torchserve and Prometheus servers running, you can further [setup](https://prometheus.io/docs/visualization/grafana/) Grafana, point it to Prometheus server and navigate to http://localhost:3000/ to create dashboards and graphs.
 
 <img width="1220" alt="Screen Shot 2020-07-08 at 5 51 57 PM" src="https://user-images.githubusercontent.com/880376/86984550-c4fb6200-c143-11ea-9434-09d4d43dd6d4.png">
 
