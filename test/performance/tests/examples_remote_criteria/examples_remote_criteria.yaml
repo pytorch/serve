@@ -13,11 +13,13 @@
   - module: shellexec
     prepare:
       - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
-      - "multi-model-server --start > /dev/null 2>&1"
-      - "sleep 10s"
+      - "mkdir /tmp/model_server"
+      - "torchserve --start --model-store /tmp/model_server > /dev/null 2>&1"
+      - "sleep 20s"
     post-process:
-      - "multi-model-server --stop > /dev/null 2>&1"
+      - "torchserve --stop > /dev/null 2>&1"
       - "rm kitten.jpg"
+      - "rm -r /tmp/model_server"
   - module: monitoring
     server-agent:
       - address: localhost:9009 # metric monitoring service address

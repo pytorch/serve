@@ -10,9 +10,6 @@ services:
     prepare:
       - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet_v1.1.mar"
       - "curl -s -X PUT  http://localhost:8081/models/squeezenet1_1?min_worker=4&synchronous=true"
-    post-process:
-      - "multi-model-server --stop > /dev/null 2>&1"
-
 
 ~reporting:
 - module: passfail # this is to enable passfail module
