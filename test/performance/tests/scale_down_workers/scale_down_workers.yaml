@@ -10,6 +10,7 @@ services:
     prepare:
       - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
       - "curl -s -X PUT  http://localhost:8081/models/squeezenet1_1?min_worker=4&synchronous=true"
+      - "sleep 10s"
 
 ~reporting:
 - module: passfail # this is to enable passfail module
@@ -36,70 +37,70 @@ services:
       subject: ServerLocalClient/total_processes
       condition: '<'
       threshold: ${TOTAL_PROCS_AFTR_SCL_DWN}
-      timeframe: 1s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/total_workers
       condition: '>'
       threshold: ${TOTAL_WRKRS_B4_SCL_DWN}
-      timeframe: 1s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/total_workers
       condition: '<'
       threshold: ${TOTAL_WRKRS_AFTR_SCL_DWN}
-      timeframe: 1s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/frontend_file_descriptors
       condition: '>'
       threshold: ${FRNTEND_FDS}
-      timeframe: 5s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_file_descriptors
       condition: '>'
       threshold: ${TOTAL_WRKRS_FDS_B4_SCL_DWN}
-      timeframe: 5s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_file_descriptors
       condition: '<'
       threshold: ${TOTAL_WRKRS_FDS_AFTR_SCL_DWN}
-      timeframe: 5s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/frontend_memory_rss
       condition: '>'
       threshold: ${FRNTEND_MEM}
-      timeframe: 5s
+      timeframe: 10s
       stop : true
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_memory_rss
       condition: '>'
       threshold: ${TOTAL_WRKRS_MEM_B4_SCL_DWN}
-      timeframe: 5s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_memory_rss
       condition: '<'
       threshold: ${TOTAL_WRKRS_MEM_AFTR_SCL_DWN}
-      timeframe: 5s
+      timeframe: 10s
       stop : ${STOP}
       fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/orphans
       condition: '>'
       threshold: ${TOTAL_ORPHANS}
-      timeframe: 5s
+      timeframe: 10s
       stop: ${STOP}
       fail: true
       diff_percent_previous: ${TOTAL_ORPHANS_DIFF}
@@ -107,7 +108,7 @@ services:
       subject: ServerLocalClient/zombies
       condition: '>'
       threshold: ${TOTAL_ZOMBIES}
-      timeframe: 5s
+      timeframe: 10s
       stop: ${STOP}
       fail: true
 
