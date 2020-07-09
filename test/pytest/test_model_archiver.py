@@ -5,10 +5,11 @@ import glob
 import requests
 import json
 
-ROOT_DIR="/workspace/"
-MODEL_STORE=ROOT_DIR+"model_store"
-#CHANGE THIS TO CORRECT PYTORCH CODE REPOSITORY
-CODEBUILD_WD="/home/deepak/projects/ofc/db_torch/torch_issue_394/serve"
+ROOT_DIR = "/workspace/"
+MODEL_STORE = ROOT_DIR + "model_store"
+# CHANGE THIS TO CORRECT PYTORCH CODE REPOSITORY
+CODEBUILD_WD = "/home/deepak/projects/ofc/db_torch/torch_issue_394/serve"
+
 
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
     stop_torchserve()
@@ -36,7 +37,7 @@ def delete_all_snapshots():
 
 def delete_model_store(model_store=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    for f in glob.glob(model_store+"/*"):
+    for f in glob.glob(model_store + "/*"):
         os.remove(f)
 
 
@@ -54,18 +55,18 @@ def test_multiple_model_versions_registration():
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
     v2_cmd = "torch-model-archiver --model-name resnet-18_v2 --version 2.0 --model-file " \
-             +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-             "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v2_cmd_list = v2_cmd.split(" ")
     subprocess.run(v1_cmd_list)
     subprocess.run(v2_cmd_list)
@@ -115,11 +116,11 @@ def test_duplicate_model_registration_using_local_and_http_url():
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
     subprocess.run(v1_cmd_list)
     cmd3 = ["mv", "resnet-18.mar", MODEL_STORE]
@@ -147,6 +148,7 @@ def test_duplicate_model_registration_using_local_and_http_url():
     finally:
         torchserve_cleanup()
 
+
 def run_model_archiver_to_regenerate_model_mar(force_flag=None):
     torchserve_cleanup()
     # Download resnet-18 model serialized file
@@ -155,24 +157,24 @@ def run_model_archiver_to_regenerate_model_mar(force_flag=None):
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
-    if force_flag !=None:
+    if force_flag != None:
         v1_cmd_list.extend(["--force"])
     retval1 = subprocess.run(v1_cmd_list)
-    #Now regenerate the same model file using same process as above without force flag
+    # Now regenerate the same model file using same process as above without force flag
     v2_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v2_cmd_list = v2_cmd.split(" ")
-    if force_flag !=None:
+    if force_flag != None:
         v2_cmd_list.extend(["--force"])
     try:
         assert (0 == subprocess.run(v2_cmd_list).returncode), "Mar file couldn't be created.use -f option"
@@ -196,11 +198,11 @@ def test_model_archiver_without_handler_flag():
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
     try:
         assert (0 == subprocess.run(v1_cmd_list).returncode), "Mar file couldn't be created." \
@@ -217,11 +219,11 @@ def test_model_archiver_without_model_name_flag():
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                                                                       " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
     try:
         assert (0 == subprocess.run(v1_cmd_list).returncode), "Mar file couldn't be created." \
@@ -238,10 +240,10 @@ def test_model_archiver_without_model_file_flag():
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0" \
-             " --serialized-file "+MODEL_STORE+"/resnet18-5c106cde.pth" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             " --serialized-file " + MODEL_STORE + "/resnet18-5c106cde.pth" \
+                                                   " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
     try:
         assert (0 == subprocess.run(v1_cmd_list).returncode)
@@ -257,11 +259,11 @@ def test_model_archiver_without_serialized_flag():
     cmd2 = ["mv", "resnet18-5c106cde.pth", MODEL_STORE]
     subprocess.run(cmd2)
     v1_cmd = "torch-model-archiver --model-name resnet-18 --version 1.0 --model-file " \
-          +CODEBUILD_WD+"/examples/" \
-          "image_classifier/resnet_18/model.py" \
-          " --handler image_classifier --extra-files " \
-          +CODEBUILD_WD+"/examples" \
-          "/image_classifier/index_to_name.json"
+             + CODEBUILD_WD + "/examples/" \
+                              "image_classifier/resnet_18/model.py" \
+                              " --handler image_classifier --extra-files " \
+             + CODEBUILD_WD + "/examples" \
+                              "/image_classifier/index_to_name.json"
     v1_cmd_list = v1_cmd.split(" ")
     try:
         assert (0 == subprocess.run(v1_cmd_list).returncode), "Mar file couldn't be created." \

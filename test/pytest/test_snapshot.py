@@ -5,14 +5,15 @@ import glob
 import requests
 import json
 
+
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
     stop_torchserve()
-    cmd = ["torchserve","--start"]
+    cmd = ["torchserve", "--start"]
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
     cmd.extend(["--model-store", model_store])
-    if(snapshot_file != None):
+    if (snapshot_file != None):
         cmd.extend(["--ts-config", snapshot_file])
-    if(no_config_snapshots):
+    if (no_config_snapshots):
         cmd.extend(["--no-config-snapshots"])
     subprocess.run(cmd)
     time.sleep(10)
@@ -31,8 +32,8 @@ def delete_all_snapshots():
 
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    if model_mar !=None:
-        for f in glob.glob(model_store+"/"+model_mar+"*"):
+    if model_mar != None:
+        for f in glob.glob(model_store + "/" + model_mar + "*"):
             os.remove(f)
 
 
@@ -48,7 +49,7 @@ def replace_mar_file_with_dummy_mar_in_model_store(model_store=None, model_mar=N
 
 def delete_model_store(model_store=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    for f in glob.glob(model_store+"/*"):
+    for f in glob.glob(model_store + "/*"):
         os.remove(f)
 
 
@@ -76,10 +77,11 @@ def test_snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
     delete_all_snapshots()
     start_torchserve()
     requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/'
-                  +model_mar)
+                  + model_mar)
     time.sleep(10)
     stop_torchserve()
     assert len(glob.glob('logs/config/*snap*.cfg')) == 1
+
 
 def test_start_from_snapshot():
     '''
@@ -101,6 +103,7 @@ def test_start_from_latest():
     assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
     stop_torchserve()
 
+
 def test_start_from_read_only_snapshot():
     '''
     Validates if we can restore state from a read-only snapshot.
@@ -119,6 +122,7 @@ def test_start_from_read_only_snapshot():
     finally:
         torchserve_cleanup()
 
+
 def test_no_config_snapshots_cli_option():
     '''
     Validates that --no-config-snapshots works as expected.
@@ -127,6 +131,7 @@ def test_no_config_snapshots_cli_option():
     start_torchserve(no_config_snapshots=True)
     stop_torchserve()
     assert len(glob.glob('logs/config/*.cfg')) == 0
+
 
 def test_start_from_default():
     '''
@@ -171,11 +176,11 @@ def test_restart_torchserve_with_last_snapshot_with_model_mar_removed():
     # Check if snapshot file is generated
     test_snapshot_created_on_management_api_invoke()
 
-    #Now remove the registered model mar file (delete_mar_ fn)
+    # Now remove the registered model mar file (delete_mar_ fn)
     delete_mar_file_from_model_store(model_store="/workspace/model_store",
                                      model_mar="densenet")
 
-    #Start Torchserve again normally (test_start_with_default)
+    # Start Torchserve again normally (test_start_with_default)
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
     start_torchserve(snapshot_file=snapshot_cfg)
     try:
@@ -198,14 +203,14 @@ def test_replace_mar_file_with_dummy():
     # Check if snapshot file is generated
     test_snapshot_created_on_management_api_invoke()
 
-    #Start Torchserve again normally (test_start_with_default)
+    # Start Torchserve again normally (test_start_with_default)
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
     start_torchserve(snapshot_file=snapshot_cfg)
     response = requests.get('http://127.0.0.1:8081/models/')
     assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
     stop_torchserve()
 
-    #Now replace the registered model mar with dummy file
+    # Now replace the registered model mar with dummy file
     replace_mar_file_with_dummy_mar_in_model_store(
         model_store="/workspace/model_store", model_mar="densenet161.mar")
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
@@ -225,29 +230,29 @@ def test_replace_mar_file_with_dummy():
 
 def test_restart_torchserve_with_one_of_model_mar_removed():
     # Register multiple models
-    #1st model
+    # 1st model
     start_torchserve()
     requests.post(
         'http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar')
     time.sleep(15)
-    #2nd model
+    # 2nd model
     requests.post(
         'http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar')
     time.sleep(15)
     stop_torchserve()
 
-    #Start Torchserve with last snapshot
+    # Start Torchserve with last snapshot
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
     start_torchserve()
     response = requests.get('http://127.0.0.1:8081/models/')
     num_of_regd_models = len(json.loads(response.content)['models'])
     stop_torchserve()
 
-    #Now remove the registered model mar file (delete_mar_ fn)
+    # Now remove the registered model mar file (delete_mar_ fn)
     delete_mar_file_from_model_store(model_store="/workspace/model_store",
                                      model_mar="densenet")
 
-    #Start Torchserve again normally (test_start_with_default)
+    # Start Torchserve again normally (test_start_with_default)
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
     start_torchserve(snapshot_file=snapshot_cfg)
     try:

@@ -5,10 +5,11 @@ import glob
 import requests
 import json
 
-ROOT_DIR="/workspace/"
-MODEL_STORE=ROOT_DIR+"model_store"
-#CHANGE THIS TO CORRECT PYTORCH CODE REPOSITORY
-CODEBUILD_WD="/home/deepak/projects/ofc/db_torch/torch_issue_394/serve"
+ROOT_DIR = "/workspace/"
+MODEL_STORE = ROOT_DIR + "model_store"
+# CHANGE THIS TO CORRECT PYTORCH CODE REPOSITORY
+CODEBUILD_WD = "/home/deepak/projects/ofc/db_torch/torch_issue_394/serve"
+
 
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
     stop_torchserve()
@@ -36,14 +37,14 @@ def delete_all_snapshots():
 
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    if model_mar !=None:
-        for f in glob.glob(model_store+"/"+model_mar+"*"):
+    if model_mar != None:
+        for f in glob.glob(model_store + "/" + model_mar + "*"):
             os.remove(f)
 
 
 def delete_model_store(model_store=None):
     model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    for f in glob.glob(model_store+"/*"):
+    for f in glob.glob(model_store + "/*"):
         os.remove(f)
 
 
@@ -161,7 +162,7 @@ def test_mnist_model_register_scale_inference_with_non_existent_handler():
         response = requests.delete('http://localhost:8081/models/mnist')
         time.sleep(10)
     finally:
-        #Remove the non-existent/invalid handler based model mar file from model-store
+        # Remove the non-existent/invalid handler based model mar file from model-store
         delete_mar_file_from_model_store("/workspace/model_store/", "mnist")
         # Cleanup
         torchserve_cleanup()
