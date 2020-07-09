@@ -1,7 +1,7 @@
 ---
 settings:
   env:
-    SCL_DWN_SUCC : 100%
+    SCL_DWN_SUCC : 80%
     SCL_DWN_RT : 10ms
     TOTAL_PROCS_B4_SCL_DWN : 6
     TOTAL_PROCS_AFTR_SCL_DWN : 4

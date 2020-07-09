@@ -9,7 +9,7 @@ reporting:
 - module: passfail
   criteria:
     # Inbuilt Criteria
-    - success of ScaleUp<${SCL_UP_SUCC}, ${STOP_ALIAS} as failed
-    - success of UnregisterModel<${UNREG_SUCC}, ${STOP_ALIAS} as failed
+    - success of ScaleUp<${SCL_UP_SUCC} for 10s, stop as failed
+    - success of UnregisterModel<${UNREG_SUCC} for 10s, stop as failed
     - avg-rt of ScaleUp>${SCL_UP_RT}, ${STOP_ALIAS} as failed
     - avg-rt of UnregisterModel>${UNREG_RT}, ${STOP_ALIAS} as failed

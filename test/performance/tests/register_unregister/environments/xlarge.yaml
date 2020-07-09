@@ -2,10 +2,10 @@
 settings:
   env:
     API_LABEL : RegisterModel
-    API_SUCCESS : 100%
+    API_SUCCESS : 80%
     API_AVG_RT : 290ms
 
-    UNREG_SUCC: 100%
+    UNREG_SUCC: 80%
     UNREG_RT: 290ms
 
     TOTAL_WORKERS: 1

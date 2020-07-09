@@ -22,7 +22,7 @@ services:
 - module: passfail
   criteria:
     # Inbuilt Criteria
-    - success of ScaleDown<${SCL_DWN_SUCC}, ${STOP_ALIAS} as failed
+    - success of ScaleDown<${SCL_DWN_SUCC} for 10s, ${STOP_ALIAS} as failed
     - avg-rt of ScaleDown>${SCL_DWN_RT}, ${STOP_ALIAS} as failed
     # Custom Criteria
     - class: bzt.modules.monitoring.MonitoringCriteria

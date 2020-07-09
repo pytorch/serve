@@ -3,10 +3,10 @@
 settings:
   env:
     API_LABEL : Inference1
-    API_SUCCESS : 100%
+    API_SUCCESS : 80%
     API_AVG_RT : 290ms
 
-    INFR2_SUCC: 100%
+    INFR2_SUCC: 80%
     INFR2_RT: 450ms
     SCALEUP1_RT : 500ms
     SCALEUP2_RT : 500ms
