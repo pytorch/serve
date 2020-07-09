@@ -190,7 +190,7 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         docker_path = ''.join([str(elem) for elem in docker_path]) 
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
-        retval = run_process(docker_run_call)
+        retval = run_process(docker_run_call).returncode
         if retval != 0:
             raise Exception("docker run command failed!! Please provide a valid docker image")
 
