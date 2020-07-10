@@ -2,12 +2,12 @@
 # TODO remove pylint disable comment after https://github.com/pytorch/pytorch/issues/24807 gets merged.
 """
 Module for text classification default handler
+DOES NOT SUPPORT BATCH!
 """
 import torch
-from torch.autograd import Variable
 from torchtext.data.utils import ngrams_iterator
 from .text_handler import TextHandler
-
+from ..utils.util  import map_class_to_label
 
 class TextClassifier(TextHandler):
     """
@@ -15,8 +15,7 @@ class TextClassifier(TextHandler):
     as input and returns the classification text based on the model vocabulary.
     """
 
-    def __init__(self):
-        super(TextClassifier, self).__init__()
+    ngrams = 2
 
     def preprocess(self, data):
         """
@@ -27,37 +26,32 @@ class TextClassifier(TextHandler):
             - remove accented characters
             - remove punctuations
         Converts the normalized text to tensor using the source_vocab.
-        Returns a Numpy array.
+        Returns a Tensor
         """
-        ngrams = 2
 
-        text = data[0].get("data")
-        if text is None:
-            text = data[0].get("body")
+        line = data[0]
+        text = line.get("data") or line.get("body")
         text = text.decode('utf-8')
 
         text = self._remove_html_tags(text)
         text = text.lower()
         text = self._expand_contractions(text)
         text = self._remove_accented_characters(text)
-        text = self._remove_puncutation(text)
+        text = self._remove_punctuation(text)
         text = self._tokenize(text)
-        text = torch.tensor([self.source_vocab[token] for token in ngrams_iterator(text, ngrams)])
-
+        text = torch.as_tensor(
+            [
+                self.source_vocab[token]
+                for token in ngrams_iterator(text, self.ngrams)
+            ],
+            device=self.device
+        )
         return text
 
-    def inference(self, data):
-        """
-        Predict the class of a text using a trained deep learning model and vocabulary.
-        """
-
-        inputs = Variable(data).to(self.device)
-        output = self.model.forward(inputs, torch.tensor([0]).to(self.device))
-        output = output.argmax(1).item() + 1
-        if self.mapping:
-            output = self.mapping[str(output)]
-
-        return [output]
+    def inference(self, data, *args, **kwargs):
+        offsets = torch.as_tensor([0], device=self.device)
+        return super().inference(data, offsets)
 
     def postprocess(self, data):
-        return data
+        data = data.tolist()
+        return map_class_to_label(data, self.mapping)

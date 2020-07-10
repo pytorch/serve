@@ -3,7 +3,7 @@ Run the commands given in following steps from the parent directory of the root 
 
 ```bash
 wget https://download.pytorch.org/models/resnet152-b121ed2d.pth
-torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file ./serve/examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler ./serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py --extra-files ./serve/examples/image_classifier/index_to_name.json
+torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file ./serve/examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler image_classifier --extra-files ./serve/examples/image_classifier/index_to_name.json
 mkdir model-store
 mv resnet-152-batch.mar model-store/
 torchserve --start --model-store model-store
@@ -55,7 +55,7 @@ curl http://127.0.0.1:8080/predictions/resnet152 -T ./serve/examples/image_class
 
     ```bash
 
-    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json  --handler serve/examples/image_classifier/resnet_152_batch/resnet152_handler.py
+    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files serve/examples/image_classifier/index_to_name.json  --handler image_classifier
     mkdir model_store
     mv resnet-152-batch.mar model_store/
     torchserve --start --model-store model_store --models resnet_152=resnet-152-batch.mar
