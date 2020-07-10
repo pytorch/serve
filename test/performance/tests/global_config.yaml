@@ -31,7 +31,7 @@ services:
       - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
       - "mkdir /tmp/ts_model_store"
       - "ps aux | grep '[o]rg.pytorch.serve.ModelServer' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
-      - "torchserve --start --ncs --model-store /tmp/model_server > /dev/null 2>&1"
+      - "torchserve --start --ncs --model-store /tmp/ts_model_store > /dev/null 2>&1"
       - "sleep 20s"
     post-process:
       - "torchserve --stop > /dev/null 2>&1"
