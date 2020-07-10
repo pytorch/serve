@@ -29,14 +29,14 @@ services:
   - module: shellexec
     prepare:
       - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
-      - "mkdir /tmp/model_server"
+      - "mkdir /tmp/ts_model_store"
       - "ps aux | grep '[o]rg.pytorch.serve.ModelServer' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
-      - "torchserve --start --model-store /tmp/model_server > /dev/null 2>&1"
+      - "torchserve --start --ncs --model-store /tmp/model_server > /dev/null 2>&1"
       - "sleep 20s"
     post-process:
       - "torchserve --stop > /dev/null 2>&1"
       - "rm kitten.jpg"
-      - "rm -r /tmp/model_server"
+      - "rm -r /tmp/ts_model_store"
   - module: server_local_monitoring # should be added in modules section
     ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
     - interval: 1s
