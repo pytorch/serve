@@ -20,7 +20,7 @@ ts_queue_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_
 ```
 
 ```console
-curl "http://127.0.0.1:8082/metrics?name[]=ts_inference_requests_total&name[]=ts_queue_latency_microseconds" --globoff
+curl "http://127.0.0.1:8082/metrics?name[]=ts_inference_latency_microseconds&name[]=ts_queue_latency_microseconds" --globoff
 
 # HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
 # TYPE ts_inference_latency_microseconds counter
@@ -36,7 +36,7 @@ ts_queue_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_
 
 To view these metrics on a Prometheus server, download and install using the instructions [here](https://prometheus.io/download/#prometheus). Create a minimal `prometheus.yml` config file as below and run `./prometheus --config.file=prometheus.yml`.
 
-```
+```yaml
 global:
   scrape_interval:     15s
   evaluation_interval: 15s
