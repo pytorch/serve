@@ -22,7 +22,7 @@ e.g. on macOS, type `jmeter` on commandline
 ![](img/udv.png)
 * Right Click on test plan to add `HTTP Request Defaults` and Initialize HTTP request defaults which will be used for register model, scale-up, inference and unregister request
 
-![](img/requestdefults.png)
+![](img/requestdefaults.png)
 * Right Click on test plan to add `setup Thread Group` and configured required details indicated in the following screenshot
 
 ![](img/setup-tg.png)
