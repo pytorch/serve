@@ -1564,7 +1564,10 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
 
+    private void testModelMetrics(String modelName, String version) throws InterruptedException {
         Channel metricsChannel = TestUtils.getMetricsChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1574,6 +1577,18 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
         Pattern inferLatencyMatcher = TestUtils.getTSInferLatencyMatcher(modelName, version);
         Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        metricsReq =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.GET,
+                        "/metrics?name[]=ts_inference_latency_microseconds");
+        metricsChannel.writeAndFlush(metricsReq);
+        TestUtils.getLatch().await();
+        Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
+        Assert.assertFalse(TestUtils.getResult().contains("ts_inference_requests_total"));
     }
 
     private void loadTests(Channel channel, String model, String modelName)

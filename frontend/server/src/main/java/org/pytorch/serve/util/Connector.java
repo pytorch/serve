@@ -102,7 +102,7 @@ public class Connector {
                     port = ssl ? 8444 : 8081;
                     break;
                 case METRICS_CONNECTOR:
-                    port = 8082;
+                    port = ssl ? 8445 : 8082;
                     break;
                 default:
                     port = ssl ? 443 : 80;
