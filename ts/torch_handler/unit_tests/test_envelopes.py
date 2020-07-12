@@ -32,6 +32,33 @@ def test_json(handle_fn):
     results = envelope.handle(test_data, None)
     assert(results == expected_result)
 
+def test_json_batch(handle_fn):
+    test_data = [{'body':{
+        'instances': [[1.0, 2.0], [4.0, 3.0]]
+    }}]
+    expected_result = ['{"predictions": [1, 0]}']
+
+    envelope = JSONEnvelope(handle_fn)
+    results = envelope.handle(test_data, None)
+    assert(results == expected_result)
+
+def test_json_double_batch(handle_fn):
+    """
+    More complex test case. Makes sure the model can
+    mux several batches and return the demuxed results
+    """
+    test_data = [
+        {'body':{'instances': [[1.0, 2.0]]}},
+        {'body':{'instances': [[4.0, 3.0], [5.0, 6.0]]}}
+
+    ]
+    expected_result = ['{"predictions": [1]}', '{"predictions": [0, 1]}']
+
+    envelope = JSONEnvelope(handle_fn)
+    results = envelope.handle(test_data, None)
+    print(results)
+    assert(results == expected_result)
+
 def test_body(handle_fn):
     test_data = [{
         'body':[1.0, 2.0]
@@ -47,6 +74,6 @@ def test_binary():
         'instances': [{'b64': 'YQ=='}]
     }]
 
-    envelope = JSONEnvelope(lambda x,y: [row.decode('utf-8') for row in x])
+    envelope = JSONEnvelope(lambda x, y: [row.decode('utf-8') for row in x])
     results = envelope.handle(test_data, None)
-    assert(results = ['{"predictions": ["a"]}'])
+    assert(results == ['{"predictions": ["a"]}'])
