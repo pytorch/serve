@@ -30,7 +30,9 @@ class TextClassifier(TextHandler):
         """
 
         line = data[0]
-        text = line.get("data") or line.get("body")
+        # Compat layer: normally the envelope should just return the data
+        # directly, but older versions of Torchserve didn't have envelope.
+        text = line.get("data") or line.get("body") or line
         text = text.decode('utf-8')
 
         text = self._remove_html_tags(text)

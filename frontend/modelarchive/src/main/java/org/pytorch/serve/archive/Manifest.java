@@ -153,6 +153,7 @@ public class Manifest {
         private String modelVersion;
         private Map<String, Object> extensions;
         private String handler;
+        private String envelope;
 
         public Model() {}
 
@@ -209,6 +210,14 @@ public class Manifest {
 
         public void setHandler(String handler) {
             this.handler = handler;
+        }
+
+        public String getEnvelope() {
+            return envelope;
+        }
+
+        public void setEnvelope(String envelope) {
+            this.envelope = envelope;
         }
     }
 
