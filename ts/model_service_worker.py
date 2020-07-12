@@ -75,6 +75,7 @@ class TorchModelServiceWorker(object):
             model_name = load_model_request["modelName"].decode("utf-8")
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
             envelope = load_model_request["envelope"].decode("utf-8") if "envelope" in load_model_request else None
+            envelope = envelope if len(envelope) > 0 else None
 
             batch_size = None
             if "batchSize" in load_model_request:

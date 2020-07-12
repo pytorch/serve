@@ -2,12 +2,19 @@
 Uses JSON formatted inputs/outputs, following the structure outlined if __name__ == '__main__':
 https://www.tensorflow.org/tfx/serving/api_restmain()
 """
-
-from itertools import chain
 import json
+from itertools import chain
+from base64 import b64decode
+
 from .base import BaseEnvelope
 
 class JSONEnvelope(BaseEnvelope):
+    """
+    Implementation. Captures batches in JSON format, returns
+    also in JSON format.
+    """
+    _lengths = []
+
     def parse_input(self, data):
         lengths, batch = self._batch_from_json(data)
         self._lengths = lengths
@@ -20,13 +27,10 @@ class JSONEnvelope(BaseEnvelope):
         """
         Joins the instances of a batch of JSON objects
         """
-        lengths = [len(data_row) for data_row in data_rows]
-        full_batch = list(
-            chain.from_iterable(
-                self._from_json(data_row) for data_row in data_rows
-            )
-        )
-        return (lengths, full_batch)
+        mini_batches = [self._from_json(data_row) for data_row in data_rows]
+        lengths = [len(mini_batch) for mini_batch in mini_batches]
+        full_batch = list(chain.from_iterable(mini_batches))
+        return lengths, full_batch
 
     def _from_json(self, data):
         """
@@ -40,7 +44,7 @@ class JSONEnvelope(BaseEnvelope):
                 else:
                     for col, col_value in row.items():
                         if (isinstance(col_value, dict)
-                            and list(col_value.keys()) == ['b64']):
+                                and list(col_value.keys()) == ['b64']):
                             row[col] = b64decode(col_value['b64'])
         return rows
 
