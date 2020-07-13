@@ -3,3 +3,5 @@ dist/
 *pyc
 *__pycache__*
 *.egg-info/
+*htmlcov*
+.coverage
