@@ -25,7 +25,7 @@ run_backend_python_linting
 
 run_model_archiver_UT_suite
 
-./scripts/install_from_src_ubuntu
+./scripts/install_from_src
 
 run_model_archiver_IT_suite
 
