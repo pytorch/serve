@@ -23,7 +23,7 @@ from runs.taurus.reader import get_compare_metric_list
 import html
 import tabulate
 from bzt.modules.passfail import DataCriterion
-from junitparser import TestCase, TestSuite, JUnitXml, Skipped, Error, Failure, Pass
+from junitparser import TestCase, TestSuite, JUnitXml, Skipped, Error, Failure
 
 
 class X2Junit(object):
