@@ -71,8 +71,7 @@ public final class PluginsManager {
     }
 
     private HashMap<String, ModelServerEndpoint> initMetricsEndpoints() {
-        // TODO: Change to METRICS after fixing serving-sdk dependency
-        return getEndpoints(EndpointTypes.MANAGEMENT);
+        return getEndpoints(EndpointTypes.METRICS);
     }
 
     public Map<String, ModelServerEndpoint> getInferenceEndpoints() {
