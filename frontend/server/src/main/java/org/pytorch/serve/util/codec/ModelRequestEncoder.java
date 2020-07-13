@@ -52,9 +52,9 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
 
             String envelope = request.getEnvelope();
             if (envelope != null) {
-              buf = envelope.getBytes(StandardCharsets.UTF_8);
+                buf = envelope.getBytes(StandardCharsets.UTF_8);
             } else {
-              buf = new byte[0];
+                buf = new byte[0];
             }
 
             out.writeInt(buf.length);
