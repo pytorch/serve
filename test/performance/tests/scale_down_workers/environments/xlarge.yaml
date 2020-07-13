@@ -10,15 +10,15 @@ settings:
     FRNTEND_FDS : 78
     TOTAL_WRKRS_FDS_B4_SCL_DWN: 38
     FRNTEND_MEM : 1000000000
-    TOTAL_WRKRS_MEM_B4_SCL_DWN : 650000000 #450MB
-    TOTAL_WRKRS_MEM_AFTR_SCL_DWN : 400000000 #210MB
+    TOTAL_WRKRS_MEM_B4_SCL_DWN : 650000000
+    TOTAL_WRKRS_MEM_AFTR_SCL_DWN : 200000000
     TOTAL_ORPHANS : 0
     TOTAL_ZOMBIES : 0
 
 
     CONCURRENCY: 10
     RAMP-UP: 1s
-    HOLD-FOR: 300s
+    HOLD-FOR: 30s
     SCRIPT: scale_down_workers.jmx
 
     STOP : ''    #possible values true, false. Bug in bzt so for false use ''

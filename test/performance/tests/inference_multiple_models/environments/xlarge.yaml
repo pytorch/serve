@@ -44,7 +44,7 @@ settings:
 
     CONCURRENCY : 10
     RAMP-UP : 1s
-    HOLD-FOR : 300s
+    HOLD-FOR : 30s
     SCRIPT : inference_multiple_models.jmx
 
     STOP :  ''    #possible values true, false. Bug in bzt so for false use ''
