@@ -153,7 +153,7 @@ public class ModelServerEndpointTest {
         Assert.assertEquals("myEndpoint", ea.urlPattern());
         Assert.assertEquals(EndpointTypes.INFERENCE, ea.endpointType());
         Assert.assertEquals("This is a test endpoint", ea.description());
-        Assert.assertEquals(4, EndpointTypes.class.getFields().length);
+        Assert.assertEquals(3, EndpointTypes.class.getFields().length);
     }
 
     private void testWorkerInterface(Worker w) {

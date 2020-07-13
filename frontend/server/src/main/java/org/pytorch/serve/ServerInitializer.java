@@ -54,21 +54,22 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("aggregator", new HttpObjectAggregator(maxRequestSize));
 
         HttpRequestHandlerChain httpRequestHandlerChain = apiDescriptionRequestHandler;
-        if (ConnectorType.BOTH.equals(connectorType)
+        if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
                             new InferenceRequestHandler(
                                     PluginsManager.getInstance().getInferenceEndpoints()));
         }
-        if (ConnectorType.BOTH.equals(connectorType)
+        if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
                             new ManagementRequestHandler(
                                     PluginsManager.getInstance().getManagementEndpoints()));
         }
-        if (ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
+        if (ConnectorType.ALL.equals(connectorType)
+                || ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
                             new PrometheusMetricsRequestHandler(

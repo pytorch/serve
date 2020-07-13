@@ -4,5 +4,5 @@ public enum ConnectorType {
     INFERENCE_CONNECTOR,
     MANAGEMENT_CONNECTOR,
     METRICS_CONNECTOR,
-    BOTH
+    ALL
 }

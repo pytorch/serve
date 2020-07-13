@@ -336,7 +336,7 @@ public class ModelServer {
         } else {
             futures.add(
                     initializeServer(
-                            inferenceConnector, serverGroup, workerGroup, ConnectorType.BOTH));
+                            inferenceConnector, serverGroup, workerGroup, ConnectorType.ALL));
         }
 
         Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);

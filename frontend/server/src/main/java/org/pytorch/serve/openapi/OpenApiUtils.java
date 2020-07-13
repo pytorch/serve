@@ -24,10 +24,10 @@ public final class OpenApiUtils {
         info.setVersion(config.getProperty("version", null));
         openApi.setInfo(info);
 
-        if (ConnectorType.BOTH.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {
+        if (ConnectorType.ALL.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {
             listInferenceApis(openApi);
         }
-        if (ConnectorType.BOTH.equals(type) || ConnectorType.MANAGEMENT_CONNECTOR.equals(type)) {
+        if (ConnectorType.ALL.equals(type) || ConnectorType.MANAGEMENT_CONNECTOR.equals(type)) {
             listManagementApis(openApi);
         }
         openApi.addPath("/metrics", getMetricsPath());
