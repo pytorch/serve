@@ -10,11 +10,16 @@ cleanup()
   rm -rf model_store
 
   rm -rf logs
+
+  # clean up residual from model-archiver IT suite.
+  rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
 }
 
 install_pytest_suite_deps
 
 run_backend_pytest
+
+build_frontend
 
 run_backend_python_linting
 
