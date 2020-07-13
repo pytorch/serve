@@ -42,9 +42,7 @@ settings:
     TOTAL_ORPHANS_RUN_DIFF: 0
     TOTAL_ZOMBIES_RUN_DIFF: 0
 
-
-
-    CONCURRENCY : 10
+    CONCURRENCY : 1
     RAMP-UP : 1s
     HOLD-FOR : 300s
     SCRIPT : register_unregister.jmx
