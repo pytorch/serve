@@ -4,11 +4,12 @@ import os
 import glob
 import requests
 import json
+from os import path
 
 ROOT_DIR = "/workspace/"
 MODEL_STORE = ROOT_DIR + "model_store"
 # CHANGE THIS TO CORRECT PYTORCH CODE REPOSITORY
-CODEBUILD_WD = "/home/deepak/projects/ofc/db_torch/torch_issue_394/serve"
+CODEBUILD_WD = path.abspath(path.join(__file__, "../.."))
 
 
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
