@@ -6,8 +6,8 @@ scenarios:
 services:
   - module: shellexec
     prepare:
-      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X POST http://localhost:8081/models?url=${RESNET_URL}"
 
 reporting:
 - module: passfail

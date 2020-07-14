@@ -6,10 +6,10 @@ scenarios:
 services:
   - module: shellexec
     prepare:
-      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
-      - "curl -s -X PUT  http://localhost:8081/models/squeezenet1_1?min_worker=1&synchronous=true"
-      - "curl -s -X PUT  http://localhost:8081/models/resnet-18?min_worker=1&synchronous=true"
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X POST http://localhost:8081/models?url=${RESNET_URL}"
+      - "curl -s -X PUT  http://localhost:8081/models/${SQZNET_NAME}?min_worker=1&synchronous=true"
+      - "curl -s -X PUT  http://localhost:8081/models/${RESNET_NAME}?min_worker=1&synchronous=true"
 
 
 reporting:

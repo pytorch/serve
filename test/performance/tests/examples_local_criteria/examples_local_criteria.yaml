@@ -17,14 +17,31 @@ modules:
 ~services:
   - module: shellexec
     prepare:
-      - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
-      - "mkdir /tmp/model_server"
-      - "torchserve --start --model-store /tmp/model_server > /dev/null 2>&1"
+      - "curl -s -O $INPUT_IMG_URL"
+      - "mkdir /tmp/ts_model_store"
+      - "ps aux | grep '$SERVER_PROCESS_NAME' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
+      - "$SERVER_CMD --start --ncs --model-store /tmp/ts_model_store > /dev/null 2>&1"
       - "sleep 20s"
     post-process:
-      - "torchserve --stop > /dev/null 2>&1"
-      - "rm kitten.jpg"
-      - "rm -r /tmp/model_server"
+      - "$SERVER_CMD --stop > /dev/null 2>&1"
+      - "rm $INPUT_IMG_PATH"
+      - "rm -r /tmp/ts_model_store"
+      - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
+
+    env:
+      SERVER_CMD : ${SERVER_CMD}
+      ARTIFACTS_DIR : ${ARTIFACTS_DIR}
+      SERVER_PROCESS_NAME : ${SERVER_PROCESS_NAME}
+      INPUT_IMG_URL : ${INPUT_IMG_URL}
+      INPUT_IMG_PATH : ${INPUT_IMG_PATH}
+
+      RESNET_152_BATCH_URL: ${RESNET_152_BATCH_URL}
+      RESNET_152_BATCH_NAME: ${RESNET_152_BATCH_NAME}
+      SQZNET_URL: ${SQZNET_URL}
+      SQZNET_NAME: ${SQZNET_NAME}
+      RESNET_URL: ${RESNET_URL}
+      RESNET_NAME: ${RESNET_NAME}
+
   - module: server_local_monitoring # should be added in modules section
     ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
     - interval: 1s
@@ -42,7 +59,7 @@ modules:
 - module: junit-xml
   data-source: sample-labels
 - module: final-stats
-  dump-csv : ${BASEDIR}/final_stats.csv
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
 - module: passfail
   criteria:
     - fail >${FAIL}, stop as failed

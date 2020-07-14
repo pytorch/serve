@@ -8,8 +8,8 @@ scenarios:
 services:
   - module: shellexec
     prepare:
-      - "curl -s -X POST http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-      - "curl -s -X PUT  http://localhost:8081/models/squeezenet1_1?min_worker=4&synchronous=true"
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X PUT  http://localhost:8081/models/${SQZNET_NAME}?min_worker=4&synchronous=true"
       - "sleep 10s"
 
 ~reporting:
@@ -19,7 +19,7 @@ services:
 - module: junit-xml
   data-source: sample-labels
 - module: final-stats
-  dump-csv : ${BASEDIR}/final_stats.csv
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
 - module: passfail
   criteria:
     # Inbuilt Criteria
@@ -68,27 +68,27 @@ services:
       timeframe: 10s
       stop : ${STOP}
       fail : true
-    - class: bzt.modules.monitoring.MonitoringCriteria
-      subject: ServerLocalClient/frontend_memory_rss
-      condition: '>'
-      threshold: ${FRNTEND_MEM}
-      timeframe: 10s
-      stop : ${STOP}
-      fail : true
-    - class: bzt.modules.monitoring.MonitoringCriteria
-      subject: ServerLocalClient/sum_workers_memory_rss
-      condition: '>'
-      threshold: ${TOTAL_WRKRS_MEM_B4_SCL_DWN}
-      timeframe: 10s
-      stop : ${STOP}
-      fail : true
-    - class: bzt.modules.monitoring.MonitoringCriteria
-      subject: ServerLocalClient/sum_workers_memory_rss
-      condition: '<'
-      threshold: ${TOTAL_WRKRS_MEM_AFTR_SCL_DWN}
-      timeframe: 10s
-      stop : ${STOP}
-      fail : true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/frontend_memory_rss
+#      condition: '>'
+#      threshold: ${FRNTEND_MEM}
+#      timeframe: 10s
+#      stop : ${STOP}
+#      fail : true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_workers_memory_rss
+#      condition: '>'
+#      threshold: ${TOTAL_WRKRS_MEM_B4_SCL_DWN}
+#      timeframe: 10s
+#      stop : ${STOP}
+#      fail : true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_workers_memory_rss
+#      condition: '<'
+#      threshold: ${TOTAL_WRKRS_MEM_AFTR_SCL_DWN}
+#      timeframe: 10s
+#      stop : ${STOP}
+#      fail : true
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/orphans
       condition: '>'

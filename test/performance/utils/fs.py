@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 
-def get_sub_dirs(dir, exclude_list=['comp_data'], include_pattern='*', exclude_pattern=None):
+def get_sub_dirs(dir, exclude_list=[], include_pattern='*', exclude_pattern=None):
     """Utility method to get list of folders in a directory"""
     dir = dir.strip()
     if not os.path.exists(dir):
@@ -32,8 +32,16 @@ def get_sub_dirs(dir, exclude_list=['comp_data'], include_pattern='*', exclude_p
         raise Exception(msg)
 
     pattern_list = glob.glob(dir + "/" + include_pattern)
-    exclude_pattern_list = glob.glob(dir + "/" + exclude_pattern) if exclude_pattern is not None else []
+    exclude_pattern_list, exclude_pattern = (glob.glob(dir + "/" + exclude_pattern), exclude_pattern)\
+        if exclude_pattern is not None else ([], '')
+    skip_pattern = "/skip*"
+    skip_list = glob.glob(dir + skip_pattern)
+
+    exclude_patterns = exclude_list
+    exclude_patterns.extend([skip_pattern, exclude_pattern])
+    logger.info("Excluding the tests with name patterns '{}'.".format("','".join(exclude_patterns)))
     return sorted(list([x for x in os.listdir(dir) if os.path.isdir(dir + "/" + x)
                  and x not in exclude_list
                  and dir + "/" + x in pattern_list
-                 and dir + "/" + x not in exclude_pattern_list]))
+                 and dir + "/" + x not in exclude_pattern_list
+                 and dir + "/" + x not in skip_list]))

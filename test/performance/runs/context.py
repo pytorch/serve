@@ -19,6 +19,7 @@ import logging
 import os
 import sys
 import time
+import subprocess
 import webbrowser
 from termcolor import colored
 
@@ -32,20 +33,26 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 
+def get_git_commit_id(compare_with):
+    return subprocess.check_output('git rev-parse --short {}'.format(compare_with).split()).decode(
+            "utf-8")[:-1]
+
+
 class ExecutionEnv(object):
     """
     Context Manager class to run the performance regression suites
     """
 
-    def __init__(self, agent, artifacts_dir, env, local_run, use=True, check_model_server_status=False):
+    def __init__(self, agent, artifacts_dir, env, local_run, compare_with, use=True, check_model_server_status=False):
         self.monitoring_agent = agent
         self.artifacts_dir = artifacts_dir
         self.use = use
         self.env = env
         self.local_run = local_run
+        self.compare_with = get_git_commit_id(compare_with)
         self.check_model_server_status = check_model_server_status
         self.reporter = JUnitXml()
-        self.compare_reporter_generator = CompareReportGenerator(self.artifacts_dir, self.env, self.local_run)
+        self.compare_reporter_generator = CompareReportGenerator(self.artifacts_dir, self.env, self.local_run, compare_with)
         self.exit_code = 1
 
     def __enter__(self):

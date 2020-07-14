@@ -44,7 +44,7 @@ The building blocks of the performance regression suite and flow is captured in 
 3. Make sure that `git` is installed and the test suites are run from the Model Server working directory.
 
 ### B. Running the test suite
-1. Make sure parameters set in [tests/common/global_config.yaml](tests/performance/tests/global_config.yaml) are correct.
+1. Make sure parameters set in [tests/global_config.yaml](tests/performance/tests/global_config.yaml) are correct.
 2. To run the test suite execute [run_performance_suite.py](run_performance_suite.py) with the following 
 parameters
 
@@ -64,13 +64,24 @@ The default value excludes nothing.
 the file (minus the extension) found inside the environments folder in each test case. They encapsulate parameter 
 values which are specific to the execution environment. This is a mandatory parameter.   
 
+   * `--compare-local` or `--no-compare-local` specifies whether to do comparison with run artifacts data  available on local machine
+   or the data available on S3 bucket.
+   
+   * `--compare-with` or `-c` specifies the commit id compare against.  The default value is 'HEAD~1'. The branch name, tag,
+   can also be specified. The comparison happens if the run artifacts folder for the commit_id and env is available.
+   
+
+
+
    The script does the following:  
    1. Starts the metrics monitoring server.
-   2. Collects all the tests from test-dir satisfying the pattern
-   3. Executes the tests
+   2. Collects all the tests from test-dir satisfying the pattern, excluding exclude pattern and test starting with 'skip'
+   3. Executes the collected tests
    4. Generates artifacts in the artifacts-dir against each test case.  
+   5. Generate Pass Fail report for test cases
+   6. Generate comparison report for specified commit id
 
-3. Check the console logs, $artifacts-dir$/<run-dir>/performance_results.html report, comparison.csv, comparison.html 
+3. Check the console logs, $artifacts-dir$/<run-dir>/performance_results.html report, comparison_result.csv, comparison_result.html 
 and other artifacts.
 
 **Steps are provided below**
@@ -92,13 +103,14 @@ python -m run_performance_suite -e xlarge -p inference_single_worker
 ```
 
 ### C. Understanding the test suite artifacts and reports
-1. The $artifacts-dir$/<run-dir>/performance_results.html is a summary report of the test run. 
+1. The $artifacts-dir/<run-dir>/performance_results.html is a summary report of the test run. 
 2. Each test yaml is treated as a test suite. Each criteria in the test suite is treated as a test case. 
 If the test suite does not specify any criteria, then the test suite is reported as skipped with 0 test cases.
 3. For each test suite, a sub-directory is created containing relevant run artifacts. Important files in this directory are
    * metrics.csv -- contains the values of the various system-monitored metrics over time
+   * metrics_agg.csv -- contains percentile values for columns in metrics.csv
    * finals_stats.csv -- contains the values of the various api metrics over time  
-4. The $artifacts-dir$/<run-dir>/comparison_results.html is a summary report which shows performance difference between
+4. The $artifacts-dir/<run-dir>/comparison_results.html is a summary report which shows performance difference between
 the last two commits.
 5. The run completes with a console summary of the performance and comparision suites which have failed
 ![](assets/console.png) 
@@ -118,7 +130,7 @@ tests
 ```
 
 1. global_config.yaml  
-   - It is a master template for all the test cases and is shared across all the tests.  
+   - It is a master template for all_comm the test cases and is shared across all the tests.  
    - It contains all the common yaml sections, criteria, monitoring metrics etc.  
    - It also contain variables in the format ${variable} for metric thresholds and other test specific attributes.
 
@@ -304,7 +316,7 @@ specified in the pass/fail criterion are used for comparison with the previous r
     Note that 
     1. At least one test suite run on the same environment should have happened in order to do the comparison.
     2. The $artifacts-dir$/<run-dir>/comparison_results.html is a summary report which shows performance difference 
-    between the last two commits.
+    between the current run and user specified compare_with commit_id run.
     3. The test case fails if the diff_percent is greater than the specified value across runs.
 
 3. Metrics available for pass-fail criteria  

@@ -28,15 +28,32 @@ modules:
 services:
   - module: shellexec
     prepare:
-      - "curl -s -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+      - "curl -s -O ${INPUT_IMG_URL}"
       - "mkdir /tmp/ts_model_store"
-      - "ps aux | grep '[o]rg.pytorch.serve.ModelServer' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
-      - "torchserve --start --ncs --model-store /tmp/ts_model_store > /dev/null 2>&1"
+      - "ps aux | grep '${SERVER_PROCESS_NAME}' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
+      - "${SERVER_CMD} --start --ncs --model-store /tmp/ts_model_store > /dev/null 2>&1"
       - "sleep 20s"
     post-process:
-      - "torchserve --stop > /dev/null 2>&1"
-      - "rm kitten.jpg"
+      - "${SERVER_CMD} --stop > /dev/null 2>&1"
+      - "rm ${INPUT_IMG_PATH}"
       - "rm -r /tmp/ts_model_store"
+      - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
+
+    env:
+      SERVER_CMD : ${SERVER_CMD}
+      ARTIFACTS_DIR : ${ARTIFACTS_DIR}
+      SERVER_PROCESS_NAME : ${SERVER_PROCESS_NAME}
+      INPUT_IMG_URL : ${INPUT_IMG_URL}
+      INPUT_IMG_PATH : ${INPUT_IMG_PATH}
+
+      RESNET_152_BATCH_URL: ${RESNET_152_BATCH_URL}
+      RESNET_152_BATCH_NAME: ${RESNET_152_BATCH_NAME}
+      SQZNET_URL: ${SQZNET_URL}
+      SQZNET_NAME: ${SQZNET_NAME}
+      RESNET_URL: ${RESNET_URL}
+      RESNET_NAME: ${RESNET_NAME}
+
+
   - module: server_local_monitoring # should be added in modules section
     ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
     - interval: 1s
@@ -59,7 +76,7 @@ reporting:
 - module: junit-xml
   data-source: sample-labels
 - module: final-stats
-  dump-csv : ${BASEDIR}/final_stats.csv
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
 
 - module: passfail
   criteria:
@@ -150,18 +167,18 @@ compare_criteria:
   - subject: ServerLocalClient/sum_workers_file_descriptors
     diff_percent_previous: ${TOTAL_WORKERS_FDS_PREV_DIFF}
     diff_percent_run: ${TOTAL_WORKERS_FDS_RUN_DIFF}
-  - subject: ServerLocalClient/sum_all_memory_rss
-    diff_percent_previous: ${TOTAL_MEM_PREV_DIFF}
-    diff_percent_run: ${TOTAL_MEM_RUN_DIFF}
+#  - subject: ServerLocalClient/sum_all_memory_rss
+#    diff_percent_previous: ${TOTAL_MEM_PREV_DIFF}
+#    diff_percent_run: ${TOTAL_MEM_RUN_DIFF}
   - subject: ServerLocalClient/total_processes
     diff_percent_previous: ${TOTAL_PROCS_PREV_DIFF}
     diff_percent_run: ${TOTAL_PROCS_RUN_DIFF}
   - subject: ServerLocalClient/sum_all_file_descriptors
     diff_percent_previous : ${TOTAL_FDS_PREV_DIFF}
     diff_percent_run : ${TOTAL_FDS_RUN_DIFF}
-  - subject: ServerLocalClient/frontend_memory_rss
-    diff_percent_previous: ${FRNTEND_MEM_PREV_DIFF}
-    diff_percent_run: ${FRNTEND_MEM_RUN_DIFF}
+#  - subject: ServerLocalClient/frontend_memory_rss
+#    diff_percent_previous: ${FRNTEND_MEM_PREV_DIFF}
+#    diff_percent_run: ${FRNTEND_MEM_RUN_DIFF}
   - subject: ServerLocalClient/orphans
     diff_percent_previous: ${TOTAL_ORPHANS_PREV_DIFF}
     diff_percent_run: ${TOTAL_ORPHANS_RUN_DIFF}
@@ -172,4 +189,15 @@ compare_criteria:
 
 settings:
   env:
-    BASEDIR : '.'
+    ARTIFACTS_DIR : '.'
+    SERVER_CMD : "torchserve"
+    SERVER_PROCESS_NAME : "[o]rg.pytorch.serve.ModelServer"
+    INPUT_IMG_URL: "https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+    INPUT_IMG_PATH: "kitten.jpg"
+
+    RESNET_152_BATCH_URL : "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+    RESNET_152_BATCH_NAME : "resnet-152-batch"
+    SQZNET_URL : "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+    SQZNET_NAME : "squeezenet1_1"
+    RESNET_URL : "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+    RESNET_NAME : "resnet-18"

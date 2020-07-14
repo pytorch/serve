@@ -45,7 +45,7 @@ settings:
 
     CONCURRENCY : 10
     RAMP-UP : 1s
-    HOLD-FOR : 120s
+    HOLD-FOR : 30s
     SCRIPT : api_description.jmx
 
     STOP : ''

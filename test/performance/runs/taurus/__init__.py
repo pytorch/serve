@@ -18,8 +18,14 @@ Convert the Taurus Test suite XML to Junit XML
 import glob
 import shutil
 import os
+import sys
+import logging
 
 from .reader import get_mon_metrics_list
+from utils.pyshell import run_process
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 
 def get_taurus_options(artifacts_dir, jmeter_path=None):
@@ -29,7 +35,7 @@ def get_taurus_options(artifacts_dir, jmeter_path=None):
         options.append('-o modules.jmeter.path={}'.format(jmeter_path))
     options.append('-o settings.artifacts-dir={}'.format(artifacts_dir))
     options.append('-o modules.console.disable=true')
-    options.append('-o settings.env.BASEDIR={}'.format(artifacts_dir))
+    options.append('-o settings.env.ARTIFACTS_DIR={}'.format(artifacts_dir))
     options_str = ' '.join(options)
 
     return options_str
@@ -61,3 +67,17 @@ def update_taurus_metric_files(suite_artifacts_dir, test_file):
          metrics_log_file = os.path.join(suite_artifacts_dir, "local_monitoring_logs.csv")
          if os.path.exists(metrics_log_file):
              os.rename(metrics_log_file, metrics_new_file)
+
+    KEEP_LINES = 10000
+
+    def handle_big_files(name):
+        report_file = os.path.join(suite_artifacts_dir, name)
+        report_tmp_file = os.path.join(suite_artifacts_dir, "{}_tmp".format(name))
+        if os.path.exists(report_file) and os.stat(report_file).st_size > 1e+7: #10MB
+            logger.info("Keeping first {} records from file {} as it is >10MB".format(KEEP_LINES, report_file))
+            run_process("head -{0} {1} > {2}; mv {2} {1};".format(KEEP_LINES, report_file, report_tmp_file))
+
+    handle_big_files("error.jtl")
+    handle_big_files("kpi.jtl")
+
+

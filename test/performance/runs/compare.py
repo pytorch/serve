@@ -35,12 +35,13 @@ logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 class CompareReportGenerator():
 
-    def __init__(self, path, env_name, local_run):
+    def __init__(self, path, env_name, local_run, compare_with):
         self.artifacts_dir = path
         self.current_run_name = os.path.basename(path)
         self.env_name = env_name
+        self.comare_with = compare_with
         storage_class = LocalStorage if local_run else S3Storage
-        self.storage = storage_class(self.artifacts_dir, self.env_name)
+        self.storage = storage_class(self.artifacts_dir, self.env_name, compare_with)
         self.junit_reporter = None
         self.pandas_result = None
         self.pass_fail =  True
@@ -87,7 +88,7 @@ class CompareTestSuite():
 
 def get_log_file(dir, sub_dir):
     """Get metric monitoring log files"""
-    metrics_file = os.path.join(dir, sub_dir, "metrics.csv")
+    metrics_file = os.path.join(dir, sub_dir, "metrics_agg.csv")
     return metrics_file if os.path.exists(metrics_file) else None
 
 
@@ -102,11 +103,21 @@ def get_aggregate_val(df, agg_func, col):
     return val
 
 
+def get_centile_val(df, agg_func, col):
+    """Get aggregate values of a pandas dataframe coulmn for given aggregate function"""
+
+    val = None
+    if "metric_name" in df and agg_func in df:
+            val = df[df["metric_name"] == col][agg_func]
+            val = val[0] if len(val) else None
+    return val
+
+
 def compare_values(val1, val2, diff_percent, run_name1, run_name2):
     """ Compare percentage diff values of val1 and val2 """
     if pd.isna(val1) or pd.isna(val2):
-        msg = "Either of the value can not be determined. The run1 value is '{}' and " \
-              "run2 value is '{}'.".format(val1, val2)
+        msg = "Either of the value can not be determined. run1_value='{}' and " \
+              "run2_value='{}'.".format(val1, val2)
         pass_fail, diff, msg = "error", "NA", msg
     else:
         try:
@@ -116,15 +127,15 @@ def compare_values(val1, val2, diff_percent, run_name1, run_name2):
                 if diff < float(diff_percent):
                     pass_fail, diff, msg = "pass", diff, "passed"
                 else:
-                    msg = "The diff_percent criteria has failed. The expected diff_percent is '{}' and actual " \
-                          "diff percent is '{}' and the '{}' run value is '{}' and '{}' run value is '{}'. ". \
+                    msg = "The diff_percent criteria has failed. Expected='{}', actual='{}' " \
+                          "run1='{}', run1_value='{}', run2='{}', run2_value='{}' ". \
                         format(diff_percent, diff, run_name1, val1, run_name2, val2)
 
                     pass_fail, diff, msg = "fail", diff, msg
             else:  # special case of 0
                 pass_fail, diff, msg = "pass", 0, ""
         except Exception as e:
-            msg = "error while calculating the diff for val1={} and val2={}." \
+            msg = "error while calculating the diff for val1='{}' and val2='{}'." \
                   "Error is: {}".format(val1, val2, str(e))
             logger.info(msg)
             pass_fail, diff, msg = "pass", "NA", msg
@@ -139,7 +150,7 @@ def compare_artifacts(dir1, dir2, run_name1, run_name2):
     sub_dirs_1 = get_sub_dirs(dir1)
 
     over_all_pass = True
-    aggregates = ["mean", "max", "min"]
+    aggregates = ["first_value", "last_value"]
     header = ["run_name1", "run_name2", "test_suite", "metric", "run1", "run2",
               "percentage_diff", "expected_diff", "result", "message"]
     rows = [header]
@@ -171,9 +182,8 @@ def compare_artifacts(dir1, dir2, run_name1, run_name2):
                 for agg_func in aggregates:
                     name = "{}_{}".format(agg_func, str(col))
 
-                    val1 = get_aggregate_val(metrics_from_file1, agg_func, col)
-                    val2 = get_aggregate_val(metrics_from_file2, agg_func, col)
-
+                    val2 = get_centile_val(metrics_from_file2, agg_func, col)
+                    val1 = get_centile_val(metrics_from_file2, agg_func, col)
                     diff, pass_fail, msg = compare_values(val1, val2, diff_percent, run_name1, run_name2)
 
                     if over_all_pass:
@@ -195,7 +205,7 @@ def compare_artifacts(dir1, dir2, run_name1, run_name2):
 
 if __name__ == "__main__":
     compare_artifacts(
-    "/Users/mahesh/git/multi-model-server/tests/performance/run_artifacts/xlarge__e436434__1593615831",
-    "/Users/mahesh/git/multi-model-server/tests/performance/run_artifacts/xlarge__e436434__1593615748",
-    "xlarge__e436434__1593615831", "xlarge__e436434__1593615748"
+    "/Users/demo/git/serve/test/performance/run_artifacts/xlarge__45b6399__1594725947",
+    "/Users/demo/git/serve/test/performance/run_artifacts/xlarge__45b6399__1594725717",
+    "xlarge__45b6399__1594725947", "xlarge__45b6399__1594725717"
     )

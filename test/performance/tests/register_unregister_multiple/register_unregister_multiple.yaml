@@ -3,6 +3,10 @@ scenarios:
   scenario_0:
     script: register_unregister_multiple.jmx
 
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=${RESNET_URL}"
 
 
 ~reporting:
@@ -12,7 +16,7 @@ scenarios:
 - module: junit-xml
   data-source: sample-labels
 - module: final-stats
-  dump-csv : ${BASEDIR}/final_stats.csv
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
 - module: passfail
   criteria:
     # Inbuilt Criteria

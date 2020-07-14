@@ -83,7 +83,7 @@ class X2Junit(object):
                             self.ts.tests += 1
                         else:
                             tc.result = Failure("The first value and last value of run are {}, {} "
-                                                "with precent diff {}".format(first_value, last_value, diff_actual))
+                                                "with percent diff {}".format(first_value, last_value, diff_actual))
 
                     except Exception as e:
                         tc.result = Error("Error while comparing values {}".format(str(e)))
@@ -126,22 +126,23 @@ class X2Junit(object):
         if os.path.exists(metrics_file):
             self.metrics = pd.read_csv(metrics_file)
             centile_values = [0, 0.5, 0.9, 0.95, 0.99, 0.999, 1]
-            header_names = [str(colname) + "%" for colname in centile_values]
+            header_names = ['test_name', 'metric_name']
+            header_names.extend([str(colname * 100) + "%" for colname in centile_values])
+            header_names.extend(['first_value', 'last_value'])
             if self.metrics.size:
                  for col in self.metrics.columns:
-                     row = [str(col)]
+                     row = [self.name, str(col)]
                      metric_vals = getattr(self.metrics, str(col), None)
                      for centile in centile_values:
                          row.append(getattr(metric_vals, 'quantile')(centile))
+                     row.extend([metric_vals.iloc[0], metric_vals.iloc[-1]])
                      agg_dict.update({row[0]: dict(zip(header_names, row[1:]))})
                      rows.append(row)
 
-                 header = ["metric_name"]
-                 header.extend(header_names)
-                 dataframe = pd.DataFrame(rows, columns=header)
+                 dataframe = pd.DataFrame(rows, columns=header_names)
                  print("Metric percentile values:\n")
-                 print(tabulate.tabulate(rows, headers=header, tablefmt="grid"))
-                 dataframe.to_csv(os.path.join(self.artifacts_dir, "metrics_agg.csv"))
+                 print(tabulate.tabulate(rows, headers=header_names, tablefmt="grid"))
+                 dataframe.to_csv(os.path.join(self.artifacts_dir, "metrics_agg.csv"), index=False)
 
         self.metrics_agg_dict = agg_dict
 

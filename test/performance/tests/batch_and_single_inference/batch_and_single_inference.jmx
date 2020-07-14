@@ -16,12 +16,12 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="model1" elementType="Argument">
             <stringProp name="Argument.name">model1</stringProp>
-            <stringProp name="Argument.value">${__P(model_name1,resnet-152-batch)}</stringProp>
+            <stringProp name="Argument.value">${__P(RESNET_152_BATCH_NAME,resnet-152-batch)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="model2" elementType="Argument">
             <stringProp name="Argument.name">model2</stringProp>
-            <stringProp name="Argument.value">${__P(model_name2,squeezenet1_1)}</stringProp>
+            <stringProp name="Argument.value">${__P(SQZNET_NAME,squeezenet1_1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
