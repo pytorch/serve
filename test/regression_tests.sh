@@ -91,6 +91,8 @@ run_postman_test() {
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --bail --verbose postman/management_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
+  
+  echo "Newman Return code for Management APIs - " $?
 
 
   # Run Inference API Tests after Restart
