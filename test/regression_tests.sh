@@ -81,7 +81,7 @@ delete_model_store_snapshots() {
 }
 
 
-run_postman_test() {
+run_postman_test() {(  
   set -e
   # Run Postman Scripts
   mkdir $ROOT_DIR/report/
@@ -107,7 +107,7 @@ run_postman_test() {
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
 
   cd -
-}
+)}
 
 
 run_pytest() {(
