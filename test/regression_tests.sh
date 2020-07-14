@@ -82,18 +82,15 @@ delete_model_store_snapshots() {
 
 
 run_postman_test() {
+  set -e
   # Run Postman Scripts
   mkdir $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/
-  set +e
   # Run Management API Tests
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json --bail --verbose postman/management_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
-  
-  echo "Newman Return code for Management APIs - " $?
-
 
   # Run Inference API Tests after Restart
   stop_torch_serve
@@ -109,22 +106,18 @@ run_postman_test() {
   newman run --insecure -e postman/environment.json --bail --verbose postman/https_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
 
-  set -e
   cd -
 }
 
 
-run_pytest() {
-
+run_pytest() {(
+  set -e
   mkdir -p $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/pytest
   stop_torch_serve
-  set +e
   pytest . -v >>$1 2>&1
-  set -e
   cd -
-
-}
+)}
 
 sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
