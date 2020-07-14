@@ -38,8 +38,8 @@ The building blocks of the performance regression suite and flow is captured in 
     ``` 
 2. Install performance regression suite dependencies.
    ```bash 
-    export MMS_HOME=<MMS_HOME_PATH>
-    pip install -r $MMS_HOME/tests/performance/requirements.txt
+    export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
+    pip install -r $MODEL_SERVER_HOME/tests/performance/requirements.txt
     ``` 
 3. Make sure that `git` is installed and the test suites are run from the Model Server working directory.
 
@@ -49,10 +49,10 @@ The building blocks of the performance regression suite and flow is captured in 
 parameters
 
    * `--artifacts-dir` or `-a` is a directory where the test case results will be stored. The default value is 
-`$MMS_HOME/tests/performance/run_artifacts`.  
+`$MODEL_SERVER_HOME/tests/performance/run_artifacts`.  
 
    * `--test-dir` or `-t` is a directory containing the test cases. The default value is 
-`$MMS_HOME/tests/performance/tests`.
+`$MODEL_SERVER_HOME/tests/performance/tests`.
  
    * `--pattern` or `-p` glob pattern picks up certain test cases for execution within the `test-dir`. The default value picks up 
 all test cases.
@@ -76,7 +76,7 @@ and other artifacts.
 **Steps are provided below**
 
 ```bash
-export MMS_HOME=<MMS_HOME_PATH>
+export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
 cd $MODEL_SERVER_HOME/tests/performance
  
 # Note that Model server started and stopped by the individual test suite.
