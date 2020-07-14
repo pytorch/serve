@@ -15,12 +15,12 @@ def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=F
     if(no_config_snapshots):
         cmd.extend(["--no-config-snapshots"])
     subprocess.run(cmd)
-    time.sleep(10)
+    time.sleep(30)
 
 
 def stop_torchserve():
     subprocess.run(["torchserve", "--stop"])
-    time.sleep(5)
+    time.sleep(30)
 
 
 def delete_all_snapshots():
@@ -47,7 +47,7 @@ def test_snapshot_created_on_management_api_invoke():
     delete_all_snapshots()
     start_torchserve()
     requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar')
-    time.sleep(10)
+    time.sleep(30)
     stop_torchserve()
     assert len(glob.glob('logs/config/*snap*.cfg')) == 1
 

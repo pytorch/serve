@@ -23,6 +23,16 @@ commands:
           name: Install torchserve
           command: pip install dist/*.whl
 
+  install-torch-model-archiver:
+    description: "Install torch-model-archiver from a wheel"
+    steps:
+      - run:
+          name: Install torch-model-archiver
+          command: |
+            cd model-archiver
+            python setup.py bdist_wheel --universal
+            pip install dist/*.whl
+
   exeucute-api-tests:
     description: "Execute API tests from a collection"
     parameters:
@@ -103,6 +113,22 @@ jobs:
         - store_artifacts:
             name: Store server logs and test results
             path: test/artifacts/
+
+    regression-tests:
+      parameters:
+        executor:
+          type: executor
+      executor: << parameters.executor >>
+      steps:
+        - attach-torchserve-workspace
+        - install-torchserve
+        - install-torch-model-archiver
+        - run:
+            name: Execute regression suite
+            command: .circleci/scripts/linux_test_regression.sh
+        - store_artifacts:
+            name: Store server logs from regression tests
+            path: test/pytest/logs/
 
     benchmark:
       parameters:
@@ -203,6 +229,12 @@ workflows:
       - &api-tests
         api-tests:
           name: api-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &regression-tests
+        regression-tests:
+          name: regression-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
