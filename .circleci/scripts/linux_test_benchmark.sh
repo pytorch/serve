@@ -12,7 +12,7 @@ mkdir $MODEL_STORE_DIR
 
 # Start TS and redirect console ouptut and errors to a log file
 torchserve --start --model-store=$MODEL_STORE_DIR > ts_console.log 2>&1
-sleep 10
+sleep 30
 
 # Go to benchmarks directory and trigger suite
 cd benchmarks

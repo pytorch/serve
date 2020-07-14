@@ -20,18 +20,22 @@ POSTMAN_DATA_FILE_INFERENCE="postman/inference_data.json"
 REPORT_FILE="report.html"
 
 start_ts() {
-  torchserve --start --model-store $1 >> $2 2>&1
+  torchserve --ncs --start --model-store $1 >> $2 2>&1
   sleep 10
 }
 
 start_ts_secure() {
-  torchserve --start --ts-config $TS_CONFIG_FILE_HTTPS --model-store $1 >> $2 2>&1
+  torchserve --ncs --start --ts-config $TS_CONFIG_FILE_HTTPS --model-store $1 >> $2 2>&1
   sleep 10
 }
 
 stop_ts() {
   torchserve --stop
   sleep 10
+}
+
+cleanup_model_store(){
+  rm -rf $MODEL_STORE_DIR/*
 }
 
 move_logs(){
@@ -46,6 +50,7 @@ trigger_management_tests(){
   local EXIT_CODE=$?
   stop_ts
   move_logs $TS_CONSOLE_LOG_FILE $ARTIFACTS_MANAGEMENT_DIR
+  cleanup_model_store
   return $EXIT_CODE
 }
 
@@ -56,6 +61,7 @@ trigger_inference_tests(){
   local EXIT_CODE=$?
   stop_ts
   move_logs $TS_CONSOLE_LOG_FILE $ARTIFACTS_INFERENCE_DIR
+  cleanup_model_store
   return $EXIT_CODE
 }
 
@@ -66,6 +72,7 @@ trigger_https_tests(){
   local EXIT_CODE=$?
   stop_ts
   move_logs $TS_CONSOLE_LOG_FILE $ARTIFACTS_HTTPS_DIR
+  cleanup_model_store
   return $EXIT_CODE
 }
 
