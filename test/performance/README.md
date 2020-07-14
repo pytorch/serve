@@ -77,7 +77,7 @@ and other artifacts.
 
 ```bash
 export MMS_HOME=<MMS_HOME_PATH>
-cd $MMS_HOME/tests/performance
+cd $MODEL_SERVER_HOME/tests/performance
  
 # Note that Model server started and stopped by the individual test suite.
 # check variables such as Model server PORT etc 
@@ -177,8 +177,8 @@ Please note that various global configuration settings used by examples_starter.
 To execute this test suite, run the following command
     
  ```bash
- export MMS_HOME=<MMS_HOME_PATH>
- cd $MMS_HOME/tests/performance
+ export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
+ cd $MODEL_SERVER_HOME/tests/performance
  python -m run_performance_suite -p examples_starter -e xlarge
  ```
 
@@ -198,9 +198,9 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
     
    To start the monitoring server, run the following commands on the Model Server host:
     ```bash 
-    export MMS_HOME=<MMS_HOME_PATH>
-    pip install -r $MMS_HOME/tests/performance/requirements.txt
-    python $MMS_HOME/tests/performance/metrics_monitoring_server.py --start
+    export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
+    pip install -r $MODEL_SERVER_HOME/tests/performance/requirements.txt
+    python $MODEL_SERVER_HOME/tests/performance/metrics_monitoring_server.py --start
     ```     
       
    The monitoring section configuration is shown below. 
@@ -224,8 +224,8 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
    Use the command below to run the test suite.
     
     ```bash
-    export MMS_HOME=<MMS_HOME_PATH>
-    cd $MMS_HOME/tests/performance
+    export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
+    cd $MODEL_SERVER_HOME/tests/performance
     python -m run_performance_suite -p examples_remote_monitoring -e xlarge
     ```
 
@@ -256,8 +256,8 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
    Use the command below to run the test suite.
     
     ```bash
-    export MMS_HOME=<MMS_HOME_PATH>
-    cd $MMS_HOME/tests/performance
+    export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
+    cd $MODEL_SERVER_HOME/tests/performance
     python -m run_performance_suite -p examples_local_monitoring -e xlarge
     ```
 
