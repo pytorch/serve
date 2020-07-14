@@ -142,15 +142,13 @@
 					"script": {
 						"id": "011551ad-0fcd-4614-b3ce-c69b8aeac452",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid RegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([500]);",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Model file already exists densenet161.mar\");",
-							"});",
-							"pm.test(\"Got \"+pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"InternalServerException\");",
-							"    pm.response.to.be.error",
 							"});"
 						],
 						"type": "text/javascript"
@@ -236,15 +234,13 @@
 					"script": {
 						"id": "8f40754d-d76b-444a-92a3-209f6173d6c7",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid RegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"BadRequestException\");",
-							"    pm.response.to.be.badRequest;",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.json().message).to.eql(\"Parameter url is required.\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -438,15 +434,13 @@
 					"script": {
 						"id": "cbe0e756-eaba-4e89-8d05-cbd1ee75256b",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([500]);",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Failed to start workers\");",
-							"});",
-							"",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"InternalServerException\");    ",
 							"});"
 						],
 						"type": "text/javascript"
@@ -605,15 +599,13 @@
 					"script": {
 						"id": "a473ad8b-ec36-4703-b274-9c706fa38ec0",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([500]);",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Failed to start workers\");",
-							"});",
-							"",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"InternalServerException\");    ",
 							"});"
 						],
 						"type": "text/javascript"
@@ -656,7 +648,7 @@
 					"script": {
 						"id": "1e1ec68a-e0fe-41dc-9745-67b55d2f14a9",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(\"Successful Scale request with PartialSuccess\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([210]);",
 							"});"
 						],
@@ -837,15 +829,13 @@
 					"script": {
 						"id": "e050d9c0-e981-4c67-b00a-311b0c1a6062",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid RegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"BadRequestException\");",
-							"    pm.response.to.be.badRequest;",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Invalid RuntimeType value\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1106,14 +1096,13 @@
 					"script": {
 						"id": "d16b75a0-c7b3-4c52-bb84-052773777278",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.code).to.eql(404);",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"ModelNotFoundException\");",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Model not found: squeezenet0_0\");",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1237,7 +1226,12 @@
 					"script": {
 						"id": "b5fc0648-fd05-4a71-8ad1-5fc93ce1bfc4",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Set Default Version request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -1273,7 +1267,12 @@
 					"script": {
 						"id": "48eaf38e-8410-454b-8992-5390168812ed",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Set Default Version request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -1424,14 +1423,13 @@
 					"script": {
 						"id": "fdb7057a-bcee-4e61-917e-10fac6734214",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.code).to.be.eql(500);",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"InternalServerException\");    ",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Failed to start workers\");",
+							"pm.test(",
+							"    \"Invalid RegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([500]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1485,14 +1483,8 @@
 					"script": {
 						"id": "253e5c83-2053-4b4c-9a7f-1992d3eab176",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.code).to.be.eql(500);",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"InternalServerException\");    ",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Failed to start workers\");",
+							"pm.test(\"Successful POST message\", function () {",
+							"    pm.expect(pm.response.code).to.be.eql(200);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2495,11 +2487,13 @@
 					"script": {
 						"id": "cd607621-161a-4ed0-9ad9-df99176e20d9",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid RegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"ModelNotFoundException\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2541,7 +2535,12 @@
 					"script": {
 						"id": "f649813c-7556-4150-b0b9-3f138b88e809",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid RegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
@@ -2584,7 +2583,12 @@
 					"script": {
 						"id": "d58a854c-6709-4318-a393-bc7e08c28b08",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid ListModels request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -2618,7 +2622,12 @@
 					"script": {
 						"id": "7d4bfd57-e84f-4930-95dd-f5f6d7d5b30c",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid ListModels request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -2814,14 +2823,13 @@
 					"script": {
 						"id": "e68be588-6c7e-4133-b295-3d590166fed2",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
-							"});",
-							"pm.test(pm.response.json().message, function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Model not found\");",
-							"});",
-							"pm.test(pm.response.json().type, function () {",
-							"    pm.expect(pm.response.json().type).to.eql(\"ModelNotFoundException\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2860,7 +2868,12 @@
 					"script": {
 						"id": "fa0184c5-6a17-4f7d-a792-1b250c9d0aae",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
@@ -2984,7 +2997,12 @@
 					"script": {
 						"id": "99cfa8c9-33f0-4a43-bff8-127fe2a3b75c",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([500]);",
 							"});"
 						],
@@ -3024,7 +3042,12 @@
 					"script": {
 						"id": "a65e8487-8ad0-43aa-89af-d13f3098cc2b",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([400]);",
 							"});"
 						],
@@ -3064,7 +3087,12 @@
 					"script": {
 						"id": "7faa913e-6fec-46f4-af4f-bec20e45c6a8",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid Scale Workers request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -3134,7 +3162,12 @@
 					"script": {
 						"id": "e669d3a3-23e1-496a-b113-273b9332be00",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid UnRegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
@@ -3371,7 +3404,12 @@
 					"script": {
 						"id": "6f38b296-8835-4e04-9f99-382c3a89dd1f",
 						"exec": [
-							"pm.test(pm.response.json().message, function () {",
+							"pm.test(",
+							"    \"Invalid UnRegisterModel request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
 							"});"
 						],
