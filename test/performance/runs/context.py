@@ -37,13 +37,13 @@ class ExecutionEnv(object):
     Context Manager class to run the performance regression suites
     """
 
-    def __init__(self, agent, artifacts_dir, env, local_run, use=True, check_mms_server_status=False):
+    def __init__(self, agent, artifacts_dir, env, local_run, use=True, check_model_server_status=False):
         self.monitoring_agent = agent
         self.artifacts_dir = artifacts_dir
         self.use = use
         self.env = env
         self.local_run = local_run
-        self.check_mms_server_status = check_mms_server_status
+        self.check_model_server_status = check_model_server_status
         self.reporter = JUnitXml()
         self.compare_reporter_generator = CompareReportGenerator(self.artifacts_dir, self.env, self.local_run)
         self.exit_code = 1
