@@ -13,16 +13,16 @@
 """
 Start and stop monitoring server
 """
-# pylint: disable=redefined-builtin
+# pylint: disable=redefined-builtin, broad-except
 
 import logging
 import os
 import sys
 import time
 import subprocess
+
 import webbrowser
 from termcolor import colored
-
 from junitparser import JUnitXml
 from runs.compare import CompareReportGenerator
 from runs.junit import JunitConverter, junit2tabulate
@@ -98,14 +98,17 @@ class ExecutionEnv(object):
         if self.use:
             stop_monitoring_server = "{} {} --stop".format(sys.executable, self.monitoring_agent)
             run_process(stop_monitoring_server)
-
         junit_reporter = JunitConverter(self.reporter, self.artifacts_dir, 'performance_results')
         junit_reporter.generate_junit_report()
-        junit_compare = self.compare_reporter_generator.gen()
+
         junit_compare_reporter = None
-        if junit_compare:
-            junit_compare_reporter = JunitConverter(junit_compare, self.artifacts_dir, 'comparison_results')
-            junit_compare_reporter.generate_junit_report()
+        try:
+            junit_compare = self.compare_reporter_generator.gen()
+            if junit_compare:
+                junit_compare_reporter = JunitConverter(junit_compare, self.artifacts_dir, 'comparison_results')
+                junit_compare_reporter.generate_junit_report()
+        except Exception as e:
+            logger.info("Exception has occured while comparing results", exc_info=1)
 
         compare_exit_code = ExecutionEnv.report_summary(junit_compare_reporter, "Comparison Test suite")
         exit_code = ExecutionEnv.report_summary(junit_reporter, "Performance Regression Test suite")
