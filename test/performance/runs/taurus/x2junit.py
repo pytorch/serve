@@ -163,7 +163,7 @@ class X2Junit(object):
 
         self.update_metrics()
         xunit_file = os.path.join(self.artifacts_dir, "xunit.xml")
-        if self.code == 1:
+        if self.code not in [0, 3]:  # 0-no error, 3-pass/fail
             tc = TestCase(self.name)
             tc.result = Error(self.err)
             self.ts.add_testcase(tc)
