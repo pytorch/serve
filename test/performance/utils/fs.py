@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 
-def get_sub_dirs(dir, exclude_list=[], include_pattern='*', exclude_pattern=None):
+def get_sub_dirs(dir, exclude_list=['comp_data'], include_pattern='*', exclude_pattern=None):
     """Utility method to get list of folders in a directory"""
     dir = dir.strip()
     if not os.path.exists(dir):
