@@ -189,7 +189,8 @@ public class ModelServerTest {
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        Assert.assertEquals(resp[0].getMinWorkers(), configManager.getConfiguredDefaultWorkersPerModel());
+        Assert.assertEquals(
+                resp[0].getMinWorkers(), configManager.getConfiguredDefaultWorkersPerModel());
     }
 
     @Test(
