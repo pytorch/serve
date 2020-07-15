@@ -18,7 +18,6 @@ public final class PluginsManager {
 
     private Map<String, ModelServerEndpoint> inferenceEndpoints;
     private Map<String, ModelServerEndpoint> managementEndpoints;
-    private Map<String, ModelServerEndpoint> metricsEndpoints;
 
     private PluginsManager() {}
 
@@ -29,7 +28,6 @@ public final class PluginsManager {
     public void initialize() {
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
-        metricsEndpoints = initMetricsEndpoints();
     }
 
     private boolean validateEndpointPlugin(Annotation a, EndpointTypes type) {
@@ -70,19 +68,11 @@ public final class PluginsManager {
         return getEndpoints(EndpointTypes.MANAGEMENT);
     }
 
-    private HashMap<String, ModelServerEndpoint> initMetricsEndpoints() {
-        return getEndpoints(EndpointTypes.METRICS);
-    }
-
     public Map<String, ModelServerEndpoint> getInferenceEndpoints() {
         return inferenceEndpoints;
     }
 
     public Map<String, ModelServerEndpoint> getManagementEndpoints() {
         return managementEndpoints;
-    }
-
-    public Map<String, ModelServerEndpoint> getMetricsEndpoints() {
-        return metricsEndpoints;
     }
 }

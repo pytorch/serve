@@ -20,9 +20,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +31,8 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             LoggerFactory.getLogger(PrometheusMetricsRequestHandler.class);
 
     /** Creates a new {@code MetricsRequestHandler} instance. */
-    public PrometheusMetricsRequestHandler(Map<String, ModelServerEndpoint> ep) {
-        endpointMap = ep;
+    public PrometheusMetricsRequestHandler() {
+        // TODO: Add plugins manager support
     }
 
     @Override
