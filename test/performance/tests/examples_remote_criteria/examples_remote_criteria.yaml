@@ -13,7 +13,7 @@
   - module: shellexec
     prepare:
       - "curl -s -O ${INPUT_IMG_URL}"
-      - "mkdir /tmp/ts_model_store"
+      - "mkdir -p /tmp/ts_model_store"
       - "ps aux | grep '${SERVER_PROCESS_NAME}' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
       - "${SERVER_START_CMD} --model-store /tmp/ts_model_store > /dev/null 2>&1"
       - "sleep 20s"

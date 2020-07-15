@@ -105,7 +105,8 @@ class ExecutionEnv(object):
         try:
             junit_compare = self.compare_reporter_generator.gen()
             if junit_compare:
-                junit_compare_reporter = JunitConverter(junit_compare, self.artifacts_dir, 'comparison_results')
+                junit_compare_reporter = JunitConverter(junit_compare, self.artifacts_dir,
+                                                        'comparison_results')
                 junit_compare_reporter.generate_junit_report()
         except Exception as e:
             logger.info("Exception has occured while comparing results", exc_info=1)
