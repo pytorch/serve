@@ -13,17 +13,18 @@
 """
 Convert the Taurus Test suite XML to Junit XML
 """
-# pylint: disable=redefined-builtin
+# pylint: disable=redefined-builtin, unused-variable, broad-except
 
 
 import os
-import pandas as pd
-from runs.taurus.reader import get_compare_metric_list
-
 import html
+
+import pandas as pd
 import tabulate
 from bzt.modules.passfail import DataCriterion
 from junitparser import TestCase, TestSuite, JUnitXml, Skipped, Error, Failure
+
+from runs.taurus.reader import get_compare_metric_list
 
 
 class X2Junit(object):
@@ -31,6 +32,7 @@ class X2Junit(object):
        Context Manager class to do convert Taurus Test suite XML report which is in Xunit specifications
        to JUnit XML report.
     """
+
     def __init__(self, name, artifacts_dir, junit_xml, timer, env_name):
         self.ts = TestSuite(name)
         self.name = name
@@ -50,10 +52,17 @@ class X2Junit(object):
         return self
 
     def add_compare_tests(self):
+        """Add compare test for a run.
+        Compare actual percentage difference between fist value and last value against provided difference."""
+
         compare_list = get_compare_metric_list(self.artifacts_dir, "")
         for metric_values in compare_list:
             col = metric_values[0]
             diff_percent = metric_values[2]
+            try:
+                diff_percent = float(diff_percent)
+            except Exception as e:
+                diff_percent = None
             tc = TestCase("{}_diff_run > {}".format(col, diff_percent))
             if diff_percent is None:
                 tc.result = Skipped("diff_percent_run value is not mentioned")
@@ -93,6 +102,7 @@ class X2Junit(object):
 
     @staticmethod
     def casename_to_criteria(test_name):
+        """Extract metric from Taurus pass/fail criteria string"""
         metric = None
         if ' of ' not in test_name:
             test_name = "label of {}".format(test_name)
@@ -108,6 +118,7 @@ class X2Junit(object):
         return metric
 
     def percentile_values(self, metric_name):
+        """Calculate percentile values for metric_name column in self.metrics pandas df"""
         values = {}
         if self.metrics is not None and metric_name is not None:
             metric_vals = getattr(self.metrics, metric_name, None)
@@ -115,11 +126,12 @@ class X2Junit(object):
                 centile_values = [0, 0.5, 0.9, 0.95, 0.99, 0.999, 1]
                 for centile in centile_values:
                     val = getattr(metric_vals, 'quantile')(centile)
-                    values.update({str(centile * 100)+"%": val})
+                    values.update({str(centile * 100) + "%": val})
 
         return values
 
     def update_metrics(self):
+        """ Update self.mertics and self.metrics_agg_dict"""
         metrics_file = os.path.join(self.artifacts_dir, "metrics.csv")
         rows = []
         agg_dict = {}
@@ -130,24 +142,24 @@ class X2Junit(object):
             header_names.extend([str(colname * 100) + "%" for colname in centile_values])
             header_names.extend(['first_value', 'last_value'])
             if self.metrics.size:
-                 for col in self.metrics.columns:
-                     row = [self.name, str(col)]
-                     metric_vals = getattr(self.metrics, str(col), None)
-                     for centile in centile_values:
-                         row.append(getattr(metric_vals, 'quantile')(centile))
-                     row.extend([metric_vals.iloc[0], metric_vals.iloc[-1]])
-                     agg_dict.update({row[0]: dict(zip(header_names, row[1:]))})
-                     rows.append(row)
+                for col in self.metrics.columns:
+                    row = [self.name, str(col)]
+                    metric_vals = getattr(self.metrics, str(col), None)
+                    for centile in centile_values:
+                        row.append(getattr(metric_vals, 'quantile')(centile))
+                    row.extend([metric_vals.iloc[0], metric_vals.iloc[-1]])
+                    agg_dict.update({row[0]: dict(zip(header_names, row[1:]))})
+                    rows.append(row)
 
-                 dataframe = pd.DataFrame(rows, columns=header_names)
-                 print("Metric percentile values:\n")
-                 print(tabulate.tabulate(rows, headers=header_names, tablefmt="grid"))
-                 dataframe.to_csv(os.path.join(self.artifacts_dir, "metrics_agg.csv"), index=False)
+                dataframe = pd.DataFrame(rows, columns=header_names)
+                print("Metric percentile values:\n")
+                print(tabulate.tabulate(rows, headers=header_names, tablefmt="grid"))
+                dataframe.to_csv(os.path.join(self.artifacts_dir, "metrics_agg.csv"), index=False)
 
         self.metrics_agg_dict = agg_dict
 
     def __exit__(self, type, value, traceback):
-        print("error code is "+str(self.code))
+        print("error code is " + str(self.code))
 
         self.update_metrics()
         xunit_file = os.path.join(self.artifacts_dir, "xunit.xml")
@@ -201,20 +213,17 @@ class X2Junit(object):
         # otherwise exception are not reported
         return False
 
+
 if __name__ == "__main__":
     from utils.timer import Timer
+
     with Timer("ads") as t:
-        test_folder = '/Users/demo/git/serve/test/performance/'\
-                        'run_artifacts/xlarge__2dc700f__1594662587/scale_down_workers'
+        test_folder = './run_artifacts/xlarge__7bc1982__1594795786/scale_up_workers'
         x = X2Junit("test", test_folder, JUnitXml(), t, "xlarge")
 
     # x.update_metrics()
-    #
     # x.add_compare_tests()
 
     x.__exit__(None, None, None)
-    x.ts
-
+    print(x.ts)
     print("a")
-
-

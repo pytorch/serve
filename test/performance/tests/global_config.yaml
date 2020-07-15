@@ -21,6 +21,13 @@ modules:
       input_filepath: kitten.jpg # make sure jpg is available at this path
       # if relative path is provided this will be relative to current working directory
 
+      RESNET_152_BATCH_URL: ${RESNET_152_BATCH_URL}
+      RESNET_152_BATCH_NAME: ${RESNET_152_BATCH_NAME}
+      SQZNET_URL: ${SQZNET_URL}
+      SQZNET_NAME: ${SQZNET_NAME}
+      RESNET_URL: ${RESNET_URL}
+      RESNET_NAME: ${RESNET_NAME}
+
   server_local_monitoring:
     # metrics_monitoring_inproc and dependencies should be in python path
     class : metrics_monitoring_inproc.Monitor # monitoring class.
@@ -31,28 +38,13 @@ services:
       - "curl -s -O ${INPUT_IMG_URL}"
       - "mkdir /tmp/ts_model_store"
       - "ps aux | grep '${SERVER_PROCESS_NAME}' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
-      - "${SERVER_CMD} --start --ncs --model-store /tmp/ts_model_store > /dev/null 2>&1"
+      - "${SERVER_START_CMD} --model-store /tmp/ts_model_store > /dev/null 2>&1"
       - "sleep 20s"
     post-process:
-      - "${SERVER_CMD} --stop > /dev/null 2>&1"
+      - "${SERVER_STOP_CMD} > /dev/null 2>&1"
       - "rm ${INPUT_IMG_PATH}"
       - "rm -r /tmp/ts_model_store"
       - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
-
-    env:
-      SERVER_CMD : ${SERVER_CMD}
-      ARTIFACTS_DIR : ${ARTIFACTS_DIR}
-      SERVER_PROCESS_NAME : ${SERVER_PROCESS_NAME}
-      INPUT_IMG_URL : ${INPUT_IMG_URL}
-      INPUT_IMG_PATH : ${INPUT_IMG_PATH}
-
-      RESNET_152_BATCH_URL: ${RESNET_152_BATCH_URL}
-      RESNET_152_BATCH_NAME: ${RESNET_152_BATCH_NAME}
-      SQZNET_URL: ${SQZNET_URL}
-      SQZNET_NAME: ${SQZNET_NAME}
-      RESNET_URL: ${RESNET_URL}
-      RESNET_NAME: ${RESNET_NAME}
-
 
   - module: server_local_monitoring # should be added in modules section
     ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
@@ -190,7 +182,8 @@ compare_criteria:
 settings:
   env:
     ARTIFACTS_DIR : '.'
-    SERVER_CMD : "torchserve"
+    SERVER_START_CMD : "torchserve --start --ncs"
+    SERVER_STOP_CMD : "torchserve --stop "
     SERVER_PROCESS_NAME : "[o]rg.pytorch.serve.ModelServer"
     INPUT_IMG_URL: "https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
     INPUT_IMG_PATH: "kitten.jpg"

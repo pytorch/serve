@@ -1,5 +1,3 @@
-
-
 # Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -13,20 +11,20 @@
 """
 Run Performance Regression Test Cases and Generate Reports
 """
-# pylint: disable=redefined-builtin, no-value-for-parameter
+# pylint: disable=redefined-builtin, no-value-for-parameter, unused-argument
 
 import logging
 import os
 import subprocess
 import sys
 import time
+import pathlib
 
 import click
-import pathlib
-from runs.context import ExecutionEnv
-from runs.taurus import get_taurus_options, x2junit, update_taurus_metric_files
 from tqdm import tqdm
 
+from runs.context import ExecutionEnv
+from runs.taurus import get_taurus_options, x2junit, update_taurus_metric_files
 from utils import run_process, Timer, get_sub_dirs
 
 logger = logging.getLogger(__name__)

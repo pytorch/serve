@@ -10,6 +10,7 @@
 # on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
+# pylint: disable=redefined-builtin, redefined-outer-name, broad-except, unused-variable
 
 from enum import Enum
 from statistics import mean
@@ -118,8 +119,9 @@ def get_metrics(server_process, child_processes, logger):
     try:
         # as_dict() gets all stats in one shot
         processes_stats.append({'type': ProcessType.FRONTEND, 'stats': server_process.as_dict()})
-    except:
+    except Exception as e:
         pass
+
     for child in children | zombie_children:
         try:
             child_cmdline = child.cmdline()
@@ -140,7 +142,6 @@ def get_metrics(server_process, child_processes, logger):
         if p in zombie_children:
             zombie_children.remove(p)
 
-
     ### PROCESS METRICS ###
     worker_stats = list(map(lambda x: x['stats'], \
                             filter(lambda x: x['type'] == ProcessType.WORKER, processes_stats)))
@@ -155,7 +156,7 @@ def get_metrics(server_process, child_processes, logger):
 
     # Total processes
     result['total_processes'] = len(worker_stats) + 1
-    result['total_workers'] = max(len(worker_stats), 0)
+    result['total_workers'] = max(len(worker_stats) - 1, 0)
     result['orphans'] = len(list(filter(lambda p: p['ppid'] == 1, worker_stats)))
     result['zombies'] = len(zombie_children)
 
@@ -169,3 +170,22 @@ def get_metrics(server_process, child_processes, logger):
     result['system_write_bytes'] = system_disk_io_counters.write_bytes
 
     return result
+
+
+if __name__ == "__main__":
+    import logging
+    import sys
+    from agents.utils.process import *
+    from agents import configuration
+
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
+
+    PID_FILE = configuration.get('server', 'pid_file', 'model_server.pid')
+    server_pid = get_process_pid_from_file(get_server_pidfile(PID_FILE))
+    server_process = get_server_processes(server_pid)
+    children = get_child_processes(server_process)
+
+    metrics = get_metrics(server_process, children, logger)
+
+    print(metrics)

@@ -19,13 +19,16 @@ import os
 import html
 import textwrap
 import tabulate
-from utils import run_process
 from junitparser import JUnitXml
+
+from utils import run_process
+
 
 header = ["suite_name", "test_case", "result", "message"]
 
 
 class JunitConverter():
+    """Convert JUnit XML object to XML and HTML report"""
 
     def __init__(self, junit_xml, out_dir, report_name):
         self.junit_xml = junit_xml
@@ -50,7 +53,7 @@ def pretty_text(data):
 def junit2array(junit_xml):
     """convert junit xml junitparser.JUnitXml object to 2d array """
     rows = [header]
-    for i, suite in enumerate(junit_xml):
+    for _, suite in enumerate(junit_xml):
         if len(suite) == 0:
             rows.append([suite.name, "", "skipped",
                          "No criteria specified or there is an error."])

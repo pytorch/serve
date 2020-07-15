@@ -78,8 +78,8 @@ values which are specific to the execution environment. This is a mandatory para
    2. Collects all the tests from test-dir satisfying the pattern, excluding exclude pattern and test starting with 'skip'
    3. Executes the collected tests
    4. Generates artifacts in the artifacts-dir against each test case.  
-   5. Generate Pass Fail report for test cases
-   6. Generate comparison report for specified commit id
+   5. Generates Pass/Fail report for test cases
+   6. Generates comparison report for specified commit id
 
 3. Check the console logs, $artifacts-dir$/<run-dir>/performance_results.html report, comparison_result.csv, comparison_result.html 
 and other artifacts.
@@ -130,25 +130,63 @@ tests
 ```
 
 1. global_config.yaml  
-   - It is a master template for all_comm the test cases and is shared across all the tests.  
-   - It contains all the common yaml sections, criteria, monitoring metrics etc.  
-   - It also contain variables in the format ${variable} for metric thresholds and other test specific attributes.
+   - It is a master store for common items across all the tests.
+   - It contains the common sections, criteria, monitoring metrics etc.  
+   - It also contain variables in the format ${variable} for metric thresholds and other test specific attributes.   
 
 2. environments/*.yaml  
-   - A test case can have multiple environment files. If you have a environment dependent metrics you can create an environment
-   yaml file. For ex. macos_xlarge, ubuntu_xlarge etc.  
-   - The environment file contains values for all the variables mentioned in global_config.yaml and test.yaml.  
+   - It stores values specific to an environment. An environment reflects the underlying compute characteristics.  For e.g. macos_xlarge, ubuntu_xlarge etc. 
+   - A test case can have multiple environments.
+   - The environment file can override variable values defined in global_config.yaml and test.yaml. 
 
-3. test.yaml  
-   - The test.yaml is main yaml for a test case. Note the name of the yaml should be same as the test folder.  
-   - It inherits the master template global_config.yaml.  
-   And it usually contains the scenario, specific pre-processing commands (if any), and special criteria (if any) applicable for that test case only. 
-   - If you want a behavior other than defined in the master template, It is possible to override sections of global_config.yaml in the individual test case. 
-   The global_config.yaml's top-level sections can be overridden, merged, or appended based on below rules:  
-        1. By default the dictionaries get merged.  
-        2. If the dictionary key is prepended with '~' it will get overridden.  
-        3. The list gets appended.  
+3. test_name.yaml  
+   - The central file for a test case. Note the name of the yaml should be same as the test folder.  
+   - It contains the scenario, specific pre-processing commands (optional) and special criteria (optional) relevant for the test case. 
+   - It inherits the settings defined global_config.yaml. global_config.yaml's top-level sections can be overridden, merged, or appended based on following rules  
+        1. By default the test cases configurations get merged with the global configuration.  
+        2. If the dictionary key is pre-pended with '~', it will get overridden.  
+        3. The lists in yaml section gets appended.       
+   - Below are the sample yamls to demonstrate the merging of global_config and test_name yamls. The list in "services" section in global_config will
+   get appended by list in 'services' section of test yaml. The 'reporting' section will get replaced by '~reporting' section from test yaml.
+   Refer test case for more details [tests/scale_down_workers/scale_down_workers.yaml](tests/scale_down_workers/scale_down_workers.yaml) and [global_config.yaml](tests/global_config.yaml)
+   
+    ```yaml
+    #global_config.yaml
+     
+    services:
+      - module: shellexec
+        prepare:
+          - "curl -s -O ${INPUT_IMG_URL}"
+          - "mkdir /tmp/ts_model_store"
+   
+    reporting:
+        - module: passfail
+          criteria:
+            # API requests KPI crieteria
+            - success of ${API_LABEL}<${API_SUCCESS} for 10s, stop as failed
+            - avg-rt of ${API_LABEL}>${API_AVG_RT}, ${STOP_ALIAS} as failed
+                    
+    ```  
+
+    ```yaml
+    #test.yaml
+     
+    services:
+      - module: shellexec
+        prepare:
+            - "${SERVER_START_CMD} --model-store /tmp/ts_model_store > /dev/null 2>&1"
+       
+    
+    ~reporting:
+        - module: passfail
+          criteria:
+            # Inbuilt Criteria
+            - success of ScaleDown<${SCL_DWN_SUCC} for 10s, ${STOP_ALIAS} as failed
+            - avg-rt of ScaleDown>${SCL_DWN_RT}, ${STOP_ALIAS} as failed
+    ```
+   
 4. test.jmx 
+   -  The JMeter test scenario file. The test.yaml runs the scenario mentioned in the .jmx file.4. test.jmx 
    -  The JMeter test scenario file. The test.yaml runs the scenarion mentioned in the .jmx file.
 
 
@@ -362,7 +400,7 @@ There are two types of compare criteria you can add for metrics:
     This criteria is used to check the percent difference between first and last value of the metric for a run. 
     In other words it is used to verify if metrics values are same before and after the scenario run. 
     2. diff_percent_previous  
-    Compare the metric aggregate values with previous run. Here we take aggregate min, max and avg of metric values for current run
+    Compare first and last values of previous run of compare_with commit_id. Here we compare first and last value of metrics for current run
     and previous run and check if percentage difference is not greater than diff_percent_previous. 
 
 Note formula for percentage difference is abs(value1 - value2)/((value1 + value2)/2) * 100

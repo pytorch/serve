@@ -34,8 +34,12 @@ logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 
 def get_git_commit_id(compare_with):
-    return subprocess.check_output('git rev-parse --short {}'.format(compare_with).split()).decode(
-            "utf-8")[:-1]
+    """Get short commit id for compare_with commit, branch, tag"""
+    cmd = 'git rev-parse --short {}'.format(compare_with)
+    logger.info("Running command: %s", cmd)
+    commit_id = subprocess.check_output(cmd.split()).decode("utf-8")[:-1]
+    logger.info("Commit id for compare_with='%s' is '%s'", compare_with, commit_id)
+    return commit_id
 
 
 class ExecutionEnv(object):
@@ -52,7 +56,8 @@ class ExecutionEnv(object):
         self.compare_with = get_git_commit_id(compare_with)
         self.check_model_server_status = check_model_server_status
         self.reporter = JUnitXml()
-        self.compare_reporter_generator = CompareReportGenerator(self.artifacts_dir, self.env, self.local_run, compare_with)
+        self.compare_reporter_generator = CompareReportGenerator(self.artifacts_dir, self.env, self.local_run,
+                                                                 compare_with)
         self.exit_code = 1
 
     def __enter__(self):
@@ -64,12 +69,14 @@ class ExecutionEnv(object):
 
     @staticmethod
     def open_report(file_path):
+        """Open html report in browser """
         if os.path.exists(file_path):
             return webbrowser.open_new_tab('file://' + os.path.realpath(file_path))
         return False
 
     @staticmethod
     def report_summary(reporter, suite_name):
+        """Create a report summary """
         if reporter and os.path.exists(reporter.junit_html_path):
             status = reporter.junit_xml.errors or reporter.junit_xml.failures
             status, code, color = ("failed", 3, "red") if status else ("passed", 0, "green")
@@ -108,4 +115,3 @@ class ExecutionEnv(object):
         # Return True needed so that __exit__ method do no ignore the exception
         # otherwise exception are not reported
         return False
-

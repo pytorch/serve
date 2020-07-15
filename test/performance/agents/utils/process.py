@@ -17,7 +17,6 @@ Utility methods for process related information
 
 import os
 import tempfile
-
 import psutil
 
 

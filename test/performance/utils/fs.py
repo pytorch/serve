@@ -32,7 +32,7 @@ def get_sub_dirs(dir, exclude_list=[], include_pattern='*', exclude_pattern=None
         raise Exception(msg)
 
     pattern_list = glob.glob(dir + "/" + include_pattern)
-    exclude_pattern_list, exclude_pattern = (glob.glob(dir + "/" + exclude_pattern), exclude_pattern)\
+    exclude_pattern_list, exclude_pattern = (glob.glob(dir + "/" + exclude_pattern), exclude_pattern) \
         if exclude_pattern is not None else ([], '')
     skip_pattern = "/skip*"
     skip_list = glob.glob(dir + skip_pattern)
@@ -41,7 +41,7 @@ def get_sub_dirs(dir, exclude_list=[], include_pattern='*', exclude_pattern=None
     exclude_patterns.extend([skip_pattern, exclude_pattern])
     logger.info("Excluding the tests with name patterns '{}'.".format("','".join(exclude_patterns)))
     return sorted(list([x for x in os.listdir(dir) if os.path.isdir(dir + "/" + x)
-                 and x not in exclude_list
-                 and dir + "/" + x in pattern_list
-                 and dir + "/" + x not in exclude_pattern_list
-                 and dir + "/" + x not in skip_list]))
+                        and x not in exclude_list
+                        and dir + "/" + x in pattern_list
+                        and dir + "/" + x not in exclude_pattern_list
+                        and dir + "/" + x not in skip_list]))
