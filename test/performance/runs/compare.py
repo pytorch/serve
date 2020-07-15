@@ -108,7 +108,7 @@ def get_centile_val(df, agg_func, col):
     val = None
     if "metric_name" in df and agg_func in df:
         val = df[df["metric_name"] == col][agg_func]
-        val = val[0] if len(val) else None
+        val = val.iloc[0] if len(val) >= 1 else None
     return val
 
 

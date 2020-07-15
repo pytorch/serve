@@ -57,7 +57,7 @@ class ExecutionEnv(object):
         self.check_model_server_status = check_model_server_status
         self.reporter = JUnitXml()
         self.compare_reporter_generator = CompareReportGenerator(self.artifacts_dir, self.env, self.local_run,
-                                                                 compare_with)
+                                                                 self.compare_with)
         self.exit_code = 1
 
     def __enter__(self):
