@@ -8,4 +8,4 @@ reporting:
   criteria:
     # Inbuilt Criteria
     - success of UnregisterModel<${UNREG_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of UnregisterModel>${UNREG_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of UnregisterModel>${UNREG_RT} for 10s, ${STOP_ALIAS} as failed
