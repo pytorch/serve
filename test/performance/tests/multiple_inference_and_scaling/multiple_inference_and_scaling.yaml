@@ -17,17 +17,17 @@ reporting:
   criteria:
     # Inbuilt Criteria
     - success of Inference2<${INFR2_SUCC} for 10s, stop as failed
-    - avg-rt of Inference2>${INFR2_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of Inference2>${INFR2_RT} for 10s, ${STOP_ALIAS} as failed
     - success of Inference11<${INFR1_SUCC} for 10s, stop as failed
     - success of Inference21<${INFR2_SUCC} for 10s, stop as failed
-    - avg-rt of Inference11>${INFR1_RT}, ${STOP_ALIAS} as failed
-    - avg-rt of Inference21>${INFR2_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of Inference11>${INFR1_RT} for 10s, ${STOP_ALIAS} as failed
+    - avg-rt of Inference21>${INFR2_RT} for 10s, ${STOP_ALIAS} as failed
     - success of ScaleUp1<${INFR2_SUCC} for 10s, stop as failed
-    - avg-rt of ScaleUp1>${SCALEUP1_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleUp1>${SCALEUP1_RT} for 10s, ${STOP_ALIAS} as failed
     - success of ScaleUp2<${INFR2_SUCC} for 10s, stop as failed
-    - avg-rt of ScaleUp2>${SCALEUP2_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleUp2>${SCALEUP2_RT}  for 10s, ${STOP_ALIAS} as failed
     - success of ScaleDown1<${INFR2_SUCC} for 10s, stop as failed
-    - avg-rt of ScaleDown1>${SCALEDOWN1_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleDown1>${SCALEDOWN1_RT}  for 10s, ${STOP_ALIAS} as failed
     - success of ScaleDown2<${INFR2_SUCC} for 10s, stop as failed
-    - avg-rt of ScaleDown2>${SCALEDOWN2_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleDown2>${SCALEDOWN2_RT}  for 10s, ${STOP_ALIAS} as failed
 

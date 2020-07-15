@@ -4,7 +4,7 @@ reporting:
   criteria:
     # Inbuilt Criteria
     - success of ManagementAPIDescription<${MGMT_DESC_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of ManagementAPIDescription>${MGMT_DESC_AVG_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ManagementAPIDescription>${MGMT_DESC_AVG_RT} for 10s, ${STOP_ALIAS} as failed
 #    # Custom Criteria
 #    - class: bzt.modules.monitoring.MonitoringCriteria
 #      subject: ServerLocalClient/total_processes

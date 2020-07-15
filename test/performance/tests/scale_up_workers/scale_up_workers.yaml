@@ -24,7 +24,7 @@ services:
   criteria:
     # Inbuilt Criteria
     - success of ScaleUp<${SCL_UP_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of ScaleUp>${SCL_UP_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ScaleUp>${SCL_UP_RT} for 10s, ${STOP_ALIAS} as failed
     # Custom Criteria
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/total_processes

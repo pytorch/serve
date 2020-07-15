@@ -19,4 +19,4 @@ reporting:
   criteria:
     # Inbuilt Criteria
     - success of ManagementAPIDescription<${INF2_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of ManagementAPIDescription>${INF2_AVG_RT}, ${STOP_ALIAS} as failed
+    - avg-rt of ManagementAPIDescription>${INF2_AVG_RT} for 10s, ${STOP_ALIAS} as failed
