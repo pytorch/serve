@@ -148,7 +148,7 @@ class X2Junit(object):
                     for centile in centile_values:
                         row.append(getattr(metric_vals, 'quantile')(centile))
                     row.extend([metric_vals.iloc[0], metric_vals.iloc[-1]])
-                    agg_dict.update({row[0]: dict(zip(header_names, row[1:]))})
+                    agg_dict.update({row[1]: dict(zip(header_names[2:], row[2:]))})
                     rows.append(row)
 
                 dataframe = pd.DataFrame(rows, columns=header_names)
