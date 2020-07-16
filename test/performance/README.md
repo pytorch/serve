@@ -39,20 +39,20 @@ The building blocks of the performance regression suite and flow is captured in 
 2. Install performance regression suite dependencies.
    ```bash 
     export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
-    pip install -r $MODEL_SERVER_HOME/test/performance/formance/requirements.txt
+    pip install -r $MODEL_SERVER_HOME/test/performance/requirements.txt
     ``` 
 3. Make sure that `git` is installed and the test suites are run from the Model Server working directory.
 
 ### B. Running the test suite
-1. Make sure parameters set in [tests/global_config.yaml](test/performance/formance/tests/global_config.yaml) are correct.
+1. Make sure parameters set in [tests/global_config.yaml](tests/global_config.yaml) are correct.
 2. To run the test suite execute [run_performance_suite.py](run_performance_suite.py) with the following 
 parameters
 
    * `--artifacts-dir` or `-a` is a directory where the test case results will be stored. The default value is 
-`$MODEL_SERVER_HOME/test/performance/formance/run_artifacts`.  
+`$MODEL_SERVER_HOME/test/performance/run_artifacts`.  
 
    * `--test-dir` or `-t` is a directory containing the test cases. The default value is 
-`$MODEL_SERVER_HOME/test/performance/formance/tests`.
+`$MODEL_SERVER_HOME/test/performance/tests`.
  
    * `--pattern` or `-p` glob pattern picks up certain test cases for execution within the `test-dir`. The default value picks up 
 all test cases.
@@ -88,7 +88,7 @@ and other artifacts.
 
 ```bash
 export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
-cd $MODEL_SERVER_HOME/test/performance/formance
+cd $MODEL_SERVER_HOME/test/performance
  
 # Note that Model server started and stopped by the individual test suite.
 # check variables such as Model server PORT etc 
@@ -209,7 +209,7 @@ An example [jmeter script](tests/examples_starter/examples_starter.jmx)
 and a [scenario](tests/examples_starter/examples_starter.yaml) is provided as a template to get started.
     
 Please note that various global configuration settings used by examples_starter.jmx script are specified in 
-[tests/global_config.yaml](test/performance/formance/tests/global_config.yaml) file.
+[tests/global_config.yaml](tests/global_config.yaml) file.
     
  ```tests/examples_starter/examples_starter.yaml
  execution:
@@ -228,7 +228,7 @@ To execute this test suite, run the following command
     
  ```bash
  export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
- cd $MODEL_SERVER_HOME/test/performance/formance
+ cd $MODEL_SERVER_HOME/test/performance
  python -m run_performance_suite -p examples_starter -e xlarge
  ```
 
@@ -243,14 +243,14 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
 1. Standalone monitoring server
 
    Use this technique if Model Server and the tests execute on different machines. Before running the test cases, 
-   please start the [metrics_monitoring_server.py](metrics_monitoring_server.py) script. It will communicate server 
+   please start the [metrics_monitoring_server.py](agents/metrics_monitoring_server.py) script. It will communicate server 
    metric data with the test client over sockets. The monitoring server runs on port 9009 by default.
     
    To start the monitoring server, run the following commands on the Model Server host:
     ```bash 
     export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
-    pip install -r $MODEL_SERVER_HOME/test/performance/formance/requirements.txt
-    python $MODEL_SERVER_HOME/test/performance/formance/metrics_monitoring_server.py --start
+    pip install -r $MODEL_SERVER_HOME/test/performance/requirements.txt
+    python $MODEL_SERVER_HOME/test/performance/metrics_monitoring_server.py --start
     ```     
       
    The monitoring section configuration is shown below. 
@@ -275,7 +275,7 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
     
     ```bash
     export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
-    cd $MODEL_SERVER_HOME/test/performance/formance
+    cd $MODEL_SERVER_HOME/test/performance
     python -m run_performance_suite -p examples_remote_monitoring -e xlarge
     ```
 
@@ -307,7 +307,7 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
     
     ```bash
     export MODEL_SERVER_HOME=<MODEL_SERVER_HOME_PATH>
-    cd $MODEL_SERVER_HOME/test/performance/formance
+    cd $MODEL_SERVER_HOME/test/performance
     python -m run_performance_suite -p examples_local_monitoring -e xlarge
     ```
 
