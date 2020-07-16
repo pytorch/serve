@@ -205,8 +205,7 @@ Create a folder for the test under `test_dir` location. A test generally compris
 load scenario and a yaml file which contains test scenarios specifying the conditions for failure or success. The
 file-names should be identical to the folder name with their respective extensions. 
 
-An example [jmeter script](tests/examples_starter/examples_starter.jmx) 
-and a [scenario](tests/examples_starter/examples_starter.yaml) is provided as a template to get started.
+An example [jmeter script](tests/examples_starter/examples_starter.jmx) and [scenario](tests/examples_starter/examples_starter.yaml) is provided as a template to get started.
     
 Please note that various global configuration settings used by examples_starter.jmx script are specified in 
 [tests/global_config.yaml](tests/global_config.yaml) file.
