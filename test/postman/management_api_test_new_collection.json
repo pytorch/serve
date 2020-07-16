@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a8553536-714b-418b-a5e5-f8deb79cfaf4",
+		"_postman_id": "f9c53eec-120c-405e-bbdb-7c671346ceb1",
 		"name": "torchserve_regression_management_new",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7d2b0dba-e72e-4e72-9c95-abaaae1c745c",
+						"id": "ddf59ae0-0ff7-4d21-97e0-bd4b0ba44085",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -54,7 +54,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "77153fbf-e739-4195-890e-570d4c539eea",
+						"id": "958601e0-24d3-48b7-9202-2b55bcde3bcb",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -97,7 +97,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "5506f098-0b92-41e4-b163-f755a89ac8af",
+						"id": "c5218461-cb8e-487a-98ba-330d7667de98",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);    ",
@@ -140,7 +140,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "011551ad-0fcd-4614-b3ce-c69b8aeac452",
+						"id": "890bf2a4-a3de-4483-a4d8-686039fa8875",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid RegisterModel request \\t\" +",
@@ -157,7 +157,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "edab6eb3-4ec1-44fe-ba9e-b5b0fc0fd74b",
+						"id": "775f8303-e953-4b36-b809-326bbe8269cb",
 						"exec": [
 							""
 						],
@@ -198,7 +198,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "792ceb36-27ff-4a3b-9d69-09b0b1b702dd",
+						"id": "658b2dc8-7ff2-44cd-8153-67086d45f95f",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -232,7 +232,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8f40754d-d76b-444a-92a3-209f6173d6c7",
+						"id": "f09834d1-22a4-4808-bdc6-8f16b64ad42c",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid RegisterModel request \\t\" +",
@@ -270,7 +270,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "cdcb6e5e-007a-45c6-ae5f-520440bde6a7",
+						"id": "e2977130-b65d-4c36-878b-65fa9959950d",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -304,7 +304,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a15440e6-3f2d-4468-8d35-9b13a43eabee",
+						"id": "41c5dc07-3bfa-4bec-a09b-c0b3810173fd",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -351,7 +351,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7dcb9a93-f77a-416d-8129-655ba4ca09e1",
+						"id": "2fd7be3d-018f-4ddd-b8c7-e87f47ca10b4",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -385,7 +385,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "100f8c4e-23ec-47d3-b141-e09c0eece4c7",
+						"id": "bf2167ca-b48a-41cc-8ab3-5e0d8c42f85d",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -432,7 +432,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "cbe0e756-eaba-4e89-8d05-cbd1ee75256b",
+						"id": "11b0aeef-653d-4555-8bc3-2e527c86b3e4",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -481,7 +481,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2a954182-5e2f-4fe7-a82c-ae12e704edd5",
+						"id": "54373768-0ecb-4e3c-a323-83904f1587bc",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -515,7 +515,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "fa822b82-7af1-4a78-b982-66730982e9d9",
+						"id": "2a90a802-f5c2-4883-a6b0-396549a54b56",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -550,7 +550,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ca5bbf6a-ff91-49e3-bd27-88b38b71ce8a",
+						"id": "efdda61c-1bdf-4467-812b-d88cf91ece83",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -597,7 +597,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a473ad8b-ec36-4703-b274-9c706fa38ec0",
+						"id": "c417d4c6-590f-49ec-9f6f-4cbede72c3da",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -646,11 +646,16 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "1e1ec68a-e0fe-41dc-9745-67b55d2f14a9",
+						"id": "dcdfe294-5cc0-42e5-98e0-55748d6bf789",
 						"exec": [
-							"pm.test(\"Successful Scale request with PartialSuccess\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([210]);",
-							"});"
+							"// pm.test(",
+							"//     \"Invalid Scale Workers request \\t\" +",
+							"//     \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"//     \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"//     \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"//     function () {",
+							"//     pm.expect(pm.response.code).to.be.oneOf([500]);",
+							"// });"
 						],
 						"type": "text/javascript"
 					}
@@ -690,7 +695,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3e878e63-4342-4ce1-962d-c24c8c518fa9",
+						"id": "d3a888c7-761c-4d18-b5e5-1f2988ae16db",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -724,7 +729,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2c507bbf-04f1-471f-93d3-daf02228872d",
+						"id": "43c488a0-ff37-4b26-a2d4-85b2616899a1",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -759,7 +764,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "31e68ec8-cde2-4501-be7b-cf49fa6eae7f",
+						"id": "2d92bf77-399c-42c3-8743-470f8ce2f6d4",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -793,7 +798,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "cb8d5110-475c-471f-bb6a-5124d2867f2f",
+						"id": "bfc9e9cd-ca78-4d3d-9057-3cd20cf39f77",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -827,7 +832,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e050d9c0-e981-4c67-b00a-311b0c1a6062",
+						"id": "83adf355-7d60-4a52-93b2-3ee007203d7c",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid RegisterModel request \\t\" +",
@@ -879,7 +884,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "65dd9930-f50b-4fb7-815c-be090fd2084b",
+						"id": "9daf6256-0bc3-452c-b774-560397a200f2",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -922,7 +927,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "23122a54-3dd1-4326-a8e6-c62ebdbddf87",
+						"id": "fe3ec37f-f131-4fee-b8d9-85e1b75a15a5",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -965,7 +970,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7dcd5439-11ca-4cc7-9396-462fd156761c",
+						"id": "b07c888a-8034-40a5-8db6-b11309ec5a6c",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1005,7 +1010,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b205d073-711f-463f-8400-90448483e41b",
+						"id": "65b55e40-3253-4731-b215-1418959496fe",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1049,7 +1054,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "76c68209-7c9a-4402-ab96-fea66d99401c",
+						"id": "6b826f90-9f86-4bb6-b060-4f9a510b7e65",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1094,7 +1099,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d16b75a0-c7b3-4c52-bb84-052773777278",
+						"id": "ee17c5a4-aad0-44da-817f-c4687103ca04",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -1144,7 +1149,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "0f181b5c-18cd-42b4-92e2-180f64dd4164",
+						"id": "c84d501f-fa75-4484-9486-acfa577db505",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1188,7 +1193,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a85be487-2534-4855-a9ae-8725611de8ee",
+						"id": "3af45c09-46f5-4865-8895-0aca5a41afc2",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1224,7 +1229,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b5fc0648-fd05-4a71-8ad1-5fc93ce1bfc4",
+						"id": "d66d6486-d3e2-4270-9351-79a349ba52a8",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Set Default Version request \\t\" +",
@@ -1265,7 +1270,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "48eaf38e-8410-454b-8992-5390168812ed",
+						"id": "b9677d60-3abd-4254-bb91-2ce8a088d0f6",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Set Default Version request \\t\" +",
@@ -1306,7 +1311,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "1355b7bf-747e-47e5-b7e7-00fb439c1bc3",
+						"id": "48da6a17-32c0-410e-8c62-d7c3253f7ff4",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1340,7 +1345,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f99e89bd-c7c3-4257-abd2-009ecb346f09",
+						"id": "9e1caf32-37fe-44c6-88d3-f13a13151379",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1387,7 +1392,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4edfda05-72f6-4e8b-b52b-1ca7c093d9f2",
+						"id": "ec41e9f5-5acf-4cd5-b00d-15e40e2f2d56",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1421,7 +1426,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "fdb7057a-bcee-4e61-917e-10fac6734214",
+						"id": "9967ecf1-ca0a-4085-865f-d76404a685ee",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid RegisterModel request \\t\" +",
@@ -1481,7 +1486,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "253e5c83-2053-4b4c-9a7f-1992d3eab176",
+						"id": "766263f6-8b14-4b66-9ef8-e5780488c39d",
 						"exec": [
 							"pm.test(\"Successful POST message\", function () {",
 							"    pm.expect(pm.response.code).to.be.eql(200);",
@@ -1528,7 +1533,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "6fca02d1-cb0c-4c4a-a516-e5075a9a057c",
+						"id": "8e672b7b-6699-4c83-bc10-13812ae2e450",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -1562,7 +1567,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "eab03efd-3d6f-4d7f-b055-02c97e1c7079",
+						"id": "37a6253f-fbed-4eea-9c4e-be5401a1b227",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1609,7 +1614,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ab7f193a-550e-45e8-a5e3-2feb2b38185d",
+						"id": "08fc69c5-39c9-4d7c-8f72-0525eac87e3a",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1643,7 +1648,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a580f258-9c72-46a4-ba0c-2f2fd48c67d7",
+						"id": "3c9db8b9-2244-4bc3-8251-2f94be4bb93b",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1694,7 +1699,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f7420450-eafe-4d85-8348-1f69b8842633",
+						"id": "5b5f5440-f2be-43e9-9549-49d1ac85e029",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1728,7 +1733,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2e04ee5a-ff84-4f26-9ae3-cdb9c7c06311",
+						"id": "60b0c587-6ef6-4fba-82fc-d12395ee2ca3",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1783,7 +1788,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "968178d7-2ca4-4ebb-a274-f9bdba4aa211",
+						"id": "89a166c4-0855-449e-9355-b22c7958ac57",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1812,12 +1817,12 @@
 			"response": []
 		},
 		{
-			"name": "Register Vgg Model Negative initial workers",
+			"name": "Register Squeezenet Model Negative initial workers",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "dfd79201-4b43-4d65-bd87-f6acfe1fa036",
+						"id": "315bd109-2d42-422c-936e-14c38c21f3be",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1831,7 +1836,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar&model_name=vgg11&initial_workers=-1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=-1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1843,11 +1848,11 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar"
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
-							"value": "vgg11"
+							"value": "squeezenet1_1"
 						},
 						{
 							"key": "initial_workers",
@@ -1859,12 +1864,46 @@
 			"response": []
 		},
 		{
+			"name": "UnRegister Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad27eae0-b0a9-487e-b5d9-885b4a5c2ba1",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Register Resnet Model Synchronous",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "f6b2e072-1341-4cc8-975d-9f21487eb9ee",
+						"id": "b68899a8-6971-4764-a4bf-c393b65c94fc",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1911,7 +1950,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "63532cc7-f094-414d-bc88-0bca77eb286f",
+						"id": "941d35fc-81c0-43c2-827b-88ef8f2c6f4e",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1945,7 +1984,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "24f88a01-9a3e-4c28-8b82-3a5688eb1d46",
+						"id": "032cc6e9-8850-41c1-bcd3-9f73ef8d81c9",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -1992,7 +2031,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c28d29ed-e739-4c1d-a49e-377c65eea2e2",
+						"id": "963d413f-3534-46c9-b4f5-9b16a261de5b",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -2026,7 +2065,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d24f28f4-493a-4f83-9213-0bb5068bbfbd",
+						"id": "efc2b460-80b3-4adb-92e0-6bb6373b8f48",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -2073,7 +2112,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a7ddbab9-255e-457a-8b66-ab0dcbe16963",
+						"id": "930e0a7c-dd54-43f9-8279-b476e7331722",
 						"exec": [
 							""
 						],
@@ -2110,7 +2149,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c51596a7-c3ed-4efa-9192-4b71d2ea70a3",
+						"id": "3f598154-3e2b-4add-a2d9-1265ff5a0841",
 						"exec": [
 							""
 						],
@@ -2147,7 +2186,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "29bb5b69-28f3-4205-a0bc-9c901f6f94bc",
+						"id": "d64659cc-a4dd-431f-83ad-df77b9979aa2",
 						"exec": [
 							""
 						],
@@ -2188,7 +2227,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8faf64a4-edf4-417d-bab0-4c080f6ac490",
+						"id": "49ead6d4-aa9e-4b75-adf6-9aac8e69d48b",
 						"exec": [
 							""
 						],
@@ -2229,7 +2268,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "691bc6c2-7ecd-4313-a17e-6c7bb5f4b88d",
+						"id": "a3a7f9b2-462c-472f-b393-b417870429d6",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -2269,7 +2308,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "65016218-aa6f-4b0d-b4f0-f48e7f739f7d",
+						"id": "666890f2-e207-4056-8c98-d40bc23a6948",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -2309,7 +2348,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "678187de-e902-401e-b13c-a81c2ed5c28f",
+						"id": "9823f3b7-d070-4a61-9457-ea669547569a",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -2357,7 +2396,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e49959f6-36e8-4bd9-9d88-81e13659eddb",
+						"id": "7c1d4704-8ae9-4cc2-96b8-8175bb9c8d8f",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -2405,7 +2444,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "92c9b195-2960-4ff7-8c10-eac7a21fde52",
+						"id": "6962dc64-aae7-4272-af2f-36db4293bc08",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -2445,7 +2484,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4a8adbd9-5ec2-446e-8b33-e46ac972443e",
+						"id": "ef71ccb1-37c2-4c4b-a21d-3e5d461f228a",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -2485,7 +2524,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "cd607621-161a-4ed0-9ad9-df99176e20d9",
+						"id": "492dc3f2-2ade-409e-946b-6b970f89b8ae",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid RegisterModel request \\t\" +",
@@ -2533,7 +2572,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f649813c-7556-4150-b0b9-3f138b88e809",
+						"id": "b25b55f3-6206-4880-b3a2-3ec92fb051ea",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid RegisterModel request \\t\" +",
@@ -2581,7 +2620,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d58a854c-6709-4318-a393-bc7e08c28b08",
+						"id": "d34298e7-b8f2-40be-ae71-42b231ae6702",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid ListModels request \\t\" +",
@@ -2620,7 +2659,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7d4bfd57-e84f-4930-95dd-f5f6d7d5b30c",
+						"id": "e2f202a9-fd39-4f46-86aa-5ce8c754e938",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid ListModels request \\t\" +",
@@ -2660,7 +2699,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7a723690-530b-4620-aa8c-1cee6b19c9e4",
+						"id": "6d1eefeb-3c9c-4ee4-9edd-16fe9fd1a0be",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -2699,7 +2738,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e96882ce-cf09-4271-9022-1080fc990943",
+						"id": "86274516-fee3-41b0-98f3-1b48ff875a40",
 						"exec": [
 							"pm.test(\"Successful PUT message for scaling workers with unrecognized synchronous value\", function () {",
 							"    pm.expect(pm.response.code).to.be.eql(202);",
@@ -2743,7 +2782,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "97dab5d1-7817-4589-a8bc-2b1f7824863d",
+						"id": "e6f1f62a-11a6-4fd1-9600-323787fe9fa4",
 						"exec": [
 							"pm.test(\"Successful PUT message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([202]);",
@@ -2787,7 +2826,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "344081f0-e3e3-495d-b3b4-b5b9695a2547",
+						"id": "1e7c4095-0faf-4d9a-b7c2-77513f4bfa18",
 						"exec": [
 							"pm.test(\"Successful PUT message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([202]);",
@@ -2821,7 +2860,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e68be588-6c7e-4133-b295-3d590166fed2",
+						"id": "08b6822c-1230-4d54-addd-0c48558382c9",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -2866,7 +2905,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "fa0184c5-6a17-4f7d-a792-1b250c9d0aae",
+						"id": "93d4d51b-31de-4556-8e37-5f0bf91981d3",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -2915,7 +2954,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "76c9919c-f0b1-4946-b79b-fb9f1c864aed",
+						"id": "0ccfb981-0b71-4c7b-8e76-2cd1cfec8b0c",
 						"exec": [
 							"pm.test(\"Valid SCALE request message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([202]);",
@@ -2955,7 +2994,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "595d36f8-3f10-422a-adda-ce9dd96b7dc8",
+						"id": "61325043-1877-41b2-ab93-580363ce3622",
 						"exec": [
 							"pm.test(\"Valid SCALE request message\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([202]);",
@@ -2995,7 +3034,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "99cfa8c9-33f0-4a43-bff8-127fe2a3b75c",
+						"id": "be457b05-217d-4213-84e6-a3eee1de83e8",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -3040,7 +3079,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a65e8487-8ad0-43aa-89af-d13f3098cc2b",
+						"id": "a06e2873-226b-4b92-900c-0748aa78dd17",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -3085,7 +3124,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7faa913e-6fec-46f4-af4f-bec20e45c6a8",
+						"id": "d2b9a751-b645-4015-8c53-877ca20ac50b",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid Scale Workers request \\t\" +",
@@ -3126,7 +3165,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "741e569d-b291-4536-82da-a5ed463bcfb9",
+						"id": "0f18933c-5053-4514-b43b-59f49ff8b6bf",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -3160,7 +3199,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e669d3a3-23e1-496a-b113-273b9332be00",
+						"id": "224c15d1-fe3f-4f05-9012-62bafaa5ee7b",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid UnRegisterModel request \\t\" +",
@@ -3200,7 +3239,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c6854086-677a-4c5b-b8a3-c610c578b2f3",
+						"id": "119cc931-2241-499a-abca-7f4452d580a8",
 						"exec": [
 							"pm.test(\"Successful DELETE request.\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -3241,7 +3280,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "65ec2beb-e8c9-40e9-956b-604703d2abf7",
+						"id": "d1cd1023-fc4a-4c98-b0aa-4af71e4a6ab9",
 						"exec": [
 							"pm.test(\"Successful DELETE request.\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -3282,7 +3321,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2800b970-0478-4148-a0fb-a71ae3b711df",
+						"id": "d0d6c90f-9c18-4a74-9879-a24f05f09bbd",
 						"exec": [
 							"pm.test(\"Successful DELETE request.\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -3323,7 +3362,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9882d99b-8a65-4fc7-97a2-4653b7e7004b",
+						"id": "8ec68983-d23e-4aba-a4f2-6852fca8e0fa",
 						"exec": [
 							"pm.test(\"Successful DELETE request.\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -3368,7 +3407,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c10aa254-d2c5-4ac3-b321-b70f9fb69550",
+						"id": "6f75a1a5-9fbc-4edc-bc20-2b294a12509f",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -3402,7 +3441,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "6f38b296-8835-4e04-9f99-382c3a89dd1f",
+						"id": "0a77f3cf-720f-4bf4-974c-1d033635c2fc",
 						"exec": [
 							"pm.test(",
 							"    \"Invalid UnRegisterModel request \\t\" +",
