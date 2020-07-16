@@ -280,19 +280,3 @@ def test_restart_torchserve_with_one_of_model_mar_removed():
                       "reqd model mar file missing from the model store!!"
     finally:
         torchserve_cleanup()
-
-if __name__ == "__main__":
-    test_cleanup()
-    test_snapshot_created_on_start_and_stop()
-    test_snapshot_created_on_management_api_invoke()
-    test_start_from_snapshot()
-    test_start_from_latest()
-    test_start_from_read_only_snapshot()
-    test_no_config_snapshots_cli_option()
-    test_start_from_default()
-    test_start_from_non_existing_snapshot()
-    test_torchserve_init_with_non_existent_model_store()
-    test_restart_torchserve_with_last_snapshot_with_model_mar_removed()
-    test_replace_mar_file_with_dummy()
-    test_restart_torchserve_with_one_of_model_mar_removed()
-    test_cleanup()
