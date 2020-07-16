@@ -648,6 +648,32 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromURL"})
+    public void testModelWithInvalidCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("install_py_dep_per_model", "true");
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(
+                channel,
+                "custom_invalid_python_dep.mar",
+                "custom_invalid_python_dep",
+                false,
+                false);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Custom pip package installation failed for custom_invalid_python_dep");
+        setConfiguration("install_py_dep_per_model", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testModelWithCustomPythonDependency"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
