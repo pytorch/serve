@@ -648,7 +648,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromURL"})
+            dependsOnMethods = {"testModelWithCustomPythonDependency"})
     public void testModelWithInvalidCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
@@ -674,7 +674,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testModelWithCustomPythonDependency"})
+            dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertTrue(!new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
