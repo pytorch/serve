@@ -118,40 +118,46 @@ public final class ConfigManager {
             System.setProperty("LOG_LOCATION", "logs");
         }
 
-        String snapshotStore = args.getSnapshotStore();
-        if (snapshotStore != null) {
-            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
-        }
-
-        String filePath = System.getenv("TS_CONFIG_FILE");
-        if (filePath == null) {
-            filePath = args.getTsConfigFile();
-            if (filePath == null) {
-                filePath = getLastSnapshot();
-                if (filePath == null) {
-                    filePath = System.getProperty("tsConfigFile", "config.properties");
-                }
-            }
-        }
-
-        File tsConfigFile = new File(filePath);
-        if (tsConfigFile.exists()) {
-            try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
-                prop.load(stream);
-                prop.put("tsConfigFile", filePath);
-            } catch (IOException e) {
-                throw new IllegalStateException("Unable to read configuration file", e);
-            }
-        }
-
-        resolveEnvVarVals(prop);
-
         String metricsLocation = System.getenv("METRICS_LOCATION");
         if (metricsLocation != null) {
             System.setProperty("METRICS_LOCATION", metricsLocation);
         } else if (System.getProperty("METRICS_LOCATION") == null) {
             System.setProperty("METRICS_LOCATION", "logs");
         }
+
+        String snapshotStore = args.getSnapshotStore();
+        if (snapshotStore != null) {
+            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
+        }
+
+        String filePath = System.getenv("TS_CONFIG_FILE");
+        Properties snapshotConfig = null;
+
+        if (filePath == null) {
+            filePath = args.getTsConfigFile();
+            if (filePath == null) {
+                snapshotConfig = getLastSnapshot();
+                if (snapshotConfig == null) {
+                    filePath = System.getProperty("tsConfigFile", "config.properties");
+                } else {
+                    prop.putAll(snapshotConfig);
+                }
+            }
+        }
+
+        if (filePath != null) {
+            File tsConfigFile = new File(filePath);
+            if (tsConfigFile.exists()) {
+                try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
+                    prop.load(stream);
+                    prop.put("tsConfigFile", filePath);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Unable to read configuration file", e);
+                }
+            }
+        }
+
+        resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
         if (modelStore != null) {
@@ -461,7 +467,7 @@ public final class ConfigManager {
         }
     }
 
-    private String getLastSnapshot() {
+    private Properties getLastSnapshot() {
         if (isSnapshotDisabled()) {
             return null;
         }
@@ -658,6 +664,7 @@ public final class ConfigManager {
         private String modelStore;
         private String[] models;
         private boolean snapshotDisabled;
+        private String snapshotStore;
 
         public Arguments() {}
 
@@ -667,6 +674,7 @@ public final class ConfigManager {
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
+            snapshotStore = cmd.getOptionValue("snapshot-store");
         }
 
         public static Options getOptions() {
@@ -704,6 +712,13 @@ public final class ConfigManager {
                             .longOpt("no-config-snapshot")
                             .argName("NO-CONFIG-SNAPSHOT")
                             .desc("disable torchserve snapshot")
+                            .build());
+            options.addOption(
+                    Option.builder("ss")
+                            .longOpt("snapshot-store")
+                            .argName("SNAPSHOT-STORE")
+                            .hasArg()
+                            .desc("snapshot store (e.g. DDB), default is local FS")
                             .build());
             return options;
         }
@@ -745,8 +760,11 @@ public final class ConfigManager {
         }
 
         public String getSnapshotStore() {
-            // TODO : remove hard-coding and add a new cmd param for snapshot store
-            return "FS";
+            return snapshotStore;
+        }
+
+        public void setSnapshotStorage(String snapshotStore) {
+            this.snapshotStore = snapshotStore;
         }
     }
 }

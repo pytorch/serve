@@ -394,6 +394,7 @@ public class SnapshotTest {
         }
 
         updateSnapshot(actualProp);
+
         assert actualProp.equals(expectedProp);
     }
 
@@ -414,6 +415,7 @@ public class SnapshotTest {
         prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
+        prop.put("snapshot_store", "FS");
     }
 
     private String getLastSnapshot() {

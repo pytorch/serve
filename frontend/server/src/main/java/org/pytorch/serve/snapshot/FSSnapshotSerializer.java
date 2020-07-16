@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -66,7 +67,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         return System.getProperty("LOG_LOCATION") + "/config";
     }
 
-    public static String getLastSnapshotFS() {
+    public static Properties getLastSnapshotFS() {
         String latestSnapshotPath = null;
         Path configPath = Paths.get(FSSnapshotSerializer.getSnapshotDirectory());
 
@@ -86,7 +87,22 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
             }
         }
 
-        return latestSnapshotPath;
+        return loadProperties(latestSnapshotPath);
+    }
+
+    private static Properties loadProperties(String propPath) {
+        if (propPath != null) {
+            File propFile = new File(propPath);
+            try (InputStream stream = Files.newInputStream(propFile.toPath())) {
+                Properties prop = new Properties();
+                prop.load(stream);
+                prop.put("tsConfigFile", propPath);
+                return prop;
+            } catch (IOException e) {
+                e.printStackTrace(); // NOPMD
+            }
+        }
+        return null;
     }
 
     private static long getSnapshotTime(String filename) {

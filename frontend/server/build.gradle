@@ -1,5 +1,7 @@
 dependencies {
     implementation "io.netty:netty-all:${netty_version}"
+    implementation platform('software.amazon.awssdk:bom:2.13.54')
+    implementation 'software.amazon.awssdk:dynamodb'
     implementation project(":modelarchive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
