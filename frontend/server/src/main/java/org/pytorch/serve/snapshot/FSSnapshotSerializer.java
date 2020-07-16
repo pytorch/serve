@@ -18,24 +18,20 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FSSnapshotSerializer implements SnapshotSerializer {
 
     private Logger logger = LoggerFactory.getLogger(FSSnapshotSerializer.class);
-    private ConfigManager configManager = ConfigManager.getInstance();
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
-    public void saveSnapshot(Snapshot snapshot) throws IOException {
+    public void saveSnapshot(Snapshot snapshot, final Properties prop) throws IOException {
         File snapshotPath = new File(getSnapshotDirectory());
 
         FileUtils.forceMkdir(snapshotPath);
-
-        Properties prop = configManager.getConfiguration();
 
         File snapshotFile = new File(snapshotPath, snapshot.getName());
         if (snapshotFile.exists()) {
@@ -67,7 +63,8 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         return System.getProperty("LOG_LOCATION") + "/config";
     }
 
-    public static Properties getLastSnapshotFS() {
+    @Override
+    public Properties getLastSnapshot() {
         String latestSnapshotPath = null;
         Path configPath = Paths.get(FSSnapshotSerializer.getSnapshotDirectory());
 
@@ -90,7 +87,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         return loadProperties(latestSnapshotPath);
     }
 
-    private static Properties loadProperties(String propPath) {
+    private Properties loadProperties(String propPath) {
         if (propPath != null) {
             File propFile = new File(propPath);
             try (InputStream stream = Files.newInputStream(propFile.toPath())) {

@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.Set;
 import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.snapshot.SnapshotSerializer;
-import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -28,7 +27,6 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 public class DDBSnapshotSerializer implements SnapshotSerializer {
     private Logger logger = LoggerFactory.getLogger(DDBSnapshotSerializer.class);
-    private ConfigManager configManager = ConfigManager.getInstance();
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -50,11 +48,9 @@ public class DDBSnapshotSerializer implements SnapshotSerializer {
     }
 
     @Override
-    public void saveSnapshot(Snapshot snapshot) throws IOException {
+    public void saveSnapshot(Snapshot snapshot, final Properties prop) throws IOException {
 
         logger.info("Saving snapshot to DDB...");
-
-        Properties prop = configManager.getConfiguration();
 
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put(MODEL_SNAPSHOT, snapshotJson);
@@ -99,12 +95,11 @@ public class DDBSnapshotSerializer implements SnapshotSerializer {
         try {
             client.updateItem(updateRequest);
             client.putItem(putItemrequest);
-            logger.info(TABLE_NAME + " was successfully updated");
+            logger.info("DDB was successfully updated");
 
         } catch (ResourceNotFoundException e) {
-            logger.error(
-                    "Snapshot serialization error: The table {} can't be found.\n", TABLE_NAME);
-            logger.error("Be sure that it exists and that you've typed its name correctly!");
+            logger.error("Snapshot serialization error: The table {} can't be found", TABLE_NAME);
+            logger.error("Be sure that it exists and that you've typed its name correctly");
         } catch (DynamoDbException e) {
             logger.error("Snapshot serialization error: {}", e.getMessage());
         }
@@ -115,7 +110,9 @@ public class DDBSnapshotSerializer implements SnapshotSerializer {
         return GSON.fromJson(snapshotJson, Snapshot.class);
     }
 
-    public static Properties getLastSnapshot() {
+    @Override
+    public Properties getLastSnapshot() {
+        logger.info("Fetching last snapshot from DDB...");
         HashMap<String, AttributeValue> getItemValues = new HashMap<String, AttributeValue>();
         getItemValues.put(PKEY, AttributeValue.builder().s(LATEST_SNAPSHOT_KEY).build());
 
@@ -126,31 +123,27 @@ public class DDBSnapshotSerializer implements SnapshotSerializer {
                         .build();
 
         try {
-            DynamoDbClient client = DDBSnapshotSerializer.createClient();
             GetItemResponse response = client.getItem(request);
             if (response.hasItem()) {
                 Set<String> keys = response.item().keySet();
 
                 for (String attribute : keys) {
                     String value = response.item().get(attribute).toString();
-                    // logger.info("%s: %s\n", attribute, value);
                     if (SNAPSHOT.equalsIgnoreCase(attribute)) {
-                        Properties prop;
-                        try {
-                            prop = convert2Properties(value);
-                            return prop;
-                        } catch (IOException e) {
-                            e.printStackTrace(); // NOPMD
-                        }
+
+                        Properties prop = convert2Properties(value);
+                        logger.info("Successfully fetched last snapshot from DDB");
+                        return prop;
                     }
                 }
             } else {
-                // logger.error("Snapshot de-serialization error: " + "No item found with the
-                // key %s!\n", PKEY);
+                logger.error("No item found with the key {}", PKEY);
             }
+
         } catch (DynamoDbException e) {
-            e.printStackTrace(); // NOPMD
-            // logger.error("Snapshot de-serialization error: " + e.getMessage());
+            logger.error("Snapshot de-serialization error: {}", e.getMessage());
+        } catch (IOException e) {
+            logger.error("Failed to build properties from DDB snapshot");
         }
         return null;
     }

@@ -74,7 +74,7 @@ public final class SnapshotManager {
 
             Snapshot snapshot = new Snapshot(snapshotName, modelCount);
             snapshot.setModels(modelNameMap);
-            snapshotSerializer.saveSnapshot(snapshot);
+            snapshotSerializer.saveSnapshot(snapshot, configManager.getConfiguration());
         } catch (ModelNotFoundException e) {
             logger.error("Model not found while saving snapshot {}", snapshotName);
         } catch (IOException e) {

@@ -41,7 +41,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
-import org.pytorch.serve.snapshot.SnapshotUtils;
+import org.pytorch.serve.snapshot.SnapshotSerializer;
+import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -471,8 +472,8 @@ public final class ConfigManager {
         if (isSnapshotDisabled()) {
             return null;
         }
-
-        return SnapshotUtils.getLastSnapshot(getSnapshotStore());
+        SnapshotSerializer serializer = SnapshotSerializerFactory.getSerializer(getSnapshotStore());
+        return serializer.getLastSnapshot();
     }
 
     public String getProperty(String key, String def) {
