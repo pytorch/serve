@@ -41,16 +41,9 @@ We support several basic benchmarks:
 - throughput: Run inference with enough threads to occupy all workers and ensure full saturation of resources to find the throughput.  The number of threads defaults to 100.
 - latency: Run inference with a single thread to determine the latency
 - ping: Test the throughput of pinging against the frontend
-- load: Loads the same model many times in parallel.  The number of loads is given by the "count" option and defaults to 16.
 - repeated_scale_calls: Will scale the model up to "scale_up_workers"=16 then down to "scale_down_workers"=1 then up and down repeatedly.
-TBD :
 - multiple_models: Loads and scales up three models (1. squeeze-net and 2. resnet), at the same time, runs inferences on them, and then scales them down.  Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively.  data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
-
-We also support compound benchmarks:
-TBD :
 - concurrent_inference: Runs the basic benchmark with different numbers of threads
-
-## Benchmarking by launching docker container: [TBD]
 
 ## Benchmarking in dev/local environment:
 
@@ -89,42 +82,41 @@ The benchmark reports are available at /tmp/TSBenchmark/
 ## Examples
 
 Run basic latency test on default resnet-18 model\
-```./benchmark.py latency```
+```./benchmark.py latency --ts http://127.0.0.1:8080```
 
 
 Run basic throughput test on default resnet-18 model.\
-```./benchmark.py throughput```
+```./benchmark.py throughput --ts http://127.0.0.1:8080```
 
+Run basic throughput on multiple models model.\
+```./benchmark.py multiple_models --ts http://127.0.0.1:8080```
 
 Run all benchmarks\
-```./benchmark.py --all```
+```./benchmark.py --all --ts http://127.0.0.1:8080```
 
 
 Run using the squeeze-net model\
-```./benchmark.py latency -m squeeze-net```
+```./benchmark.py latency -m squeezenet1_1 --ts http://127.0.0.1:8080```
 
 
 Run on GPU (4 gpus)\
-```./benchmark.py latency -g 4```
+```./benchmark.py latency -g 4 --ts http://127.0.0.1:8080 ```
 
 
 Run with a custom image\
-```./benchmark.py latency -i {imageFilePath}```
+```./benchmark.py latency -i {imageFilePath} --ts http://127.0.0.1:8080 ```
 
 
 Run with a custom model (works only for CNN based models, which accept image as an input for now. We will add support for more input types in future to this command. )\
-```./benchmark.py latency -c {modelUrl} -i {imageFilePath}```
+```./benchmark.py latency -c {modelUrl} -i {imageFilePath} --ts http://127.0.0.1:8080 ```
 
 
 Run with custom options\
-```./benchmark.py repeated_scale_calls --options scale_up_workers 100 scale_down_workers 10```
+```./benchmark.py repeated_scale_calls --options scale_up_workers 100 scale_down_workers 10 --ts http://127.0.0.1:8080 ```
 
 
-Run against an already running instance of TorchServe\
-```./benchmark.py latency --ts 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
-```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```\
-```./benchmark.py latency --ts https://127.0.0.1:8443```
-
+Run with multiple models \
+```./benchmark.py multiple_models --ts http://127.0.0.1:8080 ```
 
 Run verbose with only a single loop\
 ```./benchmark.py latency -v -l 1```
@@ -147,68 +139,49 @@ apt-get install apache2-utils
 
 Apache Bench is installed in Mac by default. You can test by running ```ab -h```
 
-### pip dependencies
-`pip install -r ab_requirements.txt`
-
 ## Benchmark 
 
-### Benchmark parameters
-The following parameters can be used to run the AB benchmark suite.
-- url: Input model URL. Default: "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-- device: Execution device type. Default: cpu
-- exec_env: Execution environment. Default: docker
-- concurrency: Concurrency of requests. Default: 10
-- requests: Number of requests. Default: 100
-- batch_size: The batch size of the model. Default: 1
-- batch_delay: Max batch delay of the model. Default:200
-- workers: Number of worker thread(s) for model
-- input: Input file for model
-- content_type: Input file content type. 
-- image: Custom docker image to run Torchserve on. Default: Standard public Torchserve image  
-- docker_runtime: Specify docker runtime if required
-- ts: Use Already running Torchserve instance. Default: False
-- config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
+To run benchmarks execute benchmark script as follows 
 
-### Presets
-Benchmark supports pre-defined, pre-configured params that can be selected based on the use case.
-1. soak: default model url with requests =100000 and concurrency=10
-2. vgg11_1000r_10c: vgg11 model with requests =1000 and concurrency=10
-3. vgg11_10000r_100c: vgg11 model with requests =10000 and concurrency=100
-
-Note: These pre-defined parameters in preset can be overwritten by cmd line args.
-
-### Run benchmark locally
-This command will run Torchserve locally and perform benchmarking on the VGG11 model. 
-`python ab_benchmark.py soak --url https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar`
-
-### Run benchmark on docker
-`python ab_benchmark.py --exec docker`
-
-### Run benchmark on already running Torchserve instance
-`python ab_benchmark.py --ts true`
-
-### Run benchmark using a config file
-`python ab_benchmark.py --config config.json`
-
-### Sample config file
-```json
-{
-    "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
-    "requests": 1000,
-    "concurrency": 10,
-    "input": "../examples/image_classifier/kitten.jpg",
-    "exec_env": "docker",
-    "device": "gpu" 
-}
+```
+./benchmark-ab.sh --model  vgg11 --url https://torchserve-mar-files.s3.amazonaws.com/vgg11.mar --bsize 1 --bdelay 50 --worker 4 --input ../examples/image_classifier/kitten.jpg --requests 20 --concurrency 10
 ```
 
-### Benchmark reports
-The reports are generated at location "/tmp/benchmark/"
-- CSV report:  /tmp/benchmark/ab_report.csv
-- latency graph:  /tmp/benchmark/predict_latency.png
-- torhcserve logs: /tmp/benchmark/logs/model_metrics.log
-- raw ab output: /tmp/benchmark/result.txt
+This would produce a output similar to in /tmp/benchmark/report.txt
 
+```
+Preparing config...
+starting torchserve...
+Waiting for torchserve to start...
+torchserve started successfully
+Registering model ...
+{
+  "status": "Workers scaled"
+}
+Executing Apache Bench tests ...
+Executing inference performance test
+Unregistering model ...
+{
+  "status": "Model \"vgg11\" unregistered"
+}
+Execution completed
+Grabing performance numbers
+
+CPU/GPU: cpu
+Model: vgg11
+Concurrency: 10
+Requests: 20
+Model latency P50: 269.49
+Model latency P90: 369.21
+Model latency P99: 370.55
+TS throughput: 12.57
+TS latency P50: 702
+TS latency P90: 907
+TS latency P99: 1012
+TS latency mean: 795.813
+TS error rate: 0.000000%
+CSV : cpu, vgg11, 1, 10, 20, 269.49, 369.21, 370.55, 12.57, 702, 907, 907, 1012, 795.813, 0.000000
+```
 
 
 # Profiling
@@ -226,129 +199,44 @@ The benchmarks can be used in conjunction with standard profiling tools such as 
 Once you have stopped recording, you should be able to analyze the data.  One useful section to examine is CPU views > Call Tree and CPU views > Hot Spots to see where the processor time is going.
 
 ## Backend
-
 The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
 
-1. Enable Benchmarks in TorchServe code with a boolean flag.
-2. Install TorchServe with the updated flag & start torchserve.
-3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
-4. Visualize SnakeViz results. 
+1. Install Torchserve
 
-#### Enable Benchmarks in TorchServe code with a boolean flag
+    Using local TorchServe instance:
 
-In the file `ts/model_service_worker.py`, set the constant BENCHMARK to true at the top to enable benchmarking.
-
-If running inside docker,
-# Benchmarking with Apache Bench
-
-## Installation 
-
-### For Ubuntu
-
-```
-apt-get install apache2-utils
-
-```
-
-Apache Bench is installed in Mac by default. You can test by running ```ab -h```
-
-### pip dependencies
-`pip install -r ab_requirements.txt`
-
-## Benchmark 
-
-### Benchmark parameters
-The following parameters can be used to run the AB benchmark suite.
-- url: Input model URL. Default: "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-- device: Execution device type. Default: cpu
-- exec_env: Execution environment. Default: docker
-- concurrency: Concurrency of requests. Default: 10
-- requests: Number of requests. Default: 100
-- batch_size: The batch size of the model. Default: 1
-- batch_delay: Max batch delay of the model. Default:200
-- workers: Number of worker thread(s) for model
-- input: Input file for model
-- content_type: Input file content type. 
-- image: Custom docker image to run Torchserve on. Default: Standard public Torchserve image  
-- docker_runtime: Specify docker runtime if required
-- ts: Use Already running Torchserve instance. Default: False
-- config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
-
-### Presets
-Benchmark supports pre-defined, pre-configured params that can be selected based on the use case.
-1. soak: default model url with requests =100000 and concurrency=10
-2. vgg11_1000r_10c: vgg11 model with requests =1000 and concurrency=10
-3. vgg11_10000r_100c: vgg11 model with requests =10000 and concurrency=100
-
-Note: These pre-defined parameters in preset can be overwritten by cmd line args.
-
-### Run benchmark locally
-This command will run Torchserve locally and perform benchmarking on the VGG11 model. 
-`python ab_benchmark.py soak --url https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar`
-
-### Run benchmark on docker
-`python ab_benchmark.py --exec docker`
-
-### Run benchmark on already running Torchserve instance
-`python ab_benchmark.py --ts true`
-
-### Run benchmark using a config file
-`python ab_benchmark.py --config config.json`
-
-### Sample config file
-```json
-{
-    "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
-    "requests": 1000,
-    "concurrency": 10,
-    "input": "../examples/image_classifier/kitten.jpg",
-    "exec_env": "docker",
-    "device": "gpu" 
-}
-```
-
-### Benchmark reports
-The reports are generated at location "/tmp/benchmark/"
-- CSV report:  /tmp/benchmark/ab_report.csv
-- latency graph:  /tmp/benchmark/predict_latency.png
-- torhcserve logs: /tmp/benchmark/logs/model_metrics.log
-- raw ab output: /tmp/benchmark/result.txt
-```
-    cd docker
-    git clone https://github.com/pytorch/serve.git
-    cd serve
-    ## set BENCHMARK flag to true
-    vim ts/model_service_worker.py
-    cd ..
-```
-
-#### Install TorchServe with the updated flag & Start Torchserve
-
-```
-    pip install .
-```
-
-If running inside docker
-
-```
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
-```
-then start docker with /tmp directory mapped to local /tmp
+    * Install TorchServe using the [install guide](../README.md#install-torchserve)
     
-#### Register a model & perform inference to collect profiling data.
+    By using external docker container for TorchServe:
 
-```
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
+    * Create a [docker container for TorchServe](../docker/README.md).
 
-#### Visualize SnakeViz results
+2. Set environment variable and start Torchserve
+
+    If using local TorchServe instance:
+    ```bash
+    export TS_BENCHMARK=TRUE
+    torchserve --start --model-store <path_to_your_model_store>
+    ```
+    If using external docker container for TorchServe:
+    * start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
+    ```
+        docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+    ```
+
+3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.
+    ```
+    python benchmark.py throughput --ts http://127.0.0.1:8080
+    ```
+
+4. Visualize SnakeViz results.
  
-To visualize the profiling data using `snakeviz` use following commands:
+    To visualize the profiling data using `snakeviz` use following commands:
 
-```bash
-pip install snakeviz
-snakeviz tsPythonProfile.prof
-```
-![](snake_viz.png)
+    ```bash
+    pip install snakeviz
+    snakeviz tsPythonProfile.prof
+    ```
+    ![](snake_viz.png)
 
-It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
+    It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
