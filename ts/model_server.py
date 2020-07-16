@@ -137,6 +137,10 @@ def start():
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
                         sys.exit(1)
+        if args.snapshot_store:
+            cmd.append("-ss")
+            cmd.append(args.snapshot_store)
+
 
         try:
             process = subprocess.Popen(cmd)

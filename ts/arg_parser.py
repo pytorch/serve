@@ -49,6 +49,9 @@ class ArgParser(object):
                             dest='no_config_snapshots',
                             help='Prevents to server from storing config snapshot files.',
                             action='store_true')
+        parser.add_argument('--snapshot-store',
+                            dest='snapshot_store',
+                            help='Snapshot store (e.g. DDB), default is local FS')
 
         return parser
 

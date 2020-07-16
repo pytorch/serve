@@ -47,6 +47,7 @@ usage: torchserve [-h] [-v | --version]
                           [--model-store MODEL_STORE]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
+                          [--snapshot-store SNAPSHOT_STORE]
 
 torchserve
 
@@ -71,6 +72,8 @@ optional arguments:
                         Log4j configuration file for TorchServe
   --ncs, --no-config-snapshots         
                         Disable snapshot feature
+  --snapshot-store SNAPSHOT_STORE
+                        snapshot store (e.g. DDB), default is local filesystem [i.e. FS]
 ```
 
 #### Arguments:
