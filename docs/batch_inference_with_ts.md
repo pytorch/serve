@@ -106,7 +106,7 @@ $ curl -X POST "localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_
 $ curl localhost:8081/models/resnet-152
 {
   "modelName": "resnet-152",
-  "modelUrl": "https://endpoint/model-server/model_archive_1.0/examples/resnet-152-batching/resnet-152.mar",
+  "modelUrl": "<local_OR_cloud_url>/resnet-152.mar",
   "runtime": "python",
   "minWorkers": 1,
   "maxWorkers": 1,
