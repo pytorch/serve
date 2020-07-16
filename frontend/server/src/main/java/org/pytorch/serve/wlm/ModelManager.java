@@ -158,7 +158,8 @@ public final class ModelManager {
         return archive;
     }
 
-    private void setupModelDependencies(Model model) throws IOException, InterruptedException {
+    private void setupModelDependencies(Model model)
+            throws IOException, InterruptedException, ModelException {
         String requirementsFile =
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
@@ -183,7 +184,11 @@ public final class ModelManager {
                                     packageInstallCommand,
                                     envp,
                                     model.getModelDir().getAbsoluteFile());
-            process.waitFor();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new ModelException(
+                        "Custom pip package installation failed for " + model.getModelName());
+            }
         }
     }
 
