@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "d53e485d-0a91-4027-8baa-7a7013ea1424",
-		"name": "inference",
+		"_postman_id": "b5bb7e4c-d06a-4774-98ff-acbfcbd5a8f5",
+		"name": "inference copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "519a2226-6142-4389-8037-f3a60b5ffdb8",
+						"id": "4eacca27-a4ca-4118-bd98-fe94767773e0",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -25,12 +25,12 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
-					"protocol": "{{protocol}}",
+					"raw": "http://localhost:8081/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
+					"protocol": "http",
 					"host": [
-						"{{hostname}}"
+						"localhost"
 					],
-					"port": "{{mgmt-port}}",
+					"port": "8081",
 					"path": [
 						"models"
 					],
@@ -62,85 +62,11 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "bda299be-0f86-4da5-becc-c454bbfc54d6",
+						"id": "953ee5d2-07a4-448d-83c1-f91d68592cd4",
 						"exec": [
-							"var type_response = pm.iterationData.get(\"content-type\");",
-							"validators = {",
-							"    image_classification: validate_image_classification,",
-							"    default_json: validate_default",
-							"};",
-							"",
-							"pm.test(\"Successful POST request\", function() {",
+							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});",
-							"",
-							"if (type_response === \"text/plain\") {",
-							"    pm.test(\"Test expected TEXT response\", function() {",
-							"        pm.response.to.have.body(pm.iterationData.get(\"expected\"));",
-							"    });",
-							"",
-							"} else if (type_response === \"application/json\") {",
-							"    if (pm.iterationData.has(\"validator\")) {",
-							"        var validator = pm.iterationData.get(\"validator\");       ",
-							"    } else {",
-							"        var  validator = \"default_json\";",
-							"    }",
-							"    pm.test(\"Test expected JSON response\", function() {",
-							"        var actual_obj = pm.response.json();",
-							"        var expected_obj = pm.iterationData.get(\"expected\");",
-							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
-							"    });",
-							"",
-							"}",
-							"",
-							"function get_tolerance_value(expected_val) {",
-							"    var tolerance_percent = pm.iterationData.get(\"tolerance\");",
-							"    return (expected_val * tolerance_percent) / 100;",
-							"}",
-							"",
-							"function validate_image_classification(actual_obj, expected_obj) {",
-							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
-							"        return false;",
-							"    }",
-							"",
-							"    var expected_keys = [];",
-							"    var actual_keys = [];",
-							"    _.forEach(expected_obj, function(value) {",
-							"        expected_keys.push(_.keys(value)[0]);",
-							"    });",
-							"    _.forEach(actual_obj, function(value) {",
-							"        actual_keys.push(_.keys(value)[0]);",
-							"    });",
-							"    if (!_.isEqual(expected_keys.sort(), actual_keys.sort())) {",
-							"        return false;",
-							"    }",
-							"",
-							"    for (i = 0; i < expected_keys.length; i += 1) {",
-							"        current_key = _.keys(expected_obj[i]);",
-							"        current_actual_index = _.findIndex(expected_obj, function(o) {",
-							"            return Object.keys(o)[0] == current_key;",
-							"        });",
-							"",
-							"        expected_val = _.values(expected_obj[i])[0];",
-							"        actual_val = _.values(actual_obj[current_actual_index])[0];",
-							"",
-							"        tolerance_value = get_tolerance_value(expected_val);",
-							"        if (!(Math.abs(expected_val - actual_val) < tolerance_value)) {",
-							"            return false;",
-							"        }",
-							"    }",
-							"    return true;",
-							"}",
-							"",
-							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
-							"-Notes-",
-							"The order of keys within an object may change.",
-							"If the output is array of objects then the objects compared are positional and cannot change order.",
-							"*/",
-							"function validate_default(actual_obj, expected_obj) {",
-							"    return _.isEqual(actual_obj, expected_obj);",
-							"}",
-							""
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -158,18 +84,15 @@
 					"mode": "file",
 					"file": {
 						"src": "{{file}}"
-					},
-					"options": {
-						"file": {}
 					}
 				},
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/{{model_name}}",
-					"protocol": "{{protocol}}",
+					"raw": "http://localhost:8080/predictions/{{model_name}}",
+					"protocol": "http",
 					"host": [
-						"{{hostname}}"
+						"localhost"
 					],
-					"port": "{{pred-port}}",
+					"port": "8080",
 					"path": [
 						"predictions",
 						"{{model_name}}"
@@ -184,85 +107,16 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f750fe7f-0c5f-40a6-8a8c-be226c47a22b",
+						"id": "d0cf77d3-12ce-4d6a-a95c-89fc7d3a60cd",
 						"exec": [
-							"var type_response = pm.iterationData.get(\"content-type\");",
-							"validators = {",
-							"    image_classification: validate_image_classification,",
-							"    default_json: validate_default",
-							"};",
-							"",
-							"pm.test(\"Successful POST request\", function() {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});",
-							"",
-							"if (type_response === \"text/plain\") {",
-							"    pm.test(\"Test expected TEXT response\", function() {",
-							"        pm.response.to.have.body(pm.iterationData.get(\"expected\"));",
-							"    });",
-							"",
-							"} else if (type_response === \"application/json\") {",
-							"    if (pm.iterationData.has(\"validator\")) {",
-							"        var validator = pm.iterationData.get(\"validator\");       ",
-							"    } else {",
-							"        var  validator = \"default_json\";",
-							"    }",
-							"    pm.test(\"Test expected JSON response\", function() {",
-							"        var actual_obj = pm.response.json();",
-							"        var expected_obj = pm.iterationData.get(\"expected\");",
-							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
-							"    });",
-							"",
-							"}",
-							"",
-							"function get_tolerance_value(expected_val) {",
-							"    var tolerance_percent = pm.iterationData.get(\"tolerance\");",
-							"    return (expected_val * tolerance_percent) / 100;",
-							"}",
-							"",
-							"function validate_image_classification(actual_obj, expected_obj) {",
-							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
-							"        return false;",
-							"    }",
-							"",
-							"    var expected_keys = [];",
-							"    var actual_keys = [];",
-							"    _.forEach(expected_obj, function(value) {",
-							"        expected_keys.push(_.keys(value)[0]);",
-							"    });",
-							"    _.forEach(actual_obj, function(value) {",
-							"        actual_keys.push(_.keys(value)[0]);",
-							"    });",
-							"    if (!_.isEqual(expected_keys.sort(), actual_keys.sort())) {",
-							"        return false;",
-							"    }",
-							"",
-							"    for (i = 0; i < expected_keys.length; i += 1) {",
-							"        current_key = _.keys(expected_obj[i]);",
-							"        current_actual_index = _.findIndex(expected_obj, function(o) {",
-							"            return Object.keys(o)[0] == current_key;",
-							"        });",
-							"",
-							"        expected_val = _.values(expected_obj[i])[0];",
-							"        actual_val = _.values(actual_obj[current_actual_index])[0];",
-							"",
-							"        tolerance_value = get_tolerance_value(expected_val);",
-							"        if (!(Math.abs(expected_val - actual_val) < tolerance_value)) {",
-							"            return false;",
-							"        }",
-							"    }",
-							"    return true;",
-							"}",
-							"",
-							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
-							"-Notes-",
-							"The order of keys within an object may change.",
-							"If the output is array of objects then the objects compared are positional and cannot change order.",
-							"*/",
-							"function validate_default(actual_obj, expected_obj) {",
-							"    return _.isEqual(actual_obj, expected_obj);",
-							"}",
-							""
+							"pm.test(",
+							"    \"Invalid Inference request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -280,21 +134,18 @@
 					"mode": "file",
 					"file": {
 						"src": "{{file}}"
-					},
-					"options": {
-						"file": {}
 					}
 				},
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/squeezenet0_1",
-					"protocol": "{{protocol}}",
+					"raw": "http://localhost:8080/predictions/squeezenet0_0",
+					"protocol": "http",
 					"host": [
-						"{{hostname}}"
+						"localhost"
 					],
-					"port": "{{pred-port}}",
+					"port": "8080",
 					"path": [
 						"predictions",
-						"squeezenet0_1"
+						"squeezenet0_0"
 					]
 				}
 			},
@@ -306,85 +157,16 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "1b40c92b-2fe0-48f4-9381-60d1183518ca",
+						"id": "55966989-1f9b-417f-8d37-3ba559606a0d",
 						"exec": [
-							"var type_response = pm.iterationData.get(\"content-type\");",
-							"validators = {",
-							"    image_classification: validate_image_classification,",
-							"    default_json: validate_default",
-							"};",
-							"",
-							"pm.test(\"Successful POST request\", function() {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});",
-							"",
-							"if (type_response === \"text/plain\") {",
-							"    pm.test(\"Test expected TEXT response\", function() {",
-							"        pm.response.to.have.body(pm.iterationData.get(\"expected\"));",
-							"    });",
-							"",
-							"} else if (type_response === \"application/json\") {",
-							"    if (pm.iterationData.has(\"validator\")) {",
-							"        var validator = pm.iterationData.get(\"validator\");       ",
-							"    } else {",
-							"        var  validator = \"default_json\";",
-							"    }",
-							"    pm.test(\"Test expected JSON response\", function() {",
-							"        var actual_obj = pm.response.json();",
-							"        var expected_obj = pm.iterationData.get(\"expected\");",
-							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
-							"    });",
-							"",
-							"}",
-							"",
-							"function get_tolerance_value(expected_val) {",
-							"    var tolerance_percent = pm.iterationData.get(\"tolerance\");",
-							"    return (expected_val * tolerance_percent) / 100;",
-							"}",
-							"",
-							"function validate_image_classification(actual_obj, expected_obj) {",
-							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
-							"        return false;",
-							"    }",
-							"",
-							"    var expected_keys = [];",
-							"    var actual_keys = [];",
-							"    _.forEach(expected_obj, function(value) {",
-							"        expected_keys.push(_.keys(value)[0]);",
-							"    });",
-							"    _.forEach(actual_obj, function(value) {",
-							"        actual_keys.push(_.keys(value)[0]);",
-							"    });",
-							"    if (!_.isEqual(expected_keys.sort(), actual_keys.sort())) {",
-							"        return false;",
-							"    }",
-							"",
-							"    for (i = 0; i < expected_keys.length; i += 1) {",
-							"        current_key = _.keys(expected_obj[i]);",
-							"        current_actual_index = _.findIndex(expected_obj, function(o) {",
-							"            return Object.keys(o)[0] == current_key;",
-							"        });",
-							"",
-							"        expected_val = _.values(expected_obj[i])[0];",
-							"        actual_val = _.values(actual_obj[current_actual_index])[0];",
-							"",
-							"        tolerance_value = get_tolerance_value(expected_val);",
-							"        if (!(Math.abs(expected_val - actual_val) < tolerance_value)) {",
-							"            return false;",
-							"        }",
-							"    }",
-							"    return true;",
-							"}",
-							"",
-							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
-							"-Notes-",
-							"The order of keys within an object may change.",
-							"If the output is array of objects then the objects compared are positional and cannot change order.",
-							"*/",
-							"function validate_default(actual_obj, expected_obj) {",
-							"    return _.isEqual(actual_obj, expected_obj);",
-							"}",
-							""
+							"pm.test(",
+							"    \"Invalid Inference request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -402,56 +184,19 @@
 					"mode": "file",
 					"file": {
 						"src": "{{file}}"
-					},
-					"options": {
-						"file": {}
 					}
 				},
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/{{model_name}}/0.0",
-					"protocol": "{{protocol}}",
+					"raw": "http://localhost:8080/predictions/{{model_name}}/0.0",
+					"protocol": "http",
 					"host": [
-						"{{hostname}}"
+						"localhost"
 					],
-					"port": "{{pred-port}}",
+					"port": "8080",
 					"path": [
 						"predictions",
 						"{{model_name}}",
 						"0.0"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Model Zoo - Unregister model",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "911f47e8-5a89-42dd-88e4-f377c27895bf",
-						"exec": [
-							"pm.test(\"Successful DELETE request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model_name}}",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models",
-						"{{model_name}}"
 					]
 				}
 			},
