@@ -24,6 +24,7 @@ environment, will have its own threshold values.
    * Specification of pass/fail criterion between two commits. For example, memory consumed by workers should not 
    increase by more than 10% between two commits for the given test case.
    * Custom reporting of results.
+   * Apache Benchmark executor which supports GET, POST, PUT, OPTIONS, DELETE methods
    
 The building blocks of the performance regression suite and flow is captured in the following drawing
 
@@ -201,6 +202,8 @@ Follow these three steps to add a new test case to the test suite.
 
 
 #### 1. Add scenario (a.k.a test suite)
+> By default, all scenarios are triggered using _jmeter_ as the underlying executor.
+
 Create a folder for the test under `test_dir` location. A test generally comprises of a jmeter file - containing the 
 load scenario and a yaml file which contains test scenarios specifying the conditions for failure or success. The
 file-names should be identical to the folder name with their respective extensions. 
@@ -222,7 +225,6 @@ Please note that various global configuration settings used by examples_starter.
      script: examples_starter.jmx
 
  ```
-    
 To execute this test suite, run the following command
     
  ```bash
@@ -231,9 +233,31 @@ To execute this test suite, run the following command
  python -m run_performance_suite -p examples_starter -e xlarge
  ```
 
-**Note**:
-Taurus provides support for different executors such as JMeter. Supported executor types can be found [here](https://gettaurus.org/docs/ExecutionSettings/).
-Details about how to use an existing JMeter script are provided [here](https://gettaurus.org/docs/JMeter/). 
+**Using Apache Benchmark**
+  
+To execute a scenario using _apache benchmark_ as the executor; In the yaml -
+1. Override the `execution` section and explicitly specify "apache_bench" as the value of `executor`
+2. Override the `scenarios` section and specify the request details under `requests` section
+ 
+```
+~execution:
+  - executor: apache_bench
+    concurrency: 10
+    hold-for: 300s
+
+~scenarios:
+  demo:
+    requests:
+    - url: http://127.0.0.1:8080/predictions/squeezenet1_1
+      label: MyInference
+      method: POST
+      file-path: /Users/johndoe/demo/kitten.jpg
+```
+Refer to [examples_apache_bench](tests/examples_apache_bench/examples_apache_bench.yaml) for the complete scenario.
+
+> **Note**:  
+> Taurus provides support for different executors such as JMeter, Apache Benchmark, etc. Supported executor types can be found [here](https://gettaurus.org/docs/ExecutionSettings/).
+> Details about how to use an existing JMeter script are provided [here](https://gettaurus.org/docs/JMeter/). 
 
 
 #### 2. Add metrics to monitor

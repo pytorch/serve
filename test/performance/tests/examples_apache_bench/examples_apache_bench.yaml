@@ -1,0 +1,43 @@
+~execution:
+  - executor: apache_bench
+    concurrency: ${CONCURRENCY}
+    ramp-up: ${RAMP-UP}
+    hold-for: ${HOLD-FOR}
+    scenario: scenario_0
+
+~scenarios:
+  scenario_0:
+    requests:
+    - url: http://127.0.0.1:8080/predictions/${SQZNET_NAME}
+      label: ${API_LABEL}
+      method: POST
+      file-path: ${INPUT_IMG_PATH}
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X PUT  http://localhost:8081/models/${SQZNET_NAME}?min_worker=1&synchronous=true"
+
+
+reporting:
+- module: passfail
+  criteria:
+    # Inbuilt Criteria - cannot be used with Apache Benchmark
+    # - success of MyLabel<${INFR_SUCC}, stop as failed
+    # - avg-rt of MyLabel>${INFR_RT}, stop as failed
+    # Custom Criteria
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '>'
+      threshold: ${TOTAL_PROCS}
+      timeframe: 1s
+      stop : true
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS}
+      timeframe: 1s
+      stop : true
+      fail : true

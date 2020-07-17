@@ -24,9 +24,9 @@ from bzt import TaurusConfigError
 from bzt.modules import monitoring
 from bzt.utils import dehumanize_time
 
-import configuration
-from metrics import get_metrics, AVAILABLE_METRICS as AVAILABLE_SERVER_METRICS
-from utils.process import get_process_pid_from_file, get_server_processes, \
+from agents import  configuration
+from agents.metrics import get_metrics, AVAILABLE_METRICS as AVAILABLE_SERVER_METRICS
+from agents.utils.process import get_process_pid_from_file, get_server_processes, \
     get_child_processes, get_server_pidfile
 
 

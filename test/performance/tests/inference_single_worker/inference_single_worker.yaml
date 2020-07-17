@@ -1,6 +1,6 @@
 ---
 scenarios:
-  inference_single_worker:
+  scenario_0:
     script: inference_single_worker.jmx
 
 services:

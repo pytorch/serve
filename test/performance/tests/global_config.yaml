@@ -32,6 +32,10 @@ modules:
     # metrics_monitoring_inproc and dependencies should be in python path
     class : metrics_monitoring_inproc.Monitor # monitoring class.
 
+  apache_bench:
+    class: apache_bench.ApacheBenchmarkExecutor
+
+
 services:
   - module: shellexec
     prepare:
