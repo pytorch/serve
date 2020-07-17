@@ -306,9 +306,14 @@
 					"script": {
 						"id": "41c5dc07-3bfa-4bec-a09b-c0b3810173fd",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
+							"// pm.test(",
+							"//     \"Invalid RegisterModel request \\t\" +",
+							"//     \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"//     \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"//     \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"//     function () {",
+							"//     pm.expect(pm.response.code).to.be.oneOf([400]);",
+							"// });"
 						],
 						"type": "text/javascript"
 					}
@@ -387,9 +392,14 @@
 					"script": {
 						"id": "bf2167ca-b48a-41cc-8ab3-5e0d8c42f85d",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
+							"// pm.test(",
+							"//     \"Invalid RegisterModel request \\t\" +",
+							"//     \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"//     \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"//     \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"//     function () {",
+							"//     pm.expect(pm.response.code).to.be.oneOf([400]);",
+							"// });"
 						],
 						"type": "text/javascript"
 					}
@@ -552,9 +562,14 @@
 					"script": {
 						"id": "efdda61c-1bdf-4467-812b-d88cf91ece83",
 						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
+							"// pm.test(",
+							"//     \"Invalid RegisterModel request \\t\" +",
+							"//     \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"//     \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"//     \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"//     function () {",
+							"//     pm.expect(pm.response.code).to.be.oneOf([400]);",
+							"// });"
 						],
 						"type": "text/javascript"
 					}
@@ -3234,6 +3249,49 @@
 			"response": []
 		},
 		{
+			"name": "Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "42b498ab-cc5c-4ad9-8e77-42012df98559",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "UnRegister Model with synchronous value as true",
 			"event": [
 				{
@@ -3268,6 +3326,49 @@
 						{
 							"key": "synchronous",
 							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "17812204-1ff8-45fd-871b-7c600575845c",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
 						}
 					]
 				}
@@ -3316,6 +3417,49 @@
 			"response": []
 		},
 		{
+			"name": "Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ec6e7bda-ce1e-4d03-97f0-546aa5913758",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "UnRegister Model with non integer timeout value",
 			"event": [
 				{
@@ -3350,6 +3494,49 @@
 						{
 							"key": "timeout",
 							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "494776b4-4525-4bdc-bb7a-305c57d1ee05",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
 						}
 					]
 				}
@@ -3396,40 +3583,6 @@
 							"key": "synchronous",
 							"value": "-1"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "UnRegister Model Vgg11",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "6f75a1a5-9fbc-4edc-bc20-2b294a12509f",
-						"exec": [
-							"pm.test(\"Successful DELETE request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/vgg11",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models",
-						"vgg11"
 					]
 				}
 			},
