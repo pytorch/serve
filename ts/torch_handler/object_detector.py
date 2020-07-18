@@ -97,9 +97,6 @@ def handle(data, context):
 
         data = _service.preprocess(data)
         data = _service.inference(data)
-        if data:
-            return _service.postprocess(data)
-        else:
-            return ["No object detected"]
+        return _service.postprocess(data)
     except Exception as e:
         raise Exception("Please provide a custom handler in the model archive." + e)
