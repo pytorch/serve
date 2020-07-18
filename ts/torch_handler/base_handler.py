@@ -33,7 +33,8 @@ class BaseHandler(abc.ABC):
 
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device(map_location + ":" + str(properties.get("gpu_id")) if torch.cuda.is_available() else map_location)
 
         # model serialize/pt file
         serialized_file = self.manifest['model']['serializedFile']
@@ -41,11 +42,9 @@ class BaseHandler(abc.ABC):
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
 
-        # model def file
-        model_file = self.manifest['model']['modelFile']
+        # model def file is optional
+        model_file = self.manifest['model'].get('modelFile', "")
         model_def_path = os.path.join(model_dir, model_file)
-
-        map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         if os.path.isfile(model_def_path):
             module = importlib.import_module(model_file.split(".")[0])
