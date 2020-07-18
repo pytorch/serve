@@ -4,7 +4,8 @@
 
 * [Setup Ubuntu 18.0.4 on WSL](#setup-ubuntu-1804-on-wsl)
 * [Install from binaries](#install-from-binaries)
-* [Install from source](#serve-a-model)
+* [Install from source](#install-from-source)
+* [Known limitations of NVIDIA CUDA support on GPU](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#known-limitations)
 
 ## Setup Ubuntu 18.0.4 on WSL:
 
