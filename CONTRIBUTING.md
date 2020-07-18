@@ -12,7 +12,7 @@ If you are interested in contributing to TorchServe, your contributions will fal
     ./torchserve_sanity.sh
     ```
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
-    - If you need more context on a particular issue, please ask.
+    - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
 Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve. Use this [template](pull_request_template.md) when creating a Pull Request.
 
