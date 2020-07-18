@@ -34,7 +34,8 @@ class BaseHandler(abc.ABC):
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
         map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = torch.device(map_location + ":" + str(properties.get("gpu_id")) if torch.cuda.is_available() else map_location)
+        self.device = torch.device(map_location + ":" + str(properties.get(
+            "gpu_id")) if torch.cuda.is_available() else map_location)
 
         # model serialize/pt file
         serialized_file = self.manifest['model']['serializedFile']
