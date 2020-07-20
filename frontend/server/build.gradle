@@ -1,6 +1,5 @@
 dependencies {
     implementation "io.netty:netty-all:${netty_version}"
-    implementation group: "io.netty", name: "netty-transport-native-kqueue", version: "4.1.50.Final"
     implementation project(":modelarchive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
