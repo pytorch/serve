@@ -11,6 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get install --no-install-recommends -y \
         build-essential \
         curl \
+        git \
         openjdk-11-jdk \
         python3 \
         python3-dev \

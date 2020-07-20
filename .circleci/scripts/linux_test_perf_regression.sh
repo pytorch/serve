@@ -6,11 +6,8 @@ JMETER_PATH='/opt/apache-jmeter-5.3/bin/jmeter'
 
 cd test/performance
 
-# Install git as one of dependencies from requirements.txt needs it
-apt-get update
-apt-get install --no-install-recommends -y git
-
-# Set LANG env variable required for - test suite \ bzt
+# Set LANG env variable required by click
+# https://click.palletsprojects.com/en/5.x/python3/
 export LANG=C.UTF-8
 
 # Install dependencies
