@@ -135,7 +135,7 @@ public class ModelArchive {
         }
         ZipUtils.unzip(new DigestInputStream(is, md), tmp);
         if (eTag == null) {
-            eTag = UUID.randomUUID().toString().replaceAll("-","");
+            eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
         File dir = new File(modelDir, eTag);
         if (dir.exists()) {
