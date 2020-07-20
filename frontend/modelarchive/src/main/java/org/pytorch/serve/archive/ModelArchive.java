@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -134,7 +135,7 @@ public class ModelArchive {
         }
         ZipUtils.unzip(new DigestInputStream(is, md), tmp);
         if (eTag == null) {
-            eTag = HexUtils.toHexString(md.digest());
+            eTag = UUID.randomUUID().toString().replaceAll("-","");
         }
         File dir = new File(modelDir, eTag);
         if (dir.exists()) {
