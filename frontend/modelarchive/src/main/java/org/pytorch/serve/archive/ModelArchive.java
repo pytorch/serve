@@ -138,11 +138,6 @@ public class ModelArchive {
             eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
         File dir = new File(modelDir, eTag);
-        if (dir.exists()) {
-            FileUtils.deleteDirectory(tmp);
-            logger.info("model folder already exists: {}", eTag);
-            return dir;
-        }
 
         FileUtils.moveDirectory(tmp, dir);
 

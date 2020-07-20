@@ -70,6 +70,21 @@ public class ModelArchiveTest {
         } catch (Exception e) {
             System.out.println("Model");
         }
+
+        archive.getManifest().setRuntime(null);
+        try{
+            archive.validate();
+        } catch (Exception e) {
+            System.out.println("Runtime");
+        }
+
+        archive.getManifest().setRuntime(null);
+        try{
+            archive.validate();
+        } catch (Exception e) {
+            System.out.println("Runtime");
+        }
+
         archive.clean();
     }
 
