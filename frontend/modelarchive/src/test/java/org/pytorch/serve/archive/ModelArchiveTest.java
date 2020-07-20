@@ -45,7 +45,7 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
     }
 
-    @Test(expectedExceptions = InvalidModelException.class)
+    @Test
     public void testInvalidModelVersionNull() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
 
