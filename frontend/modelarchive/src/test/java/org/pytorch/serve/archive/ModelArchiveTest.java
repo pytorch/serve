@@ -45,6 +45,28 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
     }
 
+    @Test(expectedExceptions = InvalidModelException.class)
+    public void testInvalidModelVersionNull() throws ModelException, IOException {
+        String modelStore = "src/test/resources/models";
+
+        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
+        archive.getManifest().getModel().setModelVersion(null);
+        try{
+            archive.validate();
+        }
+
+        archive.getManifest().getModel().setModelName(null);
+        try{
+            archive.validate();
+        }
+
+        archive.getManifest().setModel(null);
+        try{
+            archive.validate();
+        }
+        archive.clean();
+    }
+
     @Test(expectedExceptions = DownloadModelException.class)
     public void testInvalidURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
