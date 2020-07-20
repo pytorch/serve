@@ -53,16 +53,22 @@ public class ModelArchiveTest {
         archive.getManifest().getModel().setModelVersion(null);
         try{
             archive.validate();
+        } catch (Exception e) {
+            System.out.println("ModelVersion");
         }
 
         archive.getManifest().getModel().setModelName(null);
         try{
             archive.validate();
+        } catch (Exception e) {
+            System.out.println("ModelName");
         }
 
         archive.getManifest().setModel(null);
         try{
             archive.validate();
+        } catch (Exception e) {
+            System.out.println("Model");
         }
         archive.clean();
     }
