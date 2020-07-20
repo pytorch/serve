@@ -29,12 +29,13 @@ class BaseHandler(abc.ABC):
     def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
 
-        
         properties = context.system_properties
         self.map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = torch.device(map_location + ":" + str(properties.get("gpu_id")) if torch.cuda.is_available() else map_location)
+        self.device = torch.device(self.map_location + ":" + str(properties.get("gpu_id"))
+                                   if torch.cuda.is_available() else self.map_location)
         self.manifest = context.manifest
-        
+
+        model_dir = properties.get("model_dir")
         serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
 
@@ -42,7 +43,7 @@ class BaseHandler(abc.ABC):
             raise RuntimeError("Missing the model.pt file")
 
         # model def file
-        model_file = self.manifest['model'].get('modelFile','')        
+        model_file = self.manifest['model'].get('modelFile', '')
 
         if model_file:
             logger.debug('Loading eager model')
