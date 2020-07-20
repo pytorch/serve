@@ -24,31 +24,32 @@ class BaseHandler(abc.ABC):
         self.initialized = False
         self.context = None
         self.manifest = None
+        self.map_location = None
 
     def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
 
-        self.manifest = context.manifest
+        
         properties = context.system_properties
-
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
-
-        # Read in the model
-        model_dir = properties.get("model_dir")
+        self.map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device(map_location + ":" + str(properties.get("gpu_id")) if torch.cuda.is_available() else map_location)
+        self.manifest = context.manifest
+        
         serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
 
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
 
-        # Torchscript is better, so try to read that first
-        try:
+        # model def file
+        model_file = self.manifest['model'].get('modelFile','')        
+
+        if model_file:
+            logger.debug('Loading eager model')
+            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+        else:
             logger.debug('Loading torchscript model')
             self.model = self._load_torchscript_model(model_pt_path)
-        except RuntimeError as e:
-            logger.debug('Torchscript load failed; trying pickle')
-            model_file = self.manifest['model']['modelFile']
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
 
         self.model.to(self.device)
         self.model.eval()
@@ -62,7 +63,7 @@ class BaseHandler(abc.ABC):
         self.initialized = True
 
     def _load_torchscript_model(self, model_pt_path):
-        return torch.jit.load(model_pt_path)
+        return torch.jit.load(model_pt_path, map_location=self.map_location)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         model_def_path = os.path.join(model_dir, model_file)
@@ -76,7 +77,7 @@ class BaseHandler(abc.ABC):
                 model_class_definitions))
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path)
+        state_dict = torch.load(model_pt_path, map_location=self.map_location)
         model = model_class()
         model.load_state_dict(state_dict)
         return model
