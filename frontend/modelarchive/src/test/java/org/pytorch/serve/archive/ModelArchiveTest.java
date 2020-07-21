@@ -134,11 +134,9 @@ public class ModelArchiveTest {
         }
 
         try{
-            ModelArchive.removeModel(
-                modelStore,
-                "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
+            archive.readFile(new File("null"), Manifest.class);
         } catch (Exception e) {
-            System.out.println("removeModel");
+            System.out.println("readFile");
         }
 
         archive.clean();
