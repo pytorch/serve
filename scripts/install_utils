@@ -66,6 +66,19 @@ run_backend_python_linting()
   fi
 }
 
+run_model_archiver_python_linting()
+{
+  cd model-archiver
+  if pylint -rn --rcfile=./model_archiver/tests/pylintrc model_archiver/.;
+  then
+    echo "Model archiver python linting suite execution successful"
+  else
+    echo "Model archiver python linting execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
 run_model_archiver_UT_suite()
 {
   cd model-archiver
