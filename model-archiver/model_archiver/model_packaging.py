@@ -20,7 +20,6 @@ def package_model(args, manifest):
     handler = args.handler
     extra_files = args.extra_files
     export_file_path = args.export_path
-    model_version = args.version
     source_vocab = args.source_vocab
     temp_files = []
 
@@ -69,7 +68,8 @@ def generate_model_archive():
                 raise Exception("Please provide the source language vocab for {0} model.".format(args.handler))
     elif not args.handler.endswith(".py"):
         raise Exception("Handler should be one of the default TorchServe handlers [{0}]"
-                        " or a py file to handle custom TorchServe inference logic.".format(",".join(model_handlers.keys())))
+                        " or a py file to handle custom TorchServe inference logic."
+                        .format(",".join(model_handlers.keys())))
 
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)
