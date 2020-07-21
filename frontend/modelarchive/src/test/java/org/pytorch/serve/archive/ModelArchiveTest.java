@@ -54,35 +54,35 @@ public class ModelArchiveTest {
         try {
             archive.validate();
         } catch (Exception e) {
-            System.out.println("ModelVersion");
+            System.out.println(e);
         }
 
         archive.getManifest().getModel().setModelName(null);
         try {
             archive.validate();
         } catch (Exception e) {
-            System.out.println("ModelName");
+            System.out.println(e);
         }
 
         archive.getManifest().setModel(null);
         try {
             archive.validate();
         } catch (Exception e) {
-            System.out.println("Model");
+            System.out.println(e);
         }
 
         archive.getManifest().setRuntime(null);
         try {
             archive.validate();
         } catch (Exception e) {
-            System.out.println("Runtime");
+            System.out.println(e);
         }
 
         archive.getManifest().setRuntime(null);
         try {
             archive.validate();
         } catch (Exception e) {
-            System.out.println("Runtime");
+            System.out.println(e);
         }
 
         try {
