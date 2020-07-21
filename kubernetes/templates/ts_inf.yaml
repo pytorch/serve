@@ -1,0 +1,67 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: torchserve
+  labels:
+    app: torchserve
+spec:
+  ports:
+  - name: preds
+    port: 8080
+    targetPort: ts 
+  - name: mdl
+    port: 8081
+    targetPort: ts-management
+  type: LoadBalancer
+  selector:
+    app: torchserve
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: torchserve
+  labels:
+    app: torchserve
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: torchserve
+  template:
+    metadata:
+      labels:
+        app: torchserve
+    spec:
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-storage-claim
+      initContainers:
+      - name: torchserve-init
+        image: "curlimages/curl"
+        command:  ['sh', '-c', 'curl -o /home/model-server/model-store/squeezenet1_1.mar https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar']
+        volumeMounts:
+          - mountPath: "/home/model-server/model-store"
+            name: persistent-storage
+      containers:
+      - name: torchserve
+        image: "pytorch/torchserve:latest-gpu"
+        args: ["torchserve", "--start",  "--ts-config",  "/home/model-server/config.properties", "--models", "squeezenet1_1.mar"]
+        ports:
+        - name: ts
+          containerPort: 8080
+        - name: ts-management
+          containerPort: 8081
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: "/home/model-server/model-store"
+            name: persistent-storage
+        resources:
+          limits:
+            cpu: 4
+            memory: 4Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: "1"
+            memory: 1Gi 
