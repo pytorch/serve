@@ -103,6 +103,12 @@ public class ModelArchiveTest {
             System.out.println("ModelNotFound");
         }
 
+        String handler = archive.getHandler();
+        String url = archive.getUrl();
+        File file = archive.getModelDir();
+        String name = archive.getModelName();
+        String version = archive.getModelVersion();
+
         archive.clean();
     }
 
