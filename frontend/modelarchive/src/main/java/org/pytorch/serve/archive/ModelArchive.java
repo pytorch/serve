@@ -54,9 +54,7 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-        logger.info("logger test");
         if (URL_PATTERN.matcher(url).matches()) {
-            logger.info("zcm match");
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
