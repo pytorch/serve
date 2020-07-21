@@ -46,7 +46,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git clone https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
-    && pip install -r ../serve/requirements.txt
+    && pip install -r ../serve/requirements.txt \
     && pip install . \
     && cd model-archiver \
     && pip install . \
