@@ -109,10 +109,29 @@ public class ModelArchiveTest {
             System.out.println("Handler");
         }
 
-        String url = archive.getUrl();
-        File file = archive.getModelDir();
-        String name = archive.getModelName();
-        String version = archive.getModelVersion();
+        try{
+            String url = archive.getUrl();
+        } catch (Exception e) {
+            System.out.println("Url");
+        }
+
+        try{
+            File file = archive.getModelDir();
+        } catch (Exception e) {
+            System.out.println("modelDir");
+        }
+
+        try{
+            String name = archive.getModelName();
+        } catch (Exception e) {
+            System.out.println("modelName");
+        }
+
+        try{
+            String version = archive.getModelVersion();
+        } catch (Exception e) {
+            System.out.println("modelVersion");
+        }
 
         archive.clean();
     }
