@@ -1,0 +1,12 @@
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y \
+g++ \
+python3-dev \
+&& cd /tmp \
+&& curl -O https://bootstrap.pypa.io/get-pip.py \
+&& python3 get-pip.py \
+&& cd -
+
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+sudo update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3 1
