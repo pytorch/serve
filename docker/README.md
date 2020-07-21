@@ -85,15 +85,15 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ```
 
 Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))- 
-```bash 
-1. Do one more clone -> `git clone https://github.com/pytorch/serve.git`
-2. cd serve;git checkout <branch>;cd ..
 
 For cpu -
-3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+```
+DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t torchserve:dev .
+```
 
 For gpu - 
-3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.gpu -t torchserve:dev .
+```
+DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t torchserve:dev --build-arg MACHINE_TYPE=gpu --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 .
 ```
 
 To create a Docker image for a specific branch, use the following command:
