@@ -134,9 +134,9 @@ public class ModelArchiveTest {
         }
 
         try{
-            Manifest manifest = archive.readFile(new File("null"), Manifest.class);
+            ModelArchive ma = new ModelArchive(null, "", null, true);
         } catch (Exception e) {
-            System.out.println("readFile");
+            System.out.println("ModelArchive");
         }
 
         archive.clean();
