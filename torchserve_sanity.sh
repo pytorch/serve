@@ -23,6 +23,8 @@ build_frontend
 
 run_backend_python_linting
 
+run_model_archiver_python_linting
+
 run_model_archiver_UT_suite
 
 ./scripts/install_from_src

@@ -4,12 +4,13 @@
 Helper utils for Model Export tool
 """
 
-import json
 import logging
 import os
 import re
 import zipfile
 import shutil
+import tarfile
+from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
 from .manifest_components.engine import Engine
@@ -27,6 +28,7 @@ MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'
 MANIFEST_FILE_NAME = 'MANIFEST.json'
 MAR_INF = 'MAR-INF'
+
 
 class ModelExportUtils(object):
     """
@@ -55,7 +57,7 @@ class ModelExportUtils(object):
 
         if os.path.exists(export_file):
             if overwrite:
-                logging.warning("Overwriting {0} ...".format(export_file))
+                logging.warning("Overwriting %s ...", export_file)
             else:
                 raise ModelArchiverError("{0} already exists.\n"
                                          "Please specify --force/-f option to overwrite the model archive "
@@ -133,6 +135,12 @@ class ModelExportUtils(object):
 
     @staticmethod
     def copy_artifacts(model_name, **kwargs):
+        """
+        copy model artifacts in a common model directory for archiving
+        :param model_name: name of model being archived
+        :param kwargs: key value pair of files to be copied in archive
+        :return:
+        """
         model_path = '/tmp/{0}'.format(model_name)
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
@@ -163,8 +171,6 @@ class ModelExportUtils(object):
         mar_path = ModelExportUtils.get_archive_export_path(export_file, model_name, archive_format)
         try:
             if archive_format == "tgz":
-                import tarfile
-                from io import BytesIO
                 with tarfile.open(mar_path, 'w:gz') as z:
                     ModelExportUtils.archive_dir(model_path, z, archive_format, model_name)
                     # Write the manifest here now as a json
