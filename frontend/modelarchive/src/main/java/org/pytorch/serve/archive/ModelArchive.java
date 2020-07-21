@@ -136,6 +136,7 @@ public class ModelArchive {
         if (eTag == null) {
             eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
+        logger.info("eTag {}", eTag);
         File dir = new File(modelDir, eTag);
 
         FileUtils.moveDirectory(tmp, dir);
