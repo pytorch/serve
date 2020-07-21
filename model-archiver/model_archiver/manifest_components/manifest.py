@@ -2,8 +2,8 @@
 # pylint: disable=missing-docstring
 from datetime import datetime
 import json
-from model_archiver import __version__
 from enum import Enum
+from model_archiver import __version__
 
 
 class RuntimeType(Enum):

@@ -99,8 +99,6 @@ class ModelExportUtils(object):
         :return:
         """
 
-        arg_dict = vars(args)
-
         model = ModelExportUtils.generate_model(args)
 
         manifest = Manifest(runtime=args.runtime, model=model)
