@@ -51,89 +51,89 @@ public class ModelArchiveTest {
 
         ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
         archive.getManifest().getModel().setModelVersion(null);
-        try{
+        try {
             archive.validate();
         } catch (Exception e) {
             System.out.println("ModelVersion");
         }
 
         archive.getManifest().getModel().setModelName(null);
-        try{
+        try {
             archive.validate();
         } catch (Exception e) {
             System.out.println("ModelName");
         }
 
         archive.getManifest().setModel(null);
-        try{
+        try {
             archive.validate();
         } catch (Exception e) {
             System.out.println("Model");
         }
 
         archive.getManifest().setRuntime(null);
-        try{
+        try {
             archive.validate();
         } catch (Exception e) {
             System.out.println("Runtime");
         }
 
         archive.getManifest().setRuntime(null);
-        try{
+        try {
             archive.validate();
         } catch (Exception e) {
             System.out.println("Runtime");
         }
 
-        try{
+        try {
             archive.downloadModel(null, "/noop");
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        try{
+        try {
             archive.downloadModel(modelStore, "../noop");
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        try{
+        try {
             archive.downloadModel("null", "/noop");
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        try{
+        try {
             String handler = archive.getHandler();
         } catch (Exception e) {
             System.out.println("Handler");
         }
 
-        try{
+        try {
             String url = archive.getUrl();
         } catch (Exception e) {
             System.out.println("Url");
         }
 
-        try{
+        try {
             File file = archive.getModelDir();
         } catch (Exception e) {
             System.out.println("modelDir");
         }
 
-        try{
+        try {
             String name = archive.getModelName();
         } catch (Exception e) {
             System.out.println("modelName");
         }
 
-        try{
+        try {
             String version = archive.getModelVersion();
         } catch (Exception e) {
             System.out.println("modelVersion");
         }
 
-        try{
+        try {
             ModelArchive.downloadModel(
                         "src/test/resources/",
                         "models");
