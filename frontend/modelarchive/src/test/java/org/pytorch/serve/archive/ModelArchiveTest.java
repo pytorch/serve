@@ -88,19 +88,19 @@ public class ModelArchiveTest {
         try{
             archive.downloadModel(null, "/noop");
         } catch (Exception e) {
-            System.out.println("ModelNotFound");
+            System.out.println(e);
         }
 
         try{
             archive.downloadModel(null, "../noop");
         } catch (Exception e) {
-            System.out.println("ModelNotFound");
+            System.out.println(e);
         }
 
         try{
             archive.downloadModel("null", "/noop");
         } catch (Exception e) {
-            System.out.println("ModelNotFound");
+            System.out.println(e);
         }
 
         try{
@@ -135,8 +135,8 @@ public class ModelArchiveTest {
 
         try{
             ModelArchive.downloadModel(
-                        modelStore,
-                        "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/noop.model");
+                        "src/test/resources/",
+                        "model");
         } catch (Exception e) {
             System.out.println("downloadModel");
         }
