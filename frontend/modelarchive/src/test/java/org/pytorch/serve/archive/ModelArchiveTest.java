@@ -133,10 +133,13 @@ public class ModelArchiveTest {
             System.out.println("modelVersion");
         }
 
-        String modelStore = "src/test/resources/models";
-        ModelArchive.removeModel(
+        try{
+            ModelArchive.removeModel(
                 modelStore,
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
+        } catch (Exception e) {
+            System.out.println("removeModel");
+        }
 
         archive.clean();
     }
