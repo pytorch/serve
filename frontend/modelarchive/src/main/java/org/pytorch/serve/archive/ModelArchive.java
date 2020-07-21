@@ -56,6 +56,7 @@ public class ModelArchive {
         File modelLocation = new File(modelStore, marFileName);
 
         if (URL_PATTERN.matcher(url).matches()) {
+            logger.info("zcm match");
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
