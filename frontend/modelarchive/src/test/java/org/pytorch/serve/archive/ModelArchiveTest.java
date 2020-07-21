@@ -46,98 +46,37 @@ public class ModelArchiveTest {
     }
 
     @Test
-    public void testInvalidModelVersionNull() throws ModelException, IOException {
+    public void archiveTest() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
 
         archive.getManifest().getModel().setModelVersion(null);
-        try {
-            archive.validate();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
 
         archive.getManifest().getModel().setModelName(null);
-        try {
-            archive.validate();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
 
         archive.getManifest().setModel(null);
-        try {
-            archive.validate();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
 
         archive.getManifest().setRuntime(null);
-        try {
-            archive.validate();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
 
         archive.getManifest().setRuntime(null);
-        try {
-            archive.validate();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
 
-        try {
-            archive.downloadModel(null, "/noop");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(null, "/noop"));
 
-        try {
-            archive.downloadModel(modelStore, "../noop");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(modelStore, "../noop"));
 
-        try {
-            archive.downloadModel("null", "/noop");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel("null", "/noop"));
 
-        try {
-            String handler = archive.getHandler();
-        } catch (Exception e) {
-            System.out.println("Handler");
-        }
-
-        try {
-            String url = archive.getUrl();
-        } catch (Exception e) {
-            System.out.println("Url");
-        }
-
-        try {
-            File file = archive.getModelDir();
-        } catch (Exception e) {
-            System.out.println("modelDir");
-        }
-
-        try {
-            String name = archive.getModelName();
-        } catch (Exception e) {
-            System.out.println("modelName");
-        }
-
-        try {
-            String version = archive.getModelVersion();
-        } catch (Exception e) {
-            System.out.println("modelVersion");
-        }
-
-        try {
-            ModelArchive.downloadModel("src/test/resources/", "models");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel("src/test/resources/", "models"));
 
         archive.clean();
     }
