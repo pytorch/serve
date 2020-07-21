@@ -134,9 +134,11 @@ public class ModelArchiveTest {
         }
 
         try{
-            ModelArchive ma = new ModelArchive(null, "", null, true);
+            ModelArchive.downloadModel(
+                        modelStore,
+                        "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/noop.model");
         } catch (Exception e) {
-            System.out.println("ModelArchive");
+            System.out.println("downloadModel");
         }
 
         archive.clean();
