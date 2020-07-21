@@ -17,20 +17,6 @@ public final class ZipUtils {
 
     private ZipUtils() {}
 
-    public static void zip(File src, File dest, boolean includeRootDir) throws IOException {
-        int prefix = src.getCanonicalPath().length();
-        if (includeRootDir) {
-            prefix -= src.getName().length();
-        }
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(dest.toPath()))) {
-            addToZip(prefix, src, null, zos);
-        }
-    }
-
-    public static void unzip(File src, File dest) throws IOException {
-        unzip(Files.newInputStream(src.toPath()), dest);
-    }
-
     public static void unzip(InputStream is, File dest) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
