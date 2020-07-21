@@ -5,6 +5,7 @@ Module for text classification default handler
 DOES NOT SUPPORT BATCH!
 """
 import torch
+import torch.nn.functional as F
 from torchtext.data.utils import ngrams_iterator
 from .text_handler import TextHandler
 from ..utils.util  import map_class_to_label
@@ -53,5 +54,6 @@ class TextClassifier(TextHandler):
         return super().inference(data, offsets)
 
     def postprocess(self, data):
+        data = F.softmax(data)
         data = data.tolist()
         return map_class_to_label(data, self.mapping)

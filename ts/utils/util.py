@@ -66,7 +66,7 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
         raise Exception('Mapping must be a dict')
 
     if lbl_classes is None:
-        lbl_classes = itertools.repeat(range(len(probs[0]), len(probs)))
+        lbl_classes = itertools.repeat(range(len(probs[0])), len(probs))
 
     results = [
         {

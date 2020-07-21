@@ -30,13 +30,15 @@ class ObjectDetector(VisionHandler):
 
     def postprocess(self, data):
         box_filters = [row['scores'] >= self.threshold for row in data]
-
-        filtered_boxes, filtered_classes = [
+        filtered_boxes, filtered_classes , filtered_scores= [
             [row[key][box_filter].tolist() for row, box_filter in zip(data, box_filters)]
-            for key in ['boxes', 'labels']
+            for key in ['boxes', 'labels','scores']
         ]
-        return map_class_to_label(
-            filtered_boxes,
-            self.mapping,
-            filtered_classes
-        )
+
+        retval = []
+        for classes, box , score in zip(filtered_classes[0], filtered_boxes[0], filtered_scores[0]):
+            _retval=map_class_to_label([[box]],self.mapping,[[classes]])[0]
+            _retval['score'] = score
+            retval.append(_retval)
+
+        return [retval]
