@@ -92,7 +92,7 @@ public class ModelArchiveTest {
         }
 
         try{
-            archive.downloadModel(null, "../noop");
+            archive.downloadModel(modelStore, "../noop");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -138,7 +138,7 @@ public class ModelArchiveTest {
                         "src/test/resources/",
                         "model");
         } catch (Exception e) {
-            System.out.println("downloadModel");
+            System.out.println(e);
         }
 
         archive.clean();
