@@ -136,7 +136,7 @@ public class ModelArchiveTest {
         try{
             ModelArchive.downloadModel(
                         "src/test/resources/",
-                        "model");
+                        "models");
         } catch (Exception e) {
             System.out.println(e);
         }
