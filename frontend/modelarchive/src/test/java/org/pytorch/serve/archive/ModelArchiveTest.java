@@ -85,6 +85,24 @@ public class ModelArchiveTest {
             System.out.println("Runtime");
         }
 
+        try{
+            archive.downloadModel(null, "/noop");
+        } catch (Exception e) {
+            System.out.println("ModelNotFound");
+        }
+
+        try{
+            archive.downloadModel(null, "../noop");
+        } catch (Exception e) {
+            System.out.println("ModelNotFound");
+        }
+
+        try{
+            archive.downloadModel("null", "/noop");
+        } catch (Exception e) {
+            System.out.println("ModelNotFound");
+        }
+
         archive.clean();
     }
 
