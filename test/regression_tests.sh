@@ -82,7 +82,7 @@ delete_model_store_snapshots() {
 
 
 run_postman_test() {(  
-  set -e
+  # set -e
   # Run Postman Scripts
   mkdir $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/
@@ -90,13 +90,13 @@ run_postman_test() {(
   # Run Management API Tests
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --bail --verbose postman/management_api_test_collection.json \
+  newman run -e postman/environment.json --verbose postman/management_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
 
   stop_torch_serve
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --bail --verbose postman/management_api_test_new_collection.json \
+  newman run -e postman/environment.json --verbose postman/management_api_test_new_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
 
 
@@ -111,7 +111,7 @@ run_postman_test() {(
   stop_torch_serve
   delete_model_store_snapshots
   start_secure_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run --insecure -e postman/environment.json --bail --verbose postman/https_test_collection.json \
+  newman run --insecure -e postman/environment.json --verbose postman/https_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
 
   stop_torch_serve
