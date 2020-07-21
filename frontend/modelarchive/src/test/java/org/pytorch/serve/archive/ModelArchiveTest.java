@@ -48,8 +48,8 @@ public class ModelArchiveTest {
     @Test
     public void testInvalidModelVersionNull() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-
         ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
+
         archive.getManifest().getModel().setModelVersion(null);
         try {
             archive.validate();
