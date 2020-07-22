@@ -677,14 +677,14 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
-        Assert.assertTrue(!new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
+        Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -701,7 +701,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testLoadingMemoryError"})
     public void testPredictionMemoryError() throws InterruptedException {
         // Load the model
-        Channel channel = TestUtils.getManagementChannel(configManager);
+        Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -742,7 +742,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
     public void testErrorBatch() throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
+        Channel channel = TestUtils.connect(true, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.setHttpStatus(null);
@@ -1455,9 +1455,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testTSValidPort"})
-    public void testTSInvalidPort()
-            throws IOException, InterruptedException, GeneralSecurityException,
-                    InvalidSnapshotException {
+    public void testTSInvalidPort() throws IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         //  invalid port test
         ConfigManager.init(new ConfigManager.Arguments());
@@ -1533,9 +1531,9 @@ public class ModelServerTest {
         if ("all".equals(requestVersion)) {
             Assert.assertTrue(resp.length >= 1);
         } else {
-            Assert.assertTrue(resp.length == 1);
+            Assert.assertEquals(resp.length, 1);
         }
-        Assert.assertTrue(expectedVersion.equals(resp[0].getModelVersion()));
+        Assert.assertEquals(resp[0].getModelVersion(), expectedVersion);
     }
 
     private void testLoadModelWithInitialWorkers(String url, String modelName, String version)

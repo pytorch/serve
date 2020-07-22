@@ -429,7 +429,7 @@ public final class ConfigManager {
         }
 
         return SslContextBuilder.forServer(privateKey, chain)
-                .protocols("TLSv1.2")
+                .protocols(new String[] {"TLSv1.2"})
                 .ciphers(supportedCiphers)
                 .build();
     }
