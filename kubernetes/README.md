@@ -7,7 +7,7 @@ This page demonstrate how to deploy Torchserve in Kubernetes using Helm Charts. 
 
 ![EKS Overview](overview.png)
 
-In this example we use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaces with any kubernetes cluster / distributed storage for PVC.
+In this example we use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaced with any kubernetes cluster / distributed storage for PVC.
 
 ### Prerequisites
 
