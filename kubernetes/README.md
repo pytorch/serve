@@ -61,30 +61,29 @@ helm install \
 
 We use a EFS backed Persistant Volume store for storing the MAR files and the Torchserve config that would be shared by all the TorchServe Pods. 
 
-To prepare a EFS volume as a model store we have to 
+To prepare a EFS volume as a shared model / config store we have to 
 
 1. Create a EFS file system. 
 2. Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
-3. Copy the Torchserve MAR files / Confdif
+3. Copy the Torchserve MAR files / Config files to a predefined directory structure.
 
+Bulk of the heavy lifting for these steps is performed by ``setup_efs.sh`` script. 
 
-setup_efs.sh
+This script would 
 
-This script 
-* Does A
-* Does B
+* Creete a EFS File system
+* Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
+* Boootup an EC2 host and attach the EFS Filesystem
 
-To run the script : 
+Finally we would copy the MAR files / Config files to the EFS mounted by the EFS.
 
-
-* Ensure you have AWS CLI installed and configured.
-* Update the following variables in `setup_efs.sh`
+To run the script, Update the following variables in `setup_efs.sh`
 
     ```
-    CLUSTER_NAME=TorchserveCluster // EKS TS Cluser Name
-    MOUNT_TARGET_GROUP_NAME="eks-efs-group-999" // 
-    SECURITY_GROUP_NAME="ec2-instance-group-999" // Securit
-    EC2_KEY_NAME="machine-learning"
+    CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
+    MOUNT_TARGET_GROUP_NAME="eks-efs-group"
+    SECURITY_GROUP_NAME="ec2-instance-group"
+    EC2_KEY_NAME="machine-learning" # This can be an existing keypair that you already have in the region.
     ```
 
 Then run `./setup_efs.sh`
