@@ -174,21 +174,25 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             port = 80
     else:
         # Start TorchServe
-        '''
-        Default docker files do not exist and same needs to be added.
-        '''
-        raise Exception('Docker not supported at this moment. Use --ts switch.')
-
         docker = 'nvidia-docker' if pargs.gpus else 'docker'
         container = 'ts_benchmark_gpu' if pargs.gpus else 'ts_benchmark_cpu'
-        docker_path = 'torchserve-model-server:nightly-torch-gpu' \
-            if pargs.gpus else 'torchserve-model-server:nightly-torch-cpu'
+        docker_path = 'pytorch/torchserve:latest-gpu' \
+            if pargs.gpus else 'pytorch/torchserve:latest'
         if pargs.docker:
-            container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
-            docker_path = pargs.docker[0]
+            s_pargs_docker = ''.join([str(elem) for elem in pargs.docker]) 
+            if '/' in s_pargs_docker:
+                #Fixed the logic to get the container name correctly
+                container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[-1].split(':')[0])
+                docker_path = pargs.docker[0]
+            else:
+                container = 'ts_benchmark_{}'.format(pargs.docker[0].split(':')[1])
+                docker_path = pargs.docker
+        docker_path = ''.join([str(elem) for elem in docker_path]) 
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
-        run_process(docker_run_call)
+        retval = run_process(docker_run_call).returncode
+        if retval != 0:
+            raise Exception("docker run command failed!! Please provide a valid docker image")
 
     management_port = int(pargs.management[0]) if pargs.management else port + 1
     time.sleep(300)
