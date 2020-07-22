@@ -16,7 +16,12 @@ install_java_deps()
   JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
 	if [ "$JAVA_VERSION" != "11" ]
   then
-    sudo apt-get install -y openjdk-11-jdk
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      brew tap AdoptOpenJDK/openjdk
+      brew cask install adoptopenjdk11
+    else
+      sudo apt-get install -y openjdk-11-jdk
+    fi
   fi
   set -e
 }
@@ -66,10 +71,23 @@ run_backend_python_linting()
   fi
 }
 
+run_model_archiver_python_linting()
+{
+  cd model-archiver
+  if pylint -rn --rcfile=./model_archiver/tests/pylintrc model_archiver/.;
+  then
+    echo "Model archiver python linting suite execution successful"
+  else
+    echo "Model archiver python linting execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
 run_model_archiver_UT_suite()
 {
   cd model-archiver
-  if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/;
+  if python -m pytest --cov-report html:htmlcov_ut --cov=model_archiver/ model_archiver/tests/unit_tests/;
   then
     echo "Model-archiver UT test suite execution successfully"
   else
@@ -82,7 +100,7 @@ run_model_archiver_UT_suite()
 run_model_archiver_IT_suite()
 {
   cd model-archiver
-  if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/;
+  if python -m pytest --cov-report html:htmlcov_it --cov=model_archiver/ model_archiver/tests/integ_tests/;
   then
     echo "Model-archiver IT test suite execution successful"
   else
@@ -196,6 +214,4 @@ clean_up_build_residuals()
   rm -rf ts/metrics/__pycache__/
   rm -rf ts/protocol/__pycache__/
   rm -rf ts/utils/__pycache__/
-  rm -rf frontend/modelarchive/build
-  rm -rf frontend/server/build
 }

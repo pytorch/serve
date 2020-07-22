@@ -4,18 +4,17 @@
 Helper utils for Model Export tool
 """
 
-import json
 import logging
 import os
 import re
 import zipfile
 import shutil
+import tarfile
+from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
-from .manifest_components.engine import Engine
 from .manifest_components.manifest import Manifest
 from .manifest_components.model import Model
-from .manifest_components.publisher import Publisher
 
 archiving_options = {
     "tgz": ".tar.gz",
@@ -27,6 +26,7 @@ MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'
 MANIFEST_FILE_NAME = 'MANIFEST.json'
 MAR_INF = 'MAR-INF'
+
 
 class ModelExportUtils(object):
     """
@@ -55,7 +55,7 @@ class ModelExportUtils(object):
 
         if os.path.exists(export_file):
             if overwrite:
-                logging.warning("Overwriting {0} ...".format(export_file))
+                logging.warning("Overwriting %s ...", export_file)
             else:
                 raise ModelArchiverError("{0} already exists.\n"
                                          "Please specify --force/-f option to overwrite the model archive "
@@ -85,16 +85,6 @@ class ModelExportUtils(object):
                                      " Found {} files {} in model-path.".format(suffix, count, match))
 
     @staticmethod
-    def generate_publisher(publisherargs):
-        publisher = Publisher(author=publisherargs.author, email=publisherargs.email)
-        return publisher
-
-    @staticmethod
-    def generate_engine(engineargs):
-        engine = Engine(engine_name=engineargs.engine)
-        return engine
-
-    @staticmethod
     def generate_model(modelargs):
         model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
                       model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version,
@@ -109,15 +99,9 @@ class ModelExportUtils(object):
         :return:
         """
 
-        arg_dict = vars(args)
-
-        publisher = ModelExportUtils.generate_publisher(args) if 'author' in arg_dict and 'email' in arg_dict else None
-
-        engine = ModelExportUtils.generate_engine(args) if 'engine' in arg_dict else None
-
         model = ModelExportUtils.generate_model(args)
 
-        manifest = Manifest(runtime=args.runtime, model=model, engine=engine, publisher=publisher)
+        manifest = Manifest(runtime=args.runtime, model=model)
 
         return str(manifest)
 
@@ -133,6 +117,12 @@ class ModelExportUtils(object):
 
     @staticmethod
     def copy_artifacts(model_name, **kwargs):
+        """
+        copy model artifacts in a common model directory for archiving
+        :param model_name: name of model being archived
+        :param kwargs: key value pair of files to be copied in archive
+        :return:
+        """
         model_path = '/tmp/{0}'.format(model_name)
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
@@ -163,8 +153,6 @@ class ModelExportUtils(object):
         mar_path = ModelExportUtils.get_archive_export_path(export_file, model_name, archive_format)
         try:
             if archive_format == "tgz":
-                import tarfile
-                from io import BytesIO
                 with tarfile.open(mar_path, 'w:gz') as z:
                     ModelExportUtils.archive_dir(model_path, z, archive_format, model_name)
                     # Write the manifest here now as a json

@@ -13,13 +13,13 @@ do
           ;;
         -g|--gpu)
           DOCKER_RUNTIME="--gpus all"
-          IMAGE_NAME="pytorch/torchserve:latest-gpu"
+          IMAGE_NAME="pytorch/torchserve:dev-gpu"
           shift
           ;;
 	-d|--gpu_devices)
           if test $
           then
-            IMAGE_NAME="pytorch/torchserve:latest-gpu"
+            IMAGE_NAME="pytorch/torchserve:dev-gpu"
             GPU_DEVICES='--gpus '"\"device=$2\""'' 
             shift
           fi
