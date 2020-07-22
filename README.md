@@ -17,6 +17,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
+* [Install TorchServe on windows subsystem for linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
@@ -115,16 +116,10 @@ Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-#### For Debian Based Systems
-Verified on EC2 instances running Ubuntu DL AMI 28.x
+#### For Debian Based Systems/ MacOS
 
 ```
-./scripts/install_from_src_ubuntu
-```
-#### For macOS
-
-```
-./scripts/install_from_src_macos
+./scripts/install_from_src
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).

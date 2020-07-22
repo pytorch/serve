@@ -304,17 +304,13 @@ public final class ConfigManager {
         }
         int workers = getConfiguredDefaultWorkersPerModel();
 
-        if ((workers == 0) && (prop.getProperty("NUM_WORKERS", null) != null)) {
-            workers = getIntProperty("NUM_WORKERS", 0);
-        }
-
         if (workers == 0) {
             workers = getNumberOfGpu();
         }
         if (workers == 0) {
             workers = Runtime.getRuntime().availableProcessors();
         }
-        setProperty("NUM_WORKERS", Integer.toString(workers));
+
         return workers;
     }
 
@@ -429,7 +425,7 @@ public final class ConfigManager {
         }
 
         return SslContextBuilder.forServer(privateKey, chain)
-                .protocols("TLSv1.2")
+                .protocols(new String[] {"TLSv1.2"})
                 .ciphers(supportedCiphers)
                 .build();
     }

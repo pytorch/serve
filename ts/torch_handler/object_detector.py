@@ -49,6 +49,9 @@ class ObjectDetector(VisionHandler):
         # Predict the classes and bounding boxes in an image using a trained deep learning model.
         data = Variable(data).to(self.device)
         pred = self.model([data])  # Pass the image to the model
+        if pred[0]['labels'].nelement() == 0:
+            return []
+
         pred_class = list(pred[0]['labels'].cpu().numpy()) # Get the Prediction Score
         # Bounding boxes
         pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].cpu().detach().numpy())]
@@ -60,6 +63,9 @@ class ObjectDetector(VisionHandler):
         return [pred_class, pred_boxes]
 
     def postprocess(self, data):
+        if not data:
+            return data
+
         pred_class = data[0]
         try:
             if self.mapping:
@@ -91,8 +97,10 @@ def handle(data, context):
 
         data = _service.preprocess(data)
         data = _service.inference(data)
-        data = _service.postprocess(data)
 
-        return data
+        if data:
+            return _service.postprocess(data)
+        else:
+            return [[]]
     except Exception as e:
         raise Exception("Please provide a custom handler in the model archive." + e)

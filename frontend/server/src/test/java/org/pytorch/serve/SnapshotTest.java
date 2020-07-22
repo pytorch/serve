@@ -230,6 +230,20 @@ public class SnapshotTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testAsyncScaleModelSnapshot"})
+    private void testUnregisterModelWithZeroWorkerSnapshot() throws InterruptedException {
+        Channel managementChannel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(managementChannel, "noop.mar", "noop_zero", false, false);
+        waitForSnapshot(2000);
+        TestUtils.unregisterModel(managementChannel, "noop_zero", null, true);
+        validateSnapshot("snapshot9.cfg");
+        waitForSnapshot();
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterModelWithZeroWorkerSnapshot"})
     public void testStopTorchServeSnapshot() {
         server.stop();
         validateSnapshot("snapshot9.cfg");
@@ -397,7 +411,7 @@ public class SnapshotTest {
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);
         prop.put("model_snapshot", snapshotJson);
         prop.put("tsConfigFile", "dummyconfig");
-        prop.put("NUM_WORKERS", 4);
+        prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
     }
