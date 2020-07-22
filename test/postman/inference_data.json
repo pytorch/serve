@@ -5,8 +5,15 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
-        "content-type":"text/plain",
-        "expected":"Business"
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+            "World":0.0021506540942937136,
+            "Sports":2.8953058972547296e-07,
+            "Business":0.9967544674873352,
+            "Sci/Tec":0.0010945842368528247
+        },
+        "tolerance":1
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted.mar",
@@ -14,8 +21,15 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
-        "content-type":"text/plain",
-        "expected":"Business"
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+            "World":0.0021506540942937136,
+            "Sports":2.8953058972547296e-07,
+            "Business":0.9967544674873352,
+            "Sci/Tec":0.0010945842368528247
+        },
+        "tolerance":1
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
@@ -25,23 +39,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tabby":0.2752002477645874
-            },
-            {
-                "lynx":0.2546876072883606
-            },
-            {
-                "tiger_cat":0.24254210293293
-            },
-            {
-                "Egyptian_cat":0.2213735282421112
-            },
-            {
-                "cougar":0.0022544863168150187
-            }
-        ],
+        "expected":{
+            "tabby":0.2752002477645874,
+            "lynx":0.2546876072883606,
+            "tiger_cat":0.24254210293293,
+            "Egyptian_cat":0.2213735282421112,
+            "cougar":0.0022544863168150187
+        },
         "tolerance":1
     },
     {
@@ -52,23 +56,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tabby":0.2752002477645874
-            },
-            {
-                "lynx":0.2546876072883606
-            },
-            {
-                "tiger_cat":0.24254210293293
-            },
-            {
-                "Egyptian_cat":0.2213735282421112
-            },
-            {
-                "cougar":0.0022544863168150187
-            }
-        ],
+        "expected":{
+            "tabby":0.2752002477645874,
+            "lynx":0.2546876072883606,
+            "tiger_cat":0.24254210293293,
+            "Egyptian_cat":0.2213735282421112,
+            "cougar":0.0022544863168150187
+        },
         "tolerance":1
     },
     {
@@ -79,23 +73,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tiger_cat":0.4693359136581421
-            },
-            {
-                "tabby":0.4633873701095581
-            },
-            {
-                "Egyptian_cat":0.06456154584884644
-            },
-            {
-                "lynx":0.001282821292988956
-            },
-            {
-                "plastic_bag":0.00023323031200561672
-            }
-        ],
+        "expected":{
+            "tiger_cat":0.4693359136581421,
+            "tabby":0.4633873701095581,
+            "Egyptian_cat":0.06456154584884644,
+            "lynx":0.001282821292988956,
+            "plastic_bag":0.00023323031200561672
+        },
         "tolerance":1
     },
     {
@@ -106,23 +90,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tiger_cat":0.4693359136581421
-            },
-            {
-                "tabby":0.4633873701095581
-            },
-            {
-                "Egyptian_cat":0.06456154584884644
-            },
-            {
-                "lynx":0.001282821292988956
-            },
-            {
-                "plastic_bag":0.00023323031200561672
-            }
-        ],
+        "expected":{
+            "tiger_cat":0.4693359136581421,
+            "tabby":0.4633873701095581,
+            "Egyptian_cat":0.06456154584884644,
+            "lynx":0.001282821292988956,
+            "plastic_bag":0.00023323031200561672
+        },
         "tolerance":1
     },
     {
@@ -133,23 +107,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tabby":0.31839194893836975
-            },
-            {
-                "tiger_cat":0.2651394307613373
-            },
-            {
-                "Egyptian_cat":0.24323278665542603
-            },
-            {
-                "lynx":0.16119907796382904
-            },
-            {
-                "tiger":0.006510233972221613
-            }
-        ],
+        "expected":{
+            "tabby":0.31839194893836975,
+            "tiger_cat":0.2651394307613373,
+            "Egyptian_cat":0.24323278665542603,
+            "lynx":0.16119907796382904,
+            "tiger":0.006510233972221613
+        },
         "tolerance":1
     },
     {
@@ -160,26 +124,16 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tabby":0.31839194893836975
-            },
-            {
-                "tiger_cat":0.2651394307613373
-            },
-            {
-                "Egyptian_cat":0.24323278665542603
-            },
-            {
-                "lynx":0.16119907796382904
-            },
-            {
-                "tiger":0.006510233972221613
-            }
-        ],
+        "expected":{
+            "tabby":0.31839194893836975,
+            "tiger_cat":0.2651394307613373,
+            "Egyptian_cat":0.24323278665542603,
+            "lynx":0.16119907796382904,
+            "tiger":0.006510233972221613
+        },
         "tolerance":1
     },
-        {
+    {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
         "model_name":"resnet-18",
         "worker":1,
@@ -187,23 +141,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tabby":0.40864479541778564
-            },
-            {
-                "tiger_cat":0.35061511397361755
-            },
-            {
-                "Egyptian_cat":0.1260961890220642
-            },
-            {
-                "lynx":0.023326940834522247
-            },
-            {
-                "bucket":0.011855212040245533
-            }
-        ],
+        "expected":{
+            "tabby":0.40864479541778564,
+            "tiger_cat":0.35061511397361755,
+            "Egyptian_cat":0.1260961890220642,
+            "lynx":0.023326940834522247,
+            "bucket":0.011855212040245533
+        },
         "tolerance":1
     },
     {
@@ -214,23 +158,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tabby":0.40864479541778564
-            },
-            {
-                "tiger_cat":0.35061511397361755
-            },
-            {
-                "Egyptian_cat":0.1260961890220642
-            },
-            {
-                "lynx":0.023326940834522247
-            },
-            {
-                "bucket":0.011855212040245533
-            }
-        ],
+        "expected":{
+            "tabby":0.40864479541778564,
+            "tiger_cat":0.35061511397361755,
+            "Egyptian_cat":0.1260961890220642,
+            "lynx":0.023326940834522247,
+            "bucket":0.011855212040245533
+        },
         "tolerance":1
     },
     {
@@ -241,23 +175,13 @@
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":[
-            {
-                "tiger_cat":0.5501413345336914
-            },
-            {
-                "tabby":0.3231860101222992
-            },
-            {
-                "Egyptian_cat":0.11440037935972214
-            },
-            {
-                "lynx":0.006006305105984211
-            },
-            {
-                "tiger":0.004394155461341143
-            }
-        ],
+        "expected":{
+            "tiger_cat":0.5501413345336914,
+            "tabby":0.3231860101222992,
+            "Egyptian_cat":0.11440037935972214,
+            "lynx":0.006006305105984211,
+            "tiger":0.004394155461341143
+        },
         "tolerance":1
     },
     {
