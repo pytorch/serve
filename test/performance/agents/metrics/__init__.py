@@ -156,7 +156,7 @@ def get_metrics(server_process, child_processes, logger):
 
     # Total processes
     result['total_processes'] = len(worker_stats) + 1
-    result['total_workers'] = max(len(worker_stats) - 1, 0)
+    result['total_workers'] = len(worker_stats)
     result['orphans'] = len(list(filter(lambda p: p['ppid'] == 1, worker_stats)))
     result['zombies'] = len(zombie_children)
 
