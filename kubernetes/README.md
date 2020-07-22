@@ -109,18 +109,13 @@ Finally copy the MAR files / Config files in to the data folder
 Copy the following contents in to a file called config.yaml in to the directory
 
     inference_address=http://0.0.0.0:8080
-    load_models=squeezenet1_1.mar
-    snapshot_store=FS
-    NUM_WORKERS=1
-    model_store=/home/model-server/model-store
-    number_of_gpu=1
-    job_queue_size=1000
-    python=/home/venv/bin/python3
-    model_snapshot={"name":"startup.cfg","modelCount":1,"created":1595349530201,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":1,"maxWorkers":1,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}}}}
-    tsConfigFile=/home/model-server/config.properties
-    version=0.1.1
-    number_of_netty_threads=32
     management_address=http://0.0.0.0:8081
+    NUM_WORKERS=1
+    number_of_gpu=1
+    number_of_netty_threads=32
+    job_queue_size=1000
+    model_store=/home/model-server/model-store
+    model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}}}}
 
 Finally terminate the EC2 instance.
 
