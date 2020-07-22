@@ -432,8 +432,6 @@ Resources:
                content: !Sub |
                  inference_address=http://0.0.0.0:8080
                  management_address=http://0.0.0.0:8081
-                 private_key_file=/etc/torchserve/server.key
-                 certificate_file=/etc/torchserve/server.pem
                  load_models=ALL
                  model_store=/mnt/efs/model_store
                mode: '000400'
