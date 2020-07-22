@@ -10,17 +10,24 @@ cleanup()
   rm -rf model_store
 
   rm -rf logs
+
+  # clean up residual from model-archiver IT suite.
+  rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
 }
 
 install_pytest_suite_deps
 
 run_backend_pytest
 
+build_frontend
+
 run_backend_python_linting
+
+run_model_archiver_python_linting
 
 run_model_archiver_UT_suite
 
-./scripts/install_from_src_ubuntu
+./scripts/install_from_src
 
 run_model_archiver_IT_suite
 
@@ -30,16 +37,19 @@ start_torchserve
 
 
 models=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18")
-model_inputs=("examples/object_detector/persons.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg")
+model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg")
 handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier")
 
 for i in ${!models[@]};
 do
   model=${models[$i]}
-  input=${model_inputs[$i]}
+  inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
   handler=${handlers[$i]}
   register_model "$model"
-  run_inference "$model" "$input"
+  for input in ${inputs[@]};
+  do
+    run_inference "$model" "$input"
+  done
   #skip unregistering resnet-18 model to test snapshot feature with restart
   if [ "$model" != "resnet-18" ]
   then

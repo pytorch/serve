@@ -79,7 +79,7 @@ public class Job {
         HttpResponseStatus status =
                 (statusPhrase == null)
                         ? HttpResponseStatus.valueOf(statusCode)
-                        : HttpResponseStatus.valueOf(statusCode, statusPhrase);
+                        : new HttpResponseStatus(statusCode, statusPhrase);
         FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
 
         if (contentType != null && contentType.length() > 0) {
