@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -x
-set -e
+#set -e
 
 TS_REPO="https://github.com/pytorch/serve"
 BRANCH=${1:-master}
@@ -27,10 +27,10 @@ install_torchserve_from_source() {
   git clone -b $2 $1
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
-  ./scripts/install_from_src_ubuntu
-  echo "TS Branch : " $(git rev-parse --abbrev-ref HEAD) >> $3
-  echo "TS Branch Commit Id : " $(git rev-parse HEAD) >> $3
-  echo "Build date : " $(date) >> $3
+  ./scripts/install_from_src
+  echo "TS Branch : " "$(git rev-parse --abbrev-ref HEAD)" >> $3
+  echo "TS Branch Commit Id : " "$(git rev-parse HEAD)" >> $3
+  echo "Build date : " "$(date)" >> $3
   echo "Torchserve Succesfully installed"
 }
 
@@ -55,7 +55,7 @@ generate_densenet_test_model_archive() {
 start_torchserve() {
 
   # Start Torchserve with Model Store
-  torchserve --start --model-store $1 --models $1/densenet161_v1.mar &> $2
+  torchserve --start --model-store $1 --models $1/densenet161_v1.mar &>> $2
   sleep 10
   curl http://127.0.0.1:8081/models
   
@@ -64,7 +64,7 @@ start_torchserve() {
 start_secure_torchserve() {
 
   # Start Torchserve with Model Store
-  torchserve --start --ts-config resources/config.properties --model-store $1 --models $1/densenet161_v1.mar &> $2
+  torchserve --start --ts-config resources/config.properties --model-store $1  &>> $2
   sleep 10
   curl --insecure -X GET https://127.0.0.1:8444/models
 }
@@ -82,7 +82,7 @@ delete_model_store_snapshots() {
 
 
 run_postman_test() {(  
-  set -e
+  # set -e
   # Run Postman Scripts
   mkdir $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/
@@ -90,7 +90,7 @@ run_postman_test() {(
   # Run Management API Tests
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --bail --verbose postman/management_api_test_collection.json \
+  newman run -e postman/environment.json -x --verbose postman/management_api_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
 
 
@@ -98,15 +98,18 @@ run_postman_test() {(
   stop_torch_serve
   delete_model_store_snapshots
   start_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run -e postman/environment.json --bail --verbose postman/inference_api_test_collection.json \
+  newman run -e postman/environment.json -x --verbose postman/inference_api_test_collection.json \
 	  -d postman/inference_data.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
 
   # Run Https test cases
   stop_torch_serve
   delete_model_store_snapshots
   start_secure_torchserve $MODEL_STORE $TS_LOG_FILE
-  newman run --insecure -e postman/environment.json --bail --verbose postman/https_test_collection.json \
+  newman run --insecure -e postman/environment.json -x --verbose postman/https_test_collection.json \
 	  -r cli,html --reporter-html-export $ROOT_DIR/report/https_test_report.html >>$1 2>&1
+
+  stop_torch_serve
+  delete_model_store_snapshots
 
   cd -
 )}
@@ -127,12 +130,14 @@ sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
 
+sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
+
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
-install_torchserve_from_source $TS_REPO $BRANCH $TEST_EXECUTION_LOG_FILE
+install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
 
-echo "** Tests Complete ** "
+echo "** Tests Complete **"
 exit 0
