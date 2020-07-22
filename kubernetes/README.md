@@ -87,6 +87,15 @@ To run the script, Update the following variables in `setup_efs.sh`
 
 Then run `./setup_efs.sh`
 
+Upon completion of the script, SSH into the EC2 host and create the following directory structure which would be used the Torchserve Pods.
+
+    EFS_FILE_SYSTEM_DNS_NAME=file-system-id.efs.aws-region.amazonaws.com # Update file-system-id & aws-region
+    sudo mkdir efs-mount-point
+    sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport \
+    $EFS_FILE_SYSTEM_DNS_NAME:/ efs-mount-point
+    cd efs-mount-point
+    sudo mkdir data
+
 
 ## Deploy TorchServe using Helm Charts
 
