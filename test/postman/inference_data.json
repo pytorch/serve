@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_v2.mar",
         "model_name":"my_text_classifier",
         "worker":1,
         "synchronous":"true",
@@ -16,7 +16,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted_v2.mar",
         "model_name":"my_text_classifier_scripted",
         "worker":1,
         "synchronous":"true",
@@ -255,88 +255,11 @@
         ]
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_torchscript.mar",
-        "model_name":"roberta_qa_torchscript.mar",
-        "worker":1,
-        "synchronous":"true",
-        "file":"../examples/Huggingface_Transformers/sample_text.txt"
-    },
-    {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
         "model_name":"roberta_qa_no_torchscript",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/Huggingface_Transformers/sample_text.txt"
-    },
-    {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_torchscript.mar",
-        "model_name":"bert_token_classification_torchscript",
-        "worker":1,
-        "synchronous":"true",
-        "file":"../examples/text_classification/sample_text.txt",
-        "content-type":"application/json",
-        "expected":[
-            [
-                "[CLS]",
-                "I-PER"
-            ],
-            [
-                "bloomberg",
-                "I-MISC"
-            ],
-            [
-                "has",
-                "I-PER"
-            ],
-            [
-                "decided",
-                "I-PER"
-            ],
-            [
-                "to",
-                "I-PER"
-            ],
-            [
-                "publish",
-                "I-PER"
-            ],
-            [
-                "a",
-                "I-PER"
-            ],
-            [
-                "new",
-                "I-PER"
-            ],
-            [
-                "report",
-                "I-MISC"
-            ],
-            [
-                "on",
-                "I-MISC"
-            ],
-            [
-                "global",
-                "I-PER"
-            ],
-            [
-                "economic",
-                "I-MISC"
-            ],
-            [
-                "situation",
-                "I-PER"
-            ],
-            [
-                ".",
-                "I-MISC"
-            ],
-            [
-                "[SEP]",
-                "I-PER"
-            ]
-        ]
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_no_torchscript.mar",
@@ -407,15 +330,6 @@
                 "B-LOC"
             ]
         ]
-    },
-    {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_with_torchscript.mar",
-        "model_name":"bert_seqc_with_torchscript",
-        "worker":"1",
-        "synchronous":"true",
-        "file":"../examples/text_classification/sample_text.txt",
-        "content-type":"text/plain",
-        "expected":"Not Accepted"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_without_torchscript.mar",
