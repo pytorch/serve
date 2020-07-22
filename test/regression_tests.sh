@@ -27,7 +27,7 @@ install_torchserve_from_source() {
   git clone -b $2 $1
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
-  ./scripts/install_from_src_ubuntu
+  ./scripts/install_from_src
   echo "TS Branch : " "$(git rev-parse --abbrev-ref HEAD)" >> $3
   echo "TS Branch Commit Id : " "$(git rev-parse HEAD)" >> $3
   echo "Build date : " "$(date)" >> $3
