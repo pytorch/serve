@@ -7,15 +7,30 @@ The following page demonstrate how to deploy Torchserve in Kubernetes using Helm
 
 ![EKS Overview](overview.png)
 
-
-We use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaces with any Kubernetes cluster / Distributed storage..
+In this example we use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaces with any kubernetes cluster / distributed storage for PVC.
 
 ### Prerequisites
 
-* k8s cluster setup using EKS
-* kubectl / helm installation
+We would need the following tools to be installed to setup the K8S Torchserve cluster.
 
-### Cluster setup
+* AWS CLI - [Installation](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html)
+* eksctl - [Installation](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html)
+* kubectl - [Installation](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+* helm - [Installation](https://helm.sh/docs/intro/install/)
+
+
+## Cluster setup
+
+Is you have an existing kubernetes cluster setup you may skip this section and skip ahead to driver installation.
+
+### Setup IAM Roles & Policies
+
+### Subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace
+
+Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM)
+
+### Driver Installation
+
 
 * NVIDIA Driver
 * EFS-CSI Driver
