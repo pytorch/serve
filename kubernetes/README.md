@@ -1,26 +1,30 @@
 
 ## Torchserve on Kubernetes
 
-#### Overview
+### Overview
 
-We hope to demonstrate how to deploy Torchserve using Helm Charts with models shared from a distributed storage (EFS).
+The following page demonstrate how to deploy Torchserve in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment.
 
-#### Prerequisites
+We use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaces with any Kubernetes cluster / Distributed storage..
+
+### Prerequisites
+
 * k8s cluster setup using EKS
 * kubectl / helm installation
 
-#### Cluster setup
+### Cluster setup
 
 * NVIDIA Driver
 * EFS-CSI Driver
 
-#### Setup EFS 
+### Setup EFS 
 
-#### Deploy TorchServe using Helm Charts
+### Deploy TorchServe using Helm Charts
 
-#### Test Torchserve installation in k8s
+### Test Torchserve installation in k8s
 
-#### Roadmap
+### Roadmap
+* [] Autoscaling
 * [] Log Aggregation
 * [] Metrics Aggregation
 * [] EFK Stack Integration
@@ -28,9 +32,9 @@ We hope to demonstrate how to deploy Torchserve using Helm Charts with models sh
 * [] Canary
 * [] Cloud agnostic Distributed Storage
 
-#### Troubleshooting
+### Troubleshooting
 
-#### Other Resources
+### Other Resources
 
 * https://www.eksworkshop.com/beginner/190_efs/setting-up-efs/
 * 
