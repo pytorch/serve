@@ -13,8 +13,7 @@ import org.testng.annotations.Test;
 public class ModelArchiveTest {
 
     private File output;
-    private static final List<String> WHITELIST_URL_LIST =
-            Collections.singletonList("http(s)?://.*");
+    private static final List<String> VALID_HOSTS_LIST = Collections.singletonList("http(s)?://.*");
 
     @BeforeTest
     public void beforeTest() {
@@ -29,8 +28,7 @@ public class ModelArchiveTest {
     @Test
     public void test() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-        ModelArchive archive =
-                ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "noop.mar");
+        ModelArchive archive = ModelArchive.downloadModel(VALID_HOSTS_LIST, modelStore, "noop.mar");
         archive.validate();
         archive.clean();
         Assert.assertEquals(archive.getModelName(), "noop");
@@ -40,7 +38,7 @@ public class ModelArchiveTest {
     public void testInvalidURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
-                WHITELIST_URL_LIST,
+                VALID_HOSTS_LIST,
                 modelStore,
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
@@ -49,13 +47,13 @@ public class ModelArchiveTest {
     public void testMalformURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
-                WHITELIST_URL_LIST,
+                VALID_HOSTS_LIST,
                 modelStore,
                 "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
-    public void testWhitelistURL() throws ModelException, IOException {
+    public void testValidHostURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         final List<String> customUrlPatternList =
                 Collections.singletonList("http(s)?://s3.amazonaws.com.*");
@@ -68,20 +66,20 @@ public class ModelArchiveTest {
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testRelativePath() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-        ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "../mnist.mar");
+        ModelArchive.downloadModel(VALID_HOSTS_LIST, modelStore, "../mnist.mar");
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testNullModelstore() throws ModelException, IOException {
         String modelStore = null;
-        ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "../mnist.mar");
+        ModelArchive.downloadModel(VALID_HOSTS_LIST, modelStore, "../mnist.mar");
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
     public void testMarFileNotexist() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive archive =
-                ModelArchive.downloadModel(WHITELIST_URL_LIST, modelStore, "noop1.mar");
+                ModelArchive.downloadModel(VALID_HOSTS_LIST, modelStore, "noop1.mar");
     }
 
     @Test(expectedExceptions = FileAlreadyExistsException.class)
@@ -89,7 +87,7 @@ public class ModelArchiveTest {
         String modelStore = "src/test/resources/models";
         ModelArchive archive =
                 ModelArchive.downloadModel(
-                        WHITELIST_URL_LIST,
+                        VALID_HOSTS_LIST,
                         modelStore,
                         "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
     }

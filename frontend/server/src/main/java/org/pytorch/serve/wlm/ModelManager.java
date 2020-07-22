@@ -130,7 +130,7 @@ public final class ModelManager {
             throws FileAlreadyExistsException, ModelException, IOException {
         ModelArchive archive =
                 ModelArchive.downloadModel(
-                        configManager.getWhitelistUrls(), configManager.getModelStore(), url);
+                        configManager.getValidHosts(), configManager.getModelStore(), url);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);

@@ -77,7 +77,7 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
-    private static final String TS_WHITELIST_URLS = "whitelist_urls";
+    private static final String TS_VALID_HOSTS = "valid_hosts";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -533,8 +533,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
-                + "\nWhitelist Urls: "
-                + getWhitelistUrls();
+                + "\nValid host Urls: "
+                + getValidHosts();
     }
 
     public boolean useNativeIo() {
@@ -654,9 +654,9 @@ public final class ConfigManager {
         }
     }
 
-    public List<String> getWhitelistUrls() {
-        String whiltelistURL = prop.getProperty(TS_WHITELIST_URLS, "http(s)?://.*");
-        return Arrays.asList(whiltelistURL.split(","));
+    public List<String> getValidHosts() {
+        String validHostsURL = prop.getProperty(TS_VALID_HOSTS, "http(s)?://.*");
+        return Arrays.asList(validHostsURL.split(","));
     }
 
     public boolean isSnapshotDisabled() {
