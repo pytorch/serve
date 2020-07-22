@@ -3,11 +3,11 @@
 
 ## Overview
 
-This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment. Its uses the public Torchserve Docker image for the pods.
+This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment. Its uses [DockerHub Torchserve Image](https://hub.docker.com/r/pytorch/torchserve) for the deployment.
 
 ![EKS Overview](overview.png)
 
-In this example we use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaced with any kubernetes cluster / distributed storage for PVC.
+In this example we use EKS for Kubernetes Cluster and EFS for distributed storage. But this can replaced with any kubernetes cluster / distributed storage for PVC.
 
 In the following sections we would 
 * Create a EKS Cluster for deploying Torchserve.
@@ -23,22 +23,39 @@ We would need the following tools to be installed to setup the K8S Torchserve cl
 * kubectl - [Installation](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 * helm - [Installation](https://helm.sh/docs/intro/install/)
 
-
 ## EKS Cluster setup
 
 Is you have an existing EKS / Kubernetes cluster you may skip this section and skip ahead to driver installation. Ensure you have your AWS CLI configured with the credentials of an account with appropriate permissions. 
 
-The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU, EFS 
+The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU, EFS.
 
-#### Setup IAM Roles & Policies
 
-#### Subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace
+### Creating a EKS cluster
 
-Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM)
+First subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace. Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM). These hosts would be used for the EKS Node Group. 
 
-#### Driver Installation
 
-* NVIDIA Driver
+To create a cluster run the following command. 
+
+```eksctl create cluster -f templates/eks_cluster.yaml```
+
+This would create a EKS cluster named **TorchserveCluster**
+
+### Driver Installation
+
+**NVIDIA Driver**
+
+The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instauctions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
+
+```
+helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
+helm repo update
+helm install \
+    --version=0.6.0 \
+    --generate-name \
+    nvdp/nvidia-device-plugin
+```
+
 * EFS-CSI Driver
 
 ## EFS Backed Model Store Setup
