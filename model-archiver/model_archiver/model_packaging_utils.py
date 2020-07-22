@@ -138,7 +138,8 @@ class ModelExportUtils(object):
                 if file_type == "handler":
                     if path in model_handlers.keys():
                         continue
-                    elif '.py' not in path:
+
+                    if '.py' not in path:
                         path = (path.split(':')[0] if ':' in path else path) + '.py'
 
                 if file_type == "extra_files":
