@@ -41,8 +41,6 @@ To create a cluster run the following command.
 
 This would create a EKS cluster named **TorchserveCluster**
 
-### Driver Installation
-
 **NVIDIA Driver**
 
 The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instauctions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
