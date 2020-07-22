@@ -167,8 +167,14 @@ public class ModelArchive {
                 throw new InvalidModelException("Runtime is not defined or invalid.");
             }
 
-            if (manifest.getEngine() != null && manifest.getEngine().getEngineName() == null) {
-                throw new InvalidModelException("engineName is required in <engine>.");
+            if (manifest.getArchiverVersion() == null) {
+                logger.warn(
+                        "Model archive version is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
+            }
+
+            if (manifest.getCreatedOn() == null) {
+                logger.warn(
+                        "Model archive createdOn is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
             }
         } catch (InvalidModelException e) {
             clean();
