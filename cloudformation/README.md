@@ -67,6 +67,7 @@ aws cloudformation create-stack \
 
 ## Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)
 * To spinup a EC2 ASG cluster behind an ELB running Torchserve use the `ec2-asg.yaml` template
+* **NOTE**: Multi-node deployments require model path to be provided upfront as part of the template, and registering/unregistering models is not supported as of now.
 * Run the following command with the an ec2-keypair, and optionally an instance type (default: c5.4xlarge)
 
 ```
@@ -81,17 +82,24 @@ aws cloudformation create-stack \
   --parameters ParameterKey=KeyName,ParameterValue=<ec2-keypair-name> \
                ParameterKey=InstanceType,ParameterValue=<instance-type> \
                ParameterKey=MinNodeNumber,ParameterValue=<min-nodes> \
-               ParameterKey=MaxNodeNumber,ParameterValue=<max-nodes>
+               ParameterKey=MaxNodeNumber,ParameterValue=<max-nodes> \
+               ParameterKey=ModelPath,ParameterValue=<model-mar-url>
+```
+
+e.g. 
+```
+aws cloudformation create-stack \
+  --stack-name torchserve \
+  --region us-east-1 \
+  --template-body file://ec2-asg.yaml \
+  --capabilities CAPABILITY_IAM \
+  --parameters ParameterKey=KeyName,ParameterValue=useastcfntemplate \
+               ParameterKey=ModelPath,ParameterValue="https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
 ```
 
 * Once the cloudformation stack creation is complete, you can get the **TorchServeManagementURL** and **TorchServeInferenceURL** of the instance from the cloudformation output tab on AWS console and test with the following commands
 
 ```
-> curl -X POST "<TorchServeManagementURL>/models?initial_workers=1&synchronous=false&url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-{
-  "status": "Processing worker updates..."
-}
-
 > curl "<TorchServeInferenceURL>/ping"
 {
   "status": "Healthy"
@@ -99,12 +107,12 @@ aws cloudformation create-stack \
 
 > curl "<TorchServeManagementURL>/models"
 {
-    "models": [
-        {
-            "modelName": "squeezenet1_1",
-            "modelUrl": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
-        }
-     ]
+  "models": [
+    {
+      "modelName": "squeezenet1_1",
+      "modelUrl": "squeezenet1_1.mar"
+    }
+  ]
 }
 
 > curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg

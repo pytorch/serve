@@ -32,6 +32,10 @@ Parameters:
     Default: '0.0.0.0/0'
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  ModelPath:
+    Description: 'The location to download the model archive file from. e.g. https://torchserve.s3.amazonaws.com/mar_files/mnist.mar'
+    Type: String
+    ConstraintDescription: Must be a valid url.
   SSHLocation:
     Description: 'The IP address range that can be used to SSH to the EC2 instances'
     Type: String
@@ -384,6 +388,34 @@ Resources:
         MaxBatchSize: '1'
         PauseTime: PT30M
         WaitOnResourceSignals: 'true'
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EFS security group
+      SecurityGroupIngress:
+        - SourceSecurityGroupId: !Ref TorcheServeSecurityGroup
+          FromPort: 2049
+          IpProtocol: tcp
+          ToPort: 2049
+      VpcId: !Ref 'VPC'
+  TorchServeEFS:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: false
+  TorchServeMountTargetA:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref TorchServeEFS
+      SecurityGroups:
+        - !Ref EFSSecurityGroup
+      SubnetId: !Ref PublicSubnetA
+  TorchServeMountTargetB:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref TorchServeEFS
+      SecurityGroups:
+        - !Ref EFSSecurityGroup
+      SubnetId: !Ref PublicSubnetB
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     DependsOn: GatewayToInternet
@@ -402,6 +434,8 @@ Resources:
                  management_address=http://0.0.0.0:8081
                  private_key_file=/etc/torchserve/server.key
                  certificate_file=/etc/torchserve/server.pem
+                 load_models=ALL
+                 model_store=/mnt/efs/model_store
                mode: '000400'
                owner: root
                group: root
@@ -524,8 +558,15 @@ Resources:
           wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb
           dpkg -i /tmp/amazon-cloudwatch-agent.deb
           apt-get update -y
-          apt-get install -y python-pip python-setuptools openjdk-11-jdk openssl
+          apt-get install -y python-pip python-setuptools openjdk-11-jdk openssl binutils
           python /usr/lib/python2.7/dist-packages/easy_install.py --script-dir /opt/aws/bin  https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+          # Setup EFS
+          git clone https://github.com/aws/efs-utils
+          cd efs-utils && ./build-deb.sh && sudo apt-get -y install ./build/amazon-efs-utils*deb && cd ..
+          mkdir -p /mnt/efs /tmp/model_store
+          mount -t efs ${TorchServeEFS}:/ /mnt/efs
+          wget -P /tmp/model_store ${ModelPath}
+          cp -R -u -p /tmp/model_store /mnt/efs
           # Install miniconda https://docs.anaconda.com/anaconda/install/silent-mode/
           wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
           rm -rf /home/ubuntu/miniconda && bash /tmp/miniconda.sh -b -p /home/ubuntu/miniconda
@@ -540,9 +581,8 @@ Resources:
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource LaunchConfig --region ${AWS::Region} --configsets InstallAndRun
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeASG --region ${AWS::Region}
           # Start torchserve
-          mkdir model_store
           export LOG_LOCATION="/var/log/torchserve"
-          torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
+          torchserve --start --ts-config /etc/torchserve/config.properties
     CreationPolicy:
       ResourceSignal:
         Timeout: PT30M
