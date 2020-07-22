@@ -3,7 +3,7 @@
 
 ## Overview
 
-This page demonstrate how to deploy Torchserve in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment.
+This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment. Its uses the public Torchserve Docker image for the pods.
 
 ![EKS Overview](overview.png)
 
