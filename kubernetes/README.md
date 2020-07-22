@@ -79,12 +79,11 @@ Finally we would copy the MAR files / Config files to the EFS mounted by the EFS
 
 To run the script, Update the following variables in `setup_efs.sh`
 
-    ```
+
     CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
     MOUNT_TARGET_GROUP_NAME="eks-efs-group"
     SECURITY_GROUP_NAME="ec2-instance-group"
     EC2_KEY_NAME="machine-learning" # This can be an existing keypair that you already have in the region.
-    ```
 
 Then run `./setup_efs.sh`
 
