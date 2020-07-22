@@ -58,7 +58,8 @@ cat /tmp/ts.log
 To add to the tests, import a collection (in /postman) to Postman and add new requests.
 Specifically to test for inference against a new model
 * Open /postman/inference_data.json
-* Add new json object with the new model url and payload.
+* Add new json object with the new model url and payload.Refer [Datafile config](data_file_config.md) for details.
+
 
 ![POSTMAN UI](screenshot/postman.png)
 
