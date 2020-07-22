@@ -32,12 +32,19 @@ The following steps would create a EKS cluster, install all the required driver 
 
 ### Creating a EKS cluster
 
+**EKS Optimized AMI Subscription**
+
 First subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace. Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM). These hosts would be used for the EKS Node Group. 
 
+**Create a EKS Cluster**
 
-To create a cluster run the following command. This would create a EKS cluster named **TorchserveCluster**
+To create a cluster run the following command. 
 
 ```eksctl create cluster -f templates/eks_cluster.yaml```
+
+This would create a EKS cluster named **TorchserveCluster**
+
+**NVIDIA Plugin**
 
 The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instauctions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
 
@@ -52,7 +59,16 @@ helm install \
 
 ## EFS Backed Model Store Setup
 
-We need EFS for Snapshot & Model store. The `./setup_efs.sh` script created the needed EFS resources. 
+We use a EFS backed Persistant Volume store for storing the MAR files and the Torchserve config that would be shared by all the TorchServe Pods. 
+
+To prepare a EFS volume as a model store we have to 
+
+1. Create a EFS file system. 
+2. Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
+3. Copy the Torchserve MAR files / Confdif
+
+
+setup_efs.sh
 
 This script 
 * Does A
@@ -104,3 +120,4 @@ Then run `./setup_efs.sh`
 ### Other Resources
 
 * https://www.eksworkshop.com/beginner/190_efs/setting-up-efs/ 
+* https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/
