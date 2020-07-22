@@ -9,6 +9,11 @@ This page demonstrate how to deploy Torchserve in Kubernetes using Helm Charts. 
 
 In this example we use EKS for Kubernetes Cluster and EFS for distributed storage in this deployemnt. But this can replaced with any kubernetes cluster / distributed storage for PVC.
 
+In the following sections we would 
+* Create a EKS Cluster for deploying Torchserve.
+* Craete a EFS backed model store which would have the models & snapshot info to be shared by multiple hosts.
+* Use Helm charts to deploy Torchserve
+
 ### Prerequisites
 
 We would need the following tools to be installed to setup the K8S Torchserve cluster.
@@ -19,23 +24,24 @@ We would need the following tools to be installed to setup the K8S Torchserve cl
 * helm - [Installation](https://helm.sh/docs/intro/install/)
 
 
-## Cluster setup
+## EKS Cluster setup
 
-Is you have an existing kubernetes cluster setup you may skip this section and skip ahead to driver installation.
+Is you have an existing EKS / Kubernetes cluster you may skip this section and skip ahead to driver installation. Ensure you have your AWS CLI configured with the credentials of an account with appropriate permissions. 
 
-### Setup IAM Roles & Policies
+The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU, EFS 
 
-### Subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace
+#### Setup IAM Roles & Policies
+
+#### Subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace
 
 Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM)
 
-### Driver Installation
-
+#### Driver Installation
 
 * NVIDIA Driver
 * EFS-CSI Driver
 
-### Setup EFS 
+### EFS Backed Model Store Setup
 
 We need EFS for Snapshot & Model store. The `./setup_efs.sh` script created the needed EFS resources. 
 
