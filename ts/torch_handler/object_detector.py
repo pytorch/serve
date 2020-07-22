@@ -8,6 +8,7 @@ from packaging import version
 from .vision_handler import VisionHandler
 from ..utils.util import map_class_to_label
 
+
 class ObjectDetector(VisionHandler):
     """
     ObjectDetector handler class. This handler takes an image
@@ -29,6 +30,7 @@ class ObjectDetector(VisionHandler):
             self.initialized = True
 
     def postprocess(self, data):
+        result = []
         box_filters = [row['scores'] >= self.threshold for row in data]
         filtered_boxes, filtered_classes, filtered_scores = [
             [row[key][box_filter].tolist() for row, box_filter in zip(data, box_filters)]
@@ -36,9 +38,11 @@ class ObjectDetector(VisionHandler):
         ]
 
         retval = []
-        for classes, box, score in zip(filtered_classes[0], filtered_boxes[0], filtered_scores[0]):
-            _retval = map_class_to_label([[box]], self.mapping, [[classes]])[0]
-            _retval['score'] = score
-            retval.append(_retval)
+        for classes, boxes, scores in zip(filtered_classes, filtered_boxes, filtered_scores):
+            for _class, _box, _score in zip(classes, boxes, scores):
+                _retval = map_class_to_label([[_box]], self.mapping, [[_class]])[0]
+                _retval['score'] = _score
+                retval.append(_retval)
+            result.append(retval)
 
-        return [retval]
+        return result
