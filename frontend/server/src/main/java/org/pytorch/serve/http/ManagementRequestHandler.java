@@ -166,10 +166,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         resp.setMinWorkers(model.getMinWorkers());
         resp.setLoadedAtStartup(modelManager.getStartupModels().contains(modelName));
         Manifest manifest = model.getModelArchive().getManifest();
-        Manifest.Engine engine = manifest.getEngine();
-        if (engine != null) {
-            resp.setEngine(engine.getEngineName());
-        }
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
 

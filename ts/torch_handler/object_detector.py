@@ -30,7 +30,9 @@ class ObjectDetector(VisionHandler):
             self.initialized = True
 
     def postprocess(self, data):
+
         result = []
+
         box_filters = [row['scores'] >= self.threshold for row in data]
         filtered_boxes, filtered_classes, filtered_scores = [
             [row[key][box_filter].tolist() for row, box_filter in zip(data, box_filters)]
