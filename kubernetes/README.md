@@ -35,13 +35,9 @@ The following steps would create a EKS cluster, install all the required driver 
 First subscribe to EKS-optimized AMI with GPU Support in the AWS Marketplace. Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM). These hosts would be used for the EKS Node Group. 
 
 
-To create a cluster run the following command. 
+To create a cluster run the following command. This would create a EKS cluster named **TorchserveCluster**
 
 ```eksctl create cluster -f templates/eks_cluster.yaml```
-
-This would create a EKS cluster named **TorchserveCluster**
-
-**NVIDIA Driver**
 
 The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instauctions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
 
@@ -53,8 +49,6 @@ helm install \
     --generate-name \
     nvdp/nvidia-device-plugin
 ```
-
-* EFS-CSI Driver
 
 ## EFS Backed Model Store Setup
 
