@@ -314,7 +314,7 @@ public final class ConfigManager {
         if (workers == 0) {
             workers = Runtime.getRuntime().availableProcessors();
         }
-        setProperty("default_workers_per_model", Integer.toString(workers));
+
         return workers;
     }
 
