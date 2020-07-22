@@ -28,9 +28,9 @@ modules:
       RESNET_URL: ${RESNET_URL}
       RESNET_NAME: ${RESNET_NAME}
 
-  server_local_monitoring:
-    # metrics_monitoring_inproc and dependencies should be in python path
-    class : metrics_monitoring_inproc.Monitor # monitoring class.
+  server_monitoring:
+    # metrics_monitoring and dependencies should be in python path
+    class : metrics_monitoring.Monitor # monitoring class.
 
   apache_bench:
     class: apache_bench.ApacheBenchmarkExecutor
@@ -50,8 +50,8 @@ services:
       - "rm -r /tmp/ts_model_store"
       - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
 
-  - module: server_local_monitoring # should be added in modules section
-    ServerLocalClient: # keyword from metrics_monitoring_inproc.Monitor
+  - module: server_monitoring # should be added in modules section
+    ServerLocalClient: # keyword from metrics_monitoring.Monitor
     - interval: 1s
       logging : True
       metrics:

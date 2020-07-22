@@ -97,7 +97,7 @@ def run_test_suite(artifacts_dir, test_dir, pattern, exclude_pattern,
                                                                             GLOBAL_CONFIG_PATH, test_file,
                                                                             env_yaml_path))
 
-                    update_taurus_metric_files(suite_artifacts_dir, test_file)
+                    update_taurus_metric_files(suite_artifacts_dir)
 
     sys.exit(prt.exit_code)
 

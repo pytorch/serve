@@ -42,6 +42,7 @@ class Monitor(monitoring.Monitoring):
     def __init__(self):
         super(Monitor, self).__init__()
         self.client_classes.update({'ServerLocalClient': ServerLocalClient})
+        self.client_classes.update({'ServerRemoteClient': ServerRemoteClient})
 
 
 class ServerLocalClient(monitoring.LocalClient):
@@ -84,6 +85,20 @@ class ServerLocalClient(monitoring.LocalClient):
                     logs_writer = csv.writer(mon_logs, delimiter=',')
                     metrics = ['ts'] + sorted([metric for metric in good_list])
                     logs_writer.writerow(metrics)
+
+
+class ServerRemoteClient(monitoring.ServerAgentClient):
+    """Custom server remote client """
+    def get_data(self):
+        result = super().get_data()
+        # Logging for custom metric values
+        msg = []
+        for res in result:
+            for metric_name in self.config.get("metrics"):
+                metric_value = res[metric_name]
+                msg.append("{0} : {1}".format(metric_name, metric_value))
+            self.log.info("{0}".format(" -- ".join(msg)))
+        return result
 
 
 class ServerLocalMonitor(monitoring.LocalMonitor):

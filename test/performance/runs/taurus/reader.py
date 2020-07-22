@@ -21,13 +21,13 @@ import yaml
 
 
 def get_mon_metrics_list(test_yaml_path):
-    """Utility method to get list of server-agent metrics which are being monitored from a test yaml file"""
+    """Utility method to get list of ServerRemoteClient metrics which are being monitored from a test yaml file"""
     metrics = []
     with open(test_yaml_path) as test_yaml:
         test_yaml = yaml.safe_load(test_yaml)
         for rep_section in test_yaml.get('services', []):
-            if rep_section.get('module', None) == 'monitoring' and "server-agent" in rep_section:
-                for mon_section in rep_section.get('server-agent', []):
+            if rep_section.get('module', None) == 'monitoring' and "ServerRemoteClient" in rep_section:
+                for mon_section in rep_section.get('ServerRemoteClient', []):
                     if isinstance(mon_section, dict):
                         metrics.extend(mon_section.get('metrics', []))
 

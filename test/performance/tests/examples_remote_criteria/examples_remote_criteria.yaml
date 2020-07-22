@@ -23,8 +23,8 @@
       - "rm -r /tmp/ts_model_store"
       - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
 
-  - module: monitoring
-    server-agent:
+  - module: server_monitoring
+    ServerRemoteClient:
       - address: localhost:9009 # metric monitoring service address
         label: model-server  # if you specify label, it will be used in reports instead of ip:port
         interval: 1s    # polling interval

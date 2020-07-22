@@ -280,8 +280,8 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
     
     ```yaml
     services:
-      - module: monitoring
-        server-agent:
+      - module: server_monitoring
+        ServerRemoteClient:
           - address: <Model-Server-host>:9009 # metric monitoring service address
             label: Model-Server-inference-server  # Specified label will be used in reports instead of ip:port
             interval: 1s    # polling interval
@@ -309,12 +309,12 @@ Specify the metrics of interest in the services/monitoring section of the yaml.
     
     ```yaml
     modules:
-      server_local_monitoring:
+      server_monitoring:
         # metrics_monitoring_taurus and dependencies should be in python path
         class : metrics_monitoring_taurus.Monitor # monitoring class.
     
     services:
-      - module: server_local_monitoring # should be added in modules section
+      - module: server_monitoring # should be added in modules section
         ServerLocalClient: # keyword from metrics_monitoring_taurus.Monitor
         - interval: 1s
           metrics:
