@@ -36,9 +36,10 @@ mkdir -p model_store
 start_torchserve
 
 
-models=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18")
-model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg")
-handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier")
+ models=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18" "my_text_classifier_scripted" "alexnet_scripted" "fcn_resnet_101_scripted")
+ model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg"
+ "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg" "examples/image_segmenter/fcn/persons.jpg")
+ handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter")
 
 for i in ${!models[@]};
 do
