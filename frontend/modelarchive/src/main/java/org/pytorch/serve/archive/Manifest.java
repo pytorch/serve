@@ -106,10 +106,6 @@ public class Manifest {
             this.requirementsFile = requirementsFile;
         }
 
-        public Map<String, Object> getExtensions() {
-            return extensions;
-        }
-
         public String getHandler() {
             return handler;
         }
