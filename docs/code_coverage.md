@@ -30,7 +30,7 @@ The reports are generated at following path : `htmlcov/`
 ## To run python linting on `ts` package run following command
 
 ```bash
-pylint -rn --rcfile=./ts/tests/pylintrc ts/.;
+pylint -rn --rcfile=./ts/tests/pylintrc ts/.
 ```
 
 ## To run pytest suite on model-archiver run following command
