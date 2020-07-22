@@ -87,7 +87,7 @@ To run the script, Update the following variables in `setup_efs.sh`
 
 Then run `./setup_efs.sh`
 
-Upon completion of the script, SSH into the EC2 host and create the following directory structure which would be used the Torchserve Pods.
+Upon completion of the script, SSH into the EC2 host, mount the EFS filesystem and create the following directory structure which would be used the Torchserve Pods.
 
     EFS_FILE_SYSTEM_DNS_NAME=file-system-id.efs.aws-region.amazonaws.com # Update file-system-id & aws-region
     sudo mkdir efs-mount-point
@@ -95,6 +95,34 @@ Upon completion of the script, SSH into the EC2 host and create the following di
     $EFS_FILE_SYSTEM_DNS_NAME:/ efs-mount-point
     cd efs-mount-point
     sudo mkdir data
+
+Finally copy the MAR files / Config files in to the data folder
+
+    cd data
+    sudo mkdir model_store
+    cd model_store
+    wget 
+    cd -
+    mkdir config
+    cd config
+    
+Copy the following contents in to a file called config.yaml in to the directory
+
+    inference_address=http://0.0.0.0:8080
+    load_models=squeezenet1_1.mar
+    snapshot_store=FS
+    NUM_WORKERS=1
+    model_store=/home/model-server/model-store
+    number_of_gpu=1
+    job_queue_size=1000
+    python=/home/venv/bin/python3
+    model_snapshot={"name":"startup.cfg","modelCount":1,"created":1595349530201,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":1,"maxWorkers":1,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}}}}
+    tsConfigFile=/home/model-server/config.properties
+    version=0.1.1
+    number_of_netty_threads=32
+    management_address=http://0.0.0.0:8081
+
+Finally terminate the EC2 instance.
 
 
 ## Deploy TorchServe using Helm Charts
