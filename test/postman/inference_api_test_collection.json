@@ -207,6 +207,107 @@
 					]
 				}
 			},
+			"response": [],
+        },
+		{
+			"name": "Model Zoo - Inference Model with invalid model name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d0cf77d3-12ce-4d6a-a95c-89fc7d3a60cd",
+						"exec": [
+							"pm.test(",
+							"    \"Invalid Inference request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "{{file}}"
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/squeezenet0_0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"predictions",
+						"squeezenet0_0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference Model with valid model name but invalid model version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "55966989-1f9b-417f-8d37-3ba559606a0d",
+						"exec": [
+							"pm.test(",
+							"    \"Invalid Inference request \\t\" +",
+							"    \"Exception code : \" + pm.response.code + \"\\t\" +",
+							"    \"Exception Type : \" +pm.response.json().type + \"\\t\" +",
+							"    \"Exception Message: \" +pm.response.json().message + \"\\t\" ,",
+							"    function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "{{file}}"
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/predictions/{{model_name}}/0.0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"predictions",
+						"{{model_name}}",
+						"0.0"
+					]
+				}
+			},
 			"response": []
 		}
 	],
