@@ -1,7 +1,7 @@
 
 ## Torchserve on Kubernetes
 
-### Overview
+## Overview
 
 This page demonstrate how to deploy Torchserve in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment.
 
@@ -14,7 +14,7 @@ In the following sections we would
 * Craete a EFS backed model store which would have the models & snapshot info to be shared by multiple hosts.
 * Use Helm charts to deploy Torchserve
 
-### Prerequisites
+## Prerequisites
 
 We would need the following tools to be installed to setup the K8S Torchserve cluster.
 
@@ -41,7 +41,7 @@ Subscribe [here](https://aws.amazon.com/marketplace/pp/B07GRHFXGM)
 * NVIDIA Driver
 * EFS-CSI Driver
 
-### EFS Backed Model Store Setup
+## EFS Backed Model Store Setup
 
 We need EFS for Snapshot & Model store. The `./setup_efs.sh` script created the needed EFS resources. 
 
@@ -65,7 +65,7 @@ To run the script :
 Then run `./setup_efs.sh`
 
 
-### Deploy TorchServe using Helm Charts
+## Deploy TorchServe using Helm Charts
 
 
 | Parameter | Description | Default |
@@ -79,9 +79,9 @@ Then run `./setup_efs.sh`
 | `persistence.size`| Storage size to request | `5Gi` |
 
 
-### Test Torchserve installation in k8s
+#### Test Torchserve installation in k8s
 
-### Roadmap
+## Roadmap
 * [] Autoscaling
 * [] Log Aggregation
 * [] Metrics Aggregation
@@ -90,9 +90,8 @@ Then run `./setup_efs.sh`
 * [] Canary
 * [] Cloud agnostic Distributed Storage
 
-### Troubleshooting
+## Troubleshooting
 
 ### Other Resources
 
-* https://www.eksworkshop.com/beginner/190_efs/setting-up-efs/
-* 
+* https://www.eksworkshop.com/beginner/190_efs/setting-up-efs/ 
