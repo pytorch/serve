@@ -30,7 +30,6 @@ class ObjectDetector(VisionHandler):
             self.initialized = True
 
     def postprocess(self, data):
-
         result = []
 
         box_filters = [row['scores'] >= self.threshold for row in data]
@@ -39,8 +38,8 @@ class ObjectDetector(VisionHandler):
             for key in ['boxes', 'labels', 'scores']
         ]
 
-        retval = []
         for classes, boxes, scores in zip(filtered_classes, filtered_boxes, filtered_scores):
+            retval = []
             for _class, _box, _score in zip(classes, boxes, scores):
                 _retval = map_class_to_label([[_box]], self.mapping, [[_class]])[0]
                 _retval['score'] = _score
