@@ -58,7 +58,7 @@ helm install \
 ## EFS Backed Model Store Setup
 
 
-Torchserve Helm Chart needs a PersistentVolume with a tag `torchserve-model-store` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
+Torchserve Helm Chart needs a PersistentVolume with a tag `model-store` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
 
     model-server/
     ├── config
@@ -70,15 +70,9 @@ Torchserve Helm Chart needs a PersistentVolume with a tag `torchserve-model-stor
 
 **Create EFS Volume for the EKS Cluster**
 
-This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. 
+This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. To prepare a EFS volume as a shared model / config store we have to create a EFS file system, Security Group and Ingress rule to enable EFS communicate across NAT of the EKS cluster. 
 
-To prepare a EFS volume as a shared model / config store we,
-
-1. Create a EFS file system. 
-2. Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
-3. Copy the Torchserve MAR files / Config files to a predefined directory structure.
-
-Bulk of the heavy lifting for these steps is performed by ``setup_efs.sh`` script. To run the script, Update the following variables in `setup_efs.sh`
+This heavy lifting for these steps is performed by ``setup_efs.sh`` script. To run the script, Update the following variables in `setup_efs.sh`
 
     CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
     MOUNT_TARGET_GROUP_NAME="eks-efs-group"
@@ -95,7 +89,7 @@ We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/mast
 
 ```
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
-helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=fs-3f35ea3a --set efsProvisioner.awsRegion=us-west-2
+helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=fs-ab1cd --set efsProvisioner.awsRegion=us-west-2 efsProvisioner.reclaimPolicy=Retain
 ```
 
 Now create a PersistentVolume by running `kubectl apply -f efs/efs_pv_claim.yaml`. This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
@@ -124,6 +118,7 @@ kubectl exec --tty pod/model-store-pod -- mkdir /pv/config
 ```
 
 Finally terminate the pod - `kubectl delete pod/model-store-pod`.
+
 
 ## Deploy TorchServe using Helm Charts
 
