@@ -166,10 +166,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         resp.setMinWorkers(model.getMinWorkers());
         resp.setLoadedAtStartup(modelManager.getStartupModels().contains(modelName));
         Manifest manifest = model.getModelArchive().getManifest();
-        Manifest.Engine engine = manifest.getEngine();
-        if (engine != null) {
-            resp.setEngine(engine.getEngineName());
-        }
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
 
@@ -232,7 +228,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new InternalServerException("Failed to save model: " + modelUrl, e);
         }
 

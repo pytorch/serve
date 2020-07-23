@@ -182,7 +182,7 @@ public class ModelServer {
                                 workers,
                                 true);
                         startupModels.add(archive.getModelName());
-                    } catch (ModelException | IOException e) {
+                    } catch (ModelException | IOException | InterruptedException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -222,7 +222,7 @@ public class ModelServer {
                 modelManager.updateModel(
                         archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());
-            } catch (ModelException | IOException e) {
+            } catch (ModelException | IOException | InterruptedException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }
