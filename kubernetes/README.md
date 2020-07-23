@@ -58,7 +58,7 @@ helm install \
 ## PersistentVolume backed EFS Backed Setup
 
 
-Torchserve Helm Chart needs a PersistentVolume with a tag `model-store` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
+Torchserve Helm Chart needs a PersistentVolume with a label `model-store` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
 
     model-server/
     ├── config
