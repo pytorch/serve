@@ -98,7 +98,7 @@ Now create a PersistentVolume by running
 
 This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
 
-First create a TS config file that would be used for the deployment. Copy the following contents in to a file called config.yaml in to the directory
+First create a TS config file that would be used for the deployment. Copy the following contents in to a file called `config.properties` in to the directory
 
     inference_address=http://0.0.0.0:8080
     management_address=http://0.0.0.0:8081
@@ -119,6 +119,7 @@ kubectl exec --tty pod/model-store-pod -- mkdir /pv/model-home
 kubectl cp squeezenet1_1.mar model-store-pod:/pv/model-store/
 
 kubectl exec --tty pod/model-store-pod -- mkdir /pv/config
+kubectl cp config.properties model-store-pod:/pv/config
 ```
 
 Finally terminate the pod - `kubectl delete pod/model-store-pod`.
