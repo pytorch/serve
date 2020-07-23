@@ -25,7 +25,7 @@ We would need the following tools to be installed to setup the K8S Torchserve cl
 
 Is you have an existing EKS / Kubernetes cluster you may skip this section and skip ahead to PersistentVolume preparation. 
 
-Ensure you have your AWS CLI configured with the credentials of an account with appropriate permissions. The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU, EFS.
+Ensure you have your AWS CLI configured with the credentials of an account with appropriate permissions. The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU.
 
 
 ### Creating a EKS cluster
@@ -44,7 +44,7 @@ This would create a EKS cluster named **TorchserveCluster**
 
 **NVIDIA Plugin**
 
-The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instauctions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
+The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instructions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
 
 ```
 helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
@@ -57,8 +57,7 @@ helm install \
 
 ## PersistentVolume backed EFS Backed Setup
 
-
-Torchserve Helm Chart needs a PersistentVolume with a label `model-store` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
+Torchserve Helm Chart needs a PersistentVolume with a PVC label `model-store-claim` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
 
     model-server/
     ├── config
