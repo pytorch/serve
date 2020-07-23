@@ -1,16 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# Allow setting the model repo to a different location via env variable.
-# That way, for local testing, you don't need to constantly redownload
-# from AWS
-#
-# It must be a valid URI.
-# So, for Linux, use something like "file:///root/models/"
-if [[ -z $MODEL_REPO ]]; then
-	MODEL_REPO=https://torchserve.s3.amazonaws.com/mar_files
-fi
-
 clean_slate()
 {
 	echo "Cleaning up state"
@@ -177,10 +167,14 @@ register_model()
 {
   echo "Registering $1 model"
 <<<<<<< HEAD
+<<<<<<< HEAD
   response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
 =======
   response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=$MODEL_REPO/$1.mar&initial_workers=1&synchronous=true")
 >>>>>>> f6f97e1... Initial commit of envelopes.
+=======
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$1.mar&initial_workers=1&synchronous=true")
+>>>>>>> 55c4fb8... Undoing a change for local stuff.
 
   if [ ! "$response" == 200 ]
   then
