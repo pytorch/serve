@@ -15,7 +15,7 @@ TEST_EXECUTION_LOG_FILE="/tmp/test_exec.log"
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
 
-  pip install  mock pytest pylint pytest-mock pytest-cov transformers
+  pip install -U mock pytest pylint pytest-mock pytest-cov transformers numpy
   sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
   sudo apt-get -y install npm
   sudo npm install -g n
