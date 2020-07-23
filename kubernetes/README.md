@@ -150,6 +150,105 @@ To install Torchserve for the repository, run the following command from the roo
 
 #### Test Torchserve installation in k8s
 
+Fetch the Load Balancer Extenal IP by executing 
+
+```
+kubectl get svc
+```
+
+You should see an entry similar to 
+
+```
+ubuntu@ip-172-31-65-0:~/ts/rel/serve$ kubectl get svc
+NAME         TYPE           CLUSTER-IP      EXTERNAL-IP                                                              PORT(S)                         AGE
+torchserve   LoadBalancer   10.100.142.22   a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com   8080:31115/TCP,8081:31751/TCP   14m
+```
+
+Now execute the following commands to test Management / Prediction APIs
+```
+curl http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8081/models
+
+# You should something similar to the following
+{
+  "models": [
+    {
+      "modelName": "mnist",
+      "modelUrl": "mnist.mar"
+    },
+    {
+      "modelName": "squeezenet1_1",
+      "modelUrl": "squeezenet1_1.mar"
+    }
+  ]
+}
+
+
+curl http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1/
+
+# You should something similar to the following
+[
+  {
+    "modelName": "squeezenet1_1",
+    "modelVersion": "1.0",
+    "modelUrl": "squeezenet1_1.mar",
+    "runtime": "python",
+    "minWorkers": 3,
+    "maxWorkers": 3,
+    "batchSize": 1,
+    "maxBatchDelay": 100,
+    "loadedAtStartup": false,
+    "workers": [
+      {
+        "id": "9000",
+        "startTime": "2020-07-23T18:34:33.201Z",
+        "status": "READY",
+        "gpu": true,
+        "memoryUsage": 177491968
+      },
+      {
+        "id": "9001",
+        "startTime": "2020-07-23T18:34:33.204Z",
+        "status": "READY",
+        "gpu": true,
+        "memoryUsage": 177569792
+      },
+      {
+        "id": "9002",
+        "startTime": "2020-07-23T18:34:33.204Z",
+        "status": "READY",
+        "gpu": true,
+        "memoryUsage": 177872896
+      }
+    ]
+  }
+]
+
+
+wget https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+curl -X POST  http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1/ -T kitten_small.jpg
+
+# You should something similar to the following
+[
+  {
+    "lynx": 0.5370921492576599
+  },
+  {
+    "tabby": 0.28355881571769714
+  },
+  {
+    "Egyptian_cat": 0.10669822245836258
+  },
+  {
+    "tiger_cat": 0.06301568448543549
+  },
+  {
+    "leopard": 0.006023923866450787
+  }
+]
+```
+
+
+
 ## Roadmap
 * [] Autoscaling
 * [] Log Aggregation
