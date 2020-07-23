@@ -3,7 +3,7 @@
 
 ## Overview
 
-This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. Its uses [DockerHub Torchserve Image](https://hub.docker.com/r/pytorch/torchserve) for the deployment. This deployment leverages a PersistentVolume for storing snapshot / model files which are shared between multiple pods of the torchserve deployment.
+This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It uses [DockerHub Torchserve Image](https://hub.docker.com/r/pytorch/torchserve) for the pods a PersistentVolume for storing snapshot / model files which are shared between multiple pods of the torchserve deployment.
 
 ![EKS Overview](overview.png)
 
@@ -57,28 +57,28 @@ helm install \
 
 ## EFS Backed Model Store Setup
 
-This section describes steps to prepare a PersistentVolume that would be used by the TS Helm Chart.
 
-For this example we use a PersistentVolumes backed by EFS to store the MAR files and Torchserve config that would be shared by all the TorchServe Pods. The PersistentVolumeClaim of the Deployment can be fulfilled by any Distributed Strorage backed PersistentVolume.
+Torchserve Helm Chart needs a PersistentVolume with a tag `torchserve-model-store` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
 
-To prepare a EFS volume as a shared model / config store we
+    model-server/
+    ├── config
+    │   └── config.properties
+    └── model-store
+        ├── mnist.mar
+        └── squeezenet1_1.mar
+
+
+**Create EFS Volume for the EKS Cluster **
+
+This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. 
+
+To prepare a EFS volume as a shared model / config store we,
 
 1. Create a EFS file system. 
 2. Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
 3. Copy the Torchserve MAR files / Config files to a predefined directory structure.
 
-Bulk of the heavy lifting for these steps is performed by ``setup_efs.sh`` script. 
-
-This script would 
-
-* Creete a EFS File system
-* Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
-* Boootup an EC2 host and attach the EFS Filesystem
-
-Finally we would copy the MAR files / Config files to the EFS mounted by the EFS.
-
-To run the script, Update the following variables in `setup_efs.sh`
-
+Bulk of the heavy lifting for these steps is performed by ``setup_efs.sh`` script. To run the script, Update the following variables in `setup_efs.sh`
 
     CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
     MOUNT_TARGET_GROUP_NAME="eks-efs-group"
@@ -87,26 +87,20 @@ To run the script, Update the following variables in `setup_efs.sh`
 
 Then run `./setup_efs.sh`
 
-Upon completion of the script, SSH into the EC2 host, mount the EFS filesystem and create the following directory structure which would be used the Torchserve Pods.
+Upon completion of the script it would emit a EFS volume DNS Name similar to `fs-ab1cd.efs.us-west-2.amazonaws.com` where `fs-ab1cd` is the EFS filesystem id.
 
-    EFS_FILE_SYSTEM_DNS_NAME=file-system-id.efs.aws-region.amazonaws.com # Update file-system-id & aws-region
-    sudo mkdir efs-mount-point
-    sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport \
-    $EFS_FILE_SYSTEM_DNS_NAME:/ efs-mount-point
-    cd efs-mount-point
-    sudo mkdir data
+**Prepare PersistentVolume for Deployment**
 
-Finally copy the MAR files / Config files in to the data folder
+We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/master/stable/efs-provisioner) to create a PersistentVolume backed by EFS. Run the following command to set this up.
 
-    cd data
-    sudo mkdir model_store
-    cd model_store
-    wget 
-    cd -
-    mkdir config
-    cd config
-    
-Copy the following contents in to a file called config.yaml in to the directory
+```
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
+helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=fs-3f35ea3a --set efsProvisioner.awsRegion=us-west-2
+```
+
+Now create a PersistentVolume by running `kubectl apply -f efs/efs_pv_claim.yaml`. This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
+
+First create a TS config file that would be used for the deployment. Copy the following contents in to a file called config.yaml in to the directory
 
     inference_address=http://0.0.0.0:8080
     management_address=http://0.0.0.0:8081
@@ -115,12 +109,27 @@ Copy the following contents in to a file called config.yaml in to the directory
     number_of_netty_threads=32
     job_queue_size=1000
     model_store=/home/model-server/model-store
-    model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}}}}
+    model_snapshot={"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
 
-Finally terminate the EC2 instance.
+Now copy the files over to PersistentVolume using the following commands.
 
+```
+wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
+wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
+
+kubectl exec --tty pod/model-store-pod -- mkdir /pv/model-home
+kubectl cp squeezenet1_1.mar model-store-pod:/pv/model-store/
+
+kubectl exec --tty pod/model-store-pod -- mkdir /pv/config
+```
+
+Finally terminate the pod - `kubectl delete pod/model-store-pod`.
 
 ## Deploy TorchServe using Helm Charts
+
+To install Torchserve for the repository, run the following command from the root of the PyTorch dir after populating the `Values.yaml` with the right parameters.
+
+```helm install --debug goodly-guppy ./kubernetes/```
 
 
 | Parameter | Description | Default |
@@ -144,10 +153,3 @@ Finally terminate the EC2 instance.
 * [] Readiness / Liveness Probes
 * [] Canary
 * [] Cloud agnostic Distributed Storage
-
-## Troubleshooting
-
-### Other Resources
-
-* https://www.eksworkshop.com/beginner/190_efs/setting-up-efs/ 
-* https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/
