@@ -8,10 +8,10 @@ metadata:
 spec:
   ports:
   - name: preds
-    port: 8080
+    port: {{ .Values.torchserve.inference_port }}
     targetPort: ts 
   - name: mdl
-    port: 8081
+    port: {{ .Values.torchserve.management_port }}
     targetPort: ts-management
   type: LoadBalancer
   selector:
@@ -24,7 +24,7 @@ metadata:
   labels:
     app: torchserve
 spec:
-  replicas: 3
+  replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
       app: torchserve
@@ -37,25 +37,18 @@ spec:
       - name: persistent-storage
         persistentVolumeClaim:
           claimName: efs-storage-claim
-      initContainers:
-      - name: torchserve-init
-        image: "curlimages/curl"
-        command:  ['sh', '-c', 'curl -o /home/model-server/model-store/squeezenet1_1.mar https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar']
-        volumeMounts:
-          - mountPath: "/home/model-server/model-store"
-            name: persistent-storage
       containers:
       - name: torchserve
-        image: "pytorch/torchserve:latest-gpu"
+        image: {{ .Values.torchserve_image }}
         args: ["torchserve", "--start",  "--ts-config",  "/home/model-server/config.properties", "--models", "squeezenet1_1.mar"]
         ports:
         - name: ts
-          containerPort: 8080
+          containerPort: {{ .Values.torchserve.inference_port }}
         - name: ts-management
-          containerPort: 8081
+          containerPort: {{ .Values.torchserve.management_port }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - mountPath: "/home/model-server/model-store"
+          - mountPath: {{ .Values.torchserve.model_store }}
             name: persistent-storage
         resources:
           limits:

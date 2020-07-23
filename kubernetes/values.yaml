@@ -1,0 +1,23 @@
+# Default values for torchserve helm chart.
+
+torchserve_image: pytorch/torchserve:latest-gpu
+
+namespace: torchserve
+
+torchserve:
+  management_port: 8081
+  inference_port: 8080
+  config_file: /home/model-server/config/snapshot.cfg
+  model_store: /home/model-server/model-store
+
+deployment:
+  replicas: 3
+
+persitant_volume:
+  efs: 515561
+  size: 5Gi
+
+efs:
+  region: us-west-2
+  file_system_dns_name: fs-4d0ed148.efs.us-west-2.amazonaws.com
+  file_system_id: fs-4d0ed148

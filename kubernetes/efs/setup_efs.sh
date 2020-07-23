@@ -4,8 +4,8 @@ set -e
 
 
 CLUSTER_NAME=TorchserveCluster
-MOUNT_TARGET_GROUP_NAME="eks-efs-group-999"
-SECURITY_GROUP_NAME="ec2-instance-group-999"
+MOUNT_TARGET_GROUP_NAME="eks-efs-group-88"
+SECURITY_GROUP_NAME="ec2-instance-group-88"
 EC2_KEY_NAME="machine-learning"
 
 # Fetch VPC ID / CIDR Block for the EKS Cluster
