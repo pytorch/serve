@@ -75,8 +75,6 @@ This heavy lifting for these steps is performed by ``setup_efs.sh`` script. To r
 
     CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
     MOUNT_TARGET_GROUP_NAME="eks-efs-group"
-    SECURITY_GROUP_NAME="ec2-instance-group"
-    EC2_KEY_NAME="machine-learning" # This can be an existing keypair that you already have in the region.
 
 Then run `./setup_efs.sh`
 
