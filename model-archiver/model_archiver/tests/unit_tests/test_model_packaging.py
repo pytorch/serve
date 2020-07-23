@@ -25,11 +25,13 @@ class TestModelPackaging:
     handler = 'a.py::my-awesome-func'
     export_path = '/Users/dummyUser/'
     version = '1.0'
+    requirements_file = "requirements.txt"
     source_vocab = None
 
     args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value, model_file=model_file,
                      serialized_file=serialized_file, extra_files=None, export_path=export_path, force=False,
-                     archive_format="default", convert=False, version=version, source_vocab=source_vocab)
+                     archive_format="default", convert=False, version=version, source_vocab=source_vocab,
+                     requirements_file=requirements_file)
 
     @pytest.fixture()
     def patches(self, mocker):
