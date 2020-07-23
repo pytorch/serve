@@ -2,8 +2,8 @@
 ## Torchserve on Kubernetes
 
 ## Overview
-
-This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It uses [DockerHub Torchserve Image](https://hub.docker.com/r/pytorch/torchserve) for the pods a PersistentVolume for storing snapshot / model files which are shared between multiple pods of the torchserve deployment.
+ 
+This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It usesDockerHub Torchserve Image for the pods a PersistentVolume for storing snapshot / model files which are shared between multiple pods of the torchserve deployment.
 
 ![EKS Overview](overview.png)
 
