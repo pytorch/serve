@@ -22,17 +22,13 @@ public class ModelArchiveTest {
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
-    public void test() throws ModelException, IOException {
+    public void test() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
 
         ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
         archive.validate();
         archive.clean();
         Assert.assertEquals(archive.getModelName(), "noop");
-
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         archive =
                 ModelArchive.downloadModel(
                         modelStore,
@@ -46,22 +42,16 @@ public class ModelArchiveTest {
     }
 
     @Test(expectedExceptions = DownloadModelException.class)
-    public void testInvalidURL() throws ModelException, IOException {
+    public void testInvalidURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
                 modelStore,
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
 
     @Test(expectedExceptions = DownloadModelException.class)
-    public void testMalformURL() throws ModelException, IOException {
+    public void testMalformURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
                 modelStore, "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
