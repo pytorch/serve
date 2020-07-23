@@ -3,15 +3,13 @@
 
 ## Overview
 
-This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. This deployment leverages a shared file system for storing snapshot / model files which are shared between multiple pods of the deployment. Its uses [DockerHub Torchserve Image](https://hub.docker.com/r/pytorch/torchserve) for the deployment.
+This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. Its uses [DockerHub Torchserve Image](https://hub.docker.com/r/pytorch/torchserve) for the deployment. This deployment leverages a PersistentVolume for storing snapshot / model files which are shared between multiple pods of the torchserve deployment.
 
 ![EKS Overview](overview.png)
 
-In this example we use EKS for Kubernetes Cluster and EFS for distributed storage. But this can replaced with any kubernetes cluster / distributed storage for PVC.
-
 In the following sections we would 
-* Create a EKS Cluster for deploying Torchserve.
-* Craete a EFS backed model store which would have the models & snapshot info to be shared by multiple hosts.
+* Create a EKS Cluster for deploying Torchserve
+* Create a PersistentVolume backed by EFS to store models and config
 * Use Helm charts to deploy Torchserve
 
 ## Prerequisites
@@ -59,9 +57,11 @@ helm install \
 
 ## EFS Backed Model Store Setup
 
-We use a EFS backed Persistant Volume store for storing the MAR files and the Torchserve config that would be shared by all the TorchServe Pods. 
+This section describes steps to prepare a PersistentVolume that would be used by the TS Helm Chart.
 
-To prepare a EFS volume as a shared model / config store we have to 
+For this example we use a PersistentVolumes backed by EFS to store the MAR files and Torchserve config that would be shared by all the TorchServe Pods. The PersistentVolumeClaim of the Deployment can be fulfilled by any Distributed Strorage backed PersistentVolume.
+
+To prepare a EFS volume as a shared model / config store we
 
 1. Create a EFS file system. 
 2. Create a Security Group, Ingress rule to enable EFS communicate across NAT of the EKS cluster
