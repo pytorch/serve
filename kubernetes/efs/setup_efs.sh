@@ -4,8 +4,8 @@ set -e
 
 
 CLUSTER_NAME=TorchserveCluster
-MOUNT_TARGET_GROUP_NAME="eks-efs-group-88"
-SECURITY_GROUP_NAME="ec2-instance-group-88"
+MOUNT_TARGET_GROUP_NAME="eks-efs-group"
+SECURITY_GROUP_NAME="ec2-instance-group"
 EC2_KEY_NAME="machine-learning"
 
 # Fetch VPC ID / CIDR Block for the EKS Cluster
@@ -44,19 +44,4 @@ SECURITY_GROUP_ID=$(aws ec2 create-security-group --group-name $SECURITY_GROUP_N
 aws ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr 0.0.0.0/0
 
 EFS_FILE_SYSTEM_DNS_NAME=$FILE_SYSTEM_ID.efs.$(aws configure get region).amazonaws.com
-
-IMAGE_ID=$(aws ec2 describe-images --owners amazon --filters 'Name=name,Values=amzn2-ami-hvm-2.0.????????.?-x86_64-gp2' 'Name=state,Values=available' --query 'reverse(sort_by(Images, &CreationDate))[:1].ImageId' --output text) 
-INSTANCE_ID=$(aws ec2 run-instances \
---image-id $IMAGE_ID \
---count 1 \
---instance-type t3.micro \
---key-name $EC2_KEY_NAME \
---security-group-ids $SECURITY_GROUP_ID \
---subnet-id $subnet \
---user-data "cd /home/ec2-user/ && sudo mkdir efs-mount-point && sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport $EFS_FILE_SYSTEM_DNS_NAME:/ efs-mount-point && cd efs-mount-point && sudo mkdir data" \
---associate-public-ip-address |  jq --raw-output '.Instances[0].InstanceId')
-
-sleep 40
-
-IP_ADDRESS=$(aws ec2 describe-instances --instance-id $INSTANCE_ID | jq --raw-output '.Reservations[0].Instances[0].PublicIpAddress')
-echo $IP_ADDRESS
+echo $EFS_FILE_SYSTEM_DNS_NAME
