@@ -92,7 +92,11 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=fs-ab1cd --set efsProvisioner.awsRegion=us-west-2 efsProvisioner.reclaimPolicy=Retain
 ```
 
-Now create a PersistentVolume by running `kubectl apply -f efs/efs_pv_claim.yaml`. This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
+Now create a PersistentVolume by running 
+
+```kubectl apply -f templates/efs_pv_claim.yaml```
+
+This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
 
 First create a TS config file that would be used for the deployment. Copy the following contents in to a file called config.yaml in to the directory
 
