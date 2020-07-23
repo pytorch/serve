@@ -124,7 +124,7 @@ Finally terminate the pod - `kubectl delete pod/model-store-pod`.
 
 To install Torchserve for the repository, run the following command from the root of the PyTorch dir after populating the `Values.yaml` with the right parameters.
 
-```helm install --debug goodly-guppy ./kubernetes/```
+```helm install ts ./kubernetes/```
 
 
 | Parameter | Description | Default |
