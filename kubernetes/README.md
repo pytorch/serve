@@ -89,7 +89,7 @@ We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/mast
 
 ```
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
-helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=fs-ab1cd --set efsProvisioner.awsRegion=us-west-2 efsProvisioner.reclaimPolicy=Retain
+helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=fs-ab1cd --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name
 ```
 
 Now create a PersistentVolume by running 
