@@ -36,11 +36,11 @@ spec:
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:
-          claimName: efs-storage-claim
+          claimName: model-store-claim
       containers:
       - name: torchserve
         image: {{ .Values.torchserve_image }}
-        args: ["torchserve", "--start",  "--ts-config",  "/home/model-server/config.properties", "--models", "squeezenet1_1.mar"]
+        args: ["torchserve", "--start",  "--ts-config",  "/home/model-server/config.properties"]
         ports:
         - name: ts
           containerPort: {{ .Values.torchserve.inference_port }}

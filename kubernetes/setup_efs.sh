@@ -1,7 +1,5 @@
 #!/bin/bash
 set -x
-set -e
-
 
 CLUSTER_NAME=TorchserveCluster
 MOUNT_TARGET_GROUP_NAME="eks-efs-group"
