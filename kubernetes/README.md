@@ -68,7 +68,7 @@ Torchserve Helm Chart needs a PersistentVolume with a tag `torchserve-model-stor
         └── squeezenet1_1.mar
 
 
-**Create EFS Volume for the EKS Cluster **
+**Create EFS Volume for the EKS Cluster**
 
 This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. 
 
