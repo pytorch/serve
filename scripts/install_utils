@@ -227,4 +227,9 @@ clean_up_build_residuals()
   rm -rf ts/metrics/__pycache__/
   rm -rf ts/protocol/__pycache__/
   rm -rf ts/utils/__pycache__/
+<<<<<<< HEAD
+=======
+  rm -rf frontend/modelarchive/build
+  rm -rf frontend/server/build
+>>>>>>> 66d26f476f2f8830e4bfb7f9a6db419cb2898fa9
 }
