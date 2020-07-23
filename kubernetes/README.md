@@ -148,7 +148,7 @@ To install Torchserve for the repository, run the following command from the roo
 | `memory_request`| TS Pod memory request | `1Gi` |
 
 
-#### Test Torchserve installation in k8s
+## Test Torchserve installation in Kubernetes
 
 Fetch the Load Balancer Extenal IP by executing 
 
