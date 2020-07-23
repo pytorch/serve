@@ -117,6 +117,8 @@ wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
 
 kubectl exec --tty pod/model-store-pod -- mkdir /pv/model-store/
 kubectl cp squeezenet1_1.mar model-store-pod:/pv/model-store/squeezenet1_1.mar
+kubectl cp mnist.mar model-store-pod:/pv/model-store/mnist.mar
+
 
 kubectl exec --tty pod/model-store-pod -- mkdir /pv/config/
 kubectl cp config.properties model-store-pod:/pv/config/config.properties
