@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
   AWS CloudFormation TorchServe: Creates a TorchServe stack using
-  a single EC2 instance running Ubuntu 18.04, installs the packages
-  and files necessary to deploy.
+  an EC2 autoscaling group running Ubuntu 18.04 behind an Elastic Load Balancer,
+  installss the packages and files necessary to deploy.
+  Additionally, creates a CPUUtilization based scale up/down policy as an example.
   **WARNING** This template creates an Amazon EC2 instance. You will be billed for
   the AWS resources used if you create a stack from this template.
 Parameters:
@@ -10,15 +11,19 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
-  ServerCertPassword:
-    Description: Server certifiate password
-    Type: String
-    Default: changeit
   InstanceType:
     Description: TorchServe EC2 instance type
     Type: String
     Default: c5.4xlarge
     ConstraintDescription: Must be a valid EC2 instance type.
+  MinNodeNumber:
+    Description: Minimum number of nodes ins the ASG
+    Type: String
+    Default: '3'
+  MaxNodeNumber:
+    Description: Minimum number of nodes ins the ASG
+    Type: String
+    Default: '5'
   ManagementLocation:
     Description: 'The IP address range that can call management endpoint of TorchServe'
     Type: String
@@ -27,6 +32,10 @@ Parameters:
     Default: '0.0.0.0/0'
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  ModelPath:
+    Description: 'The location to download the model archive file from. e.g. https://torchserve.s3.amazonaws.com/mar_files/mnist.mar'
+    Type: String
+    ConstraintDescription: Must be a valid url.
   SSHLocation:
     Description: 'The IP address range that can be used to SSH to the EC2 instances'
     Type: String
@@ -62,8 +71,10 @@ Mappings:
   SubnetConfig:
     VPC:
       CIDR: 10.0.0.0/16
-    Public:
+    PublicA:
       CIDR: 10.0.0.0/24
+    PublicB:
+      CIDR: 10.0.1.0/24
 Resources:
   CloudwatchIAMRole:
     Type: AWS::IAM::Role
@@ -98,14 +109,29 @@ Resources:
           Value: !Ref 'AWS::StackName'
         - Key: Network
           Value: Public
-  PublicSubnet:
+  PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref 'VPC'
       CidrBlock: !FindInMap
         - SubnetConfig
-        - Public
+        - PublicA
         - CIDR
+      AvailabilityZone: !Select [ 0, !GetAZs "" ]
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - PublicB
+        - CIDR
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
       Tags:
         - Key: Application
           Value: !Ref 'AWS::StackName'
@@ -140,10 +166,15 @@ Resources:
       RouteTableId: !Ref 'PublicRouteTable'
       DestinationCidrBlock: '0.0.0.0/0'
       GatewayId: !Ref 'InternetGateway'
-  PublicSubnetRouteTableAssociation:
+  PublicSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'PublicSubnet'
+      SubnetId: !Ref 'PublicSubnetA'
+      RouteTableId: !Ref 'PublicRouteTable'
+  PublicSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnetB'
       RouteTableId: !Ref 'PublicRouteTable'
   PublicNetworkAcl:
     Type: AWS::EC2::NetworkAcl
@@ -214,10 +245,15 @@ Resources:
       PortRange:
         From: '0'
         To: '65535'
-  PublicSubnetNetworkAclAssociation:
+  PublicSubnetANetworkAclAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      SubnetId: !Ref 'PublicSubnet'
+      SubnetId: !Ref 'PublicSubnetA'
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+  PublicSubnetBNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnetB'
       NetworkAclId: !Ref 'PublicNetworkAcl'
   TorcheServeSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -237,8 +273,151 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: !Ref 'SSHLocation'
-  TorchServeInstance:
-    Type: AWS::EC2::Instance
+  TorchServeScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref 'TorchServeASG'
+      Cooldown: '60'
+      ScalingAdjustment: '1'
+  TorchServeScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref 'TorchServeASG'
+      Cooldown: '60'
+      ScalingAdjustment: '-1'
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-up if CPU > 90% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '300'
+      EvaluationPeriods: '2'
+      Threshold: '90'
+      AlarmActions:
+        - !Ref 'TorchServeScaleUpPolicy'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'TorchServeASG'
+      ComparisonOperator: GreaterThanThreshold
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-down if CPU < 70% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '300'
+      EvaluationPeriods: '2'
+      Threshold: '70'
+      AlarmActions:
+        - !Ref 'TorchServeScaleDownPolicy'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'TorchServeASG'
+      ComparisonOperator: LessThanThreshold
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: [!Ref PublicSubnetA, !Ref PublicSubnetB]
+      SecurityGroups: [!Ref TorcheServeSecurityGroup]
+  ALBManagementTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      HealthCheckPath: /ping
+      HealthCheckPort: 8080
+      HealthCheckProtocol: HTTP
+      Port: 8081
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref 'VPC'
+  ALBInferenceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      HealthCheckPath: /ping
+      HealthCheckProtocol: HTTP
+      Port: 8080
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref 'VPC'
+  ALBManagementListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'ALBManagementTargetGroup'
+      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
+      Port: '8081'
+      Protocol: HTTP
+  ALBInferenceListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'ALBInferenceTargetGroup'
+      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
+      Port: '8080'
+      Protocol: HTTP
+  TorchServeASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: GatewayToInternet
+    Properties:
+      VPCZoneIdentifier: [!Ref PublicSubnetA, !Ref PublicSubnetB]
+      LaunchConfigurationName: !Ref 'LaunchConfig'
+      MinSize: !Ref 'MinNodeNumber'
+      MaxSize: !Ref 'MaxNodeNumber'
+      TargetGroupARNs:
+        - !Ref 'ALBInferenceTargetGroup'
+        - !Ref 'ALBManagementTargetGroup'
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT30M
+        Count: '1'
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: '1'
+        MaxBatchSize: '1'
+        PauseTime: PT30M
+        WaitOnResourceSignals: 'true'
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EFS security group
+      SecurityGroupIngress:
+        - SourceSecurityGroupId: !Ref TorcheServeSecurityGroup
+          FromPort: 2049
+          IpProtocol: tcp
+          ToPort: 2049
+      VpcId: !Ref 'VPC'
+  TorchServeEFS:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: false
+  TorchServeMountTargetA:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref TorchServeEFS
+      SecurityGroups:
+        - !Ref EFSSecurityGroup
+      SubnetId: !Ref PublicSubnetA
+  TorchServeMountTargetB:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref TorchServeEFS
+      SecurityGroups:
+        - !Ref EFSSecurityGroup
+      SubnetId: !Ref PublicSubnetB
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
     DependsOn: GatewayToInternet
     Metadata:
       AWS::CloudFormation::Init:
@@ -251,10 +430,10 @@ Resources:
           files:
             /etc/torchserve/config.properties:
                content: !Sub |
-                 inference_address=https://0.0.0.0:8080
-                 management_address=https://0.0.0.0:8081
-                 private_key_file=/etc/torchserve/server.key
-                 certificate_file=/etc/torchserve/server.pem
+                 inference_address=http://0.0.0.0:8080
+                 management_address=http://0.0.0.0:8081
+                 load_models=ALL
+                 model_store=/mnt/efs/model_store
                mode: '000400'
                owner: root
                group: root
@@ -337,8 +516,8 @@ Resources:
                content: !Sub |
                  [cfn-auto-reloader-hook]
                  triggers=post.update
-                 path=Resources.TorchServeInstance.Metadata.AWS::CloudFormation::Init
-                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region} --configsets InstallAndRun
+                 path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
+                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource LaunchConfig --region ${AWS::Region} --configsets InstallAndRun
                  runas=root
                mode: '000400'
                owner: root
@@ -361,19 +540,15 @@ Resources:
               command: !Sub |
                 systemctl start cfn-hup.service
     Properties:
+      AssociatePublicIpAddress: 'true'
       ImageId: !FindInMap
         - AWSRegion2AMI
         - !Ref 'AWS::Region'
         - AMI
       InstanceType: !Ref 'InstanceType'
       IamInstanceProfile: !Ref CloudwatchInstanceProfile
-      NetworkInterfaces:
-        - GroupSet:
-            - !Ref 'TorcheServeSecurityGroup'
-          AssociatePublicIpAddress: 'true'
-          DeviceIndex: '0'
-          DeleteOnTermination: 'true'
-          SubnetId: !Ref 'PublicSubnet'
+      SecurityGroups:
+        - !Ref 'TorcheServeSecurityGroup'
       KeyName: !Ref 'KeyName'
       UserData:
         Fn::Base64: !Sub |
@@ -381,8 +556,15 @@ Resources:
           wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb
           dpkg -i /tmp/amazon-cloudwatch-agent.deb
           apt-get update -y
-          apt-get install -y python-pip python-setuptools openjdk-11-jdk openssl
+          apt-get install -y python-pip python-setuptools openjdk-11-jdk openssl binutils
           python /usr/lib/python2.7/dist-packages/easy_install.py --script-dir /opt/aws/bin  https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+          # Setup EFS
+          git clone https://github.com/aws/efs-utils
+          cd efs-utils && ./build-deb.sh && sudo apt-get -y install ./build/amazon-efs-utils*deb && cd ..
+          mkdir -p /mnt/efs /tmp/model_store
+          mount -t efs ${TorchServeEFS}:/ /mnt/efs
+          wget -P /tmp/model_store ${ModelPath}
+          cp -R -u -p /tmp/model_store /mnt/efs
           # Install miniconda https://docs.anaconda.com/anaconda/install/silent-mode/
           wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
           rm -rf /home/ubuntu/miniconda && bash /tmp/miniconda.sh -b -p /home/ubuntu/miniconda
@@ -392,17 +574,13 @@ Resources:
           conda config --set always_yes yes
           conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
           conda activate torchserve
-          # Setup private-key file and self-signed certificate files
           mkdir /etc/torchserve/
-          openssl req -new -x509 -days 365 -nodes -out /etc/torchserve/server.pem -keyout /etc/torchserve/server.key -subj "/C=US/ST=Washington/L=Seattle/O=Amazon Web Services/OU=Torchserve"
-          keytool -import -alias torchserve -keystore /etc/torchserve/keystore -trustcacerts -file /etc/torchserve/server.pem -storepass ${ServerCertPassword} -noprompt
           # Start cfn-hup
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region} --configsets InstallAndRun
-          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeInstance --region ${AWS::Region}
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource LaunchConfig --region ${AWS::Region} --configsets InstallAndRun
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeASG --region ${AWS::Region}
           # Start torchserve
-          mkdir model_store
           export LOG_LOCATION="/var/log/torchserve"
-          torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
+          torchserve --start --ts-config /etc/torchserve/config.properties
     CreationPolicy:
       ResourceSignal:
         Timeout: PT30M
@@ -411,13 +589,13 @@ Outputs:
     Description: Management URL for newly created TorchServe stack
     Value: !Join
       - ''
-      - - https://
-        - !GetAtt 'TorchServeInstance.PublicDnsName'
+      - - http://
+        - !GetAtt 'ApplicationLoadBalancer.DNSName'
         - :8081
   TorchServeInferenceURL:
     Description: Inference URL for newly created TorchServe stack
     Value: !Join
       - ''
-      - - https://
-        - !GetAtt 'TorchServeInstance.PublicDnsName'
+      - - http://
+        - !GetAtt 'ApplicationLoadBalancer.DNSName'
         - :8080
