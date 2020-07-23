@@ -251,9 +251,8 @@ curl -X POST  http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.am
 
 ## Roadmap
 * [] Autoscaling
-* [] Log Aggregation
-* [] Metrics Aggregation
+* [] Log / Metrics Aggregation using [AWS Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)
 * [] EFK Stack Integration
 * [] Readiness / Liveness Probes
 * [] Canary
-* [] Cloud agnostic Distributed Storage
+* [] Cloud agnostic Distributed Storage example
