@@ -139,10 +139,13 @@ To install Torchserve for the repository, run the following command from the roo
 | `image` | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
 | `management-port` | TS Inference port | `8080` |
 | `inference-port` | TS Management port | `8081` |
-| `config` | Torchserve config with snapshot info  | `LoadBalancer` |
 | `replicas`| K8S deployment replicas | `1` |
-| `model-store`| EFS mountpath | `/home/model-server/model-store` |
-| `persistence.size`| Storage size to request | `5Gi` |
+| `model-store`| EFS mountpath | `/home/model-server/shared/` |
+| `persistence.size`| Storage size to request | `1Gi` |
+| `n_gpu`| Number of GPU | `1` |
+| `n_cpu`| Number of CPU | `1` |
+| `memory_limit`| TS Pod memory limit | `4Gi` |
+| `memory_request`| TS Pod memory request | `1Gi` |
 
 
 #### Test Torchserve installation in k8s
