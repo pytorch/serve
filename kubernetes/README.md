@@ -23,9 +23,9 @@ We would need the following tools to be installed to setup the K8S Torchserve cl
 
 ## EKS Cluster setup
 
-Is you have an existing EKS / Kubernetes cluster you may skip this section and skip ahead to driver installation. Ensure you have your AWS CLI configured with the credentials of an account with appropriate permissions. 
+Is you have an existing EKS / Kubernetes cluster you may skip this section and skip ahead to PersistentVolume preparation. 
 
-The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU, EFS.
+Ensure you have your AWS CLI configured with the credentials of an account with appropriate permissions. The following steps would create a EKS cluster, install all the required driver for NVIDIA GPU, EFS.
 
 
 ### Creating a EKS cluster
