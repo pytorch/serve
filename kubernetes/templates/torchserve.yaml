@@ -40,7 +40,7 @@ spec:
       containers:
       - name: torchserve
         image: {{ .Values.torchserve_image }}
-        args: ["torchserve", "--start",  "--ts-config",  "/home/model-server/config.properties"]
+        args: ["torchserve", "--start",  "--model-store", "/home/model-server/shared/model-store/", "--ts-config", "/home/model-server/shared/config/config.properties"]
         ports:
         - name: ts
           containerPort: {{ .Values.torchserve.inference_port }}
@@ -48,13 +48,13 @@ spec:
           containerPort: {{ .Values.torchserve.management_port }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - mountPath: {{ .Values.torchserve.model_store }}
+          - mountPath: {{ .Values.torchserve.pvd_mount }}
             name: persistent-storage
         resources:
           limits:
-            cpu: 4
-            memory: 4Gi
-            nvidia.com/gpu: 1
+            cpu: {{ .Values.torchserve.n_cpu }}
+            memory: {{ .Values.torchserve.memory_limit }}
+            nvidia.com/gpu: {{ .Values.torchserve.n_gpu }}
           requests:
-            cpu: "1"
-            memory: 1Gi 
+            cpu: {{ .Values.torchserve.n_cpu }}
+            memory: {{ .Values.torchserve.memory_request }}

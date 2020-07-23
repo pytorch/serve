@@ -7,15 +7,17 @@ namespace: torchserve
 torchserve:
   management_port: 8081
   inference_port: 8080
-  config_file: /home/model-server/config/snapshot.cfg
-  model_store: /home/model-server/model-store
+  pvd_mount: /home/model-server/shared/
+  n_gpu: 1
+  n_cpu: 1
+  memory_limit: 4Gi
+  memory_request: 1Gi
 
 deployment:
   replicas: 3
 
 persitant_volume:
-  efs: 515561
-  size: 5Gi
+  size: 1Gi
 
 efs:
   region: us-west-2
