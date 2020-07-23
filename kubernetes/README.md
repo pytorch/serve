@@ -106,7 +106,7 @@ First create a TS config file that would be used for the deployment. Copy the fo
     number_of_gpu=1
     number_of_netty_threads=32
     job_queue_size=1000
-    model_store=/home/model-server/model-store
+    model_store=/home/model-server/shared/model-store
     model_snapshot={"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
 
 Now copy the files over to PersistentVolume using the following commands.
