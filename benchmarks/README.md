@@ -158,6 +158,9 @@ Using ```https``` instead of ```http``` as the choice of protocol might not work
 
 The full list of options can be found by running with the -h or --help flags.
 
+## Adding test plans
+Refer [adding a new jmeter](NewTestPlan.md) test plan for torchserve.
+
 # Benchmarking with Apache Bench
 
 ## Installation
