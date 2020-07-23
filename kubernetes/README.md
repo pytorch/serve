@@ -69,7 +69,7 @@ Torchserve Helm Chart needs a PersistentVolume with a PVC label `model-store-cla
 
 **Create EFS Volume for the EKS Cluster**
 
-This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. To prepare a EFS volume as a shared model / config store we have to create a EFS file system, Security Group and Ingress rule to enable EFS communicate across NAT of the EKS cluster. 
+This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. To prepare a EFS volume as a shared model / config store we have to create a EFS file system, Security Group, Ingress rule, Mount Targets to enable EFS communicate across NAT of the EKS cluster. 
 
 This heavy lifting for these steps is performed by ``setup_efs.sh`` script. To run the script, Update the following variables in `setup_efs.sh`
 
