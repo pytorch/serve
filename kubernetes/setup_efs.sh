@@ -3,8 +3,6 @@ set -x
 
 CLUSTER_NAME=TorchserveCluster
 MOUNT_TARGET_GROUP_NAME="eks-efs-group"
-SECURITY_GROUP_NAME="ec2-instance-group"
-EC2_KEY_NAME="machine-learning"
 
 # Fetch VPC ID / CIDR Block for the EKS Cluster
 CLUSTER_NAME=TorchserveCluster
@@ -36,10 +34,6 @@ done
 aws efs describe-mount-targets --file-system-id $FILE_SYSTEM_ID | jq --raw-output '.MountTargets[].LifeCycleState'
 
 sleep 30
-
-SECURITY_GROUP_DESC="Allow SSH access to EC2 instance from Everywhere"
-SECURITY_GROUP_ID=$(aws ec2 create-security-group --group-name $SECURITY_GROUP_NAME --description "$SECURITY_GROUP_DESC" --vpc-id $VPC_ID | jq --raw-output '.GroupId')
-aws ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr 0.0.0.0/0
 
 EFS_FILE_SYSTEM_DNS_NAME=$FILE_SYSTEM_ID.efs.$(aws configure get region).amazonaws.com
 echo $EFS_FILE_SYSTEM_DNS_NAME
