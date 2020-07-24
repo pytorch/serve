@@ -3,6 +3,7 @@
 * [Custom handlers](#custom-handlers)
 * [Creating model archive with entry point](#creating-a-model-archive-with-an-entry-point)
 * [Handling model execution on GPU](#handling-model-execution-on-multiple-gpus)
+* [Installing model specific python dependencies](#installing-model-specific-python-dependencies)
 
 ## Custom handlers
 
@@ -300,4 +301,11 @@ class ModelHandler(object):
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 ```
 
-** For more details refer [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) **
+# Installing model specific python dependencies
+
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup.
+
+Following steps allows user to supply a list of custom python packages to be installed by `TorchServe` for seamless model serving.
+
+1) [Enable model specific python package installation](configuration.md#allow-model-specific-custom-python-packages)
+2) [Supply a requirements file with the model-archive](../model-archiver/README.md#torch-model-archiver-command-line-interface).

@@ -135,7 +135,7 @@ public final class SnapshotManager {
 
         } catch (IOException e) {
             logger.error("Error while retrieving snapshot details. Details: {}", e.getMessage());
-        } catch (ModelException e) {
+        } catch (ModelException | InterruptedException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
     }
