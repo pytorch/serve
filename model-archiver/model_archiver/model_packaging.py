@@ -20,6 +20,7 @@ def package_model(args, manifest):
     handler = args.handler
     extra_files = args.extra_files
     export_file_path = args.export_path
+    requirements_file = args.requirements_file
 
     temp_files = []
 
@@ -31,7 +32,7 @@ def package_model(args, manifest):
 
         # Step 2 : Copy all artifacts to temp directory
         artifact_files = {'model_file': model_file, 'serialized_file': serialized_file, 'handler': handler,
-                          'extra_files': extra_files}
+                          'extra_files': extra_files, 'requirements-file': requirements_file}
 
         model_path = ModelExportUtils.copy_artifacts(model_name, **artifact_files)
 

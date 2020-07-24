@@ -94,7 +94,8 @@ class ModelExportUtils(object):
     @staticmethod
     def generate_model(modelargs):
         model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
-                      model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version)
+                      model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version,
+                      requirements_file=modelargs.requirements_file)
         return model
 
     @staticmethod

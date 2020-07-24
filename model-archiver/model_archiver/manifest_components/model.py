@@ -9,13 +9,16 @@ class Model(object):
     """
 
     def __init__(self, model_name, serialized_file, handler, model_file=None, model_version=None,
-                 extensions=None):
+                 extensions=None, requirements_file=None):
+
         self.model_name = model_name
         self.serialized_file = serialized_file.split("/")[-1]
         self.model_file = model_file
         self.model_version = model_version
         self.extensions = extensions
         self.handler = handler.split("/")[-1] if '.py' in handler else handler
+        self.requirements_file = requirements_file
+
         self.model_dict = self.__to_dict__()
 
     def __to_dict__(self):
@@ -35,6 +38,9 @@ class Model(object):
 
         if self.extensions:
             model_dict['extensions'] = self.extensions
+
+        if self.requirements_file:
+            model_dict['requirementsFile'] = self.requirements_file.split("/")[-1]
 
         return model_dict
 

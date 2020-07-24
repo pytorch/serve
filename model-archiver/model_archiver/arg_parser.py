@@ -109,4 +109,11 @@ class ArgParser(object):
                                    default=None,
                                    help='Model\'s version')
 
+        parser_export.add_argument('-r', '--requirements-file',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Path to a requirements.txt containing model specific python dependency\n'
+                                        ' packages.')
+
         return parser_export

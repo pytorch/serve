@@ -28,6 +28,14 @@ The following information is required to create a standalone model archive:
 Install torch-model-archiver as follows:
 
 ```bash
+pip install torch-model-archiver
+```
+
+## Installation from source
+
+Install torch-model-archiver as follows:
+
+```bash
 git clone https://github.com/pytorch/serve.git
 cd serve/model-archiver
 pip install .
@@ -37,7 +45,7 @@ pip install .
 
 Now let's cover the details on using the CLI tool: `model-archiver`.
 
-Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](../examples/README.md):
+Here is an example usage with the densenet161 model archive following the example in the [examples README](../examples/README.md):
 
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
@@ -50,7 +58,7 @@ $ torch-model-archiver -h
 usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
                       --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
                       --handler HANDLER [--runtime {python,python2,python3}]
-                      [--export-path EXPORT_PATH] [-f]
+                      [--export-path EXPORT_PATH] [-f] [--requirements-file]
 
 Model Archiver Tool
 
@@ -101,6 +109,9 @@ optional arguments:
                         name in the path specified by --export-path will
                         overwritten
   -v, --version         Model's version.
+  -r, -requirements-file
+                        Path to requirements.txt file containing a list of model specific python
+                        packages to be installed by TorchServe for seamless model serving.
 ```
 
 ## Artifact Details
