@@ -23,7 +23,9 @@ default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resne
                      'input': '../examples/image_classifier/kitten.jpg',
                      'content_type': 'application/jpg',
                      'image': '',
-                     'docker_runtime': ''}
+                     'docker_runtime': '',
+                     'backend_profiling': False
+                     }
 
 execution_params = default_ab_params.copy()
 result_file = "/tmp/benchmark/result.txt"
@@ -53,10 +55,11 @@ def json_provider(file_path, cmd_name):
 @click.option('--workers', '-w', default=1, help='Number model workers')
 @click.option('--image', '-di', default='', help='Use custom docker image for benchmark')
 @click.option('--docker_runtime', '-dr', default='', help='Specify required docker runtime')
+@click.option('--backend_profiling', '-bp', default=False, help='Enable backend profiling using CProfile. Default False')
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input_file, workers,
-              content_type, image, docker_runtime):
+              content_type, image, docker_runtime, backend_profiling):
     input_params = {'url': url,
                     'gpus': gpus,
                     'exec_env': exec_env,
@@ -68,7 +71,8 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
                     'input': input_file,
                     'content_type': content_type,
                     'image': image,
-                    'docker_runtime': docker_runtime
+                    'docker_runtime': docker_runtime,
+                    'backend_profiling': backend_profiling
                     }
 
     # set ab params
@@ -179,12 +183,16 @@ def docker_torchserve_start():
             docker_image = "pytorch/torchserve:latest"
         execute(f"docker pull {docker_image}", wait=True)
 
+    backend_profiling = ''
+    if execution_params['backend_profiling']:
+        backend_profiling = '-e TS_BENCHMARK=True'
+
     # delete existing ts conatiner instance
     click.secho("*Removing existing ts conatiner instance...", fg='green')
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts --user root -p 8080:8080 -p 8081:8081 " \
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 8080:8080 -p 8081:8081 " \
                      f"-v /tmp/benchmark:/tmp/benchmark {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
                      f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
