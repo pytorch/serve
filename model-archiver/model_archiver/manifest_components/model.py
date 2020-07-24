@@ -16,7 +16,7 @@ class Model(object):
         self.model_file = model_file
         self.model_version = model_version
         self.extensions = extensions
-        self.handler = handler.split("/")[-1] if '.py' in handler else handler
+        self.handler = handler.split("/")[-1]
         self.requirements_file = requirements_file
 
         self.model_dict = self.__to_dict__()
