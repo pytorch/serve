@@ -55,7 +55,7 @@ helm install \
     nvdp/nvidia-device-plugin
 ```
 
-## PersistentVolume backed EFS Backed Setup
+## Setup PersistentVolume backed by EFS
 
 Torchserve Helm Chart needs a PersistentVolume with a PVC label `model-store-claim` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
 
