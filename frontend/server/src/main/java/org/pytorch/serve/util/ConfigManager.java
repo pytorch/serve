@@ -77,6 +77,7 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
+    private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -269,6 +270,10 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
     }
 
+    public boolean getInstallPyDepPerModel() {
+        return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
+    }
+
     public int getNettyThreads() {
         return getIntProperty(TS_NUMBER_OF_NETTY_THREADS, 0);
     }
@@ -303,17 +308,13 @@ public final class ConfigManager {
         }
         int workers = getConfiguredDefaultWorkersPerModel();
 
-        if ((workers == 0) && (prop.getProperty("NUM_WORKERS", null) != null)) {
-            workers = getIntProperty("NUM_WORKERS", 0);
-        }
-
         if (workers == 0) {
             workers = getNumberOfGpu();
         }
         if (workers == 0) {
             workers = Runtime.getRuntime().availableProcessors();
         }
-        setProperty("NUM_WORKERS", Integer.toString(workers));
+
         return workers;
     }
 
@@ -428,7 +429,7 @@ public final class ConfigManager {
         }
 
         return SslContextBuilder.forServer(privateKey, chain)
-                .protocols("TLSv1.2")
+                .protocols(new String[] {"TLSv1.2"})
                 .ciphers(supportedCiphers)
                 .build();
     }
@@ -531,7 +532,9 @@ public final class ConfigManager {
                 + "\nMaximum Request Size: "
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
                 + "\nPrefer direct buffer: "
-                + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false");
+                + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
+                + "\nCustom python dependency for model allowed: "
+                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false");
     }
 
     public boolean useNativeIo() {

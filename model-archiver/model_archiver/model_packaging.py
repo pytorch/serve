@@ -20,8 +20,8 @@ def package_model(args, manifest):
     handler = args.handler
     extra_files = args.extra_files
     export_file_path = args.export_path
-    model_version = args.version
     source_vocab = args.source_vocab
+    requirements_file = args.requirements_file
     temp_files = []
 
     try:
@@ -32,7 +32,8 @@ def package_model(args, manifest):
 
         # Step 2 : Copy all artifacts to temp directory
         artifact_files = {'model_file': model_file, 'serialized_file': serialized_file, 'handler': handler,
-                          'extra_files': extra_files, 'source_vocab': source_vocab}
+                          'extra_files': extra_files, 'source_vocab': source_vocab,
+                          'requirements-file': requirements_file}
 
         model_path = ModelExportUtils.copy_artifacts(model_name, **artifact_files)
 
@@ -69,7 +70,8 @@ def generate_model_archive():
                 raise Exception("Please provide the source language vocab for {0} model.".format(args.handler))
     elif not args.handler.endswith(".py"):
         raise Exception("Handler should be one of the default TorchServe handlers [{0}]"
-                        " or a py file to handle custom TorchServe inference logic.".format(",".join(model_handlers.keys())))
+                        " or a py file to handle custom TorchServe inference logic."
+                        .format(",".join(model_handlers.keys())))
 
     manifest = ModelExportUtils.generate_manifest_json(args)
     package_model(args, manifest=manifest)

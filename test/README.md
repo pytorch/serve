@@ -4,11 +4,14 @@ This folder contains nightly regression tests execututed against TorchServe mast
 
 ### Latest Test Run Status
 
-![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiS1QvY3lIUEdUb3hZVWNnbmJ2SEZCdExRNmNkNW9EVk1ZaFNldEk4Q0h3TU1qemwzQ29GNW0xMGFhZkxpOFpiMjUrZVVRVDUrSkh2ZDhBeFprdW5iNjRRPSIsIml2UGFyYW1ldGVyU3BlYyI6IjlvcjRqSTNMTmNhcExZbUwiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+* CPU : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiS1QvY3lIUEdUb3hZVWNnbmJ2SEZCdExRNmNkNW9EVk1ZaFNldEk4Q0h3TU1qemwzQ29GNW0xMGFhZkxpOFpiMjUrZVVRVDUrSkh2ZDhBeFprdW5iNjRRPSIsIml2UGFyYW1ldGVyU3BlYyI6IjlvcjRqSTNMTmNhcExZbUwiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+* GPU : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiazI0eDNKZElyMjZDU1QweThPV1A2UmlXaVFmM3g4N0M0NGQ0aHdTQ09aR2pkNFJRUmNsd1A4aFk0K1Q3MmJKMG9oR1c0aHpYWlVRbWlGYS9mVmdIUW84PSIsIml2UGFyYW1ldGVyU3BlYyI6IjJxenJYam1lYXNZTFVvMjQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
-[Latest Test Logs](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log)
 
-[Test Logs By Date](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) - Update Date in URL
+Latest Test Logs : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/latest/test_exec.log)
+
+
+Test Logs By Date - Update Date in URL : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-07-10/tmp/test_exec.log)
 
 ### Running the test manually.
 
@@ -55,7 +58,8 @@ cat /tmp/ts.log
 To add to the tests, import a collection (in /postman) to Postman and add new requests.
 Specifically to test for inference against a new model
 * Open /postman/inference_data.json
-* Add new json object with the new model url and payload.
+* Add new json object with the new model url and payload.Refer [Datafile config](data_file_config.md) for details.
+
 
 ![POSTMAN UI](screenshot/postman.png)
 
