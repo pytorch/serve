@@ -1,0 +1,6 @@
+-r common.txt
+mock
+pytest
+pylint
+pytest-mock
+pytest-cov

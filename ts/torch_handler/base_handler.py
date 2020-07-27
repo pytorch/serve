@@ -41,13 +41,9 @@ class BaseHandler(abc.ABC):
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
 
-        # model def file
-        model_file = self.manifest['model']['modelFile']
-        model_def_path = os.path.join(model_dir, model_file)
-
         map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-        if os.path.isfile(model_def_path):
+        if 'modelFile' in self.manifest['model']:
+            model_file = self.manifest['model']['modelFile']
             module = importlib.import_module(model_file.split(".")[0])
             model_class_definitions = list_classes_from_module(module)
             if len(model_class_definitions) != 1:
@@ -61,11 +57,11 @@ class BaseHandler(abc.ABC):
         else:
             logger.debug('No model file found for eager mode, trying to load torchscript model')
             self.model = torch.jit.load(model_pt_path, map_location=map_location)
+
         self.model.to(self.device)
         self.model.eval()
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
-
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
 
