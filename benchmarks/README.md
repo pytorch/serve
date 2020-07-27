@@ -239,7 +239,7 @@ The following parameters can be used to run the AB benchmark suite.
 - docker_runtime: Specify docker runtime if required
 - ts: Use Already running Torchserve instance. Default: False
 - gpus: Number of gpus to run docker container with. By default it runs the docker container on CPU.
-- backend_profiling: Number of gpus to run docker container with. By default it runs the docker container on CPU.
+- backend_profiling: Enable backend profiling using CProfile. Default: False
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
 
 ### Test plans
