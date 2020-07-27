@@ -49,7 +49,7 @@ def json_provider(file_path, cmd_name):
 @click.option('--requests', '-r', default=100, help='Number of requests')
 @click.option('--batch_size', '-bs', default=1, help='Batch size of model')
 @click.option('--batch_delay', '-bd', default=200, help='Batch delay of model')
-@click.option('--input', '-i', 'input_file', default='../examples/image_classifier/kitten.jpg',
+@click.option('--input', '-i', default='../examples/image_classifier/kitten.jpg',
               type=click.Path(exists=True), help='The input file path for model')
 @click.option('--content_type', '-ic', default='application/jpg', help='Input file content type')
 @click.option('--workers', '-w', default=1, help='Number model workers')
