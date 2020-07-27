@@ -58,7 +58,7 @@ def json_provider(file_path, cmd_name):
 @click.option('--backend_profiling', '-bp', default=False, help='Enable backend profiling using CProfile. Default False')
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
-def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input_file, workers,
+def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
               content_type, image, docker_runtime, backend_profiling):
     input_params = {'url': url,
                     'gpus': gpus,
@@ -68,7 +68,7 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
                     'workers': workers,
                     'concurrency': concurrency,
                     'requests': requests,
-                    'input': input_file,
+                    'input': input,
                     'content_type': content_type,
                     'image': image,
                     'docker_runtime': docker_runtime,
