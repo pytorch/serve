@@ -212,10 +212,10 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
-* `valid_hosts` : Comma separated regex of valid host URL(s) from where models can be registered. Default: "http(s)?://.*" (all URLs)
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "http(s)?://.*" (all URLs)
 eg : To allow base URLs "https://s3.amazonaws.com/" and "https://torchserve.s3.amazonaws.com/" use following regex string
 ```
-valid_hosts=https://s3.amazonaws.com/.*,https://torchserve.s3.amazonaws.com/.*
+allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.s3.amazonaws.com/.*
 ```
 
 ---

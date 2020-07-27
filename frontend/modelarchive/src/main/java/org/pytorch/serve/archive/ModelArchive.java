@@ -45,7 +45,8 @@ public class ModelArchive {
         this.extracted = extracted;
     }
 
-    public static ModelArchive downloadModel(List<String> validHosts, String modelStore, String url)
+    public static ModelArchive downloadModel(
+            List<String> allowedUrls, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
 
         if (modelStore == null) {
@@ -55,7 +56,7 @@ public class ModelArchive {
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
 
-        if (checkUrlValidHost(validHosts, url)) {
+        if (checkAllowedUrl(allowedUrls, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
@@ -85,10 +86,10 @@ public class ModelArchive {
         throw new ModelNotFoundException("Model not found at: " + url);
     }
 
-    public static boolean checkUrlValidHost(List<String> validHosts, String url)
+    public static boolean checkAllowedUrl(List<String> allowedUrls, String url)
             throws ModelNotFoundException {
         boolean patternMatch = false;
-        for (String temp : validHosts) {
+        for (String temp : allowedUrls) {
             if (Pattern.compile(temp, Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
                 patternMatch = true;
                 return patternMatch;
@@ -97,7 +98,7 @@ public class ModelArchive {
         if (VALID_URL_PATTERN.matcher(url).matches()) {
             // case when url is valid url but does not match valid hosts
             throw new ModelNotFoundException(
-                    "Given URL " + url + " does not match any valid host URL(s)");
+                    "Given URL " + url + " does not match any allowed URL(s)");
         }
         return patternMatch;
     }

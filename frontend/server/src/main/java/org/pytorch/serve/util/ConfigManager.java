@@ -77,7 +77,7 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
-    private static final String TS_VALID_HOSTS = "valid_hosts";
+    private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
 
     // Configuration which are not documented or enabled through environment variables
@@ -534,8 +534,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
-                + "\nValid host Urls: "
-                + getValidHosts()
+                + "\nAllowed Urls: "
+                + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false");
     }
@@ -657,9 +657,9 @@ public final class ConfigManager {
         }
     }
 
-    public List<String> getValidHosts() {
-        String validHostsURL = prop.getProperty(TS_VALID_HOSTS, "http(s)?://.*");
-        return Arrays.asList(validHostsURL.split(","));
+    public List<String> getAllowedUrls() {
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "http(s)?://.*");
+        return Arrays.asList(allowedURL.split(","));
     }
 
     public boolean isSnapshotDisabled() {
