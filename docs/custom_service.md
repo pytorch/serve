@@ -15,6 +15,7 @@ Provide a custom script to:
 * [Example Custom Service file](#example-custom-service-file)
 * [Creating model archive with entry point](#creating-model-archive-with-entry-point)
 * [Handling model execution on GPU](#handling-model-execution-on-multiple-gpus)
+* [Installing model specific python dependencies](#installing-model-specific-python-dependencies)
 
 ## Requirements for custom service file
 
@@ -172,3 +173,12 @@ This creates the file `<model-name>.mar` in the directory `<output-dir>`
 
 This will create a model archive for the python3 runtime. The `--runtime` parameter enables usage of a specific python version at runtime.
 By default it uses the default python distribution of the system.
+
+# Installing model specific python dependencies
+
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup.
+
+Following steps allows user to supply a list of custom python packages to be installed by `TorchServe` for seamless model serving.
+
+1) [Enable model specific python package installation](configuration.md#allow-model-specific-custom-python-packages)
+2) [Supply a requirements file with the model-archive](../model-archiver/README.md#torch-model-archiver-command-line-interface).
