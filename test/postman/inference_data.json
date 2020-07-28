@@ -185,7 +185,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar",
         "model_name":"mnist",
         "worker":1,
         "synchronous":"true",
@@ -194,7 +194,7 @@
         "expected":"0"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted_v2.mar",
         "model_name":"mnist_scripted",
         "worker":1,
         "synchronous":"true",
@@ -231,7 +231,7 @@
         "file":"../examples/object_detector/persons.jpg"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
         "model_name":"resnet152",
         "worker":1,
         "synchronous":"true",
@@ -243,7 +243,7 @@
         ]
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_scripted.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar.mar",
         "model_name":"resnet-152-batch_scripted",
         "worker":1,
         "synchronous":"true",
