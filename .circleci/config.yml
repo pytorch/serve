@@ -7,7 +7,21 @@ executors:
       - image: prashantsail/pytorch-serve-build
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
-
+  conda37:
+    docker:
+      - image: prashantsail/pytorch-serve-build:conda37
+    environment:
+      _JAVA_OPTIONS: "-Xmx2048m"
+  pyenv37:
+    docker:
+      - image: prashantsail/pytorch-serve-build:pyenv37
+    environment:
+      _JAVA_OPTIONS: "-Xmx2048m"
+  venv36:
+    docker:
+      - image: prashantsail/pytorch-serve-build:venv36
+    environment:
+      _JAVA_OPTIONS: "-Xmx2048m"
 
 commands:
   attach-torchserve-workspace:
@@ -195,7 +209,7 @@ workflows:
           name: build-<< matrix.executor >>
           matrix: &matrix
             parameters:
-              executor: ["py36"]
+              executor: ["py36", "conda37", "pyenv37", "venv36"]
       - &modelarchiver
         modelarchiver:
           name: modelarchiver-<< matrix.executor >>
