@@ -64,6 +64,8 @@ do
   echo "$handler default handler is stable."
 done
 
+pip freeze
+
 stop_torchserve
 
 # restarting torchserve
