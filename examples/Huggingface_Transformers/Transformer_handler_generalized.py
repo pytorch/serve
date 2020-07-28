@@ -138,3 +138,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Model predicted: '%s'", prediction)
 
         return [prediction]
+
+    def postprocess(self, inference_output):
+        # TODO: Add any needed post-processing of the model predictions here
+        return inference_output

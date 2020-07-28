@@ -228,7 +228,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new InternalServerException("Failed to save model: " + modelUrl, e);
         }
 

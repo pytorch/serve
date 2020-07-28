@@ -28,15 +28,12 @@ install_java_deps()
 
 install_torch_deps()
 {
-	# replace this with requirements.txt when ready
-	pip install -U torch torchtext torchvision sentencepiece psutil future
+	pip install -U -r requirements.txt
 }
 
 install_pytest_suite_deps()
 {
-	# set pylint to version 2.4.4 because of following bug with pylint 2.5 released on 27th April 2020
-  # https://github.com/PyCQA/pylint/issues/3524
-  pip install -U mock pytest pylint==2.4.4 pytest-mock pytest-cov
+  pip install -U -r requirements/developer.txt
 }
 
 install_bert_dependencies()
