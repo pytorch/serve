@@ -11,7 +11,7 @@ torchserve --start --model-store model_store --models vgg11=vgg11.mar
 curl http://127.0.0.1:8080/predictions/vgg11 -T ./serve/examples/image_classifier/kitten.jpg
 ```
 
-#### TorchScript example using Resnet18 image classifier:
+#### TorchScript example using VGG11 image classifier:
 
 * Save the VGG11 model in as an executable script module or a traced script:
 
