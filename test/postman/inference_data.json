@@ -176,11 +176,11 @@
         "content-type":"application/json",
         "validator":"image_classification",
         "expected":{
-            "tabby":0.40864479541778564,
-            "tiger_cat":0.35061511397361755,
-            "Egyptian_cat":0.1260961890220642,
-            "lynx":0.023326940834522247,
-            "bucket":0.011855212040245533
+            "tiger_cat":0.5501413345336914,
+            "tabby":0.3231860101222992,
+            "Egyptian_cat":0.11440037935972214,
+            "lynx":0.006006305105984211,
+            "tiger":0.004394155461341143
         },
         "tolerance":1
     },
