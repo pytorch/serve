@@ -1,4 +1,4 @@
-# pylint: disable=W0622
+# pylint: disable=W0622, W0223
 # "input" is a built-in, but it's the name used by torch
 """
 Simple feed-forward model used only to test BaseHandler
