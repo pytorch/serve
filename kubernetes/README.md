@@ -791,6 +791,7 @@
   * Helm Installation
     * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation
     * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
+    * If you get an error `invalid: data: Too long: must have at most 1048576 characters`, ensure that you dont have any stale files in your kubernetes dir. Else add them to .helmignore file.
 
   
 
@@ -802,6 +803,7 @@
   * Delete EFS `aws efs delete-file-system --file-system-id YOUR_EFS_FS_ID`
   * Delete Security Groups ``aws ec2 delete-security-group --group-id YOUR_SECURITY_GRP_ID` 
 
+If you run to any issue. Delete these manually from the UI. Note that, EKS cluster & node are deployed as CFN templates. 
   
 
   ## Roadmap
