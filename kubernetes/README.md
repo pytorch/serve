@@ -256,9 +256,7 @@
   MOUNT_TARGET_GROUP_NAME="eks-efs-group"
   ```
 
-  Then run `./setup_efs.sh`
-
-  
+  Then run `source ./setup_efs.sh`. This would also set all the env variables which might be used for deletion at a later time
 
   The output of the script should look similar to,
 
@@ -546,14 +544,19 @@
   | `replicas`         | K8S deployment replicas  | `1`                             |
   | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
   | `persistence.size` | Storage size to request  | `1Gi`                           |
-  | `n_gpu`            | Number of GPU            | `1`                             |
-  | `n_cpu`            | Number of CPU            | `1`                             |
+  | `n_gpu`            | Number of GPU in a TS Pod| `1`                             |
+  | `n_cpu`            | Number of CPU in a TS Pod| `1`                             |
   | `memory_limit`     | TS Pod memory limit      | `4Gi`                           |
   | `memory_request`   | TS Pod memory request    | `1Gi`                           |
 
 
-  Edit the values in `values.yaml` with the right parameters.  Update torchserve_image to the `pytorch/torchserve:latest` if your nodes are CPU. Update `persistence.size` based on the size of your models.
+  Edit the values in `values.yaml` with the right parameters.  Somethings to consider,
   
+  * Set torchserve_image to the `pytorch/torchserve:latest` if your nodes are CPU.
+  * Set `persistence.size` based on the size of your models.
+  * The value of `replicas` should be less than number of Nodes in the Node group.
+  * `n_gpu` would be exposed to TS container by docker. This should be set to `number_of_gpu` in `config.properties` above.
+  * `n_gpu` & `n_cpu` values are used on a per pod level and not in the entire cluster level
 
   ```yaml
   # Default values for torchserve helm chart.
