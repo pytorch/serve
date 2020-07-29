@@ -475,7 +475,7 @@
 
   
 
-  No edit the TS config file `config.properties` that would be used for the deployment. Any changes to this config should also have corresponding changes in Torchserve Helm Chart that we install in the next section.
+  Now edit the TS config file `config.properties` that would be used for the deployment. Any changes to this config should also have corresponding changes in Torchserve Helm Chart that we install in the next section.
 
   
 
@@ -538,9 +538,23 @@
   ## Deploy TorchServe using Helm Charts
 
   
+  The following table describes all the parameters for the Helm Chart.
+
+  | Parameter          | Description              | Default                         |
+  | ------------------ | ------------------------ | ------------------------------- |
+  | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
+  | `management-port`  | TS Inference port        | `8080`                          |
+  | `inference-port`   | TS Management port       | `8081`                          |
+  | `replicas`         | K8S deployment replicas  | `1`                             |
+  | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
+  | `persistence.size` | Storage size to request  | `1Gi`                           |
+  | `n_gpu`            | Number of GPU            | `1`                             |
+  | `n_cpu`            | Number of CPU            | `1`                             |
+  | `memory_limit`     | TS Pod memory limit      | `4Gi`                           |
+  | `memory_request`   | TS Pod memory request    | `1Gi`                           |
+
 
   Edit the values in `values.yaml` with the right parameters. 
-
   
 
   ```yaml
@@ -566,10 +580,8 @@
     size: 1Gi
   ```
 
-  
 
   To install Torchserve run ```helm install ts .``` the following command from the root of the PyTorch dir after populating the 
-
   
 
   ```bash
@@ -581,37 +593,16 @@
   REVISION: 1
   TEST SUITE: None
   ```
-
   
 
-  The following table describes all the parameters for the Helm Chart.
-
-  
-
-
-  | Parameter          | Description              | Default                         |
-  | ------------------ | ------------------------ | ------------------------------- |
-  | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
-  | `management-port`  | TS Inference port        | `8080`                          |
-  | `inference-port`   | TS Management port       | `8081`                          |
-  | `replicas`         | K8S deployment replicas  | `1`                             |
-  | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
-  | `persistence.size` | Storage size to request  | `1Gi`                           |
-  | `n_gpu`            | Number of GPU            | `1`                             |
-  | `n_cpu`            | Number of CPU            | `1`                             |
-  | `memory_limit`     | TS Pod memory limit      | `4Gi`                           |
-  | `memory_request`   | TS Pod memory request    | `1Gi`                           |
-
-  
-
-  Verify that torchserve has succesfully started by executing ```kubectl exec pod/torchserve-576df559ff-td2l5 -- cat logs/ts_log.log```
+  Verify that torchserve has succesfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log```
 
   
 
   Your output should should look similar to 
 
   ```bash
-  ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl exec pod/torchserve-576df559ff-td2l5 -- cat logs/ts_log.log
+  ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl exec pod/torchserve-fff -- cat logs/ts_log.log
   2020-07-29 08:29:08,295 [INFO ] main org.pytorch.serve.ModelServer -
   Torchserve version: 0.1.1
   TS Home: /home/venv/lib/python3.6/site-packages
@@ -619,9 +610,6 @@
   ......
   ```
 
-  
-
-  
 
   ## Test Torchserve Installation
 
@@ -636,12 +624,12 @@
   ```bash
   ubuntu@ip-172-31-65-0:~/ts/rel/serve$ kubectl get svc
   NAME         TYPE           CLUSTER-IP      EXTERNAL-IP                                                              PORT(S)                         AGE
-  torchserve   LoadBalancer   10.100.142.22   a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com   8080:31115/TCP,8081:31751/TCP   14m
+  torchserve   LoadBalancer   10.100.142.22   your_elb.us-west-2.elb.amazonaws.com   8080:31115/TCP,8081:31751/TCP   14m
   ```
 
   Now execute the following commands to test Management / Prediction APIs
   ```bash
-  curl http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8081/models
+  curl http://your_elb.us-west-2.elb.amazonaws.com:8081/models
   
   # You should something similar to the following
   {
@@ -658,7 +646,7 @@
   }
   
   
-  curl http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1/
+  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1/
   
   # You should see something similar to the following
   [
@@ -700,7 +688,7 @@
   
   
   wget https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
-  curl -X POST  http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1/ -T kitten_small.jpg
+  curl -X POST  http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1/ -T kitten_small.jpg
   
   # You should something similar to the following
   [
@@ -721,16 +709,12 @@
     }
   ]
   ```
-
   
 
   ## Troubleshooting
-
   
 
   **Troubleshooting EKCTL Cluster Creation**
-
-  
 
   Possible errors in this step may be a result of 
 
