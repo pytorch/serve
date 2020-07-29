@@ -581,7 +581,7 @@
   ```
 
 
-  To install Torchserve run ```helm install ts .``` the following command from the root of the PyTorch dir after populating the 
+  To install Torchserve run ```helm install ts .```  
   
 
   ```bash
