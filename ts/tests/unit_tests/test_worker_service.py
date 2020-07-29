@@ -1,14 +1,11 @@
 import logging
 import os
-import sys
 
 import pytest
 
 from ts.context import Context
 from ts.service import Service
 from ts.service import emit_metrics
-
-logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
 
 # noinspection PyClassHasNoInit
@@ -50,6 +47,7 @@ class TestService:
 class TestEmitMetrics:
 
     def test_emit_metrics(self, caplog):
+        caplog.set_level(logging.INFO)
         metrics = {'test_emit_metrics': True}
         emit_metrics(metrics)
         assert "[METRICS]" in caplog.text
