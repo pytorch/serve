@@ -4,7 +4,7 @@
 
 This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It uses the DockerHub Torchserve Image for the pods and a PersistentVolume for storing config / model files.
 
-![EKS Overview](images/overview.png)
+![EKS Overview](overview.png)
 
 In the following sections we would 
 * Create a EKS Cluster for deploying Torchserve
@@ -114,7 +114,7 @@ Then run the following command
 
 This would create a EKS cluster named **TorchserveCluster**. This step would takes a considetable amount time to create EKS clusters. You would be able to track the progress in your cloudformation console.
 
-![EKS Overview](images/eks_confirmation.png)
+![EKS Overview](eks_cfn.png)
 
 Verify that the cluster has been created with the following commands 
 
