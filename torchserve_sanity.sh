@@ -52,7 +52,8 @@ do
   inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
   handler=${handlers[$i]}
   register_model "$model"
-  curl --write-out %{http_code} --silent --retry 5 http://localhost:8081/models/ http://localhost:8081/models/$model
+  curl --write-out %{http_code} --silent --retry 5 http://localhost:8081/models/$model
+  nvidia-smi
   for input in ${inputs[@]};
   do
     run_inference "$model" "$input"
