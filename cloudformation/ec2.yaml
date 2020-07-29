@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
   AWS CloudFormation TorchServe: Creates a TorchServe stack using
-  a single EC2 instance running Ubuntu 18.04, install the packages
+  a single EC2 instance running Ubuntu 18.04, installs the packages
   and files necessary to deploy.
   **WARNING** This template creates an Amazon EC2 instance. You will be billed for
   the AWS resources used if you create a stack from this template.

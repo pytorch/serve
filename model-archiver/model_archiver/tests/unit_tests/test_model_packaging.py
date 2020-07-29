@@ -4,7 +4,6 @@ from collections import namedtuple
 
 import pytest
 
-from model_archiver.manifest_components.engine import EngineType
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_packaging import generate_model_archive, package_model
 from model_archiver.model_packaging_utils import ModelExportUtils
@@ -20,21 +19,19 @@ class TestModelPackaging:
         def update(self, **kwargs):
             self.__dict__.update(kwargs)
 
-    author = 'ABC'
-    email = 'ABC@XYZ.com'
-    engine = EngineType.MXNET.value
     model_name = 'my-model'
     model_file = 'my-model/'
     serialized_file = 'my-model/'
     handler = 'a.py::my-awesome-func'
     export_path = '/Users/dummyUser/'
     version = '1.0'
+    requirements_file = "requirements.txt"
     source_vocab = None
 
-    args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
-                     runtime=RuntimeType.PYTHON.value, model_file=model_file, serialized_file=serialized_file,
-                     extra_files=None, export_path=export_path, force=False, archive_format="default", convert=False,
-                     version=version, source_vocab=source_vocab)
+    args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value, model_file=model_file,
+                     serialized_file=serialized_file, extra_files=None, export_path=export_path, force=False,
+                     archive_format="default", convert=False, version=version, source_vocab=source_vocab,
+                     requirements_file=requirements_file)
 
     @pytest.fixture()
     def patches(self, mocker):

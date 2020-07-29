@@ -13,10 +13,8 @@ import tarfile
 from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
-from .manifest_components.engine import Engine
 from .manifest_components.manifest import Manifest
 from .manifest_components.model import Model
-from .manifest_components.publisher import Publisher
 
 archiving_options = {
     "tgz": ".tar.gz",
@@ -87,20 +85,10 @@ class ModelExportUtils(object):
                                      " Found {} files {} in model-path.".format(suffix, count, match))
 
     @staticmethod
-    def generate_publisher(publisherargs):
-        publisher = Publisher(author=publisherargs.author, email=publisherargs.email)
-        return publisher
-
-    @staticmethod
-    def generate_engine(engineargs):
-        engine = Engine(engine_name=engineargs.engine)
-        return engine
-
-    @staticmethod
     def generate_model(modelargs):
         model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
                       model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version,
-                      source_vocab=modelargs.source_vocab)
+                      source_vocab=modelargs.source_vocab, requirements_file=modelargs.requirements_file)
         return model
 
     @staticmethod
@@ -111,15 +99,9 @@ class ModelExportUtils(object):
         :return:
         """
 
-        arg_dict = vars(args)
-
-        publisher = ModelExportUtils.generate_publisher(args) if 'author' in arg_dict and 'email' in arg_dict else None
-
-        engine = ModelExportUtils.generate_engine(args) if 'engine' in arg_dict else None
-
         model = ModelExportUtils.generate_model(args)
 
-        manifest = Manifest(runtime=args.runtime, model=model, engine=engine, publisher=publisher)
+        manifest = Manifest(runtime=args.runtime, model=model)
 
         return str(manifest)
 

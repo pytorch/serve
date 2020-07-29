@@ -157,6 +157,21 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeApi"})
+    public void testInitialWorkers() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop", null);
+        TestUtils.getLatch().await();
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(resp[0].getMinWorkers(), configManager.getDefaultWorkers());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testInitialWorkers"})
     public void testUnregisterNoopModel() throws InterruptedException {
         testUnregisterModel("noop", null);
     }
@@ -166,6 +181,16 @@ public class ModelServerTest {
             dependsOnMethods = {"testUnregisterNoopModel"})
     public void testLoadNoopModel() throws InterruptedException {
         testLoadModel("noop.mar", "noop_v1.0", "1.11");
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop_v1.0", null);
+        TestUtils.getLatch().await();
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(
+                resp[0].getMinWorkers(), configManager.getConfiguredDefaultWorkersPerModel());
     }
 
     @Test(
@@ -639,6 +664,42 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
+    public void testModelWithCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("install_py_dep_per_model", "true");
+        testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
+        setConfiguration("install_py_dep_per_model", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelWithCustomPythonDependency"})
+    public void testModelWithInvalidCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("install_py_dep_per_model", "true");
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(
+                channel,
+                "custom_invalid_python_dep.mar",
+                "custom_invalid_python_dep",
+                false,
+                false);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Custom pip package installation failed for custom_invalid_python_dep");
+        setConfiguration("install_py_dep_per_model", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
