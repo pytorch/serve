@@ -595,7 +595,7 @@
   ```
   
 
-  Verify that torchserve has succesfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log```
+  Verify that torchserve has succesfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log``` on your torchserve pod. You can get this id by lookingup `kubectl get po --all-namespaces`
 
   
 
@@ -646,7 +646,7 @@
   }
   
   
-  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1/
+  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
   
   # You should see something similar to the following
   [
@@ -688,7 +688,7 @@
   
   
   wget https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
-  curl -X POST  http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1/ -T kitten_small.jpg
+  curl -X POST  http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1 -T kitten_small.jpg
   
   # You should something similar to the following
   [
