@@ -1,6 +1,6 @@
 -r common.txt
 mock
-pytest
+pytest==5.4.2
 pylint
 pytest-mock
 pytest-cov
