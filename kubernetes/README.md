@@ -4,7 +4,7 @@
 
   This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It uses the DockerHub Torchserve Image for the pods and a PersistentVolume for storing config / model files.
 
-  ![EKS Overview](overview.png)
+  ![EKS Overview](images/overview.png)
 
   In the following sections we would 
   * Create a EKS Cluster for deploying Torchserve
@@ -167,7 +167,7 @@
 
   
 
-  ![EKS Overview](eks_cfn.png)
+  ![EKS Overview](images/eks_cfn.png)
 
   
 
@@ -354,7 +354,7 @@
 
   
 
-  ![security_group](/Users/dhanak/Downloads/security_group.png)
+  ![security_group](images/security_group.png)
 
   
 
@@ -362,7 +362,7 @@
 
   
 
-  ![](/Users/dhanak/Downloads/efs_mount.png)
+  ![](images/efs_mount.png)
 
   
 
