@@ -798,11 +798,9 @@
 
   ## Deleting Resources
 
-  
-
-  * Delete EKS cluster `eksctl delete cluster --name YOUR_CLUSTER_NAME`
-  * Delete EFS `aws efs delete-file-system --file-system-id YOUR_EFS_FS_ID`
-  * Delete Security Groups ``aws ec2 delete-security-group --group-id YOUR_SECURITY_GRP_ID` 
+  * Delete EFS `aws efs delete-file-system --file-system-id $FILE_SYSTEM_ID`
+  * Delete Security Groups ``aws ec2 delete-security-group --group-id $MOUNT_TARGET_GROUP_ID` 
+  * Delete EKS cluster `eksctl delete cluster --name $CLUSTER_NAME`
 
 If you run to any issue. Delete these manually from the UI. Note that, EKS cluster & node are deployed as CFN templates. 
   
