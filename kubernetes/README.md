@@ -421,9 +421,7 @@
   efs-provisioner-1596010253-6c459f95bb-v68bm   1/1     Running   0          109s
   ```
 
-  
-
-  Now run, ```kubectl apply -f templates/efs_pv_claim.yaml```. This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
+ Update `templates/efs_pv_claim.yaml` - `resources.request.storage` with the size of your PVC claim based on the size of the models you plan to use.  Now run, ```kubectl apply -f templates/efs_pv_claim.yaml```. This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
 
   
 
@@ -475,7 +473,7 @@
 
   
 
-  Now edit the TS config file `config.properties` that would be used for the deployment. Any changes to this config should also have corresponding changes in Torchserve Helm Chart that we install in the next section.
+  Now edit the TS config file `config.properties` that would be used for the deployment. Any changes to this config should also have corresponding changes in Torchserve Helm Chart that we install in the next section. This config would be used by every torchserve instance in worker pods.
 
   
 
@@ -554,7 +552,7 @@
   | `memory_request`   | TS Pod memory request    | `1Gi`                           |
 
 
-  Edit the values in `values.yaml` with the right parameters. 
+  Edit the values in `values.yaml` with the right parameters.  Update torchserve_image to the `pytorch/torchserve:latest` if your nodes are CPU. Update `persistence.size` based on the size of your models.
   
 
   ```yaml
@@ -799,7 +797,7 @@
 
   
 
-  * Delete EKS cluster `eksctl delete cluster -name YOUR_CLUSTER_NAME`
+  * Delete EKS cluster `eksctl delete cluster --name YOUR_CLUSTER_NAME`
   * Delete EFS `aws efs delete-file-system --file-system-id YOUR_EFS_FS_ID`
   * Delete Security Groups ``aws ec2 delete-security-group --group-id YOUR_SECURITY_GRP_ID` 
 
