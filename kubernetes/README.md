@@ -122,7 +122,7 @@
 
   Your output should look similar to 
 
-  ```
+  ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ eksctl create cluster -f templates/eks_cluster.yaml
   [ℹ]  eksctl version 0.24.0
   [ℹ]  using region us-west-2
@@ -208,7 +208,7 @@
 
   The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to run GPU enabled containers. The instructions for installing the plugin can be found [here](https://github.com/NVIDIA/k8s-device-plugin#installing-via-helm-installfrom-the-nvidia-device-plugin-helm-repository)
 
-  ```
+  ```bash
   helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
   helm repo update
   helm install \
@@ -219,13 +219,13 @@
 
   To verify that the plugin has been installed execute the following command 
 
-  ```
+  ```bash
   helm list
   ```
 
   Your output should look similar to
 
-  ```
+  ```bash
   ubuntu@ip-172-31-55-101:~/serve/kubernetes$ helm list
   NAME                           	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                     	APP VERSION
   nvidia-device-plugin-1595917413	default  	1       	2020-07-28 06:23:34.522975795 +0000 UTC	deployed	nvidia-device-plugin-0.6.0	0.6.0
@@ -251,8 +251,10 @@
 
   The heavy lifting for these steps is performed by ``setup_efs.sh`` script. To run the script, Update the following variables in `setup_efs.sh`
 
-      CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
-      MOUNT_TARGET_GROUP_NAME="eks-efs-group"
+  ```bash
+  CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
+  MOUNT_TARGET_GROUP_NAME="eks-efs-group"
+  ```
 
   Then run `./setup_efs.sh`
 
@@ -381,7 +383,7 @@
 
   
 
-  ```
+  ```bash
   NAME: efs-provisioner-1596010253
   LAST DEPLOYED: Wed Jul 29 08:10:56 2020
   NAMESPACE: default
@@ -413,7 +415,7 @@
 
   
 
-  ```
+  ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl get pods
   NAME                                          READY   STATUS    RESTARTS   AGE
   efs-provisioner-1596010253-6c459f95bb-v68bm   1/1     Running   0          109s
@@ -427,7 +429,7 @@
 
   Your output should look similar to,
 
-  ```
+  ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl apply -f templates/efs_pv_claim.yaml
   persistentvolumeclaim/model-store-claim created
   pod/model-store-pod created
@@ -444,7 +446,7 @@
 
   
 
-  ```
+  ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl get service,po,daemonset,pv,pvc --all-namespaces
   NAMESPACE     NAME                 TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)         AGE
   default       service/kubernetes   ClusterIP   10.100.0.1    <none>        443/TCP         107m
@@ -481,14 +483,16 @@
 
   
 
-      inference_address=http://0.0.0.0:8080
-      management_address=http://0.0.0.0:8081
-      NUM_WORKERS=1
-      number_of_gpu=1
-      number_of_netty_threads=32
-      job_queue_size=1000
-      model_store=/home/model-server/shared/model-store
-      model_snapshot={"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
+  ```yaml
+  inference_address=http://0.0.0.0:8080
+  management_address=http://0.0.0.0:8081
+  NUM_WORKERS=1
+  number_of_gpu=1
+  number_of_netty_threads=32
+  job_queue_size=1000
+  model_store=/home/model-server/shared/model-store
+  model_snapshot={"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
+  ```
 
   
 
@@ -496,7 +500,7 @@
 
   
 
-  ```
+  ```bash
   wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
   wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
   
@@ -515,7 +519,7 @@
 
   
 
-  ```
+  ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl exec --tty pod/model-store-pod -- find /pv/
   /pv/
   /pv/config
@@ -606,7 +610,7 @@
 
   Your output should should look similar to 
 
-  ```
+  ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl exec pod/torchserve-576df559ff-td2l5 -- cat logs/ts_log.log
   2020-07-29 08:29:08,295 [INFO ] main org.pytorch.serve.ModelServer -
   Torchserve version: 0.1.1
@@ -623,20 +627,20 @@
 
   Fetch the Load Balancer Extenal IP by executing 
 
-  ```
+  ```bash
   kubectl get svc
   ```
 
   You should see an entry similar to 
 
-  ```
+  ```bash
   ubuntu@ip-172-31-65-0:~/ts/rel/serve$ kubectl get svc
   NAME         TYPE           CLUSTER-IP      EXTERNAL-IP                                                              PORT(S)                         AGE
   torchserve   LoadBalancer   10.100.142.22   a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com   8080:31115/TCP,8081:31751/TCP   14m
   ```
 
   Now execute the following commands to test Management / Prediction APIs
-  ```
+  ```bash
   curl http://a28f287ac17ec472cacd83c0b1cae406-216059024.us-west-2.elb.amazonaws.com:8081/models
   
   # You should something similar to the following
