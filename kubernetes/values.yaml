@@ -14,12 +14,7 @@ torchserve:
   memory_request: 1Gi
 
 deployment:
-  replicas: 3
+  replicas: 1
 
 persitant_volume:
   size: 1Gi
-
-efs:
-  region: us-west-2
-  file_system_dns_name: fs-4d0ed148.efs.us-west-2.amazonaws.com
-  file_system_id: fs-4d0ed148
