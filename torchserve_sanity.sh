@@ -1,22 +1,6 @@
 #!/bin/bash
 set -euxo pipefail
 
-pip install --no-cache-dir torch
-
-cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
-if   [ -x "$(command -v nvidia-smi)" ]  ;
-then
-        echo "nvidia exists"
-        if [ $cuda_status -eq 0 ] ;
-        then
-		echo Ohh Its NOT running on GPU!!
- 		exit 1
-	else
-		echo GPU is being used 
-        fi
-fi
-
-
 source scripts/install_utils
 
 cleanup()
@@ -69,7 +53,7 @@ do
   handler=${handlers[$i]}
   register_model "$model"
   curl --write-out %{http_code} --silent --retry 5 http://localhost:8081/models/$model
-  #nvidia-smi
+  nvidia-smi
   for input in ${inputs[@]};
   do
     run_inference "$model" "$input"
