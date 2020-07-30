@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
+pip install torch
 cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
 if   [ -x "$(command -v nvidia-smi)" ]  ;
 then
