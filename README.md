@@ -39,7 +39,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 2. Install python pre-requisite packages
 
- - For CPU or GPU with Cuda 10.2
+ - For CPU or GPU-Cuda 10.2
 
     ```bash
     pip install -U -r requirements.txt
