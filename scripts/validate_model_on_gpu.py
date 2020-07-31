@@ -5,7 +5,7 @@ gpu_info = nvgpu.gpu_info()
 model_loaded = False
 
 for info in gpu_info:
-    if gpu_info['memoryUsed'] > 0:
+    if info['memoryUsed'] > 0:
         model_loaded = True
         break
 
