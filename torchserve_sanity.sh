@@ -31,6 +31,16 @@ run_model_archiver_UT_suite
 
 ./scripts/install_from_src
 
+if is_gpu_instance;
+then
+    cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
+    if [ $cuda_status -eq 0 ] ;
+    then
+      echo Ohh Its NOT running on GPU!!
+      exit 1
+    fi
+fi
+
 run_model_archiver_IT_suite
 
 mkdir -p model_store
