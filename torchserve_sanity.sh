@@ -15,6 +15,8 @@ cleanup()
   rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
 }
 
+install_torch_deps
+
 install_pytest_suite_deps
 
 install_bert_dependencies
