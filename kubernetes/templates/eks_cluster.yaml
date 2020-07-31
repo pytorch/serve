@@ -1,0 +1,15 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: "TorchserveCluster"
+  region: "us-west-2"
+  
+nodeGroups:
+  - name: ng-1
+    instanceType: g4dn.xlarge
+    desiredCapacity: 1
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["audit", "authenticator", "api", "controllerManager", "scheduler"]
