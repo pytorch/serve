@@ -17,6 +17,7 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE
 ARG BRANCH_NAME=master
 ARG MACHINE_TYPE=cpu
+ARG CUDA_VERSION=latest
 
 ENV PYTHONUNBUFFERED TRUE
 
@@ -42,15 +43,13 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
 
 # Build Dev Image
 FROM compile-image AS dev-image
+ARG MACHINE_TYPE=cpu
+ARG CUDA_VERSION=latest
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git clone https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
-    && pip install -r ../serve/requirements.txt \
-    && pip install . \
-    && cd model-archiver \
-    && pip install . \
-    && cd .. \
+    && ./scripts/install_from_src $CUDA_VERSION \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
