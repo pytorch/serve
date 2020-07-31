@@ -72,6 +72,15 @@ do
     run_inference "$model" "$input"
   done
   #skip unregistering resnet-18 model to test snapshot feature with restart
+  if is_gpu_instance;
+  then
+    if python scripts/validate_model_on_gpu.py; then
+      echo "Model $model successfully loaded on GPU"
+    else
+      echo "Something went wrong, model $model did not load on GPU"
+      exit 1
+    fi
+  fi
   if [ "$model" != "resnet-18" ]
   then
     unregister_model "$model"
