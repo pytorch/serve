@@ -2,4 +2,3 @@ torch==1.6.0+cu101
 torchvision===0.7.0+cu101
 torchtext==0.7.0
 torchaudio==0.6.0
-cudatoolkit==10.1
