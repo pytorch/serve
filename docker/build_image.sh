@@ -6,6 +6,7 @@ DOCKER_TAG="pytorch/torchserve:dev-cpu"
 BUILD_TYPE="dev"
 BASE_IMAGE="ubuntu:18.04"
 CUSTOM_TAG=false
+CUDA_VERSION=latest
 
 for arg in "$@"
 do
@@ -46,6 +47,11 @@ do
           shift
           shift
           ;;
+        -cv|--cudaversion)
+          CUDA_VERSION="$2"
+          shift
+          shift
+          ;;
     esac
 done
 
@@ -54,4 +60,4 @@ then
   DOCKER_TAG="pytorch/torchserve:codebuild-$MACHINE"
 fi
 
-DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg MACHINE_TYPE=$MACHINE  .
+DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE  .
