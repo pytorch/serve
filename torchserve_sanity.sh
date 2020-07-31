@@ -15,7 +15,9 @@ cleanup()
   rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
 }
 
+set +u
 install_torch_deps $1
+set -u
 
 install_pytest_suite_deps
 
@@ -31,7 +33,9 @@ run_model_archiver_python_linting
 
 run_model_archiver_UT_suite
 
-./scripts/install_from_src
+set +u
+./scripts/install_from_src $1
+set -u
 
 if is_gpu_instance;
 then
