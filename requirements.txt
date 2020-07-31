@@ -1,1 +1,2 @@
 -r requirements/production.txt
+-r requirements/cpu.txt
