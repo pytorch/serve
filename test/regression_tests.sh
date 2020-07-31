@@ -115,7 +115,7 @@ run_postman_test() {(
   start_torchserve_increased_response_time $MODEL_STORE $TS_LOG_FILE --ts
   newman run -e postman/environment.json -x --verbose postman/inference_api_test_collection.json \
 	  -d postman/increased_timeout_inference.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
-  rm confi.properties
+  rm config.properties
 
   # Run Https test cases
   stop_torch_serve
