@@ -10,6 +10,36 @@ CODEBUILD_WD=$(pwd)
 MODEL_STORE=$ROOT_DIR"/model_store"
 TS_LOG_FILE="/tmp/ts.log"
 TEST_EXECUTION_LOG_FILE="/tmp/test_exec.log"
+CUDA_VERSION=latest
+
+for arg in "$@"
+do
+    case $arg in
+        -h|--help)
+          echo "options:"
+          echo "-h, --help  show brief help"
+          echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
+          echo "-cv, --cudaversion specify to use gpu"
+          exit 0
+          ;;
+        -b|--branch_name)
+          if test $
+          then
+            BRANCH_NAME="$2"
+            shift
+          else
+            echo "Error! branch_name not provided"
+            exit 1
+          fi
+          shift
+          ;;
+        -cv|--cudaversion)
+          CUDA_VERSION="$2"
+          shift
+          shift
+          ;;
+    esac
+done
 
 
 install_torchserve_from_source() {
@@ -150,7 +180,7 @@ sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
 
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
-install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE
+install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
