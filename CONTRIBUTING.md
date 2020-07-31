@@ -8,7 +8,7 @@ If you are interested in contributing to TorchServe, your contributions will fal
     - Search for your issue here: https://github.com/pytorch/serve/issues
     - Pick an issue and comment on the task that you want to work on this feature.
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
-      - For CPU or GPU with Cuda 10.2
+      - For CPU or GPU-Cuda 10.2
         ```bash
         ./torchserve_sanity.sh
         ```
