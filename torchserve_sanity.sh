@@ -15,6 +15,10 @@ cleanup()
   rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
 }
 
+set +u
+install_torch_deps $1
+set -u
+
 install_pytest_suite_deps
 
 install_bert_dependencies
@@ -29,7 +33,19 @@ run_model_archiver_python_linting
 
 run_model_archiver_UT_suite
 
-./scripts/install_from_src
+set +u
+./scripts/install_from_src $1
+set -u
+
+if is_gpu_instance;
+then
+    cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
+    if [ $cuda_status -eq 0 ] ;
+    then
+      echo Ohh Its NOT running on GPU!!
+      exit 1
+    fi
+fi
 
 run_model_archiver_IT_suite
 
@@ -55,6 +71,17 @@ do
   do
     run_inference "$model" "$input"
   done
+
+  if is_gpu_instance;
+  then
+    if python scripts/validate_model_on_gpu.py; then
+      echo "Model $model successfully loaded on GPU"
+    else
+      echo "Something went wrong, model $model did not load on GPU"
+      exit 1
+    fi
+  fi
+
   #skip unregistering resnet-18 model to test snapshot feature with restart
   if [ "$model" != "resnet-18" ]
   then
