@@ -16,10 +16,10 @@
 
 ## First things first
 
+If you have not clone TorchServe source then:
 ```bash
-1. If you have not clone torchserve source then:
 git clone https://github.com/pytorch/serve.git
-2. cd serve/docker
+cd serve/docker
 ```
 
 # Create TorchServe docker image
@@ -143,7 +143,7 @@ Alternatively, you can use direct commands describe in [Start a container with a
 
 # Create torch-model-archiver from container
 
-To create mar [model archive] file for torchserve deployment, you can use following steps
+To create mar [model archive] file for TorchServe deployment, you can use following steps
 
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
