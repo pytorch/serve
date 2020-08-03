@@ -16,13 +16,13 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Contents of this Document
 
-* [Install TorchServe](#install-torchserve)
+* [Install TorchServe](#install-torchserve-and-torch-model-archiver)
 * [Install TorchServe on windows subsystem for linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
-## Install TorchServe
+## Install TorchServe and torch-model-archiver
 
 1. Install Java 11
 
@@ -50,7 +50,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     pip install -U -r requirements_gpu.txt
    ```
 
-3. Install torchserve and torch-model-archiver
+3. Install TorchServe and torch-model-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
     ```
@@ -62,8 +62,6 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     pip install torchserve torch-model-archiver
     ```
    
-   **Note:** For Conda, Python 3.8 is required to run Torchserve
-
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
@@ -85,7 +83,7 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 ## Serve a model
 
-This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-torchserve-and-torch-model-archiver).
 
 To run this example, clone the TorchServe repository:
 
