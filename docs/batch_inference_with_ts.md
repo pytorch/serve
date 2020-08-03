@@ -62,9 +62,9 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 
 In this section lets bring up model server and launch Resnet-152 model, which has been built to handle a batch of request.
 
-### Prerequisites
+### Setup TorchServe and Torch Model Archiver
 
-Follow the main [Readme](../README.md) and install all the required packages including `torchserve`.
+First things first, follow the main [Readme](../README.md) and install all the required packages including `torchserve`.
 
 ### Loading Resnet-152 which handles batch inferences
 
