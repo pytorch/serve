@@ -237,13 +237,15 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
+        "validator":"image_classification",
         "expected":{
           "tiger_cat": 0.5848360657691956,
           "tabby": 0.3782736361026764,
           "Egyptian_cat": 0.03441936895251274,
           "lynx": 0.0005633446853607893,
           "quilt": 0.0002698268508538604
-        }
+        },
+        "tolerance":1
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar",
@@ -252,6 +254,7 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
+        "validator":"image_classification",
         "expected":{
           "tiger_cat": 0.5848360657691956,
           "tabby": 0.3782736361026764,
@@ -259,6 +262,8 @@
           "lynx": 0.0005633446853607893,
           "quilt": 0.0002698268508538604
         }
+        ,
+        "tolerance":1
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
