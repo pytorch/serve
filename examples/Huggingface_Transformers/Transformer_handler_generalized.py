@@ -75,7 +75,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """
         input_batch = None
         for idx, data in enumerate(requests):
-            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",type(data))
             text = data.get("data")
             if text is None:
                 text = data.get("body")
@@ -115,7 +114,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Handling inference for sequence_classification.
         if self.setup_config["mode"]== "sequence_classification":
             predictions = self.model(input_batch)
-            print("##############################",predictions[0].shape)
             num_rows, num_cols = predictions[0].shape
             for i in range(num_rows):
                 out = predictions[0][i].unsqueeze(0)
