@@ -43,7 +43,11 @@ To execute tests on master run:
 
 To execute tests on different run: 
 
-`./test/regression_tests.sh <branch_name>`
+`./test/regression_tests.sh -b <branch_name>`
+
+To execute tests on GPU with Cuda 10.1 run: 
+
+`./test/regression_tests.sh --cudaversion cuda101`
 
 
 You can view the logs for Test execution & the Torch serve in the /tmp dir.
