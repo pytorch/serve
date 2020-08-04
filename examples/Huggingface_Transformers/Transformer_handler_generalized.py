@@ -114,6 +114,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Handling inference for sequence_classification.
         if self.setup_config["mode"]== "sequence_classification":
             predictions = self.model(input_batch)
+            print("This the output size from the Seq classification model", predictions[0].size())
+            print("This the output from the Seq classification model", predictions)
+
             num_rows, num_cols = predictions[0].shape
             for i in range(num_rows):
                 out = predictions[0][i].unsqueeze(0)
@@ -125,6 +128,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
             answer_start_scores, answer_end_scores = self.model(input_batch)
+            print("This the output size for answer start scores from the question answering model", answer_start_scores.size())
+            print("This the output for answer start scores from the question answering model", answer_start_scores)
+            print("This the output size for answer end scores from the question answering model", answer_end_scores.size())
+            print("This the output for answer end scores from the question answering model", answer_end_scores)
+
             num_rows, num_cols = answer_start_scores.shape
             # inferences = []
             for i in range(num_rows):
@@ -138,6 +146,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Handling inference for token_classification.
         elif self.setup_config["mode"]== "token_classification":
             outputs = self.model(input_batch)[0]
+            print("This the output size from the token classification model", outputs.size())
+            print("This the output from the token classification model",outputs)
             num_rows = outputs.shape[0]
             for i in range(num_rows):
                 output = outputs[i].unsqueeze(0)
