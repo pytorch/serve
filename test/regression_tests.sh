@@ -25,7 +25,7 @@ do
         -b|--branch_name)
           if test $
           then
-            BRANCH_NAME="$2"
+            BRANCH="$2"
             shift
           else
             echo "Error! branch_name not provided"
