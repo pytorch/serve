@@ -40,7 +40,7 @@ class TextClassifier(TextHandler):
         text = text.lower()
         text = self._expand_contractions(text)
         text = self._remove_accented_characters(text)
-        text = self._remove_puncutation(text)
+        text = self._remove_punctuation(text)
         text = self._tokenize(text)
         text = torch.tensor([self.source_vocab[token] for token in ngrams_iterator(text, ngrams)])
 
