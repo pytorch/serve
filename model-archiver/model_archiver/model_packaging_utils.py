@@ -22,6 +22,13 @@ archiving_options = {
     "default": ".mar"
 }
 
+model_handlers = {
+        'text_classifier': 'text',
+        'image_classifier': 'vision',
+        'object_detector': 'vision',
+        'image_segmenter': 'vision'
+    }
+
 MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'
 MANIFEST_FILE_NAME = 'MANIFEST.json'
@@ -88,7 +95,7 @@ class ModelExportUtils(object):
     def generate_model(modelargs):
         model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
                       model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version,
-                      source_vocab=modelargs.source_vocab, requirements_file=modelargs.requirements_file)
+                      requirements_file=modelargs.requirements_file)
         return model
 
     @staticmethod
@@ -129,8 +136,13 @@ class ModelExportUtils(object):
         ModelExportUtils.make_dir(model_path)
         for file_type, path in kwargs.items():
             if path:
-                if file_type == "handler" and len(path.split("/")[-1].split(".")) == 1:
-                    continue
+                if file_type == "handler":
+                    if path in model_handlers.keys():
+                        continue
+
+                    if '.py' not in path:
+                        path = (path.split(':')[0] if ':' in path else path) + '.py'
+
                 if file_type == "extra_files":
                     for file in path.split(","):
                         shutil.copy(file, model_path)
