@@ -1,0 +1,7 @@
+{
+	"ignorePatterns": [
+		{
+			"pattern": "^http(s)?://127.0.0.1.*"
+		}
+	]
+}

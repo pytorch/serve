@@ -101,6 +101,8 @@ run_inference resnet-18 examples/image_classifier/kitten.jpg
 
 stop_torchserve
 
+run_markdown_link_checker
+
 cleanup
 
 echo "CONGRATULATIONS!!! YOUR BRANCH IS IN STABLE STATE"
