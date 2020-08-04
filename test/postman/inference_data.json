@@ -168,6 +168,23 @@
         "tolerance":1
     },
     {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar",
+        "model_name":"vgg11",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/image_classifier/kitten.jpg",
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+            "tiger_cat":0.5501413345336914,
+            "tabby":0.3231860101222992,
+            "Egyptian_cat":0.11440037935972214,
+            "lynx":0.006006305105984211,
+            "tiger":0.004394155461341143
+        },
+        "tolerance":1
+    },
+    {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar",
         "model_name":"vgg11_scripted",
         "worker":1,
