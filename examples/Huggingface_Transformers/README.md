@@ -143,7 +143,7 @@ mkdir model_store
 mv BERTSeqClassification.mar model_store/
 torchserve --start --model-store model_store 
 
-curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERT_seq_Classification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 
 Now to run the batch inference follwoing command can be used:
