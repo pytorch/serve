@@ -82,7 +82,7 @@ def start():
             ts_conf_file = ts_config
 
         platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
-        class_path = "{}{}".format(platform_path_saparator[platform.system()], os.path.join(ts_home, "ts/frontend/*"))
+        class_path = "{}{}".format(platform_path_separator[platform.system()], os.path.join(ts_home, "ts/frontend/*"))
 
         if ts_conf_file and os.path.isfile(ts_conf_file):
             props = load_properties(ts_conf_file)
