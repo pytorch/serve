@@ -39,7 +39,8 @@ RUN cd /opt \
 # Install API tests dependencies
 RUN npm install -g \
         newman \
-        newman-reporter-html
+        newman-reporter-html \
+        markdown-link-check
 
 # Install Torchserve, Pytest, Regression and Benchmark Dependencies
 RUN pip install --no-cache-dir \
