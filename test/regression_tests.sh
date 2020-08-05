@@ -25,7 +25,7 @@ do
         -b|--branch_name)
           if test $
           then
-            BRANCH_NAME="$2"
+            BRANCH="$2"
             shift
           else
             echo "Error! branch_name not provided"
@@ -45,7 +45,6 @@ done
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
 
-  pip install  mock pytest pylint pytest-mock pytest-cov transformers
   sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
   sudo apt-get -y install npm
   sudo npm install -g n
@@ -58,6 +57,8 @@ install_torchserve_from_source() {
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src
+  pip install -r requirements/developer.txt
+  pip install transformers
   echo "TS Branch : " "$(git rev-parse --abbrev-ref HEAD)" >> $3
   echo "TS Branch Commit Id : " "$(git rev-parse HEAD)" >> $3
   echo "Build date : " "$(date)" >> $3
@@ -99,6 +100,13 @@ start_secure_torchserve() {
   curl --insecure -X GET https://127.0.0.1:8444/models
 }
 
+start_torchserve_increased_response_time() {
+  echo "default_response_timeout=300" > config.properties
+  torchserve --start --model-store $1 --models $1/densenet161_v1.mar --ts-config config.properties &>> $2
+  sleep 10
+  curl http://127.0.0.1:8081/models
+
+}
 
 stop_torch_serve() {
   torchserve --stop
@@ -116,7 +124,7 @@ run_postman_test() {(
   # Run Postman Scripts
   mkdir $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/
-  
+
   # Run Management API Tests
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
@@ -130,6 +138,14 @@ run_postman_test() {(
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json -x --verbose postman/inference_api_test_collection.json \
 	  -d postman/inference_data.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
+
+  # Run Inference API Tests on densenet_scripted model with increased timeout
+  stop_torch_serve
+  delete_model_store_snapshots
+  start_torchserve_increased_response_time $MODEL_STORE $TS_LOG_FILE --ts
+  newman run -e postman/environment.json -x --verbose postman/inference_api_test_collection.json \
+	  -d postman/increased_timeout_inference.json -r cli,html --reporter-html-export $ROOT_DIR/report/inference_report.html >>$1 2>&1
+  rm config.properties
 
   # Run Https test cases
   stop_torch_serve
