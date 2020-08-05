@@ -173,6 +173,16 @@ Configuration parameter prefer_direct_buffer controls if the model server will b
 prefer_direct_buffer=true
 ```
 
+### Allow model specific custom python packages.
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup. User can supply a requirements.txt file containing the required list of python packages to be installed by `TorchServe` for seamless model serving.
+Configuration parameter `install_py_dep_per_model` controls if the model server will install the python packages using the `requirements` file supplied with the model archive. Default: false
+
+```properties
+install_py_dep_per_model=true
+```
+
+User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file. 
+
 ### Restrict backend worker to access environment variables
 
 Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
