@@ -28,6 +28,14 @@ The following information is required to create a standalone model archive:
 Install torch-model-archiver as follows:
 
 ```bash
+pip install torch-model-archiver
+```
+
+## Installation from source
+
+Install torch-model-archiver as follows:
+
+```bash
 git clone https://github.com/pytorch/serve.git
 cd serve/model-archiver
 pip install .
@@ -37,7 +45,7 @@ pip install .
 
 Now let's cover the details on using the CLI tool: `model-archiver`.
 
-Here is an example usage with the squeezenet_v1.1 model archive following the example in the [examples README](../examples/README.md):
+Here is an example usage with the densenet161 model archive following the example in the [examples README](../examples/README.md):
 
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
@@ -50,7 +58,7 @@ $ torch-model-archiver -h
 usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
                       --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
                       --handler HANDLER [--runtime {python,python2,python3}]
-                      [--export-path EXPORT_PATH] [-f]
+                      [--export-path EXPORT_PATH] [-f] [--requirements-file]
 
 Model Archiver Tool
 
@@ -72,9 +80,6 @@ optional arguments:
                         class definition extended from torch.nn.modules.
   --handler HANDLER     TorchServe's default handler name  or handler python
                         file path to handle custom TorchServe inference logic.
-  --source-vocab SOURCE_VOCAB
-                        Vocab file for source language required for text
-                        based models
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.
   --runtime {python,python2,python3}
@@ -104,6 +109,9 @@ optional arguments:
                         name in the path specified by --export-path will
                         overwritten
   -v, --version         Model's version.
+  -r, -requirements-file
+                        Path to requirements.txt file containing a list of model specific python
+                        packages to be installed by TorchServe for seamless model serving.
 ```
 
 ## Artifact Details
@@ -129,13 +137,17 @@ A serialized file (.pt or .pth) should be a checkpoint in case of torchscript an
 
 ### Handler
 
-Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TorchServe inference logic. TorchServe supports following handlers out or box:
+Handler can be TorchServe's inbuilt handler name or path to a py file to handle custom TorchServe inference logic. TorchServe supports following handlers out or box:
 1. `image_classifier`
 2. `object_detector`
 3. `text_classifier`
 4. `image_segmenter`
 
-For more details refer [default handler documentation](../docs/default_handlers.md)
+In case of custom handler, if you plan to provide just `module_name` or `module_name:entry_point_function_name` then make sure that it is prefixed with absolute or relative path of python file.
+e.g. if your custom handler custom_image_classifier.py is in /home/serve/examples then
+`--handler /home/serve/examples/custom_image_classifier` or if it has my_entry_point module level function then `--handler /home/serve/examples/custom_image_classifier:my_entry_point_func`
+
+For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
 ## Creating a Model Archive
 
 **1. Download the torch model archiver source**

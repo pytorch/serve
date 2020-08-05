@@ -93,7 +93,6 @@ public class ModelArchive {
             if (manifestFile.exists()) {
                 manifest = readFile(manifestFile, Manifest.class);
             } else {
-
                 manifest = new Manifest();
             }
 

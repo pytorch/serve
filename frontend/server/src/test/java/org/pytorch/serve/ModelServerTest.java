@@ -367,6 +367,34 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsJson"})
+    public void testLoadModelWithHandlerName() throws InterruptedException {
+        testLoadModelWithInitialWorkers("noop_handlername.mar", "noop_handlername", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelWithHandlerName"})
+    public void testNoopWithHandlerNamePrediction() throws InterruptedException {
+        testPredictions("noop_handlername", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithHandlerNamePrediction"})
+    public void testLoadModelWithEntryPntFuncName() throws InterruptedException {
+        testLoadModelWithInitialWorkers("noop_entrypntfunc.mar", "noop_entrypntfunc", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelWithEntryPntFuncName"})
+    public void testNoopWithEntryPntFuncPrediction() throws InterruptedException {
+        testPredictions("noop_entrypntfunc", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithEntryPntFuncPrediction"})
     public void testInvocationsJson() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -664,6 +692,42 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
+    public void testModelWithCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("install_py_dep_per_model", "true");
+        testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
+        setConfiguration("install_py_dep_per_model", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelWithCustomPythonDependency"})
+    public void testModelWithInvalidCustomPythonDependency()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        setConfiguration("install_py_dep_per_model", "true");
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(
+                channel,
+                "custom_invalid_python_dep.mar",
+                "custom_invalid_python_dep",
+                false,
+                false);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Custom pip package installation failed for custom_invalid_python_dep");
+        setConfiguration("install_py_dep_per_model", "false");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());

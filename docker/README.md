@@ -63,7 +63,7 @@ docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.
 
 For the latest version, you can use the `latest-gpu` tag:
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest
 ```
 
 #### Accessing TorchServe APIs inside container
@@ -118,6 +118,12 @@ To create a Docker image for a GPU device with a specific branch, use following 
 
 ```bash
 ./build_image.sh -b <branch_name> --gpu
+```
+
+To create a Docker image for a GPU device with Cuda 10.1, use following command:
+
+```bash
+./build_image.sh --gpu --cudaversion cuda101
 ```
 
 To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
