@@ -758,7 +758,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -775,7 +775,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testLoadingMemoryError"})
     public void testPredictionMemoryError() throws InterruptedException {
         // Load the model
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -816,7 +816,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
     public void testErrorBatch() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.setHttpStatus(null);
