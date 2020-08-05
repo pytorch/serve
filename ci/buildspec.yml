@@ -8,6 +8,10 @@ phases:
       - apt-get update
       - apt-get install -y curl gnupg2
       - pip install pip -U
+      - apt-get -y install nodejs-dev node-gyp libssl1.0-dev
+      - apt-get -y install npm
+      - npm install -g n
+      - npm install -g markdown-link-check
 
   build:
     commands:

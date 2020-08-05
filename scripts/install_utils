@@ -228,28 +228,7 @@ is_gpu_instance()
   [ -x "$(command -v nvidia-smi)" ]
 }
 
-install_node(){
-  if which node > /dev/null
-  then
-      echo "Node is installed, skipping..."
-  else
-        sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
-        sudo apt-get -y install npm
-        sudo npm install -g n
-  fi
-}
-
-install_link_check_dependencies(){
-  install_node
-  if ! [ -x "$(command -v markdown-link-check)" ]  ;
-  then
-    sudo npm install -g markdown-link-check
-  fi
-
-}
-
 run_markdown_link_checker(){
-  install_link_check_dependencies
   STATUS=0
   shopt -s globstar
   set +e

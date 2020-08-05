@@ -1,5 +1,7 @@
 ## To check branch stability run the sanity suite as follows
 
+Ensure that node dependency are already installed in your system. Refer [Install Node dependency](#install-markdown-link-checker-dependencies)  
+
  - For CPU or GPU with Cuda 10.2
  
 ```bash
@@ -59,3 +61,18 @@ python -m pytest --cov-report html:htmlcov_it --cov=model_archiver/ model_archiv
 The reports are generated at following path : `model-archiver/htmlcov_it/`
 
 **Note**: All the above commands needs to be excuted from serve home
+
+## To run the markdown link check run following command
+
+### Install markdown link checker dependencies
+Run following commands to install node and [`markdown-link-check`](https://github.com/tcort/markdown-link-check/) npm package.
+```
+sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
+sudo apt-get -y install npm
+sudo npm install -g n
+sudo npm install -g markdown-link-check
+```
+Execute this command to run markdown link checks locally. It will check broken links in all files with ".md" extension in current directory recursively.
+```
+for i in **/*.md; do markdown-link-check $i --config link_check_config.json; done;
+```
