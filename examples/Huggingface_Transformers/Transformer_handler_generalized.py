@@ -70,75 +70,97 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         self.initialized = True
 
-    def preprocess(self, data):
+    def preprocess(self, requests):
         """ Basic text preprocessing, based on the user's chocie of application mode.
         """
-        text = data[0].get("data")
-        if text is None:
-            text = data[0].get("body")
-        input_text = text.decode('utf-8')
-        max_length = self.setup_config["max_length"]
-        logger.info("Received text: '%s'", input_text)
-        #preprocessing text for sequence_classification and token_classification.
-        if self.setup_config["mode"]== "sequence_classification" or self.setup_config["mode"]== "token_classification" :
-            inputs = self.tokenizer.encode_plus(input_text,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
-        #preprocessing text for question_answering.
-        elif self.setup_config["mode"]== "question_answering":
-            #TODO Reading the context from a pickeled file or other fromats that
-            # fits the requirements of the task in hand. If this is done then need to
-            # modify the following preprocessing accordingly.
+        input_batch = None
+        for idx, data in enumerate(requests):
+            text = data.get("data")
+            if text is None:
+                text = data.get("body")
+            input_text = text.decode('utf-8')
+            max_length = self.setup_config["max_length"]
+            logger.info("Received text: '%s'", input_text)
+            #preprocessing text for sequence_classification and token_classification.
+            if self.setup_config["mode"]== "sequence_classification" or self.setup_config["mode"]== "token_classification" :
+                inputs = self.tokenizer.encode_plus(input_text,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
+            #preprocessing text for question_answering.
+            elif self.setup_config["mode"]== "question_answering":
+                #TODO Reading the context from a pickeled file or other fromats that
+                # fits the requirements of the task in hand. If this is done then need to
+                # modify the following preprocessing accordingly.
 
-            # the sample text for question_answering in the current version
-            # should be formated as dictionary with question and text as keys
-            # and related text as values.
-            # we use this format here seperate question and text for encoding.
+                # the sample text for question_answering in the current version
+                # should be formated as dictionary with question and text as keys
+                # and related text as values.
+                # we use this format here seperate question and text for encoding.
 
-            question_context= ast.literal_eval(input_text)
-            question = question_context["question"]
-            context = question_context["context"]
-            inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length),pad_to_max_length = True, add_special_tokens=True, return_tensors="pt")
+                question_context= ast.literal_eval(input_text)
+                question = question_context["question"]
+                context = question_context["context"]
+                inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length),pad_to_max_length = True, add_special_tokens=True, return_tensors="pt")
+            input_ids = inputs["input_ids"].to(self.device)
+            if input_ids.shape is not None:
+                if input_batch is None:
+                    input_batch = input_ids
+                else:
+                    input_batch = torch.cat((input_batch, input_ids), 0)
+        return input_batch
 
-        return inputs
-
-    def inference(self, inputs):
+    def inference(self, input_batch):
         """ Predict the class (or classes) of the received text using the serialized transformers checkpoint.
         """
-
-
-        input_ids = inputs["input_ids"].to(self.device)
+        inferences = []
         # Handling inference for sequence_classification.
         if self.setup_config["mode"]== "sequence_classification":
-            predictions = self.model(input_ids)
-            prediction = predictions[0].argmax(1).item()
+            predictions = self.model(input_batch)
+            print("This the output size from the Seq classification model", predictions[0].size())
+            print("This the output from the Seq classification model", predictions)
 
-            logger.info("Model predicted: '%s'", prediction)
-
-            if self.mapping:
-                prediction = self.mapping[str(prediction)]
+            num_rows, num_cols = predictions[0].shape
+            for i in range(num_rows):
+                out = predictions[0][i].unsqueeze(0)
+                y_hat= out.argmax(1).item()
+                predicted_idx = str(y_hat)
+                inferences.append(self.mapping[predicted_idx])
         # Handling inference for question_answering.
         elif self.setup_config["mode"]== "question_answering":
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
-            answer_start_scores, answer_end_scores = self.model(input_ids)
-            answer_start = torch.argmax(answer_start_scores)  # Get the most likely beginning of answer with the argmax of the score
-            answer_end = torch.argmax(answer_end_scores) + 1  # Get the most likely end of answer with the argmax of the score
-            input_ids = inputs["input_ids"].tolist()[0]
-            prediction = self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_ids[answer_start:answer_end]))
+            answer_start_scores, answer_end_scores = self.model(input_batch)
+            print("This the output size for answer start scores from the question answering model", answer_start_scores.size())
+            print("This the output for answer start scores from the question answering model", answer_start_scores)
+            print("This the output size for answer end scores from the question answering model", answer_end_scores.size())
+            print("This the output for answer end scores from the question answering model", answer_end_scores)
 
+            num_rows, num_cols = answer_start_scores.shape
+            # inferences = []
+            for i in range(num_rows):
+                answer_start_scores_one_seq = answer_start_scores[i].unsqueeze(0)
+                answer_start= torch.argmax(answer_start_scores_one_seq)
+                answer_end_scores_one_seq = answer_end_scores[i].unsqueeze(0)
+                answer_end= torch.argmax(answer_end_scores_one_seq) + 1
+                prediction = self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_batch[i].tolist()[answer_start:answer_end]))
+                inferences.append(prediction)
             logger.info("Model predicted: '%s'", prediction)
         # Handling inference for token_classification.
         elif self.setup_config["mode"]== "token_classification":
-            outputs = self.model(input_ids)[0]
-            predictions = torch.argmax(outputs, dim=2)
-            tokens = self.tokenizer.tokenize(self.tokenizer.decode(inputs["input_ids"][0]))
-            if self.mapping:
-                label_list = self.mapping["label_list"]
-            label_list = label_list.strip('][').split(', ')
-            prediction = [(token, label_list[prediction]) for token, prediction in zip(tokens, predictions[0].tolist())]
-
+            outputs = self.model(input_batch)[0]
+            print("This the output size from the token classification model", outputs.size())
+            print("This the output from the token classification model",outputs)
+            num_rows = outputs.shape[0]
+            for i in range(num_rows):
+                output = outputs[i].unsqueeze(0)
+                predictions = torch.argmax(output, dim=2)
+                tokens = self.tokenizer.tokenize(self.tokenizer.decode(input_batch[i]))
+                if self.mapping:
+                    label_list = self.mapping["label_list"]
+                label_list = label_list.strip('][').split(', ')
+                prediction = [(token, label_list[prediction]) for token, prediction in zip(tokens, predictions[0].tolist())]
+                inferences.append(prediction)
             logger.info("Model predicted: '%s'", prediction)
 
-        return [prediction]
+        return inferences
 
     def postprocess(self, inference_output):
         # TODO: Add any needed post-processing of the model predictions here
@@ -156,8 +178,8 @@ def handle(data, context):
         if data is None:
             return None
 
-        data = _service.preprocess(data)
-        data = _service.inference(data)
+        input_batch = _service.preprocess(data)
+        data = _service.inference(input_batch)
         data = _service.postprocess(data)
 
         return data
