@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euxo pipefail
 
 rm -rf fairseq
 rm wmt14.en-fr.joined-dict.transformer.tar.bz2
