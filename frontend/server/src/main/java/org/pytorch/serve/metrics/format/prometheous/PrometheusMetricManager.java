@@ -1,4 +1,4 @@
-package org.pytorch.serve.metrics;
+package org.pytorch.serve.metrics.format.prometheous;
 
 import io.prometheus.client.Counter;
 import java.util.UUID;

@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
 import org.pytorch.serve.http.InternalServerException;
-import org.pytorch.serve.metrics.PrometheusMetricManager;
+import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -101,9 +101,8 @@ public class Job {
          * by external clients.
          */
         if (ctx != null) {
-            PrometheusMetricManager metrics = PrometheusMetricManager.getInstance();
-            metrics.incInferLatency(inferTime, modelName, modelVersion);
-            metrics.incQueueLatency(scheduled - begin, modelName, modelVersion);
+            MetricAggregator.handleInferenceMetric(
+                    modelName, modelVersion, scheduled - begin, inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
         logger.debug(
