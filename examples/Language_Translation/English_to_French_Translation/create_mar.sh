@@ -8,9 +8,9 @@ git clone https://github.com/pytorch/fairseq.git
 # pip install ./
 
 # cd ..
+wget https://dl.fbaipublicfiles.com/fairseq/models/wmt14.en-fr.joined-dict.transformer.tar.bz2
 echo
 echo "extracting wmt14.en-fr.joined-dict.transformer.tar.bz2 file ...."
-wget https://dl.fbaipublicfiles.com/fairseq/models/wmt14.en-fr.joined-dict.transformer.tar.bz2
 tar -xvjf wmt14.en-fr.joined-dict.transformer.tar.bz2
 echo "========> extraction completed successfully...."
 echo
@@ -26,3 +26,4 @@ echo "removing unwanted files ..."
 # rm -rf fairseq
 rm wmt14.en-fr.joined-dict.transformer.tar.bz2
 echo "========> removing completed successfully ..."
+echo
