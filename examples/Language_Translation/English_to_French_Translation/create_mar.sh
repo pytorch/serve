@@ -1,16 +1,20 @@
 #!/bin/bash
+set -euxo pipefail
 
 rm -rf fairseq
 rm wmt14.en-fr.joined-dict.transformer.tar.bz2
 
 git clone https://github.com/pytorch/fairseq.git
-cd fairseq/
-pip install ./
+# cd fairseq/
+# pip install ./
 
-cd ..
-
+# cd ..
+echo
+echo "extracting wmt14.en-fr.joined-dict.transformer.tar.bz2 file ...."
 wget https://dl.fbaipublicfiles.com/fairseq/models/wmt14.en-fr.joined-dict.transformer.tar.bz2
 tar -xvjf wmt14.en-fr.joined-dict.transformer.tar.bz2
+echo "========> extraction completed successfully...."
+echo
 
 echo
 echo "creating mar file ...."
@@ -20,6 +24,6 @@ echo "========> mar file creation completed successfully...."
 echo
 
 echo "removing unwanted files ..."
-rm -rf fairseq
+# rm -rf fairseq
 rm wmt14.en-fr.joined-dict.transformer.tar.bz2
 echo "========> removing completed successfully ..."

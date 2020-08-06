@@ -26,11 +26,14 @@ class LanguageTranslationHandler(BaseHandler):
         self.initialized = True
         self.manifest = context.manifest
 
+        properties = context.system_properties
+        model_dir = properties.get("model_dir")
+
         #  load the model
         self.model = TransformerModel.from_pretrained(
-            '/home/ashwin/Eng2Fr_Translation/wmt14.en-fr.joined-dict.transformer/',
+            model_dir,
             checkpoint_file='model.pt',
-            data_name_or_path='/home/ashwin/Eng2Fr_Translation/wmt14.en-fr.joined-dict.transformer/',
+            data_name_or_path=model_dir,
             tokenizer='moses',
             bpe='subword_nmt'
         )
