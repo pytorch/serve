@@ -122,13 +122,6 @@ public class WorkLoadManager {
                     if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
                         try {
-                            String operatingSystem = System.getProperty("os.name").toLowerCase();
-                            String killCMD;
-                            if (operatingSystem.indexOf("win") >= 0) {
-                                killCMD = "taskkill /f /PID %s";
-                            } else {
-                                killCMD = "kill -9 %s";
-                            }
                             String cmd = String.format(getKillCmd(), workerProcess.pid());
                             Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
