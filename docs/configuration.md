@@ -196,6 +196,11 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 
 * `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
 
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
+		     This is used in conjunction with `enable_meterics_api` option above.
+
 ### Other properties
 
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
@@ -215,9 +220,6 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
-* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
-* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
-		     This is used in conjunction with `enable_meterics_api` option above.
 
 ---
 **NOTE**
