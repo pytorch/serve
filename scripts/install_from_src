@@ -6,7 +6,10 @@ source scripts/install_utils
 clean_slate
 
 install_java_deps
-install_torch_deps
+
+set +u
+install_torch_deps $1
+set -u
 
 build_install_server
 build_install_archiver

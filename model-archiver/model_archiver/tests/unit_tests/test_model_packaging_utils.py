@@ -139,12 +139,11 @@ class TestExportModelUtils:
         serialized_file = 'model.pt'
         model_file = 'model.pt'
         version = "1.0"
-        source_vocab = None
         requirements_file = "requirements.txt"
 
         args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value,
                          serialized_file=serialized_file, model_file=model_file, version=version,
-                         source_vocab=source_vocab, requirements_file=requirements_file)
+                         requirements_file=requirements_file)
 
         def test_model(self):
             mod = ModelExportUtils.generate_model(self.args)

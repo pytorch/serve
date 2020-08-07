@@ -133,3 +133,19 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
+
+### Registering the Model on TorchServe and Running batch Inference
+
+The following uses .mar file created from  model packaging using pretrained for save_mode to register the model for batch inference on sequence classification, by setting the batch_size when registering the model.
+
+```
+mkdir model_store
+mv BERTSeqClassification.mar model_store/
+torchserve --start --model-store model_store 
+
+curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+```
+
+Now to run the batch inference follwoing command can be used:
+
+`curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt&`

@@ -80,9 +80,6 @@ optional arguments:
                         class definition extended from torch.nn.modules.
   --handler HANDLER     TorchServe's default handler name  or handler python
                         file path to handle custom TorchServe inference logic.
-  --source-vocab SOURCE_VOCAB
-                        Vocab file for source language required for text
-                        based models
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.
   --runtime {python,python2,python3}
@@ -140,13 +137,17 @@ A serialized file (.pt or .pth) should be a checkpoint in case of torchscript an
 
 ### Handler
 
-Handler can be TorchServe's inbuilt handler name or path to a py to handle custom TorchServe inference logic. TorchServe supports following handlers out or box:
+Handler can be TorchServe's inbuilt handler name or path to a py file to handle custom TorchServe inference logic. TorchServe supports following handlers out or box:
 1. `image_classifier`
 2. `object_detector`
 3. `text_classifier`
 4. `image_segmenter`
 
-For more details refer [default handler documentation](../docs/default_handlers.md)
+In case of custom handler, if you plan to provide just `module_name` or `module_name:entry_point_function_name` then make sure that it is prefixed with absolute or relative path of python file.
+e.g. if your custom handler custom_image_classifier.py is in /home/serve/examples then
+`--handler /home/serve/examples/custom_image_classifier` or if it has my_entry_point module level function then `--handler /home/serve/examples/custom_image_classifier:my_entry_point_func`
+
+For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
 ## Creating a Model Archive
 
 **1. Download the torch model archiver source**
