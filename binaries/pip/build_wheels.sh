@@ -12,6 +12,11 @@ cleanup()
   rm -rf *.egg-info
 }
 
+install_python_deps()
+{
+  pip install -r ../../requirements/common.txt
+}
+
 create_torchserve_wheel()
 {
 
@@ -53,13 +58,7 @@ mkdir output
 
 install_java_deps
 
-cd ../../
-
-set +u
-install_torch_deps $1
-set -u
-
-cd -
+install_python_deps
 
 create_torchserve_wheel
 
