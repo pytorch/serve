@@ -414,6 +414,7 @@ public class SnapshotTest {
         prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
+        prop.put("management_address", "https://127.0.0.1:8444");
     }
 
     private String getLastSnapshot() {
