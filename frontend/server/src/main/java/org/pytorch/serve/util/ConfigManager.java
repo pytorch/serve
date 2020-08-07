@@ -79,6 +79,8 @@ public final class ConfigManager {
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
+    private static final String TS_METRICS_FORMAT = "metrics_format";
+    private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -92,6 +94,8 @@ public final class ConfigManager {
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
+
+    public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
     public static final String PYTHON_EXECUTABLE = "python";
 
@@ -278,6 +282,14 @@ public final class ConfigManager {
 
     public boolean getInstallPyDepPerModel() {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
+    }
+
+    public String getMetricsFormat() {
+        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
+    }
+
+    public boolean isMetricApiEnable() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
 
     public int getNettyThreads() {
@@ -542,7 +554,11 @@ public final class ConfigManager {
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nCustom python dependency for model allowed: "
-                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false");
+                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
+                + "\nMetrics report format: "
+                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
+                + "\nEnable metrics API: "
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
     }
 
     public boolean useNativeIo() {

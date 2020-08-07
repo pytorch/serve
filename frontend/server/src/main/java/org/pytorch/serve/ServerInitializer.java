@@ -68,7 +68,8 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                             new ManagementRequestHandler(
                                     PluginsManager.getInstance().getManagementEndpoints()));
         }
-        if (ConnectorType.ALL.equals(connectorType)
+        if (ConfigManager.getInstance().isMetricApiEnable()
+                        && ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(new PrometheusMetricsRequestHandler());

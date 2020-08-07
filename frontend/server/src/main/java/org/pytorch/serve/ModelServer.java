@@ -316,7 +316,6 @@ public class ModelServer {
 
         EventLoopGroup serverGroup = serverGroups.getServerGroup();
         EventLoopGroup workerGroup = serverGroups.getChildGroup();
-        EventLoopGroup metricsGroup = serverGroups.getMetricsGroup();
 
         futures.clear();
 
@@ -339,14 +338,17 @@ public class ModelServer {
                             inferenceConnector, serverGroup, workerGroup, ConnectorType.ALL));
         }
 
-        Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);
-        metricsConnector.clean();
-        futures.add(
-                initializeServer(
-                        metricsConnector,
-                        serverGroup,
-                        metricsGroup,
-                        ConnectorType.METRICS_CONNECTOR));
+        if (configManager.isMetricApiEnable()) {
+            EventLoopGroup metricsGroup = serverGroups.getMetricsGroup();
+            Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);
+            metricsConnector.clean();
+            futures.add(
+                    initializeServer(
+                            metricsConnector,
+                            serverGroup,
+                            metricsGroup,
+                            ConnectorType.METRICS_CONNECTOR));
+        }
 
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
