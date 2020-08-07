@@ -3,7 +3,7 @@
 Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md). The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a [Prometheus Server](#prometheus-server) to the endpoint and use [Grafana](#grafana) for dashboards.
 
 By default these APIs are enable however same can be disabled by setting `enable_metrics_api=false` in torchserve config.properties file.
-For details refer (config)[configuration.md] docs.
+For details refer [Torchserve config](configuration.md) docs.
 
 ```console
 curl http://127.0.0.1:8082/metrics
