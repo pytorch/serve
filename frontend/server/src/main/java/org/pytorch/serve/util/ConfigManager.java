@@ -95,7 +95,7 @@ public final class ConfigManager {
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
 
-    public static final String METRIC_FORMAT_PROMETHEOUS = "prometheous";
+    public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
     public static final String PYTHON_EXECUTABLE = "python";
 
@@ -285,7 +285,7 @@ public final class ConfigManager {
     }
 
     public String getMetricsFormat() {
-        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEOUS);
+        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
     }
 
     public boolean isMetricApiEnable() {
@@ -556,7 +556,7 @@ public final class ConfigManager {
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
                 + "\nMetrics report format: "
-                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEOUS)
+                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true");
     }
