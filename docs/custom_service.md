@@ -224,12 +224,12 @@ Refer [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler
 #### Extend default handlers
 
 TorchServe has following default handlers.
-- [image_classifier](../ts/torch_handlers/image_classifier.py)
-- [image_segmenter](../ts/torch_handlers/image_segmenter.py)
-- [object_detector](../ts/torch_handlers/object_detector.py)
-- [text_classifier](../ts/torch_handlers/text_classifier.py)
+- [image_classifier](../ts/torch_handler/image_classifier.py)
+- [image_segmenter](../ts/torch_handler/image_segmenter.py)
+- [object_detector](../ts/torch_handler/object_detector.py)
+- [text_classifier](../ts/torch_handler/text_classifier.py)
 
-If required above handlers can be extended to create custom handler. Also, you can extend abstract [base_handler](../ts/torch_handlers/base_handler.py).
+If required above handlers can be extended to create custom handler. Also, you can extend abstract [base_handler](../ts/torch_handler/base_handler.py).
 
 To import the default handler in a python script use the following import statement.
 
@@ -254,7 +254,8 @@ class CustomImageClassifier(ImageClassifier):
 ```
 For more details refer following examples :
 - [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py)
-- [resnet-152-batch_image classifier handler](../examples/image_classifier/resnet_152_batch/resnet152_handler.py)
+- [Huggingface transformer generalized handler](../examples/Huggingface_Transformers/Transformer_handler_generalized.py)
+- [Waveglow text to speech synthesizer](../examples/text_to_speech_synthesizer/waveglow_handler.py)
 
 ## Creating a model archive with an entry point
 

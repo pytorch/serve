@@ -34,7 +34,7 @@ To support batch inference, TorchServe needs the following:
    TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.
 2. Model handler code: TorchServe requires the Model handler to handle batch inference requests.
 
-For a full working example of a custom model handler with batch processing, see [resnet152_handler.py](../examples/image_classifier/resnet_152_batch/resnet152_handler.py)
+For a full working example of a custom model handler with batch processing, see [Hugging face transformer generalised handler](../examples/Huggingface_Transformers/Transformer_handler_generalized.py)
 
 ### TorchServe Model Configuration
 
