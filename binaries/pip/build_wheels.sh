@@ -40,10 +40,6 @@ create_model_archiver_wheel()
 
   cp dist/*.whl ../binaries/pip/output/
 
-  echo 'sleeping for test'
-
-  sleep 60
-
   cleanup
 
   cd -
@@ -57,7 +53,13 @@ mkdir output
 
 install_java_deps
 
-install_torch_deps
+cd ../../
+
+set +u
+install_torch_deps $1
+set -u
+
+cd -
 
 create_torchserve_wheel
 
