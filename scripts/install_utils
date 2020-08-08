@@ -28,7 +28,12 @@ install_java_deps()
 
 install_torch_deps()
 {
-	pip install -U -r requirements.txt
+  if [ is_gpu_instance ] && [ "$1" == "cuda101" ];
+  then
+	  pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
+	else
+	  pip install -U -r requirements.txt
+	fi
 }
 
 install_pytest_suite_deps()
@@ -216,4 +221,9 @@ clean_up_build_residuals()
   rm -rf ts/metrics/__pycache__/
   rm -rf ts/protocol/__pycache__/
   rm -rf ts/utils/__pycache__/
+}
+
+is_gpu_instance()
+{
+  [ -x "$(command -v nvidia-smi)" ]
 }

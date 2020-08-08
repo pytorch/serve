@@ -78,7 +78,7 @@ def validate_files(file_list, prefix, default_handler=None):
     assert os.path.join(prefix, "dummy-artifacts.txt") in file_list
     assert os.path.join(prefix, "1.py") in file_list
 
-    if default_handler =="text_classifier":
+    if default_handler == "text_classifier":
         assert os.path.join(prefix, "source_vocab.pt") in file_list
 
 
@@ -121,7 +121,7 @@ def validate(test):
 
 
 def build_cmd(test):
-    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format', 'source-vocab',
+    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format',
             'version', 'export-path', 'runtime']
     cmd = ["torch-model-archiver"]
 
