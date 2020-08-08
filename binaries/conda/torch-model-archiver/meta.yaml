@@ -1,0 +1,23 @@
+package:
+  name: torch-model-archiver
+  version: "{{ environ.get('TORCH_MODEL_ARCHIVER_VERSION') }}"
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - pillow
+    - psutil
+    - future
+
+build:
+  noarch: generic
+  script_env:
+    - TORCH_MODEL_ARCHIVER_WHEEL
+
+about:
+  home: https://github.com/pytorch/serve
+  summary: 'Model serving on PyTorch'

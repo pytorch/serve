@@ -1,0 +1,5 @@
+pandas
+Click
+click-config-file
+matplotlib
+requests
