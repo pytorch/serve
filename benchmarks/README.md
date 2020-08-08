@@ -167,18 +167,21 @@ Refer [adding a new jmeter](NewTestPlan.md) test plan for torchserve.
 
 It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
 
-### For Ubuntu
+### pip dependencies
+
+`pip install -r requirements-ab.txt`
+
+### install apache2-utils
+
+* Ubuntu
 
 ```
 apt-get install apache2-utils
-
 ```
-### macOS
+
+* macOS
 
 Apache Bench is installed in Mac by default. You can test by running ```ab -h```
-
-### pip dependencies
-`pip install -r requirements-ab.txt`
 
 ## Benchmark
 ### Run benchmark
@@ -235,6 +238,8 @@ The following parameters can be used to run the AB benchmark suite.
 - image: Custom docker image to run Torchserve on. Default: Standard public Torchserve image
 - docker_runtime: Specify docker runtime if required
 - ts: Use Already running Torchserve instance. Default: False
+- gpus: Number of gpus to run docker container with. By default it runs the docker container on CPU.
+- backend_profiling: Enable backend profiling using CProfile. Default: False
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
 
 ### Test plans
@@ -313,7 +318,7 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 
     ```bash
     pip install snakeviz
-    snakeviz tsPythonProfile.prof
+    snakeviz /tmp/tsPythonProfile.prof
     ```
     ![](snake_viz.png)
 

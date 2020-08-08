@@ -11,5 +11,5 @@ phases:
 
   build:
     commands:
-      - ./torchserve_sanity.sh
+      - ./torchserve_sanity.sh cuda101
       - cd serving-sdk/ && mvn clean install -q && cd ../

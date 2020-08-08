@@ -19,14 +19,36 @@ Clone Torch Serve Repo & Build the Docker Image for the execition env.
 
 ```
 git clone https://github.com/pytorch/serve
+## optional
+git checkout <branch_name>
+```
+
+### Build docker image
+
+ - For CPU
+
+```
 cd serve/docker
 ./build_image.sh
 ```
 
-This would build a docker Image with a pytorch/torchserve:latest in which we would run our Regression Tests.
+This would build a docker Image with a pytorch/torchserve:dev-cpu in which we would run our Regression Tests.
 
 ```
-docker run -it --user root pytorch/torchserve:latest /bin/bash
+docker run -it --user root pytorch/torchserve:dev-cpu /bin/bash
+```
+
+ - For GPU
+
+```
+cd serve/docker
+./build_image.sh --gpu
+```
+
+This would build a docker Image with a pytorch/torchserve:dev-gpu in which we would run our Regression Tests.
+
+```
+docker run -it --gpus all --user root pytorch/torchserve:dev-gpu /bin/bash
 ```
 
 In the Docker CLI execute the following cmds.
@@ -36,6 +58,7 @@ apt-get update
 apt-get install -y git wget sudo 
 git clone https://github.com/pytorch/serve
 cd serve 
+git checkout <branch_name>
 ```
 To execute tests on master run: 
 
@@ -43,7 +66,11 @@ To execute tests on master run:
 
 To execute tests on different run: 
 
-`./test/regression_tests.sh <branch_name>`
+`./test/regression_tests.sh -b <branch_name>`
+
+To execute tests on GPU with Cuda 10.1 run: 
+
+`./test/regression_tests.sh --cudaversion cuda101`
 
 
 You can view the logs for Test execution & the Torch serve in the /tmp dir.
