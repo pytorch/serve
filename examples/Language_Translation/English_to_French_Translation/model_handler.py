@@ -17,17 +17,14 @@ class LanguageTranslationHandler(BaseHandler):
         self.device = None
 
     def initialize(self, context):
-        """
-        Invoke by torchserve for loading a model
-        :param context: context contains model server system properties
-        :return:
-        """
         self._context = context
         self.initialized = True
         self.manifest = context.manifest
 
         properties = context.system_properties
         model_dir = properties.get("model_dir")
+
+        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 
         #  load the model
         self.model = TransformerModel.from_pretrained(
@@ -37,12 +34,12 @@ class LanguageTranslationHandler(BaseHandler):
             tokenizer='moses',
             bpe='subword_nmt'
         )
+        self.model.to(self.device)
+        self.model.eval()
 
         self.initialized = True
 
     def preprocess(self, data):
-        """ Basic text preprocessing, based on the user's chocie of application mode.
-        """
         text = data[0].get("data")
         if text is None:
             text = data[0].get("body")
