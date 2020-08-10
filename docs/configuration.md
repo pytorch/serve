@@ -81,6 +81,7 @@ See [Enable SSL](#enable-ssl) to configure HTTPS.
 
 * `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
 * `management_address`: management API binding address. Default: http://127.0.0.1:8081
+* `metrics_address`: metrics API binding address. Default: http://127.0.0.1:8082
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 
@@ -98,7 +99,7 @@ inference_address=https://172.16.1.10:8080
 
 ### Enable SSL
 
-To enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
+To enable HTTPs, you can change `inference_address`, `management_address` or `metrics_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
 The default is port 443, but you can make TorchServe listen on whatever port you set to accept https requests.
 For example, to receive https traffic on port 8443, you would use: `inference_address=https://127.0.0.1:8443`.
 
@@ -126,6 +127,7 @@ Configure the following properties in config.properties:
 ```bash
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 keystore=keystore.p12
 keystore_pass=changeit
 keystore_type=PKCS12
@@ -142,6 +144,7 @@ Config following property in config.properties:
 ```properties
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 private_key_file=mykey.key
 certificate_file=mycert.pem
 ```
@@ -192,6 +195,11 @@ which might expose a security risk. TorchServe provides a `blacklist_env_vars` p
 By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu` to limit the usage of GPUs.
 
 * `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
+
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
+		     This is used in conjunction with `enable_meterics_api` option above.
 
 ### Other properties
 
