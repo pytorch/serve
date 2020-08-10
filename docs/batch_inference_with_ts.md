@@ -98,7 +98,7 @@ $ curl -X POST "localhost:8081/models?url=https://torchserve.s3.amazonaws.com/ma
 
 * Verify that the workers were started properly.
 
-```text
+```json
 [
   {
     "modelName": "resnet-152-batch_v2",

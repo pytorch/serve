@@ -66,9 +66,24 @@ The reports are generated at following path : `model-archiver/htmlcov_it/`
 
 ### Install markdown link checker dependencies
 Run following commands to install node and [`markdown-link-check`](https://github.com/tcort/markdown-link-check/) npm package.
+
+* Install node
+
+For Linux :
 ```
 sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
 sudo apt-get -y install npm
+```
+
+For Mac :
+```
+brew install node
+brew install npm
+```
+
+* Install markdown
+
+```
 sudo npm install -g n
 sudo npm install -g markdown-link-check
 ```

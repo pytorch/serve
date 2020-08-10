@@ -191,7 +191,7 @@ Refer [parameters section](#benchmark-parameters) for more details on configurab
 `python benchmark-ab.py`
 
 ### Run benchmark with a test plan
-The benchmark comes with pre-configured test plans which can be used directly to set parameters. Refer available [test plans](#test-plans ) for more details.
+The benchmark comes with pre-configured test plans which can be used directly to set parameters. Refer available [test plans](#test-plans) for more details.
 `python benchmark-ab.py <test plan>`
 
 ### Run benchmark with a customized test plan
@@ -215,7 +215,7 @@ This command will use all the configuration parameters given in config.json file
 ### Sample config file
 ```json
 {
-  "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+  "url": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
   "requests": 1000,
   "concurrency": 10,
   "input": "../examples/image_classifier/kitten.jpg",
@@ -225,7 +225,7 @@ This command will use all the configuration parameters given in config.json file
 ```
 ### Benchmark parameters
 The following parameters can be used to run the AB benchmark suite.
-- url: Input model URL. Default: "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+- url: Input model URL. Default: `https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar`
 - device: Execution device type. Default: cpu
 - exec_env: Execution environment. Default: docker
 - concurrency: Concurrency of requests. Default: 10
