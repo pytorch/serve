@@ -24,7 +24,8 @@ class LanguageTranslationHandler(BaseHandler):
         properties = context.system_properties
         model_dir = properties.get("model_dir")
 
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 
         #  load the model
         self.model = TransformerModel.from_pretrained(
@@ -46,11 +47,15 @@ class LanguageTranslationHandler(BaseHandler):
         input_text = text.decode('utf-8')
         return input_text
 
-    def inference(self, data):
+    def inference(self, data, *args, **kwargs):
         translation = self.model.translate(data, beam=5)
         translation += '\n'
         logger.info("Model translated: '%s'", translation)
-        return translation
+        inference_output = {
+            "english_input": data,
+            "french_output": translation
+        }
+        return [inference_output]
 
     def postprocess(self, data):
         return [data]
