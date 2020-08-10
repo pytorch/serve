@@ -208,6 +208,7 @@ unregister_model()
   if [ ! "$response" == 200 ]
   then
       echo "Failed to register $1 model with torchserve"
+      echo "Exit code: $?"
       cleanup
       exit 1
   else

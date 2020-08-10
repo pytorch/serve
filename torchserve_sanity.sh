@@ -39,7 +39,7 @@ set -u
 
 if is_gpu_instance;
 then
-    echo export MKL_THREADING_LAYER=GNU
+    export MKL_THREADING_LAYER=GNU
     cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
     if [ $cuda_status -eq 0 ] ;
     then
