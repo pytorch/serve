@@ -39,6 +39,7 @@ set -u
 
 if is_gpu_instance;
 then
+    export MKL_THREADING_LAYER=GNU
     cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
     if [ $cuda_status -eq 0 ] ;
     then
@@ -53,13 +54,62 @@ mkdir -p model_store
 
 start_torchserve
 
-models=("fastrcnn" "fcn_resnet_101" "my_text_classifier_v2" "resnet-18" "my_text_classifier_scripted_v2" "alexnet_scripted" "fcn_resnet_101_scripted"
-           "roberta_qa_no_torchscript" "bert_token_classification_no_torchscript" "bert_seqc_without_torchscript")
+models=(
+  "fastrcnn"
+  "fcn_resnet_101"
+  "my_text_classifier_v2"
+  "resnet-18"
+  "my_text_classifier_scripted_v2"
+  "alexnet_scripted"
+  "fcn_resnet_101_scripted"
+  "roberta_qa_no_torchscript"
+  "bert_token_classification_no_torchscript"
+  "bert_seqc_without_torchscript"
+  "BERTSeqClassification_Torchscript_gpu"
+  )
 
-model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg"
- "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"
- "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt" "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
-handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "custom" "custom" "custom")
+model_inputs=(
+  "examples/object_detector/persons.jpg,docs/images/blank_image.jpg"
+  "examples/image_segmenter/fcn/persons.jpg"
+  "examples/text_classification/sample_text.txt"
+  "examples/image_classifier/kitten.jpg"
+  "examples/text_classification/sample_text.txt"
+  "examples/image_classifier/kitten.jpg"
+  "examples/image_segmenter/fcn/persons.jpg"
+  "examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"
+  "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"
+  "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+  "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+  )
+
+handlers=(
+  "object_detector"
+  "image_segmenter"
+  "text_classification"
+  "image_classifier"
+  "text_classification"
+  "image_classifier"
+  "image_segmenter"
+  "custom"
+  "custom"
+  "custom"
+  "custom"
+  )
+
+
+models=(
+  "fastrcnn examples/object_detector/persons.jpg,docs/images/blank_image.jpg object_detector"
+  "fcn_resnet_101 examples/image_segmenter/fcn/persons.jpg image_segmenter"
+  "my_text_classifier_v2 examples/text_classification/sample_text.txt text_classification"
+  "alexnet_scripted"
+  "fcn_resnet_101_scripted"
+  "roberta_qa_no_torchscript"
+  "bert_token_classification_no_torchscript"
+  "bert_seqc_without_torchscript"
+  "my_text_classifier_scripted_v2;examples/object_detector/persons.jpg,docs/images/blank_image.jpg;object_detector"
+  "resnet-18 examples/image_classifier/kitten.jpg image_classifier"
+)
+
 
 for i in ${!models[@]};
 do
