@@ -226,5 +226,5 @@ clean_up_build_residuals()
 
 is_gpu_instance()
 {
-  [ -x "$(command -v nvidia-smi)" ]
+  command -v "nvidia-smi" >/dev/null 2>&1
 }
