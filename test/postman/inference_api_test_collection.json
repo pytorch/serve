@@ -164,40 +164,75 @@
 			},
 			"response": []
 		},
-		{
-			"name": "Model Zoo - Unregister model",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "a14dd390-4176-45e7-af00-999676685f4a",
-						"exec": [
-							"pm.test(\"Successful DELETE request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model_name}}",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{hostname}}"
-					],
-					"port": "{{mgmt-port}}",
-					"path": [
-						"models",
-						"{{model_name}}"
-					]
-				}
-			},
-			"response": []
-		}
+        {
+        "name": "Model Zoo - Unregister model",
+                "event": [
+                    {
+                        "listen": "test",
+                        "script": {
+                            "id": "a14dd390-4176-45e7-af00-999676685f4a",
+                            "exec": [
+                                "pm.test(\"Successful DELETE request\", function () {",
+                                "    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+                                "});"
+                            ],
+                            "type": "text/javascript"
+                        }
+                    }
+                ],
+                "request": {
+
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                        "raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model_name}}",
+                        "protocol": "{{protocol}}",
+                        "host": [
+                            "{{hostname}}"
+                        ],
+                        "port": "{{mgmt-port}}",
+                        "path": [
+                            "models",
+                            "{{model_name}}"
+                        ]
+                    }
+                },
+                "response": []
+            },
+            {
+                "name": "Model Zoo - Model Metrics",
+                "event": [
+                    {
+                        "listen": "test",
+                        "script": {
+                            "id": "9605fe7f-9911-495a-b6c3-b495e1b1dd21",
+                            "exec": [
+                                "pm.test(\"Successful GET request\", function () {",
+                                "    let pattern = new RegExp('ts_inference_latency_microseconds{uuid=\"[\\\\w]{8}(-[\\\\w]{4}){3}-[\\\\w]{12}\",model_name=\"'+pm.variables.get(\"model_name\"));",
+                                "    pm.expect(pm.response.text()).to.match(pattern);",
+                                "});"
+                            ],
+                            "type": "text/javascript"
+                        }
+                    }
+                ],
+                "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                        "raw": "http://localhost:8082/metrics",
+                        "protocol": "http",
+                        "host": [
+                            "localhost"
+                        ],
+                        "port": "8082",
+                        "path": [
+                            "metrics"
+                        ]
+                    }
+                },
+                "response": []
+            }
 	],
-	"protocolProfileBehavior": {}
+    "protocolProfileBehavior": {}
 }
