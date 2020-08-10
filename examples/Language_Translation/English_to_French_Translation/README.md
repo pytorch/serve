@@ -21,7 +21,7 @@ pip install fastBPE regex requests sacremoses subword_nmt
     torchserve --start --model-store model_store
     ```
 
-    To register the model with one initial worker use the below curl command
+    Register the model with one initial worker use the below curl command
 
     ```bash
     curl -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=TransformerEn2Fr.mar"
