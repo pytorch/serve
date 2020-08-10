@@ -39,7 +39,7 @@ set -u
 
 if is_gpu_instance;
 then
-    export MKL_THREADING_LAYER=GNU
+    echo export MKL_THREADING_LAYER=GNU
     cuda_status=$(python -c "import torch; print(int(torch.cuda.is_available()))")
     if [ $cuda_status -eq 0 ] ;
     then
@@ -69,7 +69,6 @@ models=(
   "roberta_qa_no_torchscript"
   "bert_token_classification_no_torchscript"
   "bert_seqc_without_torchscript"
-  "BERTSeqClassification_Torchscript_gpu"
   )
 
 model_inputs=(
@@ -82,7 +81,6 @@ model_inputs=(
   "examples/image_segmenter/fcn/persons.jpg"
   "examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"
   "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"
-  "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
   "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
   )
 
@@ -97,8 +95,21 @@ handlers=(
   "custom"
   "custom"
   "custom"
-  "custom"
   )
+
+
+## Add Bert scripted model based on instance type
+## TODO : remove once the same model can be used on both CPU and GPU
+if is_gpu_instance;
+then
+  models+=("BERTSeqClassification_Torchscript_gpu")
+  model_inputs+=("examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
+  handlers+=("custom")
+else
+  models+=("BERTSeqClassification_Torchscript_batch")
+  model_inputs+=("examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
+  handlers+=("custom")
+fi
 
 for i in ${!models[@]};
 do
