@@ -49,7 +49,6 @@ class LanguageTranslationHandler(BaseHandler):
 
     def inference(self, data, *args, **kwargs):
         translation = self.model.translate(data, beam=5)
-        translation += '\n'
         logger.info("Model translated: '%s'", translation)
         inference_output = {
             "english_input": data,
