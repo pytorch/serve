@@ -96,21 +96,6 @@ handlers=(
   "custom"
   )
 
-
-models=(
-  "fastrcnn examples/object_detector/persons.jpg,docs/images/blank_image.jpg object_detector"
-  "fcn_resnet_101 examples/image_segmenter/fcn/persons.jpg image_segmenter"
-  "my_text_classifier_v2 examples/text_classification/sample_text.txt text_classification"
-  "alexnet_scripted"
-  "fcn_resnet_101_scripted"
-  "roberta_qa_no_torchscript"
-  "bert_token_classification_no_torchscript"
-  "bert_seqc_without_torchscript"
-  "my_text_classifier_scripted_v2;examples/object_detector/persons.jpg,docs/images/blank_image.jpg;object_detector"
-  "resnet-18 examples/image_classifier/kitten.jpg image_classifier"
-)
-
-
 for i in ${!models[@]};
 do
   model=${models[$i]}
