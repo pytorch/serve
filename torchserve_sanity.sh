@@ -54,6 +54,10 @@ mkdir -p model_store
 
 start_torchserve
 
+
+# Following are list of models and their corresponding inputs and handler types
+# Maintain the order for models and model_inputs
+
 models=(
   "fastrcnn"
   "fcn_resnet_101"
