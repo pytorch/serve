@@ -1,1 +1,6 @@
-pip install fairseq/.
+fastBPE
+regex 
+requests 
+sacremoses 
+subword_nmt
+master.zip
