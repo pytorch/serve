@@ -751,6 +751,7 @@ public class ModelServerTest {
                 resp.getMessage(),
                 "Custom pip package installation failed for custom_invalid_python_dep");
         setConfiguration("install_py_dep_per_model", "false");
+        channel.close();
     }
 
     @Test(
