@@ -712,6 +712,14 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
+    public void testUnregisterURLModel() throws InterruptedException {
+        testUnregisterModel("squeezenet", null);
+        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterURLModel"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
@@ -748,14 +756,6 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
-    public void testUnregisterURLModel() throws InterruptedException {
-        testUnregisterModel("squeezenet", null);
-        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
