@@ -1486,67 +1486,6 @@ public class ModelServerTest {
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
     }
 
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelFailure"})
-    public void testTSValidPort()
-            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
-                    IOException {
-        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
-        ConfigManager.init(new ConfigManager.Arguments());
-        ConfigManager configManagerValidPort = ConfigManager.getInstance();
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
-        configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
-        ModelServer serverValidPort = new ModelServer(configManagerValidPort);
-        serverValidPort.start();
-
-        Channel channel = null;
-        Channel managementChannel = null;
-        for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManagerValidPort);
-            if (channel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        for (int i = 0; i < 5; ++i) {
-            managementChannel =
-                    TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManagerValidPort);
-            if (managementChannel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        Assert.assertNotNull(channel, "Failed to connect to inference port.");
-        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
-
-        TestUtils.ping(configManagerValidPort);
-
-        serverValidPort.stop();
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testTSValidPort"})
-    public void testTSInvalidPort() throws IOException {
-        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
-        //  invalid port test
-        ConfigManager.init(new ConfigManager.Arguments());
-        ConfigManager configManagerInvalidPort = ConfigManager.getInstance();
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManagerInvalidPort.setProperty("inference_address", "https://127.0.0.1:65536");
-        ModelServer serverInvalidPort = new ModelServer(configManagerInvalidPort);
-        try {
-            serverInvalidPort.start();
-        } catch (Exception e) {
-            Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
-            Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");
-        }
-    }
-
     private void testLoadModel(String url, String modelName, String version)
             throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
