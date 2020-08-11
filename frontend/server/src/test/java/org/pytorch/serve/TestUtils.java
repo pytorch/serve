@@ -26,10 +26,12 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.ConnectorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,12 @@ public final class TestUtils {
     static HttpHeaders headers;
     private static Channel inferenceChannel;
     private static Channel managementChannel;
+    private static Channel metricsChannel;
+    private static String tsInferLatencyPattern =
+            "ts_inference_latency_microseconds\\{"
+                    + "uuid=\"[\\w]{8}(-[\\w]{4}){3}-[\\w]{12}\","
+                    + "model_name=\"%s\","
+                    + "model_version=\"%s\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 
@@ -212,15 +220,15 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
-    public static Channel connect(boolean management, ConfigManager configManager) {
-        return connect(management, configManager, 120);
+    public static Channel connect(ConnectorType connectorType, ConfigManager configManager) {
+        return connect(connectorType, configManager, 120);
     }
 
     public static Channel connect(
-            boolean management, ConfigManager configManager, int readTimeOut) {
+            ConnectorType connectorType, ConfigManager configManager, int readTimeOut) {
         Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
 
-        final Connector connector = configManager.getListener(management);
+        final Connector connector = configManager.getListener(connectorType);
         try {
             Bootstrap b = new Bootstrap();
             final SslContext sslCtx =
@@ -256,40 +264,55 @@ public final class TestUtils {
 
     public static Channel getInferenceChannel(ConfigManager configManager)
             throws InterruptedException {
-        return getChannel(false, configManager);
+        return getChannel(ConnectorType.INFERENCE_CONNECTOR, configManager);
     }
 
     public static Channel getManagementChannel(ConfigManager configManager)
             throws InterruptedException {
-        return getChannel(true, configManager);
+        return getChannel(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
     }
 
-    private static Channel getChannel(boolean isManagementChannel, ConfigManager configManager)
+    public static Channel getMetricsChannel(ConfigManager configManager)
             throws InterruptedException {
-        if (isManagementChannel && managementChannel != null && managementChannel.isActive()) {
+        return getChannel(ConnectorType.METRICS_CONNECTOR, configManager);
+    }
+
+    private static Channel getChannel(ConnectorType connectorType, ConfigManager configManager)
+            throws InterruptedException {
+        if (ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)
+                && managementChannel != null
+                && managementChannel.isActive()) {
             return managementChannel;
-        } else if (!isManagementChannel
+        }
+        if (ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)
                 && inferenceChannel != null
                 && inferenceChannel.isActive()) {
             return inferenceChannel;
-        } else {
-            Channel channel = null;
-            if (channel == null) {
-                for (int i = 0; i < 5; ++i) {
-                    channel = TestUtils.connect(isManagementChannel, configManager);
-                    if (channel != null) {
-                        break;
-                    }
-                    Thread.sleep(100);
-                }
-            }
-            if (isManagementChannel) {
-                managementChannel = channel;
-            } else {
-                inferenceChannel = channel;
-            }
-            return channel;
         }
+        if (ConnectorType.METRICS_CONNECTOR.equals(connectorType)
+                && metricsChannel != null
+                && metricsChannel.isActive()) {
+            return metricsChannel;
+        }
+        Channel channel = null;
+        for (int i = 0; i < 5; ++i) {
+            channel = TestUtils.connect(connectorType, configManager);
+            if (channel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                managementChannel = channel;
+                break;
+            case METRICS_CONNECTOR:
+                metricsChannel = channel;
+                break;
+            default:
+                inferenceChannel = channel;
+        }
+        return channel;
     }
 
     public static void closeChannels() throws InterruptedException {
@@ -299,6 +322,15 @@ public final class TestUtils {
         if (inferenceChannel != null) {
             inferenceChannel.closeFuture().sync();
         }
+        if (metricsChannel != null) {
+            metricsChannel.closeFuture().sync();
+        }
+    }
+
+    public static Pattern getTSInferLatencyMatcher(String modelName, String modelVersion) {
+        modelVersion = modelVersion == null ? "default" : modelVersion;
+        return Pattern.compile(
+                String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
     }
 
     @ChannelHandler.Sharable

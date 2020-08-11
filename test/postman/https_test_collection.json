@@ -66,6 +66,36 @@
 			"response": []
 		},
 		{
+			"name": "HTTPS Metrics API Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0aa1325d-be34-4128-840e-e1d26cae31f5",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-metric-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-metric-port}}"
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "HTTPS Register Model - SqueezeNet",
 			"event": [
 				{

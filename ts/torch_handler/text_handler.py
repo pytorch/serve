@@ -14,6 +14,11 @@ from torchtext.data.utils import get_tokenizer
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
 
+CLEANUP_REGEX = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
+CONTRACTIONS_PATTERN = re.compile(
+    '({})'.format('|'.join(CONTRACTION_MAP.keys())),
+    flags=re.IGNORECASE | re.DOTALL
+)
 
 class TextHandler(BaseHandler, ABC):
     """
@@ -25,8 +30,8 @@ class TextHandler(BaseHandler, ABC):
         self.source_vocab = None
         self.tokenizer = get_tokenizer('basic_english')
 
-    def initialize(self, ctx):
-        super(TextHandler, self).initialize(ctx)
+    def initialize(self, context):
+        super(TextHandler, self).initialize(context)
         self.initialized = False
         source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
         if source_vocab:
@@ -56,9 +61,7 @@ class TextHandler(BaseHandler, ABC):
             expanded_contraction = first_char + expanded_contraction[1:]
             return expanded_contraction
 
-        contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTION_MAP.keys())),
-                                          flags=re.IGNORECASE | re.DOTALL)
-        text = contractions_pattern.sub(expand_match, text)
+        text = CONTRACTIONS_PATTERN.sub(expand_match, text)
         text = re.sub("'", "", text)
         return text
 
@@ -67,9 +70,14 @@ class TextHandler(BaseHandler, ABC):
         return text
 
     def _remove_html_tags(self, text):
-        cleanup_regex = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
-        clean_text = re.sub(cleanup_regex, '', text)
+        clean_text = CLEANUP_REGEX.sub('', text)
         return clean_text
+
+    def _remove_puncutation(self, *args, **kwargs):
+        """
+        Mispelled in original version. This is a compat layer
+        """
+        return self._remove_punctuation(*args, **kwargs)
 
     def _remove_punctuation(self, text):
         return text.translate(str.maketrans('', '', string.punctuation))

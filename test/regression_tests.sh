@@ -89,7 +89,7 @@ start_torchserve() {
   torchserve --start --model-store $1 --models $1/densenet161_v1.mar &>> $2
   sleep 10
   curl http://127.0.0.1:8081/models
-  
+
 }
 
 start_secure_torchserve() {
