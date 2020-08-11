@@ -3,4 +3,4 @@ regex
 requests 
 sacremoses 
 subword_nmt
-master.zip
+fairseq-0.9.0.tar.gz

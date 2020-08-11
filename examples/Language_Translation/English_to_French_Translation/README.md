@@ -18,7 +18,7 @@ pip install fastBPE regex requests sacremoses subword_nmt
 * Register the model on TorchServe using the above model archive file
 
     ```bash
-    torchserve --start --model-store model_store
+    torchserve --start --model-store model_store --ts-config config.properties
     ```
 
     Register the model with one initial worker use the below curl command
