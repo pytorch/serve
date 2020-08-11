@@ -1497,7 +1497,8 @@ public class ModelServerTest {
         ConfigManager configManagerValidPort = ConfigManager.getInstance();
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
         configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
-        configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
+        configManagerValidPort.setProperty("management_address", "https://127.0.0.1:42524");
+        configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42525");
         ModelServer serverValidPort = new ModelServer(configManagerValidPort);
         serverValidPort.start();
 
@@ -1566,6 +1567,7 @@ public class ModelServerTest {
     }
 
     private void testUnregisterModel(String modelName, String version) throws InterruptedException {
+        Thread.sleep(500);
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
