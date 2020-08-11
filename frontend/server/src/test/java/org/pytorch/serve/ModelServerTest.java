@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
@@ -38,6 +39,7 @@ import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -54,6 +56,7 @@ public class ModelServerTest {
     private ModelServer server;
     private String listInferenceApisResult;
     private String listManagementApisResult;
+    private String listMetricsApisResult;
     private String noopApiResult;
 
     static {
@@ -80,6 +83,11 @@ public class ModelServerTest {
 
         try (InputStream is = new FileInputStream("src/test/resources/management_open_api.json")) {
             listManagementApisResult =
+                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
+        }
+
+        try (InputStream is = new FileInputStream("src/test/resources/metrics_open_api.json")) {
+            listMetricsApisResult =
                     String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
 
@@ -131,6 +139,19 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRootManagement"})
+    public void testRootMetrics() throws InterruptedException {
+        Channel channel = TestUtils.getMetricsChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.getRoot(channel);
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getResult(), listMetricsApisResult);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRootMetrics"})
     public void testApiDescription() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -737,7 +758,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -754,7 +775,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testLoadingMemoryError"})
     public void testPredictionMemoryError() throws InterruptedException {
         // Load the model
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -765,7 +786,7 @@ public class ModelServerTest {
         channel.close();
 
         // Test for prediction
-        channel = TestUtils.connect(false, configManager);
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -781,7 +802,7 @@ public class ModelServerTest {
         channel.close();
 
         // Unload the model
-        channel = TestUtils.connect(true, configManager);
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         TestUtils.setHttpStatus(null);
         TestUtils.setLatch(new CountDownLatch(1));
         Assert.assertNotNull(channel);
@@ -795,7 +816,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
     public void testErrorBatch() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.setHttpStatus(null);
@@ -813,7 +834,7 @@ public class ModelServerTest {
 
         channel.close();
 
-        channel = TestUtils.connect(false, configManager);
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.setResult(null);
@@ -873,7 +894,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testMetricManager"})
     public void testInvalidRootRequest() throws InterruptedException {
-        Channel channel = TestUtils.connect(false, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
@@ -890,7 +911,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidRootRequest"})
     public void testInvalidInferenceUri() throws InterruptedException {
-        Channel channel = TestUtils.connect(false, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -908,7 +929,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidInferenceUri"})
     public void testInvalidDescribeModel() throws InterruptedException {
-        Channel channel = TestUtils.connect(false, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.describeModelApi(channel, "InvalidModel");
@@ -924,7 +945,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidDescribeModel"})
     public void testInvalidPredictionsUri() throws InterruptedException {
-        Channel channel = TestUtils.connect(false, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -942,7 +963,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidPredictionsUri"})
     public void testPredictionsModelNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(false, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -961,7 +982,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsModelNotFound"})
     public void testPredictionsModelVersionNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(false, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -981,7 +1002,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsModelNotFound"})
     public void testInvalidManagementUri() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -999,7 +1020,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidManagementUri"})
     public void testInvalidModelsMethod() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1017,7 +1038,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidModelsMethod"})
     public void testInvalidModelMethod() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1035,7 +1056,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidModelMethod"})
     public void testDescribeModelNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1054,7 +1075,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeModelNotFound"})
     public void testDescribeModelVersionNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1074,7 +1095,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeModelNotFound"})
     public void testRegisterModelMissingUrl() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1092,7 +1113,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelMissingUrl"})
     public void testRegisterModelInvalidRuntime() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1113,7 +1134,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelInvalidRuntime"})
     public void testRegisterModelNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1132,7 +1153,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelNotFound"})
     public void testRegisterModelConflict() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1162,7 +1183,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelConflict"})
     public void testRegisterModelMalformedUrl() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1184,7 +1205,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelMalformedUrl"})
     public void testRegisterModelConnectionFailed() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1207,7 +1228,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelConnectionFailed"})
     public void testRegisterModelHttpError() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1230,7 +1251,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelHttpError"})
     public void testRegisterModelInvalidPath() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1251,7 +1272,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelInvalidPath"})
     public void testScaleModelNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         HttpRequest req =
@@ -1269,7 +1290,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelNotFound"})
     public void testScaleModelVersionNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1287,7 +1308,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelNotFound"})
     public void testUnregisterModelNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.unregisterModel(channel, "fake", null, true);
@@ -1302,7 +1323,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelNotFound"})
     public void testUnregisterModelVersionNotFound() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.unregisterModel(channel, "noopversioned", "1.3.1", true);
@@ -1318,7 +1339,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testUnregisterModelNotFound"})
     public void testUnregisterModelTimeout()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         setConfiguration("unregister_model_timeout", "0");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
@@ -1327,7 +1348,7 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.REQUEST_TIMEOUT.code());
         Assert.assertEquals(resp.getMessage(), "Timed out while cleaning resources: noop_v1.0");
 
-        channel = TestUtils.connect(true, configManager);
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         setConfiguration("unregister_model_timeout", "120");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
@@ -1338,7 +1359,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelTimeout"})
     public void testScaleModelFailure() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
         TestUtils.setHttpStatus(null);
@@ -1447,7 +1468,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testSetInvalidDefaultVersion"})
     public void testUnregisterModelFailure() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1459,7 +1480,7 @@ public class ModelServerTest {
         Assert.assertEquals(
                 resp.getMessage(), "Cannot remove default version for model noopversioned");
 
-        channel = TestUtils.connect(true, configManager);
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
@@ -1476,13 +1497,14 @@ public class ModelServerTest {
         ConfigManager configManagerValidPort = ConfigManager.getInstance();
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
         configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
+        configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
         ModelServer serverValidPort = new ModelServer(configManagerValidPort);
         serverValidPort.start();
 
         Channel channel = null;
         Channel managementChannel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(false, configManagerValidPort);
+            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManagerValidPort);
             if (channel != null) {
                 break;
             }
@@ -1490,7 +1512,8 @@ public class ModelServerTest {
         }
 
         for (int i = 0; i < 5; ++i) {
-            managementChannel = TestUtils.connect(true, configManagerValidPort);
+            managementChannel =
+                    TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManagerValidPort);
             if (managementChannel != null) {
                 break;
             }
@@ -1628,6 +1651,31 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
+
+    private void testModelMetrics(String modelName, String version) throws InterruptedException {
+        Channel metricsChannel = TestUtils.getMetricsChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest metricsReq =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/metrics");
+        metricsChannel.writeAndFlush(metricsReq);
+        TestUtils.getLatch().await();
+        Pattern inferLatencyMatcher = TestUtils.getTSInferLatencyMatcher(modelName, version);
+        Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        metricsReq =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.GET,
+                        "/metrics?name[]=ts_inference_latency_microseconds");
+        metricsChannel.writeAndFlush(metricsReq);
+        TestUtils.getLatch().await();
+        Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
+        Assert.assertFalse(TestUtils.getResult().contains("ts_inference_requests_total"));
     }
 
     private void loadTests(Channel channel, String model, String modelName)

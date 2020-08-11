@@ -28,6 +28,11 @@
 			"enabled": true
 		},
 		{
+			"key": "metric-port",
+			"value": "8082",
+			"enabled": true
+		},
+		{
 			"key": "sec-mgmt-port",
 			"value": "8444",
 			"enabled": true
@@ -35,6 +40,11 @@
 		{
 			"key": "sec-pred-port",
 			"value": "8443",
+			"enabled": true
+		},
+		{
+			"key": "sec-metric-port",
+			"value": "8445",
 			"enabled": true
 		}
 	],
