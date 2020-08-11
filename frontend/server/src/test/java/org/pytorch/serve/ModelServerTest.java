@@ -810,6 +810,7 @@ public class ModelServerTest {
         TestUtils.unregisterModel(channel, "pred-err", null, false);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        channel.close();
     }
 
     @Test(
@@ -855,6 +856,7 @@ public class ModelServerTest {
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
         Assert.assertEquals(TestUtils.getResult(), "Invalid response");
+        channel.close();
     }
 
     @Test(
