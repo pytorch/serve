@@ -48,7 +48,8 @@ class LanguageTranslationHandler(BaseHandler):
         return input_text
 
     def inference(self, data, *args, **kwargs):
-        translation = self.model.translate(data, beam=5)
+        with torch.no_grad():
+            translation = self.model.translate(data, beam=5)
         logger.info("Model translated: '%s'", translation)
         inference_output = {
             "english_input": data,
