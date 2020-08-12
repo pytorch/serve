@@ -120,7 +120,8 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), listInferenceApisResult);
+        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                listInferenceApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -133,7 +134,8 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), listManagementApisResult);
+        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                listManagementApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -146,7 +148,8 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), listMetricsApisResult);
+        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                listMetricsApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -159,7 +162,8 @@ public class ModelServerTest {
         TestUtils.getApiDescription(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), listInferenceApisResult);
+        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                listInferenceApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
