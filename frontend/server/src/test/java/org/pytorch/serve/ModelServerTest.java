@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
@@ -66,7 +68,7 @@ public class ModelServerTest {
     @BeforeSuite
     public void beforeSuite()
             throws InterruptedException, IOException, GeneralSecurityException,
-                    InvalidSnapshotException {
+            InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
@@ -120,7 +122,8 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
                 listInferenceApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
@@ -134,7 +137,8 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
                 listManagementApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
@@ -148,7 +152,8 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
                 listMetricsApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
@@ -162,7 +167,8 @@ public class ModelServerTest {
         TestUtils.getApiDescription(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
                 listInferenceApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
@@ -441,7 +447,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvocationsJson"})
     public void testInvocationsMultipart()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-                    IOException {
+            IOException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -489,7 +495,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelsInvokeJson"})
     public void testModelsInvokeMultipart()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-                    IOException {
+            IOException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1495,7 +1501,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testUnregisterModelFailure"})
     public void testTSValidPort()
             throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
-                    IOException {
+            IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         ConfigManager.init(new ConfigManager.Arguments());
         ConfigManager configManagerValidPort = ConfigManager.getInstance();
