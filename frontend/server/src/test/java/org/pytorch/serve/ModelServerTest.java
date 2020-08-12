@@ -1,3 +1,5 @@
+package org.pytorch.serve;
+
 import com.google.gson.JsonParseException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -64,7 +66,7 @@ public class ModelServerTest {
     @BeforeSuite
     public void beforeSuite()
             throws InterruptedException, IOException, GeneralSecurityException,
-            InvalidSnapshotException {
+                    InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
@@ -443,7 +445,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvocationsJson"})
     public void testInvocationsMultipart()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-            IOException {
+                    IOException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -491,7 +493,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelsInvokeJson"})
     public void testModelsInvokeMultipart()
             throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
-            IOException {
+                    IOException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -1497,7 +1499,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testUnregisterModelFailure"})
     public void testTSValidPort()
             throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
-            IOException {
+                    IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         ConfigManager.init(new ConfigManager.Arguments());
         ConfigManager configManagerValidPort = ConfigManager.getInstance();
