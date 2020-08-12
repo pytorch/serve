@@ -64,5 +64,3 @@ class FormatterPlugin implements Plugin<Project> {
         }
     }
 }
-
-apply plugin: 'announce'
