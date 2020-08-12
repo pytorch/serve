@@ -122,8 +122,7 @@ public class WorkLoadManager {
                     if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
                         try {
-                            // TODO : Add OS specific handling for windows support.
-                            String cmd = String.format("kill -9 %s", workerProcess.pid());
+                            String cmd = String.format(getKillCmd(), workerProcess.pid());
                             Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
                                     workerKillProcess.waitFor(
@@ -154,6 +153,17 @@ public class WorkLoadManager {
             }
             return future;
         }
+    }
+
+    private String getKillCmd() {
+        String operatingSystem = System.getProperty("os.name").toLowerCase();
+        String killCMD;
+        if (operatingSystem.indexOf("win") >= 0) {
+            killCMD = "taskkill /f /PID %s";
+        } else {
+            killCMD = "kill -9 %s";
+        }
+        return killCMD;
     }
 
     private void addThreads(
