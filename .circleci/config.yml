@@ -75,6 +75,10 @@ jobs:
         - store_artifacts:
             name: Store gradle testng results
             path: frontend/server/build/reports/tests/test
+        - store_artifacts:
+            name: Store TorchServe Wheel
+            path: dist/
+            destination: dist
         - persist_to_workspace:
             root: .
             paths:
@@ -193,6 +197,10 @@ jobs:
         - run:
             name: Execute python lint, unit and integration tests
             command: .circleci/scripts/linux_test_modelarchiver.sh
+        - store_artifacts:
+            name: Store TorchServe model archiver wheel
+            path: model-archiver/dist
+            destination: dist
         - store_artifacts:
             name: Store unit tests results from model archiver tests
             path: model-archiver/result_units
