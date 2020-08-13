@@ -10,17 +10,11 @@ PY_LINT_EXIT_CODE=$?
 python -m pytest --cov-report html:result_units --cov=./ model_archiver/tests/unit_tests
 PY_UNITS_EXIT_CODE=$?
 
-
-# Install model archiver module
-python setup.py bdist_wheel --universal && \
-pip install dist/*.whl
-MODL_ARCHVR_EXIT_CODE=$?
-
 # Execute integration tests
 python -m pytest model_archiver/tests/integ_tests # ToDo - Report for Integration tests ?
 PY_INTEG_EXIT_CODE=$?
 
 # If any one of the steps fail, exit with error
-if [ "$PY_LINT_EXIT_CODE" -ne 0 ] || [ "$PY_UNITS_EXIT_CODE" -ne 0 ] || [ "$MODL_ARCHVR_EXIT_CODE" -ne 0 ] || [ "$PY_INTEG_EXIT_CODE" -ne 0 ]
+if [ "$PY_LINT_EXIT_CODE" -ne 0 ] || [ "$PY_UNITS_EXIT_CODE" -ne 0 ] || [ "$PY_INTEG_EXIT_CODE" -ne 0 ]
 then exit 1
 fi

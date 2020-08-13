@@ -7,9 +7,9 @@ executors:
       - image: prashantsail/pytorch-serve-build
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
-  conda37:
+  conda38:
     docker:
-      - image: prashantsail/pytorch-serve-build:conda37
+      - image: prashantsail/pytorch-serve-build:conda38
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
   pyenv37:
@@ -23,6 +23,7 @@ executors:
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
 
+
 commands:
   attach-torchserve-workspace:
     description: "Attach the torchserve directory which was saved into workspace"
@@ -35,17 +36,7 @@ commands:
     steps:
       - run:
           name: Install torchserve
-          command: pip install dist/*.whl
-
-  install-torch-model-archiver:
-    description: "Install torch-model-archiver from a wheel"
-    steps:
-      - run:
-          name: Install torch-model-archiver
-          command: |
-            cd model-archiver
-            python setup.py bdist_wheel --universal
-            pip install dist/*.whl
+          command: .circleci/scripts/linux_install.sh
 
   exeucute-api-tests:
     description: "Execute API tests from a collection"
@@ -62,149 +53,164 @@ commands:
 
 
 jobs:
-    build:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - checkout
-        - run:
-            name: Build Pytorch Serve
-            command: .circleci/scripts/linux_build.sh
-        - store_artifacts:
-            name: Store gradle testng results
-            path: frontend/server/build/reports/tests/test
-        - store_artifacts:
-            name: Store TorchServe Wheel
-            path: dist/
-            destination: dist
-        - persist_to_workspace:
-            root: .
-            paths:
-              - .
+  build:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - run:
+          name: Build torchserve and torch model archiver
+          command: .circleci/scripts/linux_build.sh
+      - store_artifacts:
+          name: Store torchserve wheel
+          path: dist/
+          destination: dist
+      - store_artifacts:
+          name: Store torchserve model archiver wheel
+          path: model-archiver/dist
+          destination: dist
+      - store_artifacts:
+          name: Store torchserve and model archiver conda builds
+          path: binaries/conda/output/noarch
+          destination: dist/conda
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
-    python-tests:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - attach-torchserve-workspace
-        - run:
-            name: Execute python lint and unit tests
-            command: .circleci/scripts/linux_test_python.sh
-        - store_artifacts:
-            name: Store python Test results
-            path: result_units
-            destination: units
+  frontend-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - run:
+          name: Execute frontend gradle tests
+          command: .circleci/scripts/linux_test_frontend.sh
+      - store_artifacts:
+          name: Store frontend gradle test results
+          path: frontend/server/build/reports/tests/test
 
-    sanity-tests:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - attach-torchserve-workspace
-        - install-torchserve
-        - run:
-            name: Execute sanity tests
-            command: .circleci/scripts/linux_test_sanity.sh
-        - store_artifacts:
-            name: Store TS logs from sanity tests
-            path: logs/
+  python-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - run:
+          name: Execute python lint and unit tests
+          command: .circleci/scripts/linux_test_python.sh
+      - store_artifacts:
+          name: Store python Test results
+          path: result_units
+          destination: units
 
-    api-tests:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - attach-torchserve-workspace
-        - install-torchserve
-        - exeucute-api-tests:
-            collection: management
-        - exeucute-api-tests:
-            collection: inference
-        - exeucute-api-tests:
-            collection: https
-        - store_artifacts:
-            name: Store server logs and test results
-            path: test/artifacts/
+  sanity-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-torchserve
+      - run:
+          name: Execute sanity tests
+          command: .circleci/scripts/linux_test_sanity.sh
+      - store_artifacts:
+          name: Store TS logs from sanity tests
+          path: logs/
 
-    regression-tests:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - attach-torchserve-workspace
-        - install-torchserve
-        - install-torch-model-archiver
-        - run:
-            name: Execute regression suite
-            command: .circleci/scripts/linux_test_regression.sh
-        - store_artifacts:
-            name: Store server logs from regression tests
-            path: test/pytest/logs/
+  api-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-torchserve
+      - exeucute-api-tests:
+          collection: management
+      - exeucute-api-tests:
+          collection: inference
+      - exeucute-api-tests:
+          collection: https
+      - store_artifacts:
+          name: Store server logs and test results
+          path: test/artifacts/
 
-    benchmark:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - attach-torchserve-workspace
-        - install-torchserve
-        - run:
-            name: Start torchserve, Execute benchmark tests, Stop torchserve
-            command: .circleci/scripts/linux_test_benchmark.sh
-        - store_artifacts:
-            name: Store server logs from benchmark tests
-            path: logs/
-        - store_artifacts:
-            name: Store Benchmark Latency resnet-18 results
-            path: /tmp/TSBenchmark
+  regression-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-torchserve
+      - run:
+          name: Execute regression suite
+          command: .circleci/scripts/linux_test_regression.sh
+      - store_artifacts:
+          name: Store server logs from regression tests
+          path: test/pytest/logs/
 
-    performance-regression:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - attach-torchserve-workspace
-        - install-torchserve
-        - run:
-            name: Start TS, Execute performance regression testcases, Stop TS
-            command: .circleci/scripts/linux_test_perf_regression.sh
-        - store_artifacts:
-            name: Store server logs
-            path: test/performance/logs/
-        - store_artifacts:
-            name: Store artifacts from performance regression run
-            path: test/performance/run_artifacts/
-        - store_test_results:
-            name: Store performance regression test results for CircleCI
-            path: test/performance/run_artifacts/report/
+  benchmark:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-torchserve
+      - run:
+          name: Start torchserve, Execute benchmark tests, Stop torchserve
+          command: .circleci/scripts/linux_test_benchmark.sh
+      - store_artifacts:
+          name: Store server logs from benchmark tests
+          path: logs/
+      - store_artifacts:
+          name: Store Benchmark Latency resnet-18 results
+          path: /tmp/TSBenchmark
 
-    modelarchiver:
-      parameters:
-        executor:
-          type: executor
-      executor: << parameters.executor >>
-      steps:
-        - checkout
-        - run:
-            name: Execute python lint, unit and integration tests
-            command: .circleci/scripts/linux_test_modelarchiver.sh
-        - store_artifacts:
-            name: Store TorchServe model archiver wheel
-            path: model-archiver/dist
-            destination: dist
-        - store_artifacts:
-            name: Store unit tests results from model archiver tests
-            path: model-archiver/result_units
-            destination: units
+  performance-regression:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-torchserve
+      - run:
+          name: Start TS, Execute performance regression testcases, Stop TS
+          command: .circleci/scripts/linux_test_perf_regression.sh
+      - store_artifacts:
+          name: Store server logs
+          path: test/performance/logs/
+      - store_artifacts:
+          name: Store artifacts from performance regression run
+          path: test/performance/run_artifacts/
+      - store_test_results:
+          name: Store performance regression test results for CircleCI
+          path: test/performance/run_artifacts/report/
+
+  modelarchiver-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-torchserve
+      - run:
+          name: Execute python lint, unit and integration tests
+          command: .circleci/scripts/linux_test_modelarchiver.sh
+      - store_artifacts:
+          name: Store unit tests results from model archiver tests
+          path: model-archiver/result_units
+          destination: units
 
 
 workflows:
@@ -217,10 +223,18 @@ workflows:
           name: build-<< matrix.executor >>
           matrix: &matrix
             parameters:
-              executor: ["py36", "conda37", "pyenv37", "venv36"]
-      - &modelarchiver
-        modelarchiver:
-          name: modelarchiver-<< matrix.executor >>
+              executor: ["py36", "conda38", "pyenv37", "venv36"]
+      - &modelarchiver-tests
+        modelarchiver-tests:
+          name: modelarchiver-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &frontend-tests
+        frontend-tests:
+          name: frontend-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
           matrix: *matrix
       - &python-tests
         python-tests:
@@ -245,7 +259,8 @@ workflows:
                 - master
     jobs:
       - *build
-      - *modelarchiver
+      - *modelarchiver-tests
+      - *frontend-tests
       - *python-tests
       - *sanity-tests
       - &api-tests

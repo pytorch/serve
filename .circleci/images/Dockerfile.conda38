@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED TRUE
 ENV PATH ~/.local/bin/:$PATH
 ENV PATH=/miniconda/bin:${PATH}
 
-# Install python 3.7.7 using conda
+# Install python 3.8.3 using conda
 RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -20,7 +20,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
         nodejs \
     && curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     && bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b \
-    && rm Miniconda3-latest-Linux-x86_64.sh\
+    && conda install -y conda-build \
+    && rm Miniconda3-latest-Linux-x86_64.sh \
     && rm -rf /var/lib/apt/lists/*
 
 
