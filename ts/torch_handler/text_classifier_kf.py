@@ -34,6 +34,7 @@ class TextClassifier(TextHandler):
         # Compat layer: normally the envelope should just return the data
         # directly, but older versions of Torchserve didn't have envelope.
         print("Using KFServing text classifier")
+        #Processing only the first input, not handling batch inference
         data = data[0]
         for inp in data:
             if isinstance(inp, dict):
@@ -67,4 +68,4 @@ class TextClassifier(TextHandler):
     def postprocess(self, data):
         data = F.softmax(data)
         data = data.tolist()
-        return  {"labels" :map_class_to_label(data, self.mapping)}
+        return  map_class_to_label(data, self.mapping)

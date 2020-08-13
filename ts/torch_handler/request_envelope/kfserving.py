@@ -21,12 +21,29 @@ class KFservingEnvelope(BaseEnvelope):
         print("KFServing parsed inputs", self._inputs)
         return self._inputs
 
-    def format_output(self, data):
-        self._outputs = [data.get("outputs") for data in self._data_list]
+    def format_output(self, results):
+        self._outputs = [data_2.get("outputs") for data_2 in self._data_list]
+        #Processing only the first output, as we are not handling batch inference
         self._outputs = self._outputs[0]
-        response = {}
+        output_dict = {}
+        outputs_list = []
+        
+        #Processing only the first output, as we are not handling batch inference
+        results = results[0]
+        print("The results received in format output", results)
         for output in self._outputs:
             if isinstance(output, dict):
-                response[output["name"]] = data[output["name"]]
-        print("The output of KFServing", response)
+                if output["name"] in results.keys():
+                    output_dict["name"] = output["name"]
+                    output_dict["shape"] = [1] #static shape should be replaced with result shape
+                    output_dict["datatype"] = "FP32" #Static types should be replaced with types based on result
+                    output_dict["data"] = [results[output["name"]]]
+                    outputs_list.append(output_dict)
+                else :
+                    print(f"The request key {output['name']} is not present in the prediction")
+        
+        
+        response = {}
+        response["outputs"] = outputs_list
+        print("The Response of KFServing", response)
         return [response]
