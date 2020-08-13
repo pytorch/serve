@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Model Server for PyTorch Documentation &mdash; PyTorch/Serve master documentation</title>
+  <title>Model Zoo &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -243,13 +243,13 @@
       </li>
 
         
-      <li>Model Server for PyTorch Documentation</li>
+      <li>Model Zoo</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/README.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/model_zoo.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -275,44 +275,206 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="model-server-for-pytorch-documentation">
-<h1>Model Server for PyTorch Documentation<a class="headerlink" href="#model-server-for-pytorch-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="basic-features">
-<h2>Basic Features<a class="headerlink" href="#basic-features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="../README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
-<li><p><a class="reference external" href="../model-archiver#creating-a-model-archive">Model Archive Quick Start</a> - Tutorial that shows you how to package a model archive file.</p></li>
-<li><p><a class="reference external" href="../README.md##install-torchserve">Installation</a> - Installation procedures</p></li>
-<li><p><a class="reference internal" href="server.html"><span class="doc">Serving Models</span></a> - Explains how to use <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
-<ul>
-<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API</span></a> - Specification on the API endpoint for TorchServe</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="../model-archiver/README">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
-<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
-<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p></li>
-<li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
-<li><p><a class="reference internal" href="snapshot.html"><span class="doc">Model Snapshots</span></a> - Describes how to use snapshot feature for resiliency due to a planned or unplanned service stop</p></li>
-</ul>
-</div>
-<div class="section" id="advanced-features">
-<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced settings</span></a> - Describes advanced TorchServe configurations.</p></li>
-<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Model Service</span></a> - Describes how to develop custom inference services.</p></li>
-<li><p><a class="reference external" href="../ts/tests/README">Unit Tests</a> - Housekeeping unit tests for TorchServe.</p></li>
-<li><p><a class="reference external" href="../benchmarks/README">Benchmark</a> - Use JMeter to run TorchServe through the paces and collect benchmark data</p></li>
-</ul>
-</div>
-<div class="section" id="default-handlers">
-<h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="../ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
-<li><p><a class="reference external" href="../ts/torch_handler/text_classifier.py">Text Classifier</a> - This handler takes a text (string) as input and returns the classification text based on the model vocabulary</p></li>
-<li><p><a class="reference external" href="../ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
-<li><p><a class="reference external" href="../ts/torch_handler/image_segmenter.py">Image Segmenter</a> - This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
-</ul>
-</div>
+  <div class="section" id="model-zoo">
+<h1>Model Zoo<a class="headerlink" href="#model-zoo" title="Permalink to this headline">¶</a></h1>
+<p>This page lists model archives that are pre-trained and pre-packaged, ready to be served for inference with TorchServe.
+To propose a model for inclusion, please submit a <a class="reference external" href="https://github.com/pytorch/serve/pulls">pull request</a>.</p>
+<p><em>Special thanks to the <a class="reference external" href="https://pytorch.org/">PyTorch</a> community whose Model Zoo and Model Examples were used in generating these model archives.</em></p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Model</th>
+<th>Type</th>
+<th>Dataset</th>
+<th>Size</th>
+<th>Download</th>
+<th>Sample Input</th>
+<th>Model mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AlexNet</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>216 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>Densenet161</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>106 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>Resnet18</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>41 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>VGG11</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>471 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>Squeezenet 1_1</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>4.4 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>MNIST digit classifier</td>
+<td>Image Classification</td>
+<td>MNIST</td>
+<td>4.3 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/mnist/test_data/0.png">0.png</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>Resnet 152</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>214 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>Faster RCNN</td>
+<td>Object Detection</td>
+<td>COCO</td>
+<td>148 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/object_detector/persons.jpg">persons.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>MASK RCNN</td>
+<td>Object Detection</td>
+<td>COCO</td>
+<td>158 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/object_detector/persons.jpg">persons.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>Text classifier</td>
+<td>Text Classification</td>
+<td>AG_NEWS</td>
+<td>169 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt">sample_text.txt</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>FCN Resenet 101</td>
+<td>Image Segmentation</td>
+<td>COCO</td>
+<td>193 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_segmenter/fcn/persons.jpg">persons.jpg</a></td>
+<td>Eager</td>
+</tr>
+<tr>
+<td>AlexNet Scripted</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>216 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/alexnet_scripted.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>Densenet161 Scripted</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>105 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/densenet161_scripted.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>Resnet18 Scripted</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>42 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/resnet-18_scripted.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>VGG11 Scripted</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>471 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>Squeezenet 1_1 Scripted</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>4.4 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1_scripted.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>MNIST digit classifier Scripted</td>
+<td>Image Classification</td>
+<td>MNIST</td>
+<td>4.3 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/mnist/test_data/0.png">0.png</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>Resnet 152 Scripted</td>
+<td>Image Classification</td>
+<td>ImageNet</td>
+<td>215 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg">kitten.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>Text classifier Scripted</td>
+<td>Text Classification</td>
+<td>AG_NEWS</td>
+<td>169 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted_v2.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt">sample_text.txt</a></td>
+<td>Torchscripted</td>
+</tr>
+<tr>
+<td>FCN Resenet 101 Scripted</td>
+<td>Image Segmentation</td>
+<td>COCO</td>
+<td>193 MB</td>
+<td><a href="https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101_scripted.mar">.mar</a></td>
+<td><a href="https://github.com/pytorch/serve/blob/master/examples/image_segmenter/fcn/persons.jpg">persons.jpg</a></td>
+<td>Torchscripted</td>
+</tr>
+</tbody>
+</table><p>Refer <a class="reference external" href="../examples">example</a> for more details on above models.</p>
 </div>
 
 
@@ -349,12 +511,7 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Model Server for PyTorch Documentation</a><ul>
-<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
-<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
-<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Model Zoo</a></li>
 </ul>
 
             </div>

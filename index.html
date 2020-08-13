@@ -187,21 +187,23 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#common-features">Common features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
 </ul>
 <p class="caption"><span class="caption-text">TorchServe Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Contents of this Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#custom-handlers">Custom handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#creating-a-model-archive-with-an-entry-point">Creating a model archive with an entry point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#handling-model-execution-on-multiple-gpus">Handling model execution on multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#installing-model-specific-python-dependencies">Installing model specific python dependencies</a></li>
 </ul>
 
             
@@ -277,7 +279,6 @@
   <div class="section" id="torchserve">
 <h1>TorchServe<a class="headerlink" href="#torchserve" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe is a flexible and easy to use tool for serving PyTorch models.</p>
-<p>A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/README.md">docs folder</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>TorchServe is experimental and subject to change.</p>
@@ -288,13 +289,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#common-features">Common features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
 </ul>
@@ -302,9 +301,13 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">TorchServe Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Contents of this Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#custom-handlers">Custom handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#creating-a-model-archive-with-an-entry-point">Creating a model archive with an entry point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#handling-model-execution-on-multiple-gpus">Handling model execution on multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#installing-model-specific-python-dependencies">Installing model specific python dependencies</a></li>
 </ul>
 </div>
 </div>
@@ -573,9 +576,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

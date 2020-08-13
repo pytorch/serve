@@ -188,21 +188,23 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#common-features">Common features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
 </ul>
 <p class="caption"><span class="caption-text">TorchServe Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Contents of this Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#custom-handlers">Custom handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#creating-a-model-archive-with-an-entry-point">Creating a model archive with an entry point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#handling-model-execution-on-multiple-gpus">Handling model execution on multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#installing-model-specific-python-dependencies">Installing model specific python dependencies</a></li>
 </ul>
 
             
@@ -249,7 +251,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/inference_api.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/inference_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -277,16 +279,16 @@
               
   <div class="section" id="inference-api">
 <h1>Inference API<a class="headerlink" href="#inference-api" title="Permalink to this headline">¶</a></h1>
-<p>Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference external" href="configuration.md">TorchServe Configuration</a>.</p>
-<p>There are three type of APIs:</p>
-<ol class="arabic simple">
-<li><p><a class="reference external" href="#api-description">API description</a> - Describe TorchServe inference APIs with OpenAPI 3.0 specification</p></li>
-<li><p><a class="reference external" href="#health-check-api">Health check API</a> - Check TorchServe health status</p></li>
-<li><p><a class="reference external" href="#predictions-api">Predictions API</a> - Make predictions API call to TorchServe</p></li>
-</ol>
-<div class="section" id="id1">
-<h2>API Description<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>To view a full list of inference API, you can use following command:</p>
+<p>Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
+<p>The TorchServe server supports the following APIs:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#api-description">API Description</a> - Gets a list of available APIs and options</p></li>
+<li><p><a class="reference external" href="#health-check-api">Health check API</a> - Gets the health status of the running server</p></li>
+<li><p><a class="reference external" href="#predictions-api">Predictions API</a> - Gets predictions from the served model</p></li>
+</ul>
+<div class="section" id="api-description">
+<h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<p>To view a full list of inference APIs, you can use following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X OPTIONS http://localhost:8080
 </pre></div>
 </div>
@@ -295,50 +297,54 @@
 <li><p><a class="reference external" href="../frontend/server/src/test/resources/inference_open_api.json">Inference API description output</a></p></li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>Health check API<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe support a <code class="docutils literal notranslate"><span class="pre">ping</span></code> API that user can check TorchServe health status:</p>
+<div class="section" id="health-check-api">
+<h2>Health check API<a class="headerlink" href="#health-check-api" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe supports a <code class="docutils literal notranslate"><span class="pre">ping</span></code> API that you can call to check the health status of a running TorchServe server:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/ping
 </pre></div>
 </div>
-<p>Your response, if the server is running should be:</p>
+<p>If the server is running, the response is:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;health&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy!&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id3">
-<h2>Predictions API<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>To run inference on the default version of each loaded model, user can make REST call to URI: /predictions/{model_name}.</p>
+<div class="section" id="predictions-api">
+<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
+<p>To get predictions from the default version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}</span></code>:</p>
 <ul class="simple">
 <li><p>POST /predictions/{model_name}</p></li>
 </ul>
-<p><strong>curl Example</strong></p>
+<div class="section" id="curl-example">
+<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
 
-curl -X POST http://localhost:8080/predictions/resnet-18 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18 -T kitten.jpg
 
 or:
 
-curl -X POST http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten.jpg&quot;</span>
+curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten.jpg&quot;</span>
 </pre></div>
 </div>
-<p>To run inference on the specific version of each loaded model, user can make REST call to URI: /predictions/{model_name}/{version}.</p>
+<p>To get predictions from a specific version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}/{version}</span></code>:</p>
 <ul class="simple">
 <li><p>POST /predictions/{model_name}/{version}</p></li>
 </ul>
-<p><strong>curl Example</strong></p>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
 
-curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
 
 or:
 
-curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;data=@kitten.jpg&quot;</span>
+curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;data=@kitten.jpg&quot;</span>
 </pre></div>
 </div>
-<p>The result was some JSON that told us our image likely held a tabby cat. The highest prediction was:</p>
+<p>The result is JSON that tells you that the image is most likely a tabby cat. The highest prediction was:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;n02123045 tabby, tabby cat&quot;</span><span class="p">,</span>
     <span class="nt">&quot;probability&quot;</span><span class="p">:</span> <span class="mf">0.42514491081237793</span>
@@ -392,9 +398,13 @@ curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2"
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">Inference API</a><ul>
-<li><a class="reference internal" href="#id1">API Description</a></li>
-<li><a class="reference internal" href="#id2">Health check API</a></li>
-<li><a class="reference internal" href="#id3">Predictions API</a></li>
+<li><a class="reference internal" href="#api-description">API Description</a></li>
+<li><a class="reference internal" href="#health-check-api">Health check API</a></li>
+<li><a class="reference internal" href="#predictions-api">Predictions API</a><ul>
+<li><a class="reference internal" href="#curl-example">curl Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">curl Example</a></li>
 </ul>
 </li>
 </ul>
@@ -412,19 +422,20 @@ curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2"
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -615,6 +626,7 @@ curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2"
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

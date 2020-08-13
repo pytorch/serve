@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -29,7 +32,7 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Logging on Torchserve" href="logging.html" />
+    <link rel="next" title="Logging in Torchserve" href="logging.html" />
     <link rel="prev" title="Inference API" href="inference_api.html" /> 
 
   
@@ -185,21 +188,23 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#common-features">Common features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
 </ul>
 <p class="caption"><span class="caption-text">TorchServe Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Contents of this Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#custom-handlers">Custom handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#creating-a-model-archive-with-an-entry-point">Creating a model archive with an entry point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#handling-model-execution-on-multiple-gpus">Handling model execution on multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#installing-model-specific-python-dependencies">Installing model specific python dependencies</a></li>
 </ul>
 
             
@@ -246,7 +251,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/default_handlers.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/default_handlers.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -274,43 +279,60 @@
               
   <div class="section" id="torchserve-default-inference-handlers">
 <h1>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe provides following inference handlers out of box :</p>
+<p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
 <div class="section" id="image-classifier">
 <h2>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Description : Handles image classification models trained on imagenet dataset.</p></li>
+<li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
 <li><p>Input : RGB image</p></li>
-<li><p>Output : Top 5 predictions and their respective probability of the image</p></li>
+<li><p>Output : Batch of top 5 predictions and their respective probability of the image</p></li>
 </ul>
-<p>For more details refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
+<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
 </div>
 <div class="section" id="image-segmenter">
 <h2>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Description : Handles image segmentation models trained on imagenet dataset.</p></li>
+<li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
 <li><p>Input : RGB image</p></li>
-<li><p>Output : Output shape as [CL H W], CL - number of classes, H - height and W - width.</p></li>
+<li><p>Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.</p></li>
 </ul>
-<p>For more details refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
+<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
 </div>
 <div class="section" id="object-detector">
 <h2>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Description : Handles object detection models.</p></li>
 <li><p>Input : RGB image</p></li>
-<li><p>Output : List of detected classes and bounding boxes respectively</p></li>
+<li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
 </ul>
-<p>For more details refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
+<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
+<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
 </div>
 <div class="section" id="text-classifier">
 <h2>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Description : Handles models trained on imagenet dataset.</p></li>
+<li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
 <li><p>Input : text file</p></li>
-<li><p>Output : Class of input text</p></li>
+<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
 </ul>
-<p>For more details refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
+<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
 </div>
+</div>
+<div class="section" id="common-features">
+<h1>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="index-to-name-json">
+<h2>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json">text_classifier</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json">object_detector</a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>If you’d like to edit or create a new default_handler class, make sure to run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh">torchserve_sanity.sh</a> before submitting.</p>
 </div>
 
 
@@ -321,7 +343,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="logging.html" class="btn btn-neutral float-right" title="Logging on Torchserve" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="logging.html" class="btn btn-neutral float-right" title="Logging in Torchserve" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="inference_api.html" class="btn btn-neutral" title="Inference API" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -363,6 +385,11 @@
 <li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#common-features">Common features</a><ul>
+<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 
             </div>
@@ -378,19 +405,20 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -581,6 +609,7 @@
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {
@@ -590,4 +619,3 @@
   </script>
 </body>
 </html>
-

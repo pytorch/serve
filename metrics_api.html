@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Model Server for PyTorch Documentation &mdash; PyTorch/Serve master documentation</title>
+  <title>Metrics API &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -243,13 +243,13 @@
       </li>
 
         
-      <li>Model Server for PyTorch Documentation</li>
+      <li>Metrics API</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/README.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/metrics_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -275,44 +275,63 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="model-server-for-pytorch-documentation">
-<h1>Model Server for PyTorch Documentation<a class="headerlink" href="#model-server-for-pytorch-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="basic-features">
-<h2>Basic Features<a class="headerlink" href="#basic-features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="../README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
-<li><p><a class="reference external" href="../model-archiver#creating-a-model-archive">Model Archive Quick Start</a> - Tutorial that shows you how to package a model archive file.</p></li>
-<li><p><a class="reference external" href="../README.md##install-torchserve">Installation</a> - Installation procedures</p></li>
-<li><p><a class="reference internal" href="server.html"><span class="doc">Serving Models</span></a> - Explains how to use <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
-<ul>
-<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API</span></a> - Specification on the API endpoint for TorchServe</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="../model-archiver/README">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
-<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
-<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p></li>
-<li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
-<li><p><a class="reference internal" href="snapshot.html"><span class="doc">Model Snapshots</span></a> - Describes how to use snapshot feature for resiliency due to a planned or unplanned service stop</p></li>
-</ul>
+  <div class="section" id="metrics-api">
+<h1>Metrics API<a class="headerlink" href="#metrics-api" title="Permalink to this headline">¶</a></h1>
+<p>Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>. The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a <a class="reference external" href="#prometheus-server">Prometheus Server</a> to the endpoint and use <a class="reference external" href="#grafana">Grafana</a> for dashboards.</p>
+<p>By default these APIs are enable however same can be disabled by setting <code class="docutils literal notranslate"><span class="pre">enable_metrics_api=false</span></code> in torchserve config.properties file.
+For details refer <a class="reference internal" href="configuration.html"><span class="doc">Torchserve config</span></a> docs.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl http://127.0.0.1:8082/metrics</span>
+
+<span class="gp">#</span> HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+<span class="gp">#</span> TYPE ts_inference_latency_microseconds counter
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
+<span class="gp">#</span> HELP ts_inference_requests_total Total number of inference requests.
+<span class="gp">#</span> TYPE ts_inference_requests_total counter
+<span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1.0</span>
+<span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 1.0</span>
+<span class="gp">#</span> HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+<span class="gp">#</span> TYPE ts_queue_latency_microseconds counter
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
+</pre></div>
 </div>
-<div class="section" id="advanced-features">
-<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced settings</span></a> - Describes advanced TorchServe configurations.</p></li>
-<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Model Service</span></a> - Describes how to develop custom inference services.</p></li>
-<li><p><a class="reference external" href="../ts/tests/README">Unit Tests</a> - Housekeeping unit tests for TorchServe.</p></li>
-<li><p><a class="reference external" href="../benchmarks/README">Benchmark</a> - Use JMeter to run TorchServe through the paces and collect benchmark data</p></li>
-</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl &quot;http://127.0.0.1:8082/metrics?name[]=ts_inference_latency_microseconds&amp;name[]=ts_queue_latency_microseconds&quot; --globoff</span>
+
+<span class="gp">#</span> HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+<span class="gp">#</span> TYPE ts_inference_latency_microseconds counter
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
+<span class="gp">#</span> HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+<span class="gp">#</span> TYPE ts_queue_latency_microseconds counter
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
+</pre></div>
 </div>
-<div class="section" id="default-handlers">
-<h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="../ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
-<li><p><a class="reference external" href="../ts/torch_handler/text_classifier.py">Text Classifier</a> - This handler takes a text (string) as input and returns the classification text based on the model vocabulary</p></li>
-<li><p><a class="reference external" href="../ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
-<li><p><a class="reference external" href="../ts/torch_handler/image_segmenter.py">Image Segmenter</a> - This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
-</ul>
+<div class="section" id="prometheus-server">
+<h2>Prometheus server<a class="headerlink" href="#prometheus-server" title="Permalink to this headline">¶</a></h2>
+<p>To view these metrics on a Prometheus server, download and install using the instructions <a class="reference external" href="https://prometheus.io/download/#prometheus">here</a>. Create a minimal <code class="docutils literal notranslate"><span class="pre">prometheus.yml</span></code> config file as below and run <code class="docutils literal notranslate"><span class="pre">./prometheus</span> <span class="pre">--config.file=prometheus.yml</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
+  <span class="nt">scrape_interval</span><span class="p">:</span>     <span class="l l-Scalar l-Scalar-Plain">15s</span>
+  <span class="nt">evaluation_interval</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">15s</span>
+
+<span class="nt">scrape_configs</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;prometheus&#39;</span>
+    <span class="nt">static_configs</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:9090&#39;</span><span class="p p-Indicator">]</span>
+  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;torchserve&#39;</span>
+    <span class="nt">static_configs</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:8082&#39;</span><span class="p p-Indicator">]</span> <span class="c1">#TorchServe metrics endpoint</span>
+</pre></div>
 </div>
+<p>Navigate to http://localhost:9090/ on a browser to execute queries and create graphs</p>
+<img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png"></div>
+<div class="section" id="grafana">
+<h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h2>
+<p>Once you have the Torchserve and Prometheus servers running, you can further <a class="reference external" href="https://prometheus.io/docs/visualization/grafana/">setup</a> Grafana, point it to Prometheus server and navigate to http://localhost:3000/ to create dashboards and graphs.</p>
+<p>You can use command given below to start Grafana -
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">daemon-reload</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">enable</span> <span class="pre">grafana-server</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">start</span> <span class="pre">grafana-server</span></code></p>
+<img width="1220" alt="Screen Shot 2020-07-08 at 5 51 57 PM" src="https://user-images.githubusercontent.com/880376/86984550-c4fb6200-c143-11ea-9434-09d4d43dd6d4.png"></div>
 </div>
 
 
@@ -349,10 +368,9 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Model Server for PyTorch Documentation</a><ul>
-<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
-<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
-<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
+<li><a class="reference internal" href="#">Metrics API</a><ul>
+<li><a class="reference internal" href="#prometheus-server">Prometheus server</a></li>
+<li><a class="reference internal" href="#grafana">Grafana</a></li>
 </ul>
 </li>
 </ul>

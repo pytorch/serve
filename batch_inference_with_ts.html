@@ -32,8 +32,8 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Custom Service" href="custom_service.html" />
-    <link rel="prev" title="Running the TorchServe" href="server.html" /> 
+    <link rel="next" title="Contents of this Document" href="custom_service.html" />
+    <link rel="prev" title="Running TorchServe" href="server.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -188,21 +188,23 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#common-features">Common features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
 </ul>
 <p class="caption"><span class="caption-text">TorchServe Usage</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Contents of this Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#custom-handlers">Custom handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#creating-a-model-archive-with-an-entry-point">Creating a model archive with an entry point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#handling-model-execution-on-multiple-gpus">Handling model execution on multiple GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html#installing-model-specific-python-dependencies">Installing model specific python dependencies</a></li>
 </ul>
 
             
@@ -249,7 +251,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/batch_inference_with_ts.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/batch_inference_with_ts.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -284,187 +286,145 @@
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserves-default-handlers">Batch Inference with TorchServe’s default handlers</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserve-using-resnet-152-model">Batch Inference with TorchServe using ResNet-152 model</a></p></li>
-<li><p><a class="reference external" href="#conclusion">Conclusion</a></p></li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h2>Introduction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>Batching in the Machine-Learning/Deep-Learning is a process of aggregating inference-requests and sending this aggregated requests through the ML/DL framework for inference at once.
-TorchServe was designed to natively support batching of incoming inference requests. This functionality provides customer using TorchServe to optimally utilize their host resources, because most ML/DL frameworks
-are optimized for batch requests. This optimal utilization of host resources in turn reduces the operational expense of hosting an inference service using TorchServe. In this document we will go through an example of how this is done
-and compare the performance of running a batched inference against running single inference.</p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Batch inference is a process of aggregating inference requests and sending this aggregated requests through the ML/DL framework for inference all at once.
+TorchServe was designed to natively support batching of incoming inference requests. This functionality enables you to use your host resources optimally,
+because most ML/DL frameworks are optimized for batch requests.
+This optimal use of host resources in turn reduces the operational expense of hosting an inference service using TorchServe.
+In this document we show an example of how this is done and compare the performance of running a batched inference against running single inference.</p>
 </div>
-<div class="section" id="id2">
-<h2>Prerequisites:<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<p>Before jumping into this document, please go over the following docs</p>
-<ol class="arabic simple">
-<li><p><a class="reference external" href="../README.md">What is TorchServe?</a></p></li>
-<li><p><a class="reference external" href="custom_service.md">What is custom service code?</a></p></li>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Before jumping into this document, read the following docs:</p>
+<ol class="simple">
+<li><p><a class="reference internal" href="README.html"><span class="doc">What is TorchServe?</span></a></p></li>
+<li><p><a class="reference internal" href="custom_service.html"><span class="doc">What is custom service code?</span></a></p></li>
 </ol>
 </div>
-<div class="section" id="id3">
-<h2>Batch Inference with TorchServe’s default handlers<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe’s default handlers do not support batch inference.</p>
+<div class="section" id="batch-inference-with-torchserve-s-default-handlers">
+<h2>Batch Inference with TorchServe’s default handlers<a class="headerlink" href="#batch-inference-with-torchserve-s-default-handlers" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe’s default handlers support batch inference out of box except for <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> handler.</p>
 </div>
-<div class="section" id="id4">
-<h2>Batch Inference with TorchServe using ResNet-152 model<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
-<p>To support batching of inference requests, TorchServe needs the following:</p>
-<ol class="arabic simple">
-<li><p>TorchServe Model Configuration: TorchServe provides means to configure “Max Batch Size” and “Max Batch Delay” through “POST /models” API.
-TorchServe needs to know the maximum batch size that the model can handle and the maximum delay that TorchServe should wait for, to form this request-batch.</p></li>
-<li><p>Model Handler code: TorchServe requires the Model Handler to handle the batch of inference requests.</p></li>
+<div class="section" id="batch-inference-with-torchserve-using-resnet-152-model">
+<h2>Batch Inference with TorchServe using ResNet-152 model<a class="headerlink" href="#batch-inference-with-torchserve-using-resnet-152-model" title="Permalink to this headline">¶</a></h2>
+<p>To support batch inference, TorchServe needs the following:</p>
+<ol class="simple">
+<li><p>TorchServe model configuration: Configure <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> by using the  “POST /models” management API.
+TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.</p></li>
+<li><p>Model handler code: TorchServe requires the Model handler to handle batch inference requests.</p></li>
 </ol>
-<p>For a full working code of a custom model handler with batch processing, refer to <a class="reference external" href="../examples/image_classifier/resnet_152_batch/resnet152_handler.py">resnet152_handler.py</a></p>
+<p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="../examples/image_classifier/resnet_152_batch/resnet152_handler.py">resnet152_handler.py</a></p>
 <div class="section" id="torchserve-model-configuration">
 <h3>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this headline">¶</a></h3>
-<p>To configure TorchServe to use the batching feature, you would have to provide the batch configuration information through <a class="reference external" href="management_api.md#register-a-model">**POST /models** API</a>.
-The configuration that we are interested in is the following:</p>
-<ol class="arabic simple">
+<p>To configure TorchServe to use the batching feature, provide the batch configuration information through <a class="reference external" href="management_api.md#register-a-model"><strong>POST /models</strong> API</a>.</p>
+<p>The configuration that we are interested in is the following:</p>
+<ol class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: This is the maximum batch size that a model is expected to handle.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>: This is the maximum batch delay time TorchServe waits to receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of requests. If TorchServe doesn’t receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of requests
-before this timer time’s out, it sends what ever requests that were received to the model <code class="docutils literal notranslate"><span class="pre">handler</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>: This is the maximum batch delay time TorchServe waits to receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of requests. If TorchServe doesn’t receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of
+requests before this timer time’s out, it sends what ever requests that were received to the model <code class="docutils literal notranslate"><span class="pre">handler</span></code>.</p></li>
 </ol>
 <p>Let’s look at an example using this configuration</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milli seconds.</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milli seconds. </span>
 curl -X POST <span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=50&quot;</span>
 </pre></div>
 </div>
-<p>These configurations are used both in TorchServe and in the model’s custom-service-code (a.k.a the handler code). TorchServe associates the batch related configuration with each model. The frontend then tries to aggregate the batch-size number of requests and send it to the backend.</p>
+<p>These configurations are used both in TorchServe and in the model’s custom service code (a.k.a the handler code).
+TorchServe associates the batch related configuration with each model.
+The frontend then tries to aggregate the batch-size number of requests and send it to the backend.</p>
 </div>
 </div>
 <div class="section" id="demo-to-configure-torchserve-with-batch-supported-model">
 <h2>Demo to configure TorchServe with batch-supported model<a class="headerlink" href="#demo-to-configure-torchserve-with-batch-supported-model" title="Permalink to this headline">¶</a></h2>
-<p>In this section lets bring up model server and launch Resnet-152 model, which has been built to handle a batch of request.</p>
-<div class="section" id="pre-requisites">
-<h3>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h3>
-<p>Follow the main <a class="reference external" href="../README.md">Readme</a> and install all the required packages including “torchserve”</p>
+<p>In this section lets bring up model server and launch Resnet-152 model, which uses the default <code class="docutils literal notranslate"><span class="pre">image_classifier</span></code> handler for batch inferencing.</p>
+<div class="section" id="id1">
+<h3>Prerequisites<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Follow the main <a class="reference internal" href="README.html"><span class="doc">Readme</span></a> and install all the required packages including <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
 </div>
 <div class="section" id="loading-resnet-152-which-handles-batch-inferences">
 <h3>Loading Resnet-152 which handles batch inferences<a class="headerlink" href="#loading-resnet-152-which-handles-batch-inferences" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p>Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.
-.. code-block:: text</p>
-<blockquote>
-<div><p>$ cat config.properties
-…
+<ul class="simple">
+<li><p>Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ cat config.properties
+...
 inference_address=http://0.0.0.0:8080
 management_address=http://0.0.0.0:8081
-…
-$ torchserve –start –model-store model_store</p>
-</div></blockquote>
-</li>
+...
+$ torchserve --start --model-store model_store
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Verify that TorchServe is up and running</p></li>
 </ul>
-<p>Note :  This example assumes that the resnet-152.mar file is available in the torchserve model_store. For more details on creating resnet-152 mar file and serving it on TorchServe refer <a class="reference external" href="../examples/image_classifier/resnet_152_batch/README.md">resnet152 image classification example</a></p>
-<ul>
-<li><p>Verify that the TorchServe is up and running</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl localhost:8080/ping
 {
-&quot;status&quot;: &quot;Healthy&quot;
+  &quot;status&quot;: &quot;Healthy&quot;
 }
 </pre></div>
 </div>
-</li>
-<li><p>Now lets launch resnet-152 model, which we have built to handle batch inference. Since this is an example, we are going to launch 1 worker which handles a batch size of 8
-with a max-batch-delay of 10ms.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=10&amp;initial_workers=1&quot;
+<ul class="simple">
+<li><p>Now let’s launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> of 10ms.</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&amp;batch_size=8&amp;max_batch_delay=10&amp;initial_workers=1&quot;
 {
-&quot;status&quot;: &quot;Processing worker updates...&quot;
+  &quot;status&quot;: &quot;Processing worker updates...&quot;
 }
 </pre></div>
 </div>
-</li>
-<li><p>Verify that the workers were started properly</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl localhost:8081/models/resnet-152
-{
-&quot;modelName&quot;: &quot;resnet-152&quot;,
-&quot;modelUrl&quot;: &quot;https://s3.amazonaws.com/model-server/model_archive_1.0/examples/resnet-152-batching/resnet-152.mar&quot;,
-&quot;runtime&quot;: &quot;python&quot;,
-&quot;minWorkers&quot;: 1,
-&quot;maxWorkers&quot;: 1,
-&quot;batchSize&quot;: 8,
-&quot;maxBatchDelay&quot;: 10,
-&quot;workers&quot;: [
+<ul class="simple">
+<li><p>Verify that the workers were started properly.</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[
   {
-    &quot;id&quot;: &quot;9008&quot;,
-    &quot;startTime&quot;: &quot;2019-02-19T23:56:33.907Z&quot;,
-    &quot;status&quot;: &quot;READY&quot;,
-    &quot;gpu&quot;: false,
-    &quot;memoryUsage&quot;: 607715328
+    &quot;modelName&quot;: &quot;resnet-152-batch_v2&quot;,
+    &quot;modelVersion&quot;: &quot;2.0&quot;,
+    &quot;modelUrl&quot;: &quot;https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&quot;,
+    &quot;runtime&quot;: &quot;python&quot;,
+    &quot;minWorkers&quot;: 1,
+    &quot;maxWorkers&quot;: 1,
+    &quot;batchSize&quot;: 3,
+    &quot;maxBatchDelay&quot;: 5000,
+    &quot;loadedAtStartup&quot;: false,
+    &quot;workers&quot;: [
+      {
+        &quot;id&quot;: &quot;9000&quot;,
+        &quot;startTime&quot;: &quot;2020-07-28T05:04:05.465Z&quot;,
+        &quot;status&quot;: &quot;READY&quot;,
+        &quot;gpu&quot;: false,
+        &quot;memoryUsage&quot;: 0
+      }
+    ]
   }
 ]
-}
 </pre></div>
 </div>
-</li>
+<ul>
 <li><p>Now let’s test this service.</p>
 <ul>
-<li><p>Get an image to test this service
-.. code-block:: text</p>
-<blockquote>
-<div><p>$ curl -O <a class="reference external" href="https://s3.amazonaws.com/model-server/inputs/kitten.jpg">https://s3.amazonaws.com/model-server/inputs/kitten.jpg</a></p>
-</div></blockquote>
+<li><p>Get an image to test this service</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -LJO https://github.com/pytorch/serve/raw/master/examples/image_classifier/kitten.jpg
+</pre></div>
+</div>
 </li>
-<li><p>Run inference to test the model
-.. code-block:: text</p>
-<blockquote>
-<div><p>$ curl -X POST localhost/predictions/resnet-152 -T kitten.jpg
-{</p>
-<blockquote>
-<div><p>“probability”: 0.7148938179016113,
-“class”: “n02123045 tabby, tabby cat”</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><p>“probability”: 0.22877725958824158,
-“class”: “n02123159 tiger cat”</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><p>“probability”: 0.04032370448112488,
-“class”: “n02124075 Egyptian cat”</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><p>“probability”: 0.00837081391364336,
-“class”: “n02127052 lynx, catamount”</p>
-</div></blockquote>
-<p>},
-{</p>
-<blockquote>
-<div><p>“probability”: 0.0006728120497427881,
-“class”: “n02129604 tiger, Panthera tigris”</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
+<li><p>Run inference to test the model.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>  $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
+  {
+      &quot;tiger_cat&quot;: 0.5848360657691956,
+      &quot;tabby&quot;: 0.3782736361026764,
+      &quot;Egyptian_cat&quot;: 0.03441936895251274,
+      &quot;lynx&quot;: 0.0005633446853607893,
+      &quot;quilt&quot;: 0.0002698268508538604
+  }
+</pre></div>
+</div>
 </li>
 </ul>
 </li>
-<li><p>Now that we have the service up and running, we could run performance tests with the same kitten image as follows. There are multiple tools to measure performance of web-servers. We will use
-<a class="reference external" href="https://httpd.apache.org/docs/2.4/programs/ab.html">apache-bench</a> to run our performance tests. We chose <code class="docutils literal notranslate"><span class="pre">apache-bench</span></code> for our tests because of the ease of installation and ease of running tests.
-Before running this test, we need to first install <code class="docutils literal notranslate"><span class="pre">apache-bench</span></code> on our System. Since we were running this on a ubuntu host, we installed apache-bench as follows</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get udpate <span class="o">&amp;&amp;</span> sudo apt-get install apache2-utils
-</pre></div>
-</div>
-<p>Now that installation is done, we can run performance benchmark test as follows.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ab -k -l -n 10000 -c 1000 -T &quot;image/jpeg&quot; -p kitten.jpg localhost:8080/predictions/resnet-152
-</pre></div>
-</div>
-<p>The above test simulates TorchServe receiving 1000 concurrent requests at once and a total of 10,000 requests. All of these requests are directed to the endpoint “localhost:8080/predictions/resnet-152”, which assumes
-that resnet-152 is already registered and scaled-up on TorchServe. We had done this registration and scaling up in the above steps.</p>
-</li>
 </ul>
 </div>
-</div>
-<div class="section" id="id5">
-<h2>Conclusion<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
-<p>The take away from the experiments is that batching is a very useful feature. In cases where the services receive heavy load of requests or each request has high I/O, its advantageous
-to batch the requests. This allows for maximally utilizing the compute resources, especially GPU compute which are also more often than not more expensive. But customers should
-do their due diligence and perform enough tests to find optimal batch size depending on the number of GPUs available and number of models loaded per GPU. Customers should also
-analyze their traffic patterns before enabling the batch-inference. As shown in the above experiments, services receiving TPS lesser than the batch size would lead to consistent
-“batch delay” timeouts and cause the response latency per request to spike. As any cutting edge technology, batch-inference is definitely a double edged sword.</p>
 </div>
 </div>
 
@@ -476,10 +436,10 @@ analyze their traffic patterns before enabling the batch-inference. As shown in 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="custom_service.html" class="btn btn-neutral float-right" title="Custom Service" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="custom_service.html" class="btn btn-neutral float-right" title="Contents of this Document" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="server.html" class="btn btn-neutral" title="Running the TorchServe" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="server.html" class="btn btn-neutral" title="Running TorchServe" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -513,19 +473,18 @@ analyze their traffic patterns before enabling the batch-inference. As shown in 
               <ul>
 <li><a class="reference internal" href="#">Batch Inference with TorchServe</a><ul>
 <li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
-<li><a class="reference internal" href="#id1">Introduction</a></li>
-<li><a class="reference internal" href="#id2">Prerequisites:</a></li>
-<li><a class="reference internal" href="#id3">Batch Inference with TorchServe’s default handlers</a></li>
-<li><a class="reference internal" href="#id4">Batch Inference with TorchServe using ResNet-152 model</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#batch-inference-with-torchserve-s-default-handlers">Batch Inference with TorchServe’s default handlers</a></li>
+<li><a class="reference internal" href="#batch-inference-with-torchserve-using-resnet-152-model">Batch Inference with TorchServe using ResNet-152 model</a><ul>
 <li><a class="reference internal" href="#torchserve-model-configuration">TorchServe Model Configuration</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#demo-to-configure-torchserve-with-batch-supported-model">Demo to configure TorchServe with batch-supported model</a><ul>
-<li><a class="reference internal" href="#pre-requisites">Pre-requisites</a></li>
+<li><a class="reference internal" href="#id1">Prerequisites</a></li>
 <li><a class="reference internal" href="#loading-resnet-152-which-handles-batch-inferences">Loading Resnet-152 which handles batch inferences</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id5">Conclusion</a></li>
 </ul>
 </li>
 </ul>
@@ -543,19 +502,20 @@ analyze their traffic patterns before enabling the batch-inference. As shown in 
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -746,6 +706,7 @@ analyze their traffic patterns before enabling the batch-inference. As shown in 
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {
