@@ -2,7 +2,7 @@
 
 source scripts/install_utils
 
-MODELS=("fastrcnn" "fcn_resnet_101" "my_text_classifier" "resnet-18" "my_text_classifier_scripted" "alexnet_scripted" "fcn_resnet_101_scripted"
+MODELS=("fastrcnn" "fcn_resnet_101" "my_text_classifier_v2" "resnet-18" "my_text_classifier_scripted_v2" "alexnet_scripted" "fcn_resnet_101_scripted"
            "roberta_qa_no_torchscript" "bert_token_classification_no_torchscript" "bert_seqc_without_torchscript")
 MODEL_INPUTS=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg"
  "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg" "examples/image_segmenter/fcn/persons.jpg" "examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"
