@@ -58,7 +58,8 @@ def generate_model_archive():
         'text_classifier': 'text',
         'image_classifier': 'vision',
         'object_detector': 'vision',
-        'image_segmenter': 'vision'
+        'image_segmenter': 'vision',
+        'text_classifier_kf': 'text'
     }
 
     logging.basicConfig(format='%(levelname)s - %(message)s')
