@@ -1,4 +1,6 @@
 [
+	{
+		"url": "https://torch
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_v2.mar",
         "model_name":"my_text_classifier",
