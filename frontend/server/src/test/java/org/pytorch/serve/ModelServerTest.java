@@ -16,7 +16,6 @@ import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
@@ -67,7 +65,8 @@ public class ModelServerTest {
 
     @BeforeSuite
     public void beforeSuite()
-            throws InterruptedException, IOException, GeneralSecurityException, InvalidSnapshotException {
+            throws InterruptedException, IOException, GeneralSecurityException,
+            InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
@@ -121,8 +120,7 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(
-                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+        Assert.assertEquals(TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
                 listInferenceApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
@@ -181,7 +179,9 @@ public class ModelServerTest {
         TestUtils.describeModelApi(channel, "noop");
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), noopApiResult);
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                noopApiResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -363,7 +363,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
         req.content().writeCharSequence("test", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_OCTET_STREAM);
@@ -382,7 +383,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
         req.content().writeCharSequence("{\"data\": \"test\"}", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
@@ -443,7 +445,8 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvocationsJson"})
     public void testInvocationsMultipart()
-            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException, IOException {
+            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
+            IOException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -452,7 +455,8 @@ public class ModelServerTest {
 
         HttpPostRequestEncoder encoder = new HttpPostRequestEncoder(req, true);
         encoder.addBodyAttribute("model_name", "noop_v1.0");
-        MemoryFileUpload body = new MemoryFileUpload("data", "test.txt", "text/plain", null, null, 4);
+        MemoryFileUpload body =
+                new MemoryFileUpload("data", "test.txt", "text/plain", null, null, 4);
         body.setContent(Unpooled.copiedBuffer("test", StandardCharsets.UTF_8));
         encoder.addBodyHttpData(body);
 
@@ -474,7 +478,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models/noop/invoke");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/models/noop/invoke");
         req.content().writeCharSequence("{\"data\": \"test\"}", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
@@ -488,15 +493,18 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testModelsInvokeJson"})
     public void testModelsInvokeMultipart()
-            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException, IOException {
+            throws InterruptedException, HttpPostRequestEncoder.ErrorDataEncoderException,
+            IOException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models/noop/invoke");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/models/noop/invoke");
 
         HttpPostRequestEncoder encoder = new HttpPostRequestEncoder(req, true);
-        MemoryFileUpload body = new MemoryFileUpload("data", "test.txt", "text/plain", null, null, 4);
+        MemoryFileUpload body =
+                new MemoryFileUpload("data", "test.txt", "text/plain", null, null, 4);
         body.setContent(Unpooled.copiedBuffer("test", StandardCharsets.UTF_8));
         encoder.addBodyHttpData(body);
 
@@ -518,7 +526,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/noop/predict?data=test");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/noop/predict?data=test");
         channel.writeAndFlush(req);
 
         TestUtils.getLatch().await();
@@ -533,7 +542,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
 
         req.content().writeZero(11485760);
         HttpUtil.setContentLength(req, req.content().readableBytes());
@@ -553,7 +563,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
 
         req.content().writeZero(10385760);
         HttpUtil.setContentLength(req, req.content().readableBytes());
@@ -702,7 +713,9 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
     public void testLoadModelFromURL() throws InterruptedException {
         testLoadModel(
-                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar", "squeezenet", "1.0");
+                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+                "squeezenet",
+                "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
@@ -726,14 +739,19 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.registerModel(
-                channel, "custom_invalid_python_dep.mar", "custom_invalid_python_dep", false, false);
+                channel,
+                "custom_invalid_python_dep.mar",
+                "custom_invalid_python_dep",
+                false,
+                false);
         TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
         Assert.assertEquals(
-                resp.getMessage(), "Custom pip package installation failed for custom_invalid_python_dep");
+                resp.getMessage(),
+                "Custom pip package installation failed for custom_invalid_python_dep");
         setConfiguration("install_py_dep_per_model", "false");
     }
 
@@ -782,7 +800,8 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/pred-err");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/pred-err");
         req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
 
         channel.writeAndFlush(req);
@@ -816,9 +835,11 @@ public class ModelServerTest {
         TestUtils.registerModel(channel, "error_batch.mar", "err_batch", true, false);
         TestUtils.getLatch().await();
 
-        StatusResponse status = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        StatusResponse status =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(
-                status.getStatus(), "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
+                status.getStatus(),
+                "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
 
         channel.close();
 
@@ -829,11 +850,14 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.setHttpStatus(null);
         DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/err_batch");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/err_batch");
         req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers()
-                .set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         channel.writeAndFlush(req);
 
         TestUtils.getLatch().await();
@@ -1008,7 +1032,8 @@ public class ModelServerTest {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
-        HttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, "/models");
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, "/models");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
@@ -1044,7 +1069,8 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
 
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/models/InvalidModel");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/models/InvalidModel");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
@@ -1081,7 +1107,8 @@ public class ModelServerTest {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
-        HttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models");
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
@@ -1100,7 +1127,9 @@ public class ModelServerTest {
 
         HttpRequest req =
                 new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/models?url=InvalidUrl&runtime=InvalidRuntime");
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/models?url=InvalidUrl&runtime=InvalidRuntime");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
@@ -1118,7 +1147,8 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
 
         HttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models?url=InvalidUrl");
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/models?url=InvalidUrl");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
@@ -1167,14 +1197,17 @@ public class ModelServerTest {
 
         HttpRequest req =
                 new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/models?url=http%3A%2F%2Flocalhost%3Aaaaa");
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/models?url=http%3A%2F%2Flocalhost%3Aaaaa");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
-        Assert.assertEquals(resp.getMessage(), "Failed to download model from: http://localhost:aaaa");
+        Assert.assertEquals(
+                resp.getMessage(), "Failed to download model from: http://localhost:aaaa");
     }
 
     @Test(
@@ -1196,7 +1229,8 @@ public class ModelServerTest {
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
         Assert.assertEquals(
-                resp.getMessage(), "Failed to download model from: http://localhost:18888/fake.mar");
+                resp.getMessage(),
+                "Failed to download model from: http://localhost:18888/fake.mar");
     }
 
     @Test(
@@ -1218,7 +1252,8 @@ public class ModelServerTest {
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
         Assert.assertEquals(
-                resp.getMessage(), "Failed to download model from: https://localhost:8443/fake.mar");
+                resp.getMessage(),
+                "Failed to download model from: https://localhost:8443/fake.mar");
     }
 
     @Test(
@@ -1230,7 +1265,9 @@ public class ModelServerTest {
 
         HttpRequest req =
                 new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/models?url=..%2Ffake.mar&synchronous=false");
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/models?url=..%2Ffake.mar&synchronous=false");
         channel.writeAndFlush(req).sync();
         channel.closeFuture().sync();
 
@@ -1449,7 +1486,8 @@ public class ModelServerTest {
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.FORBIDDEN.code());
-        Assert.assertEquals(resp.getMessage(), "Cannot remove default version for model noopversioned");
+        Assert.assertEquals(
+                resp.getMessage(), "Cannot remove default version for model noopversioned");
 
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1461,7 +1499,8 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelFailure"})
     public void testTSValidPort()
-            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException, IOException {
+            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
+            IOException {
         //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
         ConfigManager.init(new ConfigManager.Arguments());
         ConfigManager configManagerValidPort = ConfigManager.getInstance();
@@ -1593,7 +1632,11 @@ public class ModelServerTest {
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(
                 resp.getStatus(),
-                "Model \"" + modelName + "\" Version: " + version + " registered with 1 initial workers");
+                "Model \""
+                        + modelName
+                        + "\" Version: "
+                        + version
+                        + " registered with 1 initial workers");
     }
 
     private void testPredictions(String modelName, String expectedOutput, String version)
@@ -1610,7 +1653,9 @@ public class ModelServerTest {
         req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
         HttpUtil.setContentLength(req, req.content().readableBytes());
         req.headers()
-                .set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         channel.writeAndFlush(req);
 
         TestUtils.getLatch().await();
