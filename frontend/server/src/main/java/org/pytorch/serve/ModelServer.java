@@ -307,8 +307,9 @@ public class ModelServer {
 
         initModelStore();
 
-        Connector inferenceConnector = configManager.getListener(false);
-        Connector managementConnector = configManager.getListener(true);
+        Connector inferenceConnector = configManager.getListener(ConnectorType.INFERENCE_CONNECTOR);
+        Connector managementConnector =
+                configManager.getListener(ConnectorType.MANAGEMENT_CONNECTOR);
 
         inferenceConnector.clean();
         managementConnector.clean();
@@ -334,7 +335,19 @@ public class ModelServer {
         } else {
             futures.add(
                     initializeServer(
-                            inferenceConnector, serverGroup, workerGroup, ConnectorType.BOTH));
+                            inferenceConnector, serverGroup, workerGroup, ConnectorType.ALL));
+        }
+
+        if (configManager.isMetricApiEnable()) {
+            EventLoopGroup metricsGroup = serverGroups.getMetricsGroup();
+            Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);
+            metricsConnector.clean();
+            futures.add(
+                    initializeServer(
+                            metricsConnector,
+                            serverGroup,
+                            metricsGroup,
+                            ConnectorType.METRICS_CONNECTOR));
         }
 
         SnapshotManager.getInstance().saveStartupSnapshot();
