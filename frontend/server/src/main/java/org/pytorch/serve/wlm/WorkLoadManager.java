@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -94,6 +95,9 @@ public class WorkLoadManager {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
+                    if (!isStartup) {
+                        SnapshotManager.getInstance().saveSnapshot();
+                    }
                     return future;
                 }
             } else {
@@ -117,13 +121,14 @@ public class WorkLoadManager {
                     // -> This may nullify process object per destroyForcibly doc.
                     if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
-                        workerProcess.destroyForcibly();
                         try {
+                            String cmd = String.format(getKillCmd(), workerProcess.pid());
+                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
-                                    workerProcess.waitFor(
+                                    workerKillProcess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
                                             TimeUnit.SECONDS);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerThread interrupted during waitFor, possible async resource cleanup.");
                             future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
@@ -148,6 +153,17 @@ public class WorkLoadManager {
             }
             return future;
         }
+    }
+
+    private String getKillCmd() {
+        String operatingSystem = System.getProperty("os.name").toLowerCase();
+        String killCMD;
+        if (operatingSystem.indexOf("win") >= 0) {
+            killCMD = "taskkill /f /PID %s";
+        } else {
+            killCMD = "kill -9 %s";
+        }
+        return killCMD;
     }
 
     private void addThreads(

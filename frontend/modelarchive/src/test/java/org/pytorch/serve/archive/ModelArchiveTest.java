@@ -22,17 +22,13 @@ public class ModelArchiveTest {
     }
 
     @Test(expectedExceptions = ModelNotFoundException.class)
-    public void test() throws ModelException, IOException {
+    public void test() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
 
         ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
         archive.validate();
         archive.clean();
         Assert.assertEquals(archive.getModelName(), "noop");
-
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         archive =
                 ModelArchive.downloadModel(
                         modelStore,
@@ -45,23 +41,53 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(modelStore, "/../noop-v1.0");
     }
 
-    @Test(expectedExceptions = DownloadModelException.class)
-    public void testInvalidURL() throws ModelException, IOException {
+    @Test
+    public void archiveTest() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
+        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
+
+        archive.getManifest().getModel().setModelVersion(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().getModel().setModelName(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setModel(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setRuntime(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setRuntime(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(null, "/noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(modelStore, "../noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel("null", "/noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel("src/test/resources/", "models"));
+
+        archive.clean();
+    }
+
+    @Test(expectedExceptions = DownloadModelException.class)
+    public void testInvalidURL() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 modelStore,
                 "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
 
     @Test(expectedExceptions = DownloadModelException.class)
-    public void testMalformURL() throws ModelException, IOException {
+    public void testMalformURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
-        // load model for s3 --> This will fail as this model is not compatible with
-        // new implementation.
-        // TODO Change this once we have example models on s3
         ModelArchive.downloadModel(
                 modelStore, "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }

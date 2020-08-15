@@ -59,4 +59,30 @@
     "iterations": 2,
     "version": "1.0",
     "force": true
-  }  ]
+  },
+  {
+    "name": "packaging_mar_with_handler_name",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "model_archiver/tests/integ_tests/resources/regular_model/test_handler",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "export-path": "/tmp/model",
+    "archive-format": "default",
+    "iterations": 2,
+    "version": "1.0",
+    "force": true
+  },
+  {
+    "name": "packaging_mar_with_handler_entrypoint_func",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "model_archiver/tests/integ_tests/resources/regular_model/test_handler:my_handler",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "export-path": "/tmp/model",
+    "archive-format": "default",
+    "iterations": 2,
+    "version": "1.0",
+    "force": true
+  }]

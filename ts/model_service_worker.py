@@ -21,7 +21,8 @@ from ts.service import emit_metrics
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
-BENCHMARK = False
+BENCHMARK = os.getenv('TS_BENCHMARK')
+BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
 
 
 class TorchModelServiceWorker(object):
@@ -180,7 +181,7 @@ if __name__ == "__main__":
     except socket.timeout:
         logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
     except Exception:  # pylint: disable=broad-except
-        logging.error("Backend worker process die.", exc_info=True)
+        logging.error("Backend worker process died.", exc_info=True)
     finally:
         if sock_type == 'unix' and os.path.exists(socket_name):
             os.remove(socket_name)

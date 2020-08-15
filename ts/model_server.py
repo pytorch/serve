@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from builtins import str
+import platform
 
 import psutil
 from ts.version import __version__
@@ -80,13 +81,14 @@ def start():
                 sys.exit(1)
             ts_conf_file = ts_config
 
-        class_path = \
-            ".:{}".format(os.path.join(ts_home, "ts/frontend/*"))
+        platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
+        class_path = "{}{}".format(platform_path_separator[platform.system()], os.path.join(ts_home, "ts/frontend/*"))
 
         if ts_conf_file and os.path.isfile(ts_conf_file):
             props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
+                print("Warning: TorchServe is using non-default JVM parameters: {}".format(vm_args))
                 arg_list = vm_args.split()
                 if args.log_config:
                     for word in arg_list[:]:

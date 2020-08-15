@@ -1,0 +1,5 @@
+future
+psutil
+wheel
+requests
+sentencepiece

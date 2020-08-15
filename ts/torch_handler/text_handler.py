@@ -4,6 +4,7 @@
 Base module for all text based default handler.
 Contains various text based utility methods
 """
+import os
 import re
 import string
 import unicodedata
@@ -13,6 +14,11 @@ from torchtext.data.utils import get_tokenizer
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
 
+CLEANUP_REGEX = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
+CONTRACTIONS_PATTERN = re.compile(
+    '({})'.format('|'.join(CONTRACTION_MAP.keys())),
+    flags=re.IGNORECASE | re.DOTALL
+)
 
 class TextHandler(BaseHandler, ABC):
     """
@@ -24,11 +30,27 @@ class TextHandler(BaseHandler, ABC):
         self.source_vocab = None
         self.tokenizer = get_tokenizer('basic_english')
 
-    def initialize(self, ctx):
-        super(TextHandler, self).initialize(ctx)
+    def initialize(self, context):
+        super(TextHandler, self).initialize(context)
         self.initialized = False
-        self.source_vocab = torch.load(self.manifest['model']['sourceVocab'])
+        source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
+        if source_vocab:
+            # Backward compatibility
+            self.source_vocab = torch.load(source_vocab)
+        else:
+            self.source_vocab = torch.load(self.get_source_vocab_path(ctx))
         self.initialized = True
+
+    def get_source_vocab_path(self, ctx):
+        properties = ctx.system_properties
+        model_dir = properties.get("model_dir")
+        source_vocab_path = os.path.join(model_dir, "source_vocab.pt")
+
+        if os.path.isfile(source_vocab_path):
+            return source_vocab_path
+        else:
+            raise Exception('Missing the source_vocab file. Refer default handler '
+                            'documentation for details on using text_handler.')
 
     def _expand_contractions(self, text):
         def expand_match(contraction):
@@ -39,9 +61,7 @@ class TextHandler(BaseHandler, ABC):
             expanded_contraction = first_char + expanded_contraction[1:]
             return expanded_contraction
 
-        contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTION_MAP.keys())),
-                                          flags=re.IGNORECASE | re.DOTALL)
-        text = contractions_pattern.sub(expand_match, text)
+        text = CONTRACTIONS_PATTERN.sub(expand_match, text)
         text = re.sub("'", "", text)
         return text
 
@@ -50,11 +70,16 @@ class TextHandler(BaseHandler, ABC):
         return text
 
     def _remove_html_tags(self, text):
-        cleanup_regex = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
-        clean_text = re.sub(cleanup_regex, '', text)
+        clean_text = CLEANUP_REGEX.sub('', text)
         return clean_text
 
-    def _remove_puncutation(self, text):
+    def _remove_puncutation(self, *args, **kwargs):
+        """
+        Mispelled in original version. This is a compat layer
+        """
+        return self._remove_punctuation(*args, **kwargs)
+
+    def _remove_punctuation(self, text):
         return text.translate(str.maketrans('', '', string.punctuation))
 
     def _tokenize(self, text):

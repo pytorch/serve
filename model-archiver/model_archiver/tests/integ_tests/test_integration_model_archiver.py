@@ -1,8 +1,10 @@
+from datetime import datetime
 import errno
 import json
 import os
 import shutil
 import subprocess
+import model_archiver
 
 DEFAULT_RUNTIME = "python"
 MANIFEST_FILE = "MAR-INF/MANIFEST.json"
@@ -58,12 +60,14 @@ def validate_manifest_file(manifest, test, default_handler=None):
     :param test:
     :return:
     """
+    assert datetime.strptime(manifest.get("createdOn"), "%d/%m/%Y %H:%M:%S")
     assert manifest.get("runtime") == test.get("runtime")
     assert manifest.get("model").get("modelName") == test.get("model-name")
     if not default_handler:
         assert manifest.get("model").get("handler") == test.get("handler").split("/")[-1]
     else:
         assert manifest.get("model").get("handler") == test.get("handler")
+    assert manifest.get("archiverVersion") == model_archiver.__version__
 
 
 def validate_files(file_list, prefix, default_handler=None):
@@ -74,7 +78,7 @@ def validate_files(file_list, prefix, default_handler=None):
     assert os.path.join(prefix, "dummy-artifacts.txt") in file_list
     assert os.path.join(prefix, "1.py") in file_list
 
-    if default_handler =="text_classifier":
+    if default_handler == "text_classifier":
         assert os.path.join(prefix, "source_vocab.pt") in file_list
 
 
@@ -117,7 +121,7 @@ def validate(test):
 
 
 def build_cmd(test):
-    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format', 'source-vocab',
+    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format',
             'version', 'export-path', 'runtime']
     cmd = ["torch-model-archiver"]
 

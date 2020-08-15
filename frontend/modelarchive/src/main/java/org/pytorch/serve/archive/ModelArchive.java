@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -53,7 +54,6 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-
         if (URL_PATTERN.matcher(url).matches()) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
@@ -93,7 +93,6 @@ public class ModelArchive {
             if (manifestFile.exists()) {
                 manifest = readFile(manifestFile, Manifest.class);
             } else {
-
                 manifest = new Manifest();
             }
 
@@ -134,14 +133,10 @@ public class ModelArchive {
         }
         ZipUtils.unzip(new DigestInputStream(is, md), tmp);
         if (eTag == null) {
-            eTag = HexUtils.toHexString(md.digest());
+            eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
+        logger.info("eTag {}", eTag);
         File dir = new File(modelDir, eTag);
-        if (dir.exists()) {
-            FileUtils.deleteDirectory(tmp);
-            logger.info("model folder already exists: {}", eTag);
-            return dir;
-        }
 
         FileUtils.moveDirectory(tmp, dir);
 
@@ -167,8 +162,14 @@ public class ModelArchive {
                 throw new InvalidModelException("Runtime is not defined or invalid.");
             }
 
-            if (manifest.getEngine() != null && manifest.getEngine().getEngineName() == null) {
-                throw new InvalidModelException("engineName is required in <engine>.");
+            if (manifest.getArchiverVersion() == null) {
+                logger.warn(
+                        "Model archive version is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
+            }
+
+            if (manifest.getCreatedOn() == null) {
+                logger.warn(
+                        "Model archive createdOn is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
             }
         } catch (InvalidModelException e) {
             clean();

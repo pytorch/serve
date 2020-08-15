@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.ServerChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -52,6 +53,7 @@ public class ModelServer {
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
+    public static final int MAX_RCVBUF_SIZE = 4096;
 
     /** Creates a new {@code ModelServer} instance. */
     public ModelServer(ConfigManager configManager) {
@@ -180,7 +182,7 @@ public class ModelServer {
                                 workers,
                                 true);
                         startupModels.add(archive.getModelName());
-                    } catch (ModelException | IOException e) {
+                    } catch (ModelException | IOException | InterruptedException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -220,7 +222,7 @@ public class ModelServer {
                 modelManager.updateModel(
                         archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());
-            } catch (ModelException | IOException e) {
+            } catch (ModelException | IOException | InterruptedException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }
@@ -240,7 +242,10 @@ public class ModelServer {
                 .channel(channelClass)
                 .childOption(ChannelOption.SO_LINGER, 0)
                 .childOption(ChannelOption.SO_REUSEADDR, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true);
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(
+                        ChannelOption.RCVBUF_ALLOCATOR,
+                        new FixedRecvByteBufAllocator(MAX_RCVBUF_SIZE));
         b.group(serverGroup, workerGroup);
 
         SslContext sslCtx = null;
@@ -302,8 +307,9 @@ public class ModelServer {
 
         initModelStore();
 
-        Connector inferenceConnector = configManager.getListener(false);
-        Connector managementConnector = configManager.getListener(true);
+        Connector inferenceConnector = configManager.getListener(ConnectorType.INFERENCE_CONNECTOR);
+        Connector managementConnector =
+                configManager.getListener(ConnectorType.MANAGEMENT_CONNECTOR);
 
         inferenceConnector.clean();
         managementConnector.clean();
@@ -329,7 +335,19 @@ public class ModelServer {
         } else {
             futures.add(
                     initializeServer(
-                            inferenceConnector, serverGroup, workerGroup, ConnectorType.BOTH));
+                            inferenceConnector, serverGroup, workerGroup, ConnectorType.ALL));
+        }
+
+        if (configManager.isMetricApiEnable()) {
+            EventLoopGroup metricsGroup = serverGroups.getMetricsGroup();
+            Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);
+            metricsConnector.clean();
+            futures.add(
+                    initializeServer(
+                            metricsConnector,
+                            serverGroup,
+                            metricsGroup,
+                            ConnectorType.METRICS_CONNECTOR));
         }
 
         SnapshotManager.getInstance().saveStartupSnapshot();
