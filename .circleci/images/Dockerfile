@@ -1,31 +1,70 @@
-FROM ubuntu:18.04
+ARG BASE_IMAGE=ubuntu:18.04
+ARG ENV_TYPE=python
+FROM ${BASE_IMAGE} AS compile-image
 
 ENV PYTHONUNBUFFERED TRUE
 
-ENV PATH ~/.local/bin/:$PATH
-
-# Python 3.6.9
-# pip 9.0.1 from /usr/lib/python3/dist-packages (python 3.6)
 RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential \
+        ca-certificates\
         curl \
         git \
         openjdk-11-jdk \
+    && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+        nodejs
+
+FROM compile-image as conda38-image
+ENV PATH ~/.local/bin/:$PATH
+ENV PATH=/miniconda/bin:${PATH}
+RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+        && bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b \
+        && rm Miniconda3-latest-Linux-x86_64.sh \
+        && rm -rf /var/lib/apt/lists/* \
+        && conda install -y conda-build
+
+FROM compile-image as py36-image
+ENV PATH ~/.local/bin/:$PATH
+RUN apt-get install --no-install-recommends -y \
         python3 \
         python3-dev \
         python3-pip \
         python3-setuptools \
         python3-wheel \
-    && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        nodejs \
-    && rm -rf /var/lib/apt/lists/* \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
+FROM compile-image as pyenv37-image
+ENV PATH ~/.local/bin/:$PATH
+ENV PYENV_ROOT $HOME/.pyenv
+ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
+RUN apt-get install --no-install-recommends -y  libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+        libsqlite3-dev libxml2-dev libxmlsec1-dev libffi-dev\
+    && curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash \
+    && pyenv install 3.7.0 \
+    && pyenv global 3.7.0
+
+FROM compile-image as venv36-image
+ENV PATH ~/.local/bin/:$PATH
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN apt-get install --no-install-recommends -y \
+        python3 \
+        python3-dev \
+        python3-pip \
+        python3-setuptools \
+        python3-wheel \
+        python3-venv\
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
+    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1\
+    && python3 -m venv $VIRTUAL_ENV
+
+
+FROM ${ENV_TYPE}-image AS final-image
+ARG ENV_TYPE
 # Install jmeter for Benchmark
 RUN cd /opt \
     && curl https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.3.tgz | tar -xz\
@@ -53,8 +92,9 @@ RUN pip install --no-cache-dir \
         pytest \
         pytest-cov \
         pytest-mock \
-        sentencepiece \
+        sentencepiece==0.1.91 \
         torch \
         torchtext \
         torchvision \
-        transformers
+        transformers\
+        wheel

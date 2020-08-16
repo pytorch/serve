@@ -4,22 +4,22 @@ version: 2.1
 executors:
   py36:
     docker:
-      - image: prashantsail/pytorch-serve-build
+      - image: shivamshriwas/torchserve:py36
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
   conda38:
     docker:
-      - image: prashantsail/pytorch-serve-build:conda38
+      - image: shivamshriwas/torchserve:conda38
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
   pyenv37:
     docker:
-      - image: prashantsail/pytorch-serve-build:pyenv37
+      - image: shivamshriwas/torchserve:pyenv37
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
   venv36:
     docker:
-      - image: prashantsail/pytorch-serve-build:venv36
+      - image: shivamshriwas/torchserve:venv36
     environment:
       _JAVA_OPTIONS: "-Xmx2048m"
 
