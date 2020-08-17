@@ -5,3 +5,4 @@ pylint
 pytest-mock
 pytest-cov
 nvgpu
+numpy
