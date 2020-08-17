@@ -40,7 +40,6 @@ do
           shift
           ;;
         -env|--environment_info)
-          echo "Torchserve Branch : $BRANCH"
           echo
           python collect_env.py
           exit 0
