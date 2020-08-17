@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe default inference handlers &mdash; PyTorch/Serve master documentation</title>
+  <title>&lt;no title&gt; &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -25,25 +25,25 @@
 
   
 
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="../_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -166,7 +166,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -183,19 +183,7 @@
             
             
               <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+              <div class="local-toc"><ul class="simple">
 </ul>
 </div>
             
@@ -228,7 +216,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="index.html">
+        <a href="../index.html">
           
             Docs
           
@@ -236,13 +224,13 @@
       </li>
 
         
-      <li>TorchServe default inference handlers</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/default_handlers.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/sphinx/requirements.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -268,63 +256,12 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-default-inference-handlers">
-<h1>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
-<div class="section" id="image-classifier">
-<h2>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of top 5 predictions and their respective probability of the image</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
-</div>
-<div class="section" id="image-segmenter">
-<h2>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
-</div>
-<div class="section" id="object-detector">
-<h2>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles object detection models.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
-</ul>
-<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
-</div>
-<div class="section" id="text-classifier">
-<h2>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
-<li><p>Input : text file</p></li>
-<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
-</div>
-</div>
-<div class="section" id="common-features">
-<h1>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="index-to-name-json">
-<h2>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json">text_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json">object_detector</a></p></li>
-</ul>
-</div>
-</div>
-<div class="section" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>If you’d like to edit or create a new default_handler class, make sure to run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh">torchserve_sanity.sh</a> before submitting.</p>
-</div>
+  <p>sphinx==3.0.3
+recommonmark==0.6.0
+-e git+git://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
+sphinxcontrib.katex
+torch
+sphinx-markdown-tables</p>
 
 
              </article>
@@ -359,19 +296,7 @@
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              <ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+              <ul class="simple">
 </ul>
 
             </div>
@@ -386,22 +311,22 @@
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/language_data.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+         <script src="../_static/katex_autorenderer.js"></script>
      
 
   
 
-  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="_static/js/theme.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -513,7 +438,7 @@
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="_static/images/pytorch-x.svg">
+    <img class="close-button" src="../_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -580,7 +505,7 @@
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {

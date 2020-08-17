@@ -182,27 +182,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Core APIs</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Model Server for PyTorch Documentation</a><ul>
+<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
+<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+</li>
 </ul>
-
+</div>
             
           
         </div>
@@ -280,24 +269,35 @@
 <ul class="simple">
 <li><p><a class="reference external" href="../README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
 <li><p><a class="reference external" href="../model-archiver#creating-a-model-archive">Model Archive Quick Start</a> - Tutorial that shows you how to package a model archive file.</p></li>
-<li><p><a class="reference external" href="install.md">Installation</a> - Installation procedures and troubleshooting</p></li>
-<li><p><a class="reference external" href="server.md">Serving Models</a> - Explains how to use <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
+<li><p><a class="reference external" href="../README.md##install-torchserve">Installation</a> - Installation procedures</p></li>
+<li><p><a class="reference internal" href="server.html"><span class="doc">Serving Models</span></a> - Explains how to use <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
 <ul>
-<li><p><a class="reference external" href="rest_api.md">REST API</a> - Specification on the API endpoint for TorchServe</p></li>
+<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API</span></a> - Specification on the API endpoint for TorchServe</p></li>
 </ul>
 </li>
-<li><p><a class="reference external" href="../model-archiver/README.md">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
-<li><p><a class="reference external" href="logging.md">Logging</a> - How to configure logging</p></li>
-<li><p><a class="reference external" href="metrics.md">Metrics</a> - How to configure metrics</p></li>
+<li><p><a class="reference external" href="../model-archiver/README">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
+<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
+<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p></li>
+<li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
+<li><p><a class="reference internal" href="snapshot.html"><span class="doc">Model Snapshots</span></a> - Describes how to use snapshot feature for resiliency due to a planned or unplanned service stop</p></li>
 </ul>
 </div>
 <div class="section" id="advanced-features">
 <h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="configuration.md">Advanced settings</a> - Describes advanced TorchServe configurations.</p></li>
-<li><p><a class="reference external" href="custom_service.md">Custom Model Service</a> - Describes how to develop custom inference services.</p></li>
-<li><p><a class="reference external" href="../ts/tests/README.md">Unit Tests</a> - Housekeeping unit tests for TorchServe.</p></li>
-<li><p><a class="reference external" href="../benchmarks/README.md">Benchmark</a> - Use JMeter to run TorchServe through the paces and collect benchmark data.</p></li>
+<li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced settings</span></a> - Describes advanced TorchServe configurations.</p></li>
+<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Model Service</span></a> - Describes how to develop custom inference services.</p></li>
+<li><p><a class="reference external" href="../ts/tests/README">Unit Tests</a> - Housekeeping unit tests for TorchServe.</p></li>
+<li><p><a class="reference external" href="../benchmarks/README">Benchmark</a> - Use JMeter to run TorchServe through the paces and collect benchmark data</p></li>
+</ul>
+</div>
+<div class="section" id="default-handlers">
+<h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="../ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/text_classifier.py">Text Classifier</a> - This handler takes a text (string) as input and returns the classification text based on the model vocabulary</p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/image_segmenter.py">Image Segmenter</a> - This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
 </ul>
 </div>
 </div>
@@ -339,6 +339,7 @@
 <li><a class="reference internal" href="#">Model Server for PyTorch Documentation</a><ul>
 <li><a class="reference internal" href="#basic-features">Basic Features</a></li>
 <li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
+<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
 </ul>
 </li>
 </ul>
@@ -356,19 +357,20 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -559,6 +561,7 @@
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {
