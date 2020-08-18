@@ -1,8 +1,7 @@
 from ts.torch_handler.base_handler import BaseHandler
 from fairseq.models.transformer import TransformerModel
 import torch
-from pathlib import Path
-import os
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -37,25 +36,28 @@ class LanguageTranslationHandler(BaseHandler):
         )
         self.model.to(self.device)
         self.model.eval()
-
         self.initialized = True
 
     def preprocess(self, data):
-        text = data[0].get("data")
-        if text is None:
-            text = data[0].get("body")
-        input_text = text.decode('utf-8')
-        return input_text
+        textInput = []
+        for row in data:
+            text = row.get("data") or row.get("body")
+            decoded_text = text.decode('utf-8')
+            textInput.append(decoded_text)
+        return textInput
 
     def inference(self, data, *args, **kwargs):
+        inference_output = []
         with torch.no_grad():
             translation = self.model.translate(data, beam=5)
-        logger.info("Model translated: '%s'", translation)
-        inference_output = {
-            "english_input": data,
-            "french_output": translation
-        }
-        return [inference_output]
+        logger.info("Model translated: %s", translation)
+        for i in range(0, len(data)):
+            output = {
+                "english_input": data[i],
+                "french_output": translation[i]
+            }
+            inference_output.append(json.dumps(output))
+        return inference_output
 
     def postprocess(self, data):
-        return [data]
+        return data
