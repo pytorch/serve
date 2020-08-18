@@ -9,11 +9,6 @@ In this example, we have show how to serve a [English-to-French Translation](htt
 1. Demonstrate how to package a pre-trained English-to-French translation model with custom handler into torch model archive (.mar) file
 2. Demonstrate how to load model archive (.mar) file into TorchServe and run inference.
 
-## Install pip dependencies using following commands
-We require a few additional Python dependencies for preprocessing:
-```bash
-pip install fastBPE regex requests sacremoses subword_nmt
-```
 ## Serve the English-to-French Translation model on TorchServe
 
 * Generate the model archive (.mar) file for English-to-French translation model using following command
