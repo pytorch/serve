@@ -71,7 +71,7 @@ public class ConnectorTest {
 
         Assert.assertEquals(conn.getSocketType(), "tcp");
         Assert.assertEquals(conn.getSocketPath(), "45245");
-        Assert.assertTrue(conn.isManagement());
+        Assert.assertFalse(conn.isManagement());
         Assert.assertTrue(conn.isSsl());
         Assert.assertFalse(conn.isUds());
     }
@@ -105,7 +105,7 @@ public class ConnectorTest {
                 Connector.parse("unix:/tmp/management.sock", ConnectorType.INFERENCE_CONNECTOR);
         Assert.assertEquals(conn.getSocketType(), "unix");
         Assert.assertEquals(conn.getSocketPath(), "/tmp/management.sock");
-        Assert.assertFalse(conn.isManagement());
+        Assert.assertTrue(conn.isManagement());
         Assert.assertFalse(conn.isSsl());
         Assert.assertTrue(conn.isUds());
     }
@@ -132,7 +132,7 @@ public class ConnectorTest {
 
     @Test
     public void testDefaultMetricsAddress() {
-        Connector conn = Connector.parse("http://127.0.0.1", ConnectorType.INFERENCE_CONNECTOR);
+        Connector conn = Connector.parse("http://127.0.0.1", ConnectorType.METRICS_CONNECTOR);
         Assert.assertEquals(conn.getSocketType(), "tcp");
         Assert.assertEquals(conn.getSocketPath(), "8082");
         Assert.assertFalse(conn.isManagement());
