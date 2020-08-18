@@ -7,13 +7,17 @@ rm -rf fairseq-build
 #installing cython
 pip install Cython
 
-#download zip file of fairseq
+#download fairseq repo
 git clone https://github.com/pytorch/fairseq
 cd fairseq/
 python3 setup.py sdist bdist_wheel
 cd ..
 mkdir fairseq-build
-cp fairseq/dist/fairseq-0.9.0.tar.gz fairseq-build/
+cp fairseq/dist/*.tar.gz fairseq-build/
+file_name=$(ls fairseq-build/)
+
+#create requirements.txt file
+python3 requirement_script.py $file_name
 
 #download the En2Fr Translation model checkpoint file
 wget https://dl.fbaipublicfiles.com/fairseq/models/wmt14.en-fr.joined-dict.transformer.tar.bz2
