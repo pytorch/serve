@@ -31,8 +31,7 @@ public class ConnectorTest {
 
     @Test
     public void testValidMetricsAddress() {
-        Connector conn =
-                Connector.parse("http://127.0.0.1:45245", ConnectorType.METRICS_CONNECTOR);
+        Connector conn = Connector.parse("http://127.0.0.1:45245", ConnectorType.METRICS_CONNECTOR);
 
         Assert.assertEquals(conn.getSocketType(), "tcp");
         Assert.assertEquals(conn.getSocketPath(), "45245");
