@@ -59,82 +59,26 @@ The configuration that we are interested in is the following:
 2. `max_batch_delay`: This is the maximum batch delay time TorchServe waits to receive `batch_size` number of requests. If TorchServe doesn't receive `batch_size` number of
 requests before this timer time's out, it sends what ever requests that were received to the model `handler`.
 
-## Demo to configure TorchServe with batch-supported model
-### Loading Resnet-152 which handles batch inferences
+### Demo to configure TorchServe with batch-supported model
 
-* Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.
+* Start the model server. In this example, we are starting the model server with config.properties file
 
-```text
-$ cat config.properties
-...
-inference_address=http://0.0.0.0:8080
-management_address=http://0.0.0.0:8081
-...
-$ torchserve --start --model-store model_store
-```
-
-* Verify that TorchServe is up and running
-
-```text
-$ curl localhost:8080/ping
-{
-  "status": "Healthy"
-}
-```
-
-* Now let's launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a `max_batch_delay` of 10ms.
-
-```text
-$ curl -X POST "localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&batch_size=8&max_batch_delay=10&initial_workers=1"
-{
-  "status": "Processing worker updates..."
-}
-```
-
-* Verify that the workers were started properly.
-
-```text
-[
-  {
-    "modelName": "resnet-152-batch_v2",
-    "modelVersion": "2.0",
-    "modelUrl": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
-    "runtime": "python",
-    "minWorkers": 1,
-    "maxWorkers": 1,
-    "batchSize": 3,
-    "maxBatchDelay": 5000,
-    "loadedAtStartup": false,
-    "workers": [
-      {
-        "id": "9000",
-        "startTime": "2020-07-28T05:04:05.465Z",
-        "status": "READY",
-        "gpu": false,
-        "memoryUsage": 0
-      }
-    ]
-  }
-]
-```
-
-* Now let's test this service.
-
-  * Get an image to test this service
-
-    ```text
-    $ curl -LJO https://github.com/pytorch/serve/raw/master/examples/image_classifier/kitten.jpg
+    ```bash
+    torchserve --start --model-store model_store --ts-config config.properties
     ```
 
-  * Run inference to test the model.
+* Now let's launch English_to_French translation model, which we have built to handle batch inference. 
+In this example, we are going to launch 1 worker which handles a `batch size` of 4 with a `max_batch_delay` of 10s.
 
-    ```text
-      $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
-      {
-          "tiger_cat": 0.5848360657691956,
-          "tabby": 0.3782736361026764,
-          "Egyptian_cat": 0.03441936895251274,
-          "lynx": 0.0005633446853607893,
-          "quilt": 0.0002698268508538604
-      }
+    ```bash
+    curl -X POST "http://localhost:8081/models?url=TransformerEn2Fr.mar&initial_workers=1&synchronous=true&batch_size=4&max_batch_delay=10000"
+    ```
+
+* Run batch inference command to test the model.
+
+    ```bash
+    curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample1.txt& 
+    curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample2.txt& 
+    curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample3.txt& 
+    curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample4.txt&
     ```
