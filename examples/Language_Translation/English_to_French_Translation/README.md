@@ -51,7 +51,7 @@ To support batch inference, TorchServe needs the following:
 
 ### TorchServe Model Configuration
 
-To configure TorchServe to use the batching feature, provide the batch configuration information through [**POST /models** API](management_api.md#register-a-model).
+To configure TorchServe to use the batching feature, provide the batch configuration information through "POST /models" API.
 
 The configuration that we are interested in is the following:
 
