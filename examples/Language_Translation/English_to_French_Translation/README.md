@@ -1,7 +1,7 @@
 # English-to-French translation using Fairseq Transformer model
 The Transformer, introduced in the paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762), is a powerful sequence-to-sequence modeling architecture capable of producing state-of-the-art neural machine translation (NMT) systems.
 
-Recently, the fairseq team has explored large-scale semi-supervised training of Transformers using back-translated data, further improving translation quality over the original model. More details can be found in [this blog post](https://engineering.fb.com/ai-research/scaling-neural-machine-translation-to-bigger-data-sets-with-faster-training-and-inference/).
+Recently, the [fairseq](https://github.com/pytorch/fairseq#join-the-fairseq-community) team has explored large-scale semi-supervised training of Transformers using back-translated data, further improving translation quality over the original model. More details can be found in [this blog post](https://engineering.fb.com/ai-research/scaling-neural-machine-translation-to-bigger-data-sets-with-faster-training-and-inference/).
 
 In this example, we have show how to serve a [English-to-French Translation](https://pytorch.org/hub/pytorch_fairseq_translation/) model using TorchServe. We have used a custom handler, model_handler.py which enables us to use pre-trained [Transformer_WMT14_En-Fr](https://github.com/pytorch/fairseq/blob/master/examples/translation/README.md) models from [fairseq](https://github.com/pytorch/fairseq). 
 
