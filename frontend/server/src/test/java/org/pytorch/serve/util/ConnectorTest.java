@@ -30,6 +30,18 @@ public class ConnectorTest {
     }
 
     @Test
+    public void testValidMetricsAddress() {
+        Connector conn =
+                Connector.parse("http://127.0.0.1:45245", ConnectorType.METRICS_CONNECTOR);
+
+        Assert.assertEquals(conn.getSocketType(), "tcp");
+        Assert.assertEquals(conn.getSocketPath(), "45245");
+        Assert.assertFalse(conn.isManagement());
+        Assert.assertFalse(conn.isSsl());
+        Assert.assertFalse(conn.isUds());
+    }
+
+    @Test
     public void testSSLInferenceAddress() {
         Connector conn =
                 Connector.parse("https://127.0.0.1:45245", ConnectorType.INFERENCE_CONNECTOR);
@@ -37,6 +49,30 @@ public class ConnectorTest {
         Assert.assertEquals(conn.getSocketType(), "tcp");
         Assert.assertEquals(conn.getSocketPath(), "45245");
         Assert.assertFalse(conn.isManagement());
+        Assert.assertTrue(conn.isSsl());
+        Assert.assertFalse(conn.isUds());
+    }
+
+    @Test
+    public void testSSLManagementAddress() {
+        Connector conn =
+                Connector.parse("https://127.0.0.1:45245", ConnectorType.MANAGEMENT_CONNECTOR);
+
+        Assert.assertEquals(conn.getSocketType(), "tcp");
+        Assert.assertEquals(conn.getSocketPath(), "45245");
+        Assert.assertTrue(conn.isManagement());
+        Assert.assertTrue(conn.isSsl());
+        Assert.assertFalse(conn.isUds());
+    }
+
+    @Test
+    public void testSSLMetricAddress() {
+        Connector conn =
+                Connector.parse("https://127.0.0.1:45245", ConnectorType.METRICS_CONNECTOR);
+
+        Assert.assertEquals(conn.getSocketType(), "tcp");
+        Assert.assertEquals(conn.getSocketPath(), "45245");
+        Assert.assertTrue(conn.isManagement());
         Assert.assertTrue(conn.isSsl());
         Assert.assertFalse(conn.isUds());
     }
@@ -96,6 +132,16 @@ public class ConnectorTest {
     }
 
     @Test
+    public void testDefaultMetricsAddress() {
+        Connector conn = Connector.parse("http://127.0.0.1", ConnectorType.INFERENCE_CONNECTOR);
+        Assert.assertEquals(conn.getSocketType(), "tcp");
+        Assert.assertEquals(conn.getSocketPath(), "8082");
+        Assert.assertFalse(conn.isManagement());
+        Assert.assertFalse(conn.isSsl());
+        Assert.assertFalse(conn.isUds());
+    }
+
+    @Test
     public void testDefaultSSLManagementAddress() {
         Connector conn = Connector.parse("https://127.0.0.1", ConnectorType.MANAGEMENT_CONNECTOR);
         Assert.assertEquals(conn.getSocketType(), "tcp");
@@ -110,6 +156,16 @@ public class ConnectorTest {
         Connector conn = Connector.parse("https://127.0.0.1", ConnectorType.INFERENCE_CONNECTOR);
         Assert.assertEquals(conn.getSocketType(), "tcp");
         Assert.assertEquals(conn.getSocketPath(), "443");
+        Assert.assertFalse(conn.isManagement());
+        Assert.assertTrue(conn.isSsl());
+        Assert.assertFalse(conn.isUds());
+    }
+
+    @Test
+    public void testDefaultSSLMetricsAddress() {
+        Connector conn = Connector.parse("https://127.0.0.1", ConnectorType.METRICS_CONNECTOR);
+        Assert.assertEquals(conn.getSocketType(), "tcp");
+        Assert.assertEquals(conn.getSocketPath(), "8445");
         Assert.assertFalse(conn.isManagement());
         Assert.assertTrue(conn.isSsl());
         Assert.assertFalse(conn.isUds());
