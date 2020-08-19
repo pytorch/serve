@@ -2,17 +2,17 @@
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-> **WARNING:** TorchServe is experimental and subject to change.
+**WARNING:** TorchServe is experimental and subject to change.
 
 
 ## Basic Features
 
-* [Serving Quick Start](TorchServe.html#serve-a-model) - Basic server usage tutorial
+* [Serving Quick Start](https://github.com/pytorch/serve/blob/master/README.md#serve-a-model) - Basic server usage tutorial
 * [Model Archive Quick Start](https://github.com/pytorch/serve/tree/master/model-archiver#creating-a-model-archive) - Tutorial that shows you how to package a model archive file.
 * [Installation](TorchServe.html#install-torchserve) - Installation procedures
 * [Serving Models](server.md) - Explains how to use torchserve
    * [REST API](rest_api.md) - Specification on the API endpoint for TorchServe
-* [Packaging Model Archive](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) - Explains how to package model archive file, use `model-archiver`.
+* [Packaging Model Archive](https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-for-torchserve) - Explains how to package model archive file, use `model-archiver`.
 * [Logging](logging.md) - How to configure logging
 * [Metrics](metrics.md) - How to configure metrics
    * [Metrics API](metrics_apid.md) - How to configure metrics API
@@ -23,9 +23,9 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 * [Advanced configuration](configuration.md) - Describes advanced TorchServe configurations.
 * [Custom Service](custom_service.md) - Describes how to develop custom inference services.
-* [Unit Tests](https://github.com/pytorch/serve/tree/master/ts/tests/README.md) - Housekeeping unit tests for TorchServe.
-* [Benchmark](https://github.com/pytorch/serve/blob/master/benchmarks/README.md) - Use JMeter to run TorchServe through the paces and collect benchmark data.
-* [TorchServe on Kubernetes](https://github.com/pytorch/serve/blob/master/kubernetes/README.md) -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart.
+* [Unit Tests](https://github.com/pytorch/serve/tree/master/ts/tests#testing-torchserve) - Housekeeping unit tests for TorchServe.
+* [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking) - Use JMeter to run TorchServe through the paces and collect benchmark data.
+* [TorchServe on Kubernetes](https://github.com/pytorch/serve/tree/master/kubernetes#torchserve-on-kubernetes) -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart.
 
 ## Default Handlers
 
