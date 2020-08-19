@@ -15,7 +15,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Packaging Model Archive](https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-for-torchserve) - Explains how to package model archive file, use `model-archiver`.
 * [Logging](logging.md) - How to configure logging
 * [Metrics](metrics.md) - How to configure metrics
-   * [Metrics API](metrics_apid.md) - How to configure metrics API
+   * [Metrics API](metrics_api.md) - How to configure metrics API
 * [Batch inference with TorchServe](batch_inference_with_ts.md) - How to create and serve a model with batch inference in TorchServe
 * [Model Zoo](model_zoo.md) - List of pre-trained model archives ready to be served for inference with TorchServe.
 
