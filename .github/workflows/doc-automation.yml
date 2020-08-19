@@ -23,6 +23,7 @@ jobs:
         python3 -m pip install recommonmark
         python3 -m pip install katex
         python3 -m pip install sphinxcontrib.katex
+        python3 -m pip install sphinx_markdown_tables
     - name: Build the docset
       run: cd ./docs/sphinx ; make html
       id: build
