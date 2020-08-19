@@ -15,9 +15,9 @@ NOTES
 
 ## Use Cases
 
-[Deploy pytorch eager mode model](#deploy-pytorch-eager-mode-model)
+[Serve pytorch eager mode model](#deploy-pytorch-eager-mode-model)
 
-[Deploy pytorch scripted mode model](#deploy-pytorch-scripted-mode-model)
+[Serve pytorch scripted mode model](#deploy-pytorch-scripted-mode-model)
 
 [Serve readymade models on torchserve model zoo](#serve-readymade-models-on-torchserve-model-zoo)
 
