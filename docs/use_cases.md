@@ -25,6 +25,10 @@ NOTES
 
 [Serve models on GPUs](#serve-models-on-gpus)
 
+[Serve your custom models with no third party dependency](#serve-your-custom-models-with-no-third-party-dependency)
+
+[Serve your custom models with third party dependency](#serve-your-custom-models-with-third-party-dependency)
+
 #### Deploy pytorch eager mode model
 
 **Steps to deploy your model(s)**
