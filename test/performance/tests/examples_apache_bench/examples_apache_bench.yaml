@@ -24,8 +24,8 @@ reporting:
 - module: passfail
   criteria:
     # Inbuilt Criteria - cannot be used with Apache Benchmark
-    # - success of MyLabel<${INFR_SUCC}, stop as failed
-    # - avg-rt of MyLabel>${INFR_RT}, stop as failed
+    # - success of MyLabel<${INFR_SUCC}
+    # - avg-rt of MyLabel>${INFR_RT}
     # Custom Criteria
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/total_processes

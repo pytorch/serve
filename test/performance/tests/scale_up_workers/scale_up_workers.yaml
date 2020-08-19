@@ -23,8 +23,8 @@ services:
 - module: passfail
   criteria:
     # Inbuilt Criteria
-    - success of ScaleUp<${SCL_UP_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of ScaleUp>${SCL_UP_RT} for 10s, ${STOP_ALIAS} as failed
+    - success of ScaleUp<${SCL_UP_SUCC}
+    - avg-rt of ScaleUp>${SCL_UP_RT}
     # Custom Criteria
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/total_processes

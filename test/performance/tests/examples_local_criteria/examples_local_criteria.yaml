@@ -48,9 +48,9 @@ modules:
   dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
 - module: passfail
   criteria:
-    - fail >${FAIL}, stop as failed
-    - p90 >${P90}  , stop as failed
-    - avg-rt >${AVG_RT} , stop as failed
+    - fail >${FAIL}
+    - p90 >${P90}
+    - avg-rt >${AVG_RT}
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/sum_workers_memory_rss
       condition: '>'

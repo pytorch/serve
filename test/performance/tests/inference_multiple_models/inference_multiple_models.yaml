@@ -16,8 +16,8 @@ reporting:
 - module: passfail
   criteria:
     # Inbuilt Criteria
-    - success of Inference2<${INFR2_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of Inference2>${INFR2_RT} for 10s, ${STOP_ALIAS} as failed
+    - success of Inference2<${INFR2_SUCC}
+    - avg-rt of Inference2>${INFR2_RT}
     - class: bzt.modules.monitoring.MonitoringCriteria
       subject: ServerLocalClient/total_processes
       condition: '<'

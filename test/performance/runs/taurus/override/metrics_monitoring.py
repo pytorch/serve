@@ -59,6 +59,11 @@ class ServerLocalClient(monitoring.LocalClient):
         else:
             self.label = 'ServerLocalClient'
 
+    def disconnect(self):
+        self.log.info("Last metric values before shutdown")
+        self.interval = 0
+        self.get_data()
+
     def connect(self):
         exc = TaurusConfigError('Metric is required in Local monitoring client')
         metric_names = self.config.get('metrics', exc)

@@ -20,9 +20,9 @@ services:
 - module: passfail
   criteria:
     # Inbuilt Criteria
-    - success of ${API_LABEL}<${API_SUCCESS} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of ${API_LABEL}>${API_AVG_RT} for 10s, ${STOP_ALIAS} as failed
-    - success of ScaleUp<${SCL_UP_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - success of UnregisterModel<${UNREG_SUCC} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of ScaleUp>${SCL_UP_RT} for 10s, ${STOP_ALIAS} as failed
-    - avg-rt of UnregisterModel>${UNREG_RT} for 10s, ${STOP_ALIAS} as failed
+    - success of ${API_LABEL}<${API_SUCCESS}
+    - avg-rt of ${API_LABEL}>${API_AVG_RT}
+    - success of ScaleUp<${SCL_UP_SUCC}
+    - success of UnregisterModel<${UNREG_SUCC}
+    - avg-rt of ScaleUp>${SCL_UP_RT}
+    - avg-rt of UnregisterModel>${UNREG_RT}
