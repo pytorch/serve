@@ -20,7 +20,6 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-cv, --cudaversion specify to use gpu"
-          echo "-env, --environment_info  display current environment info"
           exit 0
           ;;
         -b|--branch_name)
@@ -39,14 +38,10 @@ do
           shift
           shift
           ;;
-        -env|--environment_info)
-          echo
-          python collect_env.py
-          exit 0
-          ;;
     esac
 done
 
+python print_env_info.py
 
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1

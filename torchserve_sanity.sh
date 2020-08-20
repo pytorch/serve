@@ -3,21 +3,7 @@ set -euxo pipefail
 
 source scripts/install_utils
 
-for arg in "$@"
-do
-    case $arg in
-        -h|--help)
-          echo "options:"
-          echo "-h, --help  show brief help"
-          echo "-env, --environment_info  display current environment info"
-          exit 0
-          ;;
-        -env|--environment_info)
-          python test/collect_env.py
-          exit 0
-          ;;
-    esac
-done
+python print_env_info.py
 
 cleanup()
 {
