@@ -41,6 +41,7 @@ do
     esac
 done
 
+echo
 python print_env_info.py
 
 install_torchserve_from_source() {
@@ -186,5 +187,5 @@ generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
 
-echo "** Tests Complete **"
+echo "** Tests Complete **"f
 exit 0
