@@ -1,6 +1,0 @@
-fastBPE
-regex 
-requests 
-sacremoses 
-subword_nmt
-fairseq-0.9.0.tar.gz
