@@ -17,7 +17,8 @@ class KFservingEnvelope(BaseEnvelope):
     def parse_input(self, data):
         print("Parsing input in KFServing.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
-        self._inputs = [data.get("inputs") for data in self._data_list]
+        data = self._data_list[0]
+        self._inputs = data.get("inputs") 
         print("KFServing parsed inputs", self._inputs)
         return self._inputs
 
@@ -27,23 +28,25 @@ class KFservingEnvelope(BaseEnvelope):
         self._outputs = self._outputs[0]
         output_dict = {}
         outputs_list = []
-        
-        #Processing only the first output, as we are not handling batch inference
-        results = results[0]
-        print("The results received in format output", results)
-        for output in self._outputs:
-            if isinstance(output, dict):
-                if output["name"] in results.keys():
-                    output_dict["name"] = output["name"]
-                    output_dict["shape"] = [1] #static shape should be replaced with result shape
-                    output_dict["datatype"] = "FP32" #Static types should be replaced with types based on result
-                    output_dict["data"] = [results[output["name"]]]
-                    outputs_list.append(output_dict)
-                else :
-                    print(f"The request key {output['name']} is not present in the prediction")
-        
-        
         response = {}
-        response["outputs"] = outputs_list
+        
+        if self._outputs: 
+            #Processing only the first output, as we are not handling batch inference
+            results = results[0]
+            print("The results received in format output", results)
+            for output in self._outputs:
+                if isinstance(output, dict):
+                    if output["name"] in results.keys():
+                        output_dict["name"] = output["name"]
+                        output_dict["shape"] = [1] #static shape should be replaced with result shape
+                        output_dict["datatype"] = "FP32" #Static types should be replaced with types based on result
+                        output_dict["data"] = [results[output["name"]]]
+                        outputs_list.append(output_dict)
+                    else :
+                        print(f"The request key {output['name']} is not present in the prediction")
+            response["outputs"] = outputs_list
+        else :
+            response["outputs"] = results
+        
         print("The Response of KFServing", response)
         return [response]
