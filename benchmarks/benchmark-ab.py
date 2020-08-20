@@ -270,7 +270,7 @@ def generate_csv_output():
 
     with open('/tmp/benchmark/predict.txt') as f:
         lines = f.readlines()
-        lines.sort()
+        lines.sort(key=float)
         artifacts['Model_p50'] = lines[line50].strip()
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
