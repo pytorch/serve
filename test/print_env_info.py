@@ -367,7 +367,6 @@ def get_java_package(run_lambda):
 def main():
     print("Collecting environment information...")
     output = get_pretty_env_info()
-    print(type(output))
     print(output)
 
 if __name__ == '__main__':
