@@ -35,6 +35,7 @@ class TextClassifier(TextHandler):
         # directly, but older versions of Torchserve didn't have envelope.
         print("Using KFServing text classifier")
         #Processing only the first input, not handling batch inference
+        text = None
         for inp in data:
             if isinstance(inp, dict):
                 name = inp.get("name")
