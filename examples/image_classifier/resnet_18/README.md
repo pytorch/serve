@@ -4,7 +4,7 @@ Run the commands given in following steps from the parent directory of the root 
 
 ```bash
 wget https://download.pytorch.org/models/resnet18-5c106cde.pth
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./serve/examples/image_classifier/resnet_18/model.py --serialized-file resnet18-5c106cde.pth --handler image_classifier --extra-files ./serve/examples/image_classifier/index_to_name.json
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-5c106cde.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json
 mkdir model_store
 mv resnet-18.mar model_store/
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar

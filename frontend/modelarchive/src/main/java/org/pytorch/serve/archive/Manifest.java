@@ -1,44 +1,26 @@
 package org.pytorch.serve.archive;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class Manifest {
 
-    private String specificationVersion;
-    private String implementationVersion;
+    private String createdOn;
     private String description;
-    private String modelServerVersion;
-    private String license;
+    private String archiverVersion;
     private RuntimeType runtime;
-    private Engine engine;
     private Model model;
-    private Publisher publisher;
 
     public Manifest() {
-        specificationVersion = "1.0";
-        implementationVersion = "1.0";
-        modelServerVersion = "1.0";
-        license = "Apache 2.0";
         runtime = RuntimeType.PYTHON;
         model = new Model();
     }
 
-    public String getSpecificationVersion() {
-        return specificationVersion;
+    public String getCreatedOn() {
+        return createdOn;
     }
 
-    public void setSpecificationVersion(String specificationVersion) {
-        this.specificationVersion = specificationVersion;
-    }
-
-    public String getImplementationVersion() {
-        return implementationVersion;
-    }
-
-    public void setImplementationVersion(String implementationVersion) {
-        this.implementationVersion = implementationVersion;
+    public void setCreatedOn(String createdOn) {
+        this.createdOn = createdOn;
     }
 
     public String getDescription() {
@@ -49,20 +31,12 @@ public class Manifest {
         this.description = description;
     }
 
-    public String getModelServerVersion() {
-        return modelServerVersion;
+    public String getArchiverVersion() {
+        return archiverVersion;
     }
 
-    public void setModelServerVersion(String modelServerVersion) {
-        this.modelServerVersion = modelServerVersion;
-    }
-
-    public String getLicense() {
-        return license;
-    }
-
-    public void setLicense(String license) {
-        this.license = license;
+    public void setArchiverVersion(String archiverVersion) {
+        this.archiverVersion = archiverVersion;
     }
 
     public RuntimeType getRuntime() {
@@ -73,14 +47,6 @@ public class Manifest {
         this.runtime = runtime;
     }
 
-    public Engine getEngine() {
-        return engine;
-    }
-
-    public void setEngine(Engine engine) {
-        this.engine = engine;
-    }
-
     public Model getModel() {
         return model;
     }
@@ -89,70 +55,14 @@ public class Manifest {
         this.model = model;
     }
 
-    public Publisher getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
-    }
-
-    public static final class Publisher {
-
-        private String author;
-        private String email;
-
-        public Publisher() {}
-
-        public String getAuthor() {
-            return author;
-        }
-
-        public void setAuthor(String author) {
-            this.author = author;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-    }
-
-    public static final class Engine {
-
-        private String engineName;
-        private String engineVersion;
-
-        public Engine() {}
-
-        public String getEngineName() {
-            return engineName;
-        }
-
-        public void setEngineName(String engineName) {
-            this.engineName = engineName;
-        }
-
-        public String getEngineVersion() {
-            return engineVersion;
-        }
-
-        public void setEngineVersion(String engineVersion) {
-            this.engineVersion = engineVersion;
-        }
-    }
-
     public static final class Model {
 
         private String modelName;
         private String version;
         private String description;
         private String modelVersion;
-        private Map<String, Object> extensions;
         private String handler;
+        private String requirementsFile;
 
         public Model() {}
 
@@ -188,19 +98,12 @@ public class Manifest {
             this.modelVersion = modelVersion;
         }
 
-        public Map<String, Object> getExtensions() {
-            return extensions;
+        public String getRequirementsFile() {
+            return requirementsFile;
         }
 
-        public void setExtensions(Map<String, Object> extensions) {
-            this.extensions = extensions;
-        }
-
-        public void addExtension(String key, Object value) {
-            if (extensions == null) {
-                extensions = new LinkedHashMap<>();
-            }
-            extensions.put(key, value);
+        public void setRequirementsFile(String requirementsFile) {
+            this.requirementsFile = requirementsFile;
         }
 
         public String getHandler() {

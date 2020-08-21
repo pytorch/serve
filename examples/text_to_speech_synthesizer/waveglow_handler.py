@@ -6,11 +6,12 @@ import uuid
 import zipfile
 from waveglow_model import WaveGlow
 from scipy.io.wavfile import write, read
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
 
-class WaveGlowSpeechSynthesizer(object):
+class WaveGlowSpeechSynthesizer(BaseHandler):
 
     def __init__(self):
         self.waveglow_model = None
@@ -101,20 +102,3 @@ class WaveGlowSpeechSynthesizer(object):
             data = output.read()
         os.remove(path)
         return [data]
-
-
-_service = WaveGlowSpeechSynthesizer()
-
-
-def handle(data, context):
-    if not _service.initialized:
-        _service.initialize(context)
-
-    if data is None:
-        return None
-
-    data = _service.preprocess(data)
-    data = _service.inference(data)
-    data = _service.postprocess(data)
-
-    return data

@@ -1,0 +1,5 @@
+templates/eks_cluster.yaml
+templates/efs_pv_claim.yaml
+*.mar
+*.properties
+images/*
