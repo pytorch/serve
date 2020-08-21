@@ -291,9 +291,8 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-#      Uncomment once performance regression PR gets merged
-#      - performance-regression:
-#          name: performance-regression-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - performance-regression:
+          name: performance-regression-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
