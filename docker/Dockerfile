@@ -47,7 +47,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
 # This is only useful for cuda env
 RUN export USE_CUDA=1
 
-RUN if [ "$BASE_IMAGE" = "${BASE_IMAGE%"cuda:10.1"*$}" ]; then \
+RUN if [ "$BASE_IMAGE" != "${BASE_IMAGE#*cuda:10.1}" ]; then \
     pip install --no-cache-dir torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html; \
     else \
     pip install --no-cache-dir torch torchvision torchtext torchserve torch-model-archiver; \
