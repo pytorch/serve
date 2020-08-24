@@ -29,7 +29,14 @@ For creating CPU based image :
 DOCKER_BUILDKIT=1 docker build --file Dockerfile -t torchserve:latest .
 ```
 
-For creating GPU based image :
+For creating GPU based image with Cuda 10.2 :
+
+```bash
+DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
+```
+
+For creating GPU based image with Cuda 10.1 :
+
 ```bash
 DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
 ```
