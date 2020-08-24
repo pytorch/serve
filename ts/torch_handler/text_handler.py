@@ -1,5 +1,3 @@
-# pylint: disable=W0223
-# Details : https://github.com/PyCQA/pylint/issues/3098
 """
 Base module for all text based default handler.
 Contains various text based utility methods
