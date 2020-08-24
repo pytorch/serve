@@ -26,16 +26,17 @@ class TextHandler(BaseHandler, ABC):
     Contains various text based utility methods
     """
     def __init__(self):
-        super(TextHandler, self).__init__()
+        super().__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer('basic_english')
 
     def initialize(self, context):
-        super(TextHandler, self).initialize(context)
+        super().initialize(context)
         self.initialized = False
         source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
         if source_vocab:
-            # Backward compatibility
+            # Backward compatibility...debug=true is a developer option. It SHOULDN'T be used by general public. When this option is enabled, the ...
+
             self.source_vocab = torch.load(source_vocab)
         else:
             self.source_vocab = torch.load(self.get_source_vocab_path(ctx))
