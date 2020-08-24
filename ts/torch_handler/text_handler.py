@@ -35,8 +35,7 @@ class TextHandler(BaseHandler, ABC):
         self.initialized = False
         source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
         if source_vocab:
-            # Backward compatibility...debug=true is a developer option. It SHOULDN'T be used by general public. When this option is enabled, the ...
-
+            # Backward compatibility
             self.source_vocab = torch.load(source_vocab)
         else:
             self.source_vocab = torch.load(self.get_source_vocab_path(ctx))
