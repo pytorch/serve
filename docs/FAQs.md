@@ -45,6 +45,7 @@ Relevant documents.
 - [Torchserve configuration](https://github.com/pytorch/serve/blob/master/docs/configuration.md)
 - [Model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md#model-zoo)
 - [Snapshot](https://github.com/pytorch/serve/blob/master/docs/snapshot.md)
+- [Docker]([https://github.com/pytorch/serve/blob/master/docker/README.md](https://github.com/pytorch/serve/blob/master/docker/README.md))
 
 ### Can I run Torchserve APIs on different ports other than 8080 & 8081?
 Yes, Torchserve API ports are configurable using a properties file or environment variable.Refer  [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
@@ -65,6 +66,28 @@ Yes, you can deploy Torchserve on a multinode ASG EC2 cluster. There is a cloud 
 TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart. These saved runtime configuration files can be used for backup and restore.
 Refer [TorchServe model snapshot](https://github.com/pytorch/serve/blob/master/docs/snapshot.md#torchserve-model-snapshot) for more details.
 
+### How can I  build a Torchserve image from source?
+Torchserve has a utility [script]([https://github.com/pytorch/serve/blob/master/docker/build_image.sh](https://github.com/pytorch/serve/blob/master/docker/build_image.sh)) for creating docker images, the docker image can be hardware-based CPU or GPU compatible. A Torchserve docker image could be CUDA version specific as well.
+
+All these docker images can be created using `build_image.sh` with Valid options are given.
+
+Run `./build_image.sh --help'`  for all availble options.
+
+Refer [ Create Torchserve docker image from source](https://github.com/pytorch/serve/tree/master/docker#create-torchserve-docker-image-from-source) for more details.
+
+###  How to build Torchserve image for a specific branch or commit id?
+To create a Docker image for a specific branch, use the following command:
+
+`./build_image.sh -b <branch_name>/<commit_id>`
+
+To create a Docker image for a specific branch and specific tag, use the following command:
+
+`./build_image.sh -b <branch_name> -t <tagname:latest>`
+
+
+### What is the difference between image created using Dockerfile and image created using Dockerfile.dev?
+The image created using Dockerfile.dev has Torchserve installed from source where as image created using Dockerfile has Torchserve installed from pyi distribution.  
+
 ## API
 Relevant documents
 - [Torchserve Rest API](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md#model-zoo)
@@ -75,6 +98,11 @@ You can use any tool like Postman, Insomnia or even use a python script to do so
 You can a custom API using **plugins SDK** available in Torchserve.
 The [Health check API ](https://github.com/pytorch/serve/blob/master/docs/inference_api.md#health-check-api) is an example of a custom API integrated using plugins SDK.
 Refer to Plugins Documentation for more details.
+
+### How can pass multiple images in Inference request call to my model?
+You can provide multiple data in a single inference request to your custom handler as a key-value pair in the `data` object.
+
+Refer [this](https://github.com/pytorch/serve/issues/529#issuecomment-658012913) for more details.
 
 ## Handler
 Relevant documents
