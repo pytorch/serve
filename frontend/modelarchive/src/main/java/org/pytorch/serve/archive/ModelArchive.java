@@ -60,12 +60,12 @@ public class ModelArchive {
             }
             try {
                 if (url.indexOf("file://") != -1) {
-                  String OriginalPath = url.replace("file://", "");
-                  String path = FilenameUtils.getFullPath(OriginalPath);
-                  File source = new File(path, marFileName);
-                  FileUtils.copyFile(source, modelLocation);
+                    String originalPath = url.replace("file://", "");
+                    String path = FilenameUtils.getFullPath(originalPath);
+                    File source = new File(path, marFileName);
+                    FileUtils.copyFile(source, modelLocation);
                 } else {
-                  FileUtils.copyURLToFile(new URL(url), modelLocation);
+                    FileUtils.copyURLToFile(new URL(url), modelLocation);
                 }
             } catch (IOException e) {
                 FileUtils.deleteQuietly(modelLocation);
