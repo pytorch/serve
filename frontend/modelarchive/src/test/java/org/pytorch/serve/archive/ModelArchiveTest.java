@@ -91,4 +91,10 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(
                 modelStore, "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
     }
+
+    @Test(expectedExceptions = DownloadModelException.class)
+    public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive.downloadModel(modelStore, "file://" + modelStore + "/mnist1.mar");
+    }
 }
