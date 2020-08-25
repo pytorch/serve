@@ -1,5 +1,3 @@
-# pylint: disable=W0223
-# Details : https://github.com/PyCQA/pylint/issues/3098
 """
 Base module for all text based default handler.
 Contains various text based utility methods
@@ -26,12 +24,12 @@ class TextHandler(BaseHandler, ABC):
     Contains various text based utility methods
     """
     def __init__(self):
-        super(TextHandler, self).__init__()
+        super().__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer('basic_english')
 
     def initialize(self, context):
-        super(TextHandler, self).initialize(context)
+        super().initialize(context)
         self.initialized = False
         source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
         if source_vocab:
