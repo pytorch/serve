@@ -1,0 +1,5 @@
+awscli
+boto3
+paramiko
+Click
+click-config-file
