@@ -1,0 +1,12 @@
+{
+  "url": "https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar",
+  "requests": 10000,
+  "concurrency": 100,
+  "input": "../examples/image_classifier/kitten.jpg",
+  "exec_env": "docker",
+  "batch_size": 2,
+  "batch_delay": 50,
+  "image": "pytorch/torchserve:cpu",
+  "workers": 4,
+  "backend_profiling": "True"
+}
