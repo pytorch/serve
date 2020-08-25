@@ -56,7 +56,7 @@ chmod 700 get_helm.sh
 
 Your output should look similar to
 
-persistentvolumeclaim/modelStoreClaim created
+persistentvolumeclaim/model-store-claim created
 
 Verify that the PVC / PV is created by excuting.
 
@@ -65,7 +65,7 @@ Verify that the PVC / PV is created by excuting.
 Your output should look similar to
 
 NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
-persistentvolumeclaim/modelStoreClaim   Bound    pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            managed-premium   29s
+persistentvolumeclaim/model-store-claim   Bound    pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            managed-premium   29s
 
 NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                       STORAGECLASS      REASON   AGE
 persistentvolume/pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            Delete           Bound    default/model-store-claim   managed-premium            28s
@@ -78,7 +78,7 @@ Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that w
 
 Your output should look similar to
 
-pod/modelCtorePod created
+pod/model-store-pod created
 
 Verify that the pod is created by excuting.
 
@@ -87,7 +87,7 @@ Verify that the pod is created by excuting.
 Your output should look similar to
 
 NAME                               READY   STATUS    RESTARTS   AGE
-modelStorePod                    1/1     Running   0          39s
+model-store-pod                    1/1     Running   0          39s
 
 #### 2.4 Down and copy MAR / config files
 
@@ -95,17 +95,17 @@ modelStorePod                    1/1     Running   0          39s
 wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
 wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
 
-kubectl exec --tty pod/modelStorePod -- mkdir /mnt/azure/model-store/
-kubectl cp squeezenet1_1.mar modelStorePod:/mnt/azure/model-store/squeezenet1_1.mar
-kubectl cp mnist.mar modelStorePod:/mnt/azure/model-store/mnist.mar
+kubectl exec --tty pod/model-store-pod -- mkdir /mnt/azure/model-store/
+kubectl cp squeezenet1_1.mar model-store-pod:/mnt/azure/model-store/squeezenet1_1.mar
+kubectl cp mnist.mar model-store-pod:/mnt/azure/model-store/mnist.mar
 
-kubectl exec --tty pod/modelStorePod -- mkdir /mnt/azure/config/
-kubectl cp config.properties modelStorePod:/mnt/azure/config/config.properties
+kubectl exec --tty pod/model-store-pod -- mkdir /mnt/azure/config/
+kubectl cp config.properties model-store-pod:/mnt/azure/config/config.properties
 ```
 
 Verify that the MAR / config files have been copied to the directory.
 
-`kubectl exec --tty pod/modelStorePod -- find /mnt/azure/`
+`kubectl exec --tty pod/model-store-pod -- find /mnt/azure/`
 
 Your output should look similar to
 
@@ -119,7 +119,7 @@ Your output should look similar to
 
 #### 2.5 Delete pod and release the PVC
 
-`kubectl delete pod/modelStorePod`
+`kubectl delete pod/model-store-pod`
 
 Your output should look similar to
 

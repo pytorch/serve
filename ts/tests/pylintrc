@@ -388,7 +388,7 @@ max-args=5
 
 # Argument names that match this expression will be ignored. Default to name
 # with leading underscore
-ignored-argument-names=_.*
+ignored-argument-names=*.yaml
 
 # Maximum number of locals for function / method body
 max-locals=15
