@@ -1,0 +1,14 @@
+{
+  "url": "https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_Torchscript_batch.mar",
+  "requests": 10000,
+  "concurrency": 100,
+  "input": "../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt",
+  "exec_env": "docker",
+  "batch_size": 8,
+  "batch_delay": 50,
+  "image": "torchserve:gpu",
+  "content_type": "application/text",
+  "workers": 4,
+  "backend_profiling": "True",
+  "gpus": 4
+}
