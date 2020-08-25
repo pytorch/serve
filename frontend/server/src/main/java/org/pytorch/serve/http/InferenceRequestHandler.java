@@ -52,6 +52,9 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
                 switch (segments[1]) {
+                    case "v1":
+                        handleKfPredictions(ctx, req, segments);
+                        break;
                     case "ping":
                         ModelManager.getInstance().workerStatus(ctx);
                         break;
@@ -80,10 +83,12 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                                 || segments[1].equals("predictions")
                                 || segments[1].equals("api-description")
                                 || segments[1].equals("invocations")
+                                || segments[1].equals("v1")
                                 || endpointMap.containsKey(segments[1])))
                 || (segments.length == 4 && segments[1].equals("models"))
                 || (segments.length == 3 && segments[2].equals("predict"))
-                || (segments.length == 4 && segments[3].equals("predict"));
+                || (segments.length == 4 && segments[3].equals("predict"))
+                || (segments.length == 4 && segments[2].equals("models"));
     }
 
     private void validatePredictionsEndpoint(String[] segments) {
@@ -107,11 +112,28 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
         String modelVersion = null;
 
-        if (segments.length == 4) {
+
+        if (segments.length == 4)  {
             modelVersion = segments[3];
         }
 
         predict(ctx, req, null, segments[2], modelVersion);
+    }
+    private void handleKfPredictions(
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        if (segments.length < 3) {
+            throw new ResourceNotFoundException();
+        }
+
+        String modelVersion = null;
+
+
+        if (segments.length == 5)  {
+            modelVersion = segments[4];
+        }
+        String model_name = segments[3].split(":")[0];
+        predict(ctx, req, null, model_name, modelVersion);
     }
 
     private void handleInvocations(
