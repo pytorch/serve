@@ -36,7 +36,7 @@ spec:
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:
-          claimName: model-store-claim
+          claimName: modelStoreClaim
       containers:
       - name: torchserve
         image: {{ .Values.torchserve_image }}

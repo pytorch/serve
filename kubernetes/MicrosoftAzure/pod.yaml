@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: model-store-pod
+  name: modelStorePod
 spec:
   volumes:
-    - name: model-store
+    - name: modelStore
       persistentVolumeClaim:
-        claimName: model-store-claim
+        claimName: modelStoreClaim
   containers:
     - name: model-store
       image: ubuntu
@@ -21,5 +21,5 @@ spec:
           memory: 256Mi
       volumeMounts:
         - mountPath: "/mnt/azure"
-          name: model-store
+          name: modelStore
 
