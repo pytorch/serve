@@ -221,7 +221,7 @@ ignore-imports=no
 
 [VARIABLES]
 
-# Tells whether we sCould not install packages due to an EnvironmentError: [Errno 13] Permission denied:hould check for unused import in __init__ files.
+# Tells whether we should check for unused import in __init__ files.
 init-import=no
 
 # A regular expression matching the name of dummy variables (i.e. expectedly
