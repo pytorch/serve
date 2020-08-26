@@ -1146,7 +1146,6 @@ public class ModelServerTest {
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
-        Assert.assertEquals(resp.getMessage(), "Model not found in model store: InvalidUrl");
     }
 
     @Test(
