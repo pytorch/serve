@@ -20,7 +20,7 @@ def get_boto_resource(service_name):
     return client
 
 
-def start_ec2_instance(key_name, security_group, subnet_id, instance_type='cpu'):
+def start_ec2_instance(key_name, ami, security_group, subnet_id, instance_type='cpu'):
     print("Starting {} EC2 instance".format(instance_type))
     ec2_client = get_boto_client('ec2')
     instances = ec2_client.run_instances(
@@ -34,7 +34,7 @@ def start_ec2_instance(key_name, security_group, subnet_id, instance_type='cpu')
                 },
             },
         ],
-        ImageId='ami-0dc2264cd927ca9eb',
+        ImageId=ami,
         InstanceType='c4.4xlarge' if instance_type == "cpu" else "p3.8xlarge",
         KeyName=key_name,
         MaxCount=1,
@@ -101,30 +101,42 @@ def run_benchmark(key_file, public_ip_address, branch, model_name, model_mode, b
     print("Cloning serve repo...")
     command = 'git clone https://github.com/pytorch/serve.git && cd serve && git checkout {}'.format(branch)
 
+    print("Executing command  : {}".format(command))
     stdin, stdout, stderr = client.exec_command(command)
 
-    stdout.channel.recv_exit_status()
+    exit_status = stdout.channel.recv_exit_status()
+
+    if exit_status != 0:
+        print(stdout.read())
+        print(stderr.read())
 
     print("TorchServe repo cloned.")
     print("Creating docker image...")
     command = 'cd serve/docker && ./build_image.sh' \
-              ' {docker_type} --branch_name {branch_name} --tag torchserve:{tag_name}' \
+              ' {docker_type} --branch_name {branch_name} --tag pytorch/torchserve:{tag_name}' \
         .format(docker_type="--gpu" if instance_type == "gpu" else "",
                 branch_name=branch,
                 tag_name=instance_type
                 )
-
+    print("Executing command  : {}".format(command))
     stdin, stdout, stderr = client.exec_command(command)
-    stdout.channel.recv_exit_status()
+    exit_status = stdout.channel.recv_exit_status()
+
+    if exit_status != 0:
+        print(stdout.read())
+        print(stderr.read())
 
     print("Docker image creation completed.")
     print("Installing benchmark dependencies...")
     command = 'cd serve/benchmarks' \
               ' && pip install -U -r requirements-ab.txt' \
               ' && sudo apt-get install -y apache2-utils'
-
+    print("Executing command  : {}".format(command))
     stdin, stdout, stderr = client.exec_command(command)
-    stdout.channel.recv_exit_status()
+    exit_status = stdout.channel.recv_exit_status()
+    if exit_status != 0:
+        print(stdout.read())
+        print(stderr.read())
 
     benchmark_config_path = "preset_configs/{model_name}/{instance_type}/{model_mode}_batch_{batch_size}.json".format(
         model_name=model_name,
@@ -135,14 +147,18 @@ def run_benchmark(key_file, public_ip_address, branch, model_name, model_mode, b
 
     print("Benchmark dependency installation completed.")
     print("Running benchmark...")
-    command = 'cd serve/benchmarks && python benchmark-ab.py --exec_env docker --image pytorch/torchserve:dev-cpu' \
-              ' --workers 4 --concurrency 10 --requests 100'
-
+    command = 'cd serve/benchmarks && python benchmark-ab.py --config {}'.format(benchmark_config_path)
+    print("Executing command  : {}".format(command))
     stdin, stdout, stderr = client.exec_command(command)
-    stdout.channel.recv_exit_status()
+    exit_status = stdout.channel.recv_exit_status()
+
+    if exit_status != 0:
+        print(stdout.read())
+        print(stderr.read())
 
     print("Benchmark execution completed... Collecting results...")
     command = 'cat /tmp/benchmark/ab_report.csv'
+    print("Executing command  : {}".format(command))
     stdin, stdout, stderr = client.exec_command(command)
     print(stdout.read())
 
@@ -167,12 +183,14 @@ def terminate_ec2_instance(ec2_instance_id):
 @click.option('--model_name', '-mn', default='vgg11', help='vgg11/fastrcnn/bert. Default vgg11')
 @click.option('--model_mode', '-bs', default='eager', help='eager/scripted. Default eager.')
 @click.option('--batch_size', '-bs', default=1, help='1/2/4/8. Default 1.')
-@click.option('--ec2_key_file', '-bs', required=True, help='Path to pem file to be used for instantiating EC2')
-@click.option('--subnet_id', '-bs', required=True, help='Subnet ID to use for EC2 instance')
-@click.option('--security_group_id', '-bs', required=True, help='Security Group ID to use for EC2 instance')
-def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ec2_key_file, subnet_id, security_group_id):
-    key_name = ec2_key_file.split("/")[-1].split(".")[-1]
-    ec2_instance_id = start_ec2_instance(key_name, security_group_id, subnet_id, instance_type)
+@click.option('--ami', '-a', default='ami-079d181e97ab77906', help='AMI to use for EC2 instance. Default '
+                                                                   'ami-079d181e97ab77906')
+@click.option('--ec2_key_file', '-k', required=True, help='Path to pem file to be used for instantiating EC2')
+@click.option('--subnet_id', '-s', required=True, help='Subnet ID to use for EC2 instance')
+@click.option('--security_group_id', '-sg', required=True, help='Security Group ID to use for EC2 instance')
+def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ami, ec2_key_file, subnet_id, security_group_id):
+    key_name = ec2_key_file.split("/")[-1].split(".")[0]
+    ec2_instance_id = start_ec2_instance(key_name, ami, security_group_id, subnet_id, instance_type)
     public_ip_address = get_instance_meta(ec2_instance_id)
     run_benchmark(ec2_key_file, public_ip_address, branch, model_name, model_mode, batch_size, instance_type)
     terminate_ec2_instance(ec2_instance_id)
