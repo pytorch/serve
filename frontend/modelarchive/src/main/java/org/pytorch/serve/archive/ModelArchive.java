@@ -77,9 +77,9 @@ public class ModelArchive {
             }
         }
 
-	if(new File(url).isDirectory()) {
-	    return load(url, new File(url), false);
-	}
+        if (new File(url).isDirectory()) {
+            return load(url, new File(url), false);
+        }
 
         throw new ModelNotFoundException("Model not found at: " + url);
     }
