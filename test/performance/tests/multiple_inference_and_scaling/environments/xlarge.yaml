@@ -49,7 +49,7 @@ settings:
 
     CONCURRENCY : 10
     RAMP-UP : 1s
-    HOLD-FOR : 300s
+    HOLD-FOR : 60s
     SCRIPT : multiple_inference_and_scaling.jmx
 
     STOP :  ''    #possible values true, false. Bug in bzt so for false use ''

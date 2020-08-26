@@ -42,7 +42,7 @@ settings:
 
     CONCURRENCY : 10
     RAMP-UP : 1s
-    HOLD-FOR : 300s
+    HOLD-FOR : 60s
 
     STOP :  ''    #possible values true, false. Bug in bzt so for false use ''
     STOP_ALIAS: continue  #possible values continue, stop

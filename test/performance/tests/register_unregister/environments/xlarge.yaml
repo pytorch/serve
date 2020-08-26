@@ -44,7 +44,7 @@ settings:
 
     CONCURRENCY : 1
     RAMP-UP : 1s
-    ITERATIONS : 1400 #approximately runs for 5 mins
+    ITERATIONS : 280 #approximately runs for 1 min
     SCRIPT : register_unregister.jmx
 
     STOP : false    #possible values true, false. Bug in bzt so for false use ''
