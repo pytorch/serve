@@ -112,8 +112,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
         String modelVersion = null;
 
-
-        if (segments.length == 4)  {
+        if (segments.length == 4) {
             modelVersion = segments[3];
         }
 
