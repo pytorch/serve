@@ -348,6 +348,33 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testSetDefaultVersionNoop"})
+    public void testLoadModelWithNakedDirModelArchive() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        testUnregisterModel("noop", null);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models");
+        req.headers().add("Content-Type", "application/json");
+        req.content()
+                .writeCharSequence("{'url':'" 
+				+ configManager.getModelStore() 
+				+ "/noop_no_archive/noop/" 
+				+ "', 'model_name':'noop', 'initial_workers':'1', 'synchronous':'true'}",
+				CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        channel.writeAndFlush(req);
+        TestUtils.getLatch().await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+	System.out.println(resp.getStatus());
+        Assert.assertEquals(
+                resp.getStatus(), "Model \"noop\" Version: 1.11 registered with 1 initial workers");
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testNoopPrediction"})
     public void testPredictionsBinary() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
