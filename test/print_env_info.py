@@ -15,12 +15,12 @@ except (ImportError, NameError, AttributeError):
     TORCH_AVAILABLE = False
 
 torchserve_env = {
-    "torch" : "**Warning torch not present ..",
-    "torch_model_archiver" : "**Warning torch-model-archiver not installed ..",
-    "torchserve" : "**Warning torchserve not installed ..",
-    "torchtext" : "**Warning torchtext not present ..",
-    "torchvision" : "**Warning torchvision not present ..",
-    "torchaudio" : "**Warning torchaudio not present .."
+    "torch" : "**Warning: torch not present ..",
+    "torch_model_archiver" : "**Warning: torch-model-archiver not installed ..",
+    "torchserve" : "**Warning: torchserve not installed ..",
+    "torchtext" : "**Warning: torchtext not present ..",
+    "torchvision" : "**Warning: torchvision not present ..",
+    "torchaudio" : "**Warning: torchaudio not present .."
 }
 
 python_env = {
@@ -63,7 +63,7 @@ def run_and_read_all(run, command):
     """Reads and returns entire output if rc is 0"""
     rc, out, _ = run(command)
     if rc != 0:
-        return None
+        return "N/A"
     return out
 
 def run_and_parse_first_match(run, command, regex):
