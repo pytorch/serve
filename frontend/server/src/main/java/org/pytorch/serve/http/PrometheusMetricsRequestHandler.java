@@ -40,7 +40,8 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String[] segments)
+            String[] segments,
+            long apiStarTime)
             throws ModelException {
         if (segments.length >= 2 && "metrics".equals(segments[1])) {
             ByteBuf resBuf = Unpooled.directBuffer();
@@ -63,7 +64,7 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             resp.headers().set(HttpHeaderNames.CONTENT_TYPE, TextFormat.CONTENT_TYPE_004);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         } else {
-            chain.handleRequest(ctx, req, decoder, segments);
+            chain.handleRequest(ctx, req, decoder, segments, apiStarTime);
         }
     }
 }

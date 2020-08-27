@@ -7,6 +7,8 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.util.NettyUtils;
@@ -109,6 +111,7 @@ public class Job {
                 "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
                 System.nanoTime() - scheduled);
+        logger.info("Queue time in ms (waiting Time) :"+TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
     }
 
     public void sendError(HttpResponseStatus status, String error) {

@@ -123,6 +123,7 @@ public class WorkerThread implements Runnable {
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
+                long WTStartTime  = System.currentTimeMillis();
                 backendChannel.writeAndFlush(req).sync();
 
                 long begin = System.currentTimeMillis();
@@ -160,6 +161,7 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
+                logger.info("Worker Thread Time: "+((System.currentTimeMillis()-WTStartTime)-duration));
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);

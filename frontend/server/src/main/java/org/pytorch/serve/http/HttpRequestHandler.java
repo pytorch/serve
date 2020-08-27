@@ -28,10 +28,13 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         handlerChain = chain;
     }
 
+    public long apiStartTime;
+
     /** {@inheritDoc} */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
         try {
+            apiStartTime= System.currentTimeMillis();
             NettyUtils.requestReceived(ctx.channel(), req);
             if (!req.decoderResult().isSuccess()) {
                 throw new BadRequestException("Invalid HTTP message.");
@@ -40,7 +43,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             String path = decoder.path();
 
             String[] segments = path.split("/");
-            handlerChain.handleRequest(ctx, req, decoder, segments);
+            handlerChain.handleRequest(ctx, req, decoder, segments, apiStartTime);
         } catch (ResourceNotFoundException
                 | ModelNotFoundException
                 | ModelVersionNotFoundException e) {
