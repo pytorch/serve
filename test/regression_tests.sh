@@ -4,7 +4,7 @@ set -x
 #set -e
 
 TS_REPO="https://github.com/pytorch/serve"
-BRANCH=${1:-master}
+BRANCH=${2:-master}
 ROOT_DIR="/workspace/"
 CODEBUILD_WD=$(pwd)
 MODEL_STORE=$ROOT_DIR"/model_store"
@@ -42,7 +42,7 @@ do
 done
 
 echo
-python print_env_info.py
+python3 print_env_info.py $BRANCH
 
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
