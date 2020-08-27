@@ -807,10 +807,9 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         Assert.assertNotNull(channel);
 
-        TestUtils.unregisterModel(channel, "pred-err", null, false);
+        TestUtils.unregisterModel(channel, "pred-err", null, true);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        channel.close();
     }
 
     @Test(
