@@ -4,7 +4,7 @@ set -euxo pipefail
 source scripts/install_utils
 
 echo
-python3 test/print_env_info.py
+python3 test/print_env_info.py sanity
 
 cleanup()
 {

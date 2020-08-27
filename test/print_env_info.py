@@ -209,19 +209,27 @@ def get_nvidia_smi():
     smi = 'nvidia-smi'
     return smi
 
-def get_torchserve_version():
+def get_torchserve_version(test_suite):
     #fetch the torchserve version from version.txt file
-    with open("../ts/version.txt", 'r') as file:
-        version = file.readline().rstrip()
+    if test_suite == "sanity":
+        with open("ts/version.txt", 'r') as file:
+            version = file.readline().rstrip()
+    else:
+        with open("../ts/version.txt", 'r') as file:
+            version = file.readline().rstrip()
     return version
 
-def get_torch_model_archiver():
+def get_torch_model_archiver(test_suite):
     #fetch the torch-model-archiver version from version.txt file  
-    with open("../model-archiver/model_archiver/version.txt", 'r') as file:
-        version = file.readline().rstrip()
+    if test_suite == "sanity":
+        with open("model-archiver/model_archiver/version.txt", 'r') as file:
+            version = file.readline().rstrip()
+    else:
+        with open("../model-archiver/model_archiver/version.txt", 'r') as file:
+            version = file.readline().rstrip()
     return version
 
-def populate_torchserve_env(torch_pkg):
+def populate_torchserve_env(test_suite, torch_pkg):
     for pkg in torch_pkg:
         if pkg.split("==")[0] == "torch":
             torchserve_env["torch"] = pkg
@@ -232,8 +240,8 @@ def populate_torchserve_env(torch_pkg):
         if pkg.split("==")[0] == "torchvision":
             torchserve_env["torchvision"] = pkg
 
-    torchserve_env["torchserve"] = "torchserve==" + get_torchserve_version()
-    torchserve_env["torch_model_archiver"] = "torch-model-archiver==" + get_torch_model_archiver()
+    torchserve_env["torchserve"] = "torchserve==" + get_torchserve_version(test_suite)
+    torchserve_env["torch_model_archiver"] = "torch-model-archiver==" + get_torch_model_archiver(test_suite)
 
 def populate_python_env(pip_version, pip_list_output):
     python_env["python_version"] = '{}.{} ({}-bit runtime)'.format(sys.version_info[0], sys.version_info[1], sys.maxsize.bit_length() + 1)
@@ -256,11 +264,11 @@ def populate_cuda_env(cuda_available_str):
     cuda_env["nvidia_driver_version"] = get_nvidia_driver_version(run)
     cuda_env["cudnn_version"] = get_cudnn_version(run)
 
-def populate_env_info():
+def populate_env_info(test_suite):
     #torchserve packages
     _, torch_list_output = get_pip_packages(run,"torch")
     if torch_list_output is not None:
-        populate_torchserve_env(torch_list_output.split("\n"))
+        populate_torchserve_env(test_suite, torch_list_output.split("\n"))
 
     #python packages
     pip_version, pip_list_output = get_pip_packages(run)
@@ -311,10 +319,10 @@ Nvidia driver version: {nvidia_driver_version}
 cuDNN version: {cudnn_version}
 """
 
-def get_pretty_env_info(torchserve_branch):
+def get_pretty_env_info(test_suite, torchserve_branch):
     global env_info_fmt
     global cuda_info_fmt
-    populate_env_info()
+    populate_env_info(test_suite)
     env_dict = {**torchserve_env, **python_env, **java_env, **os_info}
     env_dict["torchserve_branch"] = torchserve_branch
 
@@ -324,13 +332,15 @@ def get_pretty_env_info(torchserve_branch):
 
     return env_info_fmt.format(**env_dict)
 
-def main(torchserve_branch):
-    output = get_pretty_env_info(torchserve_branch)
+def main(test_suite, torchserve_branch):
+    output = get_pretty_env_info(test_suite, torchserve_branch)
     print(output)
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        torchserve_branch = sys.argv[1]
+    if len(sys.argv) > 2:
+        test_suite = sys.argv[1]
+        torchserve_branch = sys.argv[2]
     else:
+        test_suite = sys.argv[1]
         torchserve_branch = "master"
-    main(torchserve_branch)
+    main(test_suite, torchserve_branch)

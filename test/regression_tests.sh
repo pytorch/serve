@@ -42,7 +42,7 @@ do
 done
 
 echo
-python3 print_env_info.py $BRANCH
+python3 print_env_info.py regression $BRANCH
 
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
