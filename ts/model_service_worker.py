@@ -129,6 +129,8 @@ class TorchModelServiceWorker(object):
         if not DEBUG:
             self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)
         else:
