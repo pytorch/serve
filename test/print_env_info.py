@@ -16,8 +16,8 @@ except (ImportError, NameError, AttributeError):
 
 torchserve_env = {
     "torch" : "**Warning torch not present ..",
-    "torch_model_archiver" : "N/A",
-    "torchserve" : "N/A",
+    "torch_model_archiver" : "**Warning torch-model-archiver not installed ..",
+    "torchserve" : "**Warning torchserve not installed ..",
     "torchtext" : "**Warning torchtext not present ..",
     "torchvision" : "**Warning torchvision not present ..",
     "torchaudio" : "**Warning torchaudio not present .."
@@ -210,7 +210,7 @@ def get_nvidia_smi():
     return smi
 
 def get_torchserve_version():
-    version = "**Warning: torchserve not installed..."
+    #fetch the torchserve version from version.txt file
     try:
         f = open("../ts/version.txt", 'r')
         version = f.readline().rstrip()
@@ -221,7 +221,7 @@ def get_torchserve_version():
     return version
 
 def get_torch_model_archiver():
-    version = "**Warning: torch-model-archiver not installed..."
+    #fetch the torch-model-archiver version from version.txt file
     try:
         f = open("../model-archiver/model_archiver/version.txt", 'r')
         version = f.readline().rstrip()
