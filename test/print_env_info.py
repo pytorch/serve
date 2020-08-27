@@ -211,24 +211,14 @@ def get_nvidia_smi():
 
 def get_torchserve_version():
     #fetch the torchserve version from version.txt file
-    try:
-        f = open("../ts/version.txt", 'r')
-        version = f.readline().rstrip()
-    except:
-        print("Exception : version.txt file not found !!!")
-    finally:
-        f.close()
+    with open("../ts/version.txt", 'r') as file:
+        version = file.readline().rstrip()
     return version
 
 def get_torch_model_archiver():
-    #fetch the torch-model-archiver version from version.txt file
-    try:
-        f = open("../model-archiver/model_archiver/version.txt", 'r')
-        version = f.readline().rstrip()
-    except:
-        print("Exception : version.txt file not found !!!")
-    finally:
-        f.close()
+    #fetch the torch-model-archiver version from version.txt file  
+    with open("../model-archiver/model_archiver/version.txt", 'r') as file:
+        version = file.readline().rstrip()
     return version
 
 def populate_torchserve_env(torch_pkg):
