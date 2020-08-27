@@ -210,6 +210,7 @@ def get_nvidia_smi():
     return smi
 
 def get_torchserve_version():
+    version = "**Warning: torchserve not installed..."
     try:
         f = open("../ts/version.txt", 'r')
         version = f.readline().rstrip()
@@ -220,6 +221,7 @@ def get_torchserve_version():
     return version
 
 def get_torch_model_archiver():
+    version = "**Warning: torch-model-archiver not installed..."
     try:
         f = open("../model-archiver/model_archiver/version.txt", 'r')
         version = f.readline().rstrip()
@@ -267,7 +269,8 @@ def populate_cuda_env(cuda_available_str):
 def populate_env_info():
     #torchserve packages
     _, torch_list_output = get_pip_packages(run,"torch")
-    populate_torchserve_env(torch_list_output.split("\n"))
+    if torch_list_output is not None:
+        populate_torchserve_env(torch_list_output.split("\n"))
 
     #python packages
     pip_version, pip_list_output = get_pip_packages(run)
