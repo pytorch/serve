@@ -19,7 +19,7 @@ class ObjectDetector(VisionHandler):
     threshold = 0.5
 
     def initialize(self, context):
-        super(ObjectDetector, self).initialize(context)
+        super().initialize(context)
 
         # Torchvision breaks with object detector models before 0.6.0
         if version.parse(torchvision_version) < version.parse("0.6.0"):
