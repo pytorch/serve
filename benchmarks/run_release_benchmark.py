@@ -1,5 +1,6 @@
 import boto3
 import click
+import os
 import paramiko
 import time
 
@@ -160,7 +161,16 @@ def run_benchmark(key_file, public_ip_address, branch, model_name, model_mode, b
     command = 'cat /tmp/benchmark/ab_report.csv'
     print("Executing command  : {}".format(command))
     stdin, stdout, stderr = client.exec_command(command)
-    print(stdout.read())
+
+    report_path = '/tmp/benchmark'
+    if not os.path.exists(report_path):
+        os.makedirs(report_path)
+
+    report_file = '{}/{}_{}_{}.csv'.format(report_path, model_name, model_mode, batch_size)
+
+    with open(report_file, 'w') as rf:
+        for line in stdout.readlines():
+            rf.write(line)
 
     client.close()
 
@@ -180,11 +190,13 @@ def terminate_ec2_instance(ec2_instance_id):
 @click.command()
 @click.option('--branch', '-b', default='master', help='Branch on which benchmark is to be executed. Default master')
 @click.option('--instance_type', '-i', default='cpu', help='CPU/GPU instance type. Default CPU.')
-@click.option('--model_name', '-mn', default='vgg11', help='vgg11/fastrcnn/bert. Default vgg11')
-@click.option('--model_mode', '-bs', default='eager', help='eager/scripted. Default eager.')
-@click.option('--batch_size', '-bs', default=1, help='1/2/4/8. Default 1.')
-@click.option('--ami', '-a', default='ami-079d181e97ab77906', help='AMI to use for EC2 instance. Default '
-                                                                   'ami-079d181e97ab77906')
+@click.option('--model_name', '-mn', default='vgg11', type=click.Choice(['vgg11', 'fastrcnn', 'bert']),
+              help='vgg11/fastrcnn/bert. Default vgg11')
+@click.option('--model_mode', '-bs', default='eager',type=click.Choice(['eager', 'scripted']),
+              help='eager/scripted. Default eager.')
+@click.option('--batch_size', '-bs', default=1, type=click.Choice([1, 2, 4, 8]), help='1/2/4/8. Default 1.')
+@click.option('--ami', '-a', default='ami-079d181e97ab77906',
+              help='AMI to use for EC2 instance. Default ami-079d181e97ab77906')
 @click.option('--ec2_key_file', '-k', required=True, help='Path to pem file to be used for instantiating EC2')
 @click.option('--subnet_id', '-s', required=True, help='Subnet ID to use for EC2 instance')
 @click.option('--security_group_id', '-sg', required=True, help='Security Group ID to use for EC2 instance')
