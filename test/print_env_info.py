@@ -70,10 +70,10 @@ def run_and_parse_first_match(run, command, regex):
     """Returns the first regex match if it exists"""
     rc, out, _ = run(command)
     if rc != 0:
-        return None
+        return "N/A"
     match = re.search(regex, out)
     if match is None:
-        return None
+        return "N/A"
     return match.group(1)
 
 def get_pip_packages(run, package_name=None):
@@ -340,7 +340,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         test_suite = sys.argv[1]
         torchserve_branch = sys.argv[2]
+        main(test_suite, torchserve_branch)
     else:
-        test_suite = sys.argv[1]
-        torchserve_branch = "master"
-    main(test_suite, torchserve_branch)
+        print("Environment headers skipped.")

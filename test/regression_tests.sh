@@ -4,7 +4,7 @@ set -x
 #set -e
 
 TS_REPO="https://github.com/pytorch/serve"
-BRANCH=${2:-master}
+BRANCH="master"
 ROOT_DIR="/workspace/"
 CODEBUILD_WD=$(pwd)
 MODEL_STORE=$ROOT_DIR"/model_store"
@@ -41,8 +41,6 @@ do
     esac
 done
 
-echo
-python3 print_env_info.py regression $BRANCH
 
 install_torchserve_from_source() {
   echo "Cloning & Building Torchserve Repo from " $1
@@ -180,9 +178,14 @@ cd $ROOT_DIR
 
 sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
 
+install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
+
+echo
+python3 print_env_info.py regression $BRANCH
+echo
+
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
-install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
