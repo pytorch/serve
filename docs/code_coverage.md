@@ -71,7 +71,7 @@ Run following commands to install node and [`markdown-link-check`](https://githu
 
 For Linux :
 ```
-sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
+sudo apt-get -y install nodejs-dev
 sudo apt-get -y install npm
 ```
 
