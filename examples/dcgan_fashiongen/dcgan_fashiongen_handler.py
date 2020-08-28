@@ -17,6 +17,7 @@ class ModelHandler(BaseHandler):
         self.use_gpu = True
         self.store_avg = True
         self.dcgan_model = None
+        self.default_number_of_images = 1
 
     def initialize(self, context):
         properties = context.system_properties
@@ -46,12 +47,15 @@ class ModelHandler(BaseHandler):
     def preprocess(self, requests):
         preprocessed_data = []
         for req in requests:
-            data = req.get("data") if req.get("data") is not None else req.get("body")
-            number_of_images = data["number_of_images"]
-            random_input, random_labels = self.dcgan_model.buildNoiseData(number_of_images)
+            data = req.get("data") if req.get("data") is not None else req.get("body", {})
+
+            number_of_images = data.get("number_of_images", self.default_number_of_images)
+            labels = {ky: "b'{}'".format(vl) for ky, vl  in data.items() if ky not in ["number_of_images"]}
+
+            input = self.dcgan_model.buildNoiseDataWithConstraints(number_of_images,labels)
             preprocessed_data.append({
                 "number_of_images" : number_of_images,
-                "input" : random_input
+                "input" : input
             })
         return preprocessed_data
 
