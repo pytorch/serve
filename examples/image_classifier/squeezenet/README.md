@@ -16,27 +16,27 @@ curl http://127.0.0.1:8080/predictions/squeezenet1_1 -T examples/image_classifie
 * Save the Squeezenet1_1 model in as an executable script module or a traced script:
 
   * Save model using scripting
-```python
-#scripted mode
-from torchvision import models
-import torch
-model = models.squeezenet1_1(pretrained=True)
-sm = torch.jit.script(model)
-sm.save("squeezenet1_1.pt")
-```
+    ```python
+    #scripted mode
+    from torchvision import models
+    import torch
+    model = models.squeezenet1_1(pretrained=True)
+    sm = torch.jit.script(model)
+    sm.save("squeezenet1_1.pt")
+    ```
 
   * Save model using tracing
-```python
-#traced mode
-from torchvision import models
-import torch
-model = models.squeezenet1_1(pretrained=True)
-model.eval()
-example_input = torch.rand(1, 3, 224, 224)
-traced_script_module = torch.jit.trace(model, example_input)
-traced_script_module.save("squeezenet1_1.pt")
-``` 
- 
+    ```python
+    #traced mode
+    from torchvision import models
+    import torch
+    model = models.squeezenet1_1(pretrained=True)
+    model.eval()
+    example_input = torch.rand(1, 3, 224, 224)
+    traced_script_module = torch.jit.trace(model, example_input)
+    traced_script_module.save("squeezenet1_1.pt")
+    ```
+
 * Use following commands to register Squeezenet1_1 torchscript model on TorchServe and run image prediction
 
 ```bash
