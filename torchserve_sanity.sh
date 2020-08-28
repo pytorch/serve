@@ -31,7 +31,7 @@ setup()
   branch_head=${branch:2}
 
   echo
-  python3 test/print_env_info.py sanity $branch_head
+  python3 test/print_env_info.py $branch_head
 }
 
 setup

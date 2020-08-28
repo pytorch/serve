@@ -172,19 +172,19 @@ run_pytest() {(
 
 )}
 
+echo
+python3 test/print_env_info.py $BRANCH
+echo
+
 sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
 
 sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
 
-install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
-
-echo
-python3 print_env_info.py regression $BRANCH
-echo
-
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
+
+install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
 
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
