@@ -22,7 +22,7 @@ Run the commands given in following steps from the parent directory of the root 
  * Step - 4: Create a torch model archive using the torch-model-archiver utility to archive the above files.
  
     ```bash
-    torch-model-archiver --model-name mnist --version 1.0 --model-file ./serve/examples/image_classifier/mnist/mnist.py --serialized-file ./serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  ./serve/examples/image_classifier/mnist/mnist_handler.py
+    torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
     ```
    
  * Step - 5: Register the model on TorchServe using the above model archive file and run digit recognition inference
@@ -31,6 +31,6 @@ Run the commands given in following steps from the parent directory of the root 
     mkdir model_store
     mv mnist.mar model_store/
     torchserve --start --model-store model_store --models mnist=mnist.mar
-    curl http://127.0.0.1:8080/predictions/mnist -T ./serve/examples/image_classifier/mnist/test_data/0.png
+    curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
