@@ -55,7 +55,8 @@ def json_provider(file_path, cmd_name):
 @click.option('--workers', '-w', default=1, help='Number model workers')
 @click.option('--image', '-di', default='', help='Use custom docker image for benchmark')
 @click.option('--docker_runtime', '-dr', default='', help='Specify required docker runtime')
-@click.option('--backend_profiling', '-bp', default=False, help='Enable backend profiling using CProfile. Default False')
+@click.option('--backend_profiling', '-bp', default=False,
+              help='Enable backend profiling using CProfile. Default False')
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
@@ -230,21 +231,33 @@ def generate_report():
     extract_prediction_latency()
     generate_csv_output()
     generate_latency_graph()
+    generate_profile_graph()
     click.secho("\nTest suite execution complete.", fg='green')
 
 
+metrics = {"predict.txt": "PredictionTime",
+           "frontend.txt": "Frontend Time:",
+           "overall_predict.txt": "Overall Prediction Time",
+           "handler_time.txt": "Handler Time ",
+           "waiting_time.txt": "Queue time in ms ",
+           "worker_thread.txt": "Worker Thread Time"}
+
+
 def extract_prediction_latency():
-    pattern = re.compile("PredictionTime")
-    all_lines = []
     with open(metric_log) as f:
         lines = f.readlines()
-    for line in lines:
-        if pattern.search(line):
-            all_lines.append(line.split("|")[0].split(':')[3].strip())
 
-    with  open('/tmp/benchmark/predict.txt', 'w') as outf:
-        all_lines = map(lambda x: x + '\n', all_lines)
-        outf.writelines(all_lines)
+    for k, v in metrics.items():
+        all_lines = []
+        pattern = re.compile(v)
+        for line in lines:
+            if pattern.search(line):
+                all_lines.append(line.split("|")[0].split(':')[3].strip())
+
+        click.secho(f"\nWriting extracted {v} metrics to {k} ", fg='green')
+        with open(f'/tmp/benchmark/{k}', 'w') as outf:
+            all_lines = map(lambda x: x + '\n', all_lines)
+            outf.writelines(all_lines)
 
 
 def generate_csv_output():
@@ -274,6 +287,10 @@ def generate_csv_output():
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
 
+    for m  in metrics:
+        df = pd.read_csv(f"/tmp/benchmark/{m}", header=None, names=['data'])
+        artifacts[m.split('.txt')[0]+"_mean"]=df['data'].values.mean().round(2)
+
     with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
         csvwriter.writerow(artifacts.keys())
@@ -299,6 +316,52 @@ def generate_latency_graph():
     plt.title('Prediction latency')
     plt.bar(iteration, latency)
     plt.savefig("/tmp/benchmark/predict_latency.png")
+
+
+def generate_profile_graph():
+    click.secho("*Preparing Profile graphs...", fg='green')
+
+    Plot_meta = {}
+    for m in metrics:
+        df = pd.read_csv(f'/tmp/benchmark/{m}', header=None, names=['latency'])
+        m = m.split('.txt')[0]
+        Plot_meta[f"{m}_index"] = df.index
+        Plot_meta[f"{m}_values"] = df.values
+
+    if execution_params['requests'] > 100:
+        sampling= int(execution_params['requests']/100)
+    else:
+        sampling=1
+    print(f"Working with sampling rate of {sampling}")
+
+    a4_dims = (11.7, 8.27)
+    fig, axs = plt.subplots(3, 2, sharex=True, figsize=a4_dims)
+    axs[0, 0].set_title('Frontend Time')
+    axs[0, 0].plot(Plot_meta["frontend_values"][::sampling])
+
+    # Queue Time
+    axs[0, 1].set_title('Queue Time')
+    axs[0, 1].plot(Plot_meta["waiting_time_values"][::sampling], 'tab:pink')
+
+    # handler Predict Time
+    axs[1, 0].set_title('Handler Time')
+    axs[1, 0].plot(Plot_meta["handler_time_values"][::sampling], 'tab:orange')
+
+    # Overall Predict
+    axs[1, 1].set_title('Overall Prediction Time')
+    axs[1, 1].plot(Plot_meta["overall_predict_values"][::sampling], 'tab:red')
+
+    # Worker time
+    axs[2, 0].set_title('Worker Thread Time')
+    axs[2, 0].plot(Plot_meta["worker_thread_values"][execution_params['workers']::sampling], 'tab:green')
+
+    # Plot in one graph
+    axs[2, 1].set_title('Combined Graph')
+    axs[2, 1].plot(Plot_meta["frontend_values"][::sampling])
+    axs[2, 1].plot(Plot_meta["waiting_time_values"][::sampling], 'tab:pink')
+    axs[2, 1].plot(Plot_meta["overall_predict_values"][::sampling], 'tab:red')
+    axs[2, 1].plot(Plot_meta["worker_thread_values"][execution_params['workers']::sampling], 'tab:green')
+    plt.savefig("/tmp/benchmark/api-profile.png")
 
 
 def stop_torchserve():
