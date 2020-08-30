@@ -10,6 +10,7 @@ import click
 import click_config_file
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import requests
 
 default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
@@ -287,9 +288,9 @@ def generate_csv_output():
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
 
-    for m  in metrics:
+    for m in metrics:
         df = pd.read_csv(f"/tmp/benchmark/{m}", header=None, names=['data'])
-        artifacts[m.split('.txt')[0]+"_mean"]=df['data'].values.mean().round(2)
+        artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
 
     with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
@@ -311,7 +312,9 @@ def generate_latency_graph():
     df = pd.read_csv('/tmp/benchmark/predict.txt', header=None, names=['latency'])
     iteration = df.index
     latency = df.latency
-    plt.xlabel('Requests ')
+    a4_dims = (11.7, 8.27)
+    plt.figure(figsize=(a4_dims))
+    plt.xlabel('Requests')
     plt.ylabel('Prediction time')
     plt.title('Prediction latency')
     plt.bar(iteration, latency)
@@ -321,46 +324,54 @@ def generate_latency_graph():
 def generate_profile_graph():
     click.secho("*Preparing Profile graphs...", fg='green')
 
-    Plot_meta = {}
+    plot_data = {}
     for m in metrics:
         df = pd.read_csv(f'/tmp/benchmark/{m}', header=None, names=['latency'])
         m = m.split('.txt')[0]
-        Plot_meta[f"{m}_index"] = df.index
-        Plot_meta[f"{m}_values"] = df.values
+        plot_data[f"{m}_index"] = df.index
+        plot_data[f"{m}_values"] = df.values
 
     if execution_params['requests'] > 100:
-        sampling= int(execution_params['requests']/100)
+        sampling = int(execution_params['requests'] / 100)
     else:
-        sampling=1
+        sampling = 1
     print(f"Working with sampling rate of {sampling}")
 
     a4_dims = (11.7, 8.27)
     fig, axs = plt.subplots(3, 2, sharex=True, figsize=a4_dims)
-    axs[0, 0].set_title('Frontend Time')
-    axs[0, 0].plot(Plot_meta["frontend_values"][::sampling])
+
+    def plot_line(qx, qy, data, scale=False, color='blue', title=None):
+        if title:
+            axs[qx, qy].set_title(title)
+        if scale:
+            plot_points = np.arange(0, 100, 100 / len(data))
+            x = plot_points[:len(data):sampling]
+            y = data[::sampling]
+            axs[qx, qy].plot(x, y, f'tab:{color}')
+        else:
+            axs[qx, qy].plot(data[::sampling], f'tab:{color}')
+
+    # Frontend time
+    plot_line(0, 0, plot_data["frontend_values"], title='Frontend Time')
 
     # Queue Time
-    axs[0, 1].set_title('Queue Time')
-    axs[0, 1].plot(Plot_meta["waiting_time_values"][::sampling], 'tab:pink')
+    plot_line(0, 1, plot_data["waiting_time_values"], color='pink', title='Queue Time')
 
     # handler Predict Time
-    axs[1, 0].set_title('Handler Time')
-    axs[1, 0].plot(Plot_meta["handler_time_values"][::sampling], 'tab:orange')
+    plot_line(1, 0, data=plot_data["handler_time_values"], scale=True, color='orange', title='Handler Time')
 
     # Overall Predict
-    axs[1, 1].set_title('Overall Prediction Time')
-    axs[1, 1].plot(Plot_meta["overall_predict_values"][::sampling], 'tab:red')
+    plot_line(1, 1, data=plot_data["predict_values"], scale=True, color='red', title='Overall prediction time')
 
     # Worker time
-    axs[2, 0].set_title('Worker Thread Time')
-    axs[2, 0].plot(Plot_meta["worker_thread_values"][execution_params['workers']::sampling], 'tab:green')
+    plot_line(2, 0, data=plot_data["worker_thread_values"], scale=True, color='red', title='Worker Thread Time')
 
     # Plot in one graph
-    axs[2, 1].set_title('Combined Graph')
-    axs[2, 1].plot(Plot_meta["frontend_values"][::sampling])
-    axs[2, 1].plot(Plot_meta["waiting_time_values"][::sampling], 'tab:pink')
-    axs[2, 1].plot(Plot_meta["overall_predict_values"][::sampling], 'tab:red')
-    axs[2, 1].plot(Plot_meta["worker_thread_values"][execution_params['workers']::sampling], 'tab:green')
+    plot_line(2, 1, data=plot_data["frontend_values"], title='Combined Graph')
+    plot_line(2, 1, data=plot_data["waiting_time_values"], color='pink')
+    plot_line(2, 1, data=plot_data["handler_time_values"], scale=True, color='orange')
+    plot_line(2, 1, data=plot_data["predict_values"], scale=True, color='red')
+    plot_line(2, 1, data=plot_data["worker_thread_values"], scale=True, color='red')
     plt.savefig("/tmp/benchmark/api-profile.png")
 
 
