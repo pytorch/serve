@@ -712,6 +712,38 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
+    public void testLoadModelFromFileURI() throws InterruptedException {
+        String curDir = System.getProperty("user.dir");
+        File curDirFile = new File(curDir);
+        String parent = curDirFile.getParent();
+
+        String source = configManager.getModelStore() + "/mnist.mar";
+        String destination = parent + "/modelarchive/mnist1.mar";
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination);
+        String fileUrl = "";
+        try {
+            FileUtils.copyFile(sourceFile, destinationFile);
+            fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), IOException.class);
+        }
+        testLoadModel(fileUrl, "mnist1", "1.0");
+        Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
+        FileUtils.deleteQuietly(destinationFile);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
+    public void testUnregisterFileURIModel() throws InterruptedException {
+        testUnregisterModel("mnist1", null);
+        Assert.assertFalse(new File(configManager.getModelStore(), "mnist1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
@@ -1492,7 +1524,8 @@ public class ModelServerTest {
     public void testTSValidPort()
             throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
                     IOException {
-        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
+        // test case for verifying port range refer
+        // https://github.com/pytorch/serve/issues/291
         ConfigManager.init(new ConfigManager.Arguments());
         ConfigManager configManagerValidPort = ConfigManager.getInstance();
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
@@ -1532,8 +1565,9 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testTSValidPort"})
     public void testTSInvalidPort() throws IOException {
-        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
-        //  invalid port test
+        // test case for verifying port range refer
+        // https://github.com/pytorch/serve/issues/291
+        // invalid port test
         ConfigManager.init(new ConfigManager.Arguments());
         ConfigManager configManagerInvalidPort = ConfigManager.getInstance();
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
