@@ -17,8 +17,6 @@ In this example, we have show how to serve a [English-to-German Translation](htt
     ```bash
     torchserve --start --model-store model_store --ts-config config.properties
     ```
-    Note:- Our model requires "fairseq" transformer modules to load the model from the model archive file. So we have added faiseq repo build as an additional dependency in requirements.txt file while creating the model archieve (.mar) file. And to make these additional dependency avaialble to each model we need to set "install_py_dep_per_model" property as "true" in config.properties file, by default this property is set to "false".
-
 
 * Use [Management API](https://github.com/pytorch/serve/blob/master/docs/management_api.md#management-api) to register the model with one initial worker
 
