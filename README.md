@@ -75,7 +75,7 @@ Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-#### For Debian Based Systems/ MacOS
+#### For Debian Based Systems/ MacOS / Windows
 
 ```
 ./scripts/install_from_src
