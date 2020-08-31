@@ -110,7 +110,7 @@ class TorchModelServiceWorker(object):
                 start_time = time.time()
                 resp = service.predict(msg)
                 stop_time = time.time()
-                logging.info(f"Overall Prediction Time : {round((stop_time - start_time) * 1000, 2)}")
+                service.context.metrics.add_time('Overall Prediction Time', round((stop_time - start_time) * 1000, 2), None, 'ms')
                 cl_socket.send(resp)
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)

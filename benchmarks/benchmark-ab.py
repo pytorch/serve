@@ -236,8 +236,7 @@ def generate_report():
     click.secho("\nTest suite execution complete.", fg='green')
 
 
-metrics = {"predict.txt": "PredictionTime",
-           "frontend.txt": "Frontend Time:",
+metrics = {"frontend.txt": "Frontend Time",
            "overall_predict.txt": "Overall Prediction Time",
            "handler_time.txt": "Handler Time ",
            "waiting_time.txt": "Queue time in ms ",

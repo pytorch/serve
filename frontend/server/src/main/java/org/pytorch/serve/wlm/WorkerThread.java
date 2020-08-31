@@ -161,7 +161,9 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
-                logger.info("Worker Thread Time: "+((System.currentTimeMillis()-WTStartTime)-duration));
+                String workerThreadTime= String.valueOf(((System.currentTimeMillis()-WTStartTime)-duration));
+                loggerTsMetrics.info(new Metric("WorkerThreadTime", workerThreadTime , "ms",
+                        ConfigManager.getInstance().getHostName(),  new Dimension("Level", "Host")));
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);

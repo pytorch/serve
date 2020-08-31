@@ -125,11 +125,12 @@ class BaseHandler(abc.ABC):
         start_time = time.time()
 
         self.context = context
+        metrics = self.context.metrics
 
         data = self.preprocess(data)
         data = self.inference(data)
         data = self.postprocess(data)
 
         stop_time = time.time()
-        logging.info(f"Handler Time : {round((stop_time - start_time) * 1000, 2)}")
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return data
