@@ -30,9 +30,9 @@ Invoke the predictions API and pass following payload(JSON)
 
 #### Example
 ```
-curl -X POST -d '{"number_of_images":64,"input_gender":"Men","input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img1.jpg
+curl -X POST -d '{"number_of_images":64, "input_gender":"Men", "input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img1.jpg
 
-curl -X POST -d '{"number_of_images":32,"input_gender":"Women","input_category":"DRESSES", "input_pose":"id_gridfs_3"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img2.jpg
+curl -X POST -d '{"number_of_images":32, "input_gender":"Women", "input_category":"DRESSES", "input_pose":"id_gridfs_3"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img2.jpg
 
 curl -X POST -d '{"number_of_images":4}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img3.jpg
 
