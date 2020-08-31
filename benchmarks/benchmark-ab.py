@@ -229,21 +229,22 @@ def update_exec_params(input_param):
 
 def generate_report():
     click.secho("\n\nGenerating Reports...", fg='green')
-    extract_prediction_latency()
+    extract_metrics()
     generate_csv_output()
     generate_latency_graph()
     generate_profile_graph()
     click.secho("\nTest suite execution complete.", fg='green')
 
 
-metrics = {"frontend.txt": "Frontend Time",
-           "overall_predict.txt": "Overall Prediction Time",
-           "handler_time.txt": "Handler Time ",
-           "waiting_time.txt": "Queue time in ms ",
-           "worker_thread.txt": "Worker Thread Time"}
+metrics = {"predict.txt": "PredictionTime",
+           "frontend.txt": "FrontendTime",
+           "overall_predict.txt": "OverallPredictionTime",
+           "handler_time.txt": "HandlerTime",
+           "waiting_time.txt": "QueueTime",
+           "worker_thread.txt": "WorkerThreadTime"}
 
 
-def extract_prediction_latency():
+def extract_metrics():
     with open(metric_log) as f:
         lines = f.readlines()
 
@@ -325,7 +326,7 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f'/tmp/benchmark/{m}', header=None, names=['latency'])
+        df = pd.read_csv(f'/tmp/benchmark/{m}', header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
