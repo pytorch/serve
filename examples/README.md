@@ -6,6 +6,7 @@
 * [Serving text classification model](#example-to-serve-text-classification-model)
 * [Serving object detection model](#example-to-serve-object-detection-model)
 * [Serving image segmentation model](#example-to-serve-image-segmentation-model)
+* [Serving image generator model](#example-to-serve-GAN-model)
 
 # TorchServe Examples
 
@@ -78,3 +79,9 @@ The following example demonstrates how to create and serve a pretrained fcn NN m
 The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
 
 * [Hugging Face Transformers](Huggingface_Transformers)
+
+## Example to serve GAN model (Eager mode)
+
+The following example demonstrates how to create and serve a pretrained DCGAN model from [facebookresearch/pytorch_GAN_zoo](https://github.com/facebookresearch/pytorch_GAN_zoo)
+
+* [GAN Image Generator](dcgan_fashiongen)
