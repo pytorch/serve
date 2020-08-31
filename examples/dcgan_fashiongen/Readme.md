@@ -8,9 +8,9 @@ Execute the following command to create _dcgan_fashiongen.mar_ :
 ```
 ./create_mar.sh
 ```
-This command does the following :
-- Download the model's source code, extract the relevant directory and zip it. (`--extra-files`)
-- Download a checkpoint file _DCGAN_fashionGen-1d67302.pth_.  (`--serialized-file`)
+The [create_mar.sh](create_mar.sh) script does the following :
+- Download the model's [source code](https://github.com/facebookresearch/pytorch_GAN_zoo/tree/b75dee40918caabb4fe7ec561522717bf096a8cb/models), extract the relevant directory and zip it. (`--extra-files`)
+- Download a checkpoint file [DCGAN_fashionGen-1d67302.pth](https://dl.fbaipublicfiles.com/gan_zoo/DCGAN_fashionGen-1d67302.pth).  (`--serialized-file`)
 - Provide a custom handler - [dcgan_fashiongen_handler.py](dcgan_fashiongen_handler.py). (`--handler`)
 
 
@@ -22,18 +22,18 @@ torchserve --start --ncs --model-store ./modelstore --models dcgan_fashiongen.ma
 ```
 
 ### 3. Generate Images
-Invoke the predictions API and pass following payload(JSON  
-**number_of_images** :  Number of images to generate  
-**input_gender** : OPTIONAL; If specified, needs to be one of - `Men`, `Women`  
-**input_category** : OPTIONAL; If specified, needs to be one of - One of - `SHIRTS`, `SWEATERS`, `JEANS`, `PANTS`, `TOPS`, `SUITS & BLAZERS`, `SHORTS`, `JACKETS & COATS`, `SKIRTS`, `JUMPSUITS`, `SWIMWEAR`, `DRESSES`  
-**input_pose** : OPTIONAL; If specified, needs to be one of - `id_gridfs_1`, `id_gridfs_2`, `id_gridfs_3`, `id_gridfs_4`  
+Invoke the predictions API and pass following payload(JSON)
+- **number_of_images** :  Number of images to generate
+- **input_gender** : OPTIONAL; If specified, needs to be one of - `Men`, `Women`
+- **input_category** : OPTIONAL; If specified, needs to be one of - One of - `SHIRTS`, `SWEATERS`, `JEANS`, `PANTS`, `TOPS`, `SUITS & BLAZERS`, `SHORTS`, `JACKETS & COATS`, `SKIRTS`, `JUMPSUITS`, `SWIMWEAR`, `DRESSES`
+- **input_pose** : OPTIONAL; If specified, needs to be one of - `id_gridfs_1`, `id_gridfs_2`, `id_gridfs_3`, `id_gridfs_4`
 
 #### Example
 ```
-curl -X POST -H "Content-Type: application/json" -d '{"number_of_images":64,"input_gender":"Men","input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' http://localhost:8080/predictions/dcgan_fashiongen -o test_img1.jpg
+curl -X POST -d '{"number_of_images":64,"input_gender":"Men","input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img1.jpg
 
-curl -X POST -H "Content-Type: application/json" -d '{"number_of_images":32,"input_gender":"Women","input_category":"DRESSES", "input_pose":"id_gridfs_3"}' http://localhost:8080/predictions/dcgan_fashiongen -o test_img2.jpg
+curl -X POST -d '{"number_of_images":32,"input_gender":"Women","input_category":"DRESSES", "input_pose":"id_gridfs_3"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img2.jpg
 
-curl -X POST -H "Content-Type: application/json" -d '{"number_of_images":4}' http://localhost:8080/predictions/dcgan_fashiongen -o myimage3.jpg
+curl -X POST -d '{"number_of_images":4}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img3.jpg
 
 ```
