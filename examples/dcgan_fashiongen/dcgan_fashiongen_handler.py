@@ -20,12 +20,15 @@ class ModelHandler(BaseHandler):
         self.default_number_of_images = 1
 
     def initialize(self, context):
+        """
+        Extract the models zip; Take the serialized file and load the model
+        """
         properties = context.system_properties
         model_dir = properties.get("model_dir")
         gpu_id = properties.get("gpu_id")
 
         self.map_location, self.device, self.use_gpu = \
-            ("cuda", torch.device("cuda:"+gpu_id), True) if torch.cuda.is_available() else \
+            ("cuda", torch.device("cuda:"+str(gpu_id)), True) if torch.cuda.is_available() else \
             ("cpu", torch.device("cpu"), False)
 
         # Extract model architecture source code
@@ -38,13 +41,12 @@ class ModelHandler(BaseHandler):
         state_dict = torch.load(model_dir + "/" + CHECKPOINT, map_location=self.map_location)
         self.dcgan_model.load_state_dict(state_dict)
 
-        # ToDo: Test and Hanlde for GPU
-        # self.dcgan_model.to(self.device)
-        # self.dcgan_model.eval() # Notify all your layers that you are in eval mode
-
         self.initialized = True
 
     def preprocess(self, requests):
+        """
+        Build noise data by using "number of images" and other "constraints" provided by the end user.
+        """
         preprocessed_data = []
         for req in requests:
             data = req.get("data") if req.get("data") is not None else req.get("body", {})
@@ -60,6 +62,9 @@ class ModelHandler(BaseHandler):
         return preprocessed_data
 
     def inference(self, preprocessed_data):
+        """
+        Take the noise data as an input tensor, pass it to the model and collect the output tensor.
+        """
         input_batch = torch.cat(tuple(map(lambda d: d["input"], preprocessed_data)), 0)
         with torch.no_grad():
             image_tensor = self.dcgan_model.test(input_batch, getAvG=True, toCPU=True)
@@ -67,6 +72,9 @@ class ModelHandler(BaseHandler):
         return output_batch
 
     def postprocess(self, output_batch):
+        """
+        Create an image(jpeg) using the output tensor.
+        """
         postprocessed_data = []
         for op in output_batch:
             fp = BytesIO()

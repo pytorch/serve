@@ -14,10 +14,9 @@ function cleanup {
 }
 trap cleanup EXIT
 
-# Download and Extract model architecture source code
+# Download and Extract model's source code
 wget https://github.com/facebookresearch/pytorch_GAN_zoo/archive/$SRCZIP
 unzip $SRCZIP
-
 # Get the models directory from the source code and zip it up
 # This will later be used by torchserve for loading the model
 mv $SRCDIR/models .
