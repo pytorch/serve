@@ -79,7 +79,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         if os.path.exists(self.source_server_file):
             os.remove(self.source_server_file)
 
-        build_frontend_command = {"Windows": "'.\\frontend\\gradlew -p frontend clean assemble'",
+        build_frontend_command = {"Windows": ".\\frontend\\gradlew -p frontend clean assemble",
                                    "Darwin": "frontend/gradlew -p frontend clean assemble",
                                    "Linux": "frontend/gradlew -p frontend clean assemble"}
 
