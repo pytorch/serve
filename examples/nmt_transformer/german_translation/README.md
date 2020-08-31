@@ -34,7 +34,7 @@ In this example, we have show how to serve a [English-to-German Translation](htt
     ```
     Here sample.txt contains simple english sentences which are given as input to [Inference API](https://github.com/pytorch/serve/blob/master/docs/inference_api.md#predictions-api). The output of above curl command will be the german translation of sentences present in the sample.txt file.
 
-## Demo to configure TorchServe with batch-supported model
+## English-to-German translation using TorchServe with batch-supported model
 
 * Start the model server. In this example, we are starting the model server with config.properties file
 
