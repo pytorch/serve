@@ -32,7 +32,7 @@ install_torch_deps()
   then
 	  pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
 	else
-	  pip install -U -r requirements.txt
+	  pip install -U -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
 	fi
 }
 
