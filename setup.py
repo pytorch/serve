@@ -26,6 +26,7 @@ import subprocess
 import sys
 from datetime import date
 from shutil import copy2, rmtree
+import platform
 
 import setuptools.command.build_py
 from setuptools import setup, find_packages, Command
@@ -78,8 +79,12 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         if os.path.exists(self.source_server_file):
             os.remove(self.source_server_file)
 
+        build_frontend_command = {"Windows": "'.\\frontend\\gradlew -p frontend clean assemble'",
+                                   "Darwin": "frontend/gradlew -p frontend clean assemble",
+                                   "Linux": "frontend/gradlew -p frontend clean assemble"}
+
         try:
-            subprocess.check_call('.\\frontend\\gradlew -p frontend clean assemble', shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
