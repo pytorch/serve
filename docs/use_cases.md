@@ -1,11 +1,11 @@
 # Torchserve Use Cases
 
 Torchserve can be used for different use cases. In order to make it convenient for users, some of them have been documented here.
-These use-cases assume you have pre-trained model(s) and torchserve, torch-model-archive is installed on your target system. 
+These use-cases assume you have pre-trained model(s) and torchserve, torch-model-archiver is installed on your target system. 
 This should help you in moving your development environment model to production/serving environment.
 
 NOTES
-- You have installed latest torchserve and torch-model-archive. If not then follow [installation](https://github.com/pytorch/serve#install-torchserve) instructions and complete installation
+- Assuming . If you have not installed latest torchserve and torch-model-archiver then follow [installation](https://github.com/pytorch/serve#install-torchserve) instructions and complete installation
 - If planning to use docker (henceforth referred as `Docker`), make sure following prerequisites are in place - 
     - Make sure you have latest docker engine install on your target node. If not then use [this](https://docs.docker.com/engine/install/) link to install it.
     - Follow instructions [install using docker](https://github.com/pytorch/serve/tree/master/docker#running-torchserve-in-a-production-docker-environment) to share `model-store` directory and start torchserve
