@@ -3,6 +3,7 @@
 ## Contents of this Document
 
 * [Prerequisites](#prerequisites)
+* [Manual installation from source](#manual_installation_from_source)
 * [Install from binaries](#install-from-binaries)
 * [Install from source](#install-from-source)
 
@@ -20,7 +21,33 @@
 
 NOTE torchserve has been tested on Windows10 64bit system
 
-## Install from binaries
+## Manual installation from source -  This for development and inital hands-on eventually it will be removed in the final commit for this feature
+
+ - Add new system or user profile environment variable name `JAVA_HOME` and value as `<your-openjdk11-path>`
+ - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
+ 
+   NOTE ensure that you have restarted system after install above Visual C++ components
+ - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
+ - `git clone https://github.com/pytorch/serve.git`
+ - Install torchserve 
+     - `cd serve`
+     - `pip install -U -r requirements/developer.txt`
+     - `pip install -U -r requirements/cpu.txt`
+     - `pip install .`
+     - Start torchserve `torchserve.exe --start --model-store <path-to-model-store>`
+     - For next steps refer [Serving a model](https://github.com/pytorch/serve#serve-a-model)
+  - Install torch-model-archiver
+    - `cd model-archiver`
+    - `pip install .`
+    - torch-model-archiver will be installed as exe hence add .exe extension to given examples in repo.
+    - For next steps refer [mar commands](https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-command-line-interface)
+  - Execute build and UT
+    - `pip install -U -r requirements/developer.txt`
+    - `pip install -U -r requirements/cpu.txt`
+    - `cd frontend`
+    - `.\gradlew.bat clean build`
+
+## Install from binaries [WIP]
 
 NOTE At present, wheels for windows are not available on PyPi. However following steps can also be used if you have prebuilt torchserve wheel for windows.
 
@@ -35,7 +62,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - Start torchserve `torchserve.exe --start --model-store <path-to-model-store>`
  - For next steps refer [Serving a model](https://github.com/pytorch/serve#serve-a-model)
     
-## Install from source
+## Install from source [WIP]
 
  - Add new system or user profile environment variable name `JAVA_HOME` and value as `<your-openjdk11-path>`
  - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
