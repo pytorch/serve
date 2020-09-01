@@ -54,7 +54,8 @@ public class SnapshotTest {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         System.setProperty("tsConfigFile", "src/test/resources/config.properties");
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        FileUtils.cleanDirectory(new File(System.getProperty("LOG_LOCATION"), "config"));
+
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
@@ -435,9 +436,6 @@ public class SnapshotTest {
             } catch (IOException e) {
                 e.printStackTrace(); // NOPMD
             }
-        } else {
-            latestSnapshotPath = configPath.toAbsolutePath() + "//" + "snapshot.log";
-            File config = new File(latestSnapshotPath);
         }
 
         return latestSnapshotPath;
