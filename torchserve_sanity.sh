@@ -34,7 +34,7 @@ setup()
   python3 test/print_env_info.py $branch_head
 }
 
-setup
+setup $1
 
 run_backend_pytest
 
