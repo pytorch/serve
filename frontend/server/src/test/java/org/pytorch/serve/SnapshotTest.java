@@ -84,6 +84,7 @@ public class SnapshotTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(managementChannel, "noop", null, false);
         TestUtils.getLatch().await();
+
         validateSnapshot("snapshot2.cfg");
         waitForSnapshot();
     }
@@ -168,6 +169,7 @@ public class SnapshotTest {
                         HttpHeaderNames.CONTENT_TYPE,
                         HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         channel.writeAndFlush(req);
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -180,7 +182,7 @@ public class SnapshotTest {
         TestUtils.registerModel(managementChannel, "noop.mar", "noopversioned", true, false);
         TestUtils.getLatch().await();
         validateSnapshot("snapshot6.cfg");
-        waitForSnapshot();
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -433,6 +435,9 @@ public class SnapshotTest {
             } catch (IOException e) {
                 e.printStackTrace(); // NOPMD
             }
+        } else {
+            latestSnapshotPath = configPath.toAbsolutePath() + "//" + "snapshot.log";
+            File config = new File(latestSnapshotPath);
         }
 
         return latestSnapshotPath;
