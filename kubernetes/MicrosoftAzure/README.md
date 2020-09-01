@@ -22,7 +22,7 @@ The following example creates a resource group named *myResourceGroup* in the *e
 
 Use the [az aks create](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-create) command to create an AKS cluster. The following example creates a cluster named *myAKSCluster* with one node. This will take several minutes to complete.
 
-`az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 3 --enable-addons monitoring --generate-ssh-keys`
+`az aks create  --resource-group myResourceGroup  --name myAKSCluster --node-vm-size Standard_NC6   --node-count 1`
 
 #### 1.4 Connect to the cluster
 
@@ -34,7 +34,17 @@ To configure `kubectl` to connect to your Kubernetes cluster, use the [az aks ge
 
 `az aks get-credentials --resource-group myResourceGroup --name myAKSCluster`
 
-#### 1.5 Install helm
+#### 1.5 Install NVIDIA device plugin
+
+Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
+
+`kubectl apply -f nvidia-device-plugin-ds.yaml`
+
+NAME                  READY  STATUS  RESTARTS  AGE
+
+nvidia-device-plugin-daemonset-7lvxd  1/1   Running  0     42s
+
+#### 1.6 Install helm
 
 ```
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
@@ -126,8 +136,6 @@ Your output should look similar to
 pod "model-store-pod" deleted
 
 #### 2.6 Install Torchserve using Helm Charts
-
-`cd ServeInstall`
 
 `helm install ts .`
 
