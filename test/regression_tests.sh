@@ -63,6 +63,11 @@ install_torchserve_from_source() {
   echo "TS Branch Commit Id : " "$(git rev-parse HEAD)" >> $3
   echo "Build date : " "$(date)" >> $3
   echo "Torchserve Succesfully installed"
+
+  #Get Environment info 
+  echo
+  python3 test/print_env_info.py $2
+  echo "----------------------------------------------------------"
 }
 
 
@@ -172,9 +177,6 @@ run_pytest() {(
 
 )}
 
-echo
-python3 test/print_env_info.py $BRANCH
-echo
 
 sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
