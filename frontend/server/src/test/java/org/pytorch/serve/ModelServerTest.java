@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.ErrorResponse;
@@ -713,6 +712,14 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
+    public void testUnregisterURLModel() throws InterruptedException {
+        testUnregisterModel("squeezenet", null);
+        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterURLModel"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
@@ -744,19 +751,12 @@ public class ModelServerTest {
                 resp.getMessage(),
                 "Custom pip package installation failed for custom_invalid_python_dep");
         setConfiguration("install_py_dep_per_model", "false");
+        channel.close();
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
-    public void testUnregisterURLModel() throws InterruptedException {
-        testUnregisterModel("squeezenet", null);
-        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -807,7 +807,7 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         Assert.assertNotNull(channel);
 
-        TestUtils.unregisterModel(channel, "pred-err", null, false);
+        TestUtils.unregisterModel(channel, "pred-err", null, true);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
@@ -855,6 +855,7 @@ public class ModelServerTest {
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
         Assert.assertEquals(TestUtils.getResult(), "Invalid response");
+        channel.close();
     }
 
     @Test(
@@ -1484,67 +1485,6 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelFailure"})
-    public void testTSValidPort()
-            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
-                    IOException {
-        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
-        ConfigManager.init(new ConfigManager.Arguments());
-        ConfigManager configManagerValidPort = ConfigManager.getInstance();
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
-        configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
-        ModelServer serverValidPort = new ModelServer(configManagerValidPort);
-        serverValidPort.start();
-
-        Channel channel = null;
-        Channel managementChannel = null;
-        for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManagerValidPort);
-            if (channel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        for (int i = 0; i < 5; ++i) {
-            managementChannel =
-                    TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManagerValidPort);
-            if (managementChannel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        Assert.assertNotNull(channel, "Failed to connect to inference port.");
-        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
-
-        TestUtils.ping(configManagerValidPort);
-
-        serverValidPort.stop();
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testTSValidPort"})
-    public void testTSInvalidPort() throws IOException {
-        //  test case for verifying port range refer https://github.com/pytorch/serve/issues/291
-        //  invalid port test
-        ConfigManager.init(new ConfigManager.Arguments());
-        ConfigManager configManagerInvalidPort = ConfigManager.getInstance();
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManagerInvalidPort.setProperty("inference_address", "https://127.0.0.1:65536");
-        ModelServer serverInvalidPort = new ModelServer(configManagerInvalidPort);
-        try {
-            serverInvalidPort.start();
-        } catch (Exception e) {
-            Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
-            Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");
-        }
     }
 
     private void testLoadModel(String url, String modelName, String version)
