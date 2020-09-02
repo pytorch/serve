@@ -361,17 +361,17 @@ def generate_profile_graph():
     plot_line(1, 0, data=plot_data["handler_time_values"], scale=True, color='orange', title='Handler Time')
 
     # Overall Predict
-    plot_line(1, 1, data=plot_data["predict_values"], scale=True, color='red', title='Overall prediction time')
+    plot_line(1, 1, data=plot_data["overall_predict_values"], scale=True, color='red', title='Overall prediction time')
 
     # Worker time
-    plot_line(2, 0, data=plot_data["worker_thread_values"], scale=True, color='red', title='Worker Thread Time')
+    plot_line(2, 0, data=plot_data["worker_thread_values"], scale=True, color='green', title='Worker Thread Time')
 
     # Plot in one graph
     plot_line(2, 1, data=plot_data["frontend_values"], title='Combined Graph')
     plot_line(2, 1, data=plot_data["waiting_time_values"], color='pink')
     plot_line(2, 1, data=plot_data["handler_time_values"], scale=True, color='orange')
-    plot_line(2, 1, data=plot_data["predict_values"], scale=True, color='red')
-    plot_line(2, 1, data=plot_data["worker_thread_values"], scale=True, color='red')
+    plot_line(2, 1, data=plot_data["overall_predict_values"], scale=True, color='red')
+    plot_line(2, 1, data=plot_data["worker_thread_values"], scale=True, color='green')
     plt.savefig("/tmp/benchmark/api-profile.png")
 
 
