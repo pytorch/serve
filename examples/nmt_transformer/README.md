@@ -37,21 +37,34 @@ In this example, we have shown how to serve a [English-to-French/English-German 
 	For English-to-French model
     ```bash
     curl -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=TransformerEn2Fr.mar"
+    {
+        "status": "Model \"TransformerEn2Fr\" Version: 1.0 registered with 1 initial workers"
+    }
     ```
 	For English-to-German model
 	```bash
 	curl -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=TransformerEn2De.mar"
+    {
+        "status": "Model \"TransformerEn2De\" Version: 1.0 registered with 1 initial workers"
+    }
 	```
-    Note:- Our model works only for one worker.
 
 * To get the inference use the following curl command  
 	For English-to-French model
     ```bash
     curl http://127.0.0.1:8080/predictions/TransformerEn2Fr -T model_input/sample.txt
+    {
+        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
+        "french_output" : "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus tôt possible."
+    }
     ```
 	For English-to-German model
 	```bash
 	curl http://127.0.0.1:8080/predictions/TransformerEn2De -T model_input/sample.txt
+    {
+        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
+        "german_output" : "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie möglich."
+    }
 	```
     Here sample.txt contains simple english sentences which are given as input to [Inference API](https://github.com/pytorch/serve/blob/master/docs/inference_api.md#predictions-api). The output of above curl command will be the french translation of sentences present in the sample.txt file.
 
@@ -59,7 +72,7 @@ In this example, we have shown how to serve a [English-to-French/English-German 
 
 ### TorchServe Model Configuration
 
-To configure TorchServe to use the batching feature, provide the batch configuration information through "POST /models" API.
+To configure TorchServe to use the batching feature, provide the batch configuration information through ["POST /models" API](https://github.com/pytorch/serve/blob/master/docs/batch_inference_with_ts.md#batch-inference-with-torchserve).
 
 The configuration that we are interested in is the following:
 
@@ -89,6 +102,22 @@ In this example, we are going to launch 1 worker which handles a `batch size` of
     curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample2.txt& 
     curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample3.txt& 
     curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample4.txt&
+    {
+        "english_input" : "Hello World !!!\n",
+        "french_output" : "Bonjour le monde ! ! !"
+    }
+    {
+        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
+        "french_output" : "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus tôt possible."
+    }
+    {
+        "english_input" : "I’m sorry, I don’t remember your name. You are you?\n",
+        "french_output" : "Je vous prie de m'excuser, je ne me souviens pas de votre nom."
+    }
+    {
+        "english_input" : "I’m well. How are you?\nIt’s going well, thank you. How are you doing?\nFine, thanks. And yourself?\n",
+        "french_output" : "Je me sens bien. Comment allez-vous ? Ça va bien, merci. Comment allez-vous ?"
+    }
     ```
 
 ### Steps to configure English-to-German translation model with batch-support
@@ -113,4 +142,20 @@ In this example, we are going to launch 1 worker which handles a `batch size` of
 	curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2De -T ./model_input/sample2.txt& 
 	curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2De -T ./model_input/sample3.txt& 
 	curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2De -T ./model_input/sample4.txt&
+    {
+        "english_input" : "Hello World !!!\n",
+        "german_output" : "Hallo Welt!!!"
+    }
+    {
+        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
+        "german_output" : "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie möglich."
+    }
+    {
+        "english_input" : "I’m sorry, I don’t remember your name. You are you?\n",
+        "german_output" : "Es tut mir leid, ich erinnere mich nicht an Ihren Namen. Sie sind es?"
+    }
+    {
+        "english_input" : "I’m well. How are you?\nIt’s going well, thank you. How are you doing?\nFine, thanks. And yourself?\n",
+        "german_output" : "Mir geht es gut. Wie geht es Ihnen? Es läuft gut, danke. Wie geht es Ihnen? Gut, danke. Und sich selbst?"
+    }
     ```
