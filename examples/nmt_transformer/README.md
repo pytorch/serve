@@ -17,7 +17,7 @@ In this example, we have show how to serve a [English-to-French/English-German T
     ```bash
     ./create_mar.sh en2fr_model
     ```
-    By execuing the above script file, the the model archive (.mar) file will be auto generated in "model_store" folder in the same working directory.
+    The above command will create a "model_store" directory in the current working directory and generate TransformerEn2Fr.mar file.
 	
 * To generate the model archive (.mar) file for English-to-German translation model using following command
 
