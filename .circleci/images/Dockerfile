@@ -4,6 +4,7 @@ FROM ${BASE_IMAGE} AS compile-image
 
 ENV PYTHONUNBUFFERED TRUE
 
+# Install JAVA 11 and Node 14
 RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -17,6 +18,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get install --no-install-recommends -y \
         nodejs
 
+# Install python 3.8 using conda env
 FROM compile-image as conda38-image
 ENV PATH ~/.local/bin/:$PATH
 ENV PATH=/miniconda/bin:${PATH}
@@ -26,7 +28,8 @@ RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.s
         && rm -rf /var/lib/apt/lists/* \
         && conda install -y conda-build
 
-FROM compile-image as py36-image
+# Install vanilla python 3.6
+FROM compile-image as pythn36-image
 ENV PATH ~/.local/bin/:$PATH
 RUN apt-get install --no-install-recommends -y \
         python3 \
@@ -37,20 +40,22 @@ RUN apt-get install --no-install-recommends -y \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
+# Install python 3.7 using pyenv env
 FROM compile-image as pyenv37-image
 ENV PATH ~/.local/bin/:$PATH
 ENV PYENV_ROOT $HOME/.pyenv
-ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
+ENV PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
 RUN apt-get install --no-install-recommends -y  libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
         libsqlite3-dev libxml2-dev libxmlsec1-dev libffi-dev\
     && curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash \
     && pyenv install 3.7.0 \
     && pyenv global 3.7.0
 
+# Install python 3.6 and venv env
 FROM compile-image as venv36-image
 ENV PATH ~/.local/bin/:$PATH
 ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PATH=$VIRTUAL_ENV/bin:$PATH
 RUN apt-get install --no-install-recommends -y \
         python3 \
         python3-dev \
@@ -75,7 +80,7 @@ RUN cd /opt \
     && java -cp lib/ext/jmeter-plugins-manager-1.4.jar org.jmeterplugins.repository.PluginManagerCMDInstaller \
     && bin/PluginsManagerCMD.sh install jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
 
-# Install API tests dependencies
+# Install Node dependencies for api-tests and link-checker
 RUN npm install -g \
         newman \
         newman-reporter-html \
@@ -88,13 +93,14 @@ RUN pip install --no-cache-dir \
         pandas \
         pillow \
         psutil \
-        pylint==2.4.4 \
+        pylint \
         pytest \
         pytest-cov \
         pytest-mock \
-        sentencepiece==0.1.91 \
-        torch \
-        torchtext \
-        torchvision \
+        sentencepiece \
+        torch==1.6.0 \
+        torchaudio==0.6.0 \
+        torchtext==0.7.0 \
+        torchvision==0.7.0 \
         transformers\
         wheel

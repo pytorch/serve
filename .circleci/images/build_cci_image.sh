@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENV_TYPE="py36"
+ENV_TYPE="pythn36"
 BASE_IMAGE="ubuntu:18.04"
 
 for arg in "$@"
@@ -9,7 +9,7 @@ do
         -h|--help)
           echo "options:"
           echo "-h, --help  show brief help"
-          echo "-e, --env_type specify env_type to use from {py36, venv36, pyenv37, conda38}"
+          echo "-e, --env_type specify env_type to use from { pythn36, conda38, pyenv37, venv36 }"
           echo "-t, --tag specify tag name for docker image \"<image>:<tag>\""
           exit 0
           ;;
@@ -28,7 +28,7 @@ done
 
 if [ ! "$DOCKER_TAG" ];
 then
-  DOCKER_TAG="pytorch/torchserve-cci:$ENV_TYPE"
+  DOCKER_TAG="pytorch/torchserve-build:ubuntu18-$ENV_TYPE-cpu"
 fi
 
 DOCKER_BUILDKIT=1 docker build -t $DOCKER_TAG --build-arg ENV_TYPE=$ENV_TYPE .
