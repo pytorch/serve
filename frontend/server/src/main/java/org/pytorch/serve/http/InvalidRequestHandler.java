@@ -13,8 +13,7 @@ public class InvalidRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String[] segments,
-            long apiStartTime)
+            String[] segments)
             throws ModelException {
         throw new ResourceNotFoundException();
     }

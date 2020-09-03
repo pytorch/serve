@@ -237,8 +237,6 @@ def generate_report():
 
 
 metrics = {"predict.txt": "PredictionTime",
-           "frontend.txt": "FrontendTime",
-           "overall_predict.txt": "OverallPredictionTime",
            "handler_time.txt": "HandlerTime",
            "waiting_time.txt": "QueueTime",
            "worker_thread.txt": "WorkerThreadTime"}
@@ -338,41 +336,43 @@ def generate_profile_graph():
     print(f"Working with sampling rate of {sampling}")
 
     a4_dims = (11.7, 8.27)
-    fig, axs = plt.subplots(3, 2, sharex=True, figsize=a4_dims)
+    grid = plt.GridSpec(3, 2, wspace=0.2, hspace=0.2)
+    plt.figure(figsize=a4_dims)
+    fig1 = plt.subplot(grid[0, 0])
+    fig2 = plt.subplot(grid[0, 1])
+    fig3 = plt.subplot(grid[1, 0])
+    fig4 = plt.subplot(grid[1, 1])
+    fig5 = plt.subplot(grid[2, 0:])
 
-    def plot_line(qx, qy, data, scale=False, color='blue', title=None):
+    def plot_line(fig, data, scale=False, color='blue', title=None):
         if title:
-            axs[qx, qy].set_title(title)
+            fig.set_title(title)
         if scale:
             plot_points = np.arange(0, 100, 100 / len(data))
             x = plot_points[:len(data):sampling]
             y = data[::sampling]
-            axs[qx, qy].plot(x, y, f'tab:{color}')
+            fig.plot(x, y, f'tab:{color}')
         else:
-            axs[qx, qy].plot(data[::sampling], f'tab:{color}')
-
-    # Frontend time
-    plot_line(0, 0, plot_data["frontend_values"], title='Frontend Time')
+            fig.plot(data[::sampling], f'tab:{color}')
 
     # Queue Time
-    plot_line(0, 1, plot_data["waiting_time_values"], color='pink', title='Queue Time')
+    plot_line(fig1, plot_data["waiting_time_values"], color='pink', title='Queue Time')
 
     # handler Predict Time
-    plot_line(1, 0, data=plot_data["handler_time_values"], scale=True, color='orange', title='Handler Time')
+    plot_line(fig2, data=plot_data["handler_time_values"], scale=True, color='orange', title='Handler Time')
 
     # Overall Predict
-    plot_line(1, 1, data=plot_data["overall_predict_values"], scale=True, color='red', title='Overall prediction time')
+    plot_line(fig4, data=plot_data["predict_values"], scale=True, color='red', title='Prediction time(handler time)')
 
     # Worker time
-    plot_line(2, 0, data=plot_data["worker_thread_values"], scale=True, color='green', title='Worker Thread Time')
+    plot_line(fig3, data=plot_data["worker_thread_values"], scale=True, color='green', title='Worker Thread Time')
 
     # Plot in one graph
-    plot_line(2, 1, data=plot_data["frontend_values"], title='Combined Graph')
-    plot_line(2, 1, data=plot_data["waiting_time_values"], color='pink')
-    plot_line(2, 1, data=plot_data["handler_time_values"], scale=True, color='orange')
-    plot_line(2, 1, data=plot_data["overall_predict_values"], scale=True, color='red')
-    plot_line(2, 1, data=plot_data["worker_thread_values"], scale=True, color='green')
-    plt.savefig("/tmp/benchmark/api-profile.png")
+    plot_line(fig5, data=plot_data["waiting_time_values"], color='pink')
+    plot_line(fig5, data=plot_data["handler_time_values"], scale=True, color='orange')
+    plot_line(fig5, data=plot_data["predict_values"], scale=True, color='red')
+    plot_line(fig5, data=plot_data["worker_thread_values"], scale=True, color='green')
+    plt.savefig("/tmp/benchmark/api-profile.png", bbox_inches='tight')
 
 
 def stop_torchserve():

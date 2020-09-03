@@ -8,8 +8,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import org.pytorch.serve.http.InferenceRequestHandler;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
@@ -118,9 +116,16 @@ public class Job {
                 "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
                 System.nanoTime() - scheduled);
-        String QueueTime=String.valueOf(TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
-        loggerTsMetrics.info(new Metric("QueueTime", QueueTime , "ms",
-                ConfigManager.getInstance().getHostName(), DIMENSION));
+        String QueueTime =
+                String.valueOf(
+                        TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
+        loggerTsMetrics.info(
+                new Metric(
+                        "QueueTime",
+                        QueueTime,
+                        "ms",
+                        ConfigManager.getInstance().getHostName(),
+                        DIMENSION));
     }
 
     public void sendError(HttpResponseStatus status, String error) {

@@ -22,8 +22,7 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String[] segments,
-            long apiStartTime)
+            String[] segments)
             throws ModelException {
 
         if (isApiDescription(segments)) {
@@ -35,7 +34,7 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             }
             throw new MethodNotAllowedException();
         } else {
-            chain.handleRequest(ctx, req, decoder, segments, apiStartTime);
+            chain.handleRequest(ctx, req, decoder, segments);
         }
     }
 

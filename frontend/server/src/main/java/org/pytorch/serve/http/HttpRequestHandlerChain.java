@@ -41,8 +41,7 @@ public abstract class HttpRequestHandlerChain {
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String[] segments,
-            long apiStartTime)
+            String[] segments)
             throws ModelNotFoundException, ModelException;
 
     private void run(

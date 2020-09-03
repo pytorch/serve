@@ -49,8 +49,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String[] segments,
-            long apiStartTime)
+            String[] segments)
             throws ModelException {
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
@@ -91,7 +90,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 }
             }
         } else {
-            chain.handleRequest(ctx, req, decoder, segments, apiStartTime);
+            chain.handleRequest(ctx, req, decoder, segments);
         }
     }
 
