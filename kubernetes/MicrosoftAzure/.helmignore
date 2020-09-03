@@ -1,5 +1,0 @@
-*.properties
-pod.yaml
-pvc.yaml
-*.mar
-*.sh
