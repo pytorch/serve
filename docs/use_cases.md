@@ -31,7 +31,7 @@ NOTES
 
 [Serve models for A/B testing](#serve-models-for-ab-testing)
 
-#### Deploy pytorch eager mode model
+### Deploy pytorch eager mode model
 
 **Steps to deploy your model(s)**
 - Create MAR file for [torch eager model](https://github.com/pytorch/serve/tree/master/examples#creating-mar-file-for-eager-mode-model)
@@ -58,7 +58,7 @@ NOTES
 - https://github.com/pytorch/serve/tree/master/examples/image_classifier
 
 
-#### Deploy pytorch scripted mode model
+### Deploy pytorch scripted mode model
 **Prerequisites**
 - Assuming you have a torchscripted model if not then follow instructions in this [example](https://github.com/pytorch/serve/tree/master/examples/image_classifier#torchscript-example-using-densenet161-image-classifier) to save your eager mode model as scripted model.
 
@@ -86,7 +86,7 @@ NOTES
 **Examples**
 - https://github.com/pytorch/serve/tree/master/examples/image_classifier
 
-#### Serve readymade models on torchserve model zoo
+### Serve readymade models on torchserve model zoo
 This use case demostrates deployment of [torch hub](https://pytorch.org/hub/) based `vision` models (classifier, object detector, segmenter) available on [torchserve model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). 
 Use these steps you can also deploy **publically hosted** models as well.
 
@@ -107,7 +107,7 @@ Use these steps you can also deploy **publically hosted** models as well.
 - [image_segmenter](https://github.com/pytorch/serve/tree/master/examples/image_segmenter)
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector)
 
-#### Secure model serving
+### Secure model serving
 This use case demonstrates torchserve deployment for secure model serving. 
 The example taken here uses eager mode model however you can also deploy scripted models.
 
@@ -137,7 +137,7 @@ The example taken here uses eager mode model however you can also deploy scripte
 **Examples/Reference**
 - https://github.com/pytorch/serve/blob/master/docs/configuration.md#enable-ssl
 
-#### Serve models on GPUs
+### Serve models on GPUs
 This use case demonstrates torchserve deployment on GPU. 
 The example taken here uses scripted mode model however you can also deploy eager models.
 
@@ -172,7 +172,7 @@ e.g. number_of_gpu=2
 **Examples**
 - https://github.com/pytorch/serve/tree/master/examples/image_classifier
 
-#### Serve custom models with no third party dependency
+### Serve custom models with no third party dependency
 This use case demonstrates torchserve deployment for custom models with no python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.
 
@@ -204,7 +204,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 - [MNIST example](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist)
 
 
-#### Serve custom models with third party dependency
+### Serve custom models with third party dependency
 This use case demonstrates torchserve deployment for custom models with python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.
 
@@ -238,7 +238,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 - [Installing model specific python dependencies](https://github.com/pytorch/serve/blob/master/docs/custom_service.md#installing-model-specific-python-dependencies)
 
 
-#### Serve models for AB testing
+### Serve models for AB testing
 
 This use case demonstrates serving two or more versions of same model using version API. It is an extension of any of the above use cases.
 
