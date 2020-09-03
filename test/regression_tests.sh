@@ -20,7 +20,6 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-cv, --cudaversion specify to use gpu"
-          echo "-env, --environment_info  display current environment info"
           exit 0
           ;;
         -b|--branch_name)
@@ -38,12 +37,6 @@ do
           CUDA_VERSION="$2"
           shift
           shift
-          ;;
-        -env|--environment_info)
-          echo "Torchserve Branch : $BRANCH"
-          echo
-          python collect_env.py
-          exit 0
           ;;
     esac
 done
