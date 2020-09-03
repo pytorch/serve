@@ -344,35 +344,37 @@ def generate_profile_graph():
     fig4 = plt.subplot(grid[1, 1])
     fig5 = plt.subplot(grid[2, 0:])
 
-    def plot_line(fig, data, scale=False, color='blue', title=None):
-        if title:
-            fig.set_title(title)
-        if scale:
-            plot_points = np.arange(0, 100, 100 / len(data))
-            x = plot_points[:len(data):sampling]
-            y = data[::sampling]
-            fig.plot(x, y, f'tab:{color}')
-        else:
-            fig.plot(data[::sampling], f'tab:{color}')
+    def plot_line(fig, data, color='blue', title=None):
+        fig.set_title(title)
+        fig.set_ylabel('Time (ms)')
+        fig.set_xlabel('Percentage of queries')
+        fig.grid()
+        plot_points = np.arange(0, 100, 100 / len(data))
+        x = plot_points[:len(data):sampling]
+        y = data[::sampling]
+        fig.plot(x, y, f'tab:{color}')
 
     # Queue Time
-    plot_line(fig1, plot_data["waiting_time_values"], color='pink', title='Queue Time')
+    plot_line(fig1, data=plot_data["waiting_time_values"], color='pink', title='Queue Time')
 
     # handler Predict Time
-    plot_line(fig2, data=plot_data["handler_time_values"], scale=True, color='orange', title='Handler Time')
-
-    # Overall Predict
-    plot_line(fig4, data=plot_data["predict_values"], scale=True, color='red', title='Prediction time(handler time)')
+    plot_line(fig2, data=plot_data["handler_time_values"], color='orange',
+              title='Handler Time(pre & post processing + inference time)')
 
     # Worker time
-    plot_line(fig3, data=plot_data["worker_thread_values"], scale=True, color='green', title='Worker Thread Time')
+    plot_line(fig3, data=plot_data["worker_thread_values"], color='green', title='Worker Thread Time')
+
+    # Predict Time
+    plot_line(fig4, data=plot_data["predict_values"], color='red',
+              title='Prediction time(handler time+python worker overhead)')
 
     # Plot in one graph
     plot_line(fig5, data=plot_data["waiting_time_values"], color='pink')
-    plot_line(fig5, data=plot_data["handler_time_values"], scale=True, color='orange')
-    plot_line(fig5, data=plot_data["predict_values"], scale=True, color='red')
-    plot_line(fig5, data=plot_data["worker_thread_values"], scale=True, color='green')
-    plt.savefig("/tmp/benchmark/api-profile.png", bbox_inches='tight')
+    plot_line(fig5, data=plot_data["handler_time_values"], color='orange')
+    plot_line(fig5, data=plot_data["predict_values"], color='red')
+    plot_line(fig5, data=plot_data["worker_thread_values"], color='green', title='Combined Graph')
+    fig5.grid()
+    plt.savefig("api-profile1.png", bbox_inches='tight')
 
 
 def stop_torchserve():
