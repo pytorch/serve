@@ -29,7 +29,7 @@ NOTES
 
 [Serve custom models with third party dependency](#serve-custom-models-with-third-party-dependency)
 
-[Serve models for A/B testing](#serve_models_for_ab_testing)
+[Serve models for A/B testing](#serve-models-for-ab-testing)
 
 #### Deploy pytorch eager mode model
 
