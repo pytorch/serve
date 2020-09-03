@@ -5,7 +5,7 @@ These use-cases assume you have pre-trained model(s) and torchserve, torch-model
 This should help you in moving your development environment model to production/serving environment.
 
 NOTES
-- Assuming . If you have not installed latest torchserve and torch-model-archiver then follow [installation](https://github.com/pytorch/serve#install-torchserve) instructions and complete installation
+- If you have not installed latest torchserve and torch-model-archiver then follow [installation](https://github.com/pytorch/serve#install-torchserve) instructions and complete installation
 - If planning to use docker (henceforth referred as `Docker`), make sure following prerequisites are in place - 
     - Make sure you have latest docker engine install on your target node. If not then use [this](https://docs.docker.com/engine/install/) link to install it.
     - Follow instructions [install using docker](https://github.com/pytorch/serve/tree/master/docker#running-torchserve-in-a-production-docker-environment) to share `model-store` directory and start torchserve
@@ -25,9 +25,11 @@ NOTES
 
 [Serve models on GPUs](#serve-models-on-gpus)
 
-[Serve your custom models with no third party dependency](#serve-your-custom-models-with-no-third-party-dependency)
+[Serve custom models with no third party dependency](#serve-custom-models-with-no-third-party-dependency)
 
-[Serve your custom models with third party dependency](#serve-your-custom-models-with-third-party-dependency)
+[Serve custom models with third party dependency](#serve-custom-models-with-third-party-dependency)
+
+[Serve models for A/B testing](#serve_models_for_ab_testing)
 
 #### Deploy pytorch eager mode model
 
@@ -170,7 +172,7 @@ e.g. number_of_gpu=2
 **Examples**
 - https://github.com/pytorch/serve/tree/master/examples/image_classifier
 
-#### Serve your custom models with no third party dependency
+#### Serve custom models with no third party dependency
 This use case demonstrates torchserve deployment for custom models with no python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.
 
@@ -202,7 +204,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 - [MNIST example](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist)
 
 
-#### Serve your custom models with third party dependency
+#### Serve custom models with third party dependency
 This use case demonstrates torchserve deployment for custom models with python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.
 
@@ -211,7 +213,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 
 **Steps to deploy your model(s)**
 - Create [<your_custom_handler_py_file>](https://github.com/pytorch/serve/blob/master/docs/custom_service.md) which uses third party python package such as [fairseq](https://github.com/pytorch/fairseq) for pretrained NMT models
-- Create a requirements.txt file with an entry for `fairseq` python package name
+- Create a requirements.txt file with an entry for `fairseq` python package name in it
 - Create MAR file for [torch scripted model](https://github.com/pytorch/serve/tree/master/examples#creating-mar-file-for-torchscript-mode-model) with requirements.txt
     ```
     torch-model-archiver --model-name <your_model_name> --version 1.0  --serialized-file <your_model_name>.pt --extra-files ./index_to_name.json --handler <**path/to/your_custom_handler_py_file**> --requirements-file <your_requirements_txt>
@@ -235,3 +237,33 @@ The example taken here uses scripted mode model however you can also deploy eage
 **Examples and References**
 - [Installing model specific python dependencies](https://github.com/pytorch/serve/blob/master/docs/custom_service.md#installing-model-specific-python-dependencies)
 
+
+#### Serve models for AB testing
+
+This use case demonstrates serving two or more versions of same model using version API. It is an extension of any of the above use cases.
+
+**Prerequisites**
+- You have followed any of the above procedure and have a working torchserve setup along with torch-model-archiver installed.
+
+**Steps to deploy your model(s)**
+- Create a model [i.e. mar file] with version 1.0 or as per requirement. Follow the steps given above to create model file
+  e.g. torch-model-archiver --model-name <your-model-name-X> **--version 1.0** --model-file model.py --serialized-file <your-model-name-X>.pth --extra-files index_to_name.json --handler <your-model-name-X-handler>.py
+- Create another model [i.e. mar file] with version 2.0 or as per requirement
+  e.g. torch-model-archiver --model-name <your-model-name-X> **--version 2.0** --model-file model.py --serialized-file <your-model-name-X>.pth --extra-files index_to_name.json --handler <your-model-name-X-handler>.py
+- Register both these models with a initial worker. If you want, you can increase workers by using update api.
+  `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your-model-name-X>.mar"`
+- Now you will be able to invoke these models as
+  - Model version 1.0
+  `curl http://localhost:8081/models/<your-model-name-X>/1.0`
+  OR 
+  `curl http://localhost:8080/predictions/<your-model-name-X>/1.0 -F "data=@kitten.jpg"`
+  - Model version 2.0
+  `curl http://localhost:8081/models/<your-model-name-X>/2.0`
+    OR 
+  `curl http://localhost:8080/predictions/<your-model-name-X>/2.0 -F "data=@kitten.jpg"`
+
+**Expected outcome**
+- Able to deploy multiple versions of same model
+
+**Examples and References**
+- [Model management APIs](https://github.com/pytorch/serve/blob/master/docs/management_api.md)
