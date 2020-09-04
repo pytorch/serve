@@ -162,13 +162,18 @@ docker exec -it <container_name> /bin/bash
 ```
 You will be landing at /home/model-server/.
 
-3. Now Execute torch-model-archiver command e.g.
+3. Download the model weights if you have not done so already (they are not part of the repo)
+```bash
+curl -o /home/model-server/examples/image_classifier/densenet161-8d451a50.pth https://download.pytorch.org/models/densenet161-8d451a50.pth
+```
+
+4. Now Execute torch-model-archiver command e.g.
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/model-server/examples/image_classifier/densenet_161/model.py --serialized-file /home/model-server/examples/image_classifier/densenet161-8d451a50.pth --export-path /home/model-server/model-store --extra-files /home/model-server/examples/image_classifier/index_to_name.json --handler image_classifier
 ```
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
-4. desnet161.mar file should be present at /home/model-server/model-store
+5. desnet161.mar file should be present at /home/model-server/model-store
 
 # Running TorchServe in a Production Docker Environment.
 
