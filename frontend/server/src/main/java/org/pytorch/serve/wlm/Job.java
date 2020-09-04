@@ -116,13 +116,13 @@ public class Job {
                 "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
                 System.nanoTime() - scheduled);
-        String QueueTime =
+        String queueTime =
                 String.valueOf(
                         TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
         loggerTsMetrics.info(
                 new Metric(
                         "QueueTime",
-                        QueueTime,
+                        queueTime,
                         "ms",
                         ConfigManager.getInstance().getHostName(),
                         DIMENSION));

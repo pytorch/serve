@@ -14,11 +14,9 @@ import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
-import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
-import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -37,9 +35,6 @@ import org.slf4j.LoggerFactory;
 public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
     private static final Logger logger = LoggerFactory.getLogger(InferenceRequestHandler.class);
-    private static final org.apache.log4j.Logger loggerTsMetrics =
-            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     /** Creates a new {@code InferenceRequestHandler} instance. */
     public InferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
