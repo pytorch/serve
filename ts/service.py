@@ -13,6 +13,7 @@ from ts.context import Context, RequestProcessor
 from ts.metrics.metrics_store import MetricsStore
 from ts.protocol.otf_message_handler import create_predict_response
 
+PREDICTION_METRIC = 'PredictionTime'
 logger = logging.getLogger(__name__)
 
 
@@ -92,6 +93,8 @@ class Service(object):
         metrics = MetricsStore(req_id_map, self.context.model_name)
         self.context.metrics = metrics
 
+        start_time = time.time()
+
         # noinspection PyBroadException
         try:
             ret = self._entry_point(input_batch, self.context)
@@ -110,6 +113,10 @@ class Service(object):
             logger.warning("model: %s, number of batch response mismatched, expect: %d, got: %d.",
                            self.context.model_name, len(input_batch), len(ret))
             return create_predict_response(None, req_id_map, "number of batch response mismatched", 503)
+
+        duration = round((time.time() - start_time) * 1000, 2)
+        metrics.add_time(PREDICTION_METRIC, duration)
+
         return create_predict_response(ret, req_id_map, "Prediction success", 200, context=self.context)
 
 

@@ -12,7 +12,6 @@ import os
 import platform
 import socket
 import sys
-import time
 
 from ts.arg_parser import ArgParser
 from ts.model_loader import ModelLoaderFactory
@@ -24,7 +23,6 @@ SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
 BENCHMARK = os.getenv('TS_BENCHMARK')
 BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
-PREDICTION_METRIC = 'PredictionTime'
 
 
 class TorchModelServiceWorker(object):
@@ -108,10 +106,7 @@ class TorchModelServiceWorker(object):
             if BENCHMARK:
                 pr.enable()
             if cmd == b'I':
-                start_time = time.time()
                 resp = service.predict(msg)
-                stop_time = time.time()
-                service.context.metrics.add_time(PREDICTION_METRIC, round((stop_time - start_time) * 1000, 2), None, 'ms')
                 cl_socket.send(resp)
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)
