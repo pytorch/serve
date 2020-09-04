@@ -29,10 +29,23 @@ Invoke the predictions API and pass following payload(JSON)
 - **input_pose** : OPTIONAL; If specified, needs to be one of - `id_gridfs_1`, `id_gridfs_2`, `id_gridfs_3`, `id_gridfs_4`
 
 #### Example
-```
-curl -X POST -d '{"number_of_images":64, "input_gender":"Men", "input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img1.jpg
+1. **Create a single image (random gender, category, pose)**
+   ```
+   curl -X POST -d '{"number_of_images":1}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o img1.jpg
+   ```
+   > Result image should be similar to the one below -  
+   > ![Sample Image 1](sample-output/img1.jpg)
 
-curl -X POST -d '{"number_of_images":32, "input_gender":"Women", "input_category":"DRESSES", "input_pose":"id_gridfs_3"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img2.jpg
+2. **Create '64' images of 'Men' wearing 'Shirts' in 'id_gridfs_1' pose**
+   ```
+   curl -X POST -d '{"number_of_images":64, "input_gender":"Men", "input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o img2.jpg
+   ```
+   > Result image should be similar to the one below -  
+   > ![Sample Image 2](sample-output/img2.jpg)
 
-curl -X POST -d '{"number_of_images":4}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o test_img3.jpg
-```
+3. **Create '32' images of 'Women' wearing 'Dresses' in 'id_gridfs_3' pose**
+   ```
+   curl -X POST -d '{"number_of_images":32, "input_gender":"Women", "input_category":"DRESSES", "input_pose":"id_gridfs_3"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o img3.jpg
+   ```
+   > Result image should be similar to the one below -  
+   > ![Sample Image 3](sample-output/img3.jpg)
