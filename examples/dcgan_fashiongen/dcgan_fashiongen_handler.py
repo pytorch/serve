@@ -1,3 +1,4 @@
+import os
 import zipfile
 import torch
 from io import BytesIO
@@ -31,9 +32,10 @@ class ModelHandler(BaseHandler):
             ("cuda", torch.device("cuda:"+str(gpu_id)), True) if torch.cuda.is_available() else \
             ("cpu", torch.device("cpu"), False)
 
-        # Extract model architecture source code
-        with zipfile.ZipFile(model_dir + "/" + MODELSZIP, "r") as zip_ref:
-            zip_ref.extractall(model_dir)
+        # If not already extracted, Extract model source code
+        if not os.path.exists(model_dir + "/models"):
+            with zipfile.ZipFile(model_dir + "/" + MODELSZIP, "r") as zip_ref:
+                zip_ref.extractall(model_dir)
 
         # Load Model
         from models.DCGAN import DCGAN
@@ -52,16 +54,16 @@ class ModelHandler(BaseHandler):
             data = req.get("data") if req.get("data") is not None else req.get("body", {})
 
             number_of_images = data.get("number_of_images", self.default_number_of_images)
-            labels = {ky: "b'{}'".format(vl) for ky, vl  in data.items() if ky not in ["number_of_images"]}
+            labels = {ky: "b'{}'".format(vl) for ky, vl in data.items() if ky not in ["number_of_images"]}
 
-            input = self.dcgan_model.buildNoiseDataWithConstraints(number_of_images,labels)
+            noise = self.dcgan_model.buildNoiseDataWithConstraints(number_of_images, labels)
             preprocessed_data.append({
-                "number_of_images" : number_of_images,
-                "input" : input
+                "number_of_images": number_of_images,
+                "input": noise
             })
         return preprocessed_data
 
-    def inference(self, preprocessed_data):
+    def inference(self, preprocessed_data, *args, **kwargs):
         """
         Take the noise data as an input tensor, pass it to the model and collect the output tensor.
         """
