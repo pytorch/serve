@@ -6,8 +6,8 @@ import abc
 import logging
 import os
 import importlib.util
-import torch
 import time
+import torch
 
 from ..utils.util import list_classes_from_module, load_label_mapping
 
