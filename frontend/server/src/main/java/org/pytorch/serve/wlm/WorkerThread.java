@@ -10,8 +10,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -36,18 +41,16 @@ import org.slf4j.LoggerFactory;
 public class WorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final org.apache.log4j.Logger loggerTsMetrics =
-            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final org.apache.log4j.Logger loggerTsMetrics = org.apache.log4j.Logger
+            .getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
     private Metric workerLoadTime;
 
-    private static final int[] BACK_OFF = {
-        0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
-    };
+    private static final int[] BACK_OFF = { 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597 };
 
     private static final long WORKER_TIMEOUT = 2L;
-    private static final ModelRequestEncoder ENCODER =
-            new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
+    private static final ModelRequestEncoder ENCODER = new ModelRequestEncoder(
+            ConfigManager.getInstance().getPreferDirectBuffer());
 
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
@@ -74,6 +77,31 @@ public class WorkerThread implements Runnable {
 
     public WorkerState getState() {
         return state;
+    }
+
+    public String getCudaUsage() {
+        Process process;
+        String cudaUsage = "";
+        try {
+            process = Runtime.getRuntime().exec("python3 cuda_script.py");
+            InputStream stdout = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
+            String line;
+            try {
+                while((line = reader.readLine()) != null) {
+                    cudaUsage += line;
+                }
+            } 
+            catch(IOException e) {
+                cudaUsage = "0";
+                logger.error("Exception in reading output : "+ e.toString());
+            }
+        } catch (Exception e) {
+            cudaUsage = "0";
+            logger.error("Exception Raised : " + e.toString());
+        }
+
+        return cudaUsage;
     }
 
     public WorkerLifeCycle getLifeCycle() {
