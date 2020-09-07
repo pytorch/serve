@@ -83,12 +83,12 @@ public class WorkerThread implements Runnable {
         Process process;
         String cudaUsage = "";
         try {
-            process = Runtime.getRuntime().exec("python3 cuda_script.py");
+            process = Runtime.getRuntime().exec("ls");
             InputStream stdout = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
             String line;
             while((line = reader.readLine()) != null) {
-                cudaUsage += line;
+                cudaUsage += line + "\n";
             }
         } catch (Exception e) {
             cudaUsage = "0";
