@@ -83,11 +83,11 @@ public class WorkerThread implements Runnable {
         Process process;
         String cudaUsage = "";
         try {
-            process = Runtime.getRuntime().exec("nvidia-smi --query-gpu=timestamp,name,utilization.gpu,utilization.memory,memory.used --format=csv -noheader");
+            process = Runtime.getRuntime().exec("nvidia-smi --query-gpu=name,utilization.gpu,utilization.memory,memory.used --format=csv -noheader");
             InputStream stdout = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
             String line;
-            String headers[] = new String[5];
+            String headers[] = new String[4];
             Boolean firstLine = true;
             while((line = reader.readLine()) != null) {
                 if (firstLine){
@@ -97,7 +97,7 @@ public class WorkerThread implements Runnable {
                     String values[] = line.split(",");
                     line = "";
                     for(int i=0;i<headers.length;i++) {
-                        line += headers[i] + "=" +values[i];
+                        line += headers[i] + "::" +values[i];
                     }
                     cudaUsage += line + "---";
                 }
