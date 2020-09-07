@@ -738,6 +738,22 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromFileURI"})
+    public void testModelWithInvalidFileURI() throws InterruptedException, IOException {
+        String invalidFileUrl = "file:///InvalidUrl";
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setHttpStatus(null);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(channel, invalidFileUrl, "invalid_file_url", true, false);
+        TestUtils.getLatch().await();
+        System.out.println("HTTP Status: " + TestUtils.getHttpStatus());
+        System.out.println("Expected output : " + HttpResponseStatus.BAD_REQUEST);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
