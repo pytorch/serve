@@ -87,14 +87,8 @@ public class WorkerThread implements Runnable {
             InputStream stdout = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
             String line;
-            try {
-                while((line = reader.readLine()) != null) {
-                    cudaUsage += line;
-                }
-            } 
-            catch(IOException e) {
-                cudaUsage = "0";
-                logger.error("Exception in reading output : "+ e.toString());
+            while((line = reader.readLine()) != null) {
+                cudaUsage += line;
             }
         } catch (Exception e) {
             cudaUsage = "0";
