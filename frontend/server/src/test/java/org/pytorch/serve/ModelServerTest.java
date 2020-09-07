@@ -710,10 +710,8 @@ public class ModelServerTest {
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
-    public void testLoadModelFromFileURI() throws InterruptedException {
+    @Test(alwaysRun = true)
+    public void testLoadModelFromFileURI() throws InterruptedException, IOException {
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
         String parent = curDirFile.getParent();
@@ -723,12 +721,8 @@ public class ModelServerTest {
         File sourceFile = new File(source);
         File destinationFile = new File(destination);
         String fileUrl = "";
-        try {
-            FileUtils.copyFile(sourceFile, destinationFile);
-            fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
-        } catch (Exception e) {
-            Assert.assertEquals(e.getClass(), IOException.class);
-        }
+        FileUtils.copyFile(sourceFile, destinationFile);
+        fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
         testLoadModel(fileUrl, "mnist1", "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
         FileUtils.deleteQuietly(destinationFile);
@@ -736,7 +730,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
+            dependsOnMethods = {"testLoadModelFromFileURI"})
     public void testUnregisterFileURIModel() throws InterruptedException {
         testUnregisterModel("mnist1", null);
         Assert.assertFalse(new File(configManager.getModelStore(), "mnist1.mar").exists());
