@@ -83,7 +83,7 @@ public class WorkerThread implements Runnable {
         Process process;
         String cudaUsage = "";
         try {
-            process = Runtime.getRuntime().exec("nvidia-smi --query-gpu=name,utilization.gpu,utilization.memory,memory.used --format=csv -noheader");
+            process = Runtime.getRuntime().exec("nvidia-smi --query-gpu=name,utilization.gpu,utilization.memory,memory.used --format=csv");
             InputStream stdout = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
             String line;
