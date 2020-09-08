@@ -43,7 +43,8 @@ NOTE torchserve has been tested on Windows10 64bit system
     - For next steps refer [mar commands](https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-command-line-interface)
   - Execute build and UT
     - `pip install -U -r requirements/developer.txt`
-    - `pip install -U -r requirements/cpu.txt`
+    - `pip install -U -r requirements/cpu.txt -f  https://download.pyt
+orch.org/whl/torch_stable.html`
     - `cd frontend`
     - `.\gradlew.bat clean build`
 
