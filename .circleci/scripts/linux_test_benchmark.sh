@@ -14,10 +14,10 @@ mkdir $MODEL_STORE_DIR
 torchserve --start --model-store=$MODEL_STORE_DIR > ts_console.log 2>&1
 sleep 30
 
-# Go to benchmarks directory and trigger suite
+# Go to benchmarks directory and trigger Bechmark suite
 cd benchmarks
 python benchmark.py latency --ts http://127.0.0.1:8080
-EXIT_CODE=$?
+BMARK_EXIT_CODE=$?
 
 torchserve --stop
 
@@ -26,5 +26,19 @@ torchserve --stop
 cd ../
 mv ts_console.log logs/
 
-# Exit with the same error code as that of benchmark script
-exit $EXIT_CODE
+
+
+# Go to benchmarks directory and trigger Apache Bechmark suite
+cd benchmarks
+# Set LANG env variable required by click
+# https://click.palletsprojects.com/en/5.x/python3/
+export LANG=C.UTF-8
+# Execute soak test
+python benchmark-ab.py soak
+ABMARK_EXIT_CODE=$?
+
+
+# If any one of the benchmark tests fail, exit with error
+if [ "$BMARK_EXIT_CODE" -ne 0 ] || [ "$ABMARK_EXIT_CODE" -ne 0 ]
+then exit 1
+fi

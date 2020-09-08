@@ -8,6 +8,7 @@ ENV PYTHONUNBUFFERED TRUE
 RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
+        apache2-utils \
         build-essential \
         ca-certificates\
         curl \
@@ -88,7 +89,10 @@ RUN npm install -g \
 
 # Install Torchserve, Pytest, Regression and Benchmark Dependencies
 RUN pip install --no-cache-dir \
+        Click \
+        click-config-file \
         future \
+        matplotlib \
         mock \
         pandas \
         pillow \
@@ -97,6 +101,7 @@ RUN pip install --no-cache-dir \
         pytest \
         pytest-cov \
         pytest-mock \
+        requests \
         sentencepiece \
         torch==1.6.0 \
         torchaudio==0.6.0 \

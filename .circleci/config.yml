@@ -161,12 +161,16 @@ jobs:
       - run:
           name: Start torchserve, Execute benchmark tests, Stop torchserve
           command: .circleci/scripts/linux_test_benchmark.sh
+          no_output_timeout: 90m
       - store_artifacts:
           name: Store server logs from benchmark tests
           path: logs/
       - store_artifacts:
           name: Store Benchmark Latency resnet-18 results
           path: /tmp/TSBenchmark
+      - store_artifacts:
+          name: Store Apache Benchmark soak results
+          path: /tmp/benchmark
 
   performance-regression:
     parameters:
