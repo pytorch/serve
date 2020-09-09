@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve-mar-files.s3.amazonaws.com/TransformerEn2De.mar",
+        "url":"https://torchserve-mar-files.s3.amazonaws.com/TransformerEn2Fr.mar",
         "model_name":"TransformerEn2Fr",
         "worker":1,
         "synchronous":"true",
