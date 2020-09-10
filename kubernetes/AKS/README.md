@@ -6,7 +6,7 @@ This quickstart requires that you are running the Azure CLI version 2.0.64 or la
 
 #### 1.1 Set Azure account information
 
-```az login```
+```az login``` 
 
 ```az account set -s your-subscription-ID```
 
