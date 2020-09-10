@@ -13,6 +13,7 @@ The [create_mar.sh](create_mar.sh) script does the following :
 - Download a checkpoint file [DCGAN_fashionGen-1d67302.pth](https://dl.fbaipublicfiles.com/gan_zoo/DCGAN_fashionGen-1d67302.pth).  (`--serialized-file`)
 - Provide a custom handler - [dcgan_fashiongen_handler.py](dcgan_fashiongen_handler.py). (`--handler`)
 
+Alterantively, you can directly [download the dcgan_fashiongen.mar](https://torchserve.s3.amazonaws.com/mar_files/dcgan_fashiongen.mar)  
 
 ### 2. Start TorchServe and Register Model
 ```
