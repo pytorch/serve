@@ -1,5 +1,3 @@
-
-
 """
 Metric class for model server
 """
@@ -19,8 +17,9 @@ class Metric(object):
     Class for generating metrics and printing it to stdout of the worker
     """
 
-    def __init__(self, name, value,
-                 unit, dimensions, request_id=None, metric_method=None):
+    def __init__(
+        self, name, value, unit, dimensions, request_id=None, metric_method=None
+    ):
         """
         Constructor for Metric class
 
@@ -61,7 +60,7 @@ class Metric(object):
             metric to be updated
         """
 
-        if self.metric_method == 'counter':
+        if self.metric_method == "counter":
             self.value += value
         else:
             self.value = value
@@ -70,18 +69,36 @@ class Metric(object):
         dims = ",".join([str(d) for d in self.dimensions])
         if self.request_id:
             return "{}.{}:{}|#{}|#hostname:{},{},{}".format(
-                self.name, self.unit, self.value, dims, socket.gethostname(),
-                int(time.time()), self.request_id)
+                self.name,
+                self.unit,
+                self.value,
+                dims,
+                socket.gethostname(),
+                int(time.time()),
+                self.request_id,
+            )
 
         return "{}.{}:{}|#{}|#hostname:{},{}".format(
-            self.name, self.unit, self.value, dims, socket.gethostname(), int(time.time()))
+            self.name,
+            self.unit,
+            self.value,
+            dims,
+            socket.gethostname(),
+            int(time.time()),
+        )
 
     def to_dict(self):
         """
         return an Ordered Dictionary
         """
-        return OrderedDict({'MetricName': self.name, 'Value': self.value, 'Unit': self.unit,
-                            'Dimensions': self.dimensions,
-                            'Timestamp': int(time.time()),
-                            'HostName': socket.gethostname(),
-                            'RequestId': self.request_id})
+        return OrderedDict(
+            {
+                "MetricName": self.name,
+                "Value": self.value,
+                "Unit": self.unit,
+                "Dimensions": self.dimensions,
+                "Timestamp": int(time.time()),
+                "HostName": socket.gethostname(),
+                "RequestId": self.request_id,
+            }
+        )

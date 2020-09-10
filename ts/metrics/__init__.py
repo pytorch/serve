@@ -1,5 +1,3 @@
-
-
 """
 This is a folder for all python worker metrics.
 """

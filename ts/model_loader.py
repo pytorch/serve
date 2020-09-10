@@ -1,5 +1,3 @@
-
-
 """
 Model loader.
 """
@@ -31,6 +29,7 @@ class ModelLoader(object):
     """
     Base Model Loader class.
     """
+
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -85,16 +84,22 @@ class TsModelLoader(ModelLoader):
             # pylint: disable=unused-variable
         except ImportError as e:
             module_name = ".{0}".format(handler)
-            module = importlib.import_module(module_name, 'ts.torch_handler')
+            module = importlib.import_module(module_name, "ts.torch_handler")
             function_name = None
 
         if module is None:
-            raise ValueError("Unable to load module {}, make sure it is added to python path".format(module_name))
+            raise ValueError(
+                "Unable to load module {}, make sure it is added to python path".format(
+                    module_name
+                )
+            )
         if function_name is None:
             function_name = "handle"
         if hasattr(module, function_name):
             entry_point = getattr(module, function_name)
-            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size)
+            service = Service(
+                model_name, model_dir, manifest, entry_point, gpu_id, batch_size
+            )
 
             service.context.metrics = metrics
             # initialize model at load time
@@ -102,20 +107,34 @@ class TsModelLoader(ModelLoader):
         else:
             model_class_definitions = list_classes_from_module(module)
             if len(model_class_definitions) != 1:
-                raise ValueError("Expected only one class in custom service code or a function entry point {}".format(
-                    model_class_definitions))
+                raise ValueError(
+                    "Expected only one class in custom service code or a function entry point {}".format(
+                        model_class_definitions
+                    )
+                )
 
             model_class = model_class_definitions[0]
             model_service = model_class()
             handle = getattr(model_service, "handle")
             if handle is None:
-                raise ValueError("Expect handle method in class {}".format(str(model_class)))
+                raise ValueError(
+                    "Expect handle method in class {}".format(str(model_class))
+                )
 
-            service = Service(model_name, model_dir, manifest, model_service.handle, gpu_id, batch_size)
+            service = Service(
+                model_name,
+                model_dir,
+                manifest,
+                model_service.handle,
+                gpu_id,
+                batch_size,
+            )
             initialize = getattr(model_service, "initialize")
             if initialize is not None:
                 model_service.initialize(service.context)
             else:
-                raise ValueError("Expect initialize method in class {}".format(str(model_class)))
+                raise ValueError(
+                    "Expect initialize method in class {}".format(str(model_class))
+                )
 
         return service

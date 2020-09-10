@@ -1,5 +1,3 @@
-
-
 """
 Metric Encoder class for json dumps
 """
@@ -15,6 +13,7 @@ class MetricEncoder(JSONEncoder):
     """
     Encoder class for json encoding Metric Object
     """
+
     def default(self, obj):  # pylint: disable=arguments-differ, method-hidden
         """
         Override only when object is of type Metric

@@ -8,7 +8,8 @@ import torch
 import torch.nn.functional as F
 from torchtext.data.utils import ngrams_iterator
 from .text_handler import TextHandler
-from ..utils.util  import map_class_to_label
+from ..utils.util import map_class_to_label
+
 
 class TextClassifier(TextHandler):
     """
@@ -32,7 +33,7 @@ class TextClassifier(TextHandler):
 
         line = data[0]
         text = line.get("data") or line.get("body")
-        text = text.decode('utf-8')
+        text = text.decode("utf-8")
 
         text = self._remove_html_tags(text)
         text = text.lower()
@@ -41,11 +42,8 @@ class TextClassifier(TextHandler):
         text = self._remove_punctuation(text)
         text = self._tokenize(text)
         text = torch.as_tensor(
-            [
-                self.source_vocab[token]
-                for token in ngrams_iterator(text, self.ngrams)
-            ],
-            device=self.device
+            [self.source_vocab[token] for token in ngrams_iterator(text, self.ngrams)],
+            device=self.device,
         )
         return text
 

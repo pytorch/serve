@@ -1,4 +1,3 @@
-
 """
 Model services code
 """

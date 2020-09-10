@@ -1,5 +1,3 @@
-
-
 """
 Dummy custom service which is function based
 """

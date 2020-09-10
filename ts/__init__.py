@@ -1,5 +1,3 @@
-
-
 """
 This module does the following:
 a. Starts model-server.

@@ -1,5 +1,3 @@
-
-
 """
 Dimension class for model server metrics
 """
@@ -9,6 +7,7 @@ class Dimension(object):
     """
     Dimension class defining key value pair
     """
+
     def __init__(self, name, value):
         """
         Constructor for Dimension class
@@ -34,4 +33,4 @@ class Dimension(object):
         """
         return an dictionary
         """
-        return {'Name': self.name, 'Value': self.value}
+        return {"Name": self.name, "Value": self.value}

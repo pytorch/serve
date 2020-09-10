@@ -9,10 +9,12 @@ import torch
 from PIL import Image
 from .base_handler import BaseHandler
 
+
 class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
+
     def preprocess(self, data):
         images = []
 

@@ -1,5 +1,3 @@
-
-
 """
 Context object of incoming request
 """
@@ -19,7 +17,7 @@ class Context(object):
             "gpu_id": gpu,
             "batch_size": batch_size,
             "server_name": "MMS",
-            "server_version": mms_version
+            "server_version": mms_version,
         }
         self.request_ids = None
         self.request_processor = None
@@ -55,14 +53,16 @@ class Context(object):
         return self._request_processor[idx].get_request_properties()
 
     def set_response_content_type(self, idx, value):
-        self.set_response_header(idx, 'content-type', value)
+        self.set_response_header(idx, "content-type", value)
 
     def get_response_content_type(self, idx):
-        return self.get_response_headers(idx).get('content-type')
+        return self.get_response_headers(idx).get("content-type")
 
     def get_response_status(self, idx):
-        return self._request_processor[idx].get_response_status_code(), \
-               self._request_processor[idx].get_response_status_phrase()
+        return (
+            self._request_processor[idx].get_response_status_code(),
+            self._request_processor[idx].get_response_status_phrase(),
+        )
 
     def set_response_status(self, code=200, phrase="", idx=0):
         """
@@ -72,9 +72,11 @@ class Context(object):
         :param code:
         :return:
         """
-        if self._request_processor is not None and self._request_processor[idx] is not None:
-            self._request_processor[idx].report_status(code,
-                                                       reason_phrase=phrase)
+        if (
+            self._request_processor is not None
+            and self._request_processor[idx] is not None
+        ):
+            self._request_processor[idx].report_status(code, reason_phrase=phrase)
 
     def set_all_response_status(self, code=200, phrase=""):
         """

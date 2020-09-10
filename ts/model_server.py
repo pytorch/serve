@@ -46,7 +46,9 @@ def start():
         if pid is not None:
             try:
                 psutil.Process(pid)
-                print("TorchServe is already running, please use torchserve --stop to stop TorchServe.")
+                print(
+                    "TorchServe is already running, please use torchserve --stop to stop TorchServe."
+                )
                 sys.exit(1)
             except psutil.Error:
                 print("Removing orphan pid file.")
@@ -68,7 +70,11 @@ def start():
         tmp_dir = os.environ.get("TEMP")
         if tmp_dir:
             if not os.path.isdir(tmp_dir):
-                print("Invalid temp directory: {}, please check TEMP environment variable.".format(tmp_dir))
+                print(
+                    "Invalid temp directory: {}, please check TEMP environment variable.".format(
+                        tmp_dir
+                    )
+                )
                 sys.exit(1)
 
             cmd.append("-Djava.io.tmpdir={}".format(tmp_dir))
@@ -82,13 +88,20 @@ def start():
             ts_conf_file = ts_config
 
         platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
-        class_path = "{}{}".format(platform_path_separator[platform.system()], os.path.join(ts_home, "ts/frontend/*"))
+        class_path = "{}{}".format(
+            platform_path_separator[platform.system()],
+            os.path.join(ts_home, "ts/frontend/*"),
+        )
 
         if ts_conf_file and os.path.isfile(ts_conf_file):
             props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
-                print("Warning: TorchServe is using non-default JVM parameters: {}".format(vm_args))
+                print(
+                    "Warning: TorchServe is using non-default JVM parameters: {}".format(
+                        vm_args
+                    )
+                )
                 arg_list = vm_args.split()
                 if args.log_config:
                     for word in arg_list[:]:
@@ -97,10 +110,12 @@ def start():
                 cmd.extend(arg_list)
             plugins = props.get("plugins_path", None)
             if plugins:
-                class_path += ":" + plugins + "/*" if "*" not in plugins else ":" + plugins
+                class_path += (
+                    ":" + plugins + "/*" if "*" not in plugins else ":" + plugins
+                )
 
-            if not args.model_store and props.get('model_store'):
-                args.model_store = props.get('model_store')
+            if not args.model_store and props.get("model_store"):
+                args.model_store = props.get("model_store")
 
         cmd.append("-cp")
         cmd.append(class_path)
