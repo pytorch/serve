@@ -85,19 +85,10 @@ def get_pip_packages(run, package_name=None):
         else:
             grep_cmd = r'grep "numpy\|pytest\|pylint"'
         return run_and_read_all(run, pip + ' list --format=freeze | ' + grep_cmd)
-
-    # Try to figure out if the user is running pip or pip3.
-    out2 = run_with_pip('pip')
-    out3 = run_with_pip('pip3')
-    num_pips = len([x for x in [out2, out3] if x is not None])
-    if num_pips == 0:
-        return 'pip', out2
-    if num_pips == 1:
-        if out2 is not None:
-            return 'pip', out2
-        return 'pip3', out3
-    # num_pips is 2. Return pip3 by default
-    return 'pip3', out3
+    out = run_with_pip('pip3')
+    if out == "N/A":
+        out = None
+    return 'pip3', out
 
 def get_java_version(run):
     rc, out, _ = run("java --version")
@@ -172,7 +163,7 @@ def get_gpu_info(run):
     if rc != 0:
         return None
     # Anonymize GPUs by removing their UUID
-    return re.sub(uuid_regex, '', out)
+    return "\n" + re.sub(uuid_regex, '', out)
 
 def get_running_cuda_version(run):
     return run_and_parse_first_match(run, 'nvcc --version', r'V(.*)$')
