@@ -1,7 +1,11 @@
 package org.pytorch.serve.archive;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Manifest {
 
     private String createdOn;
@@ -15,46 +19,8 @@ public class Manifest {
         model = new Model();
     }
 
-    public String getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(String createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getArchiverVersion() {
-        return archiverVersion;
-    }
-
-    public void setArchiverVersion(String archiverVersion) {
-        this.archiverVersion = archiverVersion;
-    }
-
-    public RuntimeType getRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(RuntimeType runtime) {
-        this.runtime = runtime;
-    }
-
-    public Model getModel() {
-        return model;
-    }
-
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
+    @Getter
+    @Setter
     public static final class Model {
 
         private String modelName;
@@ -65,54 +31,6 @@ public class Manifest {
         private String requirementsFile;
 
         public Model() {}
-
-        public String getModelName() {
-            return modelName;
-        }
-
-        public void setModelName(String modelName) {
-            this.modelName = modelName;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        public void setVersion(String version) {
-            this.version = version;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getModelVersion() {
-            return modelVersion;
-        }
-
-        public void setModelVersion(String modelVersion) {
-            this.modelVersion = modelVersion;
-        }
-
-        public String getRequirementsFile() {
-            return requirementsFile;
-        }
-
-        public void setRequirementsFile(String requirementsFile) {
-            this.requirementsFile = requirementsFile;
-        }
-
-        public String getHandler() {
-            return handler;
-        }
-
-        public void setHandler(String handler) {
-            this.handler = handler;
-        }
     }
 
     public enum RuntimeType {

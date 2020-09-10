@@ -1,8 +1,9 @@
 package org.pytorch.serve.snapshot;
 
-public final class SnapshotUtils {
+import lombok.experimental.UtilityClass;
 
-    private SnapshotUtils() {}
+@UtilityClass
+public final class SnapshotUtils {
 
     public static String getLastSnapshot(String storageType) {
         if ("FS".equalsIgnoreCase(storageType)) {

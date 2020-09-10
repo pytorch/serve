@@ -24,6 +24,8 @@ import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
+
+import lombok.experimental.UtilityClass;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.Session;
 import org.pytorch.serve.metrics.Dimension;
@@ -32,6 +34,7 @@ import org.pytorch.serve.util.messages.InputParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@UtilityClass
 /** A utility class that handling Netty request and response. */
 public final class NettyUtils {
 
@@ -64,8 +67,6 @@ public final class NettyUtils {
 
     private static final org.apache.log4j.Logger loggerTsMetrics =
             org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-
-    private NettyUtils() {}
 
     public static void requestReceived(Channel channel, HttpRequest request) {
         Session session = channel.attr(SESSION_KEY).get();

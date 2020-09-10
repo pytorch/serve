@@ -10,12 +10,13 @@ import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+@UtilityClass
 public final class ZipUtils {
-
-    private ZipUtils() {}
 
     public static void unzip(InputStream is, File dest) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(is)) {

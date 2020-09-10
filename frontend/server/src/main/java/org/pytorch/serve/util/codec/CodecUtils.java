@@ -2,16 +2,17 @@ package org.pytorch.serve.util.codec;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.CorruptedFrameException;
+import lombok.experimental.UtilityClass;
+
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@UtilityClass
 public final class CodecUtils {
 
     public static final int END = -1;
     public static final int BUFFER_UNDER_RUN = -3;
-
-    private CodecUtils() {}
 
     public static int readLength(ByteBuf byteBuf, int maxLength) {
         int size = byteBuf.readableBytes();

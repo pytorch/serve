@@ -2,7 +2,9 @@ package org.pytorch.serve.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public final class JsonUtils {
 
     public static final Gson GSON_PRETTY =
@@ -11,6 +13,4 @@ public final class JsonUtils {
                     .setPrettyPrinting()
                     .create();
     public static final Gson GSON = new GsonBuilder().create();
-
-    private JsonUtils() {}
 }
