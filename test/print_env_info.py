@@ -80,7 +80,7 @@ def get_pip_packages(run, package_name=None):
     """Returns `pip list` output. """
     # systems generally have `pip` as `pip` or `pip3`
     def run_with_pip(pip):
-        if package_name is not None:
+        if package_name == "torch":
             grep_cmd = 'grep "' + package_name + '"'
         else:
             grep_cmd = r'grep "numpy\|pytest\|pylint"'
