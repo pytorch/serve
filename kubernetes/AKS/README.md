@@ -6,9 +6,9 @@ This quickstart requires that you are running the Azure CLI version 2.0.64 or la
 
 #### 1.1 Set Azure account information
 
-`az login`
+```az login```
 
-`az account set -s your-subscription-ID`
+```az account set -s your-subscription-ID```
 
 #### 1.2 Create a resource group
 
@@ -16,29 +16,29 @@ An Azure resource group is a logical group in which Azure resources are deployed
 
 The following example creates a resource group named *myResourceGroup* in the *eastus* location.
 
-`az group create --name myResourceGroup --location eastus`
+```az group create --name myResourceGroup --location eastus```
 
 #### 1.3 Create AKS cluster
 
 Use the [az aks create](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-create) command to create an AKS cluster. The following example creates a cluster named *myAKSCluster* with one node. This will take several minutes to complete.
 
-`az aks create  --resource-group myResourceGroup  --name myAKSCluster --node-vm-size Standard_NC6   --node-count 1`
+```az aks create  --resource-group myResourceGroup  --name myAKSCluster --node-vm-size Standard_NC6   --node-count 1```
 
 #### 1.4 Connect to the cluster
 
 To manage a Kubernetes cluster, you use [kubectl](https://kubernetes.io/docs/user-guide/kubectl/), the Kubernetes command-line client. If you use Azure Cloud Shell, `kubectl` is already installed. To install `kubectl` locally, use the [az aks install-cli](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-install-cli) command:
 
-`az aks install-cli`
+```az aks install-cli```
 
 To configure `kubectl` to connect to your Kubernetes cluster, use the [az aks get-credentials](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-get-credentials) command. This command downloads credentials and configures the Kubernetes CLI to use them.
 
-`az aks get-credentials --resource-group myResourceGroup --name myAKSCluster`
+```az aks get-credentials --resource-group myResourceGroup --name myAKSCluster```
 
 #### 1.5 Install NVIDIA device plugin
 
 Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
 
-`kubectl apply -f nvidia-device-plugin-ds.yaml`
+```kubectl apply -f nvidia-device-plugin-ds.yaml```
 
 NAME                  READY  STATUS  RESTARTS  AGE
 
@@ -56,13 +56,19 @@ chmod 700 get_helm.sh
 
 #### 2.1 Download the github repository and enter the kubernetes directory
 
-`git clone https://github.com/pytorch/serve.git`
+```git clone https://github.com/pytorch/serve.git```
 
-`cd serve/kubernetes/MicrosoftAzure`
+```cd serve/kubernetes/AKS```
 
-#### 2.2 Create PersistentVolume
+#### 2.2 Create a storage class
 
-`kubectl apply -f pvc.yaml`
+A storage class is used to define how an Azure file share is created. If multiple pods need concurrent access to the same storage volume, you need Azure Files. Create the storage class with the following kubectl apply command:
+
+```kubectl apply -f templates/Azure_file_sc.yaml```
+
+#### 2.3 Create PersistentVolume
+
+```kubectl apply -f templates/AKS_pv_claim.yaml```
 
 Your output should look similar to
 
@@ -70,7 +76,7 @@ persistentvolumeclaim/model-store-claim created
 
 Verify that the PVC / PV is created by excuting.
 
-`kubectl get pvc,pv`
+```kubectl get pvc,pv```
 
 Your output should look similar to
 
@@ -80,11 +86,11 @@ persistentvolumeclaim/model-store-claim   Bound    pvc-c9e235a8-ca2b-4d04-8f25-8
 NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                       STORAGECLASS      REASON   AGE
 persistentvolume/pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            Delete           Bound    default/model-store-claim   managed-premium            28s
 
-#### 2.3 Create a pod and copy MAR / config files
+#### 2.4 Create a pod and copy MAR / config files
 
 Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files.
 
-`kubectl apply -f pod.yaml`
+```kubectl apply -f templates/model-store-pod.yaml```
 
 Your output should look similar to
 
@@ -92,14 +98,16 @@ pod/model-store-pod created
 
 Verify that the pod is created by excuting.
 
-`kubectl get po`
+```kubectl get po```
 
 Your output should look similar to
 
-NAME                               READY   STATUS    RESTARTS   AGE
-model-store-pod                    1/1     Running   0          39s
+NAME                                   READY   STATUS    RESTARTS   AGE
+model-store-pod                        1/1     Running   0          143m
+nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
+torchserve-576df559ff-tww7q            1/1     Running   0          141m
 
-#### 2.4 Down and copy MAR / config files
+#### 2.5 Down and copy MAR / config files
 
 ```shell
 wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
@@ -115,7 +123,7 @@ kubectl cp config.properties model-store-pod:/mnt/azure/config/config.properties
 
 Verify that the MAR / config files have been copied to the directory.
 
-`kubectl exec --tty pod/model-store-pod -- find /mnt/azure/`
+```kubectl exec --tty pod/model-store-pod -- find /mnt/azure/```
 
 Your output should look similar to
 
@@ -127,17 +135,12 @@ Your output should look similar to
 /mnt/azure/model-store/mnist.mar
 /mnt/azure/model-store/squeezenet1_1.mar
 
-#### 2.5 Delete pod and release the PVC
-
-`kubectl delete pod/model-store-pod`
-
-Your output should look similar to
-
-pod "model-store-pod" deleted
-
 #### 2.6 Install Torchserve using Helm Charts
 
-`helm install ts .`
+Enter the Helm directory and install TorchServe using Helm Charts
+```cd ../Helm```
+
+```helm install ts .```
 
 Your output should look similar to
 
@@ -150,7 +153,7 @@ TEST SUITE: None
 
 #### 2.7 Check the status of TorchServe
 
-`kubectl get po`
+```kubectl get po```
 
 The installation will take a few minutes. Output like this means the installation is not completed yet.
 
@@ -162,13 +165,13 @@ Output like this means the installation is completed.
 NAME                               READY   STATUS    RESTARTS   AGE
 torchserve-75f5b67469-5hnsn        1/1     Running   0          2m36s
 
-### 三、Test Torchserve Installation
+### 3、Test Torchserve Installation
 
 #### 3.1 Fetch the Load Balancer Extenal IP
 
 Fetch the Load Balancer Extenal IP by executing.
 
-`kubectl get svc`
+```kubectl get svc```
 
 Your output should look similar to
 
@@ -176,10 +179,10 @@ NAME               TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)         
 kubernetes         ClusterIP      10.0.0.1       <none>         443/TCP                         5d19h
 torchserve         LoadBalancer   10.0.39.88     your-external-IP   8080:30306/TCP,8081:30442/TCP   48s
 
-#### 3.2 Test Management / Prediction APIs using Web browser
+#### 3.2 Test Management / Prediction APIs
 
 ```
-http://your-external-IP:8081/models
+curl http://your-external-IP:8081/models
 ```
 
 Your output should look similar to
@@ -200,7 +203,7 @@ Your output should look similar to
 ```
 
 ```
-http://your-external-IP:8081/models/mnist
+curl http://your-external-IP:8081/models/mnist
 ```
 
 Your output should look similar to
