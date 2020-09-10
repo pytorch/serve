@@ -87,7 +87,7 @@ public class WorkerThread implements Runnable {
             InputStream stdout = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
             String line;
-            String headers[] = new String[3];
+            String[] headers = new String[3];
             Boolean firstLine = true;
             while((line = reader.readLine()) != null) {
                 if (firstLine){
