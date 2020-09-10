@@ -177,8 +177,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             int gpuId = worker.getGpuId();
             long memory = worker.getMemory();
             int pid = worker.getPid();
-            String cudaUsage = worker.getCudaUsage();
-            resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, cudaUsage);
+            String gpuUsage = worker.getGpuUsage();
+            resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
 
         return resp;

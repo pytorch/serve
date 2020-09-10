@@ -79,15 +79,15 @@ public class WorkerThread implements Runnable {
         return state;
     }
 
-    public String getCudaUsage() {
+    public String getGpuUsage() {
         Process process;
-        String cudaUsage = "";
+        String gpuUsage = "";
         try {
-            process = Runtime.getRuntime().exec("nvidia-smi --query-gpu=name,utilization.gpu,utilization.memory,memory.used --format=csv");
+            process = Runtime.getRuntime().exec("nvidia-smi -i " + gpuId +" --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
             InputStream stdout = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
             String line;
-            String headers[] = new String[4];
+            String headers[] = new String[3];
             Boolean firstLine = true;
             while((line = reader.readLine()) != null) {
                 if (firstLine){
@@ -95,19 +95,19 @@ public class WorkerThread implements Runnable {
                     firstLine = false;
                 } else {
                     String values[] = line.split(",");
-                    line = "";
-                    for(int i=0;i<headers.length;i++) {
-                        line += headers[i] + "::" +values[i];
+                    line = "gpuId::" + gpuId;
+                    for(int i=0; i<headers.length; i++) {
+                        line += " " + headers[i] + "::" + values[i].strip() + " ";
                     }
-                    cudaUsage += line + "---";
+                    gpuUsage += line;
                 }
             } 
         } catch (Exception e) {
-            cudaUsage = "0";
+            gpuUsage = "0";
             System.out.println("Exception Raised : " + e.toString());
         }
 
-        return cudaUsage;
+        return gpuUsage;
     }
 
     public WorkerLifeCycle getLifeCycle() {

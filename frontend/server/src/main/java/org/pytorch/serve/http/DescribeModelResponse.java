@@ -122,7 +122,7 @@ public class DescribeModelResponse {
     }
 
     public void addWorker(
-            String id, long startTime, boolean isRunning, int gpuId, long memoryUsage, int pid, String cudaUsage) {
+            String id, long startTime, boolean isRunning, int gpuId, long memoryUsage, int pid, String gpuUsage) {
         Worker worker = new Worker();
         worker.setId(id);
         worker.setStartTime(new Date(startTime));
@@ -130,7 +130,7 @@ public class DescribeModelResponse {
         worker.setGpu(gpuId >= 0);
         worker.setMemoryUsage(memoryUsage);
         worker.setPid(pid);
-        worker.setCudaUsage(cudaUsage);
+        worker.setGpuUsage(gpuUsage);
         workers.add(worker);
     }
 
@@ -150,16 +150,16 @@ public class DescribeModelResponse {
         private boolean gpu;
         private long memoryUsage;
         private int pid;
-        private String cudaUsage;
+        private String gpuUsage;
 
         public Worker() {}
 
-        public String getCudaUsage() {
-            return cudaUsage;
+        public String getGpuUsage() {
+            return gpuUsage;
         }
 
-        public void setCudaUsage(String cudaUsage) {
-            this.cudaUsage = cudaUsage;
+        public void setGpuUsage(String gpuUsage) {
+            this.gpuUsage = gpuUsage;
         }
 
         public int getPid() {
