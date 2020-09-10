@@ -34,7 +34,7 @@ public class Connector {
                     "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
                     Pattern.CASE_INSENSITIVE);
 
-    private static boolean useNativeIo = ConfigManager.getInstance().useNativeIo();
+    private static final boolean useNativeIo = ConfigManager.getInstance().useNativeIo();
 
     private boolean uds;
     private String socketPath;

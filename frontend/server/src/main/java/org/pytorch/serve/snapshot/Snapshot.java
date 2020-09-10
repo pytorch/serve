@@ -9,8 +9,8 @@ public class Snapshot {
     private long created;
     private Map<String, Map<String, JsonObject>> models;
 
-    public Snapshot(String snaspshotName, int modelCount) {
-        this.name = snaspshotName;
+    public Snapshot(String snapshotName, int modelCount) {
+        this.name = snapshotName;
         this.setModelCount(modelCount);
         this.created = System.currentTimeMillis();
     }

@@ -30,20 +30,20 @@ public class Model {
 
     private static final Logger logger = LoggerFactory.getLogger(Model.class);
 
-    private ModelArchive modelArchive;
+    private final ModelArchive modelArchive;
     private int minWorkers;
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
-    private ReentrantLock lock;
+    private final ReentrantLock lock;
     private int responseTimeout;
-    private ModelVersionName modelVersionName;
+    private final ModelVersionName modelVersionName;
 
     // Total number of subsequent inference request failures
-    private AtomicInteger failedInfReqs;
+    private final AtomicInteger failedInfReqs;
 
     // Per worker thread job queue. This separates out the control queue from data queue
-    private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
+    private final ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;

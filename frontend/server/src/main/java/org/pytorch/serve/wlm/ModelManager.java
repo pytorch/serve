@@ -37,11 +37,11 @@ public final class ModelManager {
 
     private static ModelManager modelManager;
 
-    private ConfigManager configManager;
-    private WorkLoadManager wlm;
-    private ConcurrentHashMap<String, ModelVersionedRefs> modelsNameMap;
-    private HashSet<String> startupModels;
-    private ScheduledExecutorService scheduler;
+    private final ConfigManager configManager;
+    private final WorkLoadManager wlm;
+    private final ConcurrentHashMap<String, ModelVersionedRefs> modelsNameMap;
+    private final HashSet<String> startupModels;
+    private final ScheduledExecutorService scheduler;
 
     private ModelManager(ConfigManager configManager, WorkLoadManager wlm) {
         this.configManager = configManager;
@@ -133,7 +133,7 @@ public final class ModelManager {
             String handler,
             Manifest.RuntimeType runtime,
             String defaultModelName)
-            throws FileAlreadyExistsException, ModelException, IOException {
+            throws ModelException, IOException {
         ModelArchive archive = ModelArchive.downloadModel(configManager.getModelStore(), url);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {

@@ -12,7 +12,7 @@ public enum WorkerCommands {
     @SerializedName("stats")
     STATS("stats");
 
-    private String command;
+    private final String command;
 
     WorkerCommands(String command) {
         this.command = command;

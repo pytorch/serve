@@ -39,7 +39,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         File snapshotFile = new File(snapshotPath, snapshot.getName());
         if (snapshotFile.exists()) {
             logger.error(
-                    "Snapshot " + snapshot.getName() + " already exists. Not saving the sanpshot.");
+                    "Snapshot {} already exists. Not saving the snapshot.", snapshot.getName() );
             return;
         }
 
@@ -54,7 +54,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
     }
 
     @Override
-    public Snapshot getSnapshot(String snapshotJson) throws IOException {
+    public Snapshot getSnapshot(String snapshotJson) {
         return GSON.fromJson(snapshotJson, Snapshot.class);
     }
 
@@ -83,19 +83,25 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
                 }
             } catch (IOException e) {
                 e.printStackTrace(); // NOPMD
+                throw new RuntimeException(e);
             }
         }
 
         return latestSnapshotPath;
     }
 
-    private static long getSnapshotTime(String filename) {
-        String timestamp = filename.split("-")[0];
-        Date d = null;
+    static long getSnapshotTime(String filename) {
+        String[] split = filename.split("-");
+        if (split.length <= 1) {
+            throw new IllegalArgumentException(String.format("invalid filename %s", filename));
+        }
+        String timestamp = split[0];
+        Date d;
         try {
             d = new SimpleDateFormat("yyyyMMddHHmmssSSS").parse(timestamp);
         } catch (ParseException e) {
             e.printStackTrace(); // NOPMD
+            throw new RuntimeException(e);
         }
         return d.getTime();
     }
