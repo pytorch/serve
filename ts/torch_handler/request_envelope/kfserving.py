@@ -21,13 +21,15 @@ class KFservingEnvelope(BaseEnvelope):
         data = self._data_list[0]
         self._inputs = data.get("instances") 
         #selecting the first input from the kfserving request instances list
-        self._inputs = self._inputs[0]
+        #self._inputs = self._inputs[0]
         print("KFServing parsed inputs", self._inputs)
         return self._inputs
 
-    def format_output(self, results):
+    def format_output(self, output, output_explain):
         response = {}
-        response["predictions"] = results
-        
+        response["predictions"] = output
+        if output_explain != None:
+            response["explainations"] =  output_explain.tolist()
+  
         print("The Response of KFServing", response)
         return [response]

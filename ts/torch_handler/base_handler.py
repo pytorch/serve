@@ -25,6 +25,7 @@ class BaseHandler(abc.ABC):
         self.context = None
         self.manifest = None
         self.map_location = None
+        self.explain = False
 
     def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
@@ -113,7 +114,7 @@ class BaseHandler(abc.ABC):
 
         return data.tolist()
 
-    def handle(self, data, context):
+    def handle(self, data, context, explain = False):
         """
         Entry point for default handler
         """
@@ -121,8 +122,23 @@ class BaseHandler(abc.ABC):
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
         self.context = context
+        output_explain  = None
+        #explain from header 
 
         data = self.preprocess(data)
-        data = self.inference(data)
-        data = self.postprocess(data)
-        return data
+        output = self.inference(data)
+        output_explain = self.explain_handle(context, data)
+        output = self.postprocess(output)
+        return output, output_explain
+
+    def explain_handle(self,context, data):
+        if self.context and self.context.get_request_header(0,"explain"):
+            if self.context.get_request_header(0,"explain") == "True":
+                self.explain = True
+                print("IsExplain",self.explain)
+                print("The explainations are being calculated")
+                output_explain = self.get_insights(data)
+                return output_explain
+                
+  
+

@@ -10,6 +10,8 @@ from torchtext.data.utils import ngrams_iterator
 from .text_handler import TextHandler
 from ..utils.util  import map_class_to_label
 
+from captum.attr import LayerIntegratedGradients, TokenReferenceBase, visualization
+
 class TextClassifier(TextHandler):
     """
     TextClassifier handler class. This handler takes a text (string) and
@@ -66,6 +68,25 @@ class TextClassifier(TextHandler):
         return super().inference(data, offsets)
 
     def postprocess(self, data):
+
         data = F.softmax(data)
         data = data.tolist()
         return  map_class_to_label(data, self.mapping)
+
+
+    def get_insights(self, text):
+        token_reference = TokenReferenceBase()
+        print(text.dim())
+        #offsets = torch.as_tensor([0])
+        #offsets= None
+        
+        #offsets = [0] + [len(entry) for entry in text.tolist()]
+        #print(offsets)
+        offsets = torch.tensor([0])
+        print(offsets)
+        reference_indices = token_reference.generate_reference(text.shape[0], device=self.device).squeeze(0)
+        print(reference_indices)
+        attributions_ig = self.lig.attribute(text, reference_indices, \
+                                             additional_forward_args=(offsets), return_convergence_delta=False,target=0)
+        print(attributions_ig)
+        return attributions_ig

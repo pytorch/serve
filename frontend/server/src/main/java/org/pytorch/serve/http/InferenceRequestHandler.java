@@ -132,7 +132,17 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             modelVersion = segments[4];
         }
         String model_name = segments[3].split(":")[0];
-        predict(ctx, req, null, model_name, modelVersion);
+        String inf_task = segments[3].split(":")[1];
+        System.out.printf("inf_task %s", inf_task);
+        if (inf_task.equals("explain"))
+        {
+            explain(ctx, req, null, model_name, modelVersion);
+        }
+        else if (inf_task.equals("predict"))
+        {
+            predict(ctx, req, null, model_name, modelVersion);
+        }
+ 
     }
 
     private void handleInvocations(
@@ -178,6 +188,57 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             String modelVersion)
             throws ModelNotFoundException, ModelVersionNotFoundException {
         RequestInput input = parseRequest(ctx, req, decoder);
+        input.updateHeaders("explain","False");
+
+        if (modelName == null) {
+            modelName = input.getStringParameter("model_name");
+            if (modelName == null) {
+                throw new BadRequestException("Parameter model_name is required.");
+            }
+        }
+
+        if (HttpMethod.OPTIONS.equals(req.method())) {
+            ModelManager modelManager = ModelManager.getInstance();
+
+            Model model = modelManager.getModel(modelName, modelVersion);
+            if (model == null) {
+                throw new ModelNotFoundException("Model not found: " + modelName);
+            }
+
+            String resp = OpenApiUtils.getModelApi(model);
+            NettyUtils.sendJsonResponse(ctx, resp);
+            return;
+        }
+
+        Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
+        if (!ModelManager.getInstance().addJob(job)) {
+            String responseMessage =
+                    "Model \""
+                            + modelName
+                            + "\" Version "
+                            + modelVersion
+                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
+
+            if (modelVersion == null) {
+                responseMessage =
+                        "Model \""
+                                + modelName
+                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
+            }
+
+            throw new ServiceUnavailableException(responseMessage);
+        }
+    }
+    private void explain(
+            ChannelHandlerContext ctx,
+            FullHttpRequest req,
+            QueryStringDecoder decoder,
+            String modelName,
+            String modelVersion)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        RequestInput input = parseRequest(ctx, req, decoder);
+        input.updateHeaders("explain","True");
+        
         if (modelName == null) {
             modelName = input.getStringParameter("model_name");
             if (modelName == null) {
