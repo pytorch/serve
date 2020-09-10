@@ -94,7 +94,7 @@ public class WorkerThread implements Runnable {
                     headers = line.split(",");
                     firstLine = false;
                 } else {
-                    String values[] = line.split(",");
+                    String[] values = line.split(",");
                     line = "gpuId::" + gpuId;
                     for(int i=0; i<headers.length; i++) {
                         line += " " + headers[i] + "::" + values[i].strip() + " ";
