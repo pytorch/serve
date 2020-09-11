@@ -39,7 +39,7 @@ $ ./run_circleci_tests.py regression -j api-tests -e ubuntu18-venv36-cpu-docker
 > 2. Make sure docker is running before you start local execution.  
 > 3. Docker containers to have **at least 4GB RAM, 2 CPU**.  
 > 4. If you are on a network with low bandwidth, we advise you to explicitly pull the docker images -  
-> docker pull 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu    
+> docker pull 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu    
 
 `To avoid Pull Request build failures on github, developers should always make sure that their local builds pass.`
 
@@ -78,10 +78,10 @@ This is easier for maintenance and reduces chances of error in config.yml
 ## images
 TorchServe uses customized docker images for its CircleCI build.    
 We have published these docker images on AWS ECR
-* 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
-* 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
-* 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
-* 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
+* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
+* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
+* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
+* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
 
 Following file in the _images_ folder is used to create the docker images
 * [Dockerfile](images/Dockerfile) (This is a parameterised Dockerfile)
