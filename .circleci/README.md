@@ -1,28 +1,22 @@
 # Pytorch Serve CircleCI build
-TorchServe uses CircleCI for builds. This folder contains the config and scripts that are needed for CircleCI.
 
-## Local CircleCI cli
-To make it easy for developers to debug build issues locally, TorchServe supports CircleCI cli for running a job in a container on your machine.
+TorchServe uses CircleCI for builds. This folder contains the config and scripts that are needed for CircleCI. To make it easy for developers to debug build issues locally, there is also support for running a CircleCI job locally on your machine.
 
 #### Dependencies
-1. CircleCI cli ([Quick Install](https://circleci.com/docs/2.0/local-cli/#quick-installation))
-2. PyYAML (pip install PyYaml)
-3. docker (installed and running)
+1. CircleCI CLI ([Quick Install](https://circleci.com/docs/2.0/local-cli/#quick-installation))
+2. PyYAML  - ```pip install PyYaml```
 
 #### Command
-Developers can use the following command to execute CircleCI job:  
-**_./run_circleci_tests.py <workflow_name> -j <job_name> -e <executor_name>**
+Use the following command to execute CircleCI job:  
 
-- _workflow_name_  
-This is a madatory parameter
+```./run_circleci_tests.py <workflow_name> -j <job_name> -e <executor_name>
 
-- _-j, --job job_name_  
-If specified, executes only the specified job (along with the required parent job).  
-If not specified, all jobs in the workflow are executed sequentially.  
+- workflow_name : This is a madatory parameter
+- -j, --job job_name : If specified, executes only the specified job (along with the required parent job). If not specified, all jobs in the workflow are executed sequentially.  
+- -e, --executor executor_name
+```
 
-- _-e, --executor executor_name_  
-If specified, job is executed only on the specified executor(docker image).  
-If not specified, job is executed on all the supported executors.  
+If specified, job is executed only on the specified executor(docker image), else its executed on all the supported executors.  
 
 ```bash
 $ cd serve
@@ -44,7 +38,7 @@ $ ./run_circleci_tests.py regression -j api-tests -e ubuntu18-venv36-cpu-docker
 `To avoid Pull Request build failures on github, developers should always make sure that their local builds pass.`
 
 ## config.yml
-_config.yml_ contains TorchServe's build logic which is used by CircleCI.
+config.yml contains TorchServe's build logic which is used by CircleCI.
 
 ## Workflows and Jobs
 Currently, following _workflows_ are available -
@@ -76,14 +70,7 @@ Instead of using inline commands inside _config.yml_, job steps are configured a
 This is easier for maintenance and reduces chances of error in config.yml
 
 ## images
-TorchServe uses customized docker images for its CircleCI build.    
-We have published these docker images on AWS ECR
-* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
-* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
-* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
-* 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
-
-Following file in the _images_ folder is used to create the docker images
+TorchServe uses customized docker images for its CircleCI build. Following file in the `images` folder is used to create the docker images
 * [Dockerfile](images/Dockerfile) (This is a parameterised Dockerfile)
 
 #### To create a image run following cmd
