@@ -81,30 +81,32 @@ public class WorkerThread implements Runnable {
 
     public String getGpuUsage() {
         Process process;
-        String gpuUsage = "";
-        try {
-            process = Runtime.getRuntime().exec("nvidia-smi -i " + gpuId +" --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
-            InputStream stdout = process.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
-            String line;
-            String[] headers = new String[3];
-            Boolean firstLine = true;
-            while((line = reader.readLine()) != null) {
-                if (firstLine){
-                    headers = line.split(",");
-                    firstLine = false;
-                } else {
-                    String[] values = line.split(",");
-                    line = "gpuId::" + gpuId;
-                    for(int i=0; i<headers.length; i++) {
-                        line += " " + headers[i] + "::" + values[i].strip() + " ";
+        String gpuUsage = "N/A";
+        if (gpuId >= 0){
+            try {
+                process = Runtime.getRuntime().exec("nvidia-smi -i " + gpuId +" --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
+                InputStream stdout = process.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
+                String line;
+                String[] headers = new String[3];
+                Boolean firstLine = true;
+                while((line = reader.readLine()) != null) {
+                    if (firstLine){
+                        headers = line.split(",");
+                        firstLine = false;
+                    } else {
+                        String[] values = line.split(",");
+                        line = "gpuId::" + gpuId;
+                        for(int i=0; i<headers.length; i++) {
+                            line += " " + headers[i] + "::" + values[i].strip() + " ";
+                        }
+                        gpuUsage += line;
                     }
-                    gpuUsage += line;
-                }
-            } 
-        } catch (Exception e) {
-            gpuUsage = "0";
-            System.out.println("Exception Raised : " + e.toString());
+                } 
+            } catch (Exception e) {
+                gpuUsage = "0";
+                System.out.println("Exception Raised : " + e.toString());
+            }
         }
 
         return gpuUsage;
