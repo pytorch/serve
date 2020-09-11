@@ -58,6 +58,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python3 \
+    python3-distutils \
     openjdk-11-jre-headless \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
