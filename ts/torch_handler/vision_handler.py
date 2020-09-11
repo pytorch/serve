@@ -8,11 +8,18 @@ import io
 import torch
 from PIL import Image
 from .base_handler import BaseHandler
+from captum.attr import IntegratedGradients
 
 class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
+
+    def initialize(self, context):
+        super(VisionHandler, self).initialize(context)
+        self.ig = IntegratedGradients(self.model)
+        self.initialized = True
+
     def preprocess(self, data):
         images = []
 
@@ -28,3 +35,7 @@ class VisionHandler(BaseHandler, ABC):
             images.append(image)
 
         return torch.stack(images)
+
+    def get_insights(self, data):
+        print("input shape",data.shape)
+        return self.ig.attribute(data, target=0, n_steps=15)

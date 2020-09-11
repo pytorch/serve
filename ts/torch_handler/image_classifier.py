@@ -4,6 +4,10 @@ Module for image classification default handler
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
+from torchvision import models
+
+import json
+import numpy as np
 
 from .vision_handler import VisionHandler
 from ..utils.util  import map_class_to_label
@@ -25,7 +29,7 @@ class ImageClassifier(VisionHandler):
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
-
+        
     def set_max_result_classes(self, topk):
         self.topk = topk
 
@@ -38,3 +42,5 @@ class ImageClassifier(VisionHandler):
         probs = probs.tolist()
         classes = classes.tolist()
         return map_class_to_label(probs, self.mapping, classes)
+    
+
