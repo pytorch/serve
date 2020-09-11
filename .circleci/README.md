@@ -3,17 +3,18 @@
 TorchServe uses CircleCI for builds. This folder contains the config and scripts that are needed for CircleCI. To make it easy for developers to debug build issues locally, there is also support for running a CircleCI job locally on your machine.
 
 #### Dependencies
-1. CircleCI CLI ([Quick Install](https://circleci.com/docs/2.0/local-cli/#quick-installation))
+1. CircleCI CLI ([installation](https://circleci.com/docs/2.0/local-cli/#quick-installation))
 2. PyYAML  - ```pip install PyYaml```
 
 #### Command
 Use the following command to execute CircleCI job:  
 
-```./run_circleci_tests.py <workflow_name> -j <job_name> -e <executor_name>
+```
+./run_circleci_tests.py <workflow_name> -j <job_name> -e <executor_name>
 
-- workflow_name : This is a madatory parameter
-- -j, --job job_name : If specified, executes only the specified job (along with the required parent job). If not specified, all jobs in the workflow are executed sequentially.  
-- -e, --executor executor_name
+workflow_name is a madatory positional arg.
+-j, --job job_name : Executes a specific job.
+-e, --executor executor_name
 ```
 
 If specified, job is executed only on the specified executor(docker image), else its executed on all the supported executors.  
@@ -27,18 +28,9 @@ $ ./run_circleci_tests.py regression -j api-tests -e ubuntu18-venv36-cpu-docker
 ```
 
 ###### Checklist
-> 1. Make sure you have configured "aws_access_key_id" and "aws_secret_access_key" using aws cli
->    - 'aws configure get aws_access_key_id' - should return the access key id
->    - 'aws configure get aws_secret_access_key' - should return the secret access key
-> 2. Make sure docker is running before you start local execution.  
-> 3. Docker containers to have **at least 4GB RAM, 2 CPU**.  
-> 4. If you are on a network with low bandwidth, we advise you to explicitly pull the docker images -  
-> docker pull 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu    
+> 1. Configure AWS CLI Credentials.
+> 2. Make sure docker is running before you start local execution. / Docker containers to have **at least 4GB RAM, 2 CPU**.  
 
-`To avoid Pull Request build failures on github, developers should always make sure that their local builds pass.`
-
-## config.yml
-config.yml contains TorchServe's build logic which is used by CircleCI.
 
 ## Workflows and Jobs
 Currently, following _workflows_ are available -
@@ -65,15 +57,12 @@ Following _executors_ are available for job execution -
 
 > Please check the _workflows_, _jobs_ and _executors_ section in _config.yml_ for an up to date list
 
-## scripts
-Instead of using inline commands inside _config.yml_, job steps are configured as shell scripts.  
-This is easier for maintenance and reduces chances of error in config.yml
 
-## images
+## Build Images
 TorchServe uses customized docker images for its CircleCI build. Following file in the `images` folder is used to create the docker images
 * [Dockerfile](images/Dockerfile) (This is a parameterised Dockerfile)
 
-#### To create a image run following cmd
+#### To create an image run following cmd
 ```
 ./build_cci_image.sh
 ```
