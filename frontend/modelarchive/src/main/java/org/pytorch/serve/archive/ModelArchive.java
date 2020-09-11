@@ -59,14 +59,7 @@ public class ModelArchive {
                 throw new FileAlreadyExistsException(marFileName);
             }
             try {
-                if (url.indexOf("file://") != -1) {
-                    String originalPath = url.replace("file://", "");
-                    String path = FilenameUtils.getFullPath(originalPath);
-                    File source = new File(path, marFileName);
-                    FileUtils.copyFile(source, modelLocation);
-                } else {
-                    FileUtils.copyURLToFile(new URL(url), modelLocation);
-                }
+                FileUtils.copyURLToFile(new URL(url), modelLocation);
             } catch (IOException e) {
                 FileUtils.deleteQuietly(modelLocation);
                 throw new DownloadModelException("Failed to download model from: " + url, e);
