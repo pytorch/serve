@@ -72,10 +72,8 @@ Refer the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/c
 
 ## Benchmark parameters
 
-
 |Parameter|Required|Descripted|Default|
 |---|---|---|---|
-|ec2_key_file|:heavy_check_mark:|EC2 key file to be used while creating EC2 instance||
 |subnet_id|:heavy_check_mark:|Id of the subnet to be used while creating EC2 instance||
 |security_group_id|:heavy_check_mark:|Id of the securtiy group to be used while creating EC2 instance||
 |model_name||Name of the model to run benchmark on. Possible values - vgg11/fastrcnn/bert|vgg11|
@@ -86,7 +84,7 @@ Refer the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/c
 |ami||AWS ami id to use while creating EC2 instance|ami-079d181e97ab77906|
 
 ### Benchmark reports
-The CSV report are generated at location "/tmp/benchmark/<model_name>_<model_mode>_<batch_size>.csv"
+The CSV report are generated at provide s3 location.
 
 ### Sample output CSV
 | Benchmark | Model | Concurrency | Requests | TS failed requests | TS throughput | TS latency P50 | TS latency P90| TS latency P90 | TS latency mean | TS error rate | Model_p50 | Model_p90 | Model_p99 |
