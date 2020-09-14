@@ -12,6 +12,7 @@
  - Make sure you are an admin user or have admin rights
  - The instruction given here will use anaconda Powershell terminal to install torchserve
  - Install Anaconda as given [here](https://docs.anaconda.com/anaconda/install/windows/)
+ - Install Git as given [here](https://github.com/git-for-windows/git/releases/download/v2.28.0.windows.1/Git-2.28.0-64-bit.exe)
  - Install openjdk11
     - Download [openjdk11](https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip)
     - Unzip and edit/add environment variables i.e. PATH and JAVA_HOME
@@ -32,7 +33,7 @@ NOTE torchserve has been tested on Windows10 64bit system
  - Install torchserve 
      - `cd serve`
      - `pip install -U -r requirements/developer.txt`
-     - `pip install -U -r requirements/cpu.txt`
+     - `pip install -U -r requirements/cpu.txt -f  https://download.pytorch.org/whl/torch_stable.html``
      - `pip install .`
      - Start torchserve `torchserve.exe --start --model-store <path-to-model-store>`
      - For next steps refer [Serving a model](https://github.com/pytorch/serve#serve-a-model)
@@ -41,10 +42,9 @@ NOTE torchserve has been tested on Windows10 64bit system
     - `pip install .`
     - torch-model-archiver will be installed as exe hence add .exe extension to given examples in repo.
     - For next steps refer [mar commands](https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-command-line-interface)
-  - Execute build and UT
+  - For doing build and UT
     - `pip install -U -r requirements/developer.txt`
-    - `pip install -U -r requirements/cpu.txt -f  https://download.pyt
-orch.org/whl/torch_stable.html`
+    - `pip install -U -r requirements/cpu.txt -f  https://download.pytorch.org/whl/torch_stable.html`
     - `cd frontend`
     - `.\gradlew.bat clean build`
 
