@@ -9,9 +9,10 @@ buildscript {
 }
 
 plugins {
-    id 'com.google.protobuf' version '0.8.13' apply false
-    id 'idea'
-    id 'com.github.spotbugs' version '4.0.2' apply false
+  id 'com.google.protobuf' version '0.8.13' apply false
+  id 'idea'
+  id 'com.github.spotbugs' version '4.0.2' apply false
+  id 'com.diffplug.spotless' version '5.5.1'
 }
 
 allprojects {
@@ -42,9 +43,15 @@ configure(javaProjects()) {
 
     defaultTasks 'jar'
 
-	apply from: file("${rootProject.projectDir}/tools/gradle/formatter.gradle")
-	apply from: file("${rootProject.projectDir}/tools/gradle/check.gradle")
-	apply from: file("${rootProject.projectDir}/tools/gradle/spotbugs.gradle")
+    apply from: file("${rootProject.projectDir}/tools/gradle/check.gradle")
+    apply from: file("${rootProject.projectDir}/tools/gradle/spotbugs.gradle")
+    apply plugin: 'com.diffplug.spotless'
+
+    spotless {
+        java {
+            googleJavaFormat('1.7').aosp()
+        }
+    }
 
     test {
         useTestNG() {

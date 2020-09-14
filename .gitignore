@@ -9,3 +9,5 @@ dist/
 .github/actions/
 .github/.DS_Store
 .DS_Store
+*.ipr
+*.iws
