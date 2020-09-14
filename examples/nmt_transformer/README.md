@@ -52,7 +52,7 @@ In this example, we have shown how to serve a [English-to-French/English-German 
 * To get the inference use the following curl command  
 	For English-to-French model
     ```bash
-    curl http://127.0.0.1:8080/predictions/TransformerEn2Fr -T model_input/sample.txt
+    curl http://127.0.0.1:8080/predictions/TransformerEn2Fr -T model_input/sample.txt | json_pp
     {
         "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
         "french_output" : "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus tôt possible."
@@ -60,7 +60,7 @@ In this example, we have shown how to serve a [English-to-French/English-German 
     ```
 	For English-to-German model
 	```bash
-	curl http://127.0.0.1:8080/predictions/TransformerEn2De -T model_input/sample.txt
+	curl http://127.0.0.1:8080/predictions/TransformerEn2De -T model_input/sample.txt | json_pp
     {
         "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
         "german_output" : "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie möglich."
