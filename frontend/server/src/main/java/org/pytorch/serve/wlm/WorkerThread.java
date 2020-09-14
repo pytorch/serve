@@ -10,7 +10,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,16 +40,18 @@ import org.slf4j.LoggerFactory;
 public class WorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final org.apache.log4j.Logger loggerTsMetrics = org.apache.log4j.Logger
-            .getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final org.apache.log4j.Logger loggerTsMetrics =
+            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
     private Metric workerLoadTime;
 
-    private static final int[] BACK_OFF = { 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597 };
+    private static final int[] BACK_OFF = {
+        0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
+    };
 
     private static final long WORKER_TIMEOUT = 2L;
-    private static final ModelRequestEncoder ENCODER = new ModelRequestEncoder(
-            ConfigManager.getInstance().getPreferDirectBuffer());
+    private static final ModelRequestEncoder ENCODER =
+            new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
 
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
@@ -81,35 +82,43 @@ public class WorkerThread implements Runnable {
 
     public String getGpuUsage() {
         Process process;
-        String gpuUsage = "N/A";
-        if (gpuId >= 0){
+        StringBuffer gpuUsage = new StringBuffer();
+        if (gpuId >= 0) {
             try {
-                process = Runtime.getRuntime().exec("nvidia-smi -i " + gpuId +" --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
+                process =
+                        Runtime.getRuntime()
+                                .exec(
+                                        "nvidia-smi -i "
+                                                + gpuId
+                                                + " --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
                 InputStream stdout = process.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stdout,StandardCharsets.UTF_8));
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
                 String line;
                 String[] headers = new String[3];
                 Boolean firstLine = true;
-                while((line = reader.readLine()) != null) {
-                    if (firstLine){
+                while ((line = reader.readLine()) != null) {
+                    if (firstLine) {
                         headers = line.split(",");
                         firstLine = false;
                     } else {
                         String[] values = line.split(",");
-                        line = "gpuId::" + gpuId;
-                        for(int i=0; i<headers.length; i++) {
-                            line += " " + headers[i] + "::" + values[i].strip() + " ";
+                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId);
+                        for (int i = 0; i < headers.length; i++) {
+                            sb.append(headers[i] + "::" + values[i].strip());
                         }
-                        gpuUsage += line;
+                        gpuUsage.append(sb.toString());
                     }
-                } 
+                }
             } catch (Exception e) {
-                gpuUsage = "0";
-                System.out.println("Exception Raised : " + e.toString());
+                gpuUsage.append("failed to obtained gpu usage");
+                logger.error("Exception Raised : " + e.toString());
             }
+        } else {
+            gpuUsage.append("N/A");
         }
 
-        return gpuUsage;
+        return gpuUsage.toString();
     }
 
     public WorkerLifeCycle getLifeCycle() {
