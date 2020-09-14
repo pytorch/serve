@@ -103,7 +103,7 @@ public class WorkerThread implements Runnable {
                         firstLine = false;
                     } else {
                         String[] values = line.split(",");
-                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId);
+                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
                         for (int i = 0; i < headers.length; i++) {
                             sb.append(headers[i] + "::" + values[i].strip());
                         }
