@@ -16,6 +16,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -29,7 +30,7 @@ public class ModelArchive {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final Pattern VALID_URL_PATTERN =
-            Pattern.compile("http(s)?://.*", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("file?://.*|http(s)?://.*", Pattern.CASE_INSENSITIVE);
 
     private static final String MANIFEST_FILE = "MANIFEST.json";
 
@@ -152,14 +153,10 @@ public class ModelArchive {
         }
         ZipUtils.unzip(new DigestInputStream(is, md), tmp);
         if (eTag == null) {
-            eTag = HexUtils.toHexString(md.digest());
+            eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
+        logger.info("eTag {}", eTag);
         File dir = new File(modelDir, eTag);
-        if (dir.exists()) {
-            FileUtils.deleteDirectory(tmp);
-            logger.info("model folder already exists: {}", eTag);
-            return dir;
-        }
 
         FileUtils.moveDirectory(tmp, dir);
 

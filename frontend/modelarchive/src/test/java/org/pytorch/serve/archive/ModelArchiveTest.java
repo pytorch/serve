@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 public class ModelArchiveTest {
 
     private static final List<String> ALLOWED_URLS_LIST =
-            Collections.singletonList("http(s)?://.*");
+            Collections.singletonList("file://.*|http(s)?://.*");
 
     @BeforeTest
     public void beforeTest() {
@@ -79,6 +79,65 @@ public class ModelArchiveTest {
                 "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
     }
 
+    @Test
+    public void testLocalFile() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
+        String curDir = System.getProperty("user.dir");
+        File curDirFile = new File(curDir);
+        String parent = curDirFile.getParent();
+
+        // Setup: This test needs mar file in local path. Copying mnist.mar from model folder.
+        String source = modelStore + "/mnist.mar";
+        String destination = parent + "/modelarchive/mnist1.mar";
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination);
+        FileUtils.copyFile(sourceFile, destinationFile);
+
+        String fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST,modelStore, fileUrl);
+        File modelLocation = new File(modelStore + "/mnist1.mar");
+        Assert.assertTrue(modelLocation.exists());
+        ModelArchive.removeModel(modelStore, fileUrl);
+        Assert.assertTrue(!new File(modelStore, "mnist1").exists());
+        FileUtils.deleteQuietly(destinationFile);
+    }
+
+    @Test
+    public void archiveTest() throws ModelException, IOException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop.mar");
+
+        archive.getManifest().getModel().setModelVersion(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().getModel().setModelName(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setModel(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setRuntime(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setRuntime(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(ALLOWED_URLS_LIST,null, "/noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(ALLOWED_URLS_LIST,modelStore, "../noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(ALLOWED_URLS_LIST,"null", "/noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel(ALLOWED_URLS_LIST, "src/test/resources/", "models"));
+
+        archive.clean();
+    }
+
     @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformedURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
@@ -120,5 +179,11 @@ public class ModelArchiveTest {
                 ALLOWED_URLS_LIST,
                 modelStore,
                 "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
+    }
+
+    @Test(expectedExceptions = DownloadModelException.class)
+    public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive.downloadModel(ALLOWED_URLS_LIST,modelStore, "file://" + modelStore + "/mnist1.mar");
     }
 }

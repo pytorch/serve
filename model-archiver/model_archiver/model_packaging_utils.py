@@ -10,6 +10,7 @@ import re
 import zipfile
 import shutil
 import tarfile
+import tempfile
 from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
@@ -21,6 +22,13 @@ archiving_options = {
     "no-archive": "",
     "default": ".mar"
 }
+
+model_handlers = {
+        'text_classifier': 'text',
+        'image_classifier': 'vision',
+        'object_detector': 'vision',
+        'image_segmenter': 'vision'
+    }
 
 MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'
@@ -88,7 +96,7 @@ class ModelExportUtils(object):
     def generate_model(modelargs):
         model = Model(model_name=modelargs.model_name, serialized_file=modelargs.serialized_file,
                       model_file=modelargs.model_file, handler=modelargs.handler, model_version=modelargs.version,
-                      source_vocab=modelargs.source_vocab, requirements_file=modelargs.requirements_file)
+                      requirements_file=modelargs.requirements_file)
         return model
 
     @staticmethod
@@ -123,14 +131,19 @@ class ModelExportUtils(object):
         :param kwargs: key value pair of files to be copied in archive
         :return:
         """
-        model_path = '/tmp/{0}'.format(model_name)
+        model_path = os.path.join(tempfile.gettempdir(), model_name)
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
         ModelExportUtils.make_dir(model_path)
         for file_type, path in kwargs.items():
             if path:
-                if file_type == "handler" and len(path.split("/")[-1].split(".")) == 1:
-                    continue
+                if file_type == "handler":
+                    if path in model_handlers.keys():
+                        continue
+
+                    if '.py' not in path:
+                        path = (path.split(':')[0] if ':' in path else path) + '.py'
+
                 if file_type == "extra_files":
                     for file in path.split(","):
                         shutil.copy(file, model_path)

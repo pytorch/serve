@@ -81,6 +81,7 @@ See [Enable SSL](#enable-ssl) to configure HTTPS.
 
 * `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
 * `management_address`: management API binding address. Default: http://127.0.0.1:8081
+* `metrics_address`: metrics API binding address. Default: http://127.0.0.1:8082
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 
@@ -98,7 +99,7 @@ inference_address=https://172.16.1.10:8080
 
 ### Enable SSL
 
-To enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
+To enable HTTPs, you can change `inference_address`, `management_address` or `metrics_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
 The default is port 443, but you can make TorchServe listen on whatever port you set to accept https requests.
 For example, to receive https traffic on port 8443, you would use: `inference_address=https://127.0.0.1:8443`.
 
@@ -126,6 +127,7 @@ Configure the following properties in config.properties:
 ```bash
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 keystore=keystore.p12
 keystore_pass=changeit
 keystore_type=PKCS12
@@ -142,6 +144,7 @@ Config following property in config.properties:
 ```properties
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 private_key_file=mykey.key
 certificate_file=mycert.pem
 ```
@@ -193,6 +196,11 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 
 * `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
 
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
+		     This is used in conjunction with `enable_meterics_api` option above.
+
 ### Other properties
 
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
@@ -212,7 +220,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
-* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "http(s)?://.*" (all URLs)
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
 eg : To allow base URLs "https://s3.amazonaws.com/" and "https://torchserve.s3.amazonaws.com/" use following regex string
 ```
 allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.s3.amazonaws.com/.*
