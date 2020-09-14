@@ -29,7 +29,7 @@ class KFservingEnvelope(BaseEnvelope):
         response = {}
         response["predictions"] = output
         if output_explain != None:
-            response["explainations"] =  output_explain.tolist()
+            response["explanations"] =  output_explain
   
         print("The Response of KFServing", response)
         return [response]

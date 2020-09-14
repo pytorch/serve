@@ -6,7 +6,7 @@ import ast
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering,AutoModelForTokenClassification
 from ts.torch_handler.base_handler import BaseHandler
-
+from captum.attr import LayerIntegratedGradients
 logger = logging.getLogger(__name__)
 
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
@@ -68,15 +68,25 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             else:
                 logger.warning('Missing the index_to_name.json file.')
 
+              # ------------------------------- Captum initialization ----------------------------#
+        self.lig = LayerIntegratedGradients(captum_sequence_forward, self.model.bert.embeddings)
         self.initialized = True
 
     def preprocess(self, data):
         """ Basic text preprocessing, based on the user's chocie of application mode.
         """
-        text = data[0].get("data")
-        if text is None:
-            text = data[0].get("body")
-        input_text = text.decode('utf-8')
+        input_text = None
+        inp = data[0]
+        if inp is not None:
+            if isinstance(inp, dict):
+                name = inp.get("name")
+                if name == "context":
+                    input_text = inp.get("data")
+                    print("Inside KFServing preprocess, ",input_text)
+            else:
+                input_text = inp
+        
+        #input_text = text.decode('utf-8')
         max_length = self.setup_config["max_length"]
         logger.info("Received text: '%s'", input_text)
         #preprocessing text for sequence_classification and token_classification.
@@ -98,7 +108,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             context = question_context["context"]
             inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length),pad_to_max_length = True, add_special_tokens=True, return_tensors="pt")
 
-        return inputs
+        return inputs, input_text
 
     def inference(self, inputs):
         """ Predict the class (or classes) of the received text using the serialized transformers checkpoint.
@@ -142,3 +152,89 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     def postprocess(self, inference_output):
         # TODO: Add any needed post-processing of the model predictions here
         return inference_output
+    
+    def get_insights(self, text):
+        """
+        This function calls the layer integrated gradient to get word importance
+        of the input text
+        """
+        input_ids, ref_input_ids, attention_mask = construct_input_ref(text,  self.tokenizer, self.device)
+        all_tokens = get_word_token(input_ids, self.tokenizer)
+        attributions, delta = self.lig.attribute(inputs=input_ids,
+                                            baselines=ref_input_ids,
+                                            target=self.target,
+                                            additional_forward_args=(attention_mask, 0, self.model),
+                                            return_convergence_delta=True)
+
+        attributions_sum = summarize_attributions(attributions)
+        response = {}
+        response["importances"] = attributions_sum.tolist()
+        response["words"] = all_tokens
+        return [response]
+    
+    def handle(self, data, context, explain = False):
+        """
+        Entry point for default handler
+        """
+
+        # It can be used for pre or post processing if needed as additional request
+        # information is available in context
+        self.context = context
+        output_explain  = None
+        #explain from header 
+
+        data,input_text = self.preprocess(data)
+        output = self.inference(data)
+        output_explain = self.explain_handle(context, input_text)
+        output = self.postprocess(output)
+        return output, output_explain
+
+# Captum helper functions
+def construct_input_ref(text, tokenizer, device):
+    """
+    For a given text, this function creates token id, reference id and
+    attention mask based on encode which is faster for captum insights
+    """
+    text_ids = tokenizer.encode(text, add_special_tokens=False)
+    # construct input token ids
+    print("text_ids", text_ids)
+    print("[tokenizer.cls_token_id]",[tokenizer.cls_token_id])
+    input_ids = [tokenizer.cls_token_id] + text_ids + [tokenizer.sep_token_id]
+    print("input_ids",input_ids)
+
+    input_ids = torch.tensor([input_ids], device=device)
+    # construct reference token ids
+    ref_input_ids = [tokenizer.cls_token_id] + [tokenizer.pad_token_id] * len(text_ids) + [tokenizer.sep_token_id]
+    ref_input_ids = torch.tensor([ref_input_ids], device=device)
+    # construct attention mask
+    attention_mask = torch.ones_like(input_ids)
+    return input_ids, ref_input_ids, attention_mask
+
+def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
+    """
+    A custom forward function to access different positions of the predictions
+    """
+    model.eval()
+    model.zero_grad()
+    pred = model(inputs, attention_mask=attention_mask)
+    pred = pred[position]
+    return pred
+
+def summarize_attributions(attributions):
+    """
+    Summarises the attribution across multiple runs
+    """
+    attributions = attributions.sum(dim=-1).squeeze(0)
+    attributions = attributions / torch.norm(attributions)
+    return attributions
+
+def get_word_token(input_ids, tokenizer):
+    """
+    constructs word tokens from token id
+    """
+    indices = input_ids[0].detach().tolist()
+    tokens = tokenizer.convert_ids_to_tokens(indices)
+    # Remove unicode space character from BPE Tokeniser
+    tokens = [token.replace("Ġ", "") for token in tokens]
+    return tokens
+

@@ -26,6 +26,7 @@ class BaseHandler(abc.ABC):
         self.manifest = None
         self.map_location = None
         self.explain = False
+        self.target = 0
 
     def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
@@ -136,7 +137,7 @@ class BaseHandler(abc.ABC):
             if self.context.get_request_header(0,"explain") == "True":
                 self.explain = True
                 print("IsExplain",self.explain)
-                print("The explainations are being calculated")
+                print("The explainations are being calculated", data)
                 output_explain = self.get_insights(data)
                 return output_explain
                 

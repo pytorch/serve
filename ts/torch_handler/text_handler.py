@@ -9,7 +9,9 @@ import string
 import unicodedata
 from abc import ABC
 import torch
+import torch.nn.functional as F
 from torchtext.data.utils import get_tokenizer
+from torchtext.data.utils import ngrams_iterator
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
 from captum.attr import LayerIntegratedGradients, TokenReferenceBase, visualization
@@ -29,6 +31,7 @@ class TextHandler(BaseHandler, ABC):
         super(TextHandler, self).__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer('basic_english')
+        self.input_text = None
 
     def initialize(self, context):
         super(TextHandler, self).initialize(context)
@@ -69,3 +72,22 @@ class TextHandler(BaseHandler, ABC):
 
     def _tokenize(self, text):
         return self.tokenizer(text)
+
+    def get_word_token(self,input_ids, tokenizer):
+        """
+        constructs word tokens from token id
+        """
+        #indices = input_ids[0].detach().tolist()
+        #tokens = [ tok for tok in ngrams_iterator(input_ids, self.ngrams)]
+        # Remove unicode space character from BPE Tokeniser
+        tokens = [token.replace("Ġ", "") for token in input_ids]
+        return tokens
+    def summarize_attributions(self, attributions):
+        """
+        Summarises the attribution across multiple runs
+        """
+        attributions = F.softmax(attributions)
+        attributions_sum = attributions.sum(dim=-1)
+        print("attributions sum shape", attributions_sum.shape)
+        attributions = attributions / torch.norm(attributions_sum)
+        return attributions

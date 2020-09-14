@@ -22,7 +22,7 @@ class VisionHandler(BaseHandler, ABC):
 
     def preprocess(self, data):
         images = []
-
+        
         for row in data:
             # Compat layer: normally the envelope should just return the data
             # directly, but older versions of Torchserve didn't have envelope.
@@ -38,4 +38,4 @@ class VisionHandler(BaseHandler, ABC):
 
     def get_insights(self, data):
         print("input shape",data.shape)
-        return self.ig.attribute(data, target=0, n_steps=15)
+        return self.ig.attribute(data, target=self.target, n_steps=15).tolist()
