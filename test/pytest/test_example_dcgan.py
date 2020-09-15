@@ -14,6 +14,9 @@ DCGAN_EXAMPLE_DIR = os.path.join(REPO_ROOT_DIR, "examples", "dcgan_fashiongen")
 DCGAN_MAR_FILE = os.path.join(DCGAN_EXAMPLE_DIR, "dcgan_fashiongen.mar")
 
 
+os.environ['MKL_THREADING_LAYER'] = 'GNU'
+# Work around for issue - https://github.com/pytorch/pytorch/issues/37377
+
 def setup_module():
     test_utils.torchserve_cleanup()
     create_example_mar()
