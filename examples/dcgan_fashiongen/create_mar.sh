@@ -7,10 +7,11 @@ SRCDIR="$REPONAME-$SHA"
 MODELSZIP="models.zip"
 MODELSDIR="models"
 CHECKPOINT="DCGAN_fashionGen-1d67302.pth" #The DCGAN pretrained model as of 27th Aug 2020
+CHECKPOINT_RENAMED="DCGAN_fashionGen.pth"
 
 # Clean Up before exit
 function cleanup {
-  rm -rf $SRCZIP $SRCDIR $MODELSZIP $CHECKPOINT $MODELSDIR
+  rm -rf $SRCZIP $SRCDIR $MODELSZIP $CHECKPOINT_RENAMED $MODELSDIR
 }
 trap cleanup EXIT
 
@@ -23,12 +24,12 @@ mv $SRCDIR/models .
 zip -r $MODELSZIP $MODELSDIR
 
 # Download checkpoint
-wget https://dl.fbaipublicfiles.com/gan_zoo/$CHECKPOINT
+wget https://dl.fbaipublicfiles.com/gan_zoo/$CHECKPOINT -O $CHECKPOINT_RENAMED
 
 # Create *.mar
 torch-model-archiver --model-name dcgan_fashiongen \
                      --version 1.0 \
-                     --serialized-file $CHECKPOINT \
+                     --serialized-file $CHECKPOINT_RENAMED \
                      --handler dcgan_fashiongen_handler.py \
                      --extra-files $MODELSZIP \
                      --force

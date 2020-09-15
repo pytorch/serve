@@ -6,7 +6,7 @@ from torchvision.utils import save_image
 from ts.torch_handler.base_handler import BaseHandler
 
 MODELSZIP = "models.zip"
-CHECKPOINT = "DCGAN_fashionGen-1d67302.pth"
+CHECKPOINT = "DCGAN_fashionGen.pth"
 
 
 class ModelHandler(BaseHandler):
