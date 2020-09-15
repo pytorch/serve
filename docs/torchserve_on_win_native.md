@@ -43,6 +43,7 @@ NOTE torchserve has been tested on Windows10 64bit system
     - torch-model-archiver will be installed as exe hence add .exe extension to given examples in repo.
     - For next steps refer [mar commands](https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-command-line-interface)
   - For doing build and UT
+    - At present, 5 test cases related to OpenApi will fail which will get fixed once PR#614 is merged to this PR
     - `pip install -U -r requirements/developer.txt`
     - `pip install -U -r requirements/cpu.txt -f  https://download.pytorch.org/whl/torch_stable.html`
     - `cd frontend`

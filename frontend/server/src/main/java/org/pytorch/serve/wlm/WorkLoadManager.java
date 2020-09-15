@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +123,7 @@ public class WorkLoadManager {
                     if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
                         try {
-                            String cmd = String.format(getKillCmd(), workerProcess.pid());
+                            String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());
                             Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
                                     workerKillProcess.waitFor(
@@ -153,17 +154,6 @@ public class WorkLoadManager {
             }
             return future;
         }
-    }
-
-    private String getKillCmd() {
-        String operatingSystem = System.getProperty("os.name").toLowerCase();
-        String killCMD;
-        if (operatingSystem.indexOf("win") >= 0) {
-            killCMD = "taskkill /f /PID %s";
-        } else {
-            killCMD = "kill -9 %s";
-        }
-        return killCMD;
     }
 
     private void addThreads(

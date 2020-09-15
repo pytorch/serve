@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.ErrorResponse;
@@ -721,7 +722,7 @@ public class ModelServerTest {
         File destinationFile = new File(destination);
         String fileUrl = "";
         FileUtils.copyFile(sourceFile, destinationFile);
-        fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
         testLoadModel(fileUrl, "mnist1", "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
         FileUtils.deleteQuietly(destinationFile);
