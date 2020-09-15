@@ -227,3 +227,18 @@ is_gpu_instance()
 {
   [ -x "$(command -v nvidia-smi)" ]
 }
+
+run_markdown_link_checker(){
+  STATUS=0
+  shopt -s globstar
+  set +e
+  for i in **/*.md; do # Whitespace-safe and recursive
+        markdown-link-check $i --config link_check_config.json
+        if [ $?  -ne  0 ] ; then
+          echo Broken links in $i
+          STATUS=1
+        fi
+  done
+  set -e
+  exit $STATUS
+}
