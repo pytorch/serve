@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.ErrorResponse;
@@ -707,6 +708,48 @@ public class ModelServerTest {
                 "squeezenet",
                 "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    @Test(alwaysRun = true)
+    public void testLoadModelFromFileURI() throws InterruptedException, IOException {
+        String curDir = System.getProperty("user.dir");
+        File curDirFile = new File(curDir);
+        String parent = curDirFile.getParent();
+
+        String source = configManager.getModelStore() + "/mnist.mar";
+        String destination = parent + "/modelarchive/mnist1.mar";
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination);
+        String fileUrl = "";
+        FileUtils.copyFile(sourceFile, destinationFile);
+        fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
+        testLoadModel(fileUrl, "mnist1", "1.0");
+        Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
+        FileUtils.deleteQuietly(destinationFile);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromFileURI"})
+    public void testUnregisterFileURIModel() throws InterruptedException {
+        testUnregisterModel("mnist1", null);
+        Assert.assertFalse(new File(configManager.getModelStore(), "mnist1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromFileURI"})
+    public void testModelWithInvalidFileURI() throws InterruptedException, IOException {
+        String invalidFileUrl = "file:///InvalidUrl";
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setHttpStatus(null);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerModel(channel, invalidFileUrl, "invalid_file_url", true, false);
+        TestUtils.getLatch().await();
+        System.out.println("HTTP Status: " + TestUtils.getHttpStatus());
+        System.out.println("Expected output : " + HttpResponseStatus.BAD_REQUEST);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
     }
 
     @Test(
