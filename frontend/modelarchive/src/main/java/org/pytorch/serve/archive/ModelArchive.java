@@ -29,7 +29,7 @@ public class ModelArchive {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final Pattern URL_PATTERN =
-            Pattern.compile("http(s)?://.*", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("file?://.*|http(s)?://.*", Pattern.CASE_INSENSITIVE);
 
     private static final String MANIFEST_FILE = "MANIFEST.json";
 
