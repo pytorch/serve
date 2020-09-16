@@ -116,4 +116,14 @@ class ArgParser(object):
                                    help='Path to a requirements.txt containing model specific python dependency\n'
                                         ' packages.')
 
+        parser_export.add_argument('--torch-api-type',
+                                   required=False,
+                                   type=str,
+                                   default='python',
+                                   help='Torch API type ("python" or "cpp") to be used by handler.\n'
+                                        'This is an optional parameter.\n'
+                                        'If python is specified Torch Python API will be used.\n'
+                                        'If cpp is specified handler should use Torch CPP API.\n'
+                                        'Python binding to CPP API needs to be in place to use CPP API.')
+
         return parser_export
