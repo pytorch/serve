@@ -658,6 +658,7 @@ public class ModelServerTest {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
         Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
         setConfiguration("default_service_handler", "service:handle");
+        setConfiguration("default_torch_api_type", "python");
         loadTests(mgmtChannel, "noop-no-manifest.mar", "nomanifest");
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));

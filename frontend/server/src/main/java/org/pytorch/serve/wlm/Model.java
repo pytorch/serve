@@ -61,7 +61,7 @@ public class Model {
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
         torchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
         if (torchAPIType == null) {
-            torchAPIType = "python";
+            torchAPIType = ConfigManager.getInstance().getTsDefaultTorchAPIType();
         }
     }
 
@@ -153,11 +153,11 @@ public class Model {
         if (torchAPIType != null) {
             this.torchAPIType = torchAPIType;
         } else {
-            tmpTorchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
-            if (tmpTorchAPIType == null) {
-                this.torchAPIType = "python";
-            } else {
+            String tmpTorchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
+            if (tmpTorchAPIType != null) {
                 this.torchAPIType = tmpTorchAPIType;
+            } else {
+                this.torchAPIType = ConfigManager.getInstance().getTsDefaultTorchAPIType();
             }
         }
     }
