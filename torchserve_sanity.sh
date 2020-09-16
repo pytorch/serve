@@ -62,6 +62,7 @@ model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg"
 handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "custom" "custom" "custom")
 
 torch_api_types=("cpp" "python")
+#Here "both" means both cpp and python API are supported by handler
 torch_api_support=("python" "python" "python" "python" "both" "both" "both" "python" "python" "python")
 
 for i in ${!models[@]};
