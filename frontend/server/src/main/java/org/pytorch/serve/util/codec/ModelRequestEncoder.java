@@ -50,7 +50,6 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
-
             out.writeInt(request.getGpuId());
         } else if (msg instanceof ModelInferenceRequest) {
             out.writeByte('I');

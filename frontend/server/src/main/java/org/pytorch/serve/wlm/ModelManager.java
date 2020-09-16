@@ -110,14 +110,14 @@ public final class ModelManager {
             int maxBatchDelay,
             int responseTimeout,
             String defaultModelName,
-            String torchAPIType
-            )
+            String torchAPIType)
             throws ModelException, IOException, InterruptedException {
 
         ModelArchive archive =
                 createModelArchive(modelName, url, handler, runtime, defaultModelName);
 
-        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout, torchAPIType);
+        Model tempModel =
+                createModel(archive, batchSize, maxBatchDelay, responseTimeout, torchAPIType);
 
         String versionId = archive.getModelVersion();
 
@@ -196,7 +196,11 @@ public final class ModelManager {
     }
 
     private Model createModel(
-            ModelArchive archive, int batchSize, int maxBatchDelay, int responseTimeout, String  torchAPIType) {
+            ModelArchive archive,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            String torchAPIType) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setBatchSize(batchSize);
         model.setMaxBatchDelay(maxBatchDelay);

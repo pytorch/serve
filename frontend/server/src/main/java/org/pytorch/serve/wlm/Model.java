@@ -147,10 +147,11 @@ public class Model {
     }
 
     public void setTorchAPIType(String torchAPIType) {
-        if (torchAPIType != null)
+        if (torchAPIType != null) {
             this.torchAPIType = torchAPIType;
-        else
+        } else {
             this.torchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
+        }
     }
 
     public void addJob(String threadId, Job job) {

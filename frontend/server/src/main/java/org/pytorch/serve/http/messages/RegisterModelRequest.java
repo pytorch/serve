@@ -74,7 +74,9 @@ public class RegisterModelRequest {
         return handler;
     }
 
-    public String getTorchAPIType() { return torchAPIType; }
+    public String getTorchAPIType() {
+        return torchAPIType;
+    }
 
     public Integer getBatchSize() {
         return batchSize;
