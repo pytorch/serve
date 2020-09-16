@@ -25,6 +25,7 @@ def socket_patches(mocker):
         b"\x00\x00\x00\x0a", b"model_path",
         b"\x00\x00\x00\x01",
         b"\x00\x00\x00\x07", b"handler",
+        b"\x00\x00\x00\x06", b"python",
         b"\x00\x00\x00\x01"
     ]
     return mock_patch
@@ -116,7 +117,7 @@ class TestRunServer:
 
 # noinspection PyClassHasNoInit
 class TestLoadModel:
-    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled', 'torchAPIType': b'python'}
 
     @pytest.fixture()
     def patches(self, mocker):
@@ -143,7 +144,7 @@ class TestLoadModel:
 
 # noinspection PyClassHasNoInit
 class TestHandleConnection:
-    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled', 'torchAPIType': b'python'}
 
     @pytest.fixture()
     def patches(self, mocker):
