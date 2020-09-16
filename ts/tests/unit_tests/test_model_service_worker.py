@@ -34,7 +34,7 @@ def socket_patches(mocker):
 def model_service_worker(socket_patches):
     model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None)
     model_service_worker.sock = socket_patches.socket
-    model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
+    model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1, "python")
     return model_service_worker
 
 

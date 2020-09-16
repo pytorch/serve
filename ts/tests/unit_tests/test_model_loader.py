@@ -68,7 +68,7 @@ class TestLoadModels:
         patches.os_path.return_value = True
         handler = 'dummy_class_model_service'
         model_loader = ModelLoaderFactory.get_model_loader()
-        service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
+        service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1, "python")
 
         assert inspect.ismethod(service._entry_point)
 
@@ -78,7 +78,7 @@ class TestLoadModels:
         patches.os_path.return_value = True
         handler = 'dummy_func_model_service:infer'
         model_loader = ModelLoaderFactory.get_model_loader()
-        service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
+        service = model_loader.load(self.model_name, self.model_dir, handler, 0, 1, "python")
 
         assert isinstance(service._entry_point, types.FunctionType)
         assert service._entry_point.__name__ == 'infer'
@@ -90,7 +90,7 @@ class TestLoadModels:
         handler = 'dummy_func_model_service:wrong'
         model_loader = ModelLoaderFactory.get_model_loader()
         with pytest.raises(ValueError, match=r"Expected only one class .*"):
-            model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
+            model_loader.load(self.model_name, self.model_dir, handler, 0, 1, "python")
 
     def test_load_model_with_error(self, patches):
         patches.mock_open.side_effect = [
@@ -100,4 +100,4 @@ class TestLoadModels:
         handler = 'dummy_func_model_service'
         model_loader = ModelLoaderFactory.get_model_loader()
         with pytest.raises(ValueError, match=r"Expected only one class .*"):
-            model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
+            model_loader.load(self.model_name, self.model_dir, handler, 0, 1, "python")
