@@ -1,5 +1,9 @@
 #include <torch/script.h> // One-stop header.
 
+#include <torch/extension.h>
+//#include <torch/python.h>
+//#include <torch/torch.h>
+
 #include <iostream>
 #include <memory>
 #include <pybind11/pybind11.h>
@@ -18,13 +22,13 @@ private:
     torch::jit::script::Module module;
 
     Singleton(const std::string &fname) {
-          try {
+        try {
             // Deserialize the ScriptModule from a file using torch::jit::load().
             module = torch::jit::load(fname);
-          }
-          catch (const c10::Error& e) {
+        }
+        catch (const c10::Error &e) {
             std::cerr << "error loading the model\n";
-          }
+        }
 
     }
 
@@ -33,7 +37,7 @@ public:
 
     static Singleton *getInstance(const std::string &fname);
 
-    std::vector<float> run_model(std::vector<float> input_data,  std::vector<int64_t> input_data_shape);
+    std::vector<float> run_model(std::vector<torch::Tensor> input_data, std::vector<int64_t> input_data_shape);
 
     ~Singleton() {
         instanceFlag = false;
@@ -57,16 +61,22 @@ Singleton *Singleton::getInstance() {
     return single;
 }
 
-std::vector<float> Singleton::run_model(std::vector<float> input_data, std::vector<int64_t> input_data_shape) {
-  // Create a vector of inputs.
+std::vector<float> Singleton::run_model(std::vector<torch::Tensor> input_data,
+                                        std::vector<int64_t> input_data_shape) {
+    // Create a vector of inputs.
     std::vector<torch::jit::IValue> inputs;
     //inputs.push_back(torch::ones({1, 3, 224, 224}));
 
     auto options = torch::TensorOptions().dtype(torch::kFloat64);
-    torch::Tensor tharray = torch::from_blob(input_data.data(), input_data_shape);
 
-    inputs.push_back(tharray);
+//    for(std::vector in_data:input_data) {
+//        torch::Tensor tharray = torch::from_blob(input_data.data(), input_data_shape);
+//        inputs.push_back(tharray);
+//    }
 
+    for(torch::Tensor in_data:input_data){
+        inputs.push_back(in_data);
+    }
 
     // Execute the model and turn its output into a tensor.
     at::Tensor output = module.forward(inputs).toTensor();
@@ -78,13 +88,12 @@ std::vector<float> Singleton::run_model(std::vector<float> input_data, std::vect
 }
 
 
-
 void load_model(const std::string &fname) {
     Singleton *sc1;
     sc1 = Singleton::getInstance(fname);
 }
 
-std::vector<float> run_model(std::vector<float> input_data, std::vector<int64_t> input_data_shape) {
+std::vector<float> run_model(std::vector<torch::Tensor> input_data, std::vector<int64_t> input_data_shape) {
     Singleton *sc2;
     sc2 = Singleton::getInstance();
     return sc2->run_model(input_data, input_data_shape);

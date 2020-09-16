@@ -25,7 +25,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}&torch_api_type={{torch_api_type}}",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"

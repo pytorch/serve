@@ -2,3 +2,4 @@ include ts/frontend/model-server.jar
 include PyPiDescription.rst
 include ts/configs/*
 include ts/version.txt
+include ts/torch_handler/*.cpp

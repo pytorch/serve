@@ -22,7 +22,15 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
   * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
 * `model_name` - the name of the model; this name will be used as {model_name} in other APIs as part of the path. If this parameter is not present, `modelName` in MANIFEST.json will be used.
 * `handler` - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
-* runtime - the runtime for the model custom service code. This value will override runtime in MANIFEST.json if present. The default value is `PYTHON`.
+* `torch_api_type` - the Torch API(python or cpp) to be used  by inference handler. This value will override `TorchAPIType` in MANIFEST.json. If not provided, `TorchAPIType` from MANIFEST.json will be used.
+The handler can use Torch Python API or a CPP API to load a model and to do the inference. 
+Since handler is written in Python, to invoke the CPP API a python binding to CPP code needs to be provided. Torch Serve 
+provides this built in bindings [file](../ts/torch_handler/torch_cpp_python_bindings.cpp) by default.  
+You can create your own custom code and bindings as well and use that in your custom handler. Refer the PyTorch CPP extension [documentation](https://pytorch.org/tutorials/advanced/cpp_extension.html) for the same.
+We are using PyTorch's JIT compilation API to get python module from the bindings. The JIT compilation API is well documented [here](https://pytorch.org/tutorials/advanced/cpp_extension.html#jit-compiling-extensions).  
+Note: This property get passed to handler as context.system_properties["torch_api_type"]. It is up-to the handler implementation to read this property
+and then appropriately invoke Python or CPP API. The built in BaseHandler uses this property.
+
 * batch_size - the inference batch size. The default value is `1`.
 * max_batch_delay - the maximum delay for batch aggregation. The default value is 100 milliseconds.
 * initial_workers - the number of initial workers to create. The default value is `0`. TorchServe will not run inference until there is at least one work assigned.

@@ -188,6 +188,8 @@ def _retrieve_load_msg(conn):
     msg["batchSize"] = _retrieve_int(conn)
     length = _retrieve_int(conn)
     msg["handler"] = _retrieve_buffer(conn, length)
+    length = _retrieve_int(conn)
+    msg["torchAPIType"] = _retrieve_buffer(conn, length)
     gpu_id = _retrieve_int(conn)
     if gpu_id >= 0:
         msg["gpu"] = gpu_id

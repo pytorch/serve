@@ -168,6 +168,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         Manifest manifest = model.getModelArchive().getManifest();
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
+        resp.setTorchAPIType(model.getTorchAPIType());
 
         List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
         for (WorkerThread worker : workers) {
@@ -194,6 +195,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         String modelName = registerModelRequest.getModelName();
         String runtime = registerModelRequest.getRuntime();
         String handler = registerModelRequest.getHandler();
+        String torchAPIType = registerModelRequest.getTorchAPIType();
         int batchSize = registerModelRequest.getBatchSize();
         int maxBatchDelay = registerModelRequest.getMaxBatchDelay();
         int initialWorkers = registerModelRequest.getInitialWorkers();
@@ -224,7 +226,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                             batchSize,
                             maxBatchDelay,
                             responseTimeout,
-                            null);
+                            null,
+                            torchAPIType);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);

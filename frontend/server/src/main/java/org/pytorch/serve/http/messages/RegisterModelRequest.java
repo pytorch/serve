@@ -16,6 +16,9 @@ public class RegisterModelRequest {
     @SerializedName("handler")
     private String handler;
 
+    @SerializedName("torch_api_type")
+    private String torchAPIType;
+
     @SerializedName("batch_size")
     private int batchSize;
 
@@ -38,6 +41,7 @@ public class RegisterModelRequest {
         modelName = NettyUtils.getParameter(decoder, "model_name", null);
         runtime = NettyUtils.getParameter(decoder, "runtime", null);
         handler = NettyUtils.getParameter(decoder, "handler", null);
+        torchAPIType = NettyUtils.getParameter(decoder, "torch_api_type", null);
         batchSize = NettyUtils.getIntParameter(decoder, "batch_size", 1);
         maxBatchDelay = NettyUtils.getIntParameter(decoder, "max_batch_delay", 100);
         initialWorkers =
@@ -69,6 +73,8 @@ public class RegisterModelRequest {
     public String getHandler() {
         return handler;
     }
+
+    public String getTorchAPIType() { return torchAPIType; }
 
     public Integer getBatchSize() {
         return batchSize;

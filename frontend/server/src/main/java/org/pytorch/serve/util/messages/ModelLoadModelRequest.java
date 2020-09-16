@@ -13,6 +13,7 @@ public class ModelLoadModelRequest extends BaseModelRequest {
     private String handler;
     private int batchSize;
     private int gpuId;
+    private String torchAPIType;
 
     public ModelLoadModelRequest(Model model, int gpuId) {
         super(WorkerCommands.LOAD, model.getModelName());
@@ -20,6 +21,7 @@ public class ModelLoadModelRequest extends BaseModelRequest {
         modelPath = model.getModelDir().getAbsolutePath();
         handler = model.getModelArchive().getManifest().getModel().getHandler();
         batchSize = model.getBatchSize();
+        torchAPIType = model.getTorchAPIType();
     }
 
     public String getModelPath() {
@@ -28,6 +30,10 @@ public class ModelLoadModelRequest extends BaseModelRequest {
 
     public String getHandler() {
         return handler;
+    }
+
+    public String getTorchAPIType() {
+        return torchAPIType;
     }
 
     public int getBatchSize() {

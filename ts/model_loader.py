@@ -54,7 +54,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, torch_api_type):
         """
         Load TorchServe 1.0 model from file.
 
@@ -63,6 +63,7 @@ class TsModelLoader(ModelLoader):
         :param handler:
         :param gpu_id:
         :param batch_size:
+        :param torch_api_type:
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
@@ -73,7 +74,8 @@ class TsModelLoader(ModelLoader):
         if os.path.exists(manifest_file):
             with open(manifest_file) as f:
                 manifest = json.load(f)
-
+        if torch_api_type is None:
+            torch_api_type = manifest.get("model", {}).get("torchTypeAPI", "python")
         try:
             temp = handler.split(":", 1)
             module_name = temp[0]
@@ -94,7 +96,7 @@ class TsModelLoader(ModelLoader):
             function_name = "handle"
         if hasattr(module, function_name):
             entry_point = getattr(module, function_name)
-            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size)
+            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, torch_api_type)
 
             service.context.metrics = metrics
             # initialize model at load time
@@ -111,7 +113,7 @@ class TsModelLoader(ModelLoader):
             if handle is None:
                 raise ValueError("Expect handle method in class {}".format(str(model_class)))
 
-            service = Service(model_name, model_dir, manifest, model_service.handle, gpu_id, batch_size)
+            service = Service(model_name, model_dir, manifest, model_service.handle, gpu_id, batch_size, torch_api_type)
             initialize = getattr(model_service, "initialize")
             if initialize is not None:
                 model_service.initialize(service.context)

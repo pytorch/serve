@@ -11,15 +11,16 @@ class Context(object):
     Some fixed during load times and some
     """
 
-    def __init__(self, model_name, model_dir, manifest, batch_size, gpu, mms_version):
+    def __init__(self, model_name, model_dir, manifest, batch_size, gpu, ts_version, torch_api_type):
         self.model_name = model_name
         self.manifest = manifest
         self._system_properties = {
             "model_dir": model_dir,
             "gpu_id": gpu,
             "batch_size": batch_size,
-            "server_name": "MMS",
-            "server_version": mms_version
+            "server_name": "TS",
+            "server_version": ts_version,
+            "torch_api_type": torch_api_type
         }
         self.request_ids = None
         self.request_processor = None

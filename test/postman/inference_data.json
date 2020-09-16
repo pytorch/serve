@@ -1,6 +1,4 @@
 [
-	{
-		"url": "https://torch
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_v2.mar",
         "model_name":"my_text_classifier",
@@ -15,7 +13,8 @@
             "Business":0.9967544674873352,
             "Sci/Tec":0.0010945842368528247
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted_v2.mar",
@@ -31,7 +30,8 @@
             "Business":0.9967544674873352,
             "Sci/Tec":0.0010945842368528247
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
@@ -48,7 +48,8 @@
             "Egyptian_cat":0.2213735282421112,
             "cougar":0.0022544863168150187
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1_scripted.mar",
@@ -65,7 +66,8 @@
             "Egyptian_cat":0.2213735282421112,
             "cougar":0.0022544863168150187
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar",
@@ -82,7 +84,8 @@
             "lynx":0.001282821292988956,
             "plastic_bag":0.00023323031200561672
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar",
@@ -99,7 +102,8 @@
             "lynx":0.16119907796382904,
             "tiger":0.006510233972221613
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet_scripted.mar",
@@ -116,7 +120,8 @@
             "lynx":0.16119907796382904,
             "tiger":0.006510233972221613
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
@@ -133,7 +138,8 @@
             "lynx":0.023326940834522247,
             "bucket":0.011855212040245533
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18_scripted.mar",
@@ -150,7 +156,8 @@
             "lynx":0.023326940834522247,
             "bucket":0.011855212040245533
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar",
@@ -167,7 +174,8 @@
             "lynx":0.006006305105984211,
             "tiger":0.004394155461341143
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar",
@@ -184,7 +192,8 @@
             "lynx":0.006006305105984211,
             "tiger":0.004394155461341143
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar",
@@ -193,7 +202,8 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/mnist/test_data/0.png",
         "content-type":"text/plain",
-        "expected":"0"
+        "expected":"0",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted_v2.mar",
@@ -202,35 +212,40 @@
         "synchronous":"true",
         "file":"../examples/image_classifier/mnist/test_data/0.png",
         "content-type":"text/plain",
-        "expected":"0"
+        "expected":"0",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar",
         "model_name":"fastrcnn",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg"
+        "file":"../examples/object_detector/persons.jpg",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar",
         "model_name":"maskrcnn",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg"
+        "file":"../examples/object_detector/persons.jpg",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar",
         "model_name":"fcn_resnet_101",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg"
+        "file":"../examples/object_detector/persons.jpg",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101_scripted.mar",
         "model_name":"fcn_resnet_101_scripted",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg"
+        "file":"../examples/object_detector/persons.jpg",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
@@ -247,7 +262,8 @@
           "lynx": 0.0005633446853607893,
           "quilt": 0.0002698268508538604
         },
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar",
@@ -265,14 +281,16 @@
           "quilt": 0.0002698268508538604
         }
         ,
-        "tolerance":1
+        "tolerance":1,
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
         "model_name":"roberta_qa_no_torchscript",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/Huggingface_Transformers/sample_text.txt"
+        "file":"../examples/Huggingface_Transformers/sample_text.txt",
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_no_torchscript.mar",
@@ -342,7 +360,8 @@
                 "[SEP]",
                 "B-LOC"
             ]
-        ]
+        ],
+        "torch_api_type": "python"
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_without_torchscript.mar",
@@ -351,6 +370,7 @@
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"text/plain",
-        "expected":"Not Accepted"
+        "expected":"Not Accepted",
+        "torch_api_type": "python"
     }
 ]

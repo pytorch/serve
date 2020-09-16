@@ -3,3 +3,4 @@ psutil
 wheel
 requests
 sentencepiece
+ninja

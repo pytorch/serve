@@ -5,8 +5,10 @@ Also, provides handle method per torch serve custom model specification
 import abc
 import logging
 import os
+import pathlib
 import importlib.util
 import torch
+from torch.utils.cpp_extension import load
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 logger = logging.getLogger(__name__)
@@ -44,16 +46,31 @@ class BaseHandler(abc.ABC):
 
         # model def file
         model_file = self.manifest['model'].get('modelFile', '')
+        self.torch_api_type = properties["torch_api_type"]
 
-        if model_file:
-            logger.debug('Loading eager model')
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+        if self.torch_api_type == 'python':
+            if model_file:
+                logger.debug('Loading eager model')
+                self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            else:
+                logger.debug('Loading Torch Script model using Python API')
+                self.model = self._load_torchscript_model(model_pt_path)
+
+            self.model.to(self.device)
+            self.model.eval()
+
+        elif self.torch_api_type == 'cpp':
+            self.inference_module = None
+            if model_file:
+                raise Exception("Eager models are not supported using CPP API")
+            else:
+                logger.info('Loading Torch Script model using CPP API')
+                source_path = pathlib.Path(__file__).parent.absolute()
+                cpp_source_path = os.path.join(source_path, "torch_cpp_python_bindings.cpp")
+                self.torch_cpp_python_module = load(name="torch_cpp_python_bindings", sources=[cpp_source_path], verbose=True)
+                self.torch_cpp_python_module.load_model(model_pt_path, self.map_location)
         else:
-            logger.debug('Loading torchscript model')
-            self.model = self._load_torchscript_model(model_pt_path)
-
-        self.model.to(self.device)
-        self.model.eval()
+            raise Exception("Only Python and CPP APIs are supported.")
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
@@ -83,8 +100,6 @@ class BaseHandler(abc.ABC):
         model.load_state_dict(state_dict)
         return model
 
-
-
     def preprocess(self, data):
         """
         Override to customize the pre-processing
@@ -101,7 +116,10 @@ class BaseHandler(abc.ABC):
         """
         marshalled_data = data.to(self.device)
         with torch.no_grad():
-            results = self.model(marshalled_data, *args, **kwargs)
+            if self.torch_api_type == 'python':
+                results = self.model(marshalled_data, *args, **kwargs)
+            else:
+                results = self.torch_cpp_python_module.run_model([marshalled_data])
         return results
 
     def postprocess(self, data):

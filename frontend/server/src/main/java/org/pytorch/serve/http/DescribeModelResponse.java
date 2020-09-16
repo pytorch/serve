@@ -15,6 +15,7 @@ public class DescribeModelResponse {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private String torchAPIType;
     private String status;
     private boolean loadedAtStartup;
 
@@ -31,6 +32,14 @@ public class DescribeModelResponse {
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
+    }
+
+    public String getTorchAPIType() {
+        return torchAPIType;
+    }
+
+    public void setTorchAPIType(String torchAPIType) {
+        this.torchAPIType = torchAPIType;
     }
 
     public boolean getLoadedAtStartup() {

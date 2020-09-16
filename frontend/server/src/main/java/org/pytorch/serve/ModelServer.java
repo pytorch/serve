@@ -218,7 +218,8 @@ public class ModelServer {
                                 1,
                                 100,
                                 configManager.getDefaultResponseTimeout(),
-                                defaultModelName);
+                                defaultModelName,
+                                null);
                 modelManager.updateModel(
                         archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());

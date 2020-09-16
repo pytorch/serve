@@ -63,6 +63,7 @@ public class Manifest {
         private String modelVersion;
         private String handler;
         private String requirementsFile;
+        private String torchAPIType;
 
         public Model() {}
 
@@ -112,6 +113,14 @@ public class Manifest {
 
         public void setHandler(String handler) {
             this.handler = handler;
+        }
+
+        public String getTorchAPIType() {
+            return torchAPIType;
+        }
+
+        public void setTorchAPIType(String torchAPIType) {
+            this.torchAPIType = torchAPIType;
         }
     }
 

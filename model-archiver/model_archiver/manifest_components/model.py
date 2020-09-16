@@ -9,7 +9,7 @@ class Model(object):
     """
 
     def __init__(self, model_name, serialized_file, handler, model_file=None, model_version=None,
-                 extensions=None, requirements_file=None):
+                 extensions=None, requirements_file=None, torch_api_type='python'):
 
         self.model_name = model_name
         self.serialized_file = serialized_file.split("/")[-1]
@@ -18,6 +18,7 @@ class Model(object):
         self.extensions = extensions
         self.handler = handler.split("/")[-1]
         self.requirements_file = requirements_file
+        self.torch_api_type = torch_api_type
 
         self.model_dict = self.__to_dict__()
 
@@ -29,6 +30,8 @@ class Model(object):
         model_dict['serializedFile'] = self.serialized_file
 
         model_dict['handler'] = self.handler
+
+        model_dict['torchAPIType'] = self.torch_api_type
 
         if self.model_file:
             model_dict['modelFile'] = self.model_file.split("/")[-1]

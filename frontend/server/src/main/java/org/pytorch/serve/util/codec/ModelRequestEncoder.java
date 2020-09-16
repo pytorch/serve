@@ -42,9 +42,14 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             if (handler != null) {
                 buf = handler.getBytes(StandardCharsets.UTF_8);
             }
-
             out.writeInt(buf.length);
             out.writeBytes(buf);
+
+            String torchAPIType = request.getTorchAPIType();
+            buf = torchAPIType.getBytes(StandardCharsets.UTF_8);
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
 
             out.writeInt(request.getGpuId());
         } else if (msg instanceof ModelInferenceRequest) {

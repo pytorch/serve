@@ -22,8 +22,8 @@ class Service(object):
     Wrapper for custom entry_point
     """
 
-    def __init__(self, model_name, model_dir, manifest, entry_point, gpu, batch_size):
-        self._context = Context(model_name, model_dir, manifest, batch_size, gpu, ts.__version__)
+    def __init__(self, model_name, model_dir, manifest, entry_point, gpu, batch_size, torch_api_type):
+        self._context = Context(model_name, model_dir, manifest, batch_size, gpu, ts.__version__, torch_api_type)
         self._entry_point = entry_point
 
     @property

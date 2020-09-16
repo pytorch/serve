@@ -27,6 +27,7 @@ public class Model {
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
+    public static final String TORCH_API_TYPE = "torchAPIType";
 
     private static final Logger logger = LoggerFactory.getLogger(Model.class);
 
@@ -38,6 +39,7 @@ public class Model {
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
+    private String torchAPIType;
 
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
@@ -57,6 +59,7 @@ public class Model {
         modelVersionName =
                 new ModelVersionName(
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
+        torchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
     }
 
     public JsonObject getModelState(boolean isDefaultVersion) {
@@ -69,6 +72,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        modelInfo.addProperty(TORCH_API_TYPE, getTorchAPIType());
 
         return modelInfo;
     }
@@ -79,6 +83,7 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        torchAPIType = modelInfo.get(TORCH_API_TYPE).getAsString();
     }
 
     public String getModelName() {
@@ -135,6 +140,17 @@ public class Model {
 
     public void setMaxBatchDelay(int maxBatchDelay) {
         this.maxBatchDelay = maxBatchDelay;
+    }
+
+    public String getTorchAPIType() {
+        return torchAPIType;
+    }
+
+    public void setTorchAPIType(String torchAPIType) {
+        if (torchAPIType != null)
+            this.torchAPIType = torchAPIType;
+        else
+            this.torchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
     }
 
     public void addJob(String threadId, Job job) {

@@ -64,6 +64,7 @@ class TorchModelServiceWorker(object):
             "gpu" : None if CPU else gpu_id, int
             "handler" : service handler entry point if provided, string
             "batchSize" : batch size, int
+            "torchAPIType" : Type of Torch API (Python or CPP) used by handler, string
         }
 
         :param load_model_request:
@@ -73,6 +74,8 @@ class TorchModelServiceWorker(object):
             model_dir = load_model_request["modelPath"].decode("utf-8")
             model_name = load_model_request["modelName"].decode("utf-8")
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
+            torch_api_type = load_model_request["torchAPIType"].decode("utf-8") if load_model_request["torchAPIType"] else None
+
             batch_size = None
             if "batchSize" in load_model_request:
                 batch_size = int(load_model_request["batchSize"])
@@ -82,7 +85,7 @@ class TorchModelServiceWorker(object):
                 gpu = int(load_model_request["gpu"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
+            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, torch_api_type)
 
             logging.debug("Model %s loaded.", model_name)
 
