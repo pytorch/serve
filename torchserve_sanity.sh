@@ -61,33 +61,44 @@ model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg"
  "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt" "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
 handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "custom" "custom" "custom")
 
+torch_api_types=("cpp" "python")
+torch_api_support=("python" "python" "python" "python" "both" "both" "both" "both" "both" "both")
+
 for i in ${!models[@]};
 do
-  model=${models[$i]}
-  inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
-  handler=${handlers[$i]}
-  register_model "$model"
-  for input in ${inputs[@]};
+  for api_type_idx in ${!torch_api_types[@]};
   do
-    run_inference "$model" "$input"
-  done
-
-  if is_gpu_instance;
-  then
-    if python scripts/validate_model_on_gpu.py; then
-      echo "Model $model successfully loaded on GPU"
-    else
-      echo "Something went wrong, model $model did not load on GPU"
-      exit 1
+    api_type=${torch_api_types[$api_type_idx]}
+    supported_api=${torch_api_support[$i]}
+    if [ "$supported_api" == "python" ] &&  [ "$api_type" == "cpp" ]; then
+      continue;
     fi
-  fi
+    model=${models[$i]}
+    inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
+    handler=${handlers[$i]}
+    register_model "$model" "$api_type"
+    for input in ${inputs[@]};
+    do
+      run_inference "$model" "$input"
+    done
 
-  #skip unregistering resnet-18 model to test snapshot feature with restart
-  if [ "$model" != "resnet-18" ]
-  then
-    unregister_model "$model"
-  fi
-  echo "$handler default handler is stable."
+    if is_gpu_instance;
+    then
+      if python scripts/validate_model_on_gpu.py; then
+        echo "Model $model successfully loaded on GPU"
+      else
+        echo "Something went wrong, model $model did not load on GPU"
+        exit 1
+      fi
+    fi
+
+    #skip unregistering resnet-18 model to test snapshot feature with restart
+    if [ "$model" != "resnet-18" ]
+    then
+      unregister_model "$model"
+    fi
+    echo "$handler default handler with ${api_type} API is stable."
+    done
 done
 
 stop_torchserve
