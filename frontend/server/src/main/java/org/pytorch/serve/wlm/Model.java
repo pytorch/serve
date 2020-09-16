@@ -60,6 +60,9 @@ public class Model {
                 new ModelVersionName(
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
         torchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
+        if (torchAPIType == null) {
+            torchAPIType = "python";
+        }
     }
 
     public JsonObject getModelState(boolean isDefaultVersion) {
@@ -150,7 +153,12 @@ public class Model {
         if (torchAPIType != null) {
             this.torchAPIType = torchAPIType;
         } else {
-            this.torchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
+            tmpTorchAPIType = this.modelArchive.getManifest().getModel().getTorchAPIType();
+            if (tmpTorchAPIType == null) {
+                this.torchAPIType = "python";
+            } else {
+                this.torchAPIType = tmpTorchAPIType;
+            }
         }
     }
 
