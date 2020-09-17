@@ -5,16 +5,16 @@ executors:
   # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY under 'Project Settings > Environment Variables' in CircleCI
   ubuntu18-pythn36-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
   ubuntu18-conda38-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
   ubuntu18-pyenv37-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
   ubuntu18-venv36-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
 
 
 commands:
@@ -222,77 +222,77 @@ workflows:
             parameters:
               executor:
                 - ubuntu18-pythn36-cpu-docker
-                - ubuntu18-conda38-cpu-docker
-                - ubuntu18-pyenv37-cpu-docker
-                - ubuntu18-venv36-cpu-docker
-      - &modelarchiver-tests
-        modelarchiver-tests:
-          name: modelarchiver-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-      - &frontend-tests
-        frontend-tests:
-          name: frontend-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-      - &python-tests
-        python-tests:
-          name: python-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-      - &sanity-tests
-        sanity-tests:
-          name: sanity-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-
-  regression:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - *build
-      - *modelarchiver-tests
-      - *frontend-tests
-      - *python-tests
-      - *sanity-tests
-      - api-tests:
-          name: api-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-      - regression-tests:
-          name: regression-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-
-  performance:
-    triggers:
-      - schedule:
-          cron: "0 0 * * 0"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - *build
-      - benchmark:
-          name: benchmark-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-# Uncomment once performance regression PR is merged
-#      - performance-regression:
-#          name: performance-regression-<< matrix.executor >>
+#                - ubuntu18-conda38-cpu-docker
+#                - ubuntu18-pyenv37-cpu-docker
+#                - ubuntu18-venv36-cpu-docker
+#      - &modelarchiver-tests
+#        modelarchiver-tests:
+#          name: modelarchiver-tests-<< matrix.executor >>
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
+#      - &frontend-tests
+#        frontend-tests:
+#          name: frontend-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+#      - &python-tests
+#        python-tests:
+#          name: python-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+#      - &sanity-tests
+#        sanity-tests:
+#          name: sanity-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+#
+#  regression:
+#    triggers:
+#      - schedule:
+#          cron: "0 0 * * *"
+#          filters:
+#            branches:
+#              only:
+#                - master
+#    jobs:
+#      - *build
+#      - *modelarchiver-tests
+#      - *frontend-tests
+#      - *python-tests
+#      - *sanity-tests
+#      - api-tests:
+#          name: api-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+#      - regression-tests:
+#          name: regression-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+#
+#  performance:
+#    triggers:
+#      - schedule:
+#          cron: "0 0 * * 0"
+#          filters:
+#            branches:
+#              only:
+#                - master
+#    jobs:
+#      - *build
+#      - benchmark:
+#          name: benchmark-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+## Uncomment once performance regression PR is merged
+##      - performance-regression:
+##          name: performance-regression-<< matrix.executor >>
+##          requires:
+##            - build-<< matrix.executor >>
+##          matrix: *matrix
