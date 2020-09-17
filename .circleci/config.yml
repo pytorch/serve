@@ -35,7 +35,7 @@ commands:
     steps:
       - run:
           name: Install torchserve
-          command: .circleci/scripts/linux_install.sh
+          command: python .circleci/scripts/install.py
 
   exeucute-api-tests:
     description: "Execute API tests from a collection"
@@ -209,7 +209,7 @@ jobs:
       - install-torchserve
       - run:
           name: Execute python lint, unit and integration tests
-          command: .circleci/scripts/linux_test_modelarchiver.sh
+          command: python .circleci/scripts/test_modelarchiver.py
       - store_artifacts:
           name: Store unit tests results from model archiver tests
           path: model-archiver/result_units
@@ -232,12 +232,12 @@ workflows:
 #                - ubuntu18-conda38-cpu-docker
 #                - ubuntu18-pyenv37-cpu-docker
 #                - ubuntu18-venv36-cpu-docker
-#      - &modelarchiver-tests
-#        modelarchiver-tests:
-#          name: modelarchiver-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - &modelarchiver-tests
+        modelarchiver-tests:
+          name: modelarchiver-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - &frontend-tests
 #        frontend-tests:
 #          name: frontend-tests-<< matrix.executor >>
