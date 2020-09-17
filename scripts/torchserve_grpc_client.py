@@ -2,6 +2,7 @@ import inference_pb2
 import inference_pb2_grpc
 import grpc
 import sys
+import json
 
 number_of_requests = 1000
 
@@ -26,7 +27,8 @@ def infer(stub, model_name, model_input):
         print(str(response.status_code))
         print(str(response.info))
     else:
-        exit(1)
+        result = json.loads(response.prediction.decode('utf-8'))
+        print(result)
 
 
 if __name__ == '__main__':
