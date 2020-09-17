@@ -11,6 +11,8 @@ torch::jit::script::Module model;
 /// Python or `torch::jit::ExportModule` in C++.
 void load_model(const std::string &fpath, const std::string& device){
    model = torch::jit::load(fpath, device);
+   model.to(device);
+   model.eval();
 }
 
 
