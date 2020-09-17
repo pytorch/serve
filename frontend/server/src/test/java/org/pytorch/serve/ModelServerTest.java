@@ -1498,6 +1498,8 @@ public class ModelServerTest {
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
         configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
         configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
+        configManagerValidPort.setProperty("grpc_inference_port", "10010");
+        configManagerValidPort.setProperty("grpc_management_port", "10011");
         ModelServer serverValidPort = new ModelServer(configManagerValidPort);
         serverValidPort.start();
 
