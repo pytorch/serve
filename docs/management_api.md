@@ -22,7 +22,7 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
   * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
 * `model_name` - the name of the model; this name will be used as {model_name} in other APIs as part of the path. If this parameter is not present, `modelName` in MANIFEST.json will be used.
 * `handler` - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
-* `torch_api_type` - the Torch API(python or cpp) to be used  by inference handler. This value will override `TorchAPIType` in MANIFEST.json. If not provided, `TorchAPIType` from MANIFEST.json will be used.
+* `torch_api_type` - the Torch API(python or cpp) to be used  by inference handler. This value will override `torchAPIType` in MANIFEST.json. If not provided, `TorchAPIType` from MANIFEST.json will be used.
 The handler can use Torch Python API or a CPP API to load a model and to do the inference. 
 Since handler is written in Python, to invoke the CPP API a python binding to CPP code needs to be provided. Torch Serve 
 provides this built in bindings [file](../ts/torch_handler/torch_cpp_python_bindings.cpp) by default.  
