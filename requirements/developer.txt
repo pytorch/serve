@@ -8,3 +8,4 @@ nvgpu
 numpy
 grpcio
 protobuf
+grpcio-tools
