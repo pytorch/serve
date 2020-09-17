@@ -1,20 +1,24 @@
 import os
+import sys
 
+BASE_DIR = os.getcwd()
 CREATE_WHEEL_CMD = "python setup.py bdist_wheel --release --universal"
 
 # Build torchserve wheel
-os.system(CREATE_WHEEL_CMD)
-# TS_BUILD_EXIT_CODE=$?
+TS_BUILD_EXIT_CODE = os.system(CREATE_WHEEL_CMD)
 
 # Build model archiver wheel
 os.chdir("model-archiver")
-os.system(CREATE_WHEEL_CMD)
-# MA_BUILD_EXIT_CODE=$?
+MA_BUILD_EXIT_CODE = os.system(CREATE_WHEEL_CMD)
 
+os.chdir(BASE_DIR)
 
-# cd ../
+# Build TS & MA on Conda if available
 #
-# # Build TS & MA on Conda if available
+# if IS_CONDA_ENV :
+#     TS_WHL_PATH=os.path.join(BASE_DIR, "dist", "*.whl")
+#     MA_WHL_PATH=os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl")
+
 # (
 #   set -e
 #   if [ -x "$(command -v conda)" ]
@@ -27,8 +31,6 @@ os.system(CREATE_WHEEL_CMD)
 #   fi
 # )
 # CONDA_BUILD_EXIT_CODE=$?
-#
-# # If any one of the builds fail, exit with error
-# if [ "$TS_BUILD_EXIT_CODE" -ne 0 ] || [ "$MA_BUILD_EXIT_CODE" -ne 0 ] || [ "$CONDA_BUILD_EXIT_CODE" -ne 0 ]
-# then exit 1
-# fi
+
+if any( EXIT_CODE != 0 for EXIT_CODE in [TS_BUILD_EXIT_CODE, MA_BUILD_EXIT_CODE]):
+    sys.exit("Build Failed")
