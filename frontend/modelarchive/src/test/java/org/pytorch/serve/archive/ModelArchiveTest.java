@@ -42,6 +42,29 @@ public class ModelArchiveTest {
     }
 
     @Test
+    public void testLocalFile() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
+        String curDir = System.getProperty("user.dir");
+        File curDirFile = new File(curDir);
+        String parent = curDirFile.getParent();
+
+        // Setup: This test needs mar file in local path. Copying mnist.mar from model folder.
+        String source = modelStore + "/mnist.mar";
+        String destination = parent + "/modelarchive/mnist1.mar";
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination);
+        FileUtils.copyFile(sourceFile, destinationFile);
+
+        String fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        ModelArchive archive = ModelArchive.downloadModel(modelStore, fileUrl);
+        File modelLocation = new File(modelStore + "/mnist1.mar");
+        Assert.assertTrue(modelLocation.exists());
+        ModelArchive.removeModel(modelStore, fileUrl);
+        Assert.assertTrue(!new File(modelStore, "mnist1").exists());
+        FileUtils.deleteQuietly(destinationFile);
+    }
+
+    @Test
     public void archiveTest() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
@@ -90,5 +113,11 @@ public class ModelArchiveTest {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 modelStore, "https://../model-server/models/squeezenet_v1.1/squeezenet_v1.1.mod");
+    }
+
+    @Test(expectedExceptions = DownloadModelException.class)
+    public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive.downloadModel(modelStore, "file://" + modelStore + "/mnist1.mar");
     }
 }

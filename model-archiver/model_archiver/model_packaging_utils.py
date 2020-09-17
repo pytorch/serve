@@ -10,6 +10,7 @@ import re
 import zipfile
 import shutil
 import tarfile
+import tempfile
 from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
@@ -130,7 +131,7 @@ class ModelExportUtils(object):
         :param kwargs: key value pair of files to be copied in archive
         :return:
         """
-        model_path = '/tmp/{0}'.format(model_name)
+        model_path = os.path.join(tempfile.gettempdir(), model_name)
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
         ModelExportUtils.make_dir(model_path)
