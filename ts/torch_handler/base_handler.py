@@ -27,6 +27,8 @@ class BaseHandler(abc.ABC):
         self.context = None
         self.manifest = None
         self.map_location = None
+        self.torch_cpp_python_module = None
+        self.torch_api_type = "python"
 
     def initialize(self, context):
         """First try to load torchscript else load eager mode state_dict based model"""
@@ -60,15 +62,15 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         elif self.torch_api_type == 'cpp':
-            self.inference_module = None
             if model_file:
                 raise Exception("Eager models are not supported using CPP API")
-            else:
-                logger.info('Loading Torch Script model using CPP API')
-                source_path = pathlib.Path(__file__).parent.absolute()
-                cpp_source_path = os.path.join(source_path, "torch_cpp_python_bindings.cpp")
-                self.torch_cpp_python_module = load(name="torch_cpp_python_bindings", sources=[cpp_source_path], verbose=True)
-                self.torch_cpp_python_module.load_model(model_pt_path, self.map_location)
+
+            logger.info('Loading Torch Script model using CPP API')
+            source_path = pathlib.Path(__file__).parent.absolute()
+            cpp_source_path = os.path.join(source_path, "torch_cpp_python_bindings.cpp")
+            self.torch_cpp_python_module = load(name="torch_cpp_python_bindings",
+                                                sources=[cpp_source_path], verbose=True)
+            self.torch_cpp_python_module.load_model(model_pt_path, self.map_location)
         else:
             raise Exception("Only Python and CPP APIs are supported.")
 
