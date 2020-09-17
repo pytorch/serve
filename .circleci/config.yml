@@ -3,8 +3,9 @@ version: 2.1
 
 orbs:
   windows: circleci/windows@2.4.0
-  # Adds 2 executors - win/default and win/gpu-nvidia
+  # Adds 2 executors - windows/default and windows/gpu-nvidia
   # https://circleci.com/orbs/registry/orb/circleci/windows
+
 
 executors:
   # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY under 'Project Settings > Environment Variables' in CircleCI
@@ -60,7 +61,7 @@ jobs:
       - checkout
       - run:
           name: Build torchserve and torch model archiver
-          command: python .circleci/scripts/linux_build.py
+          command: python .circleci/scripts/build.py
       - store_artifacts:
           name: Store torchserve wheel
           path: dist/
