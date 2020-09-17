@@ -9,28 +9,41 @@ MODEL_INPUTS=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg"
  "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt" "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
 HANDLERS=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "custom" "custom" "custom")
 
+torch_api_types=("cpp" "python")
+#Here "both" means both cpp and python API are supported by handler
+torch_api_support=("python" "python" "python" "python" "python" "both" "python" "python" "python" "python")
 
 mkdir model_store
 
 start_torchserve
 
-for i in ${!MODELS[@]};
+for i in ${!models[@]};
 do
-  model=${MODELS[$i]}
-  inputs=$(echo ${MODEL_INPUTS[$i]} | tr "," "\n")
-  handler=${HANDLERS[$i]}
-  register_model "$model"
-  for input in ${inputs[@]};
+  for api_type_idx in ${!torch_api_types[@]};
   do
-    run_inference "$model" "$input"
-  done
-  #skip unregistering resnet-18 model to test snapshot feature with restart
-  if [ "$model" != "resnet-18" ]
-  then
-    unregister_model "$model"
-  fi
-  echo "$handler default handler is stable."
+    api_type=${torch_api_types[$api_type_idx]}
+    supported_api=${torch_api_support[$i]}
+    if [ "$supported_api" == "python" ] &&  [ "$api_type" == "cpp" ]; then
+      continue;
+    fi
+    model=${models[$i]}
+    inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
+    handler=${handlers[$i]}
+    register_model "$model" "$api_type"
+    for input in ${inputs[@]};
+    do
+      run_inference "$model" "$input"
+    done
+
+    #skip unregistering resnet-18 model to test snapshot feature with restart
+    if [ "$model" != "resnet-18" ]
+    then
+      unregister_model "$model"
+    fi
+    echo "$handler default handler with ${api_type} API is stable."
+    done
 done
+
 
 stop_torchserve
 
