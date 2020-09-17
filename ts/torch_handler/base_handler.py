@@ -121,7 +121,11 @@ class BaseHandler(abc.ABC):
             if self.torch_api_type == 'python':
                 results = self.model(marshalled_data, *args, **kwargs)
             else:
-                results = self.torch_cpp_python_module.run_model([marshalled_data])
+                if len(**kwargs):
+                    raise Exception("Keyword arguments are not supported by CPP API. Use Python API instead.")
+                params = [data]
+                params.extend(*args)
+                results = self.torch_cpp_python_module.run_model(params)
         return results
 
     def postprocess(self, data):
