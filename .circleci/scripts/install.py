@@ -1,10 +1,11 @@
 import os
+import glob
 import sys
 
 BASE_DIR = os.getcwd()
 
-TS_WHEEL = os.path.join(BASE_DIR, "dist", "*.whl")
-MA_WHEEL = os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl")
+TS_WHEEL = glob.glob(os.path.join(BASE_DIR, "dist", "*.whl"))[0]
+MA_WHEEL = glob.glob(os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl"))[0]
 
 INSTALL_EXIT_CODE = os.system(f"pip install {TS_WHEEL} {MA_WHEEL}")
 
