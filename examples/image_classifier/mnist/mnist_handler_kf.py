@@ -17,7 +17,7 @@ class MNISTDigitClassifier(ImageClassifier):
 
     image_processing = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        #transforms.Normalize((0.1307,), (0.3081,))
     ])
 
     def preprocess(self, data):
@@ -30,8 +30,9 @@ class MNISTDigitClassifier(ImageClassifier):
                 image = row.get("data") or row.get("body") or row
             else:
                 image = row
-
             print("Mnist image code", image)
+            image = torch.FloatTensor(image)
+            print("Mnist image code tensor", image)
             images.append(image)
 
         return torch.stack(images)
