@@ -81,6 +81,8 @@ public final class ConfigManager {
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
+    private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -274,6 +276,16 @@ public final class ConfigManager {
                 binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
         return Connector.parse(binding, connectorType);
+    }
+
+    public int getGRPCPort(ConnectorType connectorType) {
+        String port;
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "9091");
+        } else {
+            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "9090");
+        }
+        return Integer.parseInt(port);
     }
 
     public boolean getPreferDirectBuffer() {

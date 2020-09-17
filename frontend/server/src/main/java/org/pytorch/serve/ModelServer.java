@@ -1,5 +1,7 @@
 package org.pytorch.serve;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -29,6 +31,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -50,6 +53,8 @@ public class ModelServer {
     private Logger logger = LoggerFactory.getLogger(ModelServer.class);
 
     private ServerGroups serverGroups;
+    private Server inferencegRPCServer;
+    private Server managementgRPCServer;
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
@@ -350,8 +355,22 @@ public class ModelServer {
                             ConnectorType.METRICS_CONNECTOR));
         }
 
+        inferencegRPCServer = startgRPCServer(ConnectorType.INFERENCE_CONNECTOR);
+        managementgRPCServer = startgRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
+    }
+
+    public Server startgRPCServer(ConnectorType connectorType)
+            throws IOException, InterruptedException {
+
+        Server server =
+                ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                        .addService(GRPCServiceFactory.getgRPCService(connectorType))
+                        .build();
+
+        server.start();
+        return server;
     }
 
     private boolean validEndpoint(Annotation a, EndpointTypes type) {
@@ -380,8 +399,22 @@ public class ModelServer {
     }
 
     public void stop() {
-        if (stopped.get()) {
-            return;
+        inferencegRPCServer.shutdown();
+        while (!inferencegRPCServer.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace(); // NOPMD
+            }
+        }
+
+        managementgRPCServer.shutdown();
+        while (!managementgRPCServer.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace(); // NOPMD
+            }
         }
 
         stopped.set(true);
