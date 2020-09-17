@@ -1,6 +1,0 @@
-{model_snapshot={
-  "name": "snapshot",
-  "modelCount": 0,
-  "created": 123456,
-  "models": {}
-}, default_response_timeout=120, default_workers_per_model=4, tsConfigFile=dummyconfig, version=0.1.1, max_request_size=10485760, enable_envvars_config=true, load_models=noop.mar, private_key_file=src/test/resources/key.pem, unregister_model_timeout=120, certificate_file=src/test/resources/certs.pem, snapshot_store=FS, management_address=unix:/tmp/management.sock, model_store=../modelarchive/src/test/resources/models, async_logging=true, number_of_gpu=4}
