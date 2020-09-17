@@ -13,6 +13,8 @@ cleanup()
 
   # clean up residual from model-archiver IT suite.
   rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
+
+  rm scripts/inference_pb2*.py
 }
 
 set +u
@@ -61,6 +63,9 @@ model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg"
  "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt" "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
 handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "custom" "custom" "custom")
 
+# generate python grpc stubs for Inference API
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto
+
 for i in ${!models[@]};
 do
   model=${models[$i]}
@@ -71,6 +76,13 @@ do
   do
     run_inference "$model" "$input"
   done
+
+  if python scripts/torchserve_grpc_client.py $model $input; then
+    echo "Successfully validated $handler through gRPC client"
+  else
+    echo "Could not run inference for $model through gRPC client"
+    exit 1
+  fi
 
   if is_gpu_instance;
   then
