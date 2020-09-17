@@ -18,6 +18,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
@@ -270,7 +272,7 @@ public class WorkerThread implements Runnable {
                                         }
 
                                         Job job =
-                                                new Job(
+                                                new RestJob(
                                                         null,
                                                         modelName,
                                                         modelVersion,

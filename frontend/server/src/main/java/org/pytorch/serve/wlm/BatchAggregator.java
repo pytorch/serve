@@ -3,6 +3,7 @@ package org.pytorch.serve.wlm;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
