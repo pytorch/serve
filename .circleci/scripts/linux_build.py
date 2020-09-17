@@ -1,13 +1,16 @@
 import os
 
+CREATE_WHEEL_CMD = "python setup.py bdist_wheel --release --universal"
+
 # Build torchserve wheel
-os.system("python setup.py bdist_wheel --release --universal")
+os.system(CREATE_WHEEL_CMD)
 # TS_BUILD_EXIT_CODE=$?
 
 # Build model archiver wheel
-# cd model-archiver/
-# python setup.py bdist_wheel --release --universal
+os.system(f"cd model-archiver/; {CREATE_WHEEL_CMD}")
 # MA_BUILD_EXIT_CODE=$?
+
+
 # cd ../
 #
 # # Build TS & MA on Conda if available
