@@ -17,7 +17,7 @@ mkdir model_store
 
 start_torchserve
 
-for i in ${!models[@]};
+for i in ${!MODELS[@]};
 do
   for api_type_idx in ${!torch_api_types[@]};
   do
@@ -26,9 +26,9 @@ do
     if [ "$supported_api" == "python" ] &&  [ "$api_type" == "cpp" ]; then
       continue;
     fi
-    model=${models[$i]}
-    inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
-    handler=${handlers[$i]}
+    model=${MODELS[$i]}
+    inputs=$(echo ${MODEL_INPUTS[$i]} | tr "," "\n")
+    handler=${HANDLERS[$i]}
     register_model "$model" "$api_type"
     for input in ${inputs[@]};
     do
