@@ -31,7 +31,7 @@ class TestModelPackaging:
     args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value, model_file=model_file,
                      serialized_file=serialized_file, extra_files=None, export_path=export_path, force=False,
                      archive_format="default", convert=False, version=version, source_vocab=source_vocab,
-                     requirements_file=requirements_file)
+                     requirements_file=requirements_file, torch_api_type="python")
 
     @pytest.fixture()
     def patches(self, mocker):

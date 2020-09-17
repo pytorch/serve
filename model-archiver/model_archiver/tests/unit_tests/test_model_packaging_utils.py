@@ -143,7 +143,7 @@ class TestExportModelUtils:
 
         args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value,
                          serialized_file=serialized_file, model_file=model_file, version=version,
-                         requirements_file=requirements_file)
+                         requirements_file=requirements_file, torch_api_type="python")
 
         def test_model(self):
             mod = ModelExportUtils.generate_model(self.args)
