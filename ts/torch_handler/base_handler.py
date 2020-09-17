@@ -123,7 +123,7 @@ class BaseHandler(abc.ABC):
             else:
                 if len(kwargs):
                     raise Exception("Keyword arguments are not supported by CPP API. Use Python API instead.")
-                params = [data]
+                params = [marshalled_data]
                 params.extend(args)
                 results = self.torch_cpp_python_module.run_model(params)
         return results
