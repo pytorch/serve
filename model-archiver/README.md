@@ -117,6 +117,7 @@ optional arguments:
                         This is an optional parameter.
                         If python is specified handler should use Torch Python API.
                         If cpp is specified handler should use Torch CPP API. Python binding to CPP API needs to be in place to use CPP API.
+                        The torch_api_type parameter in Registration API overrides this value.
 ```
 
 ## Artifact Details
@@ -155,16 +156,16 @@ e.g. if your custom handler custom_image_classifier.py is in /home/serve/example
 For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
 
 ### Torch API Type
-The handler can use Torch Python API or a CPP API to load a model and to do the inference.
-The parameter torch-api-type is used to specify whether handler should use Python API or CPP API.
-If torch_api_type parameter is provided using Model Registration API, registration API value will be passed to handler context.
-Since handler is written in Python, to invoke the CPP API a python binding to CPP code needs to be provided. Torch Serve
-provides this built in bindings [file](../ts/torch_handler/torch_cpp_python_bindings.cpp) by default.
-You can create your own custom code and bindings as well. Refer the PyTorch CPP extension [documentation](https://pytorch.org/tutorials/advanced/cpp_extension.html) for the same.
-We are using PyTorch's JIT compilation API to get python module from the bindings. The JIT compilation API is well documented [here](https://pytorch.org/tutorials/advanced/cpp_extension.html#jit-compiling-extensions).
-
-**Note** This property get passed to handler as context.system_properties["torch_api_type"]. It is up-to the handler implementation to read this property
-and then appropriately invoke Python or CPP API. The built in BaseHandler uses this property.
+The Torch API type to be used by the handler. The Registration API's torch_api_type parameter value will override `torchAPIType` in MANIFEST.json.
+The torch_api_type value get passed to handler as context.system_properties["torch_api_type"]. Handler should use it to invoke appropriate type of API.
+Since handler runs in Python process, to invoke the C++ API a python binding to CPP code needs to be provided. The built in Base Handler invokes Torch C++ API using this python bindings [file](../ts/torch_handler/torch_cpp_python_bindings.cpp).
+You may want to create your own bindings and use it in your custom handler.
+Refer the PyTorch CPP extension [documentation](https://pytorch.org/tutorials/advanced/cpp_extension.html) for the same.
+We are using PyTorch's JIT compilation API to get python module from the C++ bindings code. The JIT compilation API is well documented [here](https://pytorch.org/tutorials/advanced/cpp_extension.html#jit-compiling-extensions).
+Please take a note of points below:
+  1. The 'cpp' Torch API Type works for TorchScript models only. Eager models are not supported.
+  2. The C++ API support provided in Base Handler is basic. Not all models and/or handlers will be able to work with it.
+  3. Note that handler may ignore the torch_api_type property.
 
 
 ## Creating a Model Archive
