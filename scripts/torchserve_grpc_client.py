@@ -31,4 +31,4 @@ def infer(stub, model_name, model_input):
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    infer(get_inference_stub(), args[0], "../" + args[1])
+    infer(get_inference_stub(), args[0], args[1])
