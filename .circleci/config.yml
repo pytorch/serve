@@ -60,7 +60,7 @@ jobs:
       - checkout
       - run:
           name: Build torchserve and torch model archiver
-          command: .circleci/scripts/linux_build.sh
+          command: python .circleci/scripts/linux_build.py
       - store_artifacts:
           name: Store torchserve wheel
           path: dist/
