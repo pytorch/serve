@@ -7,7 +7,8 @@ os.system(CREATE_WHEEL_CMD)
 # TS_BUILD_EXIT_CODE=$?
 
 # Build model archiver wheel
-os.system(f"cd model-archiver/; {CREATE_WHEEL_CMD}")
+os.chdir("model-archiver")
+os.system(CREATE_WHEEL_CMD)
 # MA_BUILD_EXIT_CODE=$?
 
 
