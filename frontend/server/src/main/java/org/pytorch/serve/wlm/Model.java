@@ -86,9 +86,9 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
-        if(modelInfo.has(TORCH_API_TYPE)) {
+        if (modelInfo.has(TORCH_API_TYPE)) {
             torchAPIType = modelInfo.get(TORCH_API_TYPE).getAsString();
-        }else{
+        } else {
             torchAPIType = ConfigManager.getInstance().getTsDefaultTorchAPIType();
         }
     }
