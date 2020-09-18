@@ -206,6 +206,11 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
+      - when:
+          condition:
+            equal: [ windows, << parameters.executor >> ]
+          steps:
+            - run: python .circleci/scripts/install_dependencies.py
       - install-torchserve
       - run:
           name: Execute python lint, unit and integration tests
@@ -228,16 +233,13 @@ workflows:
             parameters:
               executor:
                 - ubuntu18-pythn36-cpu-docker
-                - windows/default
+                - windows
 #                - ubuntu18-conda38-cpu-docker
 #                - ubuntu18-pyenv37-cpu-docker
 #                - ubuntu18-venv36-cpu-docker
       - &modelarchiver-tests
         modelarchiver-tests:
           name: modelarchiver-tests-<< matrix.executor >>
-          pre-steps:
-            - run:
-                command: python .circleci/scripts/install_dependencies.py
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
