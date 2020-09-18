@@ -235,6 +235,9 @@ workflows:
       - &modelarchiver-tests
         modelarchiver-tests:
           name: modelarchiver-tests-<< matrix.executor >>
+          pre-steps:
+            - run:
+                command: python .circleci/scripts/install_dependencies.py
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
