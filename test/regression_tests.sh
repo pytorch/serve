@@ -169,6 +169,7 @@ run_pytest() {(
   python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/ --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto
   stop_torch_serve
   pytest . -v >>$1 2>&1
+  rm -rf inference_pb2*.py
   cd -
 
 )}
