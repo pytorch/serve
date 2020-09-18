@@ -1,10 +1,10 @@
 version: 2.1
 
 
-orbs:
-  windows: circleci/windows@2.4.0
-  # Adds 2 executors - windows/default and windows/gpu-nvidia
-  # https://circleci.com/orbs/registry/orb/circleci/windows
+#orbs:
+#  windows: circleci/windows@2.4.0
+#  # Adds 2 executors - windows/default and windows/gpu-nvidia
+#  # https://circleci.com/orbs/registry/orb/circleci/windows
 
 
 executors:
@@ -21,7 +21,10 @@ executors:
   ubuntu18-venv36-cpu-docker:
     docker:
       - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
-  windows-srvr-2019-cpu: windows/default
+  windows-srvr-2019-cpu: &windows-srvr-2019-cpu
+    image: windows-server-2019-vs2019:default
+    shell: powershell.exe -ExecutionPolicy Bypass
+
 
 
 commands:
@@ -209,7 +212,7 @@ jobs:
       - attach-torchserve-workspace
       - when:
           condition:
-            equal: [ windows-srvr-2019-cpu, << parameters.executor >> ]
+            equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
           steps:
             - run: python .circleci/scripts/install_dependencies.py
       - install-torchserve
