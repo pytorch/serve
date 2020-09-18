@@ -111,9 +111,10 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
+      - *if-not-docker-install-dependencies
       - run:
           name: Execute python lint and unit tests
-          command: .circleci/scripts/linux_test_python.sh
+          command: python .circleci/scripts/linux_test_python.py
       - store_artifacts:
           name: Store python Test results
           path: result_units
@@ -256,12 +257,12 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-#      - &python-tests
-#        python-tests:
-#          name: python-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - &python-tests
+        python-tests:
+          name: python-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - &sanity-tests
 #        sanity-tests:
 #          name: sanity-tests-<< matrix.executor >>

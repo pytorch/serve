@@ -25,4 +25,4 @@ PY_INTEG_EXIT_CODE = os.system(PY_INTEG_CMD)
 
 # If any one of the steps fail, exit with error
 if any( EXIT_CODE != 0 for EXIT_CODE in [PY_LINT_EXIT_CODE, PY_UNITS_EXIT_CODE, PY_INTEG_EXIT_CODE]):
-    sys.exit("Model Archiver Tests Failed")
+    sys.exit("Torch Model Archiver Python Tests Failed")
