@@ -25,6 +25,7 @@ executors:
     machine:
       image: windows-server-2019-vs2019:stable
       shell: powershell.exe -ExecutionPolicy Bypass
+      resource_class: windows.medium
 
 
 
