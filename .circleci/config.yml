@@ -208,7 +208,7 @@ jobs:
       - attach-torchserve-workspace
       - when:
           condition:
-            equal: [ windows, << parameters.executor >> ]
+            equal: [ windows/default, << parameters.executor >> ]
           steps:
             - run: python .circleci/scripts/install_dependencies.py
       - install-torchserve
@@ -233,7 +233,7 @@ workflows:
             parameters:
               executor:
                 - ubuntu18-pythn36-cpu-docker
-                - windows
+                - windows/default
 #                - ubuntu18-conda38-cpu-docker
 #                - ubuntu18-pyenv37-cpu-docker
 #                - ubuntu18-venv36-cpu-docker
