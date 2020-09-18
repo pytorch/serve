@@ -96,6 +96,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
+      - *if-not-docker-install-dependencies
       - run:
           name: Execute frontend gradle tests
           command: python .circleci/scripts/test_frontend.py
