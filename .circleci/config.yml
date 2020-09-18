@@ -23,7 +23,7 @@ executors:
       - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
   windows-srvr-2019-cpu: &windows-srvr-2019-cpu
     machine:
-      image: windows-server-2019-vs2019:default
+      image: windows-server-2019-vs2019:stable
       shell: powershell.exe -ExecutionPolicy Bypass
 
 
