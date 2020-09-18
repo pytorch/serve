@@ -56,19 +56,14 @@ commands:
           command: .circleci/scripts/linux_test_api.sh << parameters.collection >>
           when: always
 
-  if-not-docker-install-dependencies:
-    description: "Install dependencies need for trochserve"
-    parameters:
-      executor:
-        type: executor
-    steps:
-      - when:
-          condition:
-            - or :
-              - equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
-              # - equal: [ *macos-cpu, << parameters.executor >> ]
-          steps:
-            - run: python .circleci/scripts/install_dependencies.py
+  if-not-docker-install-dependencies: &if-not-docker-install-dependencies
+    when:
+      condition:
+        - or :
+          - equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
+          # - equal: [ *macos-cpu, << parameters.executor >> ]
+      steps:
+        - run: python .circleci/scripts/install_dependencies.py
 
 jobs:
   build:
@@ -225,8 +220,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - if-not-docker-install-dependencies:
-          executor: << parameters.executor >>
+      - *if-not-docker-install-dependencies
       - install-torchserve
       - run:
           name: Execute python lint, unit and integration tests
