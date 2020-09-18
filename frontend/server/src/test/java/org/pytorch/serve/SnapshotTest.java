@@ -54,7 +54,8 @@ public class SnapshotTest {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         System.setProperty("tsConfigFile", "src/test/resources/config.properties");
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        FileUtils.cleanDirectory(new File(System.getProperty("LOG_LOCATION"), "config"));
+
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
@@ -84,6 +85,7 @@ public class SnapshotTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(managementChannel, "noop", null, false);
         TestUtils.getLatch().await();
+
         validateSnapshot("snapshot2.cfg");
         waitForSnapshot();
     }
@@ -168,6 +170,7 @@ public class SnapshotTest {
                         HttpHeaderNames.CONTENT_TYPE,
                         HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         channel.writeAndFlush(req);
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -180,7 +183,7 @@ public class SnapshotTest {
         TestUtils.registerModel(managementChannel, "noop.mar", "noopversioned", true, false);
         TestUtils.getLatch().await();
         validateSnapshot("snapshot6.cfg");
-        waitForSnapshot();
+        waitForSnapshot(5000);
     }
 
     @Test(

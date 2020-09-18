@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 import re
 import shutil
 import time
@@ -11,6 +10,8 @@ import click_config_file
 import matplotlib.pyplot as plt
 import pandas as pd
 import requests
+import tempfile
+import os
 
 default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
                      'gpus': '',
@@ -26,10 +27,10 @@ default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resne
                      'docker_runtime': '',
                      'backend_profiling': False
                      }
-
+TMP_DIR = tempfile.gettempdir()
 execution_params = default_ab_params.copy()
-result_file = "/tmp/benchmark/result.txt"
-metric_log = "/tmp/benchmark/logs/model_metrics.log"
+result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
+metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
 
 
 def json_provider(file_path, cmd_name):
@@ -55,7 +56,8 @@ def json_provider(file_path, cmd_name):
 @click.option('--workers', '-w', default=1, help='Number model workers')
 @click.option('--image', '-di', default='', help='Use custom docker image for benchmark')
 @click.option('--docker_runtime', '-dr', default='', help='Specify required docker runtime')
-@click.option('--backend_profiling', '-bp', default=False, help='Enable backend profiling using CProfile. Default False')
+@click.option('--backend_profiling', '-bp', default=False,
+              help='Enable backend profiling using CProfile. Default False')
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
@@ -101,14 +103,14 @@ def check_torchserve_health():
     click.secho("*Testing system health...", fg='green')
     while retry < attempts:
         try:
-            resp = requests.get("http://localhost:8080/ping")
+            resp = requests.get("http://localhost:9000/ping")
             if resp.status_code == 200:
                 click.secho(resp.text)
                 return True
         except Exception as e:
             retry += 1
             time.sleep(3)
-    failure_exit("Could not connect to Tochserve instance at http://localhost:8080/.")
+    failure_exit("Could not connect to Tochserve instance at http://localhost:9000/.")
 
 
 def run_benchmark():
@@ -116,8 +118,8 @@ def run_benchmark():
 
     click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
     click.secho("*Executing inference performance test...", fg='green')
-    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p /tmp/benchmark/input -T " \
-             f"{execution_params['content_type']} http://127.0.0.1:8080/predictions/benchmark > {result_file}"
+    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
+             f"{execution_params['content_type']} http://127.0.0.1:9000/predictions/benchmark > {result_file}"
     execute(ab_cmd, wait=True)
 
     unregister_model()
@@ -126,7 +128,7 @@ def run_benchmark():
 
 def register_model():
     click.secho("*Registering model...", fg='green')
-    url = "http://localhost:8081/models"
+    url = "http://localhost:9001/models"
     data = {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
             'batch_size': execution_params['batch_size'], 'initial_workers': execution_params['workers'],
             'synchronous': 'true'}
@@ -138,7 +140,7 @@ def register_model():
 
 def unregister_model():
     click.secho("*Unregistering model ...", fg='green')
-    resp = requests.delete("http://localhost:8081/models/benchmark")
+    resp = requests.delete("http://localhost:9001/models/benchmark")
     if not resp.status_code == 200:
         failure_exit(f"Failed to unregister model. \n {resp.text}")
     click.secho(resp.text)
@@ -163,8 +165,8 @@ def local_torserve_start():
     click.secho("*Setting up model store...", fg='green')
     prepare_local_dependency()
     click.secho("*Starting local Torchserve instance...", fg='green')
-    execute("torchserve --start --model-store /tmp/model_store "
-            "--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log")
+    execute(f"torchserve --start --model-store {TMP_DIR}/model_store "
+            f"--ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log")
     time.sleep(3)
 
 
@@ -192,17 +194,17 @@ def docker_torchserve_start():
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 8080:8080 -p 8081:8081 " \
-                     f"-v /tmp:/tmp {enable_gpu} -itd {docker_image} " \
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 9000:9000 -p 9001:9001 " \
+                     f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
-                     f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
+                         f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
     time.sleep(5)
 
 
 def prepare_local_dependency():
-    shutil.rmtree('/tmp/model_store/', ignore_errors=True)
-    os.makedirs("/tmp/model_store/", exist_ok=True)
+    shutil.rmtree(os.path.join(TMP_DIR, 'model_store/'), ignore_errors=True)
+    os.makedirs(os.path.join(TMP_DIR, "model_store/"), exist_ok=True)
     prepare_common_dependency()
 
 
@@ -212,11 +214,11 @@ def prepare_docker_dependency():
 
 def prepare_common_dependency():
     input = execution_params['input']
-    shutil.rmtree("/tmp/benchmark", ignore_errors=True)
-    os.makedirs("/tmp/benchmark/conf", exist_ok=True)
-    os.makedirs("/tmp/benchmark/logs", exist_ok=True)
-    shutil.copy('config.properties', '/tmp/benchmark/conf/')
-    shutil.copyfile(input, '/tmp/benchmark/input')
+    shutil.rmtree(os.path.join(TMP_DIR, "benchmark"), ignore_errors=True)
+    os.makedirs(os.path.join(TMP_DIR, "benchmark/conf"), exist_ok=True)
+    os.makedirs(os.path.join(TMP_DIR, "benchmark/logs"), exist_ok=True)
+    shutil.copy('config.properties', os.path.join(TMP_DIR, 'benchmark/conf/'))
+    shutil.copyfile(input, os.path.join(TMP_DIR, 'benchmark/input'))
 
 
 def update_exec_params(input_param):
@@ -242,7 +244,7 @@ def extract_prediction_latency():
         if pattern.search(line):
             all_lines.append(line.split("|")[0].split(':')[3].strip())
 
-    with  open('/tmp/benchmark/predict.txt', 'w') as outf:
+    with  open(f'{TMP_DIR}/benchmark/predict.txt', 'w') as outf:
         all_lines = map(lambda x: x + '\n', all_lines)
         outf.writelines(all_lines)
 
@@ -254,7 +256,7 @@ def generate_csv_output():
     line90 = int(batched_requests * 9 / 10)
     line99 = int(batched_requests * 99 / 100)
     artifacts = {}
-    with open('/tmp/benchmark/result.txt') as f:
+    with open(f'{TMP_DIR}/benchmark/result.txt') as f:
         data = f.readlines()
     artifacts['Benchmark'] = "AB"
     artifacts['Model'] = execution_params['url']
@@ -268,13 +270,13 @@ def generate_csv_output():
     artifacts['TS latency mean'] = extract_entity(data, 'Time per request:.*mean\)', -3)
     artifacts['TS error rate'] = int(artifacts['TS failed requests']) / execution_params['requests'] * 100
 
-    with open('/tmp/benchmark/predict.txt') as f:
+    with open(os.path.join(TMP_DIR, 'benchmark/predict.txt')) as f:
         lines = f.readlines()
         artifacts['Model_p50'] = lines[line50].strip()
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
 
-    with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
+    with open(os.path.join(TMP_DIR, 'benchmark/ab_report.csv'), 'w')as csv_file:
         csvwriter = csv.writer(csv_file)
         csvwriter.writerow(artifacts.keys())
         csvwriter.writerow(artifacts.values())
@@ -291,14 +293,14 @@ def extract_entity(data, pattern, index, delim=" "):
 
 def generate_latency_graph():
     click.secho("*Preparing graphs...", fg='green')
-    df = pd.read_csv('/tmp/benchmark/predict.txt', header=None, names=['latency'])
+    df = pd.read_csv(os.path.join(TMP_DIR, 'benchmark/predict.txt'), header=None, names=['latency'])
     iteration = df.index
     latency = df.latency
     plt.xlabel('Requests ')
     plt.ylabel('Prediction time')
     plt.title('Prediction latency')
     plt.bar(iteration, latency)
-    plt.savefig("/tmp/benchmark/predict_latency.png")
+    plt.savefig(f"{TMP_DIR}/benchmark/predict_latency.png")
 
 
 def stop_torchserve():

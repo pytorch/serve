@@ -386,7 +386,11 @@ public class ModelServer {
 
         stopped.set(true);
         for (ChannelFuture future : futures) {
-            future.channel().close();
+            try {
+                future.channel().close().sync();
+            } catch (InterruptedException ignore) {
+                ignore.printStackTrace(); // NOPMD
+            }
         }
 
         SnapshotManager.getInstance().saveShutdownSnapshot();
