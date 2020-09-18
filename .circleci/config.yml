@@ -61,9 +61,7 @@ commands:
 if-not-docker-install-dependencies: &if-not-docker-install-dependencies
   when:
     condition:
-      - or :
-        - equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
-        # - equal: [ *macos-cpu, << parameters.executor >> ]
+        equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
     steps:
       - run: python .circleci/scripts/install_dependencies.py
 
