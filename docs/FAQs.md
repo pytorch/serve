@@ -13,7 +13,7 @@ Relevant documents.
 ### Does Torchserve API's  follow some REST API standard?
 Torchserve API's are compliant with the [OpenAPI specification 3.0](https://swagger.io/specification/).
 
-### What is not Torchserve?
+### How to use Torchserve in production?
 Torchserve is not a complete web application to serve end to end business use cases. Hence a lot of security aspects should be made available via 3rd party wrapper components in front of Torchserve.
 
 ### What's difference between Torchserve and a python web app using web frameworks like Flask, Django?
@@ -28,7 +28,6 @@ The native Windows support will be added in upcoming releases.
 
 ### Can I do streaming service with Torchserve like streaming speech recognition?
 Torchserve currently supports only inference through HTTP 1.0 - Request / Response style.
-We don't have anything particular in our roadmap - [pytorch/pytorch#27610](https://github.com/pytorch/pytorch/issues/27610)
 
 ### Is it possible to deploy model other than Pytorch framework?
 Yes, it is possible to deploy(with Python inference logic) however Torchserve has been certified with any other framework hence there can be unknowns.
@@ -144,3 +143,11 @@ properties = context.system_properties
 model_dir = properties.get("model_dir")
 ```
 Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
+
+Relavant issues: [[#633](https://github.com/pytorch/serve/issues/633)]
+
+### Can I download and register model using s3 presigned v4 url?
+You can use both s3 v2 and v4 signature URLs.
+Note: For v4 type replace `&` characters in model url with its URL encoding character in the curl command i.e.`%26`.
+
+Relavant issues: [[#669](https://github.com/pytorch/serve/issues/669)]

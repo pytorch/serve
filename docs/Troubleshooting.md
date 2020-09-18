@@ -54,6 +54,11 @@ The snapshots are by default in `{LOG_LOCATION}\config` directory, where `{LOG_L
 
 Refer  [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.md) for more details.
 
+#### How to change Temp Directory?
+You can export TEMP environment variable to the desired path. This path will be used by TorchServe to extract the model-archives content.
+
+Relavant issues: [[#654](https://github.com/pytorch/serve/issues/654)]
+
 ###  API related issues
 
 #### Register model: Failed with exception "ConflictStatusException" & error code 409.
@@ -99,3 +104,10 @@ Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/mo
 By default model specific custom python packages feature is disabled, enable this by setting install_py_dep_per_model
 to true.
 Refer [Allow model specific custom python packages](https://github.com/pytorch/serve/blob/master/docs/configuration.md#allow-model-specific-custom-python-packages) for more details.
+
+
+#### Backend worker monitoring thread interrupted or backend worker process died error.
+This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function.
+This error is also observed when there is missing package/module.
+
+Relavant issues: [[#667](https://github.com/pytorch/serve/issues/667), [#537](https://github.com/pytorch/serve/issues/537)]
