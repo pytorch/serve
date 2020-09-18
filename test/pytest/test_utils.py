@@ -56,6 +56,10 @@ def register_model(model_name, url):
         ('initial_workers', '1'),
         ('synchronous', 'true'),
     )
+    register_model(params)
+
+
+def register_model(params):
     response = requests.post('http://localhost:8081/models', params=params)
     return response
 

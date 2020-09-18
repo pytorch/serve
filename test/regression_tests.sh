@@ -166,6 +166,7 @@ run_pytest() {(
   set -e
   mkdir -p $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/pytest
+  python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/ --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto
   stop_torch_serve
   pytest . -v >>$1 2>&1
   cd -
@@ -183,6 +184,7 @@ echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
+
 run_pytest $TEST_EXECUTION_LOG_FILE
 
 echo "** Tests Complete **"
