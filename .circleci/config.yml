@@ -1,12 +1,6 @@
 version: 2.1
 
 
-#orbs:
-#  windows: circleci/windows@2.4.0
-#  # Adds 2 executors - windows/default and windows/gpu-nvidia
-#  # https://circleci.com/orbs/registry/orb/circleci/windows
-
-
 executors:
   # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY under 'Project Settings > Environment Variables' in CircleCI
   ubuntu18-pythn36-cpu-docker:
@@ -26,7 +20,6 @@ executors:
       image: windows-server-2019-vs2019:stable
       shell: powershell.exe -ExecutionPolicy Bypass
       resource_class: windows.medium
-
 
 
 commands:
@@ -58,6 +51,8 @@ commands:
 
 
 # Anchor for DRY config
+# Anchor instead of "commands", due to limitation of type in parameter passing of commands
+# ToDo: Currently specific to windows, Make it generic for all non docker executors
 if-not-docker-install-dependencies: &if-not-docker-install-dependencies
   when:
     condition:
@@ -103,7 +98,7 @@ jobs:
       - attach-torchserve-workspace
       - run:
           name: Execute frontend gradle tests
-          command: .circleci/scripts/linux_test_frontend.sh
+          command: python .circleci/scripts/test_frontend.py
       - store_artifacts:
           name: Store frontend gradle test results
           path: frontend/server/build/reports/tests/test
@@ -254,12 +249,12 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-#      - &frontend-tests
-#        frontend-tests:
-#          name: frontend-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - &frontend-tests
+        frontend-tests:
+          name: frontend-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - &python-tests
 #        python-tests:
 #          name: python-tests-<< matrix.executor >>
