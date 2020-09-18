@@ -20,7 +20,6 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-cv, --cudaversion specify to use gpu"
-          echo "-env, --environment_info  display current environment info"
           exit 0
           ;;
         -b|--branch_name)
@@ -38,12 +37,6 @@ do
           CUDA_VERSION="$2"
           shift
           shift
-          ;;
-        -env|--environment_info)
-          echo "Torchserve Branch : $BRANCH"
-          echo
-          python collect_env.py
-          exit 0
           ;;
     esac
 done
@@ -64,7 +57,7 @@ install_torchserve_from_source() {
   cd serve
   echo "Installing torchserve torch-model-archiver from source"
   ./scripts/install_from_src
-  pip install -r requirements/developer.txt
+  pip install -U -r requirements/developer.txt
   pip install transformers
   echo "TS Branch : " "$(git rev-parse --abbrev-ref HEAD)" >> $3
   echo "TS Branch Commit Id : " "$(git rev-parse HEAD)" >> $3
