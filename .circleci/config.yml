@@ -243,12 +243,12 @@ workflows:
 #                - ubuntu18-conda38-cpu-docker
 #                - ubuntu18-pyenv37-cpu-docker
 #                - ubuntu18-venv36-cpu-docker
-      - &modelarchiver-tests
-        modelarchiver-tests:
-          name: modelarchiver-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
+#      - &modelarchiver-tests
+#        modelarchiver-tests:
+#          name: modelarchiver-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
       - &frontend-tests
         frontend-tests:
           name: frontend-tests-<< matrix.executor >>
