@@ -26,6 +26,15 @@ def get_inference_stub():
     return stub
 
 
+def get_change(current, previous):
+    if current == previous:
+        return 0
+    try:
+        return (abs(current - previous) / previous) * 100.0
+    except ZeroDivisionError:
+        return float('inf')
+
+
 def infer(stub, model_name, model_input):
     with open(model_input, 'rb') as f:
         data = f.read()
@@ -64,6 +73,15 @@ def test_inference_apis():
             except SyntaxError:
                 pass
 
-            assert str(prediction) == str(item['expected'])
+            if isinstance(prediction, list) and 'tolerance' in item:
+                assert len(prediction) == len(item['expected'])
+                for i in range(len(prediction)):
+                    assert get_change(prediction, item['expected']) < item['tolerance']
+            elif isinstance(prediction, dict):
+                assert len(prediction) == len(item['expected'])
+                for key in prediction:
+                    assert get_change(prediction[key], item['expected'][key]) < item['tolerance']
+            else:
+                assert str(prediction) == str(item['expected'])
 
         test_utils.unregister_model(item['model_name'])
