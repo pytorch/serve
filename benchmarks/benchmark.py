@@ -21,10 +21,28 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-BENCHMARK_DIR = "/tmp/TSBenchmark/"
+def get_platform():
+    if sys.platform.startswith('linux'):
+        return 'linux'
+    elif sys.platform.startswith('win32'):
+        return 'win32'
+    elif sys.platform.startswith('cygwin'):
+        return 'cygwin'
+    elif sys.platform.startswith('darwin'):
+        return 'darwin'
+    else:
+        return sys.platform
 
-OUT_DIR = os.path.join(BENCHMARK_DIR, 'out/')
-RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource/')
+PLATFORM= get_platform()
+
+if PLATFORM == 'win32':
+    BENCHMARK_DIR = "TSBenchmark"
+    OUT_DIR = os.path.join(BENCHMARK_DIR, 'out')
+    RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource')
+else :
+    BENCHMARK_DIR = "/tmp/TSBenchmark/"
+    OUT_DIR = os.path.join(BENCHMARK_DIR, 'out/')
+    RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource/')
 
 RESOURCE_MAP = {
     'kitten.jpg': 'https://s3.amazonaws.com/model-server/inputs/kitten.jpg'
@@ -86,11 +104,15 @@ AGGREGATE_REPORT_CSV_LABELS_MAP = {
     'aggregate_report_error%': 'aggregate_report_error'
 }
 
+if PLATFORM == 'win32':
+    CMDRUNNER = '"C:\\Program Files\\apache-jmeter-5.3\\lib\\cmdrunner-2.2.jar"'
+    JMETER = 'C:\\Program Files\\apache-jmeter-5.3\\bin\\jmeter.bat'
+else :
+    CELLAR = '/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
+    JMETER_VERSION = os.listdir(CELLAR)[0]
+    CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
+    JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
 
-CELLAR = '/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
-JMETER_VERSION = os.listdir(CELLAR)[0]
-CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
-JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
 TS_BASE = reduce(lambda val, func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
 JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')
 CONFIG_PROP = os.path.join(TS_BASE, 'benchmarks', 'config.properties')
@@ -195,7 +217,7 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             raise Exception("docker run command failed!! Please provide a valid docker image")
 
     management_port = int(pargs.management[0]) if pargs.management else port + 1
-    time.sleep(300)
+    time.sleep(30)
 
     try:
         # temp files
@@ -229,7 +251,10 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         time.sleep(30)
         # run AggregateReport
         ag_call = 'java -jar {} --tool Reporter --generate-csv {} --input-jtl {} --plugin-type AggregateReport'.format(CMDRUNNER, outfile, tmpfile)
-        run_process(ag_call)
+        if PLATFORM == 'win32':
+            run_process(ag_call, shell=True)
+        else:
+            run_process(ag_call)
 
         # Generate output graphs
         gLogfile = os.path.join(out_dir, 'graph_jmeter.log')
