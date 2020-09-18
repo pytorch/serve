@@ -56,14 +56,17 @@ commands:
           command: .circleci/scripts/linux_test_api.sh << parameters.collection >>
           when: always
 
-  if-not-docker-install-dependencies: &if-not-docker-install-dependencies
-    when:
-      condition:
-        - or :
-          - equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
-          # - equal: [ *macos-cpu, << parameters.executor >> ]
-      steps:
-        - run: python .circleci/scripts/install_dependencies.py
+
+# Anchor for DRY config
+if-not-docker-install-dependencies: &if-not-docker-install-dependencies
+  when:
+    condition:
+      - or :
+        - equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
+        # - equal: [ *macos-cpu, << parameters.executor >> ]
+    steps:
+      - run: python .circleci/scripts/install_dependencies.py
+
 
 jobs:
   build:
