@@ -2,7 +2,7 @@
 
 ### 一、Create an AKS cluster
 
-This quickstart requires that you are running the Azure CLI version 2.0.64 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/zh-cn/cli/azure/install-azure-cli).
+This quickstart requires that you are running the Azure CLI version 2.0.64 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
 #### 1.1 Set Azure account information
 
