@@ -4,6 +4,7 @@
 ModelServiceWorker is the worker that is started by the TorchServe front-end.
 """
 
+import sys
 import socket
 from collections import namedtuple
 
@@ -32,13 +33,17 @@ def socket_patches(mocker):
 
 @pytest.fixture()
 def model_service_worker(socket_patches):
-    model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None)
+    if not sys.platform.startswith("win"):
+        model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None)
+    else:
+        model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, port_num=9999)
     model_service_worker.sock = socket_patches.socket
     model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
     return model_service_worker
 
 
 # noinspection PyClassHasNoInit
+@pytest.mark.skipif(sys.platform.startswith("win"), reason='Skipping linux/darwin specific test cases')
 class TestInit:
     socket_name = "sampleSocketName"
 
