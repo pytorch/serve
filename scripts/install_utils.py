@@ -49,11 +49,12 @@ def build_install_archiver():
 def clean_up_build_residuals():
     try:
         import shutil
-        pwd = os.getcwd()
-        shutil.rmtree('{}/ts/__pycache__'.format(pwd))
-        shutil.rmtree('{}/ts/metrics/__pycache__'.format(pwd))
-        shutil.rmtree('{}/ts/protocol/__pycache__'.format(pwd))
-        shutil.rmtree('{}/ts/utils/__pycache__'.format(pwd))
+
+        for (dirpath, dirnames, filenames) in os.walk(os.getcwd()):
+            if '__pycache__' in dirnames:
+                cache_dir = os.path.join(dirpath, '__pycache__')
+                print(f'Cleaning - {cache_dir}')
+                shutil.rmtree(cache_dir)
     except Exception as e:
         print('Error while cleaning cache file. Details - '+str(e))
 
