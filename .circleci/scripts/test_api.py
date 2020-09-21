@@ -41,7 +41,7 @@ def start_ts_secure(model_store_dir, log_file, ts_https_config_file):
 
 
 def stop_ts(log_file):
-    os.system(f"{torchserve_command[platform.system()]} --stop >> {log_file} 2>&1")
+    os.system(f"{torchserve_command[platform.system()]} --stop")
     time.sleep(10)
 
 
