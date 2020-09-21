@@ -251,15 +251,20 @@ workflows:
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-      - &frontend-tests
-        frontend-tests:
-          name: frontend-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-      - &python-tests
-        python-tests:
-          name: python-tests-<< matrix.executor >>
+#      - &frontend-tests
+#        frontend-tests:
+#          name: frontend-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+#      - &python-tests
+#        python-tests:
+#          name: python-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
+      - api-tests:
+          name: api-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
