@@ -107,7 +107,7 @@ collection = args.collection
 
 switcher = {
     "management": trigger_management_tests,
-    "inference": trigger_management_tests,
+    "inference": trigger_inference_tests,
     "https": trigger_https_tests,
     "all": trigger_all
 }

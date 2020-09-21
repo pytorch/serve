@@ -142,6 +142,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
+      - *if-not-docker-install-dependencies
       - install-torchserve
       - exeucute-api-tests:
           collection: management
