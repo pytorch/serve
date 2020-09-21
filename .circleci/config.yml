@@ -167,7 +167,7 @@ jobs:
       - install-torchserve
       - run:
           name: Execute regression suite
-          command: .circleci/scripts/linux_test_regression.sh
+          command: python .circleci/scripts/test_regression.py
       - store_artifacts:
           name: Store server logs from regression tests
           path: test/pytest/logs/
@@ -267,17 +267,23 @@ workflows:
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
+#      - &sanity-tests
+#        sanity-tests:
+#          name: sanity-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
       - api-tests:
           name: api-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-      - &sanity-tests
-        sanity-tests:
-          name: sanity-tests-<< matrix.executor >>
+      - regression-tests:
+          name: regression-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
+
 #
 #  regression:
 #    triggers:

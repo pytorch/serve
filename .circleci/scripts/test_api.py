@@ -66,8 +66,8 @@ def trigger_incr_timeout_inference_tests():
     config_file.write("default_response_timeout=300")
     config_file.close()
 
-    install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
+    install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, config_file="config.properties", log_file=TS_CONSOLE_LOG_FILE)
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR}/{REPORT_FILE} --verbose")
     install_utils.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR)
     cleanup_model_store()
