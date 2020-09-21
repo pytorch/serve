@@ -15,10 +15,12 @@ TS_CONSOLE_LOG_FILE = os.path.join("ts_console.log")
 TS_CONFIG_FILE_HTTPS = os.path.join("resources", "config.properties")
 
 POSTMAN_ENV_FILE = os.path.join("postman", "environment.json")
+POSTMAN_INFERENCE_DATA_FILE = os.path.join("postman", "inference_data.json")
+POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE = os.path.join("postman", "increased_timeout_inference.json")
+
 POSTMAN_COLLECTION_MANAGEMENT = os.path.join("postman", "management_api_test_collection.json")
 POSTMAN_COLLECTION_INFERENCE = os.path.join("postman", "inference_api_test_collection.json")
 POSTMAN_COLLECTION_HTTPS = os.path.join("postman", "https_test_collection.json")
-POSTMAN_DATA_FILE_INFERENCE = os.path.join("postman", "inference_data.json")
 
 REPORT_FILE = os.path.join("report.html")
 
@@ -48,7 +50,17 @@ def trigger_management_tests():
 def trigger_inference_tests():
     """ Return exit code of newman execution of inference collection """
     install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_DATA_FILE_INFERENCE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
+    install_utils.stop_torchserve()
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
+    cleanup_model_store()
+    return EXIT_CODE
+
+
+def trigger_incr_timeout_inference_tests():
+    """ Return exit code of newman execution of inference collection """
+    install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
     install_utils.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     cleanup_model_store()
@@ -68,8 +80,9 @@ def trigger_https_tests():
 def trigger_all():
     exit_code1 = trigger_management_tests()
     exit_code2 = trigger_inference_tests()
-    exit_code3 = trigger_https_tests()
-    return 1 if any(code != 0 for code in [exit_code1, exit_code2, exit_code3]) else 0
+    exit_code3 = trigger_incr_timeout_inference_tests()
+    exit_code4 = trigger_https_tests()
+    return 1 if any(code != 0 for code in [exit_code1, exit_code2, exit_code3, exit_code4]) else 0
 
 
 os.chdir(TEST_DIR)
@@ -86,6 +99,7 @@ collection = args.collection
 switcher = {
     "management": trigger_management_tests,
     "inference": trigger_inference_tests,
+    "increased_timeout_inference": trigger_incr_timeout_inference_tests,
     "https": trigger_https_tests,
     "all": trigger_all
 }

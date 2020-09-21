@@ -58,6 +58,8 @@ for model, model_config in models_to_validate.items():
     for input in inputs:
         install_utils.run_inference(model, input)
 
+    # ToDo: gpu validate_model_on_gpu.py
+
     #skip unregistering resnet-18 model to test snapshot feature with restart
     if model != "resnet-18":
         install_utils.unregister_model(model)
@@ -66,12 +68,11 @@ for model, model_config in models_to_validate.items():
 
 install_utils.stop_torchserve()
 
-# restarting torchserve
-# this should restart with the generated snapshot and resnet-18 model should be automatically registered
-
+# Restarting torchserve
+# This should restart with the generated snapshot and resnet-18 model should be automatically registered
 install_utils.start_torchserve()
 
-install_utils.run_inference("resnet-18", "examples/image_classifier/kitten.jpg")
+install_utils.run_inference("resnet-18", models_to_validate["resnet-18"][0])
 
 install_utils.stop_torchserve()
 

@@ -41,7 +41,7 @@ commands:
     parameters:
       collection:
         type: enum
-        enum: [management, inference, https]
+        enum: [management, inference, increased_timeout_inference, https]
         default: management
     steps:
       - run:
@@ -149,6 +149,8 @@ jobs:
           collection: management
       - exeucute-api-tests:
           collection: inference
+      - exeucute-api-tests:
+          collection: increased_timeout_inference
       - exeucute-api-tests:
           collection: https
       - store_artifacts:
