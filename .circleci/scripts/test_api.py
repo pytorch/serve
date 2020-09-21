@@ -31,12 +31,12 @@ torchserve_command = {
 }
 
 def start_ts(model_store_dir, log_file):
-    os.system(f"{torchserve_command[platform.system()]} --ncs --start --model-store {model_store_dir} >> {log_file} 2>&1 &")
+    os.system(f"{torchserve_command[platform.system()]} --ncs --start --model-store {model_store_dir} > {log_file} 2>&1 &")
     time.sleep(10)
 
 
 def start_ts_secure(model_store_dir, log_file, ts_https_config_file):
-    os.system(f"{torchserve_command[platform.system()]} --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} >> {log_file} 2>&1 &")
+    os.system(f"{torchserve_command[platform.system()]} --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} > {log_file} 2>&1 &")
     time.sleep(10)
 
 
