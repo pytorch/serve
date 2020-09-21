@@ -70,7 +70,7 @@ class BaseHandler(abc.ABC):
             cpp_source_path = os.path.join(source_path, "torch_cpp_python_bindings.cpp")
             self.torch_cpp_python_module = load(name="torch_cpp_python_bindings",
                                                 sources=[cpp_source_path], verbose=True)
-            self.torch_cpp_python_module.load_model(model_pt_path, self.map_location, str(self.device))
+            self.model = self.torch_cpp_python_module.load_model(model_pt_path, self.map_location, str(self.device))
         else:
             raise Exception("Only Python and CPP APIs are supported.")
 
@@ -125,7 +125,7 @@ class BaseHandler(abc.ABC):
                     raise Exception("Keyword arguments are not supported by CPP API. Use Python API instead.")
                 params = [marshalled_data]
                 params.extend(args)
-                results = self.torch_cpp_python_module.run_model(params)
+                results = self.torch_cpp_python_module.run_model(self.model, params)
         return results
 
     def postprocess(self, data):
