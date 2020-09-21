@@ -36,13 +36,13 @@ def start_ts(model_store_dir, log_file):
 
 
 def start_ts_secure(model_store_dir, log_file, ts_https_config_file):
-  os.system(f"{torchserve_command[platform.system()]} --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} >> {log_file} 2>&1 &")
-  time.sleep(10)
+    os.system(f"{torchserve_command[platform.system()]} --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} >> {log_file} 2>&1 &")
+    time.sleep(10)
 
 
 def stop_ts(log_file):
-  os.system(f"{torchserve_command[platform.system()]} --stop >> {log_file} 2>&1")
-  time.sleep(10)
+    os.system(f"{torchserve_command[platform.system()]} --stop >> {log_file} 2>&1")
+    time.sleep(10)
 
 
 def cleanup_model_store():
@@ -51,10 +51,10 @@ def cleanup_model_store():
         os.remove(f)
 
 
-def move_logs(file, dir):
+def move_logs(log_file, artifact_dir):
     logs_dir = os.path.join("logs")
-    os.rename(file, os.path.join(logs_dir, file))    # mv file logs/
-    os.rename(logs_dir, os.path.join(dir, logs_dir)) # mv logs/ dir
+    os.rename(log_file, os.path.join(logs_dir, log_file))    # mv file logs/
+    os.rename(logs_dir, os.path.join(artifact_dir, logs_dir)) # mv logs/ dir
 
 
 def trigger_management_tests():
