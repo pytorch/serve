@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 import time
@@ -36,17 +37,17 @@ def stop_ts():
   time.sleep(10)
 
 def cleanup_model_store():
-  rm -rf $MODEL_STORE_DIR/*
-}
+    (os.remove(f) for f in glob.glob(os.path.join(MODEL_STORE_DIR, "*"))) # rm -rf $MODEL_STORE_DIR/*
 
-def move_logs():
-  mv $1 logs/
-  mv logs/ $2
+def move_logs(file, dir):
+    logs_dir = os.path.join("logs")
+    os.rename(file, os.path.join(logs_dir, file))    # mv file logs/
+    os.rename(logs_dir, os.path.join(dir, logs_dir)) # mv logs/ dir
 
 def trigger_management_tests():
     """ Return exit code of newman execution of management collection """
     start_ts(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(newman run -e $POSTMAN_ENV_FILE $POSTMAN_COLLECTION_MANAGEMENT -r cli,html --reporter-html-export $ARTIFACTS_MANAGEMENT_DIR/$REPORT_FILE --verbose)
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE} --verbose")
     stop_ts()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR)
     cleanup_model_store()
@@ -55,7 +56,7 @@ def trigger_management_tests():
 def trigger_inference_tests():
     """ Return exit code of newman execution of inference collection """
     start_ts(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(newman run -e $POSTMAN_ENV_FILE $POSTMAN_COLLECTION_INFERENCE -d $POSTMAN_DATA_FILE_INFERENCE -r cli,html --reporter-html-export $ARTIFACTS_INFERENCE_DIR/$REPORT_FILE --verbose)
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_DATA_FILE_INFERENCE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
     stop_ts()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     cleanup_model_store()
@@ -64,7 +65,7 @@ def trigger_inference_tests():
 def trigger_https_tests():
     """ Return exit code of newman execution of https collection """
     start_ts_secure(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE, TS_CONFIG_FILE_HTTPS)
-    EXIT_CODE = os.system(newman run --insecure -e $POSTMAN_ENV_FILE $POSTMAN_COLLECTION_HTTPS -r cli,html --reporter-html-export $ARTIFACTS_HTTPS_DIR/$REPORT_FILE --verbose)
+    EXIT_CODE = os.system(f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS} -r cli,html --reporter-html-export {ARTIFACTS_HTTPS_DIR}/{REPORT_FILE} --verbose")
     stop_ts()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR)
     cleanup_model_store()
