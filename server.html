@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Running the TorchServe &mdash; PyTorch/Serve master documentation</title>
+  <title>Running TorchServe &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -31,9 +31,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Batch Inference with TorchServe" href="batch_inference_with_ts.html" />
-    <link rel="prev" title="Advanced configuration" href="configuration.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -184,27 +182,27 @@
               
             
             
-              <p class="caption"><span class="caption-text">Core APIs</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Running TorchServe</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#technical-details">Technical Details</a></li>
+<li><a class="reference internal" href="#model-files">Model Files</a></li>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a><ul>
+<li><a class="reference internal" href="#arguments">Arguments:</a></li>
 </ul>
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+</li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a><ul>
+<li><a class="reference internal" href="#custom-services">Custom Services</a></li>
+<li><a class="reference internal" href="#serving-multiple-models-with-torchserve">Serving Multiple Models with TorchServe</a></li>
+<li><a class="reference internal" href="#logging-and-metrics">Logging and Metrics</a></li>
 </ul>
-
+</li>
+</ul>
+</li>
+</ul>
+</div>
             
           
         </div>
@@ -243,13 +241,13 @@
       </li>
 
         
-      <li>Running the TorchServe</li>
+      <li>Running TorchServe</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/server.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/server.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -275,8 +273,8 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="running-the-torchserve">
-<h1>Running the TorchServe<a class="headerlink" href="#running-the-torchserve" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="running-torchserve">
+<h1>Running TorchServe<a class="headerlink" href="#running-torchserve" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="contents-of-this-document">
 <h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -287,63 +285,63 @@
 <li><p><a class="reference external" href="#advanced-features">Advanced Features</a></p></li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h2>Overview<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  <a class="reference external" href="https://pytorch.org/serve/rest_api.html">REST based APIs</a> handle state prediction requests.</p>
-<p>For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">examples</a> folder.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> handle state prediction requests.</p>
+<p>For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the <a class="reference external" href="../examples">examples</a> folder.</p>
 </div>
-<div class="section" id="id2">
-<h2>Technical Details<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<p>Now that you have a high level view of TorchServe, let’s get a little into the weeds. TorchServe takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the <a class="reference external" href="https://pytorch.org/serve/custom_service.html">custom service</a> documentation.</p>
+<div class="section" id="technical-details">
+<h2>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h2>
+<p>Now that you have a high level view of TorchServe, let’s get a little into the weeds. TorchServe takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the <a class="reference internal" href="custom_service.html"><span class="doc">custom service</span></a> documentation.</p>
 <p>To try out TorchServe serving now, you can load the custom MNIST model, with this example:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist">Digit recognition with MNIST</a></p></li>
+<li><p><a class="reference external" href="../examples/image_classifier/mnist">Digit recognition with MNIST</a></p></li>
 </ul>
 <p>After this deep dive, you might also be interested in:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pytorch.org/serve/logging.html">Logging</a> : logging options that are available</p></li>
-<li><p><a class="reference external" href="https://pytorch.org/serve/metrics.html">Metrics</a> : details on metrics collection</p></li>
-<li><p><a class="reference external" href="https://pytorch.org/serve/rest_api.html">REST API Description</a> : more detail about the server’s endpoints</p></li>
-<li><p><a class="reference external" href="https://pytorch.org/serve/custom_service.html">Custom Services</a> : learn about serving different kinds of model and inference types</p></li>
+<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a>: logging options that are available</p></li>
+<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a>: details on metrics collection</p></li>
+<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API Description</span></a>: more detail about the server’s endpoints</p></li>
+<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Services</span></a>: learn about serving different kinds of model and inference types</p></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>Model Files<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>The rest of this topic focus on serving of model files without much discussion on the model files themselves, where they come from, and how they’re made. Long story short: it’s a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the <a class="reference external" href="https://pytorch.org/serve/model-archiver.html">model-archiver documentation</a>.</p>
+<div class="section" id="model-files">
+<h2>Model Files<a class="headerlink" href="#model-files" title="Permalink to this headline">¶</a></h2>
+<p>The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they’re made. Long story short: it’s a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the <a class="reference external" href="../model-archiver/README">model-archiver documentation</a>.</p>
 </div>
-<div class="section" id="id4">
-<h2>Command Line Interface<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --help
 usage: torchserve <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-v <span class="p">|</span> --version<span class="o">]</span>
-                        <span class="o">[</span>--start<span class="o">]</span>
-                        <span class="o">[</span>--stop<span class="o">]</span>
-                        <span class="o">[</span>--ts-config TS_CONFIG<span class="o">]</span>
-                        <span class="o">[</span>--model-store MODEL_STORE<span class="o">]</span>
-                        <span class="o">[</span>--models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]]</span>
-                        <span class="o">[</span>--log-config LOG_CONFIG<span class="o">]</span>
+                          <span class="o">[</span>--start<span class="o">]</span>
+                          <span class="o">[</span>--stop<span class="o">]</span>
+                          <span class="o">[</span>--ts-config TS_CONFIG<span class="o">]</span>
+                          <span class="o">[</span>--model-store MODEL_STORE<span class="o">]</span>
+                          <span class="o">[</span>--models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]]</span>
+                          <span class="o">[</span>--log-config LOG_CONFIG<span class="o">]</span>
 
-Torchserve
+torchserve
 
 mandatory arguments:
---model-store MODEL_STORE
+  --model-store MODEL_STORE
                         Model store location where models can be loaded
 
 optional arguments:
--h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
--v, --version         Return TorchServe Version
---start               Start the model-server
---stop                Stop the model-server
---ts-config TS_CONFIG
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -v, --version         Return TorchServe Version
+  --start               Start the model-server
+  --stop                Stop the model-server
+  --ts-config TS_CONFIG
                         Configuration file <span class="k">for</span> TorchServe
 
---models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]</span>
+  --models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]</span>
                         Models to be loaded using <span class="o">[</span><span class="nv">model_name</span><span class="o">=]</span>model_location
                         format. Location can be a HTTP URL, a model archive
                         file or directory contains model archive files in
                         MODEL_STORE.
---log-config LOG_CONFIG
+  --log-config LOG_CONFIG
                         Log4j configuration file <span class="k">for</span> TorchServe
---ncs, --no-config-snapshots
+  --ncs, --no-config-snapshots         
                         Disable snapshot feature
 </pre></div>
 </div>
@@ -354,60 +352,41 @@ optional arguments:
 </pre></div>
 </div>
 <p>There are no default required arguments to start the server</p>
-<ol class="arabic">
-<li><p><strong>models</strong>: optional, = pairs.</p>
-<ol class="loweralpha simple">
-<li><p>Model path can be mar file name in model store or URI (s3 link, or
-http link). s3 link: s3://S3_endpoint[:port]/… http link:
-http://hostname/path/to/resource</p></li>
-<li><p>to load all the models in model store set model value to “all”</p></li>
-</ol>
+<ol>
+<li><p><strong>models</strong>: optional, &lt;model_name&gt;=&lt;model_path&gt; pairs.</p>
+<p>a) Model path can be mar file name in model store or URI (s3 link, or http link).
+s3 link: s3://S3_endpoint[:port]/…
+http link: http://hostname/path/to/resource</p>
+<p>b) to load all the models in model store set model value to “all”</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --model-store /models --start --models all
 </pre></div>
 </div>
-<ol class="loweralpha simple" start="3">
-<li><p>The model file has .mar extension, it is actually a zip file with
-a .mar extension packing trained models and model signature files.</p></li>
-<li><p>Multiple models loading are also supported by specifying multiple
-name path pairs.</p></li>
-<li><p>For details on different ways to load models while starting
-TorchServe, refer <a class="reference external" href="https://pytorch.org/serve/server.html#id7">Serving Multiple Models with TorchServe</a></p></li>
-</ol>
+<p>c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.</p>
+<p>d) Multiple models loading are also supported by specifying multiple name path pairs.</p>
+<p>e) For details on different ways to load models while starting TorchServe, refer <a class="reference external" href="#serving-multiple-models-with-torchserve">Serving Multiple Models with TorchServe</a></p>
 </li>
-<li><p><strong>model-store</strong>: optional, A location where default or local models
-are stored. The models available in model store can be registered in
-TorchServe via <a class="reference external" href="https://pytorch.org/serve/management_api.html#register-a-model">register api call</a> or via models parameter while
-starting TorchServe.</p></li>
-<li><p><strong>ts-config</strong>: optional, provide a <a class="reference external" href="https://pytorch.org/serve/configuration.html">configuration</a> file in
-config.properties format.</p></li>
-<li><p><strong>log-config</strong>: optional, This parameter will override default
-log4j.properties, present within the server.</p></li>
+<li><p><strong>model-store</strong>: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via <a class="reference external" href="management_api.md#register-a-model">register api call</a> or via models parameter while starting TorchServe.</p></li>
+<li><p><strong>ts-config</strong>: optional, provide a <a class="reference internal" href="configuration.html"><span class="doc">configuration</span></a> file in config.properties format.</p></li>
+<li><p><strong>log-config</strong>: optional, This parameter will override default log4j.properties, present within the server.</p></li>
 <li><p><strong>start</strong>: optional, A more descriptive way to start the server.</p></li>
 <li><p><strong>stop</strong>: optional, Stop the server if it is already running.</p></li>
 </ol>
 </div>
 </div>
-<div class="section" id="id5">
-<span id="id6"></span><h2>Advanced Features<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
-<p>This topic is covered in much more detail on the <a class="reference external" href="https://pytorch.org/serve/custom_service.html">custom service
-documentation page</a>, but let’s talk about how you start up your
-TorchServe server using a custom service and why you might want one.
-Let’s say you have a model named <code class="docutils literal notranslate"><span class="pre">super-fancy-net.mar</span></code> in <code class="docutils literal notranslate"><span class="pre">/models</span></code>
-folder, which can detect a lot of things, but you want an API endpoint
-that detects only hotdogs. You would use a name that makes sense for it,
-such as the “not-hot-dog” API. In this case we might invoke TorchServe
-like this:</p>
+<div class="section" id="advanced-features">
+<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="custom-services">
+<h3>Custom Services<a class="headerlink" href="#custom-services" title="Permalink to this headline">¶</a></h3>
+<p>This topic is covered in much more detail on the <a class="reference internal" href="custom_service.html"><span class="doc">custom service documentation page</span></a>, but let’s talk about how you start up your TorchServe server using a custom service and why you might want one.
+Let’s say you have a model named <code class="docutils literal notranslate"><span class="pre">super-fancy-net.mar</span></code> in <code class="docutils literal notranslate"><span class="pre">/models</span></code> folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the “not-hot-dog” API. In this case we might invoke TorchServe like this:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models not-hot-dog<span class="o">=</span>super-fancy-net.mar
 </pre></div>
 </div>
-<p>This would serve a prediction endpoint at <code class="docutils literal notranslate"><span class="pre">predictions/not-hot-dog/</span></code>
-and run your custom service code in the archive, the manifest in archive
-would point to the entry point.
-This would serve a prediction endpoint at <code class="docutils literal notranslate"><span class="pre">predictions/not-hot-dog/</span></code> and run your custom service code in the archive, the manifest in archive would point to the entry point.</p>
-<div class="section" id="id7">
-<h3>Serving Multiple Models with TorchServe<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
-<p>Example loading all models available in model_store while starting
-torchserve:</p>
+<p>This would serve a prediction endpoint at <code class="docutils literal notranslate"><span class="pre">predictions/not-hot-dog/</span></code> and run your custom service code in the archive, the manifest in archive would point to the entry point.</p>
+</div>
+<div class="section" id="serving-multiple-models-with-torchserve">
+<h3>Serving Multiple Models with TorchServe<a class="headerlink" href="#serving-multiple-models-with-torchserve" title="Permalink to this headline">¶</a></h3>
+<p>Example loading all models available in <code class="docutils literal notranslate"><span class="pre">model_store</span></code> while starting TorchServe:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models all
 </pre></div>
 </div>
@@ -415,16 +394,14 @@ torchserve:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models <span class="nv">name</span><span class="o">=</span>model_location <span class="nv">name2</span><span class="o">=</span>model_location2
 </pre></div>
 </div>
-<p>Here’s an example for running the resnet-18 and the vgg16 models using
-local model files.</p>
+<p>Here’s an example for running the resnet-18 and the vgg16 models using local model files.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models resnet-18<span class="o">=</span>resnet-18.mar <span class="nv">squeezenet</span><span class="o">=</span>squeezenet_v1.1.mar
 </pre></div>
 </div>
 </div>
 <div class="section" id="logging-and-metrics">
 <h3>Logging and Metrics<a class="headerlink" href="#logging-and-metrics" title="Permalink to this headline">¶</a></h3>
-<p>For details on logging see the <a class="reference external" href="https://pytorch.org/serve/logging.html">logging documentation</a>. For details on
-metrics see the <a class="reference external" href="https://pytorch.org/serve/metrics.html">metrics documentation</a>.</p>
+<p>For details on logging see the <a class="reference internal" href="logging.html"><span class="doc">logging documentation</span></a>. For details on metrics see the <a class="reference internal" href="metrics.html"><span class="doc">metrics documentation</span></a>.</p>
 </div>
 </div>
 </div>
@@ -434,15 +411,6 @@ metrics see the <a class="reference external" href="https://pytorch.org/serve/me
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="batch_inference_with_ts.html" class="btn btn-neutral float-right" title="Batch Inference with TorchServe" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="configuration.html" class="btn btn-neutral" title="Advanced configuration" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -472,17 +440,18 @@ metrics see the <a class="reference external" href="https://pytorch.org/serve/me
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Running the TorchServe</a><ul>
+<li><a class="reference internal" href="#">Running TorchServe</a><ul>
 <li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
-<li><a class="reference internal" href="#id1">Overview</a></li>
-<li><a class="reference internal" href="#id2">Technical Details</a></li>
-<li><a class="reference internal" href="#id3">Model Files</a></li>
-<li><a class="reference internal" href="#id4">Command Line Interface</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#technical-details">Technical Details</a></li>
+<li><a class="reference internal" href="#model-files">Model Files</a></li>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a><ul>
 <li><a class="reference internal" href="#arguments">Arguments:</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id5">Advanced Features</a><ul>
-<li><a class="reference internal" href="#id7">Serving Multiple Models with TorchServe</a></li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a><ul>
+<li><a class="reference internal" href="#custom-services">Custom Services</a></li>
+<li><a class="reference internal" href="#serving-multiple-models-with-torchserve">Serving Multiple Models with TorchServe</a></li>
 <li><a class="reference internal" href="#logging-and-metrics">Logging and Metrics</a></li>
 </ul>
 </li>
@@ -708,9 +677,6 @@ metrics see the <a class="reference external" href="https://pytorch.org/serve/me
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

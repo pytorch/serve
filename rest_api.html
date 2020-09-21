@@ -31,9 +31,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Advanced configuration" href="configuration.html" />
-    <link rel="prev" title="Metrics on TorchServe" href="metrics.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -184,27 +182,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Core APIs</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">TorchServe REST API</a></li>
 </ul>
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
-</ul>
-
+</div>
             
           
         </div>
@@ -249,7 +231,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/rest_api.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/rest_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -277,14 +259,16 @@
               
   <div class="section" id="torchserve-rest-api">
 <h1>TorchServe REST API<a class="headerlink" href="#torchserve-rest-api" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe use RESTful API for both inference and management calls. The API is compliance with <a class="reference external" href="https://swagger.io/specification/">OpenAPI specification 3.0</a>. User can easily generate client side code for Java, Scala, C#, Javascript use <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a>.</p>
-<p>When TorchServe startup, it start two web services:</p>
+<p>TorchServe uses a RESTful API for both inference and management calls. The API is compliant with the <a class="reference external" href="https://swagger.io/specification/">OpenAPI specification 3.0</a>.
+You can easily generate client side code for Java, Scala, C#, or Javascript by using <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a>.</p>
+<p>When TorchServe starts, it starts two web services:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="inference_api.md">Inference API</a></p></li>
-<li><p><a class="reference external" href="management_api.md">Management API</a></p></li>
+<li><p><a class="reference internal" href="inference_api.html"><span class="doc">Inference API</span></a></p></li>
+<li><p><a class="reference internal" href="management_api.html"><span class="doc">Management API</span></a></p></li>
+<li><p><a class="reference internal" href="metrics_api.html"><span class="doc">Metrics API</span></a></p></li>
 </ul>
-<p>By default, TorchServe listening on 8080 port for Inference API and 8081 on Management API.
-Both API is only accessible from localhost. Please see <a class="reference external" href="configuration.md">TorchServe Configuration</a> for how to enable access from remote host.</p>
+<p>By default, TorchServe listens on port 8080 for the Inference API and 8081 for the Management API.
+Both APIs are accessible only from localhost by default. To enable access from a remote host, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 </div>
 
 
@@ -292,15 +276,6 @@ Both API is only accessible from localhost. Please see <a class="reference exter
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="configuration.html" class="btn btn-neutral float-right" title="Advanced configuration" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="metrics.html" class="btn btn-neutral" title="Metrics on TorchServe" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -346,19 +321,20 @@ Both API is only accessible from localhost. Please see <a class="reference exter
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -549,6 +525,7 @@ Both API is only accessible from localhost. Please see <a class="reference exter
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

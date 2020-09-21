@@ -31,8 +31,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Inference API" href="inference_api.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -183,27 +182,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Core APIs</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">TorchServe</a><ul>
+<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
+<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+</li>
 </ul>
-
+</div>
             
           
         </div>
@@ -248,7 +236,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/index.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -277,34 +265,46 @@
   <div class="section" id="torchserve">
 <h1>TorchServe<a class="headerlink" href="#torchserve" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe is a flexible and easy to use tool for serving PyTorch models.</p>
-<p>A quick overview and examples for both serving and packaging are provided below. Detailed documentation and examples are provided in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/README.md">docs folder</a>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>TorchServe is experimental and subject to change.</p>
-</div>
-<p><a class="reference external" href="http://pytorch.org/serve/install.html">Install TorchServe</a></p>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Core APIs</span></p>
+<p><strong>WARNING:</strong> TorchServe is experimental and subject to change.</p>
+<div class="section" id="basic-features">
+<h2>Basic Features<a class="headerlink" href="#basic-features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#creating-a-model-archive">Model Archive Quick Start</a> - Tutorial that shows you how to package a model archive file.</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#install-torchserve">Installation</a> - Installation procedures</p></li>
+<li><p><a class="reference internal" href="server.html"><span class="doc">Serving Models</span></a> - Explains how to use torchserve</p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API</span></a> - Specification on the API endpoint for TorchServe</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-for-torchserve">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
+<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
+<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p>
+<ul>
+<li><p><a class="reference internal" href="metrics_api.html"><span class="doc">Metrics API</span></a> - How to configure metrics API</p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
+<li><p><a class="reference internal" href="model_zoo.html"><span class="doc">Model Zoo</span></a> - List of pre-trained model archives ready to be served for inference with TorchServe.</p></li>
 </ul>
 </div>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<div class="section" id="advanced-features">
+<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced configuration</span></a> - Describes advanced TorchServe configurations.</p></li>
+<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Service</span></a> - Describes how to develop custom inference services.</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/tests#testing-torchserve">Unit Tests</a> - Housekeeping unit tests for TorchServe.</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking">Benchmark</a> - Use JMeter to run TorchServe through the paces and collect benchmark data.</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/kubernetes/README.md">TorchServe on Kubernetes</a> -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart.</p></li>
+</ul>
+</div>
+<div class="section" id="default-handlers">
+<h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py">Text Classifier</a>_ - This handler takes a text (string) as input and returns the classification text based on the model vocabulary</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_segmenter.py">Image Segmenter</a>- This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
 </ul>
 </div>
 </div>
@@ -314,13 +314,6 @@
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="inference_api.html" class="btn btn-neutral float-right" title="Inference API" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-    </div>
   
 
   
@@ -351,6 +344,9 @@
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">TorchServe</a><ul>
+<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
+<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
 </ul>
 </li>
 </ul>
@@ -573,9 +569,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

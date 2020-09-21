@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Logging on Torchserve &mdash; PyTorch/Serve master documentation</title>
+  <title>Logging in Torchserve &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -31,9 +31,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Management API" href="management_api.html" />
-    <link rel="prev" title="TorchServe default inference handlers" href="default_handlers.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -184,27 +182,26 @@
               
             
             
-              <p class="caption"><span class="caption-text">Core APIs</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics on TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Logging in Torchserve</a><ul>
+<li><a class="reference internal" href="#pre-requisites">Pre-requisites</a></li>
+<li><a class="reference internal" href="#types-of-logs">Types of logs</a><ul>
+<li><a class="reference internal" href="#access-logs">Access Logs</a></li>
+<li><a class="reference internal" href="#torchserve-logs">TorchServe Logs</a></li>
 </ul>
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+</li>
+<li><a class="reference internal" href="#generate-custom-logs">Generate custom logs</a></li>
+<li><a class="reference internal" href="#modify-the-behavior-of-the-logs">Modify the behavior of the logs</a><ul>
+<li><a class="reference internal" href="#provide-with-config-properties">Provide with config.properties</a></li>
 </ul>
-
+</li>
+<li><a class="reference internal" href="#log-with-the-torchserve-cli">Log with the TorchServe CLI</a></li>
+<li><a class="reference internal" href="#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+</ul>
+</li>
+</ul>
+</div>
             
           
         </div>
@@ -243,13 +240,13 @@
       </li>
 
         
-      <li>Logging on Torchserve</li>
+      <li>Logging in Torchserve</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/logging.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/logging.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -275,27 +272,29 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="logging-on-torchserve">
-<h1>Logging on Torchserve<a class="headerlink" href="#logging-on-torchserve" title="Permalink to this headline">¶</a></h1>
-<p>In this document we will go through logging mechanism in TorchServe. We will also go over how to modify the behavior of logging in model-server. Logging in TorchServe also covers
-metrics, as metrics are logged into a file. To further understand how to customize metrics or define custom logging layouts, refer to the <a class="reference external" href="metrics.md">metrics document</a></p>
-</div>
+  <div class="section" id="logging-in-torchserve">
+<h1>Logging in Torchserve<a class="headerlink" href="#logging-in-torchserve" title="Permalink to this headline">¶</a></h1>
+<p>In this document we explain logging in TorchServe. We also explain how to modify the behavior of logging in the model server.
+Logging in TorchServe also covers metrics, as metrics are logged into a file.
+To further understand how to customize metrics or define custom logging layouts, see <a class="reference internal" href="metrics.html"><span class="doc">Metrics on TorchServe</span></a></p>
 <div class="section" id="pre-requisites">
-<h1>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h1>
-<p>Before getting into this tutorials, you must familiarize yourself with log4j configuration properties. Refer to this online <a class="reference external" href="https://logging.apache.org/log4j/2.x/manual/configuration.html">document</a>
-on how to configure the log4j parameters. Similarly, familiarize yourself with the default <a class="reference external" href="../frontend/server/src/main/resources/log4j.properties">log4j.properties</a> used by
-TorchServe.</p>
+<h2>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Be familiar with log4j configuration properties.
+For information on how to configure log4j parameters, see <a class="reference external" href="https://logging.apache.org/log4j/2.x/manual/configuration.html">Logging Services</a>.</p></li>
+<li><p>Be familiar with the default <a class="reference external" href="../frontend/server/src/main/resources/log4j.properties">log4j.properties</a> used by TorchServe.</p></li>
+</ul>
 </div>
 <div class="section" id="types-of-logs">
-<h1>Types of logs<a class="headerlink" href="#types-of-logs" title="Permalink to this headline">¶</a></h1>
-<p>Torchserve currently provides three types of logs.</p>
-<ol class="arabic simple">
-<li><p>Access Logs.</p></li>
-<li><p>TorchServe Logs.</p></li>
+<h2>Types of logs<a class="headerlink" href="#types-of-logs" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe currently provides the following types of logs</p>
+<ol class="simple">
+<li><p>Access logs</p></li>
+<li><p>TorchServe logs</p></li>
 </ol>
 <div class="section" id="access-logs">
-<h2>Access Logs:<a class="headerlink" href="#access-logs" title="Permalink to this headline">¶</a></h2>
-<p>These logs collect the access pattern to Torchserve. The configuration pertaining to access logs are as follows,</p>
+<h3>Access Logs<a class="headerlink" href="#access-logs" title="Permalink to this headline">¶</a></h3>
+<p>These logs collect the access pattern to TorchServe. The configuration for access logs are as follows:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.logger.ACCESS_LOG</span> <span class="o">=</span> <span class="s">INFO, access_log</span>
 
 
@@ -307,8 +306,8 @@ TorchServe.</p>
 <span class="na">log4j.appender.access_log.layout.ConversionPattern</span> <span class="o">=</span> <span class="s">%d{ISO8601} - %m%n</span>
 </pre></div>
 </div>
-<p>As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file. When we load the TorchServe
-with a model and run inference against the server, the following logs are collected into the access_log.log</p>
+<p>As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file.
+When you load TorchServe with a model and run inference against the server, the following logs are collected into the access_log.log:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-10-15 13:56:18,976 [INFO ] BackendWorker-9000 ACCESS_LOG - /127.0.0.1:64003 &quot;POST /predictions/resnet-18 HTTP/1.1&quot; 200 118
 </pre></div>
 </div>
@@ -316,9 +315,9 @@ with a model and run inference against the server, the following logs are collec
 <p>These logs are useful to determine the current performance of the model-server as well as understand the requests received by model-server.</p>
 </div>
 <div class="section" id="torchserve-logs">
-<h2>TorchServe Logs<a class="headerlink" href="#torchserve-logs" title="Permalink to this headline">¶</a></h2>
+<h3>TorchServe Logs<a class="headerlink" href="#torchserve-logs" title="Permalink to this headline">¶</a></h3>
 <p>These logs collect all the logs from TorchServe and from the backend workers (the custom model code).
-The default configuration pertaining to ts logs are as follows:</p>
+The default configuration pertaining to TorchServe logs are as follows:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.logger.com.amazonaws.ml.ts</span> <span class="o">=</span> <span class="s">DEBUG, ts_log</span>
 
 
@@ -331,58 +330,61 @@ The default configuration pertaining to ts logs are as follows:</p>
 </pre></div>
 </div>
 <p>This configuration by default dumps all the logs above <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level.</p>
-<div class="section" id="generating-and-logging-custom-logs">
-<h3>Generating and logging custom logs<a class="headerlink" href="#generating-and-logging-custom-logs" title="Permalink to this headline">¶</a></h3>
-<p>As a user of TorchServe, you might want to log custom logs into the log files. This could be for debug purposes or
-to log any errors. To accomplish this, simply print the required logs to <code class="docutils literal notranslate"><span class="pre">stdout/stderr</span></code>. TorchServe will capture the logs generated by the
-backend workers and log it into the log file. Some examples of logs are as follows</p>
-<ol class="arabic">
-<li><p>Messages printed to stderr</p>
+</div>
+</div>
+<div class="section" id="generate-custom-logs">
+<h2>Generate custom logs<a class="headerlink" href="#generate-custom-logs" title="Permalink to this headline">¶</a></h2>
+<p>You might want to generate custom logs. This could be for debugging purposes or to log any errors.
+To do this, print the required logs to <code class="docutils literal notranslate"><span class="pre">stdout/stderr</span></code>.
+TorchServe captures the logs generated by the backend workers and logs it into the log file. Some examples of logs are as follows:</p>
+<ol class="simple">
+<li><p>Messages printed to stderr:</p></li>
+</ol>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-10-14 16:46:51,656 [WARN ] W-9000-stderr org.pytorch.serve.wlm.WorkerLifeCycle - [16:46:51] src/nnvm/legacy_json_util.cc:209: Loading symbol saved by previous version v0.8.0. Attempting to upgrad\
 e...
 2018-10-14 16:46:51,657 [WARN ] W-9000-stderr org.pytorch.serve.wlm.WorkerLifeCycle - [16:46:51] src/nnvm/legacy_json_util.cc:217: Symbol successfully upgraded!
 </pre></div>
 </div>
-</li>
-<li><p>Messages printed to stdout</p>
+<ol class="simple">
+<li><p>Messages printed to stdout:</p></li>
+</ol>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-10-14 16:59:59,926 [INFO ] W-9000-stdout org.pytorch.serve.wlm.WorkerLifeCycle - preprocess time: 3.60
 2018-10-14 16:59:59,926 [INFO ] W-9000-stdout org.pytorch.serve.wlm.WorkerLifeCycle - inference time: 117.31
 2018-10-14 16:59:59,926 [INFO ] W-9000-stdout org.pytorch.serve.wlm.WorkerLifeCycle - postprocess time: 8.52
 </pre></div>
 </div>
-</li>
-</ol>
 </div>
-</div>
-</div>
-<div class="section" id="modifying-the-behavior-of-the-logs">
-<h1>Modifying the behavior of the logs<a class="headerlink" href="#modifying-the-behavior-of-the-logs" title="Permalink to this headline">¶</a></h1>
-<p>In order to modify the default behavior of the logging, you could define <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file. There are two ways of starting
-TorchServe with custom logs</p>
-<blockquote>
-<div><p>Once you define custom <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code>, add this to the</p>
-</div></blockquote>
-<p><code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file as follows</p>
+<div class="section" id="modify-the-behavior-of-the-logs">
+<h2>Modify the behavior of the logs<a class="headerlink" href="#modify-the-behavior-of-the-logs" title="Permalink to this headline">¶</a></h2>
+<p>To modify the default logging behavior, define a <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file. There are two ways of starting TorchServe with custom logs:</p>
+<div class="section" id="provide-with-config-properties">
+<h3>Provide with config.properties<a class="headerlink" href="#provide-with-config-properties" title="Permalink to this headline">¶</a></h3>
+<p>After you define a custom <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file, add the following to the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">vmargs</span><span class="o">=</span><span class="s">-Dlog4j.configuration=file:///path/to/custom/log4j.properties</span>
 </pre></div>
 </div>
-<p>Then start the TorchServe as follows</p>
+<p>Then start TorchServe as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --start --ts-config /path/to/config.properties
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="log-with-the-torchserve-cli">
+<h2>Log with the TorchServe CLI<a class="headerlink" href="#log-with-the-torchserve-cli" title="Permalink to this headline">¶</a></h2>
 <p>Alternatively, you could start the TorchServe with the following command as well</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --start --log-config /path/to/custom/log4j.properties
 </pre></div>
 </div>
 </div>
 <div class="section" id="enable-asynchronous-logging">
-<h1>Enable asynchronous logging<a class="headerlink" href="#enable-asynchronous-logging" title="Permalink to this headline">¶</a></h1>
-<p>If your model is super lightweight and seeking for high throughput, you can consider enable asynchronous logging.
-Note that log output maybe delayed and latest log might be lost if TorchServe is terminated unexpectedly.
-asynchronous logging is disabled by default.
+<h2>Enable asynchronous logging<a class="headerlink" href="#enable-asynchronous-logging" title="Permalink to this headline">¶</a></h2>
+<p>If your model is super lightweight and you want high throughput, consider enabling asynchronous logging.
+Log output might be delayed, and the most recent log might be lost if TorchServe is terminated unexpectedly.
+Asynchronous logging is disabled by default.
 To enable asynchronous logging, add following property in <code class="docutils literal notranslate"><span class="pre">config.properties</span></code>:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">async_logging</span><span class="o">=</span><span class="s">true</span>
 </pre></div>
+</div>
 </div>
 </div>
 
@@ -391,15 +393,6 @@ To enable asynchronous logging, add following property in <code class="docutils 
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="management_api.html" class="btn btn-neutral float-right" title="Management API" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="default_handlers.html" class="btn btn-neutral" title="TorchServe default inference handlers" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -429,18 +422,22 @@ To enable asynchronous logging, add following property in <code class="docutils 
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Logging on Torchserve</a></li>
+<li><a class="reference internal" href="#">Logging in Torchserve</a><ul>
 <li><a class="reference internal" href="#pre-requisites">Pre-requisites</a></li>
 <li><a class="reference internal" href="#types-of-logs">Types of logs</a><ul>
-<li><a class="reference internal" href="#access-logs">Access Logs:</a></li>
-<li><a class="reference internal" href="#torchserve-logs">TorchServe Logs</a><ul>
-<li><a class="reference internal" href="#generating-and-logging-custom-logs">Generating and logging custom logs</a></li>
+<li><a class="reference internal" href="#access-logs">Access Logs</a></li>
+<li><a class="reference internal" href="#torchserve-logs">TorchServe Logs</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#generate-custom-logs">Generate custom logs</a></li>
+<li><a class="reference internal" href="#modify-the-behavior-of-the-logs">Modify the behavior of the logs</a><ul>
+<li><a class="reference internal" href="#provide-with-config-properties">Provide with config.properties</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
+<li><a class="reference internal" href="#log-with-the-torchserve-cli">Log with the TorchServe CLI</a></li>
 <li><a class="reference internal" href="#enable-asynchronous-logging">Enable asynchronous logging</a></li>
+</ul>
+</li>
 </ul>
 
             </div>
@@ -456,19 +453,20 @@ To enable asynchronous logging, add following property in <code class="docutils 
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -659,6 +657,7 @@ To enable asynchronous logging, add following property in <code class="docutils 
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

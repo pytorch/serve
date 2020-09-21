@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Metrics on TorchServe &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe Metrics &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -31,9 +31,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="TorchServe REST API" href="rest_api.html" />
-    <link rel="prev" title="Management API" href="management_api.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -184,27 +182,27 @@
               
             
             
-              <p class="caption"><span class="caption-text">Core APIs</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging on Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#pre-requisites">Pre-requisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#types-of-logs">Types of logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#modifying-the-behavior-of-the-logs">Modifying the behavior of the logs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html#enable-asynchronous-logging">Enable asynchronous logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Metrics on TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">TorchServe Metrics</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this document</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#system-metrics">System Metrics</a></li>
+<li><a class="reference internal" href="#formatting">Formatting</a></li>
+<li><a class="reference internal" href="#custom-metrics-api">Custom Metrics API</a><ul>
+<li><a class="reference internal" href="#create-dimension-object-s">Create dimension object(s)</a></li>
+<li><a class="reference internal" href="#add-generic-metrics">Add generic metrics</a></li>
+<li><a class="reference internal" href="#add-time-based-metrics">Add time-based metrics</a></li>
+<li><a class="reference internal" href="#add-size-based-metrics">Add size-based metrics</a></li>
+<li><a class="reference internal" href="#add-percentage-based-metrics">Add Percentage based metrics</a></li>
+<li><a class="reference internal" href="#add-counter-based-metrics">Add counter-based metrics</a></li>
+<li><a class="reference internal" href="#log-custom-metrics">Log custom metrics</a></li>
 </ul>
-<p class="caption"><span class="caption-text">TorchServe Usage</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running the TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+</li>
 </ul>
-
+</li>
+</ul>
+</div>
             
           
         </div>
@@ -243,13 +241,13 @@
       </li>
 
         
-      <li>Metrics on TorchServe</li>
+      <li>TorchServe Metrics</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/metrics.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/metrics.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -275,10 +273,10 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="metrics-on-torchserve">
-<h1>Metrics on TorchServe<a class="headerlink" href="#metrics-on-torchserve" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="torchserve-metrics">
+<h1>TorchServe Metrics<a class="headerlink" href="#torchserve-metrics" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="contents-of-this-document">
-<h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2>Contents of this document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#introduction">Introduction</a></p></li>
 <li><p><a class="reference external" href="#system-metrics">System metrics</a></p></li>
@@ -287,100 +285,106 @@
 <li><p><a class="reference external" href="#logging-the-custom-metrics">Logging the custom metrics</a></p></li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h2>Introduction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe collects system level metrics in regular intervals, and also provides an API for custom metrics to be collected. Metrics collected by metrics are logged and can be aggregated by metric agents.
-The system level metrics are collected every minute. Metrics defined by the custom service code, can be collected per request or a batch of requests. TorchServe logs these two sets of metrics to different log files.
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe collects system-level metrics in regular intervals, and also provides an API to collect custom metrics.
+Metrics collected by metrics are logged and can be aggregated by metric agents.
+The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
+TorchServe logs these two sets of metrics to different log files.
 Metrics are collected by default at:</p>
 <ul class="simple">
 <li><p>System metrics - log_directory/ts_metrics.log</p></li>
 <li><p>Custom metrics - log directory/model_metrics.log</p></li>
 </ul>
-<p>The location of log files and metric files can be configured at <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file.</p>
+<p>The location of log files and metric files can be configured i in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file</p>
 </div>
-<div class="section" id="id2">
-<h2>System Metrics<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
+<div class="section" id="system-metrics">
+<h2>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
 <thead>
-<tr class="row-odd"><th class="head"><p>Metric Name</p></th>
-<th class="head"><p>Dimension</p></th>
-<th class="head"><p>Unit</p></th>
-<th class="head"><p>Semantics</p></th>
+<tr>
+<th>Metric Name</th>
+<th>Dimension</th>
+<th>Unit</th>
+<th>Semantics</th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>CPUUtilization</p></td>
-<td><p>host</p></td>
-<td><p>percentage</p></td>
-<td><p>cpu utillization on host</p></td>
+<tr>
+<td>CPUUtilization</td>
+<td>host</td>
+<td>percentage</td>
+<td>CPU utilization on host</td>
 </tr>
-<tr class="row-odd"><td><p>DiskAvailable</p></td>
-<td><p>host</p></td>
-<td><p>GB</p></td>
-<td><p>disk available on host</p></td>
+<tr>
+<td>DiskAvailable</td>
+<td>host</td>
+<td>GB</td>
+<td>disk available on host</td>
 </tr>
-<tr class="row-even"><td><p>DiskUsed</p></td>
-<td><p>host</p></td>
-<td><p>GB</p></td>
-<td><p>disk used on host</p></td>
+<tr>
+<td>DiskUsed</td>
+<td>host</td>
+<td>GB</td>
+<td>disk used on host</td>
 </tr>
-<tr class="row-odd"><td><p>DiskUtilization</p></td>
-<td><p>host</p></td>
-<td><p>percentage</p></td>
-<td><p>disk used on host</p></td>
+<tr>
+<td>DiskUtilization</td>
+<td>host</td>
+<td>percentage</td>
+<td>disk used on host</td>
 </tr>
-<tr class="row-even"><td><p>MemoryAvailable</p></td>
-<td><p>host</p></td>
-<td><p>MB</p></td>
-<td><p>memory available on host</p></td>
+<tr>
+<td>MemoryAvailable</td>
+<td>host</td>
+<td>MB</td>
+<td>memory available on host</td>
 </tr>
-<tr class="row-odd"><td><p>MemoryUsed</p></td>
-<td><p>host</p></td>
-<td><p>MB</p></td>
-<td><p>memory used on host</p></td>
+<tr>
+<td>MemoryUsed</td>
+<td>host</td>
+<td>MB</td>
+<td>memory used on host</td>
 </tr>
-<tr class="row-even"><td><p>MemoryUtilization</p></td>
-<td><p>host</p></td>
-<td><p>percentage</p></td>
-<td><p>memory used on host</p></td>
+<tr>
+<td>MemoryUtilization</td>
+<td>host</td>
+<td>percentage</td>
+<td>memory utilization on host</td>
 </tr>
-<tr class="row-odd"><td><p>Requests2XX</p></td>
-<td><p>host</p></td>
-<td><p>count</p></td>
-<td><p>logged for every request responded in 200-300 status code range</p></td>
+<tr>
+<td>Requests2XX</td>
+<td>host</td>
+<td>count</td>
+<td>logged for every request responded in 200-300 status code range</td>
 </tr>
-<tr class="row-even"><td><p>Requests4XX</p></td>
-<td><p>host</p></td>
-<td><p>count</p></td>
-<td><p>logged for every request responded in 400-500 status code range</p></td>
+<tr>
+<td>Requests4XX</td>
+<td>host</td>
+<td>count</td>
+<td>logged for every request responded in 400-500 status code range</td>
 </tr>
-<tr class="row-odd"><td><p>Requests5XX</p></td>
-<td><p>host</p></td>
-<td><p>count</p></td>
-<td><p>logged for every request responded with status code above 500</p></td>
+<tr>
+<td>Requests5XX</td>
+<td>host</td>
+<td>count</td>
+<td>logged for every request responded with status code above 500</td>
 </tr>
 </tbody>
-</table>
-</div>
-<div class="section" id="id3">
-<h2>Formatting<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>The metrics emitted into log files by default, is in a <a class="reference external" href="https://github.com/etsy/statsd">StatsD</a> like format.</p>
+</table></div>
+<div class="section" id="formatting">
+<h2>Formatting<a class="headerlink" href="#formatting" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe emits metrics to log files by default. The metrics are formatted in a <a class="reference external" href="https://github.com/etsy/statsd">StatsD</a> like format.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CPUUtilization.Percent:0.0<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
-MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
+MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
 </pre></div>
 </div>
-<p>To enable metric logging in JSON format, we can modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a>, This is explained in the logging <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">document</a>.</p>
-<p>to enable JSON formatting for metrics change it to</p>
+<p>To enable metric logging in JSON format, modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a>. For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
+<p>To enable JSON formatting for metrics, change the following line in <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code>:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.appender.ts_metrics.layout</span> <span class="o">=</span> <span class="s">org.pytorch.serve.util.logging.JSONLayout</span>
 </pre></div>
 </div>
-<p>Once enabled the format emitted to logs, will look as follows</p>
+<p>After you enable JSON log formatting, logs will look as follows:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;MetricName&quot;</span><span class="p">:</span> <span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span>
   <span class="nt">&quot;Value&quot;</span><span class="p">:</span> <span class="s2">&quot;108.15547180175781&quot;</span><span class="p">,</span>
@@ -410,18 +414,17 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </pre></div>
 </div>
 </div>
-<div class="section" id="id5">
-<h2>Custom Metrics API<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe enables the custom service code to emit metrics, that are then logged by the system</p>
-<p>The custom service code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request.</p>
-<p>Which has metrics object.</p>
+<div class="section" id="custom-metrics-api">
+<h2>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe enables the custom service code to emit metrics that are then logged by the system.</p>
+<p>The custom service code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request with a metrics object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access context metrics as follows</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">metrics</span>
 </pre></div>
 </div>
-<p>All metrics collected with in the context</p>
-<div class="section" id="creating-dimension-object-s">
-<h3>Creating dimension object(s)<a class="headerlink" href="#creating-dimension-object-s" title="Permalink to this headline">¶</a></h3>
+<p>All metrics are collected within the context.</p>
+<div class="section" id="create-dimension-object-s">
+<h3>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
 <p>Dimensions for metrics can be defined as objects</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
 
@@ -440,23 +443,23 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 <h3>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
 <p>One can add metrics with generic units using the following function.</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a metric which is generic with custom metrics</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a metric which is generic with custom metrics</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        metric name</span>
-<span class="sd">    value: int, float</span>
-<span class="sd">        value of metric</span>
-<span class="sd">    idx: int</span>
-<span class="sd">        request_id index in batch</span>
-<span class="sd">    unit: str</span>
-<span class="sd">        unit of metric</span>
-<span class="sd">    dimensions: list</span>
-<span class="sd">        list of dimensions for the metric</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            metric name</span>
+<span class="sd">        value: int, float</span>
+<span class="sd">            value of metric</span>
+<span class="sd">        idx: int</span>
+<span class="sd">            request_id index in batch</span>
+<span class="sd">        unit: str</span>
+<span class="sd">            unit of metric</span>
+<span class="sd">        dimensions: list</span>
+<span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Distance as a metric</span>
@@ -467,31 +470,31 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </div>
 </div>
 <div class="section" id="add-time-based-metrics">
-<h3>Add Time based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
-<p>Time based metrics can be added by invoking the following method</p>
+<h3>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
+<p>Add time-based by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a time based metric like latency, default unit is &#39;ms&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        metric name</span>
-<span class="sd">    value: int</span>
-<span class="sd">        value of metric</span>
-<span class="sd">    idx: int</span>
-<span class="sd">        request_id index in batch</span>
-<span class="sd">    unit: str</span>
-<span class="sd">        unit of metric,  default here is ms, s is also accepted</span>
-<span class="sd">    dimensions: list</span>
-<span class="sd">        list of dimensions for the metric</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            metric name</span>
+<span class="sd">        value: int</span>
+<span class="sd">            value of metric</span>
+<span class="sd">        idx: int</span>
+<span class="sd">            request_id index in batch</span>
+<span class="sd">        unit: str</span>
+<span class="sd">            unit of metric,  default here is ms, s is also accepted</span>
+<span class="sd">        dimensions: list</span>
+<span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
 <p>Note that the default unit in this case is ‘ms’</p>
 <p><strong>Supported units</strong>: [‘ms’, ‘s’]</p>
-<p>To add custom time based metrics</p>
+<p>To add custom time-based metrics:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add inference time</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size  is 1 for example</span>
@@ -500,29 +503,29 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </div>
 </div>
 <div class="section" id="add-size-based-metrics">
-<h3>Add Size based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
-<p>Size based metrics can be added by invoking the following method</p>
+<h3>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
+<p>Add size-based metrics by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a size based metric</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a size based metric</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        metric name</span>
-<span class="sd">    value: int, float</span>
-<span class="sd">        value of metric</span>
-<span class="sd">    idx: int</span>
-<span class="sd">        request_id index in batch</span>
-<span class="sd">    unit: str</span>
-<span class="sd">        unit of metric, default here is &#39;MB&#39;, &#39;kB&#39;, &#39;GB&#39; also supported</span>
-<span class="sd">    dimensions: list</span>
-<span class="sd">        list of dimensions for the metric</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            metric name</span>
+<span class="sd">        value: int, float</span>
+<span class="sd">            value of metric</span>
+<span class="sd">        idx: int</span>
+<span class="sd">            request_id index in batch</span>
+<span class="sd">        unit: str</span>
+<span class="sd">            unit of metric, default here is &#39;MB&#39;, &#39;kB&#39;, &#39;GB&#39; also supported</span>
+<span class="sd">        dimensions: list</span>
+<span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>Note that the default unit in this case is ‘ms’</p>
+<p>Note that the default unit in this case is milliseconds (ms).</p>
 <p><strong>Supported units</strong>: [‘MB’, ‘kB’, ‘GB’]</p>
 <p>To add custom size based metrics</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Image size as a metric</span>
@@ -536,24 +539,24 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 <h3>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Percentage based metrics can be added by invoking the following method</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a percentage based metric</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a percentage based metric</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        metric name</span>
-<span class="sd">    value: int, float</span>
-<span class="sd">        value of metric</span>
-<span class="sd">    idx: int</span>
-<span class="sd">        request_id index in batch</span>
-<span class="sd">    dimensions: list</span>
-<span class="sd">        list of dimensions for the metric</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            metric name</span>
+<span class="sd">        value: int, float</span>
+<span class="sd">            value of metric</span>
+<span class="sd">        idx: int</span>
+<span class="sd">            request_id index in batch</span>
+<span class="sd">        dimensions: list</span>
+<span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>To add custom percentage based metrics</p>
+<p>To add custom percentage-based metrics:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add MemoryUtilization as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size  is 1 for example</span>
@@ -562,27 +565,27 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </div>
 </div>
 <div class="section" id="add-counter-based-metrics">
-<h3>Add Counter based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Percentage based metrics can be added by invoking the following method</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a counter metric or increment an existing counter metric</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a counter metric or increment an existing counter metric</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        metric name</span>
-<span class="sd">    value: int</span>
-<span class="sd">        value of metric</span>
-<span class="sd">    idx: int</span>
-<span class="sd">        request_id index in batch</span>
-<span class="sd">    dimensions: list</span>
-<span class="sd">        list of dimensions for the metric</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            metric name</span>
+<span class="sd">        value: int</span>
+<span class="sd">            value of metric</span>
+<span class="sd">        idx: int</span>
+<span class="sd">            request_id index in batch</span>
+<span class="sd">        dimensions: list</span>
+<span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>To create , increment and decrement counter based metrics we can use the following calls</p>
+<p>To create, increment and decrement counter-based metrics we can use the following calls:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Loop Count as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size is 1 for example</span>
@@ -590,7 +593,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 <span class="c1"># Create a counter with name &#39;LoopCount&#39; and dimensions, initial value</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 
-<span class="c1"># Increment counter by 2</span>
+<span class="c1"># Increment counter by 2 </span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 
 <span class="c1"># Decrement counter by 1</span>
@@ -600,8 +603,8 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </pre></div>
 </div>
 </div>
-<div class="section" id="id6">
-<h3>Logging the custom metrics<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="log-custom-metrics">
+<h3>Log custom metrics<a class="headerlink" href="#log-custom-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Following sample code can be used to log the custom metrics created in the model’s custom handler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">store</span><span class="p">:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[METRICS]</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
@@ -617,15 +620,6 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="rest_api.html" class="btn btn-neutral float-right" title="TorchServe REST API" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="management_api.html" class="btn btn-neutral" title="Management API" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -655,19 +649,19 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Metrics on TorchServe</a><ul>
-<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
-<li><a class="reference internal" href="#id1">Introduction</a></li>
-<li><a class="reference internal" href="#id2">System Metrics</a></li>
-<li><a class="reference internal" href="#id3">Formatting</a></li>
-<li><a class="reference internal" href="#id5">Custom Metrics API</a><ul>
-<li><a class="reference internal" href="#creating-dimension-object-s">Creating dimension object(s)</a></li>
+<li><a class="reference internal" href="#">TorchServe Metrics</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this document</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#system-metrics">System Metrics</a></li>
+<li><a class="reference internal" href="#formatting">Formatting</a></li>
+<li><a class="reference internal" href="#custom-metrics-api">Custom Metrics API</a><ul>
+<li><a class="reference internal" href="#create-dimension-object-s">Create dimension object(s)</a></li>
 <li><a class="reference internal" href="#add-generic-metrics">Add generic metrics</a></li>
-<li><a class="reference internal" href="#add-time-based-metrics">Add Time based metrics</a></li>
-<li><a class="reference internal" href="#add-size-based-metrics">Add Size based metrics</a></li>
+<li><a class="reference internal" href="#add-time-based-metrics">Add time-based metrics</a></li>
+<li><a class="reference internal" href="#add-size-based-metrics">Add size-based metrics</a></li>
 <li><a class="reference internal" href="#add-percentage-based-metrics">Add Percentage based metrics</a></li>
-<li><a class="reference internal" href="#add-counter-based-metrics">Add Counter based metrics</a></li>
-<li><a class="reference internal" href="#id6">Logging the custom metrics</a></li>
+<li><a class="reference internal" href="#add-counter-based-metrics">Add counter-based metrics</a></li>
+<li><a class="reference internal" href="#log-custom-metrics">Log custom metrics</a></li>
 </ul>
 </li>
 </ul>
@@ -687,19 +681,20 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="_static/language_data.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
   <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
   <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
@@ -890,6 +885,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
       scrollToAnchor.bind();
       highlightNavigation.bind();
       mainMenuDropdown.bind();
+      filterTags.bind();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

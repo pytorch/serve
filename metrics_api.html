@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe default inference handlers &mdash; PyTorch/Serve master documentation</title>
+  <title>Metrics API &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -184,18 +184,11 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
+<li><a class="reference internal" href="#">Metrics API</a><ul>
+<li><a class="reference internal" href="#prometheus-server">Prometheus server</a></li>
+<li><a class="reference internal" href="#grafana">Grafana</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 </div>
             
@@ -236,13 +229,13 @@
       </li>
 
         
-      <li>TorchServe default inference handlers</li>
+      <li>Metrics API</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/default_handlers.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/metrics_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -268,62 +261,63 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-default-inference-handlers">
-<h1>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
-<div class="section" id="image-classifier">
-<h2>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of top 5 predictions and their respective probability of the image</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
+  <div class="section" id="metrics-api">
+<h1>Metrics API<a class="headerlink" href="#metrics-api" title="Permalink to this headline">¶</a></h1>
+<p>Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>. The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a <a class="reference external" href="#prometheus-server">Prometheus Server</a> to the endpoint and use <a class="reference external" href="#grafana">Grafana</a> for dashboards.</p>
+<p>By default these APIs are enable however same can be disabled by setting <code class="docutils literal notranslate"><span class="pre">enable_metrics_api=false</span></code> in torchserve config.properties file.
+For details refer <a class="reference internal" href="configuration.html"><span class="doc">Torchserve config</span></a> docs.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl http://127.0.0.1:8082/metrics</span>
+
+<span class="gp">#</span> HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+<span class="gp">#</span> TYPE ts_inference_latency_microseconds counter
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
+<span class="gp">#</span> HELP ts_inference_requests_total Total number of inference requests.
+<span class="gp">#</span> TYPE ts_inference_requests_total counter
+<span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1.0</span>
+<span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 1.0</span>
+<span class="gp">#</span> HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+<span class="gp">#</span> TYPE ts_queue_latency_microseconds counter
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
+</pre></div>
 </div>
-<div class="section" id="image-segmenter">
-<h2>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl &quot;http://127.0.0.1:8082/metrics?name[]=ts_inference_latency_microseconds&amp;name[]=ts_queue_latency_microseconds&quot; --globoff</span>
+
+<span class="gp">#</span> HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+<span class="gp">#</span> TYPE ts_inference_latency_microseconds counter
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
+<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
+<span class="gp">#</span> HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+<span class="gp">#</span> TYPE ts_queue_latency_microseconds counter
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
+<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
+</pre></div>
 </div>
-<div class="section" id="object-detector">
-<h2>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles object detection models.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
-</ul>
-<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
+<div class="section" id="prometheus-server">
+<h2>Prometheus server<a class="headerlink" href="#prometheus-server" title="Permalink to this headline">¶</a></h2>
+<p>To view these metrics on a Prometheus server, download and install using the instructions <a class="reference external" href="https://prometheus.io/download/#prometheus">here</a>. Create a minimal <code class="docutils literal notranslate"><span class="pre">prometheus.yml</span></code> config file as below and run <code class="docutils literal notranslate"><span class="pre">./prometheus</span> <span class="pre">--config.file=prometheus.yml</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
+  <span class="nt">scrape_interval</span><span class="p">:</span>     <span class="l l-Scalar l-Scalar-Plain">15s</span>
+  <span class="nt">evaluation_interval</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">15s</span>
+
+<span class="nt">scrape_configs</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;prometheus&#39;</span>
+    <span class="nt">static_configs</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:9090&#39;</span><span class="p p-Indicator">]</span>
+  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;torchserve&#39;</span>
+    <span class="nt">static_configs</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:8082&#39;</span><span class="p p-Indicator">]</span> <span class="c1">#TorchServe metrics endpoint</span>
+</pre></div>
 </div>
-<div class="section" id="text-classifier">
-<h2>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
-<li><p>Input : text file</p></li>
-<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
-</div>
-</div>
-<div class="section" id="common-features">
-<h1>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="index-to-name-json">
-<h2>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json">text_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json">object_detector</a></p></li>
-</ul>
-</div>
-</div>
-<div class="section" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>If you’d like to edit or create a new default_handler class, make sure to run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh">torchserve_sanity.sh</a> before submitting.</p>
+<p>Navigate to http://localhost:9090/ on a browser to execute queries and create graphs</p>
+<img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png"></div>
+<div class="section" id="grafana">
+<h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h2>
+<p>Once you have the Torchserve and Prometheus servers running, you can further <a class="reference external" href="https://prometheus.io/docs/visualization/grafana/">setup</a> Grafana, point it to Prometheus server and navigate to http://localhost:3000/ to create dashboards and graphs.</p>
+<p>You can use command given below to start Grafana -
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">daemon-reload</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">enable</span> <span class="pre">grafana-server</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">start</span> <span class="pre">grafana-server</span></code></p>
+<img width="1220" alt="Screen Shot 2020-07-08 at 5 51 57 PM" src="https://user-images.githubusercontent.com/880376/86984550-c4fb6200-c143-11ea-9434-09d4d43dd6d4.png"></div>
 </div>
 
 
@@ -360,18 +354,11 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
+<li><a class="reference internal" href="#">Metrics API</a><ul>
+<li><a class="reference internal" href="#prometheus-server">Prometheus server</a></li>
+<li><a class="reference internal" href="#grafana">Grafana</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 
             </div>

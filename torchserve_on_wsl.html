@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe default inference handlers &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4 &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -184,18 +184,13 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
+<li><a class="reference internal" href="#">TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
+<li><a class="reference internal" href="#setup-ubuntu-18-0-4-on-wsl">Setup Ubuntu 18.0.4 on WSL:</a></li>
+<li><a class="reference internal" href="#install-from-binaries">Install from binaries</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 </div>
             
@@ -236,13 +231,13 @@
       </li>
 
         
-      <li>TorchServe default inference handlers</li>
+      <li>TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/default_handlers.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/torchserve_on_wsl.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -268,62 +263,61 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-default-inference-handlers">
-<h1>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
-<div class="section" id="image-classifier">
-<h2>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="torchserve-on-windows-subsystem-for-linux-wsl-ubuntu-18-0-4">
+<h1>TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4<a class="headerlink" href="#torchserve-on-windows-subsystem-for-linux-wsl-ubuntu-18-0-4" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contents-of-this-document">
+<h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of top 5 predictions and their respective probability of the image</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
-</div>
-<div class="section" id="image-segmenter">
-<h2>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
-</div>
-<div class="section" id="object-detector">
-<h2>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles object detection models.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
-</ul>
-<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
-</div>
-<div class="section" id="text-classifier">
-<h2>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
-<li><p>Input : text file</p></li>
-<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
-</div>
-</div>
-<div class="section" id="common-features">
-<h1>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="index-to-name-json">
-<h2>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json">text_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json">object_detector</a></p></li>
+<li><p><a class="reference external" href="#setup-ubuntu-1804-on-wsl">Setup Ubuntu 18.0.4 on WSL</a></p></li>
+<li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
+<li><p><a class="reference external" href="#install-from-source">Install from source</a></p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#known-limitations">Known limitations of NVIDIA CUDA support on GPU</a></p></li>
 </ul>
 </div>
+<div class="section" id="setup-ubuntu-18-0-4-on-wsl">
+<h2>Setup Ubuntu 18.0.4 on WSL:<a class="headerlink" href="#setup-ubuntu-18-0-4-on-wsl" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux Installation Guide for Windows 10</a></p></li>
+<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-on-server">Windows Subsystem for Linux Installation Guide for Windows Server 2019</a></p></li>
+</ul>
 </div>
-<div class="section" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>If you’d like to edit or create a new default_handler class, make sure to run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh">torchserve_sanity.sh</a> before submitting.</p>
+<div class="section" id="install-from-binaries">
+<h2>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><p>Setup Ubuntu Environment</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget -O - https://raw.githubusercontent.com/pytorch/serve/master/scripts/setup_wsl_ubuntu <span class="p">|</span> bash
+<span class="nb">echo</span> <span class="s1">&#39;export PATH=$HOME/.local/bin:$PATH&#39;</span> &gt;&gt; ~/.bashrc
+<span class="nb">source</span> ~/.bashrc
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Install JDK 11</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install openjdk-11-jdk
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> and <code class="docutils literal notranslate"><span class="pre">Torch</span> <span class="pre">Model</span> <span class="pre">Archiver</span></code></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">torch</span> <span class="n">torchtext</span> <span class="n">torchvision</span> <span class="n">sentencepiece</span> <span class="n">psutil</span> <span class="n">future</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">torchserve</span> <span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-from-source">
+<h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><p>Clone and install TorchServe</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pytorch</span><span class="o">/</span><span class="n">serve</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">serve</span>
+<span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">install_from_src_wsl</span>
+<span class="n">echo</span> <span class="s1">&#39;export PATH=$HOME/.local/bin:$PATH&#39;</span> <span class="o">&gt;&gt;</span> <span class="o">~/.</span><span class="n">bashrc</span>
+<span class="n">source</span> <span class="o">~/.</span><span class="n">bashrc</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -360,18 +354,13 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
+<li><a class="reference internal" href="#">TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
+<li><a class="reference internal" href="#setup-ubuntu-18-0-4-on-wsl">Setup Ubuntu 18.0.4 on WSL:</a></li>
+<li><a class="reference internal" href="#install-from-binaries">Install from binaries</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 
             </div>

@@ -147,6 +147,69 @@ $(function() {
 });
 
 },{}],3:[function(require,module,exports){
+window.filterTags = {
+  bind: function() {
+    var options = {
+      valueNames: [{ data: ["tags"] }],
+      page: "6",
+      pagination: true
+    };
+
+    var tutorialList = new List("tutorial-cards", options);
+
+    function filterSelectedTags(cardTags, selectedTags) {
+      return cardTags.some(function(tag) {
+        return selectedTags.some(function(selectedTag) {
+          return selectedTag == tag;
+        });
+      });
+    }
+
+    function updateList() {
+      var selectedTags = [];
+
+      $(".selected").each(function() {
+        selectedTags.push($(this).data("tag"));
+      });
+
+      tutorialList.filter(function(item) {
+        var cardTags;
+
+        if (item.values().tags == null) {
+          cardTags = [""];
+        } else {
+          cardTags = item.values().tags.split(",");
+        }
+
+        if (selectedTags.length == 0) {
+          return true;
+        } else {
+          return filterSelectedTags(cardTags, selectedTags);
+        }
+      });
+    }
+
+    $(".filter-btn").on("click", function() {
+      if ($(this).data("tag") == "all") {
+        $(this).addClass("all-tag-selected");
+        $(".filter").removeClass("selected");
+      } else {
+        $(this).toggleClass("selected");
+        $("[data-tag='all']").removeClass("all-tag-selected");
+      }
+
+      // If no tags are selected then highlight the 'All' tag
+
+      if (!$(".selected")[0]) {
+        $("[data-tag='all']").addClass("all-tag-selected");
+      }
+
+      updateList();
+    });
+  }
+};
+
+},{}],4:[function(require,module,exports){
 // Modified from https://stackoverflow.com/a/32396543
 window.highlightNavigation = {
   navigationListItems: document.querySelectorAll("#pytorch-right-menu li"),
@@ -219,7 +282,7 @@ window.highlightNavigation = {
   }
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 window.mainMenuDropdown = {
   bind: function() {
     $("[data-toggle='ecosystem-dropdown']").on("click", function() {
@@ -246,7 +309,7 @@ window.mainMenuDropdown = {
   }
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 window.mobileMenu = {
   bind: function() {
     $("[data-behavior='open-mobile-menu']").on('click', function(e) {
@@ -278,7 +341,7 @@ window.mobileMenu = {
   }
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 window.mobileTOC = {
   bind: function() {
     $("[data-behavior='toggle-table-of-contents']").on("click", function(e) {
@@ -299,7 +362,7 @@ window.mobileTOC = {
   }
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 window.pytorchAnchors = {
   bind: function() {
     // Replace Sphinx-generated anchors with anchorjs ones
@@ -319,7 +382,7 @@ window.pytorchAnchors = {
   }
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // Modified from https://stackoverflow.com/a/13067009
 // Going for a JS solution to scrolling to an anchor so we can benefit from
 // less hacky css and smooth scrolling.
@@ -420,7 +483,7 @@ window.scrollToAnchor = {
   }
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 window.sideMenus = {
   rightMenuIsOnScreen: function() {
     return document.getElementById("pytorch-content-right").offsetParent !== null;
@@ -884,8 +947,8 @@ if (downloadNote.length >= 1) {
 
     var githubLink = "https://github.com/pytorch/tutorials/blob/master/" + tutorialUrlArray.join("/") + ".py",
         notebookLink = $(".reference.download")[1].href,
-        notebookDownloadPath = notebookLink.split('_downloads')[1].split('/').pop(),
-        colabLink = "https://colab.research.google.com/github/pytorch/tutorials/blob/gh-pages/_downloads/" + notebookDownloadPath;
+        notebookDownloadPath = notebookLink.split('_downloads')[1],
+        colabLink = "https://colab.research.google.com/github/pytorch/tutorials/blob/gh-pages/_downloads" + notebookDownloadPath;
 
     $("#google-colab-link").wrap("<a href=" + colabLink + " data-behavior='call-to-action-event' data-response='Run in Google Colab' target='_blank'/>");
     $("#download-notebook-link").wrap("<a href=" + notebookLink + " data-behavior='call-to-action-event' data-response='Download Notebook'/>");
@@ -899,12 +962,81 @@ if (downloadNote.length >= 1) {
 if ($("p.caption:first").text() == "Notes") {
 
     $("p.caption:first").addClass("left-nav-top-caption");
-    $("span.caption-text:first").addClass("pytorch-left-nav-collapsed");
+    $("span.caption-text:first").after("<span class='expand-menu'>[Expand]</span>");
+    $(".expand-menu").after("<span class='hide-menu'>[Hide]</span>");
     $("p.caption:first").next("ul").hide();
 
-    $("span.caption-text:first").on("click", function() {
-    $(this).toggleClass("pytorch-left-nav-collapsible pytorch-left-nav-collapsed");
-    $("p.caption:first").next("ul").toggle();
+    $(".expand-menu").on("click", function() {
+        $(".hide-menu").toggle();
+        toggleList(this);
     });
+
+    $(".hide-menu").on("click", function() {
+        $(".expand-menu").toggle();
+        toggleList(this);
+    });
+
+    function toggleList(menuCommand) {
+        $(menuCommand).toggle();
+        $("p.caption:first").next("ul").toggle();
+    }
 }
-},{"jquery":"jquery"}]},{},[1,2,3,4,5,6,7,8,9,"pytorch-sphinx-theme"]);
+
+// Get the card link from the card's link attribute
+
+$(".tutorials-card").on("click", function() {
+    window.location = $(this).attr("link");
+});
+
+// Build an array from each tag that's present
+
+var tagList = $(".tutorials-card-container").map(function() {
+    return $(this).data("tags").split(",").map(function(item) {
+        return item.trim();
+      });
+}).get();
+
+function unique(value, index, self) {
+      return self.indexOf(value) == index && value != ""
+    }
+
+// Only return unique tags
+
+var tags = tagList.sort().filter(unique);
+
+// Add filter buttons to the top of the page for each tag
+
+function createTagMenu() {
+    tags.forEach(function(item){
+    $(".tutorial-filter-menu").append(" <div class='tutorial-filter filter-btn filter' data-tag='" + item + "'>" + item + "</div>")
+  })
+};
+
+createTagMenu();
+
+// Remove hyphens if they are present in the filter buttons
+
+$(".tags").each(function(){
+    var tags = $(this).text().split(",");
+    tags.forEach(function(tag, i ) {
+       tags[i] = tags[i].replace(/-/, ' ')
+    })
+    $(this).html(tags.join(", "));
+});
+
+// Remove hyphens if they are present in the card body
+
+$(".tutorial-filter").each(function(){
+    var tag = $(this).text();
+    $(this).html(tag.replace(/-/, ' '))
+})
+
+// Remove any empty p tags that Sphinx adds
+
+$("#tutorial-cards p").each(function(index, item) {
+    if(!$(item).text().trim()) {
+        $(item).remove();
+    }
+});
+
+},{"jquery":"jquery"}]},{},[1,2,3,4,5,6,7,8,9,10,"pytorch-sphinx-theme"]);

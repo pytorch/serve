@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe default inference handlers &mdash; PyTorch/Serve master documentation</title>
+  <title>1. Structural Elements &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -25,25 +25,25 @@
 
   
 
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+  <link rel="stylesheet" href="../../../../../_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -166,7 +166,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -184,18 +184,26 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
+<li><a class="reference internal" href="#">1. Structural Elements</a><ul>
+<li><a class="reference internal" href="#document-section">1.1. Document Section</a><ul>
+<li><a class="reference internal" href="#document-subsection">1.1.1. Document Subsection</a><ul>
+<li><a class="reference internal" href="#document-subsubsection">1.1.1.1. Document Subsubsection</a><ul>
+<li><a class="reference internal" href="#document-paragraph">1.1.1.1.1. Document Paragraph</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#structural-elements-2">2. Structural Elements 2</a><ul>
+<li><a class="reference internal" href="#id1">2.1. Document Section</a><ul>
+<li><a class="reference internal" href="#id2">2.1.1. Document Subsection</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
             
@@ -228,7 +236,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="index.html">
+        <a href="../../../../../index.html">
           
             Docs
           
@@ -236,13 +244,13 @@
       </li>
 
         
-      <li>TorchServe default inference handlers</li>
+      <li><span class="section-number">1. </span>Structural Elements</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/default_handlers.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="../../../../../_sources/sphinx/src/pytorch-sphinx-theme/docs/demo/structure.rst.txt" rel="nofollow"><img src="../../../../../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -268,62 +276,121 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-default-inference-handlers">
-<h1>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
-<div class="section" id="image-classifier">
-<h2>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="structural-elements">
+<h1><a class="toc-backref" href="#id4"><span class="section-number">1. </span>Structural Elements</a><a class="headerlink" href="#structural-elements" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
 <ul class="simple">
-<li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of top 5 predictions and their respective probability of the image</p></li>
+<li><p><a class="reference internal" href="#structural-elements" id="id4">Structural Elements</a></p>
+<ul>
+<li><p><a class="reference internal" href="#document-section" id="id5">Document Section</a></p>
+<ul>
+<li><p><a class="reference internal" href="#document-subsection" id="id6">Document Subsection</a></p>
+<ul>
+<li><p><a class="reference internal" href="#document-subsubsection" id="id7">Document Subsubsection</a></p>
+<ul>
+<li><p><a class="reference internal" href="#document-paragraph" id="id8">Document Paragraph</a></p></li>
 </ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
-</div>
-<div class="section" id="image-segmenter">
-<h2>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.</p></li>
+</li>
 </ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
-</div>
-<div class="section" id="object-detector">
-<h2>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles object detection models.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
+</li>
 </ul>
-<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
-</div>
-<div class="section" id="text-classifier">
-<h2>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
-<li><p>Input : text file</p></li>
-<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
+</li>
 </ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
-</div>
-</div>
-<div class="section" id="common-features">
-<h1>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="index-to-name-json">
-<h2>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json">text_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json">object_detector</a></p></li>
+</li>
+<li><p><a class="reference internal" href="#structural-elements-2" id="id9">Structural Elements 2</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id10">Document Section</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id2" id="id11">Document Subsection</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lorem neque, interdum in ipsum nec,
+finibus dictum velit. Ut eu efficitur arcu, id aliquam erat. In sit amet diam gravida, imperdiet tellus eu,
+gravida nisl. Praesent aliquet odio eget libero elementum, quis rhoncus tellus tincidunt.
+Suspendisse quis volutpat ipsum. Sed lobortis scelerisque tristique. Aenean condimentum risus tellus,
+quis accumsan ipsum laoreet ut. Integer porttitor maximus suscipit. Mauris in posuere sapien.
+Aliquam accumsan feugiat ligula, nec fringilla libero commodo sed. Proin et erat pharetra.</p>
+<hr class="docutils" />
+<p>Etiam turpis ante, luctus sed velit tristique, finibus volutpat dui. Nam sagittis vel ante nec malesuada.
+Praesent dignissim mi nec ornare elementum. Nunc eu augue vel sem dignissim cursus sed et nulla.
+Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+Pellentesque dictum dui sem, non placerat tortor rhoncus in. Sed placerat nulla at rhoncus iaculis.</p>
+<div class="section" id="document-section">
+<h2><a class="toc-backref" href="#id5"><span class="section-number">1.1. </span>Document Section</a><a class="headerlink" href="#document-section" title="Permalink to this headline">¶</a></h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed condimentum nulla vel neque venenatis,
+nec placerat lorem placerat. Cras purus eros, gravida vitae tincidunt id, vehicula nec nulla.
+Fusce aliquet auctor cursus. Phasellus ex neque, vestibulum non est vitae, viverra fringilla tortor.
+Donec vestibulum convallis justo, a faucibus lorem vulputate vel. Aliquam cursus odio eu felis sodales aliquet.
+Aliquam erat volutpat. Maecenas eget dictum mauris. Suspendisse arcu eros, condimentum eget risus sed,
+luctus efficitur arcu. Cras ut dictum mi. Nulla congue interdum lorem, semper semper enim commodo nec.</p>
+<div class="section" id="document-subsection">
+<h3><a class="toc-backref" href="#id6"><span class="section-number">1.1.1. </span>Document Subsection</a><a class="headerlink" href="#document-subsection" title="Permalink to this headline">¶</a></h3>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur in eros et blandit. Nunc maximus,
+nisl at auctor vestibulum, justo ex sollicitudin ligula, id faucibus urna orci tristique nisl.
+Duis auctor rutrum orci, in ornare lacus condimentum quis. Quisque arcu velit, facilisis quis interdum ac,
+hendrerit auctor mauris. Curabitur urna nibh, porttitor at ante sit amet, vestibulum interdum dolor.
+Duis dictum elit orci, tincidunt imperdiet sem pellentesque et. In vehicula pellentesque varius.
+Phasellus a turpis sollicitudin, bibendum massa et, imperdiet neque. Integer quis sapien in magna rutrum bibendum.
+Integer cursus ex sed magna vehicula finibus. Proin tempus orci quis dolor tempus, nec condimentum odio vestibulum.
+Etiam efficitur sollicitudin libero, tincidunt volutpat ligula interdum sed.</p>
+<div class="section" id="document-subsubsection">
+<h4><a class="toc-backref" href="#id7"><span class="section-number">1.1.1.1. </span>Document Subsubsection</a><a class="headerlink" href="#document-subsubsection" title="Permalink to this headline">¶</a></h4>
+<p>Donec non rutrum lorem. Aenean sagittis metus at pharetra fringilla. Nunc sapien dolor, cursus sed nisi at,
+pretium tristique lectus. Sed pellentesque leo lectus, et convallis ipsum euismod a.
+Integer at leo vitae felis pretium aliquam fringilla quis odio. Sed pharetra enim accumsan feugiat pretium.
+Maecenas at pharetra tortor. Morbi semper eget mi vel finibus. Cras rutrum nulla eros, id feugiat arcu pellentesque ut.
+Sed finibus tortor ac nisi ultrices viverra. Duis feugiat malesuada sapien, at commodo ante porttitor ac.
+Curabitur posuere mauris mi, vel ornare orci scelerisque sit amet. Suspendisse nec fringilla dui.</p>
+<div class="section" id="document-paragraph">
+<h5><a class="toc-backref" href="#id8"><span class="section-number">1.1.1.1.1. </span>Document Paragraph</a><a class="headerlink" href="#document-paragraph" title="Permalink to this headline">¶</a></h5>
+<p>Pellentesque nec est in odio ultrices elementum. Vestibulum et hendrerit sapien, quis vulputate turpis.
+Suspendisse potenti. Curabitur tristique sit amet lectus non viverra. Phasellus rutrum dapibus turpis sed imperdiet.
+Mauris maximus viverra ante. Donec eu egestas mauris. Morbi vulputate tincidunt euismod. Integer vel porttitor neque.
+Donec at lacus suscipit, lacinia lectus vel, sagittis lectus.</p>
 </div>
-<div class="section" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>If you’d like to edit or create a new default_handler class, make sure to run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh">torchserve_sanity.sh</a> before submitting.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="structural-elements-2">
+<h1><a class="toc-backref" href="#id9"><span class="section-number">2. </span>Structural Elements 2</a><a class="headerlink" href="#structural-elements-2" title="Permalink to this headline">¶</a></h1>
+<p>Etiam turpis ante, luctus sed velit tristique, finibus volutpat dui. Nam sagittis vel ante nec malesuada.
+Praesent dignissim mi nec ornare elementum. Nunc eu augue vel sem dignissim cursus sed et nulla.
+Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+Pellentesque dictum dui sem, non placerat tortor rhoncus in. Sed placerat nulla at rhoncus iaculis.</p>
+<div class="section" id="id1">
+<h2><a class="toc-backref" href="#id10"><span class="section-number">2.1. </span>Document Section</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed condimentum nulla vel neque venenatis,
+nec placerat lorem placerat. Cras purus eros, gravida vitae tincidunt id, vehicula nec nulla.
+Fusce aliquet auctor cursus. Phasellus ex neque, vestibulum non est vitae, viverra fringilla tortor.
+Donec vestibulum convallis justo, a faucibus lorem vulputate vel. Aliquam cursus odio eu felis sodales aliquet.
+Aliquam erat volutpat. Maecenas eget dictum mauris. Suspendisse arcu eros, condimentum eget risus sed,
+luctus efficitur arcu. Cras ut dictum mi. Nulla congue interdum lorem, semper semper enim commodo nec.</p>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id11"><span class="section-number">2.1.1. </span>Document Subsection</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-right" id="id3" style="width: 200px">
+<img alt="../../../../../_images/yi_jing_01_chien.jpg" src="../../../../../_images/yi_jing_01_chien.jpg" />
+<p class="caption"><span class="caption-text">This is a caption for a figure. Text should wrap around the caption.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur in eros et blandit. Nunc maximus,
+nisl at auctor vestibulum, justo ex sollicitudin ligula, id faucibus urna orci tristique nisl.
+Duis auctor rutrum orci, in ornare lacus condimentum quis. Quisque arcu velit, facilisis quis interdum ac,
+hendrerit auctor mauris. Curabitur urna nibh, porttitor at ante sit amet, vestibulum interdum dolor.
+Duis dictum elit orci, tincidunt imperdiet sem pellentesque et. In vehicula pellentesque varius.
+Phasellus a turpis sollicitudin, bibendum massa et, imperdiet neque. Integer quis sapien in magna rutrum bibendum.
+Integer cursus ex sed magna vehicula finibus. Proin tempus orci quis dolor tempus, nec condimentum odio vestibulum.
+Etiam efficitur sollicitudin libero, tincidunt volutpat ligula interdum sed. Praesent congue sagittis nisl et suscipit.
+Vivamus sagittis risus et egestas commodo.Cras venenatis arcu in pharetra interdum.
+Donec quis metus porttitor tellus cursus lobortis. Quisque et orci magna. Fusce rhoncus mi mi,
+at vehicula massa rhoncus quis. Mauris augue leo, pretium eget molestie vitae, efficitur nec nulla.
+In hac habitasse platea dictumst. Sed sit amet imperdiet purus.</p>
+</div>
+</div>
 </div>
 
 
@@ -360,18 +427,26 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
+<li><a class="reference internal" href="#">1. Structural Elements</a><ul>
+<li><a class="reference internal" href="#document-section">1.1. Document Section</a><ul>
+<li><a class="reference internal" href="#document-subsection">1.1.1. Document Subsection</a><ul>
+<li><a class="reference internal" href="#document-subsubsection">1.1.1.1. Document Subsubsection</a><ul>
+<li><a class="reference internal" href="#document-paragraph">1.1.1.1.1. Document Paragraph</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#structural-elements-2">2. Structural Elements 2</a><ul>
+<li><a class="reference internal" href="#id1">2.1. Document Section</a><ul>
+<li><a class="reference internal" href="#id2">2.1.1. Document Subsection</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             </div>
@@ -386,22 +461,22 @@
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+         <script src="../../../../../_static/jquery.js"></script>
+         <script src="../../../../../_static/underscore.js"></script>
+         <script src="../../../../../_static/doctools.js"></script>
+         <script src="../../../../../_static/language_data.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+         <script src="../../../../../_static/katex_autorenderer.js"></script>
      
 
   
 
-  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../../_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="_static/js/theme.js"></script>
+  <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -513,7 +588,7 @@
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="_static/images/pytorch-x.svg">
+    <img class="close-button" src="../../../../../_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -580,7 +655,7 @@
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="../../../../../_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {

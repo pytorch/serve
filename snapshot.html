@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe default inference handlers &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe model snapshot &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -184,18 +184,7 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
 </ul>
 </div>
             
@@ -236,13 +225,13 @@
       </li>
 
         
-      <li>TorchServe default inference handlers</li>
+      <li>TorchServe model snapshot</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/default_handlers.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/snapshot.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -268,62 +257,31 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-default-inference-handlers">
-<h1>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
-<div class="section" id="image-classifier">
-<h2>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="torchserve-model-snapshot">
+<h1>TorchServe model snapshot<a class="headerlink" href="#torchserve-model-snapshot" title="Permalink to this headline">¶</a></h1>
+<p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.</p>
+<p>A TorchServe’s snapshot consists of following:</p>
 <ul class="simple">
-<li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of top 5 predictions and their respective probability of the image</p></li>
+<li><p>Server configuration, which comprises: Which models are running, which versions of those models, and how many workers are active for each model.</p></li>
+<li><p>Default server configuration used while starting TorchServe the first time.</p></li>
 </ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
-</div>
-<div class="section" id="image-segmenter">
-<h2>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
+<p>The snapshot is taken at following instances -</p>
 <ul class="simple">
-<li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Output shape as [N, CL H W], N - batch size, CL - number of classes, H - height and W - width.</p></li>
+<li><p>After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<yyyyMMddHHmmssSSS>-startup.cfg</p></li>
+<li><p>If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-snapshot.cfg</p></li>
+<li><p>When the server is shut down intentionally with <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--stop</span></code>, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-shutdown.cfg</p></li>
 </ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
-</div>
-<div class="section" id="object-detector">
-<h2>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
+<p>User can use snapshots to restore the TorchServe’s state as follows :</p>
 <ul class="simple">
-<li><p>Description : Handles object detection models.</p></li>
-<li><p>Input : RGB image</p></li>
-<li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
+<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag while starting TorchServe, last snapshot in ./logs/configs is used for startup.</p></li>
+<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag and no snapshots are available, TorchServe starts with default configurations.</p></li>
+<li><p>The user restarts the server specifying this config file: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--ts-config</span> <span class="pre">&lt;known</span> <span class="pre">good</span> <span class="pre">config</span> <span class="pre">snapshot&gt;</span></code></p></li>
 </ul>
-<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
-</div>
-<div class="section" id="text-classifier">
-<h2>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
-<li><p>Input : text file</p></li>
-<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
-</ul>
-<p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
-</div>
-</div>
-<div class="section" id="common-features">
-<h1>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="index-to-name-json">
-<h2>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json">text_classifier</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json">object_detector</a></p></li>
-</ul>
-</div>
-</div>
-<div class="section" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>If you’d like to edit or create a new default_handler class, make sure to run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.sh">torchserve_sanity.sh</a> before submitting.</p>
+<p>If the user wishes to start without this resiliency feature, the user can start the server with :</p>
+<p><code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--no-config-snapshots</span></code></p>
+<p>This prevents to server from storing config snapshot files.</p>
+<p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in  <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory</p>
+<p><strong>Note</strong> : Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p>
 </div>
 
 
@@ -360,18 +318,7 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe default inference handlers</a><ul>
-<li><a class="reference internal" href="#image-classifier">image_classifier</a></li>
-<li><a class="reference internal" href="#image-segmenter">image_segmenter</a></li>
-<li><a class="reference internal" href="#object-detector">object_detector</a></li>
-<li><a class="reference internal" href="#text-classifier">text_classifier</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#common-features">Common features</a><ul>
-<li><a class="reference internal" href="#index-to-name-json">index_to_name.json</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
 </ul>
 
             </div>
