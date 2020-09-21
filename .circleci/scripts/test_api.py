@@ -1,5 +1,6 @@
 import glob
 import os
+import platform
 import sys
 import time
 import argparse
@@ -23,26 +24,37 @@ POSTMAN_DATA_FILE_INFERENCE = os.path.join("postman", "inference_data.json")
 
 REPORT_FILE = os.path.join("report.html")
 
+
+torchserve_command = {
+    "Windows": "torchserve.exe",
+    "Darwin": "torchserve",
+    "Linux": "torchserve"
+}
+
 def start_ts(model_store_dir, log_file):
-    os.system(f"torchserve --ncs --start --model-store {model_store_dir} >> {log_file} 2>&1")
+    os.system(f"{torchserve_command[platform.system()]} --ncs --start --model-store {model_store_dir} >> {log_file} 2>&1 &")
     time.sleep(10)
 
 
 def start_ts_secure(model_store_dir, log_file, ts_https_config_file):
-  os.system(f"torchserve --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} >> {log_file} 2>&1")
+  os.system(f"{torchserve_command[platform.system()]} --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} >> {log_file} 2>&1 &")
   time.sleep(10)
 
+
 def stop_ts():
-  os.system("torchserve --stop")
+  os.system("{torchserve_command[platform.system()]} --stop")
   time.sleep(10)
+
 
 def cleanup_model_store():
     (os.remove(f) for f in glob.glob(os.path.join(MODEL_STORE_DIR, "*"))) # rm -rf $MODEL_STORE_DIR/*
+
 
 def move_logs(file, dir):
     logs_dir = os.path.join("logs")
     os.rename(file, os.path.join(logs_dir, file))    # mv file logs/
     os.rename(logs_dir, os.path.join(dir, logs_dir)) # mv logs/ dir
+
 
 def trigger_management_tests():
     """ Return exit code of newman execution of management collection """
@@ -53,6 +65,7 @@ def trigger_management_tests():
     cleanup_model_store()
     return EXIT_CODE
 
+
 def trigger_inference_tests():
     """ Return exit code of newman execution of inference collection """
     start_ts(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE)
@@ -62,6 +75,7 @@ def trigger_inference_tests():
     cleanup_model_store()
     return EXIT_CODE
 
+
 def trigger_https_tests():
     """ Return exit code of newman execution of https collection """
     start_ts_secure(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE, TS_CONFIG_FILE_HTTPS)
@@ -70,6 +84,7 @@ def trigger_https_tests():
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR)
     cleanup_model_store()
     return EXIT_CODE
+
 
 def trigger_all():
     exit_code1 = trigger_management_tests()
