@@ -59,20 +59,28 @@ def clean_up_build_residuals():
         print('Error while cleaning cache file. Details - '+str(e))
 
 
-def start_torchserve():
+def start_torchserve(ncs=False, model_store="model_store", config_file="", log_file=""):
     print("Starting TorchServe")
-    status = os.system(torchserve_command[platform.system()]+' --start --model-store model_store &')
+    cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
+    if ncs:
+        cmd += " --ncs"
+    if config_file:
+        cmd += f" --ts-config={config_file}"
+    if log_file:
+        cmd += f" > {log_file}"
+    cmd += " &"
+    status = os.system(cmd)
     if status == 0:
         print("Successfully started TorchServe")
     else:
         print("TorchServe failed to start!")
         exit(1)
-
     time.sleep(10)
 
 
 def stop_torchserve():
-    os.system(torchserve_command[platform.system()]+' --stop')
+    cmd = f"{torchserve_command[platform.system()]} --stop"
+    os.system(cmd)
     time.sleep(10)
 
 

@@ -1,9 +1,8 @@
 import glob
 import os
-import platform
 import sys
-import time
 import argparse
+from scripts import install_utils
 
 TEST_DIR = os.path.join("test")
 MODEL_STORE_DIR = os.path.join("model_store")
@@ -24,27 +23,6 @@ POSTMAN_DATA_FILE_INFERENCE = os.path.join("postman", "inference_data.json")
 REPORT_FILE = os.path.join("report.html")
 
 
-torchserve_command = {
-    "Windows": "torchserve.exe",
-    "Darwin": "torchserve",
-    "Linux": "torchserve"
-}
-
-def start_ts(model_store_dir, log_file):
-    os.system(f"{torchserve_command[platform.system()]} --ncs --start --model-store {model_store_dir} > {log_file} 2>&1 &")
-    time.sleep(10)
-
-
-def start_ts_secure(model_store_dir, log_file, ts_https_config_file):
-    os.system(f"{torchserve_command[platform.system()]} --ncs --start --ts-config {ts_https_config_file} --model-store {model_store_dir} > {log_file} 2>&1 &")
-    time.sleep(10)
-
-
-def stop_ts(log_file):
-    os.system(f"{torchserve_command[platform.system()]} --stop")
-    time.sleep(10)
-
-
 def cleanup_model_store():
     # rm -rf $MODEL_STORE_DIR / *
     for f in glob.glob(os.path.join(MODEL_STORE_DIR, "*")):
@@ -59,9 +37,9 @@ def move_logs(log_file, artifact_dir):
 
 def trigger_management_tests():
     """ Return exit code of newman execution of management collection """
-    start_ts(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE)
+    install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE} --verbose")
-    stop_ts(TS_CONSOLE_LOG_FILE)
+    install_utils.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR)
     cleanup_model_store()
     return EXIT_CODE
@@ -69,9 +47,9 @@ def trigger_management_tests():
 
 def trigger_inference_tests():
     """ Return exit code of newman execution of inference collection """
-    start_ts(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE)
+    install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_DATA_FILE_INFERENCE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
-    stop_ts(TS_CONSOLE_LOG_FILE)
+    install_utils.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     cleanup_model_store()
     return EXIT_CODE
@@ -79,9 +57,9 @@ def trigger_inference_tests():
 
 def trigger_https_tests():
     """ Return exit code of newman execution of https collection """
-    start_ts_secure(MODEL_STORE_DIR, TS_CONSOLE_LOG_FILE, TS_CONFIG_FILE_HTTPS)
+    install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, config_file=TS_CONFIG_FILE_HTTPS, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS} -r cli,html --reporter-html-export {ARTIFACTS_HTTPS_DIR}/{REPORT_FILE} --verbose")
-    stop_ts(TS_CONSOLE_LOG_FILE)
+    install_utils.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR)
     cleanup_model_store()
     return EXIT_CODE
