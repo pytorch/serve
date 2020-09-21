@@ -16,5 +16,6 @@ def install_from_src(is_gpu, cuda_version):
     utils.build_install_archiver()
     utils.clean_up_build_residuals()
 
+
 if __name__ == '__main__':
     install_from_src()
