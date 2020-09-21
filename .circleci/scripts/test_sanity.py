@@ -72,7 +72,7 @@ install_utils.stop_torchserve()
 # This should restart with the generated snapshot and resnet-18 model should be automatically registered
 install_utils.start_torchserve()
 
-install_utils.run_inference("resnet-18", models_to_validate["resnet-18"][0])
+install_utils.run_inference("resnet-18", models_to_validate["resnet-18"]["inputs"][0])
 
 install_utils.stop_torchserve()
 

@@ -9,6 +9,7 @@ MODEL_STORE_DIR = os.path.join("model_store")
 
 ARTIFACTS_MANAGEMENT_DIR = os.path.join("artifacts", "management")
 ARTIFACTS_INFERENCE_DIR = os.path.join("artifacts", "inference")
+ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR = os.path.join("artifacts", "increased_timeout_inference")
 ARTIFACTS_HTTPS_DIR = os.path.join("artifacts", "https")
 
 TS_CONSOLE_LOG_FILE = os.path.join("ts_console.log")
@@ -58,12 +59,20 @@ def trigger_inference_tests():
 
 
 def trigger_incr_timeout_inference_tests():
-    """ Return exit code of newman execution of inference collection """
+    """ Return exit code of newman execution of increased timeout inference collection """
+
+    # Configuration with increased timeout
+    config_file = open("config.properties", "w")
+    config_file.write("default_response_timeout=300")
+    config_file.close()
+
     install_utils.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
     install_utils.stop_torchserve()
-    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR)
     cleanup_model_store()
+
+    os.remove("config.properties")
     return EXIT_CODE
 
 
@@ -86,7 +95,7 @@ def trigger_all():
 
 
 os.chdir(TEST_DIR)
-for DIR in [MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR, ARTIFACTS_HTTPS_DIR] :
+for DIR in [MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR, ARTIFACTS_HTTPS_DIR] :
     os.makedirs(DIR, exist_ok=True)
 
 
