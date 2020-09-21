@@ -10,7 +10,7 @@
 /// serialized `Module`, exported either via `ScriptModule.save()` in
 /// Python or `torch::jit::ExportModule` in C++.
 torch::jit::script::Module load_model(const std::string &fpath, const std::string& map_location, const std::string& device){
-   model = torch::jit::load(fpath, map_location);
+   torch::jit::script::Module model = torch::jit::load(fpath, map_location);
    model.to(device);
    model.eval();
    return model;
