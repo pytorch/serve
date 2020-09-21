@@ -1,6 +1,6 @@
 ## TorchServe on Azure Kubernetes Service (AKS)
 
-### 一、Create an AKS cluster
+### 1、Create an AKS cluster
 
 This quickstart requires that you are running the Azure CLI version 2.0.64 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
@@ -12,7 +12,7 @@ This quickstart requires that you are running the Azure CLI version 2.0.64 or la
 
 #### 1.2 Create a resource group
 
-An Azure resource group is a logical group in which Azure resources are deployed and managed. When you create a resource group, you are asked to specify a location. This location is where resource group metadata is stored, it is also where your resources run in Azure if you don't specify another region during resource creation. Create a resource group using the [az group create](https://docs.microsoft.com/zh-cn/cli/azure/group#az-group-create) command.
+An Azure resource group is a logical group in which Azure resources are deployed and managed. When you create a resource group, you are asked to specify a location. This location is where resource group metadata is stored, it is also where your resources run in Azure if you don't specify another region during resource creation. Create a resource group using the [az group create](https://docs.microsoft.com/en-us/cli/azure/group#az-group-create) command.
 
 The following example creates a resource group named *myResourceGroup* in the *eastus* location.
 
@@ -20,17 +20,17 @@ The following example creates a resource group named *myResourceGroup* in the *e
 
 #### 1.3 Create AKS cluster
 
-Use the [az aks create](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-create) command to create an AKS cluster. The following example creates a cluster named *myAKSCluster* with one node. This will take several minutes to complete.
+Use the [az aks create](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create) command to create an AKS cluster. The following example creates a cluster named *myAKSCluster* with one node. This will take several minutes to complete.
 
 ```az aks create  --resource-group myResourceGroup  --name myAKSCluster --node-vm-size Standard_NC6   --node-count 1```
 
 #### 1.4 Connect to the cluster
 
-To manage a Kubernetes cluster, you use [kubectl](https://kubernetes.io/docs/user-guide/kubectl/), the Kubernetes command-line client. If you use Azure Cloud Shell, `kubectl` is already installed. To install `kubectl` locally, use the [az aks install-cli](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-install-cli) command:
+To manage a Kubernetes cluster, you use [kubectl](https://kubernetes.io/docs/user-guide/kubectl/), the Kubernetes command-line client. If you use Azure Cloud Shell, `kubectl` is already installed. To install `kubectl` locally, use the [az aks install-cli](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-install-cli) command:
 
 ```az aks install-cli```
 
-To configure `kubectl` to connect to your Kubernetes cluster, use the [az aks get-credentials](https://docs.microsoft.com/zh-cn/cli/azure/aks?view=azure-cli-latest#az-aks-get-credentials) command. This command downloads credentials and configures the Kubernetes CLI to use them.
+To configure `kubectl` to connect to your Kubernetes cluster, use the [az aks get-credentials](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-get-credentials) command. This command downloads credentials and configures the Kubernetes CLI to use them.
 
 ```az aks get-credentials --resource-group myResourceGroup --name myAKSCluster```
 
@@ -52,7 +52,7 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-### 二、Deploy TorchServe on AKS
+### 2、Deploy TorchServe on AKS
 
 #### 2.1 Download the github repository and enter the kubernetes directory
 
