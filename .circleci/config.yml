@@ -46,7 +46,7 @@ commands:
     steps:
       - run:
           name: Start torchserve, Execute << parameters.collection >> API Tests, Stop torchserve
-          command: .circleci/scripts/linux_test_api.sh << parameters.collection >>
+          command: python .circleci/scripts/test_api.py << parameters.collection >>
           when: always
 
 
