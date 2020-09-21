@@ -87,7 +87,7 @@ parser = argparse.ArgumentParser(description="Execute newman API test suite")
 parser.add_argument("collection", type=str, help="Collection Name")
 args = parser.parse_args()
 
-collection = args.workflow
+collection = args.collection
 
 switcher = {
     "management" : trigger_management_tests,
