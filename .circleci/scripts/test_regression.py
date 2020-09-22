@@ -1,6 +1,6 @@
 import os
 import sys
-import urllib
+import urllib.request
 
 BASE_DIR = os.getcwd()
 MODEL_STORE_DIR=os.path.join("/", "workspace", "model_store")
@@ -11,10 +11,15 @@ def generate_densenet_test_model_archive(model_store_dir):
 
     # Download & create DenseNet Model Archive
     MODEL_FILE_NAME = "densenet161-8d451a50.pth"
-    urllib.urlretrieve (f"https://download.pytorch.org/models/{MODEL_FILE_NAME}", {MODEL_FILE_NAME})
+    urllib.request.urlretrieve(f"https://download.pytorch.org/models/{MODEL_FILE_NAME}", {MODEL_FILE_NAME})
 
     # create mar command
-    cmd = f"torch-model-archiver --model-name densenet161_v1 --version 1.1 --model-file {BASE_DIR}/examples/image_classifier/densenet_161/model.py --serialized-file $1/{MODEL_FILE_NAME} --extra-files {BASE_DIR}/examples/image_classifier/index_to_name.json --handler image_classifier"
+    cmd = f"torch-model-archiver --model-name densenet161_v1 \
+            --version 1.1 \
+            --model-file {BASE_DIR}/examples/image_classifier/densenet_161/model.py \
+            --serialized-file $1/{MODEL_FILE_NAME} \
+            --extra-files {BASE_DIR}/examples/image_classifier/index_to_name.json \
+            --handler image_classifier"
     os.system(cmd)
 
     os.remove(MODEL_FILE_NAME)
