@@ -50,7 +50,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 
   m.def("run_model", &run_model,  R"pbdoc(
         Do the inference on loaded Torch Script model
-        Accepts list/vector of Torch Tensors.
+        Accepts a model and list/vector of Torch Tensors.
     )pbdoc");
 
 }
