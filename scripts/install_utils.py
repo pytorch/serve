@@ -66,7 +66,7 @@ def start_torchserve(ncs=False, model_store="model_store", models="", config_fil
     if config_file:
         cmd += f" --ts-config={config_file}"
     if log_file:
-        cmd += f" > {log_file}"
+        cmd += f" >> {log_file}"
     cmd += " &"
     status = os.system(cmd)
     if status == 0:

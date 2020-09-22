@@ -44,12 +44,15 @@ models_to_validate = {
         "handler": "custom"
     }
 }
+ts_log_file = os.path.join("logs", "ts_console.log")
+
 
 os.mkdir('model_store')
+os.mkdir('logs')
 
 install_utils.install_bert_dependencies()
 
-install_utils.start_torchserve()
+install_utils.start_torchserve(log_file=ts_log_file)
 
 for model, model_config in models_to_validate.items():
     install_utils.register_model(model)
@@ -70,7 +73,7 @@ install_utils.stop_torchserve()
 
 # Restarting torchserve
 # This should restart with the generated snapshot and resnet-18 model should be automatically registered
-install_utils.start_torchserve()
+install_utils.start_torchserve(log_file=ts_log_file)
 
 install_utils.run_inference("resnet-18", models_to_validate["resnet-18"]["inputs"][0])
 
