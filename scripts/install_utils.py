@@ -1,17 +1,14 @@
 import os
 import platform
 import time
-
 import requests
 
-build_frontend_command = {"Windows": ".\\frontend\\gradlew.bat -p frontend clean build",
-                          "Darwin": "frontend/gradlew -p frontend clean build",
-                          "Linux": "frontend/gradlew -p frontend clean build"}
 
-
-torchserve_command = {"Windows": "torchserve.exe",
-                      "Darwin": "torchserve",
-                      "Linux": "torchserve"}
+torchserve_command = {
+    "Windows": "torchserve.exe",
+    "Darwin": "torchserve",
+    "Linux": "torchserve"
+}
 
 def clean_slate():
     print("Cleaning up state")
@@ -59,20 +56,30 @@ def clean_up_build_residuals():
         print('Error while cleaning cache file. Details - '+str(e))
 
 
-def start_torchserve():
+def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file=""):
     print("Starting TorchServe")
-    status = os.system(torchserve_command[platform.system()]+' --start --model-store model_store &')
+    cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
+    if models:
+        cmd += f" --models={models}"
+    if ncs:
+        cmd += " --ncs"
+    if config_file:
+        cmd += f" --ts-config={config_file}"
+    if log_file:
+        cmd += f" > {log_file}"
+    cmd += " &"
+    status = os.system(cmd)
     if status == 0:
         print("Successfully started TorchServe")
     else:
         print("TorchServe failed to start!")
         exit(1)
-
     time.sleep(10)
 
 
 def stop_torchserve():
-    os.system(torchserve_command[platform.system()]+' --stop')
+    cmd = f"{torchserve_command[platform.system()]} --stop"
+    os.system(cmd)
     time.sleep(10)
 
 
