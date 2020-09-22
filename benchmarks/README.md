@@ -37,15 +37,10 @@ The benchmarking script requires the following to run:
 
 ### Windows
 
-For Windows, you should have python3 and java installed. If you wish to run the default benchmarks featuring a docker-based instance of TorchServe, you will need to install docker as well. Finally, you will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
+For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
 ```bash
 python3 windows_install_dependencies.py "C:\\Program Files"
 ```
-
-The benchmarking script requires the following to run:
-- python3
-- JDK or OpenJDK
-- nvidia-docker
 
 ## Models
 
