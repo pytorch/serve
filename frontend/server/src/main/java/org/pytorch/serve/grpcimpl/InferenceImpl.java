@@ -2,6 +2,7 @@ package org.pytorch.serve.grpcimpl;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.Map;
 import java.util.UUID;
@@ -11,10 +12,11 @@ import org.pytorch.serve.grpc.inference.InferenceAPIsServiceGrpc.InferenceAPIsSe
 import org.pytorch.serve.grpc.inference.PredictionResponse;
 import org.pytorch.serve.grpc.inference.PredictionsRequest;
 import org.pytorch.serve.grpc.inference.TorchServeHealthResponse;
+import org.pytorch.serve.http.BadRequestException;
+import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.job.GRPCJob;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.metrics.api.MetricAggregator;
-import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -34,7 +36,13 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         String modelVersion = request.getModelVersion();
 
         if (modelName == null || ("").equals(modelName)) {
-            GRPCUtils.sendError(500, "Parameter model_name is required.", responseObserver);
+            BadRequestException e = new BadRequestException("Parameter model_name is required.");
+            responseObserver.onError(
+                    Status.INTERNAL
+                            .withDescription(e.getMessage())
+                            .augmentDescription("BadRequestException.()")
+                            .withCause(e)
+                            .asRuntimeException());
             return;
         }
 
@@ -74,10 +82,19 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                                     + modelName
                                     + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
                 }
-                GRPCUtils.sendError(500, responseMessage, responseObserver);
+                InternalServerException e = new InternalServerException(responseMessage);
+                responseObserver.onError(
+                        Status.INTERNAL
+                                .withDescription(e.getMessage())
+                                .augmentDescription("InternalServerException.()")
+                                .asRuntimeException());
             }
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-            GRPCUtils.sendError(400, e.getMessage(), responseObserver);
+            responseObserver.onError(
+                    Status.INTERNAL
+                            .withDescription(e.getMessage())
+                            .augmentDescription(e.getClass().getCanonicalName())
+                            .asRuntimeException());
         }
     }
 }

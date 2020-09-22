@@ -20,8 +20,6 @@ message PredictionsRequest {
 message PredictionResponse {
     // TorchServe health
     bytes prediction = 1;
-    int32 status_code = 2;
-    string info = 3;
 }
 
 message TorchServeHealthResponse {

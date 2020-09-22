@@ -5,21 +5,21 @@ import io.grpc.stub.StreamObserver;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.Map;
 import org.pytorch.serve.grpc.inference.PredictionResponse;
-import org.pytorch.serve.util.GRPCUtils;
+import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 
 public class GRPCJob extends Job {
-    private StreamObserver<PredictionResponse> responseObserver;
+    private StreamObserver<PredictionResponse> predictionResponseObserver;
 
     public GRPCJob(
-            StreamObserver<PredictionResponse> responseObserver,
+            StreamObserver<PredictionResponse> predictionResponseObserver,
             String modelName,
             String version,
             WorkerCommands cmd,
             RequestInput input) {
         super(modelName, version, cmd, input);
-        this.responseObserver = responseObserver;
+        this.predictionResponseObserver = predictionResponseObserver;
     }
 
     @Override
@@ -32,12 +32,12 @@ public class GRPCJob extends Job {
 
         ByteString output = ByteString.copyFrom(body);
         PredictionResponse reply = PredictionResponse.newBuilder().setPrediction(output).build();
-        responseObserver.onNext(reply);
-        responseObserver.onCompleted();
+        predictionResponseObserver.onNext(reply);
+        predictionResponseObserver.onCompleted();
     }
 
     @Override
     public void sendError(HttpResponseStatus status, String error) {
-        GRPCUtils.sendError(status.code(), error, responseObserver);
+        predictionResponseObserver.onError(new InternalServerException(error));
     }
 }
