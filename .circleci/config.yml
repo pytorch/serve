@@ -15,11 +15,17 @@ executors:
   ubuntu18-venv36-cpu-docker:
     docker:
       - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
-  windows-srvr-2019-cpu: &windows-srvr-2019-cpu
+  # Refer Windows Orb source code - https://circleci.com/orbs/registry/orb/circleci/windows
+  windows-srvr-2019-cpu:
     machine:
       image: windows-server-2019-vs2019:stable
       shell: powershell.exe -ExecutionPolicy Bypass
       resource_class: windows.medium
+  windows-srvr-2019-gpu:
+    machine:
+      image: windows-server-2019-nvidia:stable
+      shell: powershell.exe -ExecutionPolicy Bypass
+      resource_class: windows.gpu.nvidia.medium
 
 
 commands:
@@ -55,19 +61,6 @@ commands:
           name: Start torchserve, Execute << parameters.collection >> API Tests, Stop torchserve
           command: python .circleci/scripts/test_api.py << parameters.collection >>
           when: always
-
-
-# Anchor for DRY config
-# Anchor instead of "commands", due to limitation of type in parameter passing of commands
-# ToDo: Currently specific to windows, Make it generic for all non docker executors
-#if-not-docker-install-dependencies: &if-not-docker-install-dependencies
-#  when:
-#    condition:
-#        equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
-#    steps:
-#      - run:
-#          name: Install TorchServe build and test dependencies
-#          command: python .circleci/scripts/install_dependencies.py
 
 
 jobs:
@@ -261,6 +254,7 @@ workflows:
                 - ubuntu18-pyenv37-cpu-docker
                 - ubuntu18-venv36-cpu-docker
 #                - windows-srvr-2019-cpu
+#                - windows-srvr-2019-gpu
       - &modelarchiver-tests
         modelarchiver-tests:
           name: modelarchiver-tests-<< matrix.executor >>
