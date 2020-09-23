@@ -14,12 +14,12 @@ either kill the process which is using port 8080/8081 or run Torchserve on diffe
 
 Refer  [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
 
-Relavant issues:  [[542](https://github.com/pytorch/serve/issues/542)]
+Relevant issues:  [[542](https://github.com/pytorch/serve/issues/542)]
 
 #### "java.lang.NoSuchMethodError" when starting Torchserve.[[473](https://github.com/pytorch/serve/issues/473)]
 This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and java versions before it is not supported.
 
-Relavant issues: [[#473](https://github.com/pytorch/serve/issues/473)]
+Relevant issues: [[#473](https://github.com/pytorch/serve/issues/473)]
 
 ####  Unable to send big files for inference request?
 The default max request size and response size is roughly 6.5 Mb. Hence any file size greater than 6.5mb cannot be uploaded.
@@ -32,12 +32,12 @@ $ torchserve --start --model-store model_store --ts-config /path/to/config.prope
 ```
 You can also use environment variables to set these values.
 Refer  [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
-Relavant issues: [[#335](https://github.com/pytorch/serve/issues/335)]
+Relevant issues: [[#335](https://github.com/pytorch/serve/issues/335)]
 
 ###  Snapshot related issues
 #### How to disable Snapshot feature?
 By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using --ncs flag or  specify config file using --ts-config path/to/config 
-Relavant issues:[[#383](https://github.com/pytorch/serve/issues/383), [#512](https://github.com/pytorch/serve/issues/512)]
+Relevant issues:[[#383](https://github.com/pytorch/serve/issues/383), [#512](https://github.com/pytorch/serve/issues/512)]
 
 #### Torchserve stopped after restart with "InvalidSnapshotException" exception.
 Torchserve when restarted uses the last snapshot config file to restore its state of models and their number of workers.
@@ -57,7 +57,7 @@ Refer  [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.
 #### How to change Temp Directory?
 You can export TEMP environment variable to the desired path. This path will be used by TorchServe to extract the model-archives content.
 
-Relavant issues: [[#654](https://github.com/pytorch/serve/issues/654)]
+Relevant issues: [[#654](https://github.com/pytorch/serve/issues/654)]
 
 ###  API related issues
 
@@ -65,7 +65,7 @@ Relavant issues: [[#654](https://github.com/pytorch/serve/issues/654)]
 This gives a clear message that the model we are trying to register conflicts with an already existing model.
 To resolve this change the model version when creating a mar file or register a model with a different name.
 
-Relavant issues: [[#500](https://github.com/pytorch/serve/issues/500)]
+Relevant issues: [[#500](https://github.com/pytorch/serve/issues/500)]
 
 #### Register model: Failed with exception "DownloadModelException" & error code 400.
 Torchserve was unable to download the mar file in this case.
@@ -86,7 +86,7 @@ You can verify the number of workers using
 #### How can add model  specific custom dependency?
 You can add your dependency files using `--extra-files` flag while creating a mar file. These dependency files can be of any type like zip, egg, json etc. You may have to write a custom handler to use these files as required.
 
-Relavant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
+Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 
 #### How can I resolve model  specific python dependency?
 You can provide a requirements.txt while creating a mar file using "--requirements-file/ -r" flag.
@@ -96,7 +96,7 @@ You can refer to the [waveglow text-to-speech-synthesizer](https://github.com/py
 -   [waveglow mar creation script](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh)
 -   [waveglow handler](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py#L57)
 
-Relavant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
+Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 
 Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
 
@@ -110,4 +110,4 @@ Refer [Allow model specific custom python packages](https://github.com/pytorch/s
 This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function.
 This error is also observed when there is missing package/module.
 
-Relavant issues: [[#667](https://github.com/pytorch/serve/issues/667), [#537](https://github.com/pytorch/serve/issues/537)]
+Relevant issues: [[#667](https://github.com/pytorch/serve/issues/667), [#537](https://github.com/pytorch/serve/issues/537)]

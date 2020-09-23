@@ -17,7 +17,9 @@ Torchserve API's are compliant with the [OpenAPI specification 3.0](https://swag
 Torchserve is not a complete web application to serve end to end business use cases. Hence a lot of security aspects should be made available via 3rd party wrapper components in front of Torchserve.
 
 ### What's difference between Torchserve and a python web app using web frameworks like Flask, Django?
-The Flask app and Torchserve are completely different except the fact that both support handling HTTP requests however using different engines [netty or python apis].
+Torchserve's main purpose is to serve models via http REST APIs , Torchserve is not a Flask app and it uses netty engine for serving http requests.
+
+Relevant issues:  [[581](https://github.com/pytorch/serve/issues/581),[569](https://github.com/pytorch/serve/issues/569)]
 
 ###  Are there any sample Models available?
 Various models are provided in Torchserve out of the box. Checkout out Torchserve [Model Zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md) for list of all available models in model zoo. Also check out examples folder all available [examples](https://github.com/pytorch/serve/tree/master/examples).
@@ -30,7 +32,8 @@ The native Windows support will be added in upcoming releases.
 Torchserve currently supports only inference through HTTP 1.0 - Request / Response style.
 
 ### Is it possible to deploy model other than Pytorch framework?
-Yes, it is possible to deploy(with Python inference logic) however Torchserve has been certified with any other framework hence there can be unknowns.
+Yes it is possible to deploy model with custom python handler or you can use [AWS Multi Model Server](https://github.com/awslabs/multi-model-server) a similar model serving framework.
+NOTE : Torchserve has not been certified with any other framework apart from Pytorch.
 
 ###  Does Torchserve support other models based on programming languages other than python?
 No, As of now only python based models are supported.
@@ -144,10 +147,10 @@ model_dir = properties.get("model_dir")
 ```
 Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
 
-Relavant issues: [[#633](https://github.com/pytorch/serve/issues/633)]
+Relevant issues: [[#633](https://github.com/pytorch/serve/issues/633)]
 
 ### Can I download and register model using s3 presigned v4 url?
 You can use both s3 v2 and v4 signature URLs.
 Note: For v4 type replace `&` characters in model url with its URL encoding character in the curl command i.e.`%26`.
 
-Relavant issues: [[#669](https://github.com/pytorch/serve/issues/669)]
+Relevant issues: [[#669](https://github.com/pytorch/serve/issues/669)]
