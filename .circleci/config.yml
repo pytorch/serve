@@ -60,14 +60,14 @@ commands:
 # Anchor for DRY config
 # Anchor instead of "commands", due to limitation of type in parameter passing of commands
 # ToDo: Currently specific to windows, Make it generic for all non docker executors
-if-not-docker-install-dependencies: &if-not-docker-install-dependencies
-  when:
-    condition:
-        equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
-    steps:
-      - run:
-          name: Install TorchServe build and test dependencies
-          command: python .circleci/scripts/install_dependencies.py
+#if-not-docker-install-dependencies: &if-not-docker-install-dependencies
+#  when:
+#    condition:
+#        equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
+#    steps:
+#      - run:
+#          name: Install TorchServe build and test dependencies
+#          command: python .circleci/scripts/install_dependencies.py
 
 
 jobs:
@@ -105,7 +105,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - run:
           name: Execute frontend gradle tests
           command: python .circleci/scripts/test_frontend.py
@@ -120,7 +120,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - run:
           name: Execute python lint and unit tests
           command: python .circleci/scripts/test_python.py
@@ -136,7 +136,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Execute sanity tests
@@ -152,7 +152,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - exeucute-api-tests:
           collection: management
@@ -173,7 +173,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Execute regression suite
@@ -189,7 +189,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Start torchserve, Execute benchmark tests, Stop torchserve
@@ -212,7 +212,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Start TS, Execute performance regression testcases, Stop TS
@@ -234,7 +234,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Execute python lint, unit and integration tests
