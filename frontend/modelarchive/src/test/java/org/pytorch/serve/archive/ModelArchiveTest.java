@@ -57,11 +57,11 @@ public class ModelArchiveTest {
         final List<String> customUrlPatternList =
                 Arrays.asList(
                         "http(s)?://s3.amazonaws.com.*",
-                        "https://torchserve.s3.amazonaws.com/mar_files/.*");
+                        "https://torchserve.pytorch.org/mar_files/.*");
         ModelArchive.downloadModel(
                 customUrlPatternList,
                 modelStore,
-                "https://torchserve.s3.amazonaws.com/mar_files/mnist_non_exist.mar");
+                "https://torchserve.pytorch.org/mar_files/mnist_non_exist.mar");
     }
 
     @Test(
@@ -76,7 +76,7 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(
                 customUrlPatternList,
                 modelStore,
-                "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
+                "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST,
                 modelStore,
-                "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
+                "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
     @Test(expectedExceptions = DownloadModelException.class)

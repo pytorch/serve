@@ -704,7 +704,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
     public void testLoadModelFromURL() throws InterruptedException {
         testLoadModel(
-                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+                "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar",
                 "squeezenet",
                 "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
