@@ -5,16 +5,16 @@ executors:
   # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY under 'Project Settings > Environment Variables' in CircleCI
   ubuntu18-pythn36-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
   ubuntu18-conda38-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
   ubuntu18-pyenv37-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
   ubuntu18-venv36-cpu-docker:
     docker:
-      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
+      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
   windows-srvr-2019-cpu: &windows-srvr-2019-cpu
     machine:
       image: windows-server-2019-vs2019:stable
@@ -23,6 +23,13 @@ executors:
 
 
 commands:
+  install-dependencies:
+    description: "Install build and test dependencies for torchserve"
+    steps:
+      - run:
+          name: Install build and test dependencies for torchserve
+          command: "python .circleci/scripts/install_dependencies.py --python-packages --node-packages"
+
   attach-torchserve-workspace:
     description: "Attach the torchserve directory which was saved into workspace"
     steps:
@@ -253,7 +260,7 @@ workflows:
                 - ubuntu18-conda38-cpu-docker
                 - ubuntu18-pyenv37-cpu-docker
                 - ubuntu18-venv36-cpu-docker
-                - windows-srvr-2019-cpu
+#                - windows-srvr-2019-cpu
       - &modelarchiver-tests
         modelarchiver-tests:
           name: modelarchiver-tests-<< matrix.executor >>
