@@ -1,5 +1,7 @@
 import os
 import sys
+import glob
+from binaries.conda.build_packages import conda_build_ts
 
 BASE_DIR = os.getcwd()
 CREATE_WHEEL_CMD = "python setup.py bdist_wheel --release --universal"
@@ -14,6 +16,12 @@ MA_BUILD_EXIT_CODE = os.system(CREATE_WHEEL_CMD)
 os.chdir(BASE_DIR)
 
 # Build TS & MA on Conda if available
+IS_CONDA_ENV = True if os.system("conda") == 0 else False
+if IS_CONDA_ENV:
+    ts_wheel_path = glob.glob(os.path.join(BASE_DIR, "dist", "*.whl"))[0]
+    ma_wheel_path = glob.glob(os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl"))[0]
+    conda_build_ts(ts_wheel_path, ma_wheel_path)
+
 #
 # if IS_CONDA_ENV :
 #     TS_WHL_PATH=os.path.join(BASE_DIR, "dist", "*.whl")
