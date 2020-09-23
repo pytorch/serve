@@ -206,11 +206,11 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
 * `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
-* `number_of_netty_threads`: number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
-* `netty_client_threads`: number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
-* `default_workers_per_model`: number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
-* `job_queue_size`: number inference jobs that frontend will queue before backend can serve. Default: 100.
-* `async_logging`: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
+* `number_of_netty_threads`: Number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
+* `netty_client_threads`: Number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
+* `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
+* `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
+* `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
 * `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
@@ -220,8 +220,14 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
+eg : To allow base URLs "https://s3.amazonaws.com/" and "https://torchserve.s3.amazonaws.com/" use following regex string
+```
+allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.s3.amazonaws.com/.*
+```
 
 ---
+
 **NOTE**
 
 All the above config properties can be set using environment variable as follows.
