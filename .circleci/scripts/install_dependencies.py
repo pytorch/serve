@@ -76,8 +76,8 @@ class Darwin(Common):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--java", action="store_true", help="Install Java 11", )
+    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
+    parser.add_argument("--java", action="store_true", help="Install Java 11")
     parser.add_argument("--python", action="store_true", help="Install Python")
     parser.add_argument("--nodejs", action="store_true", help="Install NodeJS")
     parser.add_argument("--python-packages", action="store_true", help="Install Python test packages")
