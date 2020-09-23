@@ -88,7 +88,7 @@ NOTES
 
 ### Serve readymade models on torchserve model zoo
 This use case demostrates deployment of [torch hub](https://pytorch.org/hub/) based `vision` models (classifier, object detector, segmenter) available on [torchserve model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). 
-Use these steps you can also deploy **publically hosted** models as well.
+Use these steps to deploy **publically hosted** models as well.
 
 **Steps to deploy your model(s)**
 - Start torchserve with following command - `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`
