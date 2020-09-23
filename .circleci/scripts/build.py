@@ -1,7 +1,7 @@
 import os
 import sys
 import glob
-from binaries.conda.build_packages import conda_build_ts
+from .binaries.conda.build_packages import conda_build_ts
 
 BASE_DIR = os.getcwd()
 CREATE_WHEEL_CMD = "python setup.py bdist_wheel --release --universal"
