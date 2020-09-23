@@ -1,4 +1,6 @@
 import os
+import sys
+import nvgpu
 
 from scripts import install_utils
 
@@ -45,12 +47,30 @@ models_to_validate = {
     }
 }
 ts_log_file = os.path.join("logs", "ts_console.log")
+is_gpu_instance = install_utils.is_gpu_instance()
+
+
+def validate_model_on_gpu():
+    # A quick \ crude way of checking if model is loaded in GPU
+    # Assumption is -
+    # 1. GPU on test setup is only utlizied by torchserve
+    # 2. Models are successfully UNregistered between subsequent calls
+    model_loaded = False
+    for info in nvgpu.gpu_info():
+        if info['mem_used'] > 0 and info['mem_used_percent'] > 0.0:
+            model_loaded = True
+            break
+    return model_loaded
 
 
 os.mkdir('model_store')
 os.mkdir('logs')
 
-install_utils.install_bert_dependencies()
+if is_gpu_instance:
+    import torch
+    if not torch.cuda.is_available():
+      print("Ohh its NOT running on GPU!!")
+      sys.exit(1)
 
 install_utils.start_torchserve(log_file=ts_log_file)
 
@@ -61,7 +81,12 @@ for model, model_config in models_to_validate.items():
     for input in inputs:
         install_utils.run_inference(model, input)
 
-    # ToDo: gpu validate_model_on_gpu.py
+    if is_gpu_instance:
+        if validate_model_on_gpu():
+            print(f"Model {model} successfully loaded on GPU")
+        else:
+            print(f"Something went wrong, model {model} did not load on GPU!!")
+            sys.exit(1)
 
     #skip unregistering resnet-18 model to test snapshot feature with restart
     if model != "resnet-18":

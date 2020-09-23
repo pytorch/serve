@@ -10,6 +10,11 @@ torchserve_command = {
     "Linux": "torchserve"
 }
 
+
+def is_gpu_instance():
+    return True if os.system("nvidia-smi") == 0 else False
+
+
 def clean_slate():
     print("Cleaning up state")
     os.system('pip uninstall --yes torchserve || true')
@@ -140,8 +145,6 @@ def install_pytest_suite_deps():
     os.system('pip install -U -r requirements/developer.txt')
 
 
-def install_bert_dependencies():
-    os.system('pip install transformers')
 
 
 def run_markdown_link_checker():
