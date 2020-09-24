@@ -30,6 +30,7 @@ def build():
     print(f"Model archiver wheel location: {ma_wheel_path}")
 
     # Build TS & MA on Conda if available
+    conda_build_exit_code = 0
     if tsutils.is_conda_env():
         conda_build_exit_code = conda_build(ts_wheel_path, ma_wheel_path)
 
