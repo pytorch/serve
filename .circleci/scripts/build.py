@@ -1,6 +1,8 @@
 import os
 import sys
 import glob
+
+sys.path.append(os.getcwd()) # Need from conda_build_ts
 from binaries.conda.build_packages import conda_build_ts
 
 BASE_DIR = os.getcwd()

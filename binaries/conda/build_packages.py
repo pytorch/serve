@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 
+
 def conda_build_ts(ts_wheel_path, ma_wheel_path):
     python_versions = ["3.6", "3.7", "3.8"]
     packages = ["torchserve", "torch-model-archiver"]
