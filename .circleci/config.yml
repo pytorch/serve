@@ -256,24 +256,24 @@ workflows:
                 - ubuntu18-venv36-cpu-docker
 #                - windows-srvr-2019-cpu
 #                - windows-srvr-2019-gpu
-#      - &modelarchiver-tests
-#        modelarchiver-tests:
-#          name: modelarchiver-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-#      - &frontend-tests
-#        frontend-tests:
-#          name: frontend-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-#      - &python-tests
-#        python-tests:
-#          name: python-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - &modelarchiver-tests
+        modelarchiver-tests:
+          name: modelarchiver-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &frontend-tests
+        frontend-tests:
+          name: frontend-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &python-tests
+        python-tests:
+          name: python-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
       - &sanity-tests
         sanity-tests:
           name: sanity-tests-<< matrix.executor >>
@@ -281,11 +281,11 @@ workflows:
             - build-<< matrix.executor >>
           matrix: *matrix
 # Uncomment following block for Dev testing only
-#      - api-tests:
-#          name: api-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - api-tests:
+          name: api-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - regression-tests:
 #          name: regression-tests-<< matrix.executor >>
 #          requires:
