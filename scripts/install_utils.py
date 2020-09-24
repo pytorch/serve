@@ -73,7 +73,7 @@ def start_torchserve(ncs=False, model_store="model_store", models="", config_fil
         cmd += f" --ts-config={config_file}"
     if log_file:
         cmd += f" >> {log_file}"
-    cmd += " &"
+    # cmd += " &"
     status = os.system(cmd)
     if status == 0:
         print("Successfully started TorchServe")
@@ -111,8 +111,8 @@ def register_model(model_name):
 # Takes model URL and payload path as input
 def run_inference(model_name, file_name):
     url = f"http://localhost:8080/predictions/{model_name}"
+    print(f"Running inference on {model_name} model")
     for i in range(4):
-        print(f"Running inference on {model_name} model")
         # Run inference
         response = None
         try:
@@ -136,10 +136,10 @@ def unregister_model(model_name):
         response=response = requests.delete(f'http://localhost:8081/models/{model_name}', verify=False)
     finally:
         if response.status_code == 200:
-          print(f"Failed to register {model_name} model with torchserve")
+          print(f"Failed to unregister {model_name}")
           sys.exit(1)
         else:
-          print(f"Successfully registered {model_name} model with torchserve")
+          print(f"Successfully unregistered {model_name}")
 
 
 def install_pytest_suite_deps():
