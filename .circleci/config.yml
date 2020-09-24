@@ -274,23 +274,23 @@ workflows:
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-      - &sanity-tests
-        sanity-tests:
-          name: sanity-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
+#      - &sanity-tests
+#        sanity-tests:
+#          name: sanity-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
 # Uncomment following block for Dev testing only
 #      - api-tests:
 #          name: api-tests-<< matrix.executor >>
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-#      - regression-tests:
-#          name: regression-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
+      - regression-tests:
+          name: regression-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - benchmark:
 #          name: benchmark-<< matrix.executor >>
 #          requires:
