@@ -5,48 +5,58 @@ import glob
 
 from scripts import install_utils
 
-models_to_validate = {
-    "fastrcnn": {
+models_to_validate = [
+    {
+        "name": "fastrcnn",
         "inputs": ["examples/object_detector/persons.jpg"],
         "handler": "object_detector"
     },
-    "fcn_resnet_101":{
+    {
+        "name": "fcn_resnet_101",
         "inputs": ["docs/images/blank_image.jpg", "examples/image_segmenter/fcn/persons.jpg"],
         "handler": "image_segmenter"
     },
-    "my_text_classifier_v2": {
+    {
+        "name": "my_text_classifier_v2",
         "inputs": ["examples/text_classification/sample_text.txt"],
         "handler": "text_classification"
     },
-    "resnet-18": {
+    {
+        "name": "resnet-18",
         "inputs": ["examples/image_classifier/kitten.jpg"],
         "handler": "image_classifier"
     },
-    "my_text_classifier_scripted_v2": {
+    {
+        "name": "my_text_classifier_scripted_v2",
         "inputs": ["examples/text_classification/sample_text.txt"],
         "handler": "text_classification"
     },
-    "alexnet_scripted": {
+    {
+        "name": "alexnet_scripted",
         "inputs": ["examples/image_classifier/kitten.jpg"],
         "handler": "image_classifier"
     },
-    "fcn_resnet_101_scripted": {
+    {
+        "name": "fcn_resnet_101_scripted",
         "inputs": ["examples/image_segmenter/fcn/persons.jpg"],
         "handler": "image_segmenter"
     },
-    "roberta_qa_no_torchscript": {
+    {
+        "name": "roberta_qa_no_torchscript",
         "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"],
         "handler": "custom"
     },
-    "bert_token_classification_no_torchscript":{
+    {
+        "name": "bert_token_classification_no_torchscript",
         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
         "handler":"custom"
     },
-    "bert_seqc_without_torchscript":{
+    {
+        "name": "bert_seqc_without_torchscript",
         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
         "handler": "custom"
     }
-}
+]
 ts_log_file = os.path.join("logs", "ts_console.log")
 is_gpu_instance = install_utils.is_gpu_instance()
 
@@ -75,8 +85,8 @@ def validate_model_on_gpu():
     return model_loaded
 
 
-os.mkdir('model_store')
-os.mkdir('logs')
+os.makedirs('model_store', exist_ok=True)
+os.makedirs('logs', exist_ok=True)
 
 if is_gpu_instance:
     import torch
@@ -87,24 +97,27 @@ if is_gpu_instance:
 install_utils.start_torchserve(log_file=ts_log_file)
 
 for model, model_config in models_to_validate.items():
-    install_utils.register_model(model)
-    inputs = model_config['inputs']
+    model_name = model["name"]
+    model_inputs = model["inputs"]
+    model_handler = model["handler"]
 
-    for input in inputs:
-        install_utils.run_inference(model, input)
+    install_utils.register_model(model_name)
+
+    for input in model_inputs:
+        install_utils.run_inference(model_name, input)
 
     if is_gpu_instance:
         if validate_model_on_gpu():
-            print(f"Model {model} successfully loaded on GPU")
+            print(f"Model {model_name} successfully loaded on GPU")
         else:
-            print(f"Something went wrong, model {model} did not load on GPU!!")
+            print(f"Something went wrong, model {model_name} did not load on GPU!!")
             sys.exit(1)
 
     #skip unregistering resnet-18 model to test snapshot feature with restart
-    if model != "resnet-18":
-        install_utils.unregister_model(model)
+    if model_name != "resnet-18":
+        install_utils.unregister_model(model_name)
 
-    print(f"{model_config['handler']} default handler is stable.")
+    print(f"{model_handler} default handler is stable.")
 
 install_utils.stop_torchserve()
 
