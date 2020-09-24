@@ -261,7 +261,7 @@ workflows:
           name: modelarchiver-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
-#          matrix: *matrix
+          matrix: *matrix
 #      - &frontend-tests
 #        frontend-tests:
 #          name: frontend-tests-<< matrix.executor >>
