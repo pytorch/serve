@@ -5,6 +5,11 @@ import glob
 
 from scripts import install_utils
 
+resnet18_model = {
+    "name": "resnet-18",
+    "inputs": ["examples/image_classifier/kitten.jpg"],
+    "handler": "image_classifier"
+}
 models_to_validate = [
     {
         "name": "fastrcnn",
@@ -21,11 +26,7 @@ models_to_validate = [
         "inputs": ["examples/text_classification/sample_text.txt"],
         "handler": "text_classification"
     },
-    {
-        "name": "resnet-18",
-        "inputs": ["examples/image_classifier/kitten.jpg"],
-        "handler": "image_classifier"
-    },
+    resnet18_model,
     {
         "name": "my_text_classifier_scripted_v2",
         "inputs": ["examples/text_classification/sample_text.txt"],
@@ -114,7 +115,7 @@ for model in models_to_validate:
             sys.exit(1)
 
     #skip unregistering resnet-18 model to test snapshot feature with restart
-    if model_name != "resnet-18":
+    if model != resnet18_model:
         install_utils.unregister_model(model_name)
 
     print(f"{model_handler} default handler is stable.")
@@ -125,7 +126,7 @@ install_utils.stop_torchserve()
 # This should restart with the generated snapshot and resnet-18 model should be automatically registered
 install_utils.start_torchserve(log_file=ts_log_file)
 
-install_utils.run_inference("resnet-18", models_to_validate["resnet-18"]["inputs"][0])
+install_utils.run_inference("resnet-18", resnet18_model["inputs"][0])
 
 install_utils.stop_torchserve()
 
