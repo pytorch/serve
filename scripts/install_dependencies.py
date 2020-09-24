@@ -13,11 +13,6 @@ class Common():
         # CircleCI Windows Machine has java installed
         pass
 
-    def install_python(self):
-        # CircleCI Docker Image has python installed
-        # CircleCI Windows Machine has python installed
-        pass
-
     def install_nodejs(self):
         # CircleCI Docker Image has nodejs installed
         # CircleCI Windows Machine has nodejs installed
@@ -83,7 +78,6 @@ class Darwin(Common):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
     parser.add_argument("--java", action="store_true", help="Install Java 11")
-    parser.add_argument("--python", action="store_true", help="Install Python")
     parser.add_argument("--nodejs", action="store_true", help="Install NodeJS")
     parser.add_argument("--python-packages", action="store_true", help="Install Python test packages")
     parser.add_argument("--cu101", action="store_true", help="Install torch packages specific to cu101")
@@ -102,8 +96,6 @@ if __name__ == "__main__":
     # Sequence of installation to be maintained
     if args.java:
         system.install_java()
-    if args.python:
-        system.install_python()
     if args.nodejs:
         system.install_nodejs()
     if args.python_packages:
