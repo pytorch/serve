@@ -15,52 +15,8 @@ torchserve_command = {
 def is_gpu_instance():
     return True if os.system("nvidia-smi") == 0 else False
 
-
-def clean_slate():
-    print("Cleaning up state")
-    os.system('pip uninstall --yes torchserve || true')
-    os.system('pip uninstall --yes torch-model-archiver || true')
-    time.sleep(5)
-
-
-def install_torch_deps_linux(is_gpu_instance, cuda_version):
-    os.system('set +u')
-    install_torch_deps(is_gpu_instance, cuda_version)
-    os.system('set -u')
-
-
-def install_torch_deps(is_gpu_instance, cuda_version):
-    if is_gpu_instance and cuda_version == "cuda101":
-        os.system('pip install -U -r requirements_gpu.txt')
-    else:
-        requirements = "requirements.txt"
-        stable_build = ""
-        if platform.system() == "Windows":
-            requirements = "requirements_win.txt"
-            stable_build = "-f https://download.pytorch.org/whl/torch_stable.html"
-        os.system(f'pip install -U -r {requirements} {stable_build}')
-
-
-def build_install_server():
-    os.system('pip install .')
-
-
-def build_install_archiver():
-    execute_command('cd model-archiver;pip install .;cd ..', "Successfully installed torch-model-archiver",
-                    "torch-model-archiver installation failed")
-
-def clean_up_build_residuals():
-    try:
-        import shutil
-
-        for (dirpath, dirnames, filenames) in os.walk(os.getcwd()):
-            if '__pycache__' in dirnames:
-                cache_dir = os.path.join(dirpath, '__pycache__')
-                print(f'Cleaning - {cache_dir}')
-                shutil.rmtree(cache_dir)
-    except Exception as e:
-        print('Error while cleaning cache file. Details - '+str(e))
-
+def is_conda_env():
+    return True if os.system("conda") == 0 else False
 
 def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file=""):
     print("Starting TorchServe")
@@ -140,17 +96,3 @@ def unregister_model(model_name):
         else:
             print(f"Failed to unregister {model_name}")
             sys.exit(1)
-
-
-def install_pytest_suite_deps():
-    os.system('pip install -U -r requirements/developer.txt')
-
-
-def execute_command(commands, success_msg, error_msg):
-    if platform.system() == "Windows":
-        commands = commands.replace(';','&')
-    status = os.system(commands)
-    if status == 0:
-        print(success_msg)
-    else:
-        assert 0, error_msg
