@@ -24,23 +24,5 @@ if IS_CONDA_ENV:
     ma_wheel_path = glob.glob(os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl"))[0]
     conda_build_ts(ts_wheel_path, ma_wheel_path)
 
-#
-# if IS_CONDA_ENV :
-#     TS_WHL_PATH=os.path.join(BASE_DIR, "dist", "*.whl")
-#     MA_WHL_PATH=os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl")
-
-# (
-#   set -e
-#   if [ -x "$(command -v conda)" ]
-#   then
-#       BASE_PATH=$(pwd)
-#       TS_WHL_PATH=$BASE_PATH/$(ls dist/*.whl)
-#       MA_WHL_PATH=$BASE_PATH/$(ls model-archiver/dist/*.whl)
-#       cd binaries/conda
-#       TORCHSERVE_WHEEL=$TS_WHL_PATH TORCH_MODEL_ARCHIVER_WHEEL=$MA_WHL_PATH ./build_packages.sh
-#   fi
-# )
-# CONDA_BUILD_EXIT_CODE=$?
-
 if any( EXIT_CODE != 0 for EXIT_CODE in [TS_BUILD_EXIT_CODE, MA_BUILD_EXIT_CODE]):
     sys.exit("Build Failed")

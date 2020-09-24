@@ -2,19 +2,24 @@ import os
 import sys
 import argparse
 
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+base_dir = os.path.join(current_script_dir, "..", "..")
+
 
 def conda_build_ts(ts_wheel_path, ma_wheel_path):
-    python_versions = ["3.6", "3.7", "3.8"]
-    packages = ["torchserve", "torch-model-archiver"]
-
-    ts_version = open(os.path.join("..", "..", "ts", "version.txt"), "r").read()
-    ma_version = open(os.path.join("..", "..", "model-archiver", "model_archiver", "version.txt"), "r").read()
+    with open(os.path.join(base_dir, "ts", "version.txt")) as ts_vf:
+        ts_version = ''.join(ts_vf.read().split())
+    with open(os.path.join(base_dir, "model-archiver", "model_archiver", "version.txt")) as ma_vf:
+        ma_version = ''.join(ma_vf.read().split())
 
     os.environ["TORCHSERVE_VERSION"] = ts_version
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
 
     os.environ["TORCHSERVE_WHEEL"] = ts_wheel_path
     os.environ["TORCH_MODEL_ARCHIVER_WHEEL"] = ma_wheel_path
+
+    python_versions = ["3.6", "3.7", "3.8"]
+    packages = [os.path.join(current_script_dir, "torchserve"), os.path.join(current_script_dir, "torch-model-archiver")]
 
     for pkg in packages:
         for pyv in python_versions:
