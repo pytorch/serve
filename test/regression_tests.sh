@@ -129,7 +129,7 @@ run_postman_test() {(
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json -x --verbose postman/management_api_test_collection.json \
-	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
+	  -d postman/management_data.json cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
 
 
   # Run Inference API Tests after Restart
