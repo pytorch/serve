@@ -7,9 +7,9 @@ REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
 
 
 def conda_build(ts_wheel_path, ma_wheel_path):
-    print("Started torchserve and modelarchiver conda build")
-    print(f"Using torchserve wheel: {ts_wheel_path}")
-    print(f"Using model archiver wheel: {ma_wheel_path}")
+    print("## Started torchserve and modelarchiver conda build")
+    print(f"## Using torchserve wheel: {ts_wheel_path}")
+    print(f"## Using model archiver wheel: {ma_wheel_path}")
 
     with open(os.path.join(REPO_ROOT, "ts", "version.txt")) as ts_vf:
         ts_version = ''.join(ts_vf.read().split())
@@ -29,10 +29,10 @@ def conda_build(ts_wheel_path, ma_wheel_path):
         for pyv in python_versions:
             output_dir = os.path.join(conda_build_dir, "output")
             cmd = f"conda build --output-folder {output_dir} --python={pyv} {pkg}"
-            print(f"In directory: {os.getcwd()}; Executing command: {cmd}")
+            print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
             exit_code = os.system(cmd)
             if exit_code != 0:
-                print("Conda Build Failed")
+                print("## Conda Build Failed !")
                 return exit_code
     return 0 # Used for sys.exit(0) --> to indicate successful system exit
 
