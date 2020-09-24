@@ -348,7 +348,7 @@
 
   
 
-  You should be able to a Security Group in your AWS Console with Inbound Rules to a NFS (Port 2049)
+  You should be able to see a Security Group in your AWS Console with Inbound Rules to a NFS (Port 2049)
 
   
 
