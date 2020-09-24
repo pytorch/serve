@@ -107,7 +107,7 @@ jobs:
           name: Store frontend gradle test results
           path: frontend/server/build/reports/tests/test
 
-  python-tests:
+  torchserve-tests:
     parameters:
       executor:
         type: executor
@@ -117,7 +117,7 @@ jobs:
       - install-dependencies
       - run:
           name: Execute python lint and unit tests
-          command: python .circleci/scripts/test_python.py
+          command: python .circleci/scripts/test_torchserve.py
       - store_artifacts:
           name: Store python Test results
           path: result_units
@@ -262,18 +262,18 @@ workflows:
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-      - &frontend-tests
-        frontend-tests:
-          name: frontend-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-#      - &python-tests
-#        python-tests:
-#          name: python-tests-<< matrix.executor >>
+#      - &frontend-tests
+#        frontend-tests:
+#          name: frontend-tests-<< matrix.executor >>
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
+      - &torchserve-tests
+        torchserve-tests:
+          name: torchserve-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - &sanity-tests
 #        sanity-tests:
 #          name: sanity-tests-<< matrix.executor >>
@@ -310,7 +310,7 @@ workflows:
 #      - *build
 #      - *modelarchiver-tests
 #      - *frontend-tests
-#      - *python-tests
+#      - *torchserve-tests
 #      - *sanity-tests
 #      - api-tests:
 #          name: api-tests-<< matrix.executor >>
@@ -338,7 +338,7 @@ workflows:
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-## Uncomment once performance regression PR is merged
+## Uncomment once performance regression PR is merged - https://github.com/pytorch/serve/pull/510
 ##      - performance-regression:
 ##          name: performance-regression-<< matrix.executor >>
 ##          requires:
