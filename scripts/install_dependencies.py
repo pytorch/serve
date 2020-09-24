@@ -99,6 +99,7 @@ if __name__ == "__main__":
     }
     system = os_map[platform.system()]()
 
+    # Sequence of installation to be maintained
     if args.java:
         system.install_java()
     if args.python:

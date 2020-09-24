@@ -34,7 +34,7 @@ commands:
     steps:
       - run:
           name: Install build and test dependencies for torchserve
-          command: "python .circleci/scripts/install_dependencies.py --python-packages --node-packages"
+          command: "python scripts/install_dependencies.py --python-packages --node-packages"
 
   attach-torchserve-workspace:
     description: "Attach the torchserve directory which was saved into workspace"
