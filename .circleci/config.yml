@@ -249,11 +249,11 @@ workflows:
           matrix: &matrix
             parameters:
               executor:
-#                - ubuntu18-pythn36-cpu-docker
-#                - ubuntu18-conda38-cpu-docker
-#                - ubuntu18-pyenv37-cpu-docker
-#                - ubuntu18-venv36-cpu-docker
-                - windows-srvr-2019-cpu
+                - ubuntu18-pythn36-cpu-docker
+                - ubuntu18-conda38-cpu-docker
+                - ubuntu18-pyenv37-cpu-docker
+                - ubuntu18-venv36-cpu-docker
+#                - windows-srvr-2019-cpu
 #                - windows-srvr-2019-gpu
 #      - &modelarchiver-tests
 #        modelarchiver-tests:
@@ -273,18 +273,18 @@ workflows:
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-#      - &sanity-tests
-#        sanity-tests:
-#          name: sanity-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-# Uncomment following block for Dev testing only
-      - api-tests:
-          name: api-tests-<< matrix.executor >>
+      - &sanity-tests
+        sanity-tests:
+          name: sanity-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
+# Uncomment following block for Dev testing only
+#      - api-tests:
+#          name: api-tests-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix
 #      - regression-tests:
 #          name: regression-tests-<< matrix.executor >>
 #          requires:
