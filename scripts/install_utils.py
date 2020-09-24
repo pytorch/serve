@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 import time
 import requests
@@ -78,7 +79,7 @@ def start_torchserve(ncs=False, model_store="model_store", models="", config_fil
         print("Successfully started TorchServe")
     else:
         print("TorchServe failed to start!")
-        exit(1)
+        sys.exit(1)
     time.sleep(10)
 
 
@@ -105,7 +106,7 @@ def register_model(model_name):
           print(f"Successfully registered {model_name} model with torchserve")
       else:
           print("Failed to register model with torchserve")
-          exit(1)
+          sys.exit(1)
 
 # Takes model URL and payload path as input
 def run_inference(model_name, file_name):
@@ -124,19 +125,19 @@ def run_inference(model_name, file_name):
                 print(f"Successfully ran inference on {model_name} model.")
             else:
                 print(f"Failed to run inference on {model_name} model")
-                exit(1)
+                sys.exit(1)
 
 
 def unregister_model(model_name):
-    print("Unregistering $1 model")
+    print(f"Unregistering {model_name} model")
     response = None
 
     try:
         response=response = requests.delete(f'http://localhost:8081/models/{model_name}', verify=False)
-    except:
+    finally:
         if response.status_code == 200:
           print(f"Failed to register {model_name} model with torchserve")
-          exit(1)
+          sys.exit(1)
         else:
           print(f"Successfully registered {model_name} model with torchserve")
 
@@ -156,7 +157,7 @@ def run_markdown_link_checker():
             if status !=  0:
               print(f'Broken links in {os.path.join(dirpath, file) }')
               status = 1
-  exit(status)
+  sys.exit(status)
 
 
 def execute_command(commands, success_msg, error_msg):
