@@ -146,20 +146,6 @@ def install_pytest_suite_deps():
     os.system('pip install -U -r requirements/developer.txt')
 
 
-
-
-def run_markdown_link_checker():
-  status = 0
-  for (dirpath, dirnames, filenames) in os.walk(os.getcwd()):
-    for file in filenames:
-        if file.endswith('.md'):
-            status = os.system(f'markdown-link-check {os.path.join(dirpath, file) } --config link_check_config.json')
-            if status !=  0:
-              print(f'Broken links in {os.path.join(dirpath, file) }')
-              status = 1
-  sys.exit(status)
-
-
 def execute_command(commands, success_msg, error_msg):
     if platform.system() == "Windows":
         commands = commands.replace(';','&')

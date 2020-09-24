@@ -1,6 +1,7 @@
 import os
 import sys
 import nvgpu
+import glob
 
 from scripts import install_utils
 
@@ -48,6 +49,17 @@ models_to_validate = {
 }
 ts_log_file = os.path.join("logs", "ts_console.log")
 is_gpu_instance = install_utils.is_gpu_instance()
+
+
+def run_markdown_link_checker():
+    success = True
+    for mdfile in glob.glob("**/*.md", recursive=True):
+        status = os.system(f"markdown-link-check {mdfile} --config link_check_config.json")
+        if status != 0:
+            print(f'Broken links in {mdfile}')
+            success = False
+    if not success:
+        sys.exit("Markdown Link Checker Failed")
 
 
 def validate_model_on_gpu():
@@ -104,4 +116,4 @@ install_utils.run_inference("resnet-18", models_to_validate["resnet-18"]["inputs
 
 install_utils.stop_torchserve()
 
-install_utils.run_markdown_link_checker()
+run_markdown_link_checker()
