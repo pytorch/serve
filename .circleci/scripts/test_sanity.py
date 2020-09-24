@@ -96,7 +96,7 @@ if is_gpu_instance:
 
 install_utils.start_torchserve(log_file=ts_log_file)
 
-for model, model_config in models_to_validate.items():
+for model in models_to_validate:
     model_name = model["name"]
     model_inputs = model["inputs"]
     model_handler = model["handler"]
