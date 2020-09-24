@@ -91,22 +91,23 @@ def stop_torchserve():
 
 # Takes model name and mar name from model zoo as input
 def register_model(model_name):
-  print(f"Registering {model_name} model")
-  response = None
-  try:
-      params = (
-          ('model_name', model_name),
-          ('url', f'https://torchserve.s3.amazonaws.com/mar_files/{model_name}.mar'),
-          ('initial_workers', '1'),
-          ('synchronous', 'true'),
-      )
-      response = requests.post("http://localhost:8081/models", params=params, verify=False)
-  finally:
-      if response and response.status_code == 200:
-          print(f"Successfully registered {model_name} model with torchserve")
-      else:
-          print("Failed to register model with torchserve")
-          sys.exit(1)
+    print(f"Registering {model_name} model")
+    response = None
+    try:
+        params = (
+            ('model_name', model_name),
+            ('url', f'https://torchserve.s3.amazonaws.com/mar_files/{model_name}.mar'),
+            ('initial_workers', '1'),
+            ('synchronous', 'true'),
+        )
+        response = requests.post("http://localhost:8081/models", params=params, verify=False)
+    finally:
+        if response and response.status_code == 200:
+            print(f"Successfully registered {model_name} model with torchserve")
+        else:
+            print("Failed to register model with torchserve")
+            sys.exit(1)
+
 
 # Takes model URL and payload path as input
 def run_inference(model_name, file_name):
@@ -131,15 +132,14 @@ def run_inference(model_name, file_name):
 def unregister_model(model_name):
     print(f"Unregistering {model_name} model")
     response = None
-
     try:
         response = requests.delete(f'http://localhost:8081/models/{model_name}', verify=False)
     finally:
-        if response.status_code == 200:
-          print(f"Failed to unregister {model_name}")
-          sys.exit(1)
+        if response and response.status_code == 200:
+            print(f"Successfully unregistered {model_name}")
         else:
-          print(f"Successfully unregistered {model_name}")
+            print(f"Failed to unregister {model_name}")
+            sys.exit(1)
 
 
 def install_pytest_suite_deps():
