@@ -2,7 +2,7 @@ import os
 import sys
 import glob
 
-sys.path.append(os.getcwd()) # To help discover local modules
+sys.path.append(os.getcwd())  # To help discover local modules
 from scripts import tsutils
 
 REPO_ROOT = os.getcwd()
@@ -23,8 +23,8 @@ def install():
         print(f"## Executing command: {pip_cmd}")
         install_exit_code = os.system(pip_cmd)
 
-    if install_exit_code != 0 :
-        sys.exit("## Installation Failed !")
+    if install_exit_code != 0:
+        sys.exit("## Torchserve \ Model archiver Installation Failed !")
 
 
 if __name__ == "__main__":

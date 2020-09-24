@@ -34,8 +34,13 @@ def build():
     if tsutils.is_conda_env():
         conda_build_exit_code = conda_build(ts_wheel_path, ma_wheel_path)
 
-    if any(exit_code != 0 for exit_code in [ts_build_exit_code, ma_build_exit_code, conda_build_exit_code]):
-        sys.exit("## Build Failed !")
+    # If any one of the steps fail, exit with error
+    if ts_build_exit_code != 0:
+        sys.exit("## Torchserve Build Failed !")
+    if ma_build_exit_code != 0:
+        sys.exit("## Model archiver Build Failed !")
+    if conda_build_exit_code != 0:
+        sys.exit("## Conda Build Failed !")
 
 
 if __name__ == "__main__":
