@@ -1,9 +1,17 @@
 import os
 import sys
 
-FRONTEND_GRADLEW_PATH = os.path.join("frontend", "gradlew")
-FRONTEND_GRADLEW_CMD = f"{FRONTEND_GRADLEW_PATH} -p frontend clean build"
-FRONTEND_GRADLEW_EXIT_CODE = os.system(FRONTEND_GRADLEW_CMD)
 
-if FRONTEND_GRADLEW_EXIT_CODE != 0 :
-    sys.exit("Frontend Gradle Tests Failed")
+def test_frontend():
+    print("## Started frontend build and tests")
+    frontend_gradlew_path = os.path.join("frontend", "gradlew")
+    frontend_gradlew_cmd = f"{frontend_gradlew_path} -p frontend clean build"
+    print(f"## In directory: {os.getcwd()}; Executing command: {frontend_gradlew_cmd}")
+    frontend_gradlew_exit_code = os.system(frontend_gradlew_cmd)
+
+    if frontend_gradlew_exit_code != 0:
+        sys.exit("## Frontend Gradle Tests Failed !")
+
+
+if __name__ == "__main__":
+    test_frontend()

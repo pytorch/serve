@@ -256,18 +256,18 @@ workflows:
 #                - ubuntu18-venv36-cpu-docker
 #                - windows-srvr-2019-cpu
 #                - windows-srvr-2019-gpu
-      - &modelarchiver-tests
-        modelarchiver-tests:
-          name: modelarchiver-tests-<< matrix.executor >>
-          requires:
-            - build-<< matrix.executor >>
-          matrix: *matrix
-#      - &frontend-tests
-#        frontend-tests:
-#          name: frontend-tests-<< matrix.executor >>
+#      - &modelarchiver-tests
+#        modelarchiver-tests:
+#          name: modelarchiver-tests-<< matrix.executor >>
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
+      - &frontend-tests
+        frontend-tests:
+          name: frontend-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
 #      - &python-tests
 #        python-tests:
 #          name: python-tests-<< matrix.executor >>
