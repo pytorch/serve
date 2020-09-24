@@ -15,7 +15,7 @@ executors:
   ubuntu18-venv36-cpu-docker:
     docker:
       - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
-  # Refer Windows Orb source code - https://circleci.com/orbs/registry/orb/circleci/windows
+  # Refer Windows Orb source code - https://circleci.com/orbs/registry/orb/circleci/windows?version=2.4.0
   windows-srvr-2019-cpu:
     machine:
       image: windows-server-2019-vs2019:stable
@@ -71,6 +71,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
+      - install-dependencies
       - run:
           name: Build torchserve and torch model archiver
           command: python .circleci/scripts/build.py
