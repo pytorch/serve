@@ -15,10 +15,12 @@ torchserve_command = {
 def is_gpu_instance():
     return True if os.system("nvidia-smi") == 0 else False
 
+
 def is_conda_env():
     return True if os.system("conda") == 0 else False
 
-def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file=""):
+
+def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):
     print("Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
@@ -36,13 +38,13 @@ def start_torchserve(ncs=False, model_store="model_store", models="", config_fil
     else:
         print("TorchServe failed to start!")
         sys.exit(1)
-    time.sleep(10)
+    time.sleep(wait_for)
 
 
-def stop_torchserve():
+def stop_torchserve(wait_for=10):
     cmd = f"{torchserve_command[platform.system()]} --stop"
     os.system(cmd)
-    time.sleep(10)
+    time.sleep(wait_for)
 
 
 # Takes model name and mar name from model zoo as input

@@ -3,7 +3,7 @@ import sys
 import nvgpu
 import glob
 
-from scripts import install_utils
+from scripts import tsutils as ts
 
 resnet18_model = {
     "name": "resnet-18",
@@ -59,7 +59,7 @@ models_to_validate = [
     }
 ]
 ts_log_file = os.path.join("logs", "ts_console.log")
-is_gpu_instance = install_utils.is_gpu_instance()
+is_gpu_instance = ts.is_gpu_instance()
 
 
 def run_markdown_link_checker():
@@ -94,17 +94,17 @@ if is_gpu_instance:
       print("Ohh its NOT running on GPU!!")
       sys.exit(1)
 
-install_utils.start_torchserve(log_file=ts_log_file)
+ts.start_torchserve(log_file=ts_log_file)
 
 for model in models_to_validate:
     model_name = model["name"]
     model_inputs = model["inputs"]
     model_handler = model["handler"]
 
-    install_utils.register_model(model_name)
+    ts.register_model(model_name)
 
     for input in model_inputs:
-        install_utils.run_inference(model_name, input)
+        ts.run_inference(model_name, input)
 
     if is_gpu_instance:
         if validate_model_on_gpu():
@@ -114,19 +114,19 @@ for model in models_to_validate:
 
     #skip unregistering resnet-18 model to test snapshot feature with restart
     if model != resnet18_model:
-        install_utils.unregister_model(model_name)
+        ts.unregister_model(model_name)
 
     print(f"{model_handler} default handler is stable.")
 
-install_utils.stop_torchserve()
+ts.stop_torchserve()
 
 # Restarting torchserve
 # This should restart with the generated snapshot and resnet-18 model should be automatically registered
-install_utils.start_torchserve(log_file=ts_log_file)
+ts.start_torchserve(log_file=ts_log_file)
 
-install_utils.run_inference(resnet18_model["name"], resnet18_model["inputs"][0])
+ts.run_inference(resnet18_model["name"], resnet18_model["inputs"][0])
 
-install_utils.stop_torchserve()
+ts.stop_torchserve()
 
 links_ok = run_markdown_link_checker()
 if not links_ok:

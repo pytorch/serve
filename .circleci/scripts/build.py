@@ -1,9 +1,9 @@
 import os
 import sys
 import glob
-from scripts import install_utils
 
-sys.path.append(os.getcwd()) # Need from conda_build_ts
+sys.path.append(os.getcwd()) # To help discover local modules
+from scripts import tsutils
 from binaries.conda.build_packages import conda_build_ts
 
 BASE_DIR = os.getcwd()
@@ -19,7 +19,7 @@ MA_BUILD_EXIT_CODE = os.system(CREATE_WHEEL_CMD)
 os.chdir(BASE_DIR)
 
 # Build TS & MA on Conda if available
-if install_utils.is_conda_env():
+if tsutils.is_conda_env():
     ts_wheel_path = glob.glob(os.path.join(BASE_DIR, "dist", "*.whl"))[0]
     ma_wheel_path = glob.glob(os.path.join(BASE_DIR, "model-archiver", "dist", "*.whl"))[0]
     conda_build_ts(ts_wheel_path, ma_wheel_path)
