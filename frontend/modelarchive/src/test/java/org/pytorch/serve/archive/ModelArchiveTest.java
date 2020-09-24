@@ -50,7 +50,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = DownloadModelException.class,
             expectedExceptionsMessageRegExp =
-                    "Failed to download model from: https://torchserve\\.s3\\.amazonaws\\.com/mar_files/mnist_non_exist\\.mar")
+                    "Failed to download model from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
     public void testAllowedMultiUrls() throws ModelException, IOException {
         // test multiple urls added to allowed list
         String modelStore = "src/test/resources/models";
@@ -67,7 +67,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = ModelNotFoundException.class,
             expectedExceptionsMessageRegExp =
-                    "Given URL https://torchserve\\.s3\\.amazonaws.com/mar_files/mnist\\.mar does not match any allowed URL\\(s\\)")
+                    "Given URL https://torchserve\\.pytorch.org/mar_files/mnist\\.mar does not match any allowed URL\\(s\\)")
     public void testBlockedUrl() throws ModelException, IOException {
         // test blocked url
         String modelStore = "src/test/resources/models";
