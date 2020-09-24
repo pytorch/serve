@@ -7,7 +7,8 @@ from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
 
 DEFAULT_MODEL_NAME = "model"
-DEFAULT_INFERENCE_ADDRESS = "http://127.0.0.1:8080"
+DEFAULT_INFERENCE_ADDRESS = "http://127.0.0.1:8085"
+INFERENCE_PORT = "8085"
 DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8081"
 DEFAULT_MODEL_STORE = "/home/model-server/shared/model-store"
 CONFIG_PATH = "/mnt/models/config/config.properties"
@@ -30,16 +31,21 @@ def parse_config():
               
     keys['model_snapshot'] = json.loads(keys['model_snapshot'])
     inference_address, management_address, model_store = keys['inference_address'], keys['management_address'], keys["model_store"]
-
+    
     models = keys['model_snapshot']['models']
     model_names = []
+    
+    #constructs inf address at a port other than 8080 as kfserver runs at 8080
+    if inference_address != None:
+        inf_splits = inference_address.split(":")
+        inference_address = inf_splits[0]+inf_splits[1]+ INFERENCE_PORT
+    else :
+        inference_address = DEFAULT_INFERENCE_ADDRESS 
     #Get all the model_names
     for model, value in models.items():
         model_names.append(model)
     if not model_names:
         model_names = [DEFAULT_MODEL_NAME]
-    if inference_address == None:
-        inference_address = DEFAULT_INFERENCE_ADDRESS 
     if management_address == None:
         management_address = DEFAULT_MANAGEMENT_ADDRESS
     if model_store == None:
@@ -59,5 +65,4 @@ if __name__ == "__main__":
 
         model = TorchserveModel(model_name,inference_address, management_address, model_dir)
         models.append(model)
-    kfserving.KFServer(registered_models=TSModelRepository(inference_address, management_address, model_dir), http_port = 8085).start(models)
-    
+    kfserving.KFServer(registered_models=TSModelRepository(inference_address, management_address, model_dir), http_port = 8080).start(models)
