@@ -7,9 +7,8 @@ BASE_DIR = os.getcwd()
 IS_CONDA_ENV = True if os.system("conda") == 0 else False
 if IS_CONDA_ENV:
     print("Using conda to install torchserve and torch-model-archiver")
-    conda_cmd = f"conda install -c file://{BASE_DIR}/binaries/conda/output -y torchserve torch-model-archiver"
+    conda_cmd = f"conda install -c file:/{BASE_DIR}/binaries/conda/output -y torchserve torch-model-archiver"
     INSTALL_EXIT_CODE = os.system(conda_cmd)
-
 else:
     print("Using pip to install torchserve and torch-model-archiver")
     TS_WHEEL = glob.glob(os.path.join(BASE_DIR, "dist", "*.whl"))[0]
