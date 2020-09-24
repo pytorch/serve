@@ -73,7 +73,7 @@ jobs:
       - checkout
       - run:
           name: Build torchserve and torch model archiver
-          command: python -m binaries.conda.build_packages .circleci/scripts/build.py
+          command: python .circleci/scripts/build.py
       - store_artifacts:
           name: Store torchserve wheel
           path: dist/
