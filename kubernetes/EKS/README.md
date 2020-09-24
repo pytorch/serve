@@ -68,7 +68,7 @@
   
   # Clone TS
   git clone https://github.com/pytorch/serve/
-  cd kubernetes/
+  cd kubernetes/EKS
   ```
 
   
