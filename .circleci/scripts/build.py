@@ -14,12 +14,12 @@ def build():
     create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
 
     # Build torchserve wheel
-    print(f"## In directory: {os.getcwd()}; Executing command: {create_wheel_cmd}")
+    print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
     ts_build_exit_code = os.system(create_wheel_cmd)
 
     # Build model archiver wheel
     os.chdir("model-archiver")
-    print(f"## In directory: {os.getcwd()}; Executing command: {create_wheel_cmd}")
+    print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
     ma_build_exit_code = os.system(create_wheel_cmd)
 
     os.chdir(REPO_ROOT)
