@@ -1,7 +1,7 @@
 import os
 import platform
 import argparse
-from scripts import install_utils
+
 
 class Common():
     def __init__(self):
@@ -29,7 +29,7 @@ class Common():
         # os.system("pip install -r requirements/common.txt")
 
         # If conda is available install conda-build
-        if install_utils.is_conda_env():
+        if os.system("conda") == 0:
             os.system("conda install conda-build")
 
     def install_node_packages(self):
