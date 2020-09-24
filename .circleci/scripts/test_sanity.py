@@ -63,14 +63,13 @@ is_gpu_instance = install_utils.is_gpu_instance()
 
 
 def run_markdown_link_checker():
-    success = True
+    result = True
     for mdfile in glob.glob("**/*.md", recursive=True):
         status = os.system(f"markdown-link-check {mdfile} --config link_check_config.json")
         if status != 0:
-            print(f'Broken links in {mdfile}')
-            success = False
-    if not success:
-        sys.exit("Markdown Link Checker Failed")
+            print(f"Broken links in {mdfile}")
+            result = False
+    return result
 
 
 def validate_model_on_gpu():
@@ -80,14 +79,14 @@ def validate_model_on_gpu():
     # 2. Models are successfully UNregistered between subsequent calls
     model_loaded = False
     for info in nvgpu.gpu_info():
-        if info['mem_used'] > 0 and info['mem_used_percent'] > 0.0:
+        if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:
             model_loaded = True
             break
     return model_loaded
 
 
-os.makedirs('model_store', exist_ok=True)
-os.makedirs('logs', exist_ok=True)
+os.makedirs("model_store", exist_ok=True)
+os.makedirs("logs", exist_ok=True)
 
 if is_gpu_instance:
     import torch
@@ -111,8 +110,7 @@ for model in models_to_validate:
         if validate_model_on_gpu():
             print(f"Model {model_name} successfully loaded on GPU")
         else:
-            print(f"Something went wrong, model {model_name} did not load on GPU!!")
-            sys.exit(1)
+            sys.exit(f"Something went wrong, model {model_name} did not load on GPU!!")
 
     #skip unregistering resnet-18 model to test snapshot feature with restart
     if model != resnet18_model:
@@ -126,8 +124,10 @@ install_utils.stop_torchserve()
 # This should restart with the generated snapshot and resnet-18 model should be automatically registered
 install_utils.start_torchserve(log_file=ts_log_file)
 
-install_utils.run_inference("resnet-18", resnet18_model["inputs"][0])
+install_utils.run_inference(resnet18_model["name"], resnet18_model["inputs"][0])
 
 install_utils.stop_torchserve()
 
-run_markdown_link_checker()
+links_ok = run_markdown_link_checker()
+if not links_ok:
+    sys.exit("Markdown Link Checker Failed")
