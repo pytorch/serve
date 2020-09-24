@@ -4,34 +4,44 @@ import time
 import argparse
 import shutil
 import install_dependencies
+import tsutils as ts
 
 
 def clean_slate(): 
-    print("Cleaning up state")
-    os.system('pip uninstall --yes torchserve || true')
-    os.system('pip uninstall --yes torch-model-archiver || true')
+    print("## Uninstall existing torchserve and model archiver")
+    if ts.is_conda_env():
+        cmd = "pip uninstall -y torchserve torch-model-archiver"
+    else:
+        cmd = "conda uninstall -y torchserve torch-model-archiver"
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+    os.system(cmd)
     time.sleep(5)
 
 
 def install_torchserve():
-    print("Install torchserve from source")
-    os.system('pip install .')
+    print("## Install torchserve from source")
+    cmd = "pip install ."
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+    os.system(cmd)
 
 
 def install_torch_model_archiver():
-    print("Install torch-model-archiver from source")
-    os.system(f"pip install model-archiver/.")
+    print("## Install torch-model-archiver from source")
+    cmd = "pip install model-archiver/."
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+    os.system(cmd)
 
 
-def clean_up_build_residuals(): 
+def clean_up_build_residuals():
+    print("## Cleaning build residuals (__pycache__)")
     try:
         for (dirpath, dirnames, filenames) in os.walk(os.getcwd()):
-            if '__pycache__' in dirnames:
-                cache_dir = os.path.join(dirpath, '__pycache__')
-                print(f'Cleaning - {cache_dir}')
+            if "__pycache__" in dirnames:
+                cache_dir = os.path.join(dirpath, "__pycache__")
+                print(f"## Removing - {cache_dir}")
                 shutil.rmtree(cache_dir)
     except Exception as e:
-        print('Error while cleaning cache file. Details - '+str(e))
+        print(f"#Error while cleaning cache file. Details - {str(e)}")
 
 
 def install_from_src(cu101=False):

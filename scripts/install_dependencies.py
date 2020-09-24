@@ -25,7 +25,7 @@ class Common():
 
         # If conda is available install conda-build
         if os.system("conda") == 0:
-            os.system("conda install conda-build")
+            os.system("conda install -y conda-build")
 
     def install_node_packages(self):
         os.system("npm install -g newman newman-reporter-html markdown-link-check")
