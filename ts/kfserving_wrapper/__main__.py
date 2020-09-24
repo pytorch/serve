@@ -38,7 +38,7 @@ def parse_config():
     #constructs inf address at a port other than 8080 as kfserver runs at 8080
     if inference_address != None:
         inf_splits = inference_address.split(":")
-        inference_address = inf_splits[0]+inf_splits[1]+ INFERENCE_PORT
+        inference_address = inf_splits[0]+inf_splits[1]+ ":" + INFERENCE_PORT
     else :
         inference_address = DEFAULT_INFERENCE_ADDRESS 
     #Get all the model_names
