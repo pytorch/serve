@@ -23,7 +23,8 @@ def conda_build_ts(ts_wheel_path, ma_wheel_path):
 
     for pkg in packages:
         for pyv in python_versions:
-            cmd = f"conda build --output-folder output --python={pyv} {pkg}"
+            output_dir = os.path.join(current_script_dir, "output")
+            cmd = f"conda build --output-folder {output_dir} --python={pyv} {pkg}"
             exit_code = os.system(cmd)
             if exit_code != 0:
                 sys.exit("Conda Build Failed")
