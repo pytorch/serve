@@ -133,7 +133,7 @@ def unregister_model(model_name):
     response = None
 
     try:
-        response=response = requests.delete(f'http://localhost:8081/models/{model_name}', verify=False)
+        response = requests.delete(f'http://localhost:8081/models/{model_name}', verify=False)
     finally:
         if response.status_code == 200:
           print(f"Failed to unregister {model_name}")
