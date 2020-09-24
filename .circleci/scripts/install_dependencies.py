@@ -24,8 +24,10 @@ class Common():
         pass
 
     def install_python_packages(self, cu101=False):
-        os.system("pip install -r requirements/common.txt")
         os.system("pip install -r requirements/developer.txt")
+        # developer.txt also installs packages from common.txt
+        # os.system("pip install -r requirements/common.txt")
+
         # If conda is available install conda-build
         if os.system("conda") == 0:
             os.system("conda install conda-build")
