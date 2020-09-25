@@ -7,7 +7,7 @@ class Common():
     def __init__(self):
         # Assumption is nvidia-smi is installed on systems with gpu
         self.is_gpu_instance = True if os.system("nvidia-smi") == 0 else False
-        self.torch_stable_url =  "{self.torch_stable_url}"
+        self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
 
     def install_java(self):
         # CircleCI Docker Image has java installed
