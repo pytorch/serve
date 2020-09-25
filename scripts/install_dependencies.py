@@ -10,16 +10,23 @@ class Common():
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
 
     def install_java(self):
-        # CircleCI Docker Image has java installed
-        # CircleCI Windows Machine has java installed
         pass
 
     def install_nodejs(self):
-        # CircleCI Docker Image has nodejs installed
-        # CircleCI Windows Machine has nodejs installed
         pass
 
+    def install_torch_packages(self, cu101=False):
+        if self.is_gpu_instance:
+            if cu101:
+                os.system(f"pip install -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
+            else:
+                os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
+        else:
+            os.system(f"pip install -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
+
     def install_python_packages(self, cu101=False):
+        self.install_torch_packages(cu101=cu101)
+
         os.system("pip install -r requirements/developer.txt")
         # developer.txt also installs packages from common.txt
         # os.system("pip install -r requirements/common.txt")
@@ -32,51 +39,36 @@ class Common():
         os.system("npm install -g newman newman-reporter-html markdown-link-check")
 
     def install_jmeter(self):
-        # Implementation specifc to OS
         pass
 
     def install_ab(self):
-        # Implementation specifc to OS
         pass
 
 
 class Linux(Common):
-    def install_python_packages(self, cu101=False):
-        super().install_python_packages()
-        if self.is_gpu_instance:
-            if cu101:
-                # CUDA 10.1
-                # os.system(f"pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-                os.system(f"pip install -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
-            else:
-                # CUDA latest (10.2)
-                # os.system(f"pip install torch==1.6.0 torchvision==0.7.0 torchtext==0.7.0 torchaudio==0.6.0")
-                os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
-        else:
-            # CPU
-            # os.system(f"pip install torch==1.6.0+cpu torchvision==0.7.0+cpu torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-            os.system(f"pip install -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
+    def install_java(self):
+        os.system("sudo apt-get install -y openjdk-11-jdk")
+
+    def install_nodejs(self):
+        os.system("sudo curl -sL https://deb.nodesource.com/setup_14.x | bash -")
+        os.system("apt-get update")
+        os.system("apt-get install -y nodejs")
+
+    def install_ab(self):
+        os.system("apache2-utils")
+        pass
 
 
 class Windows(Common):
     def install_java(self):
-        os.system("sudo apt-get install -y openjdk-11-jdk")
+        pass
 
-    def install_python_packages(self, cu101=False):
-        super().install_python_packages()
-        if self.is_gpu_instance:
-            if cu101:
-                # CUDA 10.1
-                # os.system(f"pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-                os.system(f"pip install -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
-            else:
-                # CUDA latest (10.2)
-                # os.system(f"pip install torch===1.6.0 torchvision===0.7.0 torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-                os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
-        else:
-            # CPU
-            # os.system(f"pip install torch==1.6.0+cpu torchvision==0.7.0+cpu torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-            os.system(f"pip install -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
+    def install_nodejs(self):
+        pass
+
+    def install_ab(self):
+        # MacOS has ab pre-installed
+        pass
 
 
 class Darwin(Common):
@@ -84,9 +76,10 @@ class Darwin(Common):
         os.system("brew tap AdoptOpenJDK/openjdk")
         os.system("brew cask install adoptopenjdk11")
 
-    def install_python_packages(self, cu101=False):
-        super().install_python_packages()
-        # os.system(f"pip install torch==1.6.0 torchvision==0.7.0 torchtext==0.7.0 torchaudio==0.6.0")
+    def install_nodejs(self):
+        os.system("brew install node")
+
+    def install_torch_packages(self, cu101=False):
         os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
 
 
