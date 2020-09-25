@@ -39,6 +39,8 @@ def test_modelarchiver():
     if py_integ_exit_code != 0:
         sys.exit("## Model archiver Integration Pytests Failed !")
 
+    os.chdir(REPO_ROOT)
+
 
 if __name__ == "__main__":
     test_modelarchiver()
