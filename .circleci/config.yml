@@ -5,16 +5,16 @@ executors:
   # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY under 'Project Settings > Environment Variables' in CircleCI
   ubuntu18-pythn36-cpu-docker:
     docker:
-      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
   ubuntu18-conda38-cpu-docker:
     docker:
-      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
   ubuntu18-pyenv37-cpu-docker:
     docker:
-      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
   ubuntu18-venv36-cpu-docker:
     docker:
-      - image: 285923338299.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
   # Refer Windows Orb source code - https://circleci.com/orbs/registry/orb/circleci/windows?version=2.4.0
   windows-srvr-2019-cpu:
     machine:
@@ -187,7 +187,7 @@ jobs:
       - install-torchserve
       - run:
           name: Start torchserve, Execute benchmark tests, Stop torchserve
-          command: scripts/linux_test_benchmark.sh
+          command: .circleci/scripts/linux_test_benchmark.sh
           no_output_timeout: 90m
       - store_artifacts:
           name: Store server logs from benchmark tests
@@ -210,7 +210,7 @@ jobs:
       - install-torchserve
       - run:
           name: Start TS, Execute performance regression testcases, Stop TS
-          command: scripts/linux_test_perf_regression.sh
+          command: .circleci/scripts/linux_test_perf_regression.sh
       - store_artifacts:
           name: Store server logs
           path: test/performance/logs/
@@ -252,10 +252,10 @@ workflows:
               executor:
                 - ubuntu18-pythn36-cpu-docker
                 - ubuntu18-conda38-cpu-docker
-#                - ubuntu18-pyenv37-cpu-docker
-#                - ubuntu18-venv36-cpu-docker
-#                - windows-srvr-2019-cpu
-#                - windows-srvr-2019-gpu
+                - ubuntu18-pyenv37-cpu-docker
+                - ubuntu18-venv36-cpu-docker
+                - windows-srvr-2019-cpu
+                - windows-srvr-2019-gpu
       - &modelarchiver-tests
         modelarchiver-tests:
           name: modelarchiver-tests-<< matrix.executor >>
@@ -280,7 +280,21 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-# Uncomment following block for Dev testing only
+
+  regression:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - *build
+      - *modelarchiver-tests
+      - *frontend-tests
+      - *torchserve-tests
+      - *sanity-tests
       - api-tests:
           name: api-tests-<< matrix.executor >>
           requires:
@@ -291,56 +305,25 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-#      - benchmark:
-#          name: benchmark-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
 
-
-#  regression:
-#    triggers:
-#      - schedule:
-#          cron: "0 0 * * *"
-#          filters:
-#            branches:
-#              only:
-#                - master
-#    jobs:
-#      - *build
-#      - *modelarchiver-tests
-#      - *frontend-tests
-#      - *torchserve-tests
-#      - *sanity-tests
-#      - api-tests:
-#          name: api-tests-<< matrix.executor >>
+  performance:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - *build
+      - benchmark:
+          name: benchmark-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+# Uncomment once performance regression PR is merged - https://github.com/pytorch/serve/pull/510
+#      - performance-regression:
+#          name: performance-regression-<< matrix.executor >>
 #          requires:
 #            - build-<< matrix.executor >>
 #          matrix: *matrix
-#      - regression-tests:
-#          name: regression-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-
-#  performance:
-#    triggers:
-#      - schedule:
-#          cron: "0 0 * * 0"
-#          filters:
-#            branches:
-#              only:
-#                - master
-#    jobs:
-#      - *build
-#      - benchmark:
-#          name: benchmark-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-## Uncomment once performance regression PR is merged - https://github.com/pytorch/serve/pull/510
-##      - performance-regression:
-##          name: performance-regression-<< matrix.executor >>
-##          requires:
-##            - build-<< matrix.executor >>
-##          matrix: *matrix
