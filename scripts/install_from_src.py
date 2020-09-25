@@ -1,8 +1,9 @@
 import os
-import platform
 import time
-import argparse
 import shutil
+import sys
+sys.path.append('scripts')
+
 import tsutils as ts
 
 
