@@ -1,2 +1,2 @@
 -r requirements/production.txt
--r requirements/gpu.txt
+-r requirements/torch_cu101.txt

@@ -47,15 +47,15 @@ class Linux(Common):
             if cu101:
                 # CUDA 10.1
                 # os.system(f"pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-                os.system(f"pip install -r requirements/gpu.txt -f {self.torch_stable_url}")
+                os.system(f"pip install -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
             else:
                 # CUDA latest (10.2)
                 # os.system(f"pip install torch==1.6.0 torchvision==0.7.0 torchtext==0.7.0 torchaudio==0.6.0")
-                os.system(f"pip install -r requirements/cpu.txt -f {self.torch_stable_url}")
+                os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
         else:
             # CPU
             # os.system(f"pip install torch==1.6.0+cpu torchvision==0.7.0+cpu torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-            os.system(f"pip install -r requirements/cpu_win.txt -f {self.torch_stable_url}")
+            os.system(f"pip install -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
 
 
 class Windows(Common):
@@ -65,22 +65,22 @@ class Windows(Common):
             if cu101:
                 # CUDA 10.1
                 # os.system(f"pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-                os.system(f"pip install -r requirements/gpu.txt -f {self.torch_stable_url}")
+                os.system(f"pip install -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
             else:
                 # CUDA latest (10.2)
                 # os.system(f"pip install torch===1.6.0 torchvision===0.7.0 torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-                os.system(f"pip install -r requirements/cpu.txt -f {self.torch_stable_url}")
+                os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
         else:
             # CPU
             # os.system(f"pip install torch==1.6.0+cpu torchvision==0.7.0+cpu torchtext==0.7.0 torchaudio==0.6.0 -f {self.torch_stable_url}")
-            os.system(f"pip install -r requirements/cpu_win.txt -f {self.torch_stable_url}")
+            os.system(f"pip install -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
 
 
 class Darwin(Common):
     def install_python_packages(self, cu101=False):
         super().install_python_packages()
         # os.system(f"pip install torch==1.6.0 torchvision==0.7.0 torchtext==0.7.0 torchaudio==0.6.0")
-        os.system(f"pip install -r requirements/cpu.txt -f {self.torch_stable_url}")
+        os.system(f"pip install -r requirements/torch.txt -f {self.torch_stable_url}")
 
 
 if __name__ == "__main__":
