@@ -58,28 +58,30 @@ def stop_torchserve(wait_for=10):
 
 
 # Takes model name and mar name from model zoo as input
-def register_model(model_name):
+def register_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {model_name} model")
+    model_zoo_url = "https://torchserve.s3.amazonaws.com"
     params = (
         ("model_name", model_name),
-        ("url", f"https://torchserve.s3.amazonaws.com/mar_files/{model_name}.mar"),
+        ("url", f"{model_zoo_url}/mar_files/{model_name}.mar"),
         ("initial_workers", "1"),
         ("synchronous", "true"),
     )
-    response = requests.post("http://localhost:8081/models", params=params, verify=False)
+    url = f"{protocol}://{host}:{port}/models"
+    response = requests.post(url, params=params, verify=False)
     return response
 
 
-# Takes model URL and payload path as input
-def run_inference(model_name, file_name):
+def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
     print(f"## Running inference on {model_name} model")
-    url = f"http://localhost:8080/predictions/{model_name}"
+    url = f"{protocol}://{host}:{port}/predictions/{model_name}"
     files = {"data": (file_name, open(file_name, "rb"))}
-    response = requests.post(url=url, files=files, timeout=120)
+    response = requests.post(url, files=files, timeout=timeout)
     return response
 
 
-def unregister_model(model_name):
+def unregister_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Unregistering {model_name} model")
-    response = requests.delete(f"http://localhost:8081/models/{model_name}", verify=False)
+    url = f"{protocol}://{host}:{port}/models/{model_name}"
+    response = requests.delete(url, verify=False)
     return response
