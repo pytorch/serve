@@ -2,9 +2,15 @@ from scripts.test_modelarchiver import test_modelarchiver
 from scripts.test_torchserve import test_torchserve
 from scripts.install_from_src import install_from_src
 from scripts.test_sanity import test_sanity
+from scripts.shell_utils import rm_dir
+from scripts.test_frontend import test_frontend
+import scripts.tsutils as ts
 
 
 def torchserve_sanity():
+    # Test frontend gradle
+    test_frontend()
+
     # Install from src
     install_from_src()
 
@@ -16,19 +22,17 @@ def torchserve_sanity():
 
     # Run Sanity Tests
     test_sanity()
-    # cleanup()
+    cleanup()
 
 
-# def cleanup():
-#     stop_torchserve
-#
-#     rm - rf model_store
-#     rm - rf logs
-#
-#     # clean up residual from model-archiver IT suite.
-#     rm - rf model_archiver / model - archiver / htmlcov_ut
-#     model_archiver / model - archiver / htmlcov_it
-#     }
+def cleanup():
+    ts.stop_torchserve()
+    rm_dir('model_store')
+    rm_dir('logs')
+
+    # clean up residual from model-archiver IT suite.
+    rm_dir('model-archiver/model_archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it')
+
 
 if __name__ == '__main__':
     torchserve_sanity()
