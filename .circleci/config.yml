@@ -281,7 +281,6 @@ workflows:
             - build-<< matrix.executor >>
           matrix: *matrix
 
-
   regression:
     triggers:
       - schedule:
