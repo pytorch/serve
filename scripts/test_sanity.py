@@ -59,17 +59,31 @@ def test_sanity():
         if not torch.cuda.is_available():
           sys.exit("## Ohh its NOT running on GPU !")
 
-    ts.start_torchserve(log_file=ts_log_file)
+    started = ts.start_torchserve(log_file=ts_log_file)
+    if not started:
+        sys.exit(1)
 
     for model in models_to_validate:
         model_name = model["name"]
         model_inputs = model["inputs"]
         model_handler = model["handler"]
 
-        ts.register_model(model_name)
+        response = ts.register_model(model_name)
+        if response and response.status_code == 200:
+            print(f"## Successfully registered {model_name} model with torchserve")
+        else:
+            print("## Failed to register model with torchserve")
+            sys.exit(1)
 
+        # For each input execute inference n=4 times
         for input in model_inputs:
-            ts.run_inference(model_name, input)
+            for i in range(4):
+                response = ts.run_inference(model_name, input)
+                if response and response.status_code == 200:
+                    print(f"## Successfully ran inference on {model_name} model.")
+                else:
+                    print(f"## Failed to run inference on {model_name} model")
+                    sys.exit(1)
 
         if is_gpu_instance:
             if validate_model_on_gpu():
@@ -79,19 +93,35 @@ def test_sanity():
 
         #skip unregistering resnet-18 model to test snapshot feature with restart
         if model != resnet18_model:
-            ts.unregister_model(model_name)
+            response = ts.unregister_model(model_name)
+            if response and response.status_code == 200:
+                print(f"## Successfully unregistered {model_name}")
+            else:
+                print(f"## Failed to unregister {model_name}")
+                sys.exit(1)
 
         print(f"## {model_handler} handler is stable.")
 
-    ts.stop_torchserve()
+    stopped = ts.stop_torchserve()
+    if not stopped:
+        sys.exit(1)
 
     # Restarting torchserve
     # This should restart with the generated snapshot and resnet-18 model should be automatically registered
-    ts.start_torchserve(log_file=ts_log_file)
+    started = ts.start_torchserve(log_file=ts_log_file)
+    if not started:
+        sys.exit(1)
 
-    ts.run_inference(resnet18_model["name"], resnet18_model["inputs"][0])
+    response = ts.run_inference(resnet18_model["name"], resnet18_model["inputs"][0])
+    if response and response.status_code == 200:
+        print(f"## Successfully ran inference on {model_name} model.")
+    else:
+        print(f"## Failed to run inference on {model_name} model")
+        sys.exit(1)
 
-    ts.stop_torchserve()
+    stopped = ts.stop_torchserve()
+    if not stopped:
+        sys.exit(1)
 
     links_ok = run_markdown_link_checker()
     if not links_ok:
