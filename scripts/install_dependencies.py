@@ -59,6 +59,9 @@ class Linux(Common):
 
 
 class Windows(Common):
+    def install_java(self):
+        os.system("sudo apt-get install -y openjdk-11-jdk")
+
     def install_python_packages(self, cu101=False):
         super().install_python_packages()
         if self.is_gpu_instance:
@@ -77,6 +80,10 @@ class Windows(Common):
 
 
 class Darwin(Common):
+    def install_java(self):
+        os.system("brew tap AdoptOpenJDK/openjdk")
+        os.system("brew cask install adoptopenjdk11")
+
     def install_python_packages(self, cu101=False):
         super().install_python_packages()
         # os.system(f"pip install torch==1.6.0 torchvision==0.7.0 torchtext==0.7.0 torchaudio==0.6.0")
