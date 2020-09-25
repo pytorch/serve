@@ -15,14 +15,27 @@ executors:
   ubuntu18-venv36-cpu-docker:
     docker:
       - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
-  windows-srvr-2019-cpu: &windows-srvr-2019-cpu
+  # Refer Windows Orb source code - https://circleci.com/orbs/registry/orb/circleci/windows?version=2.4.0
+  windows-srvr-2019-cpu:
     machine:
       image: windows-server-2019-vs2019:stable
       shell: powershell.exe -ExecutionPolicy Bypass
       resource_class: windows.medium
+  windows-srvr-2019-gpu:
+    machine:
+      image: windows-server-2019-nvidia:stable
+      shell: powershell.exe -ExecutionPolicy Bypass
+      resource_class: windows.gpu.nvidia.medium
 
 
 commands:
+  install-dependencies:
+    description: "Install build and test dependencies for torchserve"
+    steps:
+      - run:
+          name: Install build and test dependencies for torchserve
+          command: "python scripts/install_dependencies.py --python-packages --node-packages"
+
   attach-torchserve-workspace:
     description: "Attach the torchserve directory which was saved into workspace"
     steps:
@@ -34,7 +47,7 @@ commands:
     steps:
       - run:
           name: Install torchserve
-          command: python .circleci/scripts/install.py
+          command: python scripts/install.py
 
   exeucute-api-tests:
     description: "Execute API tests from a collection"
@@ -46,21 +59,8 @@ commands:
     steps:
       - run:
           name: Start torchserve, Execute << parameters.collection >> API Tests, Stop torchserve
-          command: python .circleci/scripts/test_api.py << parameters.collection >>
+          command: python scripts/test_api.py << parameters.collection >>
           when: always
-
-
-# Anchor for DRY config
-# Anchor instead of "commands", due to limitation of type in parameter passing of commands
-# ToDo: Currently specific to windows, Make it generic for all non docker executors
-if-not-docker-install-dependencies: &if-not-docker-install-dependencies
-  when:
-    condition:
-        equal: [ *windows-srvr-2019-cpu, << parameters.executor >> ]
-    steps:
-      - run:
-          name: Install TorchServe build and test dependencies
-          command: python .circleci/scripts/install_dependencies.py
 
 
 jobs:
@@ -71,9 +71,10 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
+      - install-dependencies
       - run:
           name: Build torchserve and torch model archiver
-          command: python .circleci/scripts/build.py
+          command: python scripts/build.py
       - store_artifacts:
           name: Store torchserve wheel
           path: dist/
@@ -98,25 +99,25 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - run:
           name: Execute frontend gradle tests
-          command: python .circleci/scripts/test_frontend.py
+          command: python scripts/test_frontend.py
       - store_artifacts:
           name: Store frontend gradle test results
           path: frontend/server/build/reports/tests/test
 
-  python-tests:
+  torchserve-tests:
     parameters:
       executor:
         type: executor
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - run:
           name: Execute python lint and unit tests
-          command: python .circleci/scripts/test_python.py
+          command: python scripts/test_torchserve.py
       - store_artifacts:
           name: Store python Test results
           path: result_units
@@ -129,11 +130,11 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Execute sanity tests
-          command: python .circleci/scripts/test_sanity.py
+          command: python scripts/test_sanity.py
       - store_artifacts:
           name: Store TS logs from sanity tests
           path: logs/
@@ -145,7 +146,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - exeucute-api-tests:
           collection: management
@@ -166,11 +167,11 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Execute regression suite
-          command: python .circleci/scripts/test_regression.py
+          command: python scripts/test_regression.py
       - store_artifacts:
           name: Store server logs from regression tests
           path: test/pytest/logs/
@@ -182,7 +183,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Start torchserve, Execute benchmark tests, Stop torchserve
@@ -205,7 +206,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Start TS, Execute performance regression testcases, Stop TS
@@ -227,11 +228,11 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - attach-torchserve-workspace
-      - *if-not-docker-install-dependencies
+      - install-dependencies
       - install-torchserve
       - run:
           name: Execute python lint, unit and integration tests
-          command: python .circleci/scripts/test_modelarchiver.py
+          command: python scripts/test_modelarchiver.py
       - store_artifacts:
           name: Store unit tests results from model archiver tests
           path: model-archiver/result_units
@@ -254,6 +255,7 @@ workflows:
                 - ubuntu18-pyenv37-cpu-docker
                 - ubuntu18-venv36-cpu-docker
                 - windows-srvr-2019-cpu
+                - windows-srvr-2019-gpu
       - &modelarchiver-tests
         modelarchiver-tests:
           name: modelarchiver-tests-<< matrix.executor >>
@@ -266,9 +268,9 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-      - &python-tests
-        python-tests:
-          name: python-tests-<< matrix.executor >>
+      - &torchserve-tests
+        torchserve-tests:
+          name: torchserve-tests-<< matrix.executor >>
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
@@ -278,23 +280,6 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-# Uncomment following block for Dev testing only
-#      - api-tests:
-#          name: api-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-#      - regression-tests:
-#          name: regression-tests-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-#      - benchmark:
-#          name: benchmark-<< matrix.executor >>
-#          requires:
-#            - build-<< matrix.executor >>
-#          matrix: *matrix
-
 
   regression:
     triggers:
@@ -308,7 +293,7 @@ workflows:
       - *build
       - *modelarchiver-tests
       - *frontend-tests
-      - *python-tests
+      - *torchserve-tests
       - *sanity-tests
       - api-tests:
           name: api-tests-<< matrix.executor >>
@@ -336,7 +321,7 @@ workflows:
           requires:
             - build-<< matrix.executor >>
           matrix: *matrix
-# Uncomment once performance regression PR is merged
+# Uncomment once performance regression PR is merged - https://github.com/pytorch/serve/pull/510
 #      - performance-regression:
 #          name: performance-regression-<< matrix.executor >>
 #          requires:
