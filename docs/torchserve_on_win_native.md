@@ -35,7 +35,7 @@ NOTE torchserve has been tested on Windows10 64bit system
     NOTE At present, 5 test cases related to OpenApi will fail which will get fixed once PR#614 is merged to this PR
     - `cd serve`
     - `pip install -U -r requirements/developer.txt`
-    - `pip install -U -r requirements/cpu.txt -f  https://download.pytorch.org/whl/torch_stable.html`
+    - `pip install -U -r requirements/torch.txt -f  https://download.pytorch.org/whl/torch_stable.html`
     - `cd frontend`
     - `.\gradlew.bat clean build`
 

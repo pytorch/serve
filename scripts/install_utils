@@ -30,7 +30,7 @@ install_torch_deps()
 {
   if [ is_gpu_instance ] && [ "$1" == "cuda101" ];
   then
-	  pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
+	  pip install -U -r requirements_cu101.txt -f https://download.pytorch.org/whl/torch_stable.html
 	else
 	  pip install -U -r requirements.txt
 	fi
