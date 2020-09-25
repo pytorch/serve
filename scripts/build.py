@@ -2,7 +2,7 @@ import os
 import sys
 import glob
 
-sys.path.append(os.getcwd())  # To help discover local modules
+# sys.path.append(os.getcwd())  # To help discover local modules
 from scripts import tsutils
 from binaries.conda.build_packages import conda_build
 
