@@ -10,9 +10,9 @@ import tsutils as ts
 def clean_slate(): 
     print("## Uninstall existing torchserve and model archiver")
     if ts.is_conda_env():
-        cmd = "pip uninstall -y torchserve torch-model-archiver"
-    else:
         cmd = "conda uninstall -y torchserve torch-model-archiver"
+    else:
+        cmd = "pip uninstall -y torchserve torch-model-archiver"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     os.system(cmd)
     time.sleep(5)
