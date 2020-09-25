@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../scripts")
 from scripts.shell_utils import download_save, unzip, rm_file, rm_dir
 import os
 import subprocess
@@ -18,10 +20,10 @@ def run(command):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('jmeter_path", help="Path to install jmeter (Eg. "C:\\Program Files")')
+    parser.add_argument('jmeter_path', help='Path to install jmeter (Eg. "C:\\Program Files")')
     args = parser.parse_args()
 
-    JMETER_INSTALL_PATH = args.jmeter_path[0]
+    JMETER_INSTALL_PATH = args.jmeter_path
     JMETER_HOME = os.path.join(JMETER_INSTALL_PATH, "apache-jmeter-5.3")
 
     print("Downloading Jmeter 5.3..")
