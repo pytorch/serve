@@ -46,12 +46,11 @@ class Linux(Common):
 
     def install_nodejs(self):
         os.system("sudo curl -sL https://deb.nodesource.com/setup_14.x | bash -")
-        os.system("apt-get update")
-        os.system("apt-get install -y nodejs")
+        os.system("sudo apt-get update")
+        os.system("sudo apt-get install -y nodejs")
 
     def install_ab(self):
-        os.system("apache2-utils")
-        pass
+        os.system("sudo apt-get install -y apache2-utils")
 
 
 class Windows(Common):
@@ -62,7 +61,6 @@ class Windows(Common):
         pass
 
     def install_ab(self):
-        # MacOS has ab pre-installed
         pass
 
 
