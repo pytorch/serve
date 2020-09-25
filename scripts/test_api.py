@@ -94,23 +94,25 @@ def trigger_all():
     return 1 if any(code != 0 for code in [exit_code1, exit_code2, exit_code3, exit_code4]) else 0
 
 
-os.chdir(TEST_DIR)
-for DIR in [MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR, ARTIFACTS_HTTPS_DIR] :
-    os.makedirs(DIR, exist_ok=True)
+def test_api(collection):
+    os.chdir(TEST_DIR)
+    for DIR in [MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR, ARTIFACTS_HTTPS_DIR] :
+        os.makedirs(DIR, exist_ok=True)
+
+    switcher = {
+        "management": trigger_management_tests,
+        "inference": trigger_inference_tests,
+        "increased_timeout_inference": trigger_incr_timeout_inference_tests,
+        "https": trigger_https_tests,
+        "all": trigger_all
+    }
+
+    sys.exit(switcher[collection]())
 
 
-parser = argparse.ArgumentParser(description="Execute newman API test suite")
-parser.add_argument("collection", type=str, help="Collection Name")
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Execute newman API test suite")
+    parser.add_argument("collection", type=str, help="Collection Name")
+    args = parser.parse_args()
 
-collection = args.collection
-
-switcher = {
-    "management": trigger_management_tests,
-    "inference": trigger_inference_tests,
-    "increased_timeout_inference": trigger_incr_timeout_inference_tests,
-    "https": trigger_https_tests,
-    "all": trigger_all
-}
-
-sys.exit(switcher[collection]())
+    test_api(args.collection)
