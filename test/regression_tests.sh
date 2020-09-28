@@ -166,7 +166,7 @@ run_pytest() {(
   set -e
   mkdir -p $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/pytest
-  python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/ --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto
+  python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/ --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto ../../frontend/server/src/main/resources/proto/management.proto
   stop_torch_serve
   pytest . -v >>$1 2>&1
   rm -rf inference_pb2*.py
