@@ -4,17 +4,15 @@ package org.pytorch.serve.grpc.management;
 
 option java_multiple_files = true;
 
-message DescribeModelRequest {
-    // Name of model to describe.
-    string model_name = 1;
-    string model_version = 2;
+message ManagementResponse {
+    string msg = 1;
 }
 
-message DescribeModelResponse {
+message DescribeModelRequest {
     // Name of model to describe.
-    string describe_model_response = 1;
-    int32 status_code = 2;
-    string info = 3;
+    string model_name = 1; //required
+    // Version of model to describe.
+    string model_version = 2; //optional
 }
 
 message ListModelsRequest {
@@ -22,19 +20,7 @@ message ListModelsRequest {
     int32 limit = 1;
 
     // The token to retrieve the next set of results. TorchServe provides the token when the response from a previous call has more results than the maximum page size.
-    string next_page_token = 2;
-}
-
-message ListModelsResponse {
-    // Use this parameter to specify the maximum number of items to return. When this value is present, TorchServe does not return more than the specified number of items, but it might return fewer. This value is optional. If you include a value, it must be between 1 and 1000, inclusive. If you do not include a value, it defaults to 100.
-    int32 limit = 1;
-
-    // The token to retrieve the next set of results. TorchServe provides the token when the response from a previous call has more results than the maximum page size.
-    string next_page_token = 2;
-
-    int32 status_code = 3;
-
-    string info = 4;
+    int32 next_page_token = 2;
 }
 
 message RegisterModelRequest {
@@ -72,20 +58,13 @@ message RegisterModelRequest {
     string url = 9;
 }
 
-message RegisterModelResponse {
-    // Use this parameter to specify the maximum number of items to return. When this value is present, TorchServe does not return more than the specified number of items, but it might return fewer. This value is optional. If you include a value, it must be between 1 and 1000, inclusive. If you do not include a value, it defaults to 100.
-    string register_response = 1;
-    int32 status_code = 2;
-    string info = 3;
-}
-
 message ScaleWorkerRequest {
 
     // Name of model to scale workers.
     string model_name = 1;
 
     // Model version.
-    int32 model_version = 2;
+    string model_version = 2;
 
     // Maximum number of worker processes.
     int32 max_worker = 3;
@@ -103,24 +82,12 @@ message ScaleWorkerRequest {
     int32 timeout = 7;
 }
 
-message ScaleWorkerResponse {
-    string scale_worker_response = 1;
-    int32 status_code = 2;
-    string info = 3;
-}
-
 message SetDefaultRequest {
     // Name of model whose default version needs to be updated.
     string model_name = 1;
 
     // Version of model to be set as default version for the model
     string model_version = 2;
-}
-
-message SetDefaultResponse {
-    string set_default_response = 1;
-    int32 status_code = 2;
-    string info = 3;
 }
 
 message UnregisterModelRequest {
@@ -137,28 +104,22 @@ message UnregisterModelRequest {
     int32 timeout = 4;
 }
 
-message UnregisterModelResponse {
-    string unregister_model_response = 1;
-    int32 status_code = 2;
-    string info = 3;
-}
-
 service ManagementAPIsService {
     // Provides detailed information about the default version of a model.
-    rpc DescribeModel(DescribeModelRequest) returns (DescribeModelResponse) {}
+    rpc DescribeModel(DescribeModelRequest) returns (ManagementResponse) {}
 
     // List registered models in TorchServe.
-    rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
+    rpc ListModels(ListModelsRequest) returns (ManagementResponse) {}
 
     // Register a new model in TorchServe.
-    rpc RegisterModel(RegisterModelRequest) returns (RegisterModelResponse) {}
+    rpc RegisterModel(RegisterModelRequest) returns (ManagementResponse) {}
 
     // Configure number of workers for a default version of a model.This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.
-    rpc ScaleWorker(ScaleWorkerRequest) returns (ScaleWorkerResponse) {}
+    rpc ScaleWorker(ScaleWorkerRequest) returns (ManagementResponse) {}
 
     // Set default version of a model
-    rpc SetDefault(SetDefaultRequest) returns (SetDefaultResponse) {}
+    rpc SetDefault(SetDefaultRequest) returns (ManagementResponse) {}
 
     // Unregister the default version of a model from TorchServe if it is the only version available.This is a asynchronous call by default. Caller can call listModels to confirm model is unregistered
-    rpc UnregisterModel(UnregisterModelRequest) returns (UnregisterModelResponse) {}
+    rpc UnregisterModel(UnregisterModelRequest) returns (ManagementResponse) {}
 }

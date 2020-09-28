@@ -2,8 +2,8 @@ package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -220,11 +220,11 @@ public final class ModelManager {
         modelsNameMap.putIfAbsent(model.getModelName(), modelVersionRef);
     }
 
-    public HttpResponseStatus unregisterModel(String modelName, String versionId) {
+    public int unregisterModel(String modelName, String versionId) {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             logger.warn("Model not found: " + modelName);
-            return HttpResponseStatus.NOT_FOUND;
+            return HttpURLConnection.HTTP_NOT_FOUND;
         }
 
         if (versionId == null) {
@@ -232,18 +232,18 @@ public final class ModelManager {
         }
 
         Model model = null;
-        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
+        int httpResponseStatus;
 
         try {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
-            CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model, false);
+            CompletableFuture<Integer> futureStatus = wlm.modelChanged(model, false);
             httpResponseStatus = futureStatus.get();
 
             // Only continue cleaning if resource cleaning succeeded
 
-            if (httpResponseStatus == HttpResponseStatus.OK) {
+            if (httpResponseStatus == HttpURLConnection.HTTP_OK) {
                 model.getModelArchive().clean();
                 startupModels.remove(modelName);
                 logger.info("Model {} unregistered.", modelName);
@@ -261,37 +261,29 @@ public final class ModelManager {
             ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
         } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
-            httpResponseStatus = HttpResponseStatus.BAD_REQUEST;
+            httpResponseStatus = HttpURLConnection.HTTP_BAD_REQUEST;
         } catch (InvalidModelVersionException e) {
             logger.warn("Cannot remove default version {} for model {}", versionId, modelName);
-            httpResponseStatus = HttpResponseStatus.FORBIDDEN;
+            httpResponseStatus = HttpURLConnection.HTTP_FORBIDDEN;
         } catch (ExecutionException | InterruptedException e1) {
             logger.warn("Process was interrupted while cleaning resources.");
-            httpResponseStatus = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+            httpResponseStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
         }
 
         return httpResponseStatus;
     }
 
-    public HttpResponseStatus setDefaultVersion(String modelName, String newModelVersion)
-            throws ModelVersionNotFoundException {
-        HttpResponseStatus httpResponseStatus = HttpResponseStatus.OK;
+    public void setDefaultVersion(String modelName, String newModelVersion)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             logger.warn("Model not found: " + modelName);
-            return HttpResponseStatus.NOT_FOUND;
+            throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        try {
-            vmodel.setDefaultVersion(newModelVersion);
-        } catch (ModelVersionNotFoundException e) {
-            logger.warn("Model version {} does not exist for model {}", newModelVersion, modelName);
-            httpResponseStatus = HttpResponseStatus.FORBIDDEN;
-        }
-
-        return httpResponseStatus;
+        vmodel.setDefaultVersion(newModelVersion);
     }
 
-    private CompletableFuture<HttpResponseStatus> updateModel(
+    private CompletableFuture<Integer> updateModel(
             String modelName, String versionId, boolean isStartup)
             throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
@@ -299,7 +291,7 @@ public final class ModelManager {
                 modelName, versionId, model.getMinWorkers(), model.getMaxWorkers(), isStartup);
     }
 
-    public CompletableFuture<HttpResponseStatus> updateModel(
+    public CompletableFuture<Integer> updateModel(
             String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup)
             throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
@@ -324,7 +316,7 @@ public final class ModelManager {
         return vmodel.getVersionModel(versionId);
     }
 
-    public CompletableFuture<HttpResponseStatus> updateModel(
+    public CompletableFuture<Integer> updateModel(
             String modelName, String versionId, int minWorkers, int maxWorkers)
             throws ModelVersionNotFoundException {
         return updateModel(modelName, versionId, minWorkers, maxWorkers, false);
@@ -388,7 +380,7 @@ public final class ModelManager {
                     // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy"
                     // and "Unhealthy"
                     NettyUtils.sendJsonResponse(
-                            ctx, new StatusResponse(response), HttpResponseStatus.OK);
+                            ctx, new StatusResponse(response, HttpURLConnection.HTTP_OK));
                 };
         wlm.scheduleAsync(r);
     }
@@ -414,7 +406,7 @@ public final class ModelManager {
                     // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy"
                     // and "Unhealthy"
                     NettyUtils.sendJsonResponse(
-                            ctx, new StatusResponse(response), HttpResponseStatus.OK);
+                            ctx, new StatusResponse(response, HttpURLConnection.HTTP_OK));
                 };
         wlm.scheduleAsync(r);
     }

@@ -73,7 +73,7 @@ public class RestJob extends Job {
     }
 
     @Override
-    public void sendError(HttpResponseStatus status, String error) {
+    public void sendError(int status, String error) {
         /*
          * We can load the models based on the configuration file.Since this Job is
          * not driven by the external connections, we could have a empty context for
@@ -81,7 +81,8 @@ public class RestJob extends Job {
          * by external clients.
          */
         if (ctx != null) {
-            NettyUtils.sendError(ctx, status, new InternalServerException(error));
+            NettyUtils.sendError(
+                    ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
         }
 
         logger.debug(

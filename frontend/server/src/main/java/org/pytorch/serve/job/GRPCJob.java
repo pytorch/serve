@@ -2,7 +2,6 @@ package org.pytorch.serve.job;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.Map;
 import org.pytorch.serve.grpc.inference.PredictionResponse;
 import org.pytorch.serve.http.InternalServerException;
@@ -37,7 +36,7 @@ public class GRPCJob extends Job {
     }
 
     @Override
-    public void sendError(HttpResponseStatus status, String error) {
+    public void sendError(int status, String error) {
         predictionResponseObserver.onError(new InternalServerException(error));
     }
 }

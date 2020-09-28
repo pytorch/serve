@@ -1,6 +1,5 @@
 package org.pytorch.serve.job;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.Map;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -66,5 +65,5 @@ public abstract class Job {
             String statusPhrase,
             Map<String, String> responseHeaders);
 
-    public abstract void sendError(HttpResponseStatus status, String error);
+    public abstract void sendError(int status, String error);
 }
