@@ -5,7 +5,7 @@ import argparse
 from scripts import tsutils as ts
 
 
-REPO_ROOT = os.getcwd()
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 TEST_DIR = os.path.join("test")
 MODEL_STORE_DIR = os.path.join("model_store")
 
@@ -111,7 +111,9 @@ def test_api(collection):
 
     exit_code = switcher[collection]()
     os.chdir(REPO_ROOT)
-    sys.exit(exit_code)
+
+    if exit_code != 0:
+        sys.exit("## Newman API Tests Failed !")
 
 
 if __name__ == "__main__":
