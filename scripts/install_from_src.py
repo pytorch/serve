@@ -1,11 +1,8 @@
 import os
 import time
 import shutil
-import sys
-sys.path.append('scripts')
 
-import tsutils as ts
-
+from . import tsutils as ts
 
 def clean_slate(): 
     print("## Uninstall existing torchserve and model archiver")
