@@ -5,9 +5,6 @@ version: 0.2
 phases:
   install:
     commands:
-#      - apt-get update
-#      - apt-get install -y curl gnupg2
-#      - pip install pip -U
       - python scripts/install_dependencies.py --python-packages --cu101 --nodejs --node-packages
 
   build:
