@@ -3,7 +3,6 @@ import platform
 import time
 import argparse
 import shutil
-import install_dependencies
 import tsutils as ts
 
 
@@ -44,17 +43,12 @@ def clean_up_build_residuals():
         print(f"#Error while cleaning cache file. Details - {str(e)}")
 
 
-def install_from_src(cu101=False):
+def install_from_src():
     clean_slate()
-    system = getattr(install_dependencies, platform.system())()
-    system.install_python_packages(cu101=cu101)
     install_torchserve()
     install_torch_model_archiver()
     clean_up_build_residuals()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Install TorchServe from source")
-    parser.add_argument("--cu101", action="store_true", help="Install torch packages specific to cu101")
-    args = parser.parse_args()
-    install_from_src(cu101=args.cu101)
+    install_from_src()
