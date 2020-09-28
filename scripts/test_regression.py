@@ -1,12 +1,17 @@
 import os
+import platform
 import sys
 import urllib.request
+
 
 REPO_ROOT = os.getcwd()
 
 def generate_densenet_test_model_archive():
     print("## Started densenet mar creation")
-    model_store_dir = os.path.join("/", "workspace", "model_store")
+    if platform.system() == "Windows":
+        model_store_dir = os.path.join("C:\\workspace", "model_store")
+    else:
+        model_store_dir = os.path.join("/", "workspace", "model_store")
     model_name = "densenet161_v1"
     version = "1.1"
     model_file = os.path.join(REPO_ROOT, "examples", "image_classifier", "densenet_161", "model.py")

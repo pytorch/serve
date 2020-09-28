@@ -103,14 +103,14 @@ def check_torchserve_health():
     click.secho("*Testing system health...", fg='green')
     while retry < attempts:
         try:
-            resp = requests.get("http://localhost:9000/ping")
+            resp = requests.get("http://localhost:8080/ping")
             if resp.status_code == 200:
                 click.secho(resp.text)
                 return True
         except Exception as e:
             retry += 1
             time.sleep(3)
-    failure_exit("Could not connect to Tochserve instance at http://localhost:9000/.")
+    failure_exit("Could not connect to Tochserve instance at http://localhost:8080/.")
 
 
 def run_benchmark():
@@ -119,7 +119,7 @@ def run_benchmark():
     click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
     click.secho("*Executing inference performance test...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
-             f"{execution_params['content_type']} http://127.0.0.1:9000/predictions/benchmark > {result_file}"
+             f"{execution_params['content_type']} http://127.0.0.1:8080/predictions/benchmark > {result_file}"
     execute(ab_cmd, wait=True)
 
     unregister_model()
@@ -194,7 +194,7 @@ def docker_torchserve_start():
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 9000:9000 -p 9001:9001 " \
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 8080:8080 -p 8081:8081 " \
                      f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
                          f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""

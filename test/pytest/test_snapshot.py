@@ -1,3 +1,4 @@
+import platform
 import time
 import os
 import glob
@@ -32,7 +33,8 @@ def test_snapshot_created_on_start_and_stop():
     test_utils.start_torchserve()
     test_utils.stop_torchserve()
     assert len(glob.glob('logs/config/*startup.cfg')) == 1
-    assert len(glob.glob('logs/config/*shutdown.cfg')) == 1
+    if platform.system() != "Windows":
+        assert len(glob.glob('logs/config/*shutdown.cfg')) == 1
 
 
 def snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
