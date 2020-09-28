@@ -53,7 +53,7 @@ public class RegisterModelRequest {
 
     public RegisterModelRequest(org.pytorch.serve.grpc.management.RegisterModelRequest request) {
         modelName = GRPCUtils.getRegisterParam(request.getModelName(), null);
-        runtime = GRPCUtils.getRegisterParam(request.getRuntime().name(), null);
+        runtime = GRPCUtils.getRegisterParam(request.getRuntime(), null);
         handler = GRPCUtils.getRegisterParam(request.getHandler(), null);
         batchSize = GRPCUtils.getRegisterParam(request.getBatchSize(), 1);
         maxBatchDelay = GRPCUtils.getRegisterParam(request.getMaxBatchDelay(), 100);

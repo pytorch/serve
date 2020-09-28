@@ -24,12 +24,6 @@ message ListModelsRequest {
 }
 
 message RegisterModelRequest {
-    enum RegisterModelRequestRuntime {
-        REGISTER_MODEL_REQUEST_RUNTIME_PYTHON = 0;
-        REGISTER_MODEL_REQUEST_RUNTIME_PYTHON2 = 1;
-        REGISTER_MODEL_REQUEST_RUNTIME_PYTHON3 = 2;
-    }
-
     // Inference batch size, default: 1.
     int32 batch_size = 1;
 
@@ -49,7 +43,7 @@ message RegisterModelRequest {
     int32 response_timeout = 6;
 
     // Runtime for the model custom service code. This value will override runtime in MANIFEST.json if present.
-    RegisterModelRequestRuntime runtime = 7;
+    string runtime = 7;
 
     // Decides whether creation of worker synchronous or not, default: false.
     bool synchronous = 8;
@@ -96,12 +90,6 @@ message UnregisterModelRequest {
 
     // Name of model to unregister.
     string model_version = 2;
-
-    // Decides whether the call is synchronous or not, default: false.
-    bool synchronous = 3;
-
-    // Waiting up to the specified wait time if necessary for a worker to complete all pending requests. Use 0 to terminate backend worker process immediately. Use -1 for wait infinitely.
-    int32 timeout = 4;
 }
 
 service ManagementAPIsService {

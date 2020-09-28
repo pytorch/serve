@@ -106,7 +106,14 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
 
     @Override
     public void unregisterModel(
-            UnregisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {}
+            UnregisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        try {
+            ApiUtils.unregisterModel(request.getModelName(), request.getModelVersion());
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            sendException(responseObserver, e, null);
+        }
+
+    }
 
     private void sendResponse(StreamObserver<ManagementResponse> responseObserver, String msg) {
         ManagementResponse reply = ManagementResponse.newBuilder().setMsg(msg).build();
