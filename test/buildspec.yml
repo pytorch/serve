@@ -3,16 +3,16 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - python scripts/install_dependencies.py --python-packages --cu101 --nodejs --node-packages
 
   build:
     commands:
-      - ./test/regression_tests.sh $NIGHTLY_BUILD_BRANCH
+      - python test/regression_tests.py
 
 artifacts:
   files:
-    - /workspace/report/management_report.html
-    - /workspace/report/inference_report.html
-    - /workspace/report/snapshot_report.html
-    - /tmp/ts.log
-    - /tmp/test_exec.log
+    - test/artifacts # Newman api tests - logs and results
+    -
   name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 

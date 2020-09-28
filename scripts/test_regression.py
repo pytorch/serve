@@ -32,6 +32,7 @@ def generate_densenet_test_model_archive():
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     sys_exit_code = os.system(cmd)
     os.remove(serialized_file_path)
+    os.chdir(REPO_ROOT)
     return sys_exit_code
 
 

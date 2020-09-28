@@ -4,6 +4,8 @@ import sys
 import argparse
 from scripts import tsutils as ts
 
+
+REPO_ROOT = os.getcwd()
 TEST_DIR = os.path.join("test")
 MODEL_STORE_DIR = os.path.join("model_store")
 
@@ -107,7 +109,9 @@ def test_api(collection):
         "all": trigger_all
     }
 
-    sys.exit(switcher[collection]())
+    exit_code = switcher[collection]()
+    os.chdir(REPO_ROOT)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
