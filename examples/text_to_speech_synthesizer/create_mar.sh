@@ -2,13 +2,28 @@
 set -euxo pipefail
 
 cd /tmp
-rm torchhub.zip
+if [ -f "torchhub.zip" ] 
+then
+   rm torchhub.zip
+fi
 wget https://github.com/nvidia/DeepLearningExamples/archive/torchhub.zip
-rm -rf DeepLearningExamples-torchhub
+if [ -d "DeepLearningExamples-torchhub" ] 
+then
+   rm -rf DeepLearningExamples-torchhub
+fi
 unzip torchhub.zip
+
 cd -
-rm tacotron.zip
-rm -rf PyTorch
+if [ -f "tacotron.zip" ] 
+then
+   rm tacotron.zip
+fi
+
+if [ -d "PyTorch" ]
+then
+   rm -rf PyTorch
+fi
+
 mkdir -p PyTorch/SpeechSynthesis
 cp -r /tmp/DeepLearningExamples-torchhub/PyTorch/SpeechSynthesis/* PyTorch/SpeechSynthesis/
 zip -r tacotron.zip PyTorch
