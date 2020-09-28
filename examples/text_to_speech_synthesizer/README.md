@@ -22,7 +22,7 @@ pip install librosa --user
  * Generate the model archive for waveglow speech synthesis model using following command
  
     ```bash
-    ./create_mar.sh
+    python create_mar.py
     ```
    
  * Register the model on TorchServe using the above model archive file
