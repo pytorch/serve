@@ -37,7 +37,7 @@ class TorchModelServiceWorker(object):
             self.sock_name, self.port = s_name, -1
             try:
                 os.remove(s_name)
-            except OSError as e :
+            except OSError as e:
                 if os.path.exists(s_name):
                     raise RuntimeError("socket already in use: {}.".format(s_name)) from e
 
