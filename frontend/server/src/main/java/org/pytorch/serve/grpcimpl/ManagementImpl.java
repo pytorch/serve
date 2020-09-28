@@ -15,6 +15,7 @@ import org.pytorch.serve.grpc.management.ScaleWorkerRequest;
 import org.pytorch.serve.grpc.management.SetDefaultRequest;
 import org.pytorch.serve.grpc.management.UnregisterModelRequest;
 import org.pytorch.serve.http.BadRequestException;
+import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.GRPCUtils;
@@ -36,7 +37,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                             ApiUtils.getModelDescription(modelName, modelVersion));
             sendResponse(responseObserver, resp);
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-            sendException(responseObserver, e, null);
+            sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
         }
     }
 
@@ -60,8 +61,14 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
         try {
             statusResponse = ApiUtils.registerModel(registerModelRequest);
             sendStatusResponse(responseObserver, statusResponse);
-        } catch (ExecutionException | InterruptedException | ModelException e) {
+        } catch (InternalServerException e) {
+            sendException(responseObserver, e, null);
+        } catch (ExecutionException | InterruptedException e) {
             sendException(responseObserver, e, "Error while creating workers");
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
+        } catch (ModelException | BadRequestException e) {
+            sendErrorResponse(responseObserver, Status.INVALID_ARGUMENT, e);
         }
     }
 
@@ -86,8 +93,12 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                             false,
                             null);
             sendStatusResponse(responseObserver, statusResponse);
-        } catch (ExecutionException | InterruptedException | ModelException e) {
+        } catch (ExecutionException | InterruptedException e) {
             sendException(responseObserver, e, "Error while creating workers");
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
+        } catch (BadRequestException e) {
+            sendErrorResponse(responseObserver, Status.INVALID_ARGUMENT, e);
         }
     }
 
@@ -101,7 +112,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
             String msg = ApiUtils.setDefault(modelName, newModelVersion);
             sendResponse(responseObserver, msg);
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-            sendException(responseObserver, e, null);
+            sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
         }
     }
 
@@ -111,7 +122,10 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
         try {
             String modelName = request.getModelName();
             if (modelName == null || ("").equals(modelName)) {
-                throw new BadRequestException("Parameter model_name is required.");
+                sendErrorResponse(
+                        responseObserver,
+                        Status.INVALID_ARGUMENT,
+                        new BadRequestException("Parameter url is required."));
             }
 
             String modelVersion = request.getModelVersion();
@@ -122,8 +136,10 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
             ApiUtils.unregisterModel(modelName, modelVersion);
             String msg = "Model \"" + modelName + "\" unregistered";
             sendResponse(responseObserver, msg);
-        } catch (ModelNotFoundException | ModelVersionNotFoundException | BadRequestException e) {
-            sendException(responseObserver, e, null);
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
+        } catch (BadRequestException e) {
+            sendErrorResponse(responseObserver, Status.INVALID_ARGUMENT, e);
         }
     }
 
@@ -144,6 +160,14 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                         .asRuntimeException());
     }
 
+    private void sendErrorResponse(
+            StreamObserver<ManagementResponse> responseObserver, Status status, Exception e) {
+        responseObserver.onError(
+                status.withDescription(e.getMessage())
+                        .augmentDescription(e.getClass().getCanonicalName())
+                        .asRuntimeException());
+    }
+
     private void sendStatusResponse(
             StreamObserver<ManagementResponse> responseObserver, StatusResponse statusResponse) {
         int httpResponseStatusCode = statusResponse.getHttpResponseCode();
@@ -160,10 +184,10 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
 
     private void sendException(
             StreamObserver<ManagementResponse> responseObserver, Exception e, String description) {
-        responseObserver.onError(
-                Status.INTERNAL
-                        .withDescription(description == null ? e.getMessage() : description)
-                        .augmentDescription(e.getClass().getCanonicalName())
-                        .asRuntimeException());
+        sendErrorResponse(
+                responseObserver,
+                Status.INTERNAL,
+                description == null ? e.getMessage() : description,
+                e.getClass().getCanonicalName());
     }
 }

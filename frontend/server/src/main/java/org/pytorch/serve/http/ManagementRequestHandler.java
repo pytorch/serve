@@ -114,10 +114,16 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         StatusResponse statusResponse;
         try {
             statusResponse = ApiUtils.registerModel(registerModelRequest);
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException | InternalServerException e) {
+            String message;
+            if (e instanceof InternalServerException) {
+                message = e.getMessage();
+            } else {
+                message = "Error while creating workers";
+            }
             statusResponse = new StatusResponse();
             statusResponse.setE(e);
-            statusResponse.setStatus("Error while creating workers");
+            statusResponse.setStatus(message);
             statusResponse.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         }
         sendResponse(ctx, statusResponse);

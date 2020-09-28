@@ -1,5 +1,6 @@
 import grpc
 import inference_pb2_grpc
+import management_pb2
 import management_pb2_grpc
 
 
@@ -15,27 +16,31 @@ def get_management_stub():
     return stub
 
 
-def register_model():
-    pass
+def register_model(**kwargs):
+    managment_stub = get_management_stub()
+    return managment_stub.RegisterModel(management_pb2.RegisterModelRequest(**kwargs))
 
 
-def unregister_model():
-    pass
+def unregister_model(**kwargs):
+    managment_stub = get_management_stub()
+    return managment_stub.UnregisterModel(management_pb2.UnregisterModelRequest(**kwargs))
 
 
-def scale_model():
-    pass
+def scale_model(**kwargs):
+    managment_stub = get_management_stub()
+    return managment_stub.ScaleWorker(management_pb2.ScaleWorkerRequest(**kwargs))
 
 
-def set_default_model():
-    pass
+def set_default_model(**kwargs):
+    managment_stub = get_management_stub()
+    return managment_stub.SetDefault(management_pb2.SetDefaultRequest(**kwargs))
 
 
-def list_model():
-    pass
+def list_model(**kwargs):
+    managment_stub = get_management_stub()
+    return managment_stub.ListModels(management_pb2.ListModelsRequest(**kwargs))
 
 
-def describe_model():
-    pass
-
-
+def describe_model(**kwargs):
+    managment_stub = get_management_stub()
+    return managment_stub.DescribeModel(management_pb2.DescribeModelRequest(**kwargs))

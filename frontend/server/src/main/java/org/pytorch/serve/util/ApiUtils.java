@@ -101,7 +101,8 @@ public final class ApiUtils {
     }
 
     public static StatusResponse registerModel(RegisterModelRequest registerModelRequest)
-            throws ModelException, ExecutionException, InterruptedException {
+            throws ModelException, InternalServerException, ExecutionException,
+                    InterruptedException {
         String modelUrl = registerModelRequest.getModelUrl();
         if (modelUrl == null) {
             throw new BadRequestException("Parameter url is required.");
