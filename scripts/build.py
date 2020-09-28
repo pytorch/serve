@@ -2,7 +2,10 @@ import os
 import sys
 import glob
 
-sys.path.append(os.getcwd())  # To help discover local modules
+# To help discover local modules
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
 from scripts import tsutils
 from binaries.conda.build_packages import conda_build
 

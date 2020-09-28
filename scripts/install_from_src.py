@@ -1,11 +1,13 @@
 import os
+import sys
 import time
 import shutil
-import sys
-sys.path.append('scripts')
 
-import tsutils as ts
+# To help discover local modules
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
 
+from scripts import tsutils as ts
 
 def clean_slate(): 
     print("## Uninstall existing torchserve and model archiver")
