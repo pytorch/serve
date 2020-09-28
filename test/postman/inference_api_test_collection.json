@@ -88,8 +88,6 @@
 							"    pm.test(\"Test expected JSON response\", function() {",
 							"        var actual_obj = pm.response.json();",
 							"        var expected_obj = pm.iterationData.get(\"expected\");",
-							"        console.log(actual_obj);",
-							"        console.log(expected_obj);",
 							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
 							"    });",
 							"",
