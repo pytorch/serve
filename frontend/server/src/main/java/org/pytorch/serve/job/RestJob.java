@@ -81,6 +81,8 @@ public class RestJob extends Job {
          * by external clients.
          */
         if (ctx != null) {
+            // Mapping HTTPURLConnection's HTTP_ENTITY_TOO_LARGE to Netty's INSUFFICIENT_STORAGE
+            status = (status == 413) ? 507 : status;
             NettyUtils.sendError(
                     ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
         }

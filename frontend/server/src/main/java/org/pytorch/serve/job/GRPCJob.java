@@ -1,10 +1,11 @@
 package org.pytorch.serve.job;
 
 import com.google.protobuf.ByteString;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.Map;
 import org.pytorch.serve.grpc.inference.PredictionResponse;
-import org.pytorch.serve.http.InternalServerException;
+import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 
@@ -37,6 +38,11 @@ public class GRPCJob extends Job {
 
     @Override
     public void sendError(int status, String error) {
-        predictionResponseObserver.onError(new InternalServerException(error));
+        Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
+        predictionResponseObserver.onError(
+                responseStatus
+                        .withDescription(error)
+                        .augmentDescription("org.pytorch.serve.http.InternalServerException")
+                        .asRuntimeException());
     }
 }

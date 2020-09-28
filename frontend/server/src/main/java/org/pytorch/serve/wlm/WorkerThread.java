@@ -9,7 +9,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketAddress;
@@ -25,7 +24,6 @@ import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
-import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
@@ -381,8 +379,12 @@ public class WorkerThread implements Runnable {
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             logger.error("Unknown exception", cause);
             if (cause instanceof OutOfMemoryError) {
-                // TODO : Remove Netty's HTTPResponseStatus reference
-                NettyUtils.sendError(ctx, HttpResponseStatus.INSUFFICIENT_STORAGE, cause);
+                ModelWorkerResponse msg = new ModelWorkerResponse();
+                msg.setCode(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
+                msg.setMessage(cause.getMessage());
+                if (!replies.offer(msg)) {
+                    throw new IllegalStateException("Reply queue is full.");
+                }
             }
             ctx.close();
         }
