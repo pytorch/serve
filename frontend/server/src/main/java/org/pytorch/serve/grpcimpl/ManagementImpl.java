@@ -14,6 +14,7 @@ import org.pytorch.serve.grpc.management.RegisterModelRequest;
 import org.pytorch.serve.grpc.management.ScaleWorkerRequest;
 import org.pytorch.serve.grpc.management.SetDefaultRequest;
 import org.pytorch.serve.grpc.management.UnregisterModelRequest;
+import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.GRPCUtils;
@@ -108,11 +109,22 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     public void unregisterModel(
             UnregisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
         try {
-            ApiUtils.unregisterModel(request.getModelName(), request.getModelVersion());
-        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            String modelName = request.getModelName();
+            if (modelName == null || ("").equals(modelName)) {
+                throw new BadRequestException("Parameter model_name is required.");
+            }
+
+            String modelVersion = request.getModelVersion();
+
+            if (("").equals(modelVersion)) {
+                modelVersion = null;
+            }
+            ApiUtils.unregisterModel(modelName, modelVersion);
+            String msg = "Model \"" + modelName + "\" unregistered";
+            sendResponse(responseObserver, msg);
+        } catch (ModelNotFoundException | ModelVersionNotFoundException | BadRequestException e) {
             sendException(responseObserver, e, null);
         }
-
     }
 
     private void sendResponse(StreamObserver<ManagementResponse> responseObserver, String msg) {

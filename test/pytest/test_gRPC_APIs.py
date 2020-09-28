@@ -3,13 +3,13 @@ import grpc
 import inference_pb2
 import inference_pb2_grpc
 import json
+import management_pb2
+import management_pb2_grpc
 import os
 import test_utils
 
 
 inference_data_json = "/../postman/inference_data.json"
-torchserve_management_url = "http://localhost:8081/models"
-
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
@@ -23,6 +23,12 @@ def teardown_module(module):
 def get_inference_stub():
     channel = grpc.insecure_channel('localhost:9090')
     stub = inference_pb2_grpc.InferenceAPIsServiceStub(channel)
+    return stub
+
+
+def get_managment_stub():
+    channel = grpc.insecure_channel('localhost:9091')
+    stub = management_pb2_grpc.ManagementAPIsServiceStub(channel)
     return stub
 
 
@@ -53,14 +59,15 @@ def test_inference_apis():
         test_data = json.loads(f.read())
 
     for item in test_data:
-        params = (
-            ('model_name', item['model_name']),
-            ('url', item['url']),
-            ('initial_workers', item['worker']),
-            ('synchronous', item['synchronous']),
-        )
+        managment_stub = get_managment_stub()
+        response = managment_stub.RegisterModel(management_pb2.RegisterModelRequest(
+            url=item['url'],
+            initial_workers=item['worker'],
+            synchronous=bool(item['synchronous']),
+            model_name=item['model_name']
+        ))
 
-        test_utils.register_model(params)
+        print(response.msg)
 
         model_input = os.path.dirname(__file__) + "/../" + item['file']
         prediction = infer(get_inference_stub(), item['model_name'], model_input)
@@ -76,12 +83,16 @@ def test_inference_apis():
             if isinstance(prediction, list) and 'tolerance' in item:
                 assert len(prediction) == len(item['expected'])
                 for i in range(len(prediction)):
-                    assert get_change(prediction, item['expected']) < item['tolerance']
-            elif isinstance(prediction, dict):
+                    assert get_change(prediction[i], item['expected'][i]) < item['tolerance']
+            elif isinstance(prediction, dict) and 'tolerance' in item:
                 assert len(prediction) == len(item['expected'])
                 for key in prediction:
                     assert get_change(prediction[key], item['expected'][key]) < item['tolerance']
             else:
                 assert str(prediction) == str(item['expected'])
 
-        test_utils.unregister_model(item['model_name'])
+        response = managment_stub.UnregisterModel(management_pb2.UnregisterModelRequest(
+            model_name=item['model_name'],
+        ))
+
+        print(response.msg)
