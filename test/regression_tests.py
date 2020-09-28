@@ -6,17 +6,14 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from scripts.install_from_src import install_from_src
-from scripts.test_regression import generate_densenet_test_model_archive, test_regression
+from scripts.test_regression import test_regression
 from scripts.test_api import test_api
 
-# Install from src
+# Install from source
 install_from_src()
 
-# generate_densenet_test_model_archive
-generate_densenet_test_model_archive()
-
-# run_postman_test
+# Run newman api tests
 test_api("all") #"all" > management, inference, increased_timeout_inference, https collections
 
-# run_pytest
+# Run regression tests
 test_regression()
