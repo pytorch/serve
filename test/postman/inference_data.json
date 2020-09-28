@@ -13,7 +13,7 @@
             "Business":0.9967544674873352,
             "Sci/Tec":0.0010945842368528247
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted_v2.mar",
@@ -29,7 +29,7 @@
             "Business":0.9967544674873352,
             "Sci/Tec":0.0010945842368528247
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
@@ -46,7 +46,7 @@
             "Egyptian_cat":0.2213735282421112,
             "cougar":0.0022544863168150187
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1_scripted.mar",
@@ -63,7 +63,7 @@
             "Egyptian_cat":0.2213735282421112,
             "cougar":0.0022544863168150187
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar",
@@ -80,7 +80,7 @@
             "lynx":0.001282821292988956,
             "plastic_bag":0.00023323031200561672
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar",
@@ -97,7 +97,7 @@
             "lynx":0.16119907796382904,
             "tiger":0.006510233972221613
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet_scripted.mar",
@@ -114,7 +114,7 @@
             "lynx":0.16119907796382904,
             "tiger":0.006510233972221613
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
@@ -131,7 +131,7 @@
             "lynx":0.023326940834522247,
             "bucket":0.011855212040245533
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18_scripted.mar",
@@ -148,7 +148,7 @@
             "lynx":0.023326940834522247,
             "bucket":0.011855212040245533
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar",
@@ -165,7 +165,7 @@
             "lynx":0.006006305105984211,
             "tiger":0.004394155461341143
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar",
@@ -182,7 +182,7 @@
             "lynx":0.006006305105984211,
             "tiger":0.004394155461341143
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar",
@@ -245,7 +245,7 @@
           "lynx": 0.0005633446853607893,
           "quilt": 0.0002698268508538604
         },
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar",
@@ -263,7 +263,7 @@
           "quilt": 0.0002698268508538604
         }
         ,
-        "tolerance":2
+        "tolerance":5
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
