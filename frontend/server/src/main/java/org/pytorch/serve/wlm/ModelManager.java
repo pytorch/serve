@@ -1,10 +1,8 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
-import io.netty.channel.ChannelHandlerContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -24,10 +22,8 @@ import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
-import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +34,11 @@ public final class ModelManager {
 
     private static ModelManager modelManager;
 
-    private ConfigManager configManager;
-    private WorkLoadManager wlm;
-    private ConcurrentHashMap<String, ModelVersionedRefs> modelsNameMap;
-    private HashSet<String> startupModels;
-    private ScheduledExecutorService scheduler;
+    private final ConfigManager configManager;
+    private final WorkLoadManager wlm;
+    private final ConcurrentHashMap<String, ModelVersionedRefs> modelsNameMap;
+    private final HashSet<String> startupModels;
+    private final ScheduledExecutorService scheduler;
 
     private ModelManager(ConfigManager configManager, WorkLoadManager wlm) {
         this.configManager = configManager;
@@ -134,7 +130,7 @@ public final class ModelManager {
             String handler,
             Manifest.RuntimeType runtime,
             String defaultModelName)
-            throws FileAlreadyExistsException, ModelException, IOException {
+            throws ModelException, IOException {
         ModelArchive archive = ModelArchive.downloadModel(configManager.getModelStore(), url);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
@@ -231,7 +227,7 @@ public final class ModelManager {
             versionId = vmodel.getDefaultVersion();
         }
 
-        Model model = null;
+        Model model;
         int httpResponseStatus;
 
         try {
@@ -358,59 +354,6 @@ public final class ModelManager {
         return model.addJob(job);
     }
 
-    public void workerStatus(final ChannelHandlerContext ctx) {
-        Runnable r =
-                () -> {
-                    String response = "Healthy";
-                    int numWorking = 0;
-                    int numScaled = 0;
-                    for (Map.Entry<String, ModelVersionedRefs> m : modelsNameMap.entrySet()) {
-                        numScaled += m.getValue().getDefaultModel().getMinWorkers();
-                        numWorking +=
-                                wlm.getNumRunningWorkers(
-                                        m.getValue().getDefaultModel().getModelVersionName());
-                    }
-
-                    if ((numWorking > 0) && (numWorking < numScaled)) {
-                        response = "Partial Healthy";
-                    } else if ((numWorking == 0) && (numScaled > 0)) {
-                        response = "Unhealthy";
-                    }
-
-                    // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy"
-                    // and "Unhealthy"
-                    NettyUtils.sendJsonResponse(
-                            ctx, new StatusResponse(response, HttpURLConnection.HTTP_OK));
-                };
-        wlm.scheduleAsync(r);
-    }
-
-    public void modelWorkerStatus(final String modelName, final ChannelHandlerContext ctx) {
-        Runnable r =
-                () -> {
-                    String response = "Healthy";
-                    int numWorking = 0;
-                    int numScaled = 0;
-                    ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
-                    for (Map.Entry<String, Model> m : vmodel.getAllVersions()) {
-                        numScaled += m.getValue().getMinWorkers();
-                        numWorking += wlm.getNumRunningWorkers(m.getValue().getModelVersionName());
-                    }
-
-                    if ((numWorking > 0) && (numWorking < numScaled)) {
-                        response = "Partial Healthy";
-                    } else if ((numWorking == 0) && (numScaled > 0)) {
-                        response = "Unhealthy";
-                    }
-
-                    // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy"
-                    // and "Unhealthy"
-                    NettyUtils.sendJsonResponse(
-                            ctx, new StatusResponse(response, HttpURLConnection.HTTP_OK));
-                };
-        wlm.scheduleAsync(r);
-    }
-
     public boolean scaleRequestStatus(String modelName, String versionId) {
         Model model = modelsNameMap.get(modelName).getVersionModel(versionId);
         int numWorkers = 0;
@@ -451,5 +394,13 @@ public final class ModelManager {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
         return vmodel.getAllVersions();
+    }
+
+    public Set<Entry<String, ModelVersionedRefs>> getAllModels() {
+        return modelsNameMap.entrySet();
+    }
+
+    public int getNumRunningWorkers(ModelVersionName modelVersionName) {
+        return wlm.getNumRunningWorkers(modelVersionName);
     }
 }

@@ -28,6 +28,7 @@ import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.ModelVersionedRefs;
 import org.pytorch.serve.wlm.WorkerThread;
 
 public final class ApiUtils {
@@ -284,6 +285,34 @@ public final class ApiUtils {
             throw new InvalidModelVersionException(
                     "Cannot remove default version for model " + modelName);
         }
+    }
+
+    public static void getTorchServeHealth(Runnable r) {
+        ModelManager modelManager = ModelManager.getInstance();
+        modelManager.submitTask(r);
+    }
+
+    public static String getWorkerStatus() {
+        ModelManager modelManager = ModelManager.getInstance();
+        String response = "Healthy";
+        int numWorking = 0;
+        int numScaled = 0;
+
+        for (Map.Entry<String, ModelVersionedRefs> m : modelManager.getAllModels()) {
+            numScaled += m.getValue().getDefaultModel().getMinWorkers();
+            numWorking +=
+                    modelManager.getNumRunningWorkers(
+                            m.getValue().getDefaultModel().getModelVersionName());
+        }
+
+        if ((numWorking > 0) && (numWorking < numScaled)) {
+            response = "Partial Healthy";
+        } else if ((numWorking == 0) && (numScaled > 0)) {
+            response = "Unhealthy";
+        }
+        // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy" and
+        // "Unhealthy"
+        return response;
     }
 
     private static DescribeModelResponse createModelResponse(

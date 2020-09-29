@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.UUID;
 import org.pytorch.serve.archive.ModelNotFoundException;
@@ -14,9 +15,12 @@ import org.pytorch.serve.grpc.inference.PredictionsRequest;
 import org.pytorch.serve.grpc.inference.TorchServeHealthResponse;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.InternalServerException;
+import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.job.GRPCJob;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.metrics.api.MetricAggregator;
+import org.pytorch.serve.util.ApiUtils;
+import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -26,7 +30,20 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
 
     @Override
     public void ping(Empty request, StreamObserver<TorchServeHealthResponse> responseObserver) {
-        super.ping(request, responseObserver);
+        Runnable r =
+                () -> {
+                    String response = ApiUtils.getWorkerStatus();
+                    TorchServeHealthResponse reply =
+                            TorchServeHealthResponse.newBuilder()
+                                    .setHealth(
+                                            JsonUtils.GSON_PRETTY_EXPOSED.toJson(
+                                                    new StatusResponse(
+                                                            response, HttpURLConnection.HTTP_OK)))
+                                    .build();
+                    responseObserver.onNext(reply);
+                    responseObserver.onCompleted();
+                };
+        ApiUtils.getTorchServeHealth(r);
     }
 
     @Override

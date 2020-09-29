@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
@@ -19,6 +20,7 @@ import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -55,7 +57,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             } else {
                 switch (segments[1]) {
                     case "ping":
-                        ModelManager.getInstance().workerStatus(ctx);
+                        Runnable r =
+                                () -> {
+                                    String response = ApiUtils.getWorkerStatus();
+                                    NettyUtils.sendJsonResponse(
+                                            ctx,
+                                            new StatusResponse(
+                                                    response, HttpURLConnection.HTTP_OK));
+                                };
+                        ApiUtils.getTorchServeHealth(r);
                         break;
                     case "models":
                     case "invocations":
