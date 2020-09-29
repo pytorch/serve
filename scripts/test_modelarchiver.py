@@ -2,7 +2,7 @@ import os
 import sys
 
 
-REPO_ROOT = os.getcwd()
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_modelarchiver():
     os.chdir("model-archiver")

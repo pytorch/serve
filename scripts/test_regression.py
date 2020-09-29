@@ -4,7 +4,7 @@ import sys
 import urllib.request
 
 
-REPO_ROOT = os.getcwd()
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def generate_densenet_test_model_archive():
     print("## Started densenet mar creation")
