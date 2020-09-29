@@ -355,20 +355,24 @@ public class ModelServer {
                             ConnectorType.METRICS_CONNECTOR));
         }
 
-        inferencegRPCServer = startgRPCServer(ConnectorType.INFERENCE_CONNECTOR);
-        managementgRPCServer = startgRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
+        inferencegRPCServer = startGRPCServer(ConnectorType.INFERENCE_CONNECTOR);
+        managementgRPCServer = startGRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
     }
 
-    public Server startgRPCServer(ConnectorType connectorType)
-            throws IOException, InterruptedException {
+    public Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
-        Server server =
+        ServerBuilder<?> s =
                 ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
-                        .addService(GRPCServiceFactory.getgRPCService(connectorType))
-                        .build();
+                        .addService(GRPCServiceFactory.getgRPCService(connectorType));
 
+        if (configManager.isGRPCSSLEnabled()) {
+            s.useTransportSecurity(
+                    new File(configManager.getCertificateFile()),
+                    new File(configManager.getPrivateKeyFile()));
+        }
+        Server server = s.build();
         server.start();
         return server;
     }

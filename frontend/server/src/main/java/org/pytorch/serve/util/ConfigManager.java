@@ -83,6 +83,7 @@ public final class ConfigManager {
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
+    private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -288,6 +289,10 @@ public final class ConfigManager {
         return Integer.parseInt(port);
     }
 
+    public boolean isGRPCSSLEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_GRPC_SSL, "false"));
+    }
+
     public boolean getPreferDirectBuffer() {
         return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
     }
@@ -407,6 +412,14 @@ public final class ConfigManager {
 
     public String getCorsAllowedHeaders() {
         return prop.getProperty(TS_CORS_ALLOWED_HEADERS);
+    }
+
+    public String getPrivateKeyFile() {
+        return prop.getProperty(TS_PRIVATE_KEY_FILE);
+    }
+
+    public String getCertificateFile() {
+        return prop.getProperty(TS_CERTIFICATE_FILE);
     }
 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
