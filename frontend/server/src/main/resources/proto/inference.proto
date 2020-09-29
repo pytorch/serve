@@ -10,7 +10,7 @@ message PredictionsRequest {
     // Name of model.
     string model_name = 1; //required
 
-    // input data for model prediction
+    // Version of model to run prediction on.
     string model_version = 2; //optional
 
     // input data for model prediction
