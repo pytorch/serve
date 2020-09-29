@@ -9,8 +9,6 @@ sys.path.append(REPO_ROOT)
 from scripts import tsutils
 from binaries.conda.build_packages import conda_build
 
-REPO_ROOT = os.getcwd()
-
 
 def build():
     print("## Started torchserve and modelarchiver build")
