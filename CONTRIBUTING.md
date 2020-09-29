@@ -12,7 +12,7 @@ If you are interested in contributing to TorchServe, your contributions will fal
           ```bash
           python scripts/install_dependencies.py --python-packages --nodejs --node-packages
           ```
-          For GPU with Cuda 10.1, make sure add the `--cu101` flag to the above command
+          > For GPU with Cuda 10.1, make sure add the `--cu101` flag to the above command
         - Execute sanity suite
           ```bash
           python ./torchserve_sanity.py
