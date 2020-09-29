@@ -5,11 +5,9 @@ version: 0.2
 phases:
   install:
     commands:
-      - apt-get update
-      - apt-get install -y curl gnupg2
-      - pip install pip -U
+      - python scripts/install_dependencies.py --python-packages --cu101 --nodejs --node-packages
 
   build:
     commands:
-      - ./torchserve_sanity.sh cuda101
+      - python torchserve_sanity.py
       - cd serving-sdk/ && mvn clean install -q && cd ../

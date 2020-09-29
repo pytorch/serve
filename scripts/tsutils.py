@@ -36,62 +36,52 @@ def start_torchserve(ncs=False, model_store="model_store", models="", config_fil
     status = os.system(cmd)
     if status == 0:
         print("## Successfully started TorchServe")
+        time.sleep(wait_for)
+        return True
     else:
-        sys.exit("## TorchServe failed to start !")
-    time.sleep(wait_for)
+        print("## TorchServe failed to start !")
+        return False
 
 
 def stop_torchserve(wait_for=10):
     print("## Stopping TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --stop"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    os.system(cmd)
-    time.sleep(wait_for)
+    status = os.system(cmd)
+    if status == 0:
+        print("## Successfully stopped TorchServe")
+        time.sleep(wait_for)
+        return True
+    else:
+        print("## TorchServe failed to stop !")
+        return False
 
 
 # Takes model name and mar name from model zoo as input
-def register_model(model_name):
+def register_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {model_name} model")
-    response = None
-    try:
-        params = (
-            ("model_name", model_name),
-            ("url", f"https://torchserve.s3.amazonaws.com/mar_files/{model_name}.mar"),
-            ("initial_workers", "1"),
-            ("synchronous", "true"),
-        )
-        response = requests.post("http://localhost:8081/models", params=params, verify=False)
-    finally:
-        if response and response.status_code == 200:
-            print(f"## Successfully registered {model_name} model with torchserve")
-        else:
-            sys.exit("## Failed to register model with torchserve")
+    model_zoo_url = "https://torchserve.s3.amazonaws.com"
+    params = (
+        ("model_name", model_name),
+        ("url", f"{model_zoo_url}/mar_files/{model_name}.mar"),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+    )
+    url = f"{protocol}://{host}:{port}/models"
+    response = requests.post(url, params=params, verify=False)
+    return response
 
 
-# Takes model URL and payload path as input
-def run_inference(model_name, file_name):
+def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
     print(f"## Running inference on {model_name} model")
-    url = f"http://localhost:8080/predictions/{model_name}"
-    for i in range(4):
-        # Run inference
-        response = None
-        try:
-            files = {"data": (file_name, open(file_name, "rb"))}
-            response = requests.post(url=url, files=files, timeout=120)
-        finally:
-            if response and response.status_code == 200:
-                print(f"## Successfully ran inference on {model_name} model.")
-            else:
-                sys.exit(f"## Failed to run inference on {model_name} model")
+    url = f"{protocol}://{host}:{port}/predictions/{model_name}"
+    files = {"data": (file_name, open(file_name, "rb"))}
+    response = requests.post(url, files=files, timeout=timeout)
+    return response
 
 
-def unregister_model(model_name):
+def unregister_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Unregistering {model_name} model")
-    response = None
-    try:
-        response = requests.delete(f"http://localhost:8081/models/{model_name}", verify=False)
-    finally:
-        if response and response.status_code == 200:
-            print(f"## Successfully unregistered {model_name}")
-        else:
-            sys.exit(f"## Failed to unregister {model_name}")
+    url = f"{protocol}://{host}:{port}/models/{model_name}"
+    response = requests.delete(url, verify=False)
+    return response

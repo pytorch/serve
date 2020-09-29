@@ -4,7 +4,7 @@ import sys
 import urllib.request
 
 
-REPO_ROOT = os.getcwd()
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def generate_densenet_test_model_archive():
     print("## Started densenet mar creation")
@@ -37,6 +37,7 @@ def generate_densenet_test_model_archive():
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     sys_exit_code = os.system(cmd)
     os.remove(serialized_file_path)
+    os.chdir(REPO_ROOT)
     return sys_exit_code
 
 

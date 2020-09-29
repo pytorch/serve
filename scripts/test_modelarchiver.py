@@ -2,7 +2,7 @@ import os
 import sys
 
 
-REPO_ROOT = os.getcwd()
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_modelarchiver():
     os.chdir("model-archiver")
@@ -38,6 +38,8 @@ def test_modelarchiver():
         sys.exit("## Model archiver Unit Pytests Failed !")
     if py_integ_exit_code != 0:
         sys.exit("## Model archiver Integration Pytests Failed !")
+
+    os.chdir(REPO_ROOT)
 
 
 if __name__ == "__main__":

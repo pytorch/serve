@@ -2,10 +2,11 @@ import os
 import sys
 import glob
 
-sys.path.append(os.getcwd())  # To help discover local modules
-from scripts import tsutils
+# To help discover local modules
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
 
-REPO_ROOT = os.getcwd()
+from scripts import tsutils
 
 
 def install():
