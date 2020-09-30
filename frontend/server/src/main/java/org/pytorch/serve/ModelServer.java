@@ -404,21 +404,12 @@ public class ModelServer {
 
     public void stop() {
         inferencegRPCServer.shutdown();
-        while (!inferencegRPCServer.isTerminated()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace(); // NOPMD
-            }
-        }
-
         managementgRPCServer.shutdown();
-        while (!managementgRPCServer.isTerminated()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace(); // NOPMD
-            }
+        try {
+            inferencegRPCServer.awaitTermination();
+            managementgRPCServer.awaitTermination();
+        } catch (InterruptedException e) {
+            e.printStackTrace(); // NOPMD
         }
 
         stopped.set(true);
