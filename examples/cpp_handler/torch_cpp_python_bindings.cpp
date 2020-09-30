@@ -42,14 +42,13 @@ const std::string& device, const int topk){
     img.convertTo( img, CV_32FC3, 1/255.0 );
 
     at::Tensor tensorImage = torch::from_blob(img.data, { 1, img.rows, img.cols, 3 }, at::kFloat);
+    tensorImage.to(device);
     tensorImage = tensorImage.permute({ 0, 3, 1, 2 });
 
     //  Normalize data
     tensorImage[0][0] = tensorImage[0][0].sub(0.485).div(0.229);
     tensorImage[0][1] = tensorImage[0][1].sub(0.456).div(0.224);
     tensorImage[0][2] = tensorImage[0][2].sub(0.406).div(0.225);
-
-    tensorImage.to(device);
 
     std::vector<torch::jit::IValue> input;
     input.push_back(tensorImage);
