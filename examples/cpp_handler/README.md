@@ -19,6 +19,7 @@ returns top k probabilities and classes by doing post processing the prediction 
 
 ## Pre-requisite
 1. Install Pytorch for Python Torch and C++ TorchLib
+
 ```shell
 pip install torch
 ```
