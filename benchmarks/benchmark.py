@@ -23,9 +23,9 @@ import platform
 import pandas as pd
 
 
-PLATFORM= platform.system()
-
+PLATFORM = platform.system()
 TMP_DIR = tempfile.gettempdir()
+
 BENCHMARK_DIR = os.path.join(TMP_DIR, "TSBenchmark")
 OUT_DIR = os.path.join(BENCHMARK_DIR, 'out')
 RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource')

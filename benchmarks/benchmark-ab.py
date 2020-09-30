@@ -128,7 +128,7 @@ def run_benchmark():
 
 def register_model():
     click.secho("*Registering model...", fg='green')
-    url = "http://localhost:9001/models"
+    url = "http://localhost:8081/models"
     data = {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
             'batch_size': execution_params['batch_size'], 'initial_workers': execution_params['workers'],
             'synchronous': 'true'}
@@ -140,7 +140,7 @@ def register_model():
 
 def unregister_model():
     click.secho("*Unregistering model ...", fg='green')
-    resp = requests.delete("http://localhost:9001/models/benchmark")
+    resp = requests.delete("http://localhost:8081/models/benchmark")
     if not resp.status_code == 200:
         failure_exit(f"Failed to unregister model. \n {resp.text}")
     click.secho(resp.text)
