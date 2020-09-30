@@ -87,6 +87,26 @@
         "tolerance":1,
         "torch_api_type": "python"
     },
+
+    {
+        "url":"s3://torchserve-scripted-mar-files/densenet161_cpp.mar",
+        "model_name":"densenet161_cpp",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/image_classifier/kitten.jpg",
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+              "tiger_cat": 0.5824049711227417,
+              "tabby": 0.40401455760002136,
+              "Egyptian_cat": 0.010351741686463356,
+              "lynx": 0.002639901591464877,
+              "tiger": 0.00026651867665350437
+        },
+        "tolerance":1,
+        "torch_api_type": "cpp"
+    },
+
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar",
         "model_name":"alexnet",
