@@ -19,8 +19,52 @@ TorchServe provides following gRPCs apis
 By default, TorchServe listens on port 9090 for the gRPC Inference API and 9091 for the gRPC Management API.
 To configure gRPC APIs on different ports refer [configuration documentation](configuration.md)
 
-For implementing a python based gRPC client for TorchServe refer following examples from the the TorchServe Regression suite:
+## Python client example for gRPC APIs
 
- - [test_gRPC_inference_api.py](../test/pytest/test_gRPC_inference_api.py)
- - [test_gRPC_management_api.py](../test/pytest/test_gRPC_management_apis.py)
+Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../scripts/torchserve_grpc_client.py).
 
+ - [Install TorchServe](../README.md#install-torchserve)
+
+ - Clone serve repo to run this example
+ 
+```bash
+git clone
+cd serve
+```
+
+ - Install gRPC python dependencies
+
+```bash
+pip install -U grpcio protobuf grpcio-tools
+```
+
+ - Start torchServe
+
+```bash
+mkdir model_store
+torchserve --start 
+```
+
+ - Generate python gRPC client using the proto files
+ 
+```bash
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=script --grpc_python_out=script frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/managment.proto
+```
+
+ - Register densenet161 model
+ 
+```bash
+python scripts/torchserve_grpc_client.py register densenet161
+```
+
+ - Run inference using 
+ 
+```bash
+python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+```
+
+ - Unregister densenet161 model
+
+```bash
+python scripts/torchserve_grpc_client.py unregister densenet161
+```
