@@ -1,11 +1,13 @@
 # Building conda packages
 
-To build conda packages you must first produce wheels for the project, see [this readme](../pip/README.md) for more details on building `TorchServe` wheel.
+1. To build conda packages you must first produce wheels for the project, see [this readme](../README.md) for more details on building `torchserve`  and `torch-model-archiver` wheel files.
+2. Make sure you have `conda-build` installed on your setup
+   ```
+   conda install -y conda-build
+   ```
+3. Execute the following command to build torchserve conda packages
+   ```
+   python build_packages.py --ts-wheel=/path/to/torchserve.whl --ma-wheel=/path/to/torch_model_archiver_wheel
+   ```
 
-After producing wheels use the following command to build conda packages:
-
-```
-python build_packages.py --ts-wheel=/path/to/torchserve.whl --ma-wheel=/path/to/torch_model_archiver_wheel
-```
-
-Produced conda packages are then stored in the `output` directory
+The built conda packages are available in the `output` directory
