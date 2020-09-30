@@ -3,12 +3,12 @@
 ## Contents of this Document
 
 * [Prerequisites](#prerequisites)
-* [Manual installation from source](#manual_installation_from_source)
 * [Install from binaries](#install-from-binaries)
 * [Install from source](#install-from-source)
 
 ## Prerequisites
 
+ - At present, it has only been certified on windows server 2019 however should work fine on Windows 10.
  - Make sure you are an admin user or have admin rights
  - The instruction given here will use anaconda Powershell terminal to install torchserve
  - Install Anaconda as given [here](https://docs.anaconda.com/anaconda/install/windows/)
@@ -18,35 +18,16 @@
     - Unzip and edit/add environment variables i.e. PATH and JAVA_HOME
     e.g.
     - Using command line `unzip openjdk-11*_bin.zip` or using GUI interface
-    - Edit system or user profile environment variable `PATH` value and append path `<your-openjdk11-path>\bin`
+    - Edit system or user profile environment variable `PATH` value and append path `<your-openjdk11-path>\bin` to it
 
-NOTE torchserve has been tested on Windows10 64bit system
-
-## Manual installation from source -  This for development and inital hands-on eventually it will be removed in the final commit for this feature
-
- - Add new system or user profile environment variable name `JAVA_HOME` and value as `<your-openjdk11-path>`
- - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
- 
-   NOTE ensure that you have restarted system after install above Visual C++ components
- - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
- - `git clone https://github.com/pytorch/serve.git`
- - Refer `install from source` below for torchserve and torch-model-archiver installation
- - For doing build and UT
-    NOTE At present, 5 test cases related to OpenApi will fail which will get fixed once PR#614 is merged to this PR
-    - `cd serve`
-    - `pip install -U -r requirements/developer.txt`
-    - `pip install -U -r requirements/torch.txt -f  https://download.pytorch.org/whl/torch_stable.html`
-    - `cd frontend`
-    - `.\gradlew.bat clean build`
-
-## Install from binaries [WIP]
+## Install from binaries
 
 NOTE At present, wheels for windows are not available on PyPi. However following steps can also be used if you have prebuilt torchserve wheel for windows.
 
  - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
  - `git clone https://github.com/pytorch/serve.git`
  - `cd serve`
- - `pip install -U -r requirements.txt`
+ - `pip install -U -r requirements_cpu.txt`
  - For local wheel file
     - `pip install <your-torchserve-wheel-file-name>.whl`
  - For PyPi package (N/A at present)
@@ -56,7 +37,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
     
 ## Install from source
 
- - Add new system or user profile environment variable name `JAVA_HOME` and value as `<your-openjdk11-path>`
+ - Add system or user profile environment variable name `JAVA_HOME` and value as `<your-openjdk11-path>`
  - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
  
    NOTE ensure that you have restarted system after install above Visual C++ components
