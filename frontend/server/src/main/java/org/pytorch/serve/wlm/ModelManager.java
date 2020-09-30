@@ -130,7 +130,7 @@ public final class ModelManager {
             String handler,
             Manifest.RuntimeType runtime,
             String defaultModelName)
-            throws FileAlreadyExistsException, ModelException, IOException {
+            throws ModelException, IOException {
         ModelArchive archive =
                 ModelArchive.downloadModel(
                         configManager.getAllowedUrls(), configManager.getModelStore(), url);
