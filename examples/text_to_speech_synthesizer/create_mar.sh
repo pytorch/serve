@@ -2,11 +2,9 @@
 set -euxo pipefail
 
 cd /tmp
-if [ -f "torchhub.zip" ] 
-then
-   rm torchhub.zip
-fi
-wget -O https://github.com/nvidia/DeepLearningExamples/archive/torchhub.zip torchhub.zip
+
+wget https://github.com/nvidia/DeepLearningExamples/archive/torchhub.zip -O torchhub.zip
+
 if [ -d "DeepLearningExamples-torchhub" ] 
 then
    rm -rf DeepLearningExamples-torchhub
