@@ -6,7 +6,7 @@ if [ -f "torchhub.zip" ]
 then
    rm torchhub.zip
 fi
-wget https://github.com/nvidia/DeepLearningExamples/archive/torchhub.zip
+wget -O https://github.com/nvidia/DeepLearningExamples/archive/torchhub.zip torchhub.zip
 if [ -d "DeepLearningExamples-torchhub" ] 
 then
    rm -rf DeepLearningExamples-torchhub
