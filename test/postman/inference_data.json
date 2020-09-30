@@ -89,7 +89,7 @@
     },
 
     {
-        "url":"s3://torchserve-scripted-mar-files/densenet161_cpp.mar",
+        "url":"https://torchserve-scripted-mar-files.s3.amazonaws.com/densenet161_cpp.mar",
         "model_name":"densenet161_cpp",
         "worker":1,
         "synchronous":"true",
