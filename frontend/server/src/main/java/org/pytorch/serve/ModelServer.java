@@ -107,6 +107,9 @@ public class ModelServer {
                     InvalidSnapshotException {
         try {
             List<ChannelFuture> channelFutures = start();
+
+            startGRPCServers();
+
             // Create and schedule metrics manager
             MetricManager.scheduleMetrics(configManager);
             System.out.println("Model server started."); // NOPMD
@@ -355,10 +358,13 @@ public class ModelServer {
                             ConnectorType.METRICS_CONNECTOR));
         }
 
-        inferencegRPCServer = startGRPCServer(ConnectorType.INFERENCE_CONNECTOR);
-        managementgRPCServer = startGRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
+    }
+
+    public void startGRPCServers() throws IOException {
+        inferencegRPCServer = startGRPCServer(ConnectorType.INFERENCE_CONNECTOR);
+        managementgRPCServer = startGRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
     }
 
     public Server startGRPCServer(ConnectorType connectorType) throws IOException {
