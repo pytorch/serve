@@ -192,9 +192,9 @@ Apache Bench is installed in Mac by default. You can test by running ```ab -h```
 
 * Windows
     - Download apache binaries from [Apache Lounge](https://www.apachelounge.com/download/)
-    - Install Visual C++ Redistributable for Visual Studio 2015-2019 if not installed already
     - Extract and place the contents at some location eg: `C:\Program Files\`
     - Add this path `C:\Program Files\Apache24\bin`to the environment variable PATH.
+    NOTE - You may need to  install Visual C++ Redistributable for Visual Studio 2015-2019.
 
 ## Benchmark
 ### Run benchmark
