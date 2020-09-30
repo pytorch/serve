@@ -408,17 +408,22 @@ public class ModelServer {
         return !stopped.get();
     }
 
-    public void stop() {
-        inferencegRPCServer.shutdown();
-        managementgRPCServer.shutdown();
-        try {
-            inferencegRPCServer.awaitTermination();
-            managementgRPCServer.awaitTermination();
-        } catch (InterruptedException e) {
-            e.printStackTrace(); // NOPMD
+    private void stopgRPCServer(Server server) {
+        if (server != null) {
+            try {
+                server.shutdown().awaitTermination();
+            } catch (InterruptedException e) {
+                e.printStackTrace(); // NOPMD
+            }
         }
+    }
 
+    public void stop() {
         stopped.set(true);
+
+        stopgRPCServer(inferencegRPCServer);
+        stopgRPCServer(managementgRPCServer);
+
         for (ChannelFuture future : futures) {
             future.channel().close();
         }
