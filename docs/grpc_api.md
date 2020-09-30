@@ -18,3 +18,9 @@ TorchServe provides following gRPCs apis
 
 By default, TorchServe listens on port 9090 for the gRPC Inference API and 9091 for the gRPC Management API.
 To configure gRPC APIs on different ports refer [configuration documentation](configuration.md)
+
+For implementing a python based gRPC client for TorchServe refer following examples from the the TorchServe Regression suite:
+
+ - [test_gRPC_inference_api.py](../test/pytest/test_gRPC_inference_api.py)
+ - [test_gRPC_management_api.py](../test/pytest/test_gRPC_management_apis.py)
+
