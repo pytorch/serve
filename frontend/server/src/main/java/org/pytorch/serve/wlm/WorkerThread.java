@@ -94,7 +94,12 @@ public class WorkerThread implements Runnable {
                 process.waitFor();
                 int exitCode = process.exitValue();
                 if (exitCode != 0) {
-                    // Log error message from process.getErrorStream() and return
+                    gpuUsage.append("failed to obtained gpu usage");
+                    InputStream error = process.getErrorStream();
+                    for (int i = 0; i < error.available(); i++) {
+                        logger.error("" + error.read());
+                    }
+                    return gpuUsage.toString();
                 }
                 InputStream stdout = process.getInputStream();
                 BufferedReader reader =
