@@ -59,6 +59,8 @@ install_java_deps
 
 install_torch_deps
 
+install_opencv_deps
+
 create_torchserve_wheel
 
 create_model_archiver_wheel

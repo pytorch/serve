@@ -26,6 +26,19 @@ install_java_deps()
   set -e
 }
 
+install_opencv_deps()
+{
+  set +e
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew cask install opencv
+    ln -s /usr/local/include/opencv4/opencv2/ /usr/local/include/opencv2
+  else
+    sudo apt-get install libopencv-dev
+  fi
+  set -e
+}
+
+
 install_torch_deps()
 {
   if [ is_gpu_instance ] && [ "$1" == "cuda101" ];

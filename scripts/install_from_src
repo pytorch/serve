@@ -11,6 +11,8 @@ set +u
 install_torch_deps $1
 set -u
 
+install_opencv_deps
+
 build_install_server
 build_install_archiver
 
