@@ -91,6 +91,11 @@ public class WorkerThread implements Runnable {
                                         "nvidia-smi -i "
                                                 + gpuId
                                                 + " --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
+                process.waitFor();
+                int exitCode = process.exitValue();
+                if (exitCode != 0) {
+                    // Log error message from process.getErrorStream() and return
+                }
                 InputStream stdout = process.getInputStream();
                 BufferedReader reader =
                         new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
