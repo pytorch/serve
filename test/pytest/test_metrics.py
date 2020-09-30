@@ -29,29 +29,6 @@ def logs_created(no_config_snapshots=False):
     assert len(glob.glob('logs/model_log.log')) == 1
     assert len(glob.glob('logs/ts_log.log')) == 1
 
-
-def validate_config_file(config_file):
-    test_utils.start_torchserve(snapshot_file=config_file)
-    response = requests.get('http://localhost:8080/ping')
-    assert json.loads(response.content)['status'] == 'Healthy'
-
-
-def validate_ts_config(config_file=None):
-    if config_file:
-        try:
-            with open(config_file, "r+") as f:
-                for line in f:
-                    if line.startswith('#') or line in ['\n', '\r\n']:
-                        continue  # skip comments
-                    line = line.strip()
-                    # Check whether it is a key value pair seperated by "=" character
-                    assert len(line.split("=")) == 2
-        except Exception as e:
-            assert False, "Invalid configuration file"
-        else:
-            assert True, "Valid config file found"
-
-
 def validate_metrics_created(no_config_snapshots=False):
     test_utils.delete_all_snapshots()
     global NUM_STARTUP_CFG
@@ -115,44 +92,6 @@ def test_metrics_startup_cfg_created_snapshot_disabled():
     """
     validate_metrics_created(no_config_snapshots=True)
     assert len(glob.glob('logs/config/*startup.cfg')) == 0
-
-
-def test_malformed_ts_config():
-    """Validates that Torchserve validates the config file parameters correctly and
-    ignores any unknown key-value parameters and starts successfully!!"""
-
-    # cmd1 = ["cp", "" + test_utils.CODEBUILD_WD + "/benchmarks/config.properties", test_utils.ROOT_DIR]
-    # cmd2 = ["cp", "" + test_utils.CODEBUILD_WD + "/benchmarks/config.properties",
-    #         test_utils.ROOT_DIR + "malformed-config.properties"]
-
-    # subprocess.run(cmd1)
-    # subprocess.run(cmd2)
-
-    print("code build dir"+test_utils.CODEBUILD_WD)
-
-    import shutil
-    src = path.join(test_utils.CODEBUILD_WD, "benchmarks/config.properties")
-    shutil.copy(src, test_utils.ROOT_DIR)
-    shutil.copyfile(src, path.join(test_utils.ROOT_DIR, "malformed-config.properties"))
-
-    config_file = path.join(test_utils.ROOT_DIR, "config.properties")
-    malformed_config_file = path.join(test_utils.ROOT_DIR, "malformed-config.properties")
-    with open(malformed_config_file, "r+") as f:
-        f.writelines(["non-keyvaluepair\n"])
-    # First validate well-formed config file
-    try:
-        conf_file = config_file
-        validate_config_file(conf_file)
-        # Next validate malformed config file
-        conf_file = malformed_config_file
-        validate_config_file(conf_file)
-    finally:
-        # cmd1 = ["rm", "-rf", config_file]
-        # cmd2 = ["rm", "-rf", malformed_config_file]
-        # subprocess.run(cmd1)
-        # subprocess.run(cmd2)
-
-        test_utils.delete_all_snapshots()
 
 
 def test_log_location_var_snapshot_disabled():
