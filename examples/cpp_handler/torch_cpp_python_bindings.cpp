@@ -42,7 +42,7 @@ const std::string& device, const int topk){
     img.convertTo( img, CV_32FC3, 1/255.0 );
 
     at::Tensor tensorImage = torch::from_blob(img.data, { 1, img.rows, img.cols, 3 }, at::kFloat);
-    tensorImage.to(device);
+    tensorImage = tensorImage.to(device);
     tensorImage = tensorImage.permute({ 0, 3, 1, 2 });
 
     //  Normalize data
