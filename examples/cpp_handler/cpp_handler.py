@@ -87,7 +87,7 @@ class CPPHandler(object):
         for row in data:
             image = row.get("data") or row.get("body")
             images.append(image)
-        probs, classes = self.torch_cpp_python_module.handle(self.model, images[0], str(self.device), self.topk)
+        probs, classes = self.torch_cpp_python_module.handle(self.model, bytes(images[0]), str(self.device), self.topk)
         probs, classes = probs.tolist(), classes.tolist()
         return map_class_to_label(probs, self.mapping, classes)
 

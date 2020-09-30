@@ -68,7 +68,7 @@ sudo apt-get install libopencv-dev
     mkdir model_store
     mv densenet161_cpp.mar model_store/
     torchserve --start --model-store model_store
-    curl-v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=densenet161_cpp.mar"
+    curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=densenet161_cpp.mar"
     curl http://127.0.0.1:8080/predictions/densenet161_cpp -T examples/image_classifier/kitten.jpg
     ```
 
