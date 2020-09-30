@@ -1,5 +1,5 @@
 """
-Base default handler to load torchscript or eager mode [state_dict] models
+Base default handler to load TorchScript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification
 """
 import abc
@@ -31,7 +31,7 @@ class BaseHandler(abc.ABC):
         self.torch_api_type = "python"
 
     def initialize(self, context):
-        """First try to load torchscript else load eager mode state_dict based model"""
+        """First try to load TorchScript else load eager mode state_dict based model"""
 
         properties = context.system_properties
         self.map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -48,7 +48,7 @@ class BaseHandler(abc.ABC):
 
         # model def file
         model_file = self.manifest['model'].get('modelFile', '')
-        self.torch_api_type = properties["torch_api_type"]
+        self.torch_api_type = properties.get("torch_api_type", "python")
 
         if self.torch_api_type == 'python':
             if model_file:
@@ -147,6 +147,7 @@ class BaseHandler(abc.ABC):
         self.context = context
 
         data = self.preprocess(data)
+        print(data)
         data = self.inference(data)
         data = self.postprocess(data)
         return data

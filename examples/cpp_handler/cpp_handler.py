@@ -50,7 +50,7 @@ class CPPHandler(object):
 
         # model def file
         model_file = self.manifest['model'].get('modelFile', '')
-        self.torch_api_type = properties["torch_api_type"]
+        self.torch_api_type = properties.get("torch_api_type", "cpp")
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
