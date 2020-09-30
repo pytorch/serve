@@ -1,14 +1,20 @@
+import grpc
 import inference_pb2
 import inference_pb2_grpc
-import grpc
+import management_pb2
+import management_pb2_grpc
 import sys
-
-number_of_requests = 1000
 
 
 def get_inference_stub():
     channel = grpc.insecure_channel('localhost:9090')
     stub = inference_pb2_grpc.InferenceAPIsServiceStub(channel)
+    return stub
+
+
+def get_management_stub():
+    channel = grpc.insecure_channel('localhost:9091')
+    stub = management_pb2_grpc.ManagementAPIsServiceStub(channel)
     return stub
 
 
@@ -18,17 +24,42 @@ def infer(stub, model_name, model_input):
 
     input_data = {'data': data}
     response = stub.Predictions(
-            inference_pb2.PredictionsRequest(model_name=model_name, input=input_data))
+        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data))
 
-    prediction = response.prediction.decode('utf-8')
+    try:
+        prediction = response.prediction.decode('utf-8')
+    except grpc.RpcError as e:
+        exit(1)
 
-    if not prediction:
-        print(str(response.status_code))
-        print(str(response.info))
-    else:
-        print(response.prediction.decode('utf-8'))
+
+def register(stub, model_name):
+    params = {
+        'url': "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name),
+        'initial_workers': 4,
+        'synchronous': True,
+        'model_name': model_name
+    }
+    try:
+        stub.RegisterModel(management_pb2.RegisterModelRequest(**params))
+    except grpc.RpcError as e:
+        exit(1)
+
+
+def unregister(stub, model_name):
+    try:
+        stub.UnregisterModel(management_pb2.UnregisterModelRequest(model_name=model_name))
+    except grpc.RpcError as e:
+        exit(1)
 
 
 if __name__ == '__main__':
+    # args:
+    # 1-> api name [infer, register, unregister]
+    # 2-> model name
+    # 3-> model input for prediction
     args = sys.argv[1:]
-    infer(get_inference_stub(), args[0], args[1])
+    if args[0] == "infer":
+        infer(get_inference_stub(), args[1], args[2])
+    else:
+        api = globals()[args[0]]
+        api(get_management_stub(), args[1])
