@@ -582,7 +582,7 @@
   ```
 
 
-  To install Torchserve run ```helm install ts .```  
+  To install Torchserve, move to the Helm folder ```cd ../Helm``` and run ```helm install ts .```  
   
 
   ```bash
