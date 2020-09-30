@@ -47,7 +47,7 @@ commands:
     steps:
       - run:
           name: Install torchserve
-          command: python scripts/install.py
+          command: python binaries/install.py
 
   exeucute-api-tests:
     description: "Execute API tests from a collection"
@@ -74,7 +74,7 @@ jobs:
       - install-dependencies
       - run:
           name: Build torchserve and torch model archiver
-          command: python scripts/build.py
+          command: python binaries/build.py
       - store_artifacts:
           name: Store torchserve wheel
           path: dist/

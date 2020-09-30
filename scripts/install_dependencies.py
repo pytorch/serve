@@ -81,7 +81,7 @@ if __name__ == "__main__":
     parser.add_argument("--java", action="store_true", help="Install Java 11")
     parser.add_argument("--nodejs", action="store_true", help="Install NodeJS")
     parser.add_argument("--python-packages", action="store_true", help="Install Python test packages")
-    parser.add_argument("--cu101", action="store_true", help="Install torch packages specific to cu101")
+    parser.add_argument("--cu101", action="store_true", help="Install torch packages specific to cuda 10.1")
     parser.add_argument("--node-packages", action="store_true", help="Install node packages")
     parser.add_argument("--jmeter", action="store_true", help="Install jmeter")
     parser.add_argument("--ab", action="store_true", help="Install Apache bench")
