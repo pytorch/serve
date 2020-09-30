@@ -191,6 +191,7 @@ public class ModelArchiveTest {
     @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
-        ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
+        ModelArchive.downloadModel(
+                ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
     }
 }
