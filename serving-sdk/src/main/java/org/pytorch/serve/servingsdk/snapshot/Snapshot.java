@@ -1,4 +1,4 @@
-package org.pytorch.serve.snapshot;
+package org.pytorch.serve.servingsdk.snapshot;
 
 import com.google.gson.JsonObject;
 import java.util.Map;
@@ -52,3 +52,4 @@ public class Snapshot {
         this.modelCount = modelCount;
     }
 }
+
