@@ -1,6 +1,6 @@
 ## TorchServe on Azure Kubernetes Service (AKS)
 
-### 1、Create an AKS cluster
+### 1 Create an AKS cluster
 
 This quickstart requires that you are running the Azure CLI version 2.0.64 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
