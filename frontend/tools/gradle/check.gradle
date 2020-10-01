@@ -45,5 +45,5 @@ jacocoTestReport {
     }
 }
 
-//check.dependsOn jacocoTestReport
-//check.dependsOn jacocoTestCoverageVerification
+check.dependsOn jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification

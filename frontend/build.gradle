@@ -69,6 +69,12 @@ configure(javaProjects()) {
                     minimum = 0.70
                 }
             }
+            afterEvaluate {
+                classDirectories.setFrom(files(classDirectories.files.collect {
+                    fileTree(dir: "${rootProject.projectDir}/server/src/main/java",
+                            exclude: ['org/pytorch/serve/grpc**/**'])
+                }))
+            }
         }
     }
 }
