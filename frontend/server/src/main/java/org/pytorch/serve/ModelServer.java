@@ -106,7 +106,7 @@ public class ModelServer {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         try {
-            List<ChannelFuture> channelFutures = start();
+            List<ChannelFuture> channelFutures = startRESTserver();
 
             startGRPCServers();
 
@@ -304,7 +304,7 @@ public class ModelServer {
      * @throws InterruptedException if interrupted
      * @throws InvalidSnapshotException
      */
-    public List<ChannelFuture> start()
+    public List<ChannelFuture> startRESTserver()
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         stopped.set(false);
@@ -367,7 +367,7 @@ public class ModelServer {
         managementgRPCServer = startGRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
     }
 
-    public Server startGRPCServer(ConnectorType connectorType) throws IOException {
+    private Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
         ServerBuilder<?> s =
                 ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
