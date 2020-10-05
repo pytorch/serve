@@ -5,7 +5,7 @@ import test_utils
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    response = requests.get("https://torchserve.s3.amazonaws.com/mar_files/mnist.mar", allow_redirects=True)
+    response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
     open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
 
 
