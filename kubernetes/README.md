@@ -497,8 +497,8 @@
   
 
   ```bash
-  wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
-  wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
+  wget https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
+  wget https://torchserve.pytorch.org/mar_files/mnist.mar
   
   kubectl exec --tty pod/model-store-pod -- mkdir /pv/model-store/
   kubectl cp squeezenet1_1.mar model-store-pod:/pv/model-store/squeezenet1_1.mar

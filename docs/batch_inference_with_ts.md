@@ -90,7 +90,7 @@ $ curl localhost:8080/ping
 * Now let's launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a `max_batch_delay` of 10ms.
 
 ```text
-$ curl -X POST "localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&batch_size=8&max_batch_delay=10&initial_workers=1"
+$ curl -X POST "localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&batch_size=8&max_batch_delay=10&initial_workers=1"
 {
   "status": "Processing worker updates..."
 }
@@ -103,7 +103,7 @@ $ curl -X POST "localhost:8081/models?url=https://torchserve.s3.amazonaws.com/ma
   {
     "modelName": "resnet-152-batch_v2",
     "modelVersion": "2.0",
-    "modelUrl": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
+    "modelUrl": "https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar",
     "runtime": "python",
     "minWorkers": 1,
     "maxWorkers": 1,
