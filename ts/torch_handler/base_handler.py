@@ -115,24 +115,33 @@ class BaseHandler(abc.ABC):
 
         return data.tolist()
 
-    def handle(self, data, context, explain = False):
+    def handle(self, data, context):
         """
         Entry point for default handler
         """
 
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
+        
         self.context = context
+        if not self.initialized:
+            self.initialize(self.context)
         output_explain  = None
-        #explain from header 
 
         data = self.preprocess(data)
         output = self.inference(data)
-        output_explain = self.explain_handle(context, data)
+        output_explain = self.explain_handle(data)
         output = self.postprocess(output)
-        return output, output_explain
 
-    def explain_handle(self,context, data):
+        #Response builder
+        response = {}
+        response["predictions"] = output
+        if not output_explain:
+            response["explanations"] = output_explain
+
+        return [response]
+
+    def explain_handle(self, data):
         if self.context and self.context.get_request_header(0,"explain"):
             if self.context.get_request_header(0,"explain") == "True":
                 self.explain = True

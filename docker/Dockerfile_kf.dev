@@ -43,7 +43,6 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
 # Build Dev Image
 FROM compile-image AS dev-image
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
-    && git clone -b ${BRANCH_NAME_KF} https://github.com/kubeflow/kfserving.git \
     && pip install -e ./kfserving \
     && git clone https://github.com/abishekchiff/serve.git \
     && cd serve \
@@ -60,7 +59,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && cp docker/dockerd-entrypoint_kf.sh /usr/local/bin/dockerd-entrypoint_kf.sh \
     && chmod +x /usr/local/bin/dockerd-entrypoint_kf.sh \
     && chown -R model-server /home/model-server \
-    && cp serve/ts/kfserving_wrapper /home/model-server/kfserving_wrapper \
+    && cp -R ts/kfserving_wrapper /home/model-server/kfserving_wrapper \
     && cp docker/config.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 

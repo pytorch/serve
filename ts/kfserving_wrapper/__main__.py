@@ -10,8 +10,10 @@ DEFAULT_MODEL_NAME = "model"
 DEFAULT_INFERENCE_ADDRESS = "http://127.0.0.1:8085"
 INFERENCE_PORT = "8085"
 DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8081"
-DEFAULT_MODEL_STORE = "/home/model-server/model-store"
-CONFIG_PATH = "/home/model-server/config.properties"
+# DEFAULT_MODEL_STORE = "/home/model-server/model-store"
+# CONFIG_PATH = "/home/model-server/config.properties"
+DEFAULT_MODEL_STORE = "/mnt/models/model-store"
+CONFIG_PATH = "/mnt/models/config/config.properties"
 
 def parse_config():
     separator = "="

@@ -9,11 +9,6 @@ class KFservingEnvelope(BaseEnvelope):
     Implementation. Captures batches in JSON format, returns
     also in JSON format.
     """
-    _lengths = []
-    _inputs = []
-    _outputs = []
-    _data_list = []
-
     def parse_input(self, data):
         print("Parsing input in KFServing.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
@@ -39,9 +34,11 @@ class KFservingEnvelope(BaseEnvelope):
         print("KFServing parsed inputs", self._inputs)
         return self._inputs
 
-    def format_output(self, output, output_explain):
+    def format_output(self, outputs):
+        output = outputs[0] #Removing the outer list added in base handler for consistency
         response = {}
-        response["predictions"] = output
+        response["predictions"] = output["predictions"]
+        output_explain = output["explanations"]
         if output_explain != None:
             response["explanations"] =  output_explain
   
