@@ -30,6 +30,6 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ## Default Handlers
 
 * [Image Classifier](https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py) - This handler takes an image and returns the name of object in that image
-* [Text Classifier](https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py)_ - This handler takes a text (string) as input and returns the classification text based on the model vocabulary
+* [Text Classifier](https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py) - This handler takes a text (string) as input and returns the classification text based on the model vocabulary
 * [Object Detector](https://github.com/pytorch/serve/blob/master/ts/torch_handler/object_detector.py) - This handler takes an image and returns list of detected classes and bounding boxes respectively
 * [Image Segmenter](https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_segmenter.py)- This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width
