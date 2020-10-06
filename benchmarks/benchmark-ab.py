@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 import requests
 
-default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
+default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.mar",
                      'gpus': '',
                      'exec_env': 'local',
                      'batch_size': 1,
@@ -40,7 +40,7 @@ def json_provider(file_path, cmd_name):
 
 @click.command()
 @click.argument('test_plan', default='custom')
-@click.option('--url', '-u', default='https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar',
+@click.option('--url', '-u', default='https://torchserve.pytorch.org/mar_files/resnet-18.mar',
               help='Input model url')
 @click.option('--exec_env', '-e', type=click.Choice(['local', 'docker'], case_sensitive=False), default='local',
               help='Execution environment')
@@ -394,26 +394,26 @@ def soak():
 
 
 def vgg11_1000r_10c():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/vgg11.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
 
 
 def vgg11_10000r_100c():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/vgg11.mar'
     execution_params['requests'] = 10000
     execution_params['concurrency'] = 100
 
 
 def resnet152_batch():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
     execution_params['batch_size'] = 4
 
 
 def resnet152_batch_docker():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
     execution_params['batch_size'] = 4
