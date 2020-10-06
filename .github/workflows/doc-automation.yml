@@ -15,8 +15,8 @@ jobs:
       run: |
         echo `python3 --version`
         sudo apt-get install -y python-setuptools
-        sudo apt-get install -y python3-sphinx
         python3 -m pip install --upgrade pip
+        python3 -m pip install -U sphinx
         python3 -m pip install setuptools
         python3 -m pip install torch
         python3 -m pip install -e git+git://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
@@ -25,7 +25,7 @@ jobs:
         python3 -m pip install sphinxcontrib.katex
         python3 -m pip install sphinx_markdown_tables
     - name: Build the docset
-      run: cd ./docs/sphinx ; make html
+      run: cd ./docs/sphinx ; export PATH=$PATH:/home/runner/.local/bin/ ; make html
       id: build
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
