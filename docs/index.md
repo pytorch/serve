@@ -25,7 +25,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Custom Service](custom_service.md) - Describes how to develop custom inference services.
 * [Unit Tests](https://github.com/pytorch/serve/tree/master/ts/tests#testing-torchserve) - Housekeeping unit tests for TorchServe.
 * [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking) - Use JMeter to run TorchServe through the paces and collect benchmark data.
-* [TorchServe on Kubernetes](https://github.com/pytorch/serve/blob/master/kubernetes/README.md) -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart.
+* [TorchServe on Kubernetes](https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes) -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart.
 
 ## Default Handlers
 
