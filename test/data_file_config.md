@@ -67,7 +67,7 @@ Sample expected output for "image_classification" in json.
 For above image classifiction inference response, here is the test case -
 ```json
 [{
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar",
         "model_name":"squeezenet1_1",
         "worker":1,
         "synchronous":"true",
