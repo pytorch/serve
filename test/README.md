@@ -6,12 +6,12 @@ This folder contains nightly regression tests execututed against TorchServe mast
 
 * CPU : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiS1QvY3lIUEdUb3hZVWNnbmJ2SEZCdExRNmNkNW9EVk1ZaFNldEk4Q0h3TU1qemwzQ29GNW0xMGFhZkxpOFpiMjUrZVVRVDUrSkh2ZDhBeFprdW5iNjRRPSIsIml2UGFyYW1ldGVyU3BlYyI6IjlvcjRqSTNMTmNhcExZbUwiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 * GPU : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiazI0eDNKZElyMjZDU1QweThPV1A2UmlXaVFmM3g4N0M0NGQ0aHdTQ09aR2pkNFJRUmNsd1A4aFk0K1Q3MmJKMG9oR1c0aHpYWlVRbWlGYS9mVmdIUW84PSIsIml2UGFyYW1ldGVyU3BlYyI6IjJxenJYam1lYXNZTFVvMjQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+* Windows : [Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiMzN3Z2lyb1QzVzNJMzJFL1Z6czZDRG5CdW80dUk1c2hvRzlHZkhLcHRqZkJUN1VYRnhwbDlhVWpETUdYOFpJWUVBcGxxM2VmNFk3SUZPR3lnWmF3empBPSIsIml2UGFyYW1ldGVyU3BlYyI6IkhycnVqdFNqYnFDVVQ4aVIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
+Latest Test Logs : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/latest/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/latest/test_exec.log)
 
-Latest Test Logs : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/latest/test_exec.log)
+Test Logs By Date - Update Date in URL : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log)
 
-
-Test Logs By Date - Update Date in URL : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-07-10/tmp/test_exec.log)
 
 ### Running the test manually.
 
