@@ -38,9 +38,8 @@ class KFservingEnvelope(BaseEnvelope):
         output = outputs[0] #Removing the outer list added in base handler for consistency
         response = {}
         response["predictions"] = output["predictions"]
-        output_explain = output["explanations"]
-        if output_explain != None:
-            response["explanations"] =  output_explain
+        if "explanations" in output:
+            response["explanations"] =  output["explanations"]
   
         print("The Response of KFServing", response)
         return [response]

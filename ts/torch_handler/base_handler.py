@@ -6,6 +6,7 @@ import abc
 import logging
 import os
 import importlib.util
+from abc import abstractmethod
 import torch
 from ..utils.util import list_classes_from_module, load_label_mapping
 
@@ -17,6 +18,7 @@ class BaseHandler(abc.ABC):
     Base default handler to load torchscript or eager mode [state_dict] models
     Also, provides handle method per torch serve custom model specification
     """
+
     def __init__(self):
         self.model = None
         self.mapping = None
@@ -32,32 +34,37 @@ class BaseHandler(abc.ABC):
         """First try to load torchscript else load eager mode state_dict based model"""
 
         properties = context.system_properties
-        self.map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = torch.device(self.map_location + ":" + str(properties.get("gpu_id"))
-                                   if torch.cuda.is_available() else self.map_location)
+        self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device(
+            self.map_location + ":" + str(properties.get("gpu_id"))
+            if torch.cuda.is_available()
+            else self.map_location
+        )
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        serialized_file = self.manifest['model']['serializedFile']
+        serialized_file = self.manifest["model"]["serializedFile"]
         model_pt_path = os.path.join(model_dir, serialized_file)
 
         if not os.path.isfile(model_pt_path):
             raise RuntimeError("Missing the model.pt file")
 
         # model def file
-        model_file = self.manifest['model'].get('modelFile', '')
+        model_file = self.manifest["model"].get("modelFile", "")
 
         if model_file:
-            logger.debug('Loading eager model')
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            logger.debug("Loading eager model")
+            self.model = self._load_pickled_model(
+                model_dir, model_file, model_pt_path
+            )
         else:
-            logger.debug('Loading torchscript model')
+            logger.debug("Loading torchscript model")
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.to(self.device)
         self.model.eval()
 
-        logger.debug('Model file %s loaded successfully', model_pt_path)
+        logger.debug(f"Model file {model_pt_path} loaded successfully")
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
@@ -76,16 +83,17 @@ class BaseHandler(abc.ABC):
         module = importlib.import_module(model_file.split(".")[0])
         model_class_definitions = list_classes_from_module(module)
         if len(model_class_definitions) != 1:
-            raise ValueError("Expected only one class as model definition. {}".format(
-                model_class_definitions))
+            raise ValueError(
+                "Expected only one class as model definition. {}".format(
+                    model_class_definitions
+                )
+            )
 
         model_class = model_class_definitions[0]
         state_dict = torch.load(model_pt_path, map_location=self.map_location)
         model = model_class()
         model.load_state_dict(state_dict)
         return model
-
-
 
     def preprocess(self, data):
         """
@@ -122,33 +130,52 @@ class BaseHandler(abc.ABC):
 
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
-        
         self.context = context
         if not self.initialized:
             self.initialize(self.context)
-        output_explain  = None
+        output_explain = None
 
-        data = self.preprocess(data)
-        output = self.inference(data)
-        output_explain = self.explain_handle(data)
-        output = self.postprocess(output)
+        data_preprocess = self.preprocess(data)
+        output_inference = self.inference(data_preprocess)
+        output_explain = self.explain_handle(data_preprocess, data)
+        output_inference = self.postprocess(output_inference)
 
-        #Response builder
+        # Response builder
         response = {}
-        response["predictions"] = output
-        if not output_explain:
+        response["predictions"] = output_inference
+        if output_explain:
             response["explanations"] = output_explain
 
         return [response]
 
-    def explain_handle(self, data):
-        if self.context and self.context.get_request_header(0,"explain"):
-            if self.context.get_request_header(0,"explain") == "True":
+    def explain_handle(self, data_preprocess, raw_data):
+        """
+        Captum explanations handler
+        :param data_preprocess: Preprocessed data to be used for captum
+        :param raw_data: The unprocessed data to get target from the request
+        :return dict
+        """
+        output_explain = None
+        inputs = None
+        target = 0
+        if self.context and self.context.get_request_header(0, "explain"):
+            if self.context.get_request_header(0, "explain") == "True":
                 self.explain = True
-                print("IsExplain",self.explain)
-                print("The explainations are being calculated", data)
-                output_explain = self.get_insights(data)
-                return output_explain
-                
-  
+                logger.info("Calculating Explanations")
+                row = raw_data[0]
+                if isinstance(row, dict):
+                    logger.info("Getting data and target")
+                    inputs = row.get("data")
+                    target = row.get("target")
 
+                output_explain = self.get_insights(
+                    data_preprocess, inputs, target
+                )
+                return output_explain
+        return output_explain
+
+    @abstractmethod
+    def get_insights(self, tensor_data, raw_data, target):
+        """
+        Calculates the captum insights
+        """
