@@ -14,7 +14,10 @@ Relevant documents.
 Torchserve API's are compliant with the [OpenAPI specification 3.0](https://swagger.io/specification/).
 
 ### How to use Torchserve in production?
-Torchserve is not a complete web application to serve end to end business use cases. Hence a lot of security aspects should be made available via 3rd party wrapper components in front of Torchserve.
+Depending on your use case, you will be able to deploy torchserve in production using following mechanisms.
+> Standalone deployment. Refer https://github.com/pytorch/serve/docker or https://github.com/pytorch/serve/docs/README.md
+> Cloud based deployment. Refer https://github.com/pytorch/serve/kubernetes https://github.com/pytorch/serve/cloudformation
+
 
 ### What's difference between Torchserve and a python web app using web frameworks like Flask, Django?
 Torchserve's main purpose is to serve models via http REST APIs , Torchserve is not a Flask app and it uses netty engine for serving http requests.
@@ -98,9 +101,8 @@ Relevant documents
 You can use any tool like Postman, Insomnia or even use a python script to do so. Find sample python script [here](https://github.com/pytorch/serve/blob/master/docs/default_handlers.md#torchserve-default-inference-handlers).
 
 ### How can I add a custom API to an existing framework?
-You can a custom API using **plugins SDK** available in Torchserve.
-The [Health check API ](https://github.com/pytorch/serve/blob/master/docs/inference_api.md#health-check-api) is an example of a custom API integrated using plugins SDK.
-Refer to Plugins Documentation for more details.
+You can add a custom API using **plugins SDK** available in Torchserve.
+Refer to [serving sdk](https://github.com/pytorch/serve/blob/master/serving-sdk) and [plugins](https://github.com/pytorch/serve/blob/master/plugins) for more details.
 
 ### How can pass multiple images in Inference request call to my model?
 You can provide multiple data in a single inference request to your custom handler as a key-value pair in the `data` object.
