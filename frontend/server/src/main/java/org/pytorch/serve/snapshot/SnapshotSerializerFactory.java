@@ -1,6 +1,7 @@
 package org.pytorch.serve.snapshot;
 
-import org.pytorch.serve.snapshot.ext.aws.DDBSnapshotSerializer;
+import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 
 public final class SnapshotSerializerFactory {
     private static SnapshotSerializer snapshotSerializer;
@@ -8,13 +9,9 @@ public final class SnapshotSerializerFactory {
     private SnapshotSerializerFactory() {}
 
     private static synchronized void initialize(String storageType) {
-        if (snapshotSerializer == null) {
-            if ("FS".equalsIgnoreCase(storageType)) {
-                snapshotSerializer = new FSSnapshotSerializer();
-            }
-            if ("DDB".equalsIgnoreCase(storageType)) {
-                snapshotSerializer = new DDBSnapshotSerializer();
-            }
+        snapshotSerializer = PluginsManager.getInstance().getSnapShotSerializer();
+        if ("FS".equalsIgnoreCase(storageType)) {
+            snapshotSerializer = new FSSnapshotSerializer();
         }
     }
 

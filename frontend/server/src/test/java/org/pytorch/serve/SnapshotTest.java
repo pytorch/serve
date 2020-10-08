@@ -29,7 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
-import org.pytorch.serve.snapshot.Snapshot;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;

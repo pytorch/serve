@@ -1,4 +1,4 @@
-package org.pytorch.serve.snapshot.ext.aws;
+package org.pytorch.serve.plugins.snapshot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
-import org.pytorch.serve.snapshot.Snapshot;
-import org.pytorch.serve.snapshot.SnapshotSerializer;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;

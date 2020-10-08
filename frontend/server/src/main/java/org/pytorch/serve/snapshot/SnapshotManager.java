@@ -16,6 +16,8 @@ import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 
 public final class SnapshotManager {
 
