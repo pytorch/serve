@@ -90,7 +90,7 @@ persistentvolume/pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO      
 
 Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files.
 
-```kubectl apply -f templates/model-store-pod.yaml```
+```kubectl apply -f templates/model_store_pod.yaml```
 
 Your output should look similar to
 
