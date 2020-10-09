@@ -46,8 +46,8 @@ def test_inference_apis():
         test_data = json.loads(f.read())
 
     for item in test_data:
-        managment_stub = test_gRPC_utils.get_management_stub()
-        response = managment_stub.RegisterModel(management_pb2.RegisterModelRequest(
+        management_stub = test_gRPC_utils.get_management_stub()
+        response = management_stub.RegisterModel(management_pb2.RegisterModelRequest(
             url=item['url'],
             initial_workers=item['worker'],
             synchronous=bool(item['synchronous']),
@@ -78,7 +78,7 @@ def test_inference_apis():
             else:
                 assert str(prediction) == str(item['expected'])
 
-        response = managment_stub.UnregisterModel(management_pb2.UnregisterModelRequest(
+        response = management_stub.UnregisterModel(management_pb2.UnregisterModelRequest(
             model_name=item['model_name'],
         ))
 

@@ -17,30 +17,30 @@ def get_management_stub():
 
 
 def register_model(**kwargs):
-    managment_stub = get_management_stub()
-    return managment_stub.RegisterModel(management_pb2.RegisterModelRequest(**kwargs))
+    management_stub = get_management_stub()
+    return management_stub.RegisterModel(management_pb2.RegisterModelRequest(**kwargs))
 
 
 def unregister_model(**kwargs):
-    managment_stub = get_management_stub()
-    return managment_stub.UnregisterModel(management_pb2.UnregisterModelRequest(**kwargs))
+    management_stub = get_management_stub()
+    return management_stub.UnregisterModel(management_pb2.UnregisterModelRequest(**kwargs))
 
 
 def scale_model(**kwargs):
-    managment_stub = get_management_stub()
-    return managment_stub.ScaleWorker(management_pb2.ScaleWorkerRequest(**kwargs))
+    management_stub = get_management_stub()
+    return management_stub.ScaleWorker(management_pb2.ScaleWorkerRequest(**kwargs))
 
 
 def set_default_model(**kwargs):
-    managment_stub = get_management_stub()
-    return managment_stub.SetDefault(management_pb2.SetDefaultRequest(**kwargs))
+    management_stub = get_management_stub()
+    return management_stub.SetDefault(management_pb2.SetDefaultRequest(**kwargs))
 
 
 def list_model(**kwargs):
-    managment_stub = get_management_stub()
-    return managment_stub.ListModels(management_pb2.ListModelsRequest(**kwargs))
+    management_stub = get_management_stub()
+    return management_stub.ListModels(management_pb2.ListModelsRequest(**kwargs))
 
 
 def describe_model(**kwargs):
-    managment_stub = get_management_stub()
-    return managment_stub.DescribeModel(management_pb2.DescribeModelRequest(**kwargs))
+    management_stub = get_management_stub()
+    return management_stub.DescribeModel(management_pb2.DescribeModelRequest(**kwargs))
