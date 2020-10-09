@@ -1,6 +1,6 @@
 ## TorchServe on Azure Kubernetes Service (AKS)
 
-### 1 Create an AKS cluster
+### 1、Create an AKS cluster
 
 This quickstart requires that you are running the Azure CLI version 2.0.64 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
@@ -34,17 +34,7 @@ To configure `kubectl` to connect to your Kubernetes cluster, use the [az aks ge
 
 ```az aks get-credentials --resource-group myResourceGroup --name myAKSCluster```
 
-#### 1.5 Install NVIDIA device plugin
-
-Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
-
-```kubectl apply -f nvidia-device-plugin-ds.yaml```
-
-NAME                  READY  STATUS  RESTARTS  AGE
-
-nvidia-device-plugin-daemonset-7lvxd  1/1   Running  0     42s
-
-#### 1.6 Install helm
+#### 1.5 Install helm
 
 ```
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
@@ -60,13 +50,23 @@ chmod 700 get_helm.sh
 
 ```cd serve/kubernetes/AKS```
 
-#### 2.2 Create a storage class
+#### 2.2 Install NVIDIA device plugin
+
+Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
+
+```kubectl apply -f templates/nvidia-device-plugin-ds.yaml```
+
+NAME                  READY  STATUS  RESTARTS  AGE
+
+nvidia-device-plugin-daemonset-7lvxd  1/1   Running  0     42s
+
+#### 2.3 Create a storage class
 
 A storage class is used to define how an Azure file share is created. If multiple pods need concurrent access to the same storage volume, you need Azure Files. Create the storage class with the following kubectl apply command:
 
 ```kubectl apply -f templates/Azure_file_sc.yaml```
 
-#### 2.3 Create PersistentVolume
+#### 2.4 Create PersistentVolume
 
 ```kubectl apply -f templates/AKS_pv_claim.yaml```
 
@@ -86,7 +86,7 @@ persistentvolumeclaim/model-store-claim   Bound    pvc-c9e235a8-ca2b-4d04-8f25-8
 NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                       STORAGECLASS      REASON   AGE
 persistentvolume/pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            Delete           Bound    default/model-store-claim   managed-premium            28s
 
-#### 2.4 Create a pod and copy MAR / config files
+#### 2.5 Create a pod and copy MAR / config files
 
 Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files.
 
@@ -107,7 +107,7 @@ model-store-pod                        1/1     Running   0          143m
 nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
 torchserve-576df559ff-tww7q            1/1     Running   0          141m
 
-#### 2.5 Down and copy MAR / config files
+#### 2.6 Down and copy MAR / config files
 
 ```shell
 wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
@@ -135,7 +135,7 @@ Your output should look similar to
 /mnt/azure/model-store/mnist.mar
 /mnt/azure/model-store/squeezenet1_1.mar
 
-#### 2.6 Install Torchserve using Helm Charts
+#### 2.7 Install Torchserve using Helm Charts
 
 Enter the Helm directory and install TorchServe using Helm Charts
 ```cd ../Helm```
@@ -151,7 +151,7 @@ STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 
-#### 2.7 Check the status of TorchServe
+#### 2.8 Check the status of TorchServe
 
 ```kubectl get po```
 
