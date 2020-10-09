@@ -1,7 +1,7 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: my-azurefile
+  name: persistent-volume-azurefile
 provisioner: kubernetes.io/azure-file
 mountOptions:
   - dir_mode=0777

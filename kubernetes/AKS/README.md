@@ -1,6 +1,6 @@
 ## TorchServe on Azure Kubernetes Service (AKS)
 
-### 1、Create an AKS cluster
+### 1 Create an AKS cluster
 
 This quickstart requires that you are running the Azure CLI version 2.0.64 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
@@ -42,7 +42,7 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-### 2、Deploy TorchServe on AKS
+### 2 Deploy TorchServe on AKS
 
 #### 2.1 Download the github repository and enter the kubernetes directory
 
@@ -165,7 +165,7 @@ Output like this means the installation is completed.
 NAME                               READY   STATUS    RESTARTS   AGE
 torchserve-75f5b67469-5hnsn        1/1     Running   0          2m36s
 
-### 3、Test Torchserve Installation
+### 3 Test Torchserve Installation
 
 #### 3.1 Fetch the Load Balancer Extenal IP
 
