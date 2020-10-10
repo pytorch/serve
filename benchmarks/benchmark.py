@@ -37,20 +37,30 @@ JMX_CONCURRENT_LOAD_PLAN = 'concurrentLoadPlan.jmx'
 JMX_CONCURRENT_SCALE_CALLS = 'concurrentScaleCalls.jmx'
 JMX_MULTIPLE_MODELS_LOAD_PLAN = 'multipleModelsLoadPlan.jmx'
 JMX_GRAPHS_GENERATOR_PLAN = 'graphsGenerator.jmx'
+JMX_BATCH_IMAGE_INPUT_MODEL_PLAN = 'batchImageInputModelPlan.jmx'
 
 # Listing out the models tested
 MODEL_RESNET_18 = 'resnet-18'
-MODEL_SQUEEZE_NET = 'squeezenet'
+MODEL_SQUEEZE_NET = 'squeezenet1_1'
+MODEL_DENSE_NET = 'densenet161'
+MODEL_ALEX_NET = 'alexnet'
+MODEL_VGG = 'vgg11'
+MODEL_RESNET_152 = 'resnet-152-batch'
 
 MODEL_MAP = {
-    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
+    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
+    MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
 }
 
 
 # Mapping of which row is relevant for a given JMX Test Plan
 EXPERIMENT_RESULTS_MAP = {
     JMX_IMAGE_INPUT_MODEL_PLAN: ['Inference Request'],
+    JMX_BATCH_IMAGE_INPUT_MODEL_PLAN: ['Batch Inference Request'],
     JMX_PING_PLAN: ['Ping Request'],
     JMX_CONCURRENT_LOAD_PLAN: ['Load Model Request'],
     JMX_CONCURRENT_SCALE_CALLS: ['Scale Up Model', 'Scale Down Model'],
@@ -164,21 +174,25 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             port = 80
     else:
         # Start TorchServe
-        '''
-        Default docker files do not exist and same needs to be added.
-        '''
-        raise Exception('Docker not supported at this moment. Use --ts switch.')
-
         docker = 'nvidia-docker' if pargs.gpus else 'docker'
         container = 'ts_benchmark_gpu' if pargs.gpus else 'ts_benchmark_cpu'
-        docker_path = 'torchserve-model-server:nightly-torch-gpu' \
-            if pargs.gpus else 'torchserve-model-server:nightly-torch-cpu'
+        docker_path = 'pytorch/torchserve:latest-gpu' \
+            if pargs.gpus else 'pytorch/torchserve:latest'
         if pargs.docker:
-            container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[1])
-            docker_path = pargs.docker[0]
+            s_pargs_docker = ''.join([str(elem) for elem in pargs.docker]) 
+            if '/' in s_pargs_docker:
+                #Fixed the logic to get the container name correctly
+                container = 'ts_benchmark_{}'.format(pargs.docker[0].split('/')[-1].split(':')[0])
+                docker_path = pargs.docker[0]
+            else:
+                container = 'ts_benchmark_{}'.format(pargs.docker[0].split(':')[1])
+                docker_path = pargs.docker
+        docker_path = ''.join([str(elem) for elem in docker_path]) 
         run_process("{} rm -f {}".format(docker, container))
         docker_run_call = "{} run --name {} -p 8080:8080 -p 8081:8081 -itd {}".format(docker, container, docker_path)
-        run_process(docker_run_call)
+        retval = run_process(docker_run_call).returncode
+        if retval != 0:
+            raise Exception("docker run command failed!! Please provide a valid docker image")
 
     management_port = int(pargs.management[0]) if pargs.management else port + 1
     time.sleep(300)
@@ -340,6 +354,15 @@ class Benchmarks:
         return run_single_benchmark(plan, jmeter_args)
 
     @staticmethod
+    def throughput_batch():
+        """
+        Performs a simple single benchmark that measures the model throughput on inference tasks
+        by using batch processing at TorchServe
+        """
+        plan, jmeter_args = parseModel()
+        return run_single_benchmark(plan, jmeter_args)
+
+    @staticmethod
     def latency():
         """
         Performs a simple single benchmark that measures the model latency on inference tasks
@@ -355,16 +378,6 @@ class Benchmarks:
         return run_single_benchmark(JMX_PING_PLAN, dict(), threads=5000)
 
     @staticmethod
-    def load():
-        """
-        Benchmarks number of concurrent inference requests
-        """
-        plan, jmeter_args = parseModel()
-        plan = JMX_CONCURRENT_LOAD_PLAN
-        jmeter_args['count'] = 8
-        return run_single_benchmark(plan, jmeter_args)
-
-    @staticmethod
     def repeated_scale_calls():
         """
         Benchmarks number of concurrent inference requests
@@ -378,12 +391,23 @@ class Benchmarks:
     @staticmethod
     def multiple_models():
         """
-        Tests with 3 models
+        Tests with 5 models
         """
+        if not pargs.workers:
+            pargs.workers = "4"
+
         plan = JMX_MULTIPLE_MODELS_LOAD_PLAN
         jmeter_args = {
-            'url1': MODEL_MAP[MODEL_RESNET_18][1]['url'],
-            'model1_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
+            'url1': MODEL_MAP[MODEL_ALEX_NET][1]['url'],
+            'url2': MODEL_MAP[MODEL_DENSE_NET][1]['url'],
+            'url3': MODEL_MAP[MODEL_RESNET_18][1]['url'],
+            'url4': MODEL_MAP[MODEL_SQUEEZE_NET][1]['url'],
+            'url5': MODEL_MAP[MODEL_VGG][1]['url'],
+            'model1_name': MODEL_MAP[MODEL_ALEX_NET][1]['model_name'],
+            'model2_name': MODEL_MAP[MODEL_DENSE_NET][1]['model_name'],
+            'model3_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
+            'model4_name': MODEL_MAP[MODEL_SQUEEZE_NET][1]['model_name'],
+            'model5_name': MODEL_MAP[MODEL_VGG][1]['model_name'],
             'data3': get_resource('kitten.jpg')
         }
         return run_single_benchmark(plan, jmeter_args)
@@ -437,6 +461,9 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
     parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of TorchServe backend workers to use')
 
+    parser.add_argument('-b', '--batch-size', nargs=1, type=int, default=2, help='Batch size to process togather on TorchServe')
+    parser.add_argument('--batch-delay', nargs=1, type=int, default=5000, help='Max time in milliseconds TorchServe will wait for batch request processing')
+
     parser.add_argument('--ts', nargs=1, type=str, help='Target an already running instance of TorchServe instead of spinning up a docker container of TorchServe.  Specify the target with the format address:port (for http) or protocol://address:port')
     parser.add_argument('--management-port', dest='management', nargs=1, type=str, help='When targeting a running TorchServe instance, specify the management port')
     parser.add_argument('-v', '--verbose', action='store_true', help='Display all output')
@@ -464,5 +491,5 @@ if __name__ == '__main__':
             run_benchmark()
     else:
         benchmark_name = pargs.name.lower()
-        benchmark_model = pargs.model[0].lower()
+        benchmark_model = MODEL_RESNET_152 if benchmark_name == "throughput_batch" else pargs.model[0].lower()
         run_benchmark()

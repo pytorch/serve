@@ -40,6 +40,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         if (snapshotFile.exists()) {
             logger.error(
                     "Snapshot " + snapshot.getName() + " already exists. Not saving the sanpshot.");
+            return;
         }
 
         String snapshotJson = GSON.toJson(snapshot, Snapshot.class);

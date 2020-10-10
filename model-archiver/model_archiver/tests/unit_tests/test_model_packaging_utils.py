@@ -1,11 +1,9 @@
 
 
 import json
-import os
 import pytest
 from collections import namedtuple
 from model_archiver.model_packaging_utils import ModelExportUtils
-from model_archiver.manifest_components.engine import EngineType
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_archiver_error import ModelArchiverError
 
@@ -136,28 +134,16 @@ class TestExportModelUtils:
             def __init__(self, **kwargs):
                 self.__dict__.update(kwargs)
 
-        author = 'ABC'
-        email = 'ABC@XYZ.com'
-        engine = EngineType.MXNET.value
         model_name = 'my-model'
         handler = 'a.py::my-awesome-func'
         serialized_file = 'model.pt'
         model_file = 'model.pt'
         version = "1.0"
-        source_vocab = None
+        requirements_file = "requirements.txt"
 
-        args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
-                         runtime=RuntimeType.PYTHON.value, serialized_file=serialized_file, model_file=model_file,
-                         version=version, source_vocab=source_vocab)
-
-        def test_publisher(self):
-            pub = ModelExportUtils.generate_publisher(self.args)
-            assert pub.email == self.email
-            assert pub.author == self.author
-
-        def test_engine(self):
-            eng = ModelExportUtils.generate_engine(self.args)
-            assert eng.engine_name == EngineType(self.engine)
+        args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value,
+                         serialized_file=serialized_file, model_file=model_file, version=version,
+                         requirements_file=requirements_file)
 
         def test_model(self):
             mod = ModelExportUtils.generate_model(self.args)
@@ -168,9 +154,7 @@ class TestExportModelUtils:
             manifest = ModelExportUtils.generate_manifest_json(self.args)
             manifest_json = json.loads(manifest)
             assert manifest_json['runtime'] == RuntimeType.PYTHON.value
-            assert 'engine' in manifest_json
             assert 'model' in manifest_json
-            assert 'publisher' in manifest_json
             assert 'license' not in manifest_json
 
     # noinspection PyClassHasNoInit

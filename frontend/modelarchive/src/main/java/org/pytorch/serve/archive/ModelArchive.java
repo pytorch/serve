@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -27,8 +29,8 @@ public class ModelArchive {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static final Pattern URL_PATTERN =
-            Pattern.compile("http(s)?://.*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VALID_URL_PATTERN =
+            Pattern.compile("file?://.*|http(s)?://.*", Pattern.CASE_INSENSITIVE);
 
     private static final String MANIFEST_FILE = "MANIFEST.json";
 
@@ -44,7 +46,8 @@ public class ModelArchive {
         this.extracted = extracted;
     }
 
-    public static ModelArchive downloadModel(String modelStore, String url)
+    public static ModelArchive downloadModel(
+            List<String> allowedUrls, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
 
         if (modelStore == null) {
@@ -54,7 +57,7 @@ public class ModelArchive {
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
 
-        if (URL_PATTERN.matcher(url).matches()) {
+        if (checkAllowedUrl(allowedUrls, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
@@ -84,6 +87,23 @@ public class ModelArchive {
         throw new ModelNotFoundException("Model not found at: " + url);
     }
 
+    public static boolean checkAllowedUrl(List<String> allowedUrls, String url)
+            throws ModelNotFoundException {
+        boolean patternMatch = false;
+        for (String temp : allowedUrls) {
+            if (Pattern.compile(temp, Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
+                patternMatch = true;
+                return patternMatch;
+            }
+        }
+        if (VALID_URL_PATTERN.matcher(url).matches()) {
+            // case when url is valid url but does not match valid hosts
+            throw new ModelNotFoundException(
+                    "Given URL " + url + " does not match any allowed URL(s)");
+        }
+        return patternMatch;
+    }
+
     private static ModelArchive load(String url, File dir, boolean extracted)
             throws InvalidModelException, IOException {
         boolean failed = true;
@@ -93,7 +113,6 @@ public class ModelArchive {
             if (manifestFile.exists()) {
                 manifest = readFile(manifestFile, Manifest.class);
             } else {
-
                 manifest = new Manifest();
             }
 
@@ -134,14 +153,10 @@ public class ModelArchive {
         }
         ZipUtils.unzip(new DigestInputStream(is, md), tmp);
         if (eTag == null) {
-            eTag = HexUtils.toHexString(md.digest());
+            eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
+        logger.info("eTag {}", eTag);
         File dir = new File(modelDir, eTag);
-        if (dir.exists()) {
-            FileUtils.deleteDirectory(tmp);
-            logger.info("model folder already exists: {}", eTag);
-            return dir;
-        }
 
         FileUtils.moveDirectory(tmp, dir);
 
@@ -167,8 +182,14 @@ public class ModelArchive {
                 throw new InvalidModelException("Runtime is not defined or invalid.");
             }
 
-            if (manifest.getEngine() != null && manifest.getEngine().getEngineName() == null) {
-                throw new InvalidModelException("engineName is required in <engine>.");
+            if (manifest.getArchiverVersion() == null) {
+                logger.warn(
+                        "Model archive version is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
+            }
+
+            if (manifest.getCreatedOn() == null) {
+                logger.warn(
+                        "Model archive createdOn is not defined. Please upgrade to torch-model-archiver 0.2.0 or higher");
             }
         } catch (InvalidModelException e) {
             clean();
@@ -177,7 +198,7 @@ public class ModelArchive {
     }
 
     public static void removeModel(String modelStore, String marURL) {
-        if (URL_PATTERN.matcher(marURL).matches()) {
+        if (VALID_URL_PATTERN.matcher(marURL).matches()) {
             String marFileName = FilenameUtils.getName(marURL);
             File modelLocation = new File(modelStore, marFileName);
             FileUtils.deleteQuietly(modelLocation);

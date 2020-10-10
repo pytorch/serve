@@ -55,13 +55,7 @@ class ArgParser(object):
                                    type=str,
                                    default=None,
                                    help="TorchServe's default handler name\n"
-                                        " or handler python file path to handle custom TorchServe inference logic.")
-
-        parser_export.add_argument('--source-vocab',
-                                   required=False,
-                                   type=str,
-                                   default=None,
-                                   help='Vocab file for source language. Required for text based models.')
+                                        " or Handler path to handle custom inference logic.")
 
         parser_export.add_argument('--extra-files',
                                    required=False,
@@ -114,5 +108,12 @@ class ArgParser(object):
                                    type=str,
                                    default=None,
                                    help='Model\'s version')
+
+        parser_export.add_argument('-r', '--requirements-file',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Path to a requirements.txt containing model specific python dependency\n'
+                                        ' packages.')
 
         return parser_export

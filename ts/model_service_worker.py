@@ -21,7 +21,8 @@ from ts.service import emit_metrics
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
-BENCHMARK = False
+BENCHMARK = os.getenv('TS_BENCHMARK')
+BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
 
 
 class TorchModelServiceWorker(object):
@@ -36,9 +37,9 @@ class TorchModelServiceWorker(object):
             self.sock_name, self.port = s_name, -1
             try:
                 os.remove(s_name)
-            except OSError:
+            except OSError as e :
                 if os.path.exists(s_name):
-                    raise RuntimeError("socket already in use: {}.".format(s_name))
+                    raise RuntimeError("socket already in use: {}.".format(s_name)) from e
 
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"

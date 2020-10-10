@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
 import org.pytorch.serve.http.InternalServerException;
+import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -38,7 +39,7 @@ public class Job {
         this.cmd = cmd;
         this.input = input;
         this.modelVersion = version;
-        begin = System.currentTimeMillis();
+        begin = System.nanoTime();
         scheduled = begin;
     }
 
@@ -67,7 +68,7 @@ public class Job {
     }
 
     public void setScheduled() {
-        scheduled = System.currentTimeMillis();
+        scheduled = System.nanoTime();
     }
 
     public void response(
@@ -76,10 +77,11 @@ public class Job {
             int statusCode,
             String statusPhrase,
             Map<String, String> responseHeaders) {
+        long inferTime = System.nanoTime() - scheduled;
         HttpResponseStatus status =
                 (statusPhrase == null)
                         ? HttpResponseStatus.valueOf(statusCode)
-                        : HttpResponseStatus.valueOf(statusCode, statusPhrase);
+                        : new HttpResponseStatus(statusCode, statusPhrase);
         FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
 
         if (contentType != null && contentType.length() > 0) {
@@ -99,13 +101,14 @@ public class Job {
          * by external clients.
          */
         if (ctx != null) {
+            MetricAggregator.handleInferenceMetric(
+                    modelName, modelVersion, scheduled - begin, inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
-
         logger.debug(
-                "Waiting time: {}, Backend time: {}",
+                "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
-                System.currentTimeMillis() - scheduled);
+                System.nanoTime() - scheduled);
     }
 
     public void sendError(HttpResponseStatus status, String error) {
@@ -120,8 +123,8 @@ public class Job {
         }
 
         logger.debug(
-                "Waiting time: {}, Inference time: {}",
+                "Waiting time ns: {}, Inference time ns: {}",
                 scheduled - begin,
-                System.currentTimeMillis() - begin);
+                System.nanoTime() - begin);
     }
 }
