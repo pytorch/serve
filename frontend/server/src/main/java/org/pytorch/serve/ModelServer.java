@@ -2,6 +2,7 @@ package org.pytorch.serve;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -32,6 +33,7 @@ import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
+import org.pytorch.serve.grpcimpl.gRPCInterceptor;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -371,7 +373,10 @@ public class ModelServer {
 
         ServerBuilder<?> s =
                 ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
-                        .addService(GRPCServiceFactory.getgRPCService(connectorType));
+                        .addService(
+                                ServerInterceptors.intercept(
+                                        GRPCServiceFactory.getgRPCService(connectorType),
+                                        new gRPCInterceptor()));
 
         if (configManager.isGRPCSSLEnabled()) {
             s.useTransportSecurity(
