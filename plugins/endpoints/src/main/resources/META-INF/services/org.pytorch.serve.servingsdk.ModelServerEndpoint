@@ -1,1 +1,3 @@
 org.pytorch.serve.plugins.endpoint.ExecutionParameters
+org.pytorch.serve.plugins.endpoint.Ping
+org.pytorch.serve.plugins.endpoint.PrometheusMetrics

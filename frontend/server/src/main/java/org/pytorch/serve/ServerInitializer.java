@@ -12,7 +12,6 @@ import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.InferenceRequestHandler;
 import org.pytorch.serve.http.InvalidRequestHandler;
 import org.pytorch.serve.http.ManagementRequestHandler;
-import org.pytorch.serve.http.PrometheusMetricsRequestHandler;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
@@ -68,12 +67,13 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                             new ManagementRequestHandler(
                                     PluginsManager.getInstance().getManagementEndpoints()));
         }
-        if (ConfigManager.getInstance().isMetricApiEnable()
-                        && ConnectorType.ALL.equals(connectorType)
-                || ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
-            httpRequestHandlerChain =
-                    httpRequestHandlerChain.setNextHandler(new PrometheusMetricsRequestHandler());
-        }
+
+        httpRequestHandlerChain =
+                httpRequestHandlerChain.setNextHandler(
+                        new ManagementRequestHandler(
+                                PluginsManager.getInstance().getMetricEndPoints()));
+
+
         httpRequestHandlerChain.setNextHandler(invalidRequestHandler);
         pipeline.addLast("handler", new HttpRequestHandler(apiDescriptionRequestHandler));
     }

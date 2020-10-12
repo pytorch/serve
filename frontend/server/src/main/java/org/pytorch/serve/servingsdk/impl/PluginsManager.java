@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+
+import org.pytorch.serve.metrics.plugin.SingletonAppenderImpl;
 import org.pytorch.serve.http.InvalidPluginException;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -18,6 +20,7 @@ public final class PluginsManager {
 
     private Map<String, ModelServerEndpoint> inferenceEndpoints;
     private Map<String, ModelServerEndpoint> managementEndpoints;
+    private Map<String, ModelServerEndpoint> metricEndpoints;
 
     private PluginsManager() {}
 
@@ -28,6 +31,7 @@ public final class PluginsManager {
     public void initialize() {
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
+        metricEndpoints = initMetricEndpoints();
     }
 
     private boolean validateEndpointPlugin(Annotation a, EndpointTypes type) {
@@ -53,6 +57,16 @@ public final class PluginsManager {
                                         + "\"");
                     }
                     logger.info("Loading plugin for endpoint {}", ((Endpoint) a).urlPattern());
+                    Class[] cArg = new Class[1];
+                    cArg[0] = SingletonAppenderImpl.class;
+                    try {
+                        modelServerEndpointClassObj.getDeclaredMethod("register", cArg);
+                        mep.register(SingletonAppenderImpl.getInstance());
+                    } catch (NoSuchMethodException e) {
+                        logger.info("Register method not declared for plugin {} hence ignoring.",
+                                ((Endpoint) a).urlPattern());
+                    }
+
                     ep.put(((Endpoint) a).urlPattern(), mep);
                 }
             }
@@ -68,6 +82,10 @@ public final class PluginsManager {
         return getEndpoints(EndpointTypes.MANAGEMENT);
     }
 
+    private HashMap<String, ModelServerEndpoint> initMetricEndpoints() {
+        return getEndpoints(EndpointTypes.METRIC);
+    }
+
     public Map<String, ModelServerEndpoint> getInferenceEndpoints() {
         return inferenceEndpoints;
     }
@@ -75,4 +93,9 @@ public final class PluginsManager {
     public Map<String, ModelServerEndpoint> getManagementEndpoints() {
         return managementEndpoints;
     }
+
+    public Map<String, ModelServerEndpoint> getMetricEndPoints() {
+        return metricEndpoints;
+    }
+
 }

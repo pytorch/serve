@@ -54,4 +54,13 @@ public abstract class ModelServerEndpoint {
         throw new ModelServerEndpointException("No implementation found .. Default implementation invoked");
     }
 
+
+    /**
+     * This method is called when a HTTP DELETE method is invoked for the defined custom model server endpoint
+     * @param x - Logger Appender singleton
+     */
+    public void register(SingletonAppender x){
+        throw new ModelServerEndpointException("No implementation found .. Default implementation invoked");
+
+    }
 }

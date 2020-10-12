@@ -76,12 +76,13 @@ public class ModelServerEndpointTest {
 
     private void testEndpointInterface() throws IOException {
         Class ep = ModelServerEndpoint.class;
-        Assert.assertEquals(4, ep.getDeclaredMethods().length);
+        Assert.assertEquals(5, ep.getDeclaredMethods().length);
         for(Method m : ep.getDeclaredMethods()) {
             switch (m.getName()) {
                 case "doGet":
                 case "doPost":
                 case "doDelete":
+                case "register":
                 case "doPut":
                     break;
                 default:
@@ -153,7 +154,7 @@ public class ModelServerEndpointTest {
         Assert.assertEquals("myEndpoint", ea.urlPattern());
         Assert.assertEquals(EndpointTypes.INFERENCE, ea.endpointType());
         Assert.assertEquals("This is a test endpoint", ea.description());
-        Assert.assertEquals(3, EndpointTypes.class.getFields().length);
+        Assert.assertEquals(4, EndpointTypes.class.getFields().length);
     }
 
     private void testWorkerInterface(Worker w) {

@@ -1,4 +1,4 @@
-package org.pytorch.serve.metrics.format.prometheous;
+package org.pytorch.serve.plugins.endpoint;
 
 import io.prometheus.client.Counter;
 import java.util.UUID;
@@ -10,6 +10,7 @@ public final class PrometheusMetricManager {
     private Counter inferRequestCount;
     private Counter inferLatency;
     private Counter queueLatency;
+
 
     private PrometheusMetricManager() {
         String[] metricsLabels = {"uuid", "model_name", "model_version"};

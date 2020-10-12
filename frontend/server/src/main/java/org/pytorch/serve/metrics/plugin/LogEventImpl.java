@@ -1,15 +1,14 @@
+package org.pytorch.serve.metrics.plugin;
 import java.util.Date;
+import org.pytorch.serve.servingsdk.LogEvent;
 
-public class LogEvent {
+public class LogEventImpl implements LogEvent  {
 
     private String level;
     private String message;
     private Date timestamp;
 
-    public LogEvent() {
-    }
-
-    public LogEvent(String level, String message, Date timestamp) {
+    public LogEventImpl(String level, String message, Date timestamp) {
         this.level = level;
         this.message = message;
         this.timestamp = timestamp;
@@ -38,4 +37,8 @@ public class LogEvent {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
+
+
 }
+
+
