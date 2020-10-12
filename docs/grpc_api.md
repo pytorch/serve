@@ -48,7 +48,7 @@ torchserve --start
  - Generate python gRPC client stub using the proto files
  
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=script --grpc_python_out=script frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/managment.proto
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Register densenet161 model
