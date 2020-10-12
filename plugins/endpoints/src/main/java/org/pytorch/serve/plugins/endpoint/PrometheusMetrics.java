@@ -16,7 +16,7 @@ import java.util.*;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 
-import org.pytorch.serve.servingsdk.SingletonAppender;
+
 import org.pytorch.serve.servingsdk.LogEvent;
 import org.pytorch.serve.servingsdk.LogEventListener;
 

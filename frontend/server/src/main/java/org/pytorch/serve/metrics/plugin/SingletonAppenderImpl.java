@@ -13,7 +13,7 @@ import org.pytorch.serve.servingsdk.LogEventListener;
 public class SingletonAppenderImpl implements  CachingSingletonAppender {
 
     private static final SingletonAppenderImpl theInstance = new SingletonAppenderImpl();
-    private List<LogEventListener> listeners;
+
 
     private SingletonAppenderImpl() {
         listeners = new ArrayList<>();

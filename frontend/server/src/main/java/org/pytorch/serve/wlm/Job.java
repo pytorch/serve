@@ -103,6 +103,8 @@ public class Job {
         if (ctx != null) {
             MetricAggregator.handleInferenceMetric(
                     modelName, modelVersion, scheduled - begin, inferTime);
+            logger.info("model_name="+modelName+ ",model_version="+modelVersion+",metric=QueueLatency,value="+(scheduled - begin));
+            logger.info("model_name="+modelName+ ",model_version="+modelVersion+",metric=InferLatency,value="+inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
         logger.debug(

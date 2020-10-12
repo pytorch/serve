@@ -1,8 +1,9 @@
-package org.pytorch.serve.servingsdk;
+package org.pytorch.serve.servingsdk.metrics;
 
 import java.util.Date;
 
-public interface LogEvent {
+
+public interface MetricLogEvent {
     /**
      * Get the log level
      * @return The name of this model
@@ -13,7 +14,7 @@ public interface LogEvent {
      * Get the name of this model
      * @return The name of this model
      */
-    String getMessage();
+    BaseMetric getMetric();
 
     /**
      * Get the name of this model
@@ -21,5 +22,6 @@ public interface LogEvent {
      */
     Date getTimestamp();
 }
+
 
 
