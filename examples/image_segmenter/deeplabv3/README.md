@@ -1,6 +1,6 @@
 # Image Segmentation using torchvision's pretrained deeplabv3_resnet101_coco model.
 
-* Download the pre-trained deeplabv3_resnet101_coco image segmentation model's state_dict from the following URL :
+* Download the pre-trained deeplabv3_resnet101_coco image segmentation model's state_dict from the following URL:
 
 https://download.pytorch.org/models/deeplabv3_resnet101_coco-586e9e4e.pth
 

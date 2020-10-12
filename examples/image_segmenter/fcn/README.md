@@ -1,6 +1,6 @@
 # Image Segmentation using torchvision's pretrained fcn_resnet_101_coco model.
 
-* Download the pre-trained fcn_resnet_101_coco image segmentation model's state_dict from the following URL :
+* Download the pre-trained fcn_resnet_101_coco image segmentation model's state_dict from the following URL:
 
 https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
 
