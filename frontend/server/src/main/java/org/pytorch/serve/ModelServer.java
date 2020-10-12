@@ -29,6 +29,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -40,6 +41,7 @@ import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.ServerGroups;
+import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
 import org.slf4j.Logger;
@@ -180,7 +182,8 @@ public class ModelServer {
                                 archive.getModelVersion(),
                                 workers,
                                 workers,
-                                true);
+                                true,
+                                false);
                         startupModels.add(archive.getModelName());
                     } catch (ModelException | IOException | InterruptedException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
@@ -220,7 +223,12 @@ public class ModelServer {
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName);
                 modelManager.updateModel(
-                        archive.getModelName(), archive.getModelVersion(), workers, workers, true);
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        workers,
+                        workers,
+                        true,
+                        false);
                 startupModels.add(archive.getModelName());
             } catch (ModelException | IOException | InterruptedException e) {
                 logger.warn("Failed to load model: " + url, e);
@@ -379,6 +387,32 @@ public class ModelServer {
         return !stopped.get();
     }
 
+    private void exitModelStore() throws ModelNotFoundException {
+        ModelManager modelMgr = ModelManager.getInstance();
+        Map<String, Model> defModels = modelMgr.getDefaultModels();
+
+        for (Map.Entry<String, Model> m : defModels.entrySet()) {
+            Set<Map.Entry<String, Model>> versionModels = modelMgr.getAllModelVersions(m.getKey());
+            String defaultVersionId = m.getValue().getVersion();
+            for (Map.Entry<String, Model> versionedModel : versionModels) {
+                if (defaultVersionId.equals(versionedModel.getKey())) {
+                    continue;
+                }
+                logger.info(
+                        "Unregistering model {} version {}",
+                        versionedModel.getValue().getModelName(),
+                        versionedModel.getKey());
+                modelMgr.unregisterModel(
+                        versionedModel.getValue().getModelName(), versionedModel.getKey(), true);
+            }
+            logger.info(
+                    "Unregistering model {} version {}",
+                    m.getValue().getModelName(),
+                    defaultVersionId);
+            modelMgr.unregisterModel(m.getValue().getModelName(), defaultVersionId, true);
+        }
+    }
+
     public void stop() {
         if (stopped.get()) {
             return;
@@ -396,5 +430,11 @@ public class ModelServer {
         SnapshotManager.getInstance().saveShutdownSnapshot();
         serverGroups.shutdown(true);
         serverGroups.init();
+
+        try {
+            exitModelStore();
+        } catch (Exception e) {
+            e.printStackTrace(); // NOPMD
+        }
     }
 }
