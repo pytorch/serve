@@ -11,7 +11,7 @@ import org.pytorch.serve.http.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class gRPCInterceptor implements ServerInterceptor {
+public class GRPCInterceptor implements ServerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger("ACCESS_LOG");
 

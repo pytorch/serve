@@ -32,8 +32,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.grpcimpl.GRPCInterceptor;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
-import org.pytorch.serve.grpcimpl.gRPCInterceptor;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -376,7 +376,7 @@ public class ModelServer {
                         .addService(
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),
-                                        new gRPCInterceptor()));
+                                        new GRPCInterceptor()));
 
         if (configManager.isGRPCSSLEnabled()) {
             s.useTransportSecurity(
