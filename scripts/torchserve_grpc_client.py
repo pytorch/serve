@@ -40,15 +40,21 @@ def register(stub, model_name):
         'model_name': model_name
     }
     try:
-        stub.RegisterModel(management_pb2.RegisterModelRequest(**params))
+        response = stub.RegisterModel(management_pb2.RegisterModelRequest(**params))
+        print(f"Model {model_name} registered successfully")
     except grpc.RpcError as e:
+        print(f"Failed to register model {model_name}.")
+        print(str(e.details()))
         exit(1)
 
 
 def unregister(stub, model_name):
     try:
-        stub.UnregisterModel(management_pb2.UnregisterModelRequest(model_name=model_name))
+        response = stub.UnregisterModel(management_pb2.UnregisterModelRequest(model_name=model_name))
+        print(f"Model {model_name} unregistered successfully")
     except grpc.RpcError as e:
+        print(f"Failed to unregister model {model_name}.")
+        print(str(e.details()))
         exit(1)
 
 
