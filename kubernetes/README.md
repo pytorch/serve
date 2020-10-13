@@ -741,7 +741,7 @@
   ### Troubleshooting EFS Persitent Volume Creation
 
   #### "Error: failed to download "stable/efs-provisioner"
-  * Run the command `hel repo add stable https://kubernetes-charts.storage.googleapis.com`
+  * Run the command `helm repo add stable https://kubernetes-charts.storage.googleapis.com`
   
   #### "exec user process caused “exec format error”
   Check whether your nodes are x86 based. The current setup instruction does not support ARM based instances.
