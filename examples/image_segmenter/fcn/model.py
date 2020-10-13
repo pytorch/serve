@@ -10,7 +10,8 @@ class FCNImageSegmenter(FCN):
     """
 
     def __init__(self, num_classes=21, **kwargs):
-        backbone = resnet.resnet101( pretrained=True, replace_stride_with_dilation=[False, True, True])
+        backbone = resnet.resnet101(pretrained=True,
+                                    replace_stride_with_dilation=[False, True, True])
         return_layers = {'layer4': 'out'}
         return_layers['layer3'] = 'aux'
         backbone = IntermediateLayerGetter(backbone, return_layers=return_layers)
