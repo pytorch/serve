@@ -5,6 +5,10 @@ import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.servingsdk.metrics.BaseMetric;
 import org.pytorch.serve.servingsdk.metrics.MetricLogEvent;
 
+/**
+ * A class for Metric Log Event attributes
+ *
+ */
 public class MetricLogEventImpl implements MetricLogEvent  {
 
     private String level;

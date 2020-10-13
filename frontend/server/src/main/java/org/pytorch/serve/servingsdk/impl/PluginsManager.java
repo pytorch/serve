@@ -4,15 +4,12 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
-
 import org.pytorch.serve.http.InvalidPluginException;
 import org.pytorch.serve.metrics.plugin.MetricEventPublisherImpl;
-
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.metrics.MetricEventListenerRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

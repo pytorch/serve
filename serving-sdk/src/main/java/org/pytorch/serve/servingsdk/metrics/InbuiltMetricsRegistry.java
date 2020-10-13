@@ -1,6 +1,10 @@
 package org.pytorch.serve.servingsdk.metrics;
 
-
+/**
+ * This is a registry for different Metrics available in Torch Serve.
+ * This is not exhaustive list.
+ * A Metric can be created or logged without adding it's entry to this registry.
+ */
 public class InbuiltMetricsRegistry {
     public static final String INFERENCE = "Inference";
     public static final String QUEUETIME = "QueueTime";

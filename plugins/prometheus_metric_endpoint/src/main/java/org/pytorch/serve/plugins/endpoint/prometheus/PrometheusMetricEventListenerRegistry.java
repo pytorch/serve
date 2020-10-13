@@ -11,7 +11,6 @@ public class PrometheusMetricEventListenerRegistry extends MetricEventListenerRe
 }
 
 class PrometheusMetricEventListener implements MetricEventListener {
-
     @Override
     public void handle(MetricLogEvent metricLogEvent) {
         PrometheusMetricManager prometheusMetricManager = PrometheusMetricManager.getInstance();

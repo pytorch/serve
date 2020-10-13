@@ -6,7 +6,10 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * A log appender class to intercept the LoggingEvents
+ *
+ */
 public class MetricLogAppender extends AppenderSkeleton {
 
     private MetricEventPublisherImpl publisher = MetricEventPublisherImpl.getInstance();

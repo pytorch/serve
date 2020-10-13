@@ -350,7 +350,6 @@ public class ModelServer {
                             ConnectorType.METRICS_CONNECTOR));
         }
 
-
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
     }

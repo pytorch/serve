@@ -7,12 +7,14 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.pytorch.serve.servingsdk.metrics.MetricEventListener;
 import org.pytorch.serve.servingsdk.metrics.MetricEventPublisher;
 
-
+/**
+ * A class publishing Metric events to listeners
+ *
+ */
 public final class  MetricEventPublisherImpl implements MetricEventPublisher {
 
     private static final MetricEventPublisherImpl INSTANCE = new MetricEventPublisherImpl();
     private List<MetricEventListener> listeners;
-
 
     private MetricEventPublisherImpl() {
         listeners = new ArrayList<>();
