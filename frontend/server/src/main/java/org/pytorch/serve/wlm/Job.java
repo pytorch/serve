@@ -6,12 +6,13 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
-import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -24,7 +25,6 @@ public class Job {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
     private static final org.apache.log4j.Logger loggerTsMetrics =
             org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     private ChannelHandlerContext ctx;
 
@@ -108,26 +108,41 @@ public class Job {
          * by external clients.
          */
         if (ctx != null) {
-            MetricAggregator.handleInferenceMetric(
-                    modelName, modelVersion, scheduled - begin, inferTime);
-            logger.info("model_name="+modelName+ ",model_version="+modelVersion+",metric=QueueLatency,value="+(scheduled - begin));
-            logger.info("model_name="+modelName+ ",model_version="+modelVersion+",metric=InferLatency,value="+inferTime);
+            String queueTime =
+                    String.valueOf(
+                            TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
+            String inferTimeStr =
+                    String.valueOf(
+                            TimeUnit.MILLISECONDS.convert(inferTime, TimeUnit.NANOSECONDS));
+
+            Dimension[] dimensions = {new Dimension("Level", "Model"),
+                    new Dimension("ModelName", modelName),
+                    new Dimension("ModelVersion", modelVersion)};
+
+            loggerTsMetrics.info(
+                    new Metric(
+                            "QueueTime",
+                            queueTime,
+                            "ms",
+                            ConfigManager.getInstance().getHostName(),
+                            dimensions));
+
+            loggerTsMetrics.info(
+                    new Metric(
+                            "BackendResponseTime",
+                            inferTimeStr,
+                            "ms",
+                            ConfigManager.getInstance().getHostName(),
+                            dimensions));
+
+
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
         logger.debug(
                 "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
                 System.nanoTime() - scheduled);
-        String queueTime =
-                String.valueOf(
-                        TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
-        loggerTsMetrics.info(
-                new Metric(
-                        "QueueTime",
-                        queueTime,
-                        "ms",
-                        ConfigManager.getInstance().getHostName(),
-                        DIMENSION));
+
     }
 
     public void sendError(HttpResponseStatus status, String error) {

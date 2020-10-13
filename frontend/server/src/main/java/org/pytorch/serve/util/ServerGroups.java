@@ -36,9 +36,6 @@ public class ServerGroups {
 
         serverGroup = Connector.newEventLoopGroup(2);
         childGroup = Connector.newEventLoopGroup(configManager.getNettyThreads());
-        if (configManager.isMetricApiEnable()) {
-            metricsGroup = Connector.newEventLoopGroup(1);
-        }
         backendGroup = Connector.newEventLoopGroup(configManager.getNettyClientThreads());
     }
 
@@ -49,9 +46,6 @@ public class ServerGroups {
 
         allEventLoopGroups.add(serverGroup);
         allEventLoopGroups.add(childGroup);
-        if (configManager.isMetricApiEnable()) {
-            allEventLoopGroups.add(metricsGroup);
-        }
 
         for (EventLoopGroup group : allEventLoopGroups) {
             if (graceful) {

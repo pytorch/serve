@@ -99,13 +99,16 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(1);
+        Dimension[] dimensions = {new Dimension("Level", "Model"),
+                new Dimension("ModelName", model.getModelName()),
+                new Dimension("ModelVersion", model.getVersion())};
         workerLoadTime =
                 new Metric(
                         getWorkerName(),
                         String.valueOf(System.currentTimeMillis()),
                         "ms",
                         ConfigManager.getInstance().getHostName(),
-                        new Dimension("Level", "Host"));
+                        dimensions);
     }
 
     @Override
@@ -163,13 +166,18 @@ public class WorkerThread implements Runnable {
                 req = null;
                 String workerThreadTime =
                         String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
+                Dimension[] dimensions = {new Dimension("Level", "Worker"),
+                        new Dimension("ModelName", model.getModelName()),
+                        new Dimension("ModelVersion", model.getVersion()),
+                        new Dimension("WorkerThreadName", thread.getName())};
+
                 loggerTsMetrics.info(
                         new Metric(
                                 "WorkerThreadTime",
                                 workerThreadTime,
                                 "ms",
                                 ConfigManager.getInstance().getHostName(),
-                                new Dimension("Level", "Host")));
+                                dimensions));
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);

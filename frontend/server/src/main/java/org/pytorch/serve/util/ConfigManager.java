@@ -96,8 +96,6 @@ public final class ConfigManager {
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
 
-    public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
-
     public static final String PYTHON_EXECUTABLE = "python";
 
     private Pattern blacklistPattern;
@@ -268,9 +266,6 @@ public final class ConfigManager {
             case MANAGEMENT_CONNECTOR:
                 binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
                 break;
-            case METRICS_CONNECTOR:
-                binding = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
-                break;
             default:
                 binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
@@ -283,14 +278,6 @@ public final class ConfigManager {
 
     public boolean getInstallPyDepPerModel() {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
-    }
-
-    public String getMetricsFormat() {
-        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
-    }
-
-    public boolean isMetricApiEnable() {
-        return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
 
     public int getNettyThreads() {
@@ -530,8 +517,6 @@ public final class ConfigManager {
                 + getListener(ConnectorType.INFERENCE_CONNECTOR)
                 + "\nManagement address: "
                 + getListener(ConnectorType.MANAGEMENT_CONNECTOR)
-                + "\nMetrics address: "
-                + getListener(ConnectorType.METRICS_CONNECTOR)
                 + "\nModel Store: "
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "
@@ -558,8 +543,6 @@ public final class ConfigManager {
                 + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
-                + "\nMetrics report format: "
-                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true");
     }

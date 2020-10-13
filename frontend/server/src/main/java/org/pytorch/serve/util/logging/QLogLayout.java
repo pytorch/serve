@@ -2,8 +2,8 @@ package org.pytorch.serve.util.logging;
 
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
-import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 
 public class QLogLayout extends PatternLayout {
 
@@ -109,7 +109,7 @@ public class QLogLayout extends PatternLayout {
                     .append(metric.getValue())
                     .append(' ')
                     .append(metric.getUnit());
-            for (Dimension dimension : metric.getDimensions()) {
+            for (BaseDimension dimension : metric.getDimensions()) {
                 stringBuilder
                         .append(' ')
                         .append(dimension.getName())

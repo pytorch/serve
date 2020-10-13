@@ -13,7 +13,7 @@ import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.http.Response;
 import org.pytorch.serve.servingsdk.metrics.MetricEventListener;
-import org.pytorch.serve.servingsdk.metrics.BaseMetricEventListenerRegistry;
+import org.pytorch.serve.servingsdk.metrics.MetricEventListenerRegistry;
 import org.pytorch.serve.servingsdk.metrics.MetricEventPublisher;
 
 import java.io.ByteArrayOutputStream;
@@ -32,7 +32,7 @@ public class ModelServerEndpointTest {
     Model m;
     Worker w;
     ModelServerEndpoint mse;
-    BaseMetricEventListenerRegistry melr;
+    MetricEventListenerRegistry melr;
     MetricEventPublisher mep;
     MetricEventListener mel;
     Request req;
@@ -47,7 +47,7 @@ public class ModelServerEndpointTest {
         w = Mockito.mock(Worker.class);
         ea = Mockito.mock(Endpoint.class);
         mse = Mockito.mock(ModelServerEndpoint.class);
-        melr = Mockito.mock(BaseMetricEventListenerRegistry.class);
+        melr = Mockito.mock(MetricEventListenerRegistry.class);
         mep = Mockito.mock(MetricEventPublisher.class);
         mel = Mockito.mock(MetricEventListener.class);
         req = Mockito.mock(Request.class);
@@ -85,7 +85,7 @@ public class ModelServerEndpointTest {
 
     private void testEndpointInterface() throws IOException {
         Class ep = ModelServerEndpoint.class;
-        Assert.assertEquals(5, ep.getDeclaredMethods().length);
+        Assert.assertEquals(4, ep.getDeclaredMethods().length);
         for(Method m : ep.getDeclaredMethods()) {
             switch (m.getName()) {
                 case "doGet":
@@ -158,7 +158,7 @@ public class ModelServerEndpointTest {
     }
 
     private void testMetricEventListenerRegistry() throws IOException {
-        Class melr_class = BaseMetricEventListenerRegistry.class;
+        Class melr_class = MetricEventListenerRegistry.class;
         Assert.assertEquals(5, melr_class.getDeclaredMethods().length);
         for(Method m : melr_class.getDeclaredMethods()) {
             switch (m.getName()) {

@@ -14,8 +14,11 @@ import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.metrics.Dimension;
+import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -34,6 +37,8 @@ import org.slf4j.LoggerFactory;
 public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
     private static final Logger logger = LoggerFactory.getLogger(InferenceRequestHandler.class);
+    private static final org.apache.log4j.Logger loggerTsMetrics =
+            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
     /** Creates a new {@code InferenceRequestHandler} instance. */
     public InferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
@@ -176,7 +181,17 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             return;
         }
 
-        logger.info("model_name=" + modelName + ",model_version=" + modelVersion + ",event=Inference");
+        Dimension[] dimensions = { new Dimension("Level", "Model"),
+                new Dimension("ModelName", modelName),
+                new Dimension("ModelVersion", modelVersion) };
+        loggerTsMetrics.info(
+                new Metric(
+                        "Inference",
+                        "1",
+                        "Count",
+                        ConfigManager.getInstance().getHostName(),
+                        dimensions));
+
         Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage =

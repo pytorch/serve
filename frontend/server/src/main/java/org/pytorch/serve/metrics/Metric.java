@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Metric {
+import org.pytorch.serve.servingsdk.metrics.BaseDimension;
+import org.pytorch.serve.servingsdk.metrics.BaseMetric;
+
+public class Metric implements BaseMetric {
 
     private static final Pattern PATTERN =
             Pattern.compile(
@@ -23,7 +26,7 @@ public class Metric {
     private String unit;
 
     @SerializedName("Dimensions")
-    private List<Dimension> dimensions;
+    private List<BaseDimension> dimensions;
 
     @SerializedName("Timestamp")
     private String timestamp;
@@ -89,11 +92,11 @@ public class Metric {
         this.unit = unit;
     }
 
-    public List<Dimension> getDimensions() {
+    public List<BaseDimension> getDimensions() {
         return dimensions;
     }
 
-    public void setDimensions(List<Dimension> dimensions) {
+    public void setDimensions(List<BaseDimension> dimensions) {
         this.dimensions = dimensions;
     }
 
@@ -123,7 +126,7 @@ public class Metric {
 
         if (dimensions != null) {
             String[] dimension = dimensions.split(",");
-            List<Dimension> list = new ArrayList<>(dimension.length);
+            List<BaseDimension> list = new ArrayList<>(dimension.length);
             for (String dime : dimension) {
                 String[] pair = dime.split(":");
                 if (pair.length == 2) {
@@ -141,7 +144,7 @@ public class Metric {
         StringBuilder sb = new StringBuilder(128);
         sb.append(metricName).append('.').append(unit).append(':').append(getValue()).append("|#");
         boolean first = true;
-        for (Dimension dimension : getDimensions()) {
+        for (BaseDimension dimension : getDimensions()) {
             if (first) {
                 first = false;
             } else {

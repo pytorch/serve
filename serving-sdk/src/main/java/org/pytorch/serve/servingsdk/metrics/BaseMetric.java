@@ -22,9 +22,3 @@ public interface BaseMetric {
 }
 
 
-interface BaseDimension {
-
-    String getName();
-
-    String getValue();
-}

@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.pytorch.serve.metrics.plugin.SingletonAppenderImpl;
 import org.pytorch.serve.http.InvalidPluginException;
+import org.pytorch.serve.metrics.plugin.MetricEventPublisherImpl;
+
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
+import org.pytorch.serve.servingsdk.metrics.MetricEventListenerRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +25,8 @@ public final class PluginsManager {
     private Map<String, ModelServerEndpoint> managementEndpoints;
     private Map<String, ModelServerEndpoint> metricEndpoints;
 
-    private PluginsManager() {}
+    private PluginsManager() {
+    }
 
     public static PluginsManager getInstance() {
         return INSTANCE;
@@ -32,6 +36,7 @@ public final class PluginsManager {
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
         metricEndpoints = initMetricEndpoints();
+        initializeMetricListeners();
     }
 
     private boolean validateEndpointPlugin(Annotation a, EndpointTypes type) {
@@ -57,21 +62,20 @@ public final class PluginsManager {
                                         + "\"");
                     }
                     logger.info("Loading plugin for endpoint {}", ((Endpoint) a).urlPattern());
-                    Class[] cArg = new Class[1];
-                    cArg[0] = SingletonAppenderImpl.class;
-                    try {
-                        modelServerEndpointClassObj.getDeclaredMethod("register", cArg);
-                        mep.register(SingletonAppenderImpl.getInstance());
-                    } catch (NoSuchMethodException e) {
-                        logger.info("Register method not declared for plugin {} hence ignoring.",
-                                ((Endpoint) a).urlPattern());
-                    }
-
                     ep.put(((Endpoint) a).urlPattern(), mep);
                 }
             }
         }
         return ep;
+    }
+
+    private void initializeMetricListeners() throws InvalidPluginException {
+        ServiceLoader<MetricEventListenerRegistry> loader = ServiceLoader.load(MetricEventListenerRegistry.class);
+        for (MetricEventListenerRegistry registry : loader) {
+            Class<? extends MetricEventListenerRegistry> registryClass = registry.getClass();
+            logger.info("Registering metric listener for plugin class {}.", registryClass.getName());
+            registry.register(MetricEventPublisherImpl.getInstance());
+        }
     }
 
     private HashMap<String, ModelServerEndpoint> initInferenceEndpoints() {

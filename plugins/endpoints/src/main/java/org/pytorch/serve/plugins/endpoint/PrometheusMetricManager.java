@@ -8,8 +8,9 @@ public final class PrometheusMetricManager {
     private static final PrometheusMetricManager METRIC_MANAGER = new PrometheusMetricManager();
     private static final String METRICS_UUID = UUID.randomUUID().toString();
     private Counter inferRequestCount;
-    private Counter inferLatency;
+    private Counter backendResponseLatency;
     private Counter queueLatency;
+    private Counter handlerlatency;
 
 
     private PrometheusMetricManager() {
@@ -20,17 +21,23 @@ public final class PrometheusMetricManager {
                         .labelNames(metricsLabels)
                         .help("Total number of inference requests.")
                         .register();
-        inferLatency =
+        backendResponseLatency =
                 Counter.build()
-                        .name("ts_inference_latency_microseconds")
+                        .name("ts_backend_reponse_latency_milliseconds")
                         .labelNames(metricsLabels)
-                        .help("Cumulative inference duration in microseconds")
+                        .help("Cumulative inference duration in milliseconds")
                         .register();
         queueLatency =
                 Counter.build()
-                        .name("ts_queue_latency_microseconds")
+                        .name("ts_queue_latency_milliseconds")
                         .labelNames(metricsLabels)
-                        .help("Cumulative queue duration in microseconds")
+                        .help("Cumulative queue duration in milliseconds")
+                        .register();
+        handlerlatency =
+                Counter.build()
+                        .name("ts_handler_latency_milliseconds")
+                        .labelNames(metricsLabels)
+                        .help("Cumulative handler execution duration in milliseconds")
                         .register();
     }
 
@@ -43,29 +50,42 @@ public final class PrometheusMetricManager {
     }
 
     /**
-     * Counts the time in ns it took for an inference to be completed
+     * Counts the time in ms it took for an inference to be completed
      *
-     * @param inferTime time in nanoseconds
+     * @param inferTime time in milliseconds
      * @param modelName name of the model
      * @param modelVersion version of the model
      */
-    public void incInferLatency(long inferTime, String modelName, String modelVersion) {
-        inferLatency
+    public void incBackendResponseLatency(long inferTime, String modelName, String modelVersion) {
+        backendResponseLatency
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
-                .inc(inferTime / 1000.0);
+                .inc(inferTime);
     }
 
     /**
-     * Counts the time in ns an inference request was queued before being executed
+     * Counts the time in ms an inference request was queued before being executed
      *
-     * @param queueTime time in nanoseconds
+     * @param queueTime time in milliseconds
      * @param modelName name of the model
      * @param modelVersion version of the model
      */
     public void incQueueLatency(long queueTime, String modelName, String modelVersion) {
         queueLatency
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
-                .inc(queueTime / 1000.0);
+                .inc(queueTime);
+    }
+
+    /**
+     * Counts the time in ms an inference request was queued before being executed
+     *
+     * @param queueTime time in milliseconds
+     * @param modelName name of the model
+     * @param modelVersion version of the model
+     */
+    public void incHandlerLatency(long queueTime, String modelName, String modelVersion) {
+        queueLatency
+                .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
+                .inc(queueTime);
     }
 
     /**

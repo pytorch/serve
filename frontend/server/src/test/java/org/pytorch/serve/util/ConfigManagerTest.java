@@ -11,6 +11,7 @@ import java.util.Map;
 import org.pytorch.serve.TestUtils;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -22,7 +23,7 @@ public class ConfigManagerTest {
     }
 
     private Metric createMetric(String metricName, String requestId) {
-        List<Dimension> dimensions = new ArrayList<>();
+        List<BaseDimension> dimensions = new ArrayList<>();
         Metric metric = new Metric();
         metric.setMetricName(metricName);
         metric.setRequestId(requestId);

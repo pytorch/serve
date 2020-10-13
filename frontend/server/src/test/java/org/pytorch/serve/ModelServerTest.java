@@ -26,17 +26,16 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.ListModelsResponse;
 import org.pytorch.serve.http.StatusResponse;
-import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
@@ -56,7 +55,6 @@ public class ModelServerTest {
     private ModelServer server;
     private String listInferenceApisResult;
     private String listManagementApisResult;
-    private String listMetricsApisResult;
     private String noopApiResult;
 
     static {
@@ -83,11 +81,6 @@ public class ModelServerTest {
 
         try (InputStream is = new FileInputStream("src/test/resources/management_open_api.json")) {
             listManagementApisResult =
-                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
-        }
-
-        try (InputStream is = new FileInputStream("src/test/resources/metrics_open_api.json")) {
-            listMetricsApisResult =
                     String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
 
@@ -139,32 +132,6 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRootManagement"})
-    public void testRootMetrics() throws InterruptedException {
-        Channel channel = TestUtils.getMetricsChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.getRoot(channel);
-        TestUtils.getLatch().await();
-
-        Assert.assertEquals(TestUtils.getResult(), listMetricsApisResult);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testRootMetrics"})
-    public void testApiDescription() throws InterruptedException {
-        Channel channel = TestUtils.getInferenceChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.getApiDescription(channel);
-        TestUtils.getLatch().await();
-
-        Assert.assertEquals(TestUtils.getResult(), listInferenceApisResult);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testApiDescription"})
     public void testDescribeApi() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -920,8 +887,8 @@ public class ModelServerTest {
                 Assert.assertEquals(metric.getUnit(), "Megabytes");
             }
             if (metric.getMetricName().equals("DiskUsed")) {
-                List<Dimension> dimensions = metric.getDimensions();
-                for (Dimension dimension : dimensions) {
+                List<BaseDimension> dimensions = metric.getDimensions();
+                for (BaseDimension dimension : dimensions) {
                     if (dimension.getName().equals("Level")) {
                         Assert.assertEquals(dimension.getValue(), "Host");
                     }
@@ -1693,32 +1660,8 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
-        testModelMetrics(modelName, version);
     }
 
-    private void testModelMetrics(String modelName, String version) throws InterruptedException {
-        Channel metricsChannel = TestUtils.getMetricsChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        DefaultFullHttpRequest metricsReq =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/metrics");
-        metricsChannel.writeAndFlush(metricsReq);
-        TestUtils.getLatch().await();
-        Pattern inferLatencyMatcher = TestUtils.getTSInferLatencyMatcher(modelName, version);
-        Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
-
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        metricsReq =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1,
-                        HttpMethod.GET,
-                        "/metrics?name[]=ts_inference_latency_microseconds");
-        metricsChannel.writeAndFlush(metricsReq);
-        TestUtils.getLatch().await();
-        Assert.assertTrue(inferLatencyMatcher.matcher(TestUtils.getResult()).find());
-        Assert.assertFalse(TestUtils.getResult().contains("ts_inference_requests_total"));
-    }
 
     private void loadTests(Channel channel, String model, String modelName)
             throws InterruptedException {

@@ -1,8 +1,9 @@
 package org.pytorch.serve.metrics;
 
 import com.google.gson.annotations.SerializedName;
+import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 
-public class Dimension {
+public class Dimension implements BaseDimension{
 
     @SerializedName("Name")
     private String name;

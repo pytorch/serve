@@ -17,7 +17,3 @@ public abstract class MetricEventListenerRegistry {
     }
 }
 
-class MetricPluginException extends RuntimeException {
-    public MetricPluginException(String err) {super(err);}
-    public MetricPluginException(String err, Throwable t) {super(err, t);}
-}

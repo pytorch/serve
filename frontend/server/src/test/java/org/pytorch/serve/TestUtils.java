@@ -272,10 +272,6 @@ public final class TestUtils {
         return getChannel(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
     }
 
-    public static Channel getMetricsChannel(ConfigManager configManager)
-            throws InterruptedException {
-        return getChannel(ConnectorType.METRICS_CONNECTOR, configManager);
-    }
 
     private static Channel getChannel(ConnectorType connectorType, ConfigManager configManager)
             throws InterruptedException {
@@ -289,11 +285,6 @@ public final class TestUtils {
                 && inferenceChannel.isActive()) {
             return inferenceChannel;
         }
-        if (ConnectorType.METRICS_CONNECTOR.equals(connectorType)
-                && metricsChannel != null
-                && metricsChannel.isActive()) {
-            return metricsChannel;
-        }
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
             channel = TestUtils.connect(connectorType, configManager);
@@ -305,9 +296,6 @@ public final class TestUtils {
         switch (connectorType) {
             case MANAGEMENT_CONNECTOR:
                 managementChannel = channel;
-                break;
-            case METRICS_CONNECTOR:
-                metricsChannel = channel;
                 break;
             default:
                 inferenceChannel = channel;

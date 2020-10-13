@@ -1,7 +1,5 @@
 package org.pytorch.serve.plugins.endpoint;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 import org.pytorch.serve.servingsdk.*;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
@@ -11,18 +9,9 @@ import org.pytorch.serve.servingsdk.http.Response;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
-
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
-
-
-import org.pytorch.serve.servingsdk.LogEvent;
-import org.pytorch.serve.servingsdk.LogEventListener;
-
-
 import java.io.IOException;
-
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,7 +32,7 @@ public class PrometheusMetrics extends ModelServerEndpoint {
 
 
         Writer writer = new StringWriter();
-        TextFormat.write004(writer,CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(
+        TextFormat.write004(writer, CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(
                 new HashSet<>(params)));
 
 
@@ -55,32 +44,9 @@ public class PrometheusMetrics extends ModelServerEndpoint {
                 .write(writer.toString().getBytes(StandardCharsets.UTF_8));
     }
 
-    public void register(SingletonAppender singletonAppender) {
-        LogEventListenerImpl logEventListener = new LogEventListenerImpl();
-        singletonAppender.addLoggingEventListener(logEventListener);
-    }
-
-    public static class LogEventListenerImpl implements LogEventListener {
-
-        @Override
-        public void handle(LogEvent logEvent) {
-            String msg = logEvent.getMessage();
-            PrometheusMetricManager metrics = PrometheusMetricManager.getInstance();
-
-            //TODO - add a method to parse message to an object
-            if (msg.contains("event=Inference")) {
-                String[] msgs = msg.split(",");
-                metrics.incInferCount(msgs[0].split("=")[1], msgs[1].split("=")[1]);
-            }else if(msg.contains("metric=InferLatency")){
-                String[] msgs = msg.split(",");
-                metrics.incInferLatency(Long.parseLong(msgs[3].split("=")[1]), msgs[0].split("=")[1], msgs[1].split("=")[1]);
-            }else if(msg.contains("metric=QueueLatency")){
-                String[] msgs = msg.split(",");
-                metrics.incQueueLatency(Long.parseLong(msgs[3].split("=")[1]), msgs[0].split("=")[1], msgs[1].split("=")[1]);
-            }
-        }
-    }
 }
+
+
 
 
 
