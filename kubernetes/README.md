@@ -744,7 +744,7 @@
   * Run the command `helm repo add stable https://kubernetes-charts.storage.googleapis.com`
   
   #### "exec user process caused “exec format error”
-  Check whether your nodes are x86 based. The current setup instruction does not support ARM based instances.
+  * Check whether your nodes are x86 based. The current setup instruction does not support ARM based instances.
 
   #### My pod is stuck in the *Init / Creating* status. Persitent volume claim is stuck in the *Pending* status
   * Incorrect CLUSTER_NAME or Duplicate MOUNT_TARGET_GROUP_NAME in `setup_efs.sh`
@@ -760,15 +760,14 @@
         * Run 'kubectl get pods` and `kubectl delete pod <efs-provisioner-xxxx>` to delete the existing pod.
         * Run `helm list` and `helm uninstall <efs-provisioner-xxxx>`
         * Re-run command `helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=<Your EFS ID> --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name` and make sure to use the correct EFS ID in the input. The EFS ID can be found in the output of the `setup_efs` script or by visiting your [AWS EFS console](https://console.aws.amazon.com/efs/home#file-systems)
-
     * You may inspect the values by running ``helm list`` and ```helm get all YOUR_RELEASE_ID``` to verify if the values used for the installation
     * You can execute the following commands to inspect the pods / events to debug EFS / CSI Issues
 
       ```bash
       kubectl get events --sort-by='.metadata.creationTimestamp'
-      
+
       kubectl get pod --all-namespaces # Get the Pod ID
-      
+
       kubectl logs pod/efs-provisioner-YOUR_POD
       kubectl logs pod/efs-provisioner-YOUR_POD
       kubectl describe pod/efs-provisioner-YOUR_POD
@@ -783,19 +782,19 @@
 ### Troubleshooting Torchserve Helm Chart
   #### Check configuration
   * Incorrect values in ``values.yaml``
-    * Changing values in `torchserve.pvd_mount`  would need corresponding change in `config.properties`
+    * If you changed values in `torchserve.pvd_mount`, make sure `config.properties` was also updated to match the values.
   * Invalid `config.properties`
-    * You can verify these values by running this for local TS installation
+    * You can verify these values by running this for local TS installation.
   #### TS Pods hanging in *Pending* state
-    * Ensure you have available Nodes in Node Group
+    * Ensure you have available Nodes in Node Group.
 
   #### Helm Installation Issues
-  * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation
+  * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation.
   * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
   * `helm install ts .` fails with `Error: create: failed to create: Request entity too large: limit is 3145728` or `invalid: data: Too long: must have at most 1048576 characters`.
     * Ensure that you dont have any stale files in your kubernetes directory where you are executing the command. If so, move them out of the directory or add them to .helmignore file.
   * `kubectl get svc` does't show my torchserve service
-    * Try reinstalling the torchserve on helm with `helm uninstall ts` and `helm install ts .`
+    * Try reinstalling the helm chart by executing `helm uninstall ts` and `helm install ts .`
   * "Error: unable to build kubernetes objects from release manifest: unable to recognize “”: no matches for kind “ClusterConfig” in version “eksctl.io/v1alpha5”"
     * Helm is picking up other .yaml files. Make sure you’ve added other files correctly to .helmignore. It should only run with values.yaml.
   * `kubectl describe pod` shows error message "0/1 nodes are available: 1 Insufficient cpu."
