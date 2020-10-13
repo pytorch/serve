@@ -73,7 +73,8 @@ RUN useradd -m model-server \
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
-    && chown -R model-server /home/model-server
+    && chown -R model-server /home/model-server \
+    && chown -R model-server /home/venv
 
 COPY config.properties /home/model-server/config.properties
 RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
