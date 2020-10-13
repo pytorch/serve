@@ -6,7 +6,7 @@ from fcn import FCNHead
 
 class FCNImageSegmenter(FCN):
     """
-    NN definition for fcn_resnet101 i.e. FCN with restnet 101 as backend
+    NN definition for fcn_resnet101 i.e. FCN with resnet 101 as backend
     """
 
     def __init__(self, num_classes=21, **kwargs):
