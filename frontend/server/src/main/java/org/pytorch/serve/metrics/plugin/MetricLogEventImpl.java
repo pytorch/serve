@@ -25,7 +25,7 @@ public class MetricLogEventImpl implements MetricLogEvent  {
 
     @Override
     public BaseMetric getMetric() {
-        return null;
+        return metric;
     }
 
     public void setLevel(String level) {

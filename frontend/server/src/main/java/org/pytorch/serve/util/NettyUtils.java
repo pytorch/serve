@@ -28,6 +28,8 @@ import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.Session;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.servingsdk.metrics.DimensionRegistry;
+import org.pytorch.serve.servingsdk.metrics.InbuiltMetricsRegistry;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,24 +41,24 @@ public final class NettyUtils {
 
     private static final String REQUEST_ID = "x-request-id";
     private static final AttributeKey<Session> SESSION_KEY = AttributeKey.valueOf("session");
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
+    private static final Dimension DIMENSION = new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.HOST);
     private static final Metric REQUESTS_2_XX =
             new Metric(
-                    "Requests2XX",
+                    InbuiltMetricsRegistry.REQUESTS2XX,
                     "1",
                     "Count",
                     ConfigManager.getInstance().getHostName(),
                     DIMENSION);
     private static final Metric REQUESTS_4_XX =
             new Metric(
-                    "Requests4XX",
+                    InbuiltMetricsRegistry.REQUESTS4XX,
                     "1",
                     "Count",
                     ConfigManager.getInstance().getHostName(),
                     DIMENSION);
     private static final Metric REQUESTS_5_XX =
             new Metric(
-                    "Requests5XX",
+                    InbuiltMetricsRegistry.REQUESTS5XX,
                     "1",
                     "Count",
                     ConfigManager.getInstance().getHostName(),

@@ -7,9 +7,10 @@ from ts.metrics.metrics_store import MetricsStore
 from ts.service import emit_metrics
 
 
-def get_model_key(name, unit, req_id, model_name):
+def get_model_key(name, unit, req_id, model_name, model_version):
     dimensions = list()
     dimensions.append(Dimension("ModelName", model_name))
+    dimensions.append(Dimension("ModelVersion", model_version))
     dimensions.append(Dimension("Level", "Model"))
     dim_str = [name, unit, str(req_id)] + [str(d) for d in dimensions]
     return '-'.join(dim_str)
@@ -32,25 +33,26 @@ def test_metrics(caplog):
     request_ids = {0: 'abcd', 1: "xyz", 2: "qwerty", 3: "hjshfj"}
     all_req_ids = ','.join(request_ids.values())
     model_name = "dummy model"
+    model_version = "1.0"
 
     # Create a metrics objects
-    metrics = MetricsStore(request_ids, model_name)
+    metrics = MetricsStore(request_ids, model_name, "1.0")
 
     # Counter tests
     metrics.add_counter('CorrectCounter', 1, 1)
-    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'xyz', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'xyz', model_name, model_version)]
     assert 'CorrectCounter' == test_metric.name
     metrics.add_counter('CorrectCounter', 1, 1)
     metrics.add_counter('CorrectCounter', 1, 3)
     metrics.add_counter('CorrectCounter', 1)
-    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', all_req_ids, model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', all_req_ids, model_name, model_version)]
     assert 'CorrectCounter' == test_metric.name
     metrics.add_counter('CorrectCounter', 3)
-    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'xyz', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'xyz', model_name, model_version)]
     assert test_metric.value == 2
-    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'hjshfj', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'hjshfj', model_name, model_version)]
     assert test_metric.value == 1
-    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', all_req_ids, model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', all_req_ids, model_name, model_version)]
     assert test_metric.value == 4
     # Check what is emitted is correct
     emit_metrics(metrics.store)
@@ -66,10 +68,10 @@ def test_metrics(caplog):
 
     metrics.add_time('CorrectTime', 20, 2, 's')
     metrics.add_time('CorrectTime', 20, 0)
-    test_metric = metrics.cache[get_model_key('CorrectTime', 'ms', 'abcd', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectTime', 'ms', 'abcd', model_name, model_version)]
     assert test_metric.value == 20
     assert test_metric.unit == 'Milliseconds'
-    test_metric = metrics.cache[get_model_key('CorrectTime', 's', 'qwerty', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectTime', 's', 'qwerty', model_name, model_version)]
     assert test_metric.value == 20
     assert test_metric.unit == 'Seconds'
     # Size based metrics
@@ -79,16 +81,16 @@ def test_metrics(caplog):
 
     metrics.add_size('CorrectSize', 200, 0, 'GB')
     metrics.add_size('CorrectSize', 10, 2)
-    test_metric = metrics.cache[get_model_key('CorrectSize', 'GB', 'abcd', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectSize', 'GB', 'abcd', model_name, model_version)]
     assert test_metric.value == 200
     assert test_metric.unit == 'Gigabytes'
-    test_metric = metrics.cache[get_model_key('CorrectSize', 'MB', 'qwerty', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectSize', 'MB', 'qwerty', model_name, model_version)]
     assert test_metric.value == 10
     assert test_metric.unit == 'Megabytes'
 
     # Check a percentage metric
     metrics.add_percent('CorrectPercent', 20.0, 3)
-    test_metric = metrics.cache[get_model_key('CorrectPercent', 'percent', 'hjshfj', model_name)]
+    test_metric = metrics.cache[get_model_key('CorrectPercent', 'percent', 'hjshfj', model_name, model_version)]
     assert test_metric.value == 20.0
     assert test_metric.unit == 'Percent'
 

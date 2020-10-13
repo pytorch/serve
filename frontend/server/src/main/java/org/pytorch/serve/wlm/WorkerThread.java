@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.servingsdk.metrics.DimensionRegistry;
+import org.pytorch.serve.servingsdk.metrics.InbuiltMetricsRegistry;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.NettyUtils;
@@ -99,12 +101,13 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(1);
-        Dimension[] dimensions = {new Dimension("Level", "Model"),
-                new Dimension("ModelName", model.getModelName()),
-                new Dimension("ModelVersion", model.getVersion())};
+        Dimension[] dimensions = {new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.WORKER),
+                new Dimension(DimensionRegistry.MODELNAME, model.getModelName()),
+                new Dimension(DimensionRegistry.MODELVERSION, model.getVersion()),
+                new Dimension(DimensionRegistry.WORKERNAME, getWorkerName())};
         workerLoadTime =
                 new Metric(
-                        getWorkerName(),
+                        InbuiltMetricsRegistry.WORKERLOADTIME,
                         String.valueOf(System.currentTimeMillis()),
                         "ms",
                         ConfigManager.getInstance().getHostName(),
@@ -166,14 +169,14 @@ public class WorkerThread implements Runnable {
                 req = null;
                 String workerThreadTime =
                         String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
-                Dimension[] dimensions = {new Dimension("Level", "Worker"),
-                        new Dimension("ModelName", model.getModelName()),
-                        new Dimension("ModelVersion", model.getVersion()),
-                        new Dimension("WorkerThreadName", thread.getName())};
+                Dimension[] dimensions = { new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.WORKER),
+                        new Dimension(DimensionRegistry.MODELNAME, model.getModelName()),
+                        new Dimension(DimensionRegistry.MODELVERSION, model.getVersion()),
+                        new Dimension(DimensionRegistry.WORKERNAME, thread.getName())};
 
                 loggerTsMetrics.info(
                         new Metric(
-                                "WorkerThreadTime",
+                                InbuiltMetricsRegistry.WORKERTHREADTIME,
                                 workerThreadTime,
                                 "ms",
                                 ConfigManager.getInstance().getHostName(),

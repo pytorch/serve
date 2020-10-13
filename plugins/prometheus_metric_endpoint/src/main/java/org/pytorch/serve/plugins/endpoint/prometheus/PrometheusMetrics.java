@@ -1,21 +1,19 @@
-package org.pytorch.serve.plugins.endpoint;
+package org.pytorch.serve.plugins.endpoint.prometheus;
 
-import org.pytorch.serve.servingsdk.*;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.common.TextFormat;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.servingsdk.Context;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.http.Request;
 import org.pytorch.serve.servingsdk.http.Response;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.exporter.common.TextFormat;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 
 
 @Endpoint(

@@ -21,8 +21,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -37,6 +39,7 @@ import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
+import org.pytorch.serve.test.plugins.metrics.TestMetricManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
@@ -44,6 +47,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+
 
 public class ModelServerTest {
     private static final String ERROR_NOT_FOUND =
@@ -184,6 +188,33 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopModel"})
+    public void testMetricsPlugin() throws InterruptedException  {
+
+        class Local {
+            HashMap<String, String> getMetrics() throws InterruptedException {
+                Channel channel = TestUtils.getMetricsChannel(configManager);
+                TestUtils.setResult(null);
+                TestUtils.setLatch(new CountDownLatch(1));
+                TestUtils.callMetricsEndpoint(channel);
+                TestUtils.getLatch().await();
+                HashMap<String, String> map =
+                        JsonUtils.GSON.fromJson(TestUtils.getResult(), new HashMap<String, String>().getClass());
+                return map;
+            }
+        }
+        HashMap<String, String> map = new Local().getMetrics();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        int current_value = Integer.parseInt(map.get("inferRequestCount"));
+
+        testLoadModelWithInitialWorkers("noop.mar", "noopversioned_v1.7", "1.11");
+        testPredictions("noopversioned_v1.7", "OK", "1.11");
+        HashMap<String, String> newmap = new Local().getMetrics();
+        Assert.assertEquals(Integer.parseInt(newmap.get("inferRequestCount")), current_value + 1);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testMetricsPlugin"})
     public void testSyncScaleNoopModel() throws InterruptedException {
         testSyncScaleModel("noop_v1.0", null);
     }

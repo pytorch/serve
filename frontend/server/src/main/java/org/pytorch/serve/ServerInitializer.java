@@ -6,12 +6,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
-import org.pytorch.serve.http.ApiDescriptionRequestHandler;
-import org.pytorch.serve.http.HttpRequestHandler;
-import org.pytorch.serve.http.HttpRequestHandlerChain;
-import org.pytorch.serve.http.InferenceRequestHandler;
-import org.pytorch.serve.http.InvalidRequestHandler;
-import org.pytorch.serve.http.ManagementRequestHandler;
+import org.pytorch.serve.http.*;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
@@ -68,10 +63,14 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                                     PluginsManager.getInstance().getManagementEndpoints()));
         }
 
-        httpRequestHandlerChain =
-                httpRequestHandlerChain.setNextHandler(
-                        new ManagementRequestHandler(
-                                PluginsManager.getInstance().getMetricEndPoints()));
+        if (ConfigManager.getInstance().isMetricEndpointsEnable()
+                && ConnectorType.ALL.equals(connectorType)
+                || ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
+            httpRequestHandlerChain =
+                    httpRequestHandlerChain.setNextHandler(
+                            new MetricRequestHandler(
+                                    PluginsManager.getInstance().getMetricEndPoints()));
+        }
 
 
         httpRequestHandlerChain.setNextHandler(invalidRequestHandler);

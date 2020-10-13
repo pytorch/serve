@@ -80,8 +80,7 @@ public final class ConfigManager {
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
-    private static final String TS_METRICS_FORMAT = "metrics_format";
-    private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_ENABLE_METRICS_ENDPOINTS = "enable_metrics_endpoints";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -266,6 +265,9 @@ public final class ConfigManager {
             case MANAGEMENT_CONNECTOR:
                 binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
                 break;
+            case METRICS_CONNECTOR:
+                binding = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
             default:
                 binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
@@ -278,6 +280,10 @@ public final class ConfigManager {
 
     public boolean getInstallPyDepPerModel() {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
+    }
+
+    public boolean isMetricEndpointsEnable() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_ENDPOINTS, "true"));
     }
 
     public int getNettyThreads() {
@@ -517,6 +523,8 @@ public final class ConfigManager {
                 + getListener(ConnectorType.INFERENCE_CONNECTOR)
                 + "\nManagement address: "
                 + getListener(ConnectorType.MANAGEMENT_CONNECTOR)
+                + "\nMetrics address: "
+                + getListener(ConnectorType.METRICS_CONNECTOR)
                 + "\nModel Store: "
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "
@@ -544,7 +552,7 @@ public final class ConfigManager {
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
                 + "\nEnable metrics API: "
-                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
+                + prop.getProperty(TS_ENABLE_METRICS_ENDPOINTS, "true");
     }
 
     public boolean useNativeIo() {

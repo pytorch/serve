@@ -14,13 +14,14 @@ class MetricsStore(object):
     Class for creating, modifying different metrics. And keep them in a dictionary
     """
 
-    def __init__(self, request_ids, model_name):
+    def __init__(self, request_ids, model_name, model_version):
         """
         Initialize metrics map,model name and request map
         """
         self.store = list()
         self.request_ids = request_ids
         self.model_name = model_name
+        self.model_version = model_version
         self.cache = {}
 
     def _add_or_update(self, name, value, req_id, unit, metrics_method=None, dimensions=None):
@@ -51,6 +52,7 @@ class MetricsStore(object):
             dimensions.append(Dimension("Level", "Error"))
         else:
             dimensions.append(Dimension("ModelName", self.model_name))
+            dimensions.append(Dimension("ModelVersion", self.model_version))
             dimensions.append(Dimension("Level", "Model"))
 
         # Cache the metric with an unique key for update

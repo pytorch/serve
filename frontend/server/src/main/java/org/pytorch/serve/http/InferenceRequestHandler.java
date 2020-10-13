@@ -18,6 +18,8 @@ import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.servingsdk.metrics.DimensionRegistry;
+import org.pytorch.serve.servingsdk.metrics.InbuiltMetricsRegistry;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -181,12 +183,12 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             return;
         }
 
-        Dimension[] dimensions = { new Dimension("Level", "Model"),
-                new Dimension("ModelName", modelName),
-                new Dimension("ModelVersion", modelVersion) };
+        Dimension[] dimensions = { new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.MODEL),
+                new Dimension(DimensionRegistry.MODELNAME, modelName),
+                new Dimension(DimensionRegistry.MODELVERSION, modelVersion) };
         loggerTsMetrics.info(
                 new Metric(
-                        "Inference",
+                        InbuiltMetricsRegistry.INFERENCE,
                         "1",
                         "Count",
                         ConfigManager.getInstance().getHostName(),

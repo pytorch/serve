@@ -1,12 +1,13 @@
 package org.pytorch.serve.servingsdk.metrics;
 
 /**
- * This provides information about the model which is currently registered with Model Server
+ * This is a listener which listens to MetricLogEvent
  */
 
 public interface MetricEventListener {
     /**
-     * Handle the LogEvent
+     * Handle the MetricLogEvent
+     * @param event - MetricLogEvent
      */
     void handle(MetricLogEvent event);
 }

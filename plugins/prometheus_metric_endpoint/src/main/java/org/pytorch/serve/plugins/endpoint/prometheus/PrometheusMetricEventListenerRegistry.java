@@ -1,4 +1,4 @@
-package org.pytorch.serve.plugins.endpoint;
+package org.pytorch.serve.plugins.endpoint.prometheus;
 
 import org.pytorch.serve.servingsdk.metrics.*;
 import java.util.List;
@@ -8,7 +8,6 @@ public class PrometheusMetricEventListenerRegistry extends MetricEventListenerRe
         PrometheusMetricEventListener listener = new PrometheusMetricEventListener();
         publisher.addMetricEventListener(listener);
     }
-
 }
 
 class PrometheusMetricEventListener implements MetricEventListener {
@@ -22,30 +21,33 @@ class PrometheusMetricEventListener implements MetricEventListener {
         String dimLevel= null, dimModelName = null, dimModelVersion = null;
         for (BaseDimension dimension : dimensions) {
             switch (dimension.getName()) {
-                case "Level":
+                case DimensionRegistry.LEVEL:
                     dimLevel = dimension.getValue();  break;
-                case "ModelName":
+                case DimensionRegistry.MODELNAME:
                     dimModelName =  dimension.getValue();  break;
-                case "ModelVersion":
+                case DimensionRegistry.MODELVERSION:
                     dimModelVersion =  dimension.getValue();  break;
             }
         }
 
-        switch (metricName.toUpperCase()) {
-            case ("INFERENCE"):
+        switch (metricName) {
+            case (InbuiltMetricsRegistry.INFERENCE):
                 for (int i = 1; i <= Integer.parseInt(metric.getValue()); i++) {
                     prometheusMetricManager.incInferCount(dimModelName, dimModelVersion);
                 }
                 break;
-            case ("QUEUETIME"):
-                prometheusMetricManager.incQueueLatency(Long.parseLong(metric.getValue()), dimModelName, dimModelVersion);
+            case (InbuiltMetricsRegistry.QUEUETIME):
+                prometheusMetricManager.incQueueLatency(Double.parseDouble(metric.getValue()), dimModelName, dimModelVersion);
                 break;
-            case ("BACKENDRESPONSETIME"):
-                prometheusMetricManager.incBackendResponseLatency(Long.parseLong(metric.getValue()), dimModelName, dimModelVersion);
+            case (InbuiltMetricsRegistry.BACKENDRESPONSETIME):
+                prometheusMetricManager.incBackendResponseLatency(Double.parseDouble(metric.getValue()), dimModelName, dimModelVersion);
                 break;
-            case ("HANDLERTIME"):
-                prometheusMetricManager.incHandlerLatency(Long.parseLong(metric.getValue()), dimModelName, dimModelVersion);
-
+            case (InbuiltMetricsRegistry.HANDLERTIME):
+                prometheusMetricManager.incHandlerLatency(Double.parseDouble(metric.getValue()), dimModelName, dimModelVersion);
+                break;
+            case ("MemoryUsed"):
+                prometheusMetricManager.addMemoryUsed(Double.parseDouble(metric.getValue()));
+                break;
         }
 
     }

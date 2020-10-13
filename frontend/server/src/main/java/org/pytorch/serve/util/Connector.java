@@ -101,6 +101,9 @@ public class Connector {
                 case MANAGEMENT_CONNECTOR:
                     port = ssl ? 8444 : 8081;
                     break;
+                case METRICS_CONNECTOR:
+                    port = ssl ? 8445 : 8082;
+                    break;
                 default:
                     port = ssl ? 443 : 80;
             }
@@ -141,6 +144,8 @@ public class Connector {
         switch (connectorType) {
             case MANAGEMENT_CONNECTOR:
                 return "Management";
+            case METRICS_CONNECTOR:
+                return "Metrics";
             default:
                 return "Inference";
         }

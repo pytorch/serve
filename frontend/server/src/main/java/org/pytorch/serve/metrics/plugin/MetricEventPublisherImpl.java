@@ -24,7 +24,7 @@ public final class  MetricEventPublisherImpl implements MetricEventPublisher {
 
     public void broadcast(LoggingEvent le) {
         MetricLogEventImpl event = new MetricLogEventImpl(le.getLevel().toString(), le.getMessage().toString(), new Date(le.getTimeStamp()));
-        if (!listeners.isEmpty()) {
+        if (!listeners.isEmpty() && event.getMetric() != null) {
             for (MetricEventListener listener : listeners) {
                 listener.handle(event);
             }

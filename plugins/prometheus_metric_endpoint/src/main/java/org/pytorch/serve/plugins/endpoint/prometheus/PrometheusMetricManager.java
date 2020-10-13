@@ -1,6 +1,9 @@
-package org.pytorch.serve.plugins.endpoint;
+package org.pytorch.serve.plugins.endpoint.prometheus;
 
 import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.Histogram;
+
 import java.util.UUID;
 
 public final class PrometheusMetricManager {
@@ -8,9 +11,10 @@ public final class PrometheusMetricManager {
     private static final PrometheusMetricManager METRIC_MANAGER = new PrometheusMetricManager();
     private static final String METRICS_UUID = UUID.randomUUID().toString();
     private Counter inferRequestCount;
-    private Counter backendResponseLatency;
-    private Counter queueLatency;
-    private Counter handlerlatency;
+    private Histogram backendResponseLatency;
+    private Histogram queueLatency;
+    private Histogram handlerlatency;
+    private Gauge memoryUsed;
 
 
     private PrometheusMetricManager() {
@@ -21,23 +25,31 @@ public final class PrometheusMetricManager {
                         .labelNames(metricsLabels)
                         .help("Total number of inference requests.")
                         .register();
+
+        memoryUsed =
+                Gauge.build()
+                        .name("memory_used")
+                        .labelNames(new String[]{"uuid"})
+                        .help("System Memory used")
+                        .register();
+
         backendResponseLatency =
-                Counter.build()
+                Histogram.build()
                         .name("ts_backend_reponse_latency_milliseconds")
                         .labelNames(metricsLabels)
-                        .help("Cumulative inference duration in milliseconds")
+                        .help("histogram of Backend response duration in milliseconds")
                         .register();
         queueLatency =
-                Counter.build()
+                Histogram.build()
                         .name("ts_queue_latency_milliseconds")
                         .labelNames(metricsLabels)
-                        .help("Cumulative queue duration in milliseconds")
+                        .help("Cumulative Queue duration in milliseconds")
                         .register();
         handlerlatency =
-                Counter.build()
+                Histogram.build()
                         .name("ts_handler_latency_milliseconds")
                         .labelNames(metricsLabels)
-                        .help("Cumulative handler execution duration in milliseconds")
+                        .help("Cumulative Handler execution duration in milliseconds")
                         .register();
     }
 
@@ -56,10 +68,10 @@ public final class PrometheusMetricManager {
      * @param modelName name of the model
      * @param modelVersion version of the model
      */
-    public void incBackendResponseLatency(long inferTime, String modelName, String modelVersion) {
+    public void incBackendResponseLatency(double inferTime, String modelName, String modelVersion) {
         backendResponseLatency
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
-                .inc(inferTime);
+                .observe(inferTime);
     }
 
     /**
@@ -69,23 +81,23 @@ public final class PrometheusMetricManager {
      * @param modelName name of the model
      * @param modelVersion version of the model
      */
-    public void incQueueLatency(long queueTime, String modelName, String modelVersion) {
+    public void incQueueLatency(double queueTime, String modelName, String modelVersion) {
         queueLatency
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
-                .inc(queueTime);
+                .observe(queueTime);
     }
 
     /**
      * Counts the time in ms an inference request was queued before being executed
      *
-     * @param queueTime time in milliseconds
+     * @param handlerTime time in milliseconds
      * @param modelName name of the model
      * @param modelVersion version of the model
      */
-    public void incHandlerLatency(long queueTime, String modelName, String modelVersion) {
-        queueLatency
+    public void incHandlerLatency(double handlerTime, String modelName, String modelVersion) {
+        handlerlatency
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
-                .inc(queueTime);
+                .observe(handlerTime);
     }
 
     /**
@@ -99,4 +111,16 @@ public final class PrometheusMetricManager {
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
                 .inc();
     }
+
+    /**
+     * System memory used
+     *
+     * @param memoryUsedValue name of the model
+     */
+    public void addMemoryUsed(double memoryUsedValue) {
+        memoryUsed
+                .labels(METRICS_UUID)
+                .set(memoryUsedValue);
+    }
+
 }

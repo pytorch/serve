@@ -338,6 +338,19 @@ public class ModelServer {
                             inferenceConnector, serverGroup, workerGroup, ConnectorType.ALL));
         }
 
+        if (configManager.isMetricEndpointsEnable()) {
+            EventLoopGroup metricsGroup = serverGroups.getMetricsGroup();
+            Connector metricsConnector = configManager.getListener(ConnectorType.METRICS_CONNECTOR);
+            metricsConnector.clean();
+            futures.add(
+                    initializeServer(
+                            metricsConnector,
+                            serverGroup,
+                            metricsGroup,
+                            ConnectorType.METRICS_CONNECTOR));
+        }
+
+
         SnapshotManager.getInstance().saveStartupSnapshot();
         return futures;
     }

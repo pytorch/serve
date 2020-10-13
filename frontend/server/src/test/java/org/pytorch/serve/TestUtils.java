@@ -44,11 +44,6 @@ public final class TestUtils {
     private static Channel inferenceChannel;
     private static Channel managementChannel;
     private static Channel metricsChannel;
-    private static String tsInferLatencyPattern =
-            "ts_inference_latency_microseconds\\{"
-                    + "uuid=\"[\\w]{8}(-[\\w]{4}){3}-[\\w]{12}\","
-                    + "model_name=\"%s\","
-                    + "model_version=\"%s\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 
@@ -197,6 +192,13 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
+    public static void callMetricsEndpoint(Channel channel) {
+        String requestURL = "/metrics";
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
+        channel.writeAndFlush(req);
+    }
+
     public static void listModels(Channel channel) {
         HttpRequest req =
                 new DefaultFullHttpRequest(
@@ -272,6 +274,10 @@ public final class TestUtils {
         return getChannel(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
     }
 
+    public static Channel getMetricsChannel(ConfigManager configManager)
+            throws InterruptedException {
+        return getChannel(ConnectorType.METRICS_CONNECTOR, configManager);
+    }
 
     private static Channel getChannel(ConnectorType connectorType, ConfigManager configManager)
             throws InterruptedException {
@@ -285,6 +291,11 @@ public final class TestUtils {
                 && inferenceChannel.isActive()) {
             return inferenceChannel;
         }
+        if (ConnectorType.METRICS_CONNECTOR.equals(connectorType)
+                && metricsChannel != null
+                && metricsChannel.isActive()) {
+            return metricsChannel;
+        }
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
             channel = TestUtils.connect(connectorType, configManager);
@@ -296,6 +307,9 @@ public final class TestUtils {
         switch (connectorType) {
             case MANAGEMENT_CONNECTOR:
                 managementChannel = channel;
+                break;
+            case METRICS_CONNECTOR:
+                metricsChannel = channel;
                 break;
             default:
                 inferenceChannel = channel;
@@ -313,12 +327,6 @@ public final class TestUtils {
         if (metricsChannel != null) {
             metricsChannel.closeFuture().sync();
         }
-    }
-
-    public static Pattern getTSInferLatencyMatcher(String modelName, String modelVersion) {
-        modelVersion = modelVersion == null ? "default" : modelVersion;
-        return Pattern.compile(
-                String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
     }
 
     @ChannelHandler.Sharable

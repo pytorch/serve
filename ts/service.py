@@ -90,7 +90,8 @@ class Service(object):
 
         self.context.request_ids = req_id_map
         self.context.request_processor = headers
-        metrics = MetricsStore(req_id_map, self.context.model_name)
+        metrics = MetricsStore(req_id_map, self.context.model_name,
+                               self.context.manifest["model"]["modelVersion"] if self.context.manifest else None)
         self.context.metrics = metrics
 
         start_time = time.time()
