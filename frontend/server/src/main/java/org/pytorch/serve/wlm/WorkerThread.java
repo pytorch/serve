@@ -85,6 +85,7 @@ public class WorkerThread implements Runnable {
         StringBuffer gpuUsage = new StringBuffer();
         if (gpuId >= 0) {
             try {
+                // TODO : add a generic code to capture gpu details for different devices instead of just NVIDIA
                 process =
                         Runtime.getRuntime()
                                 .exec(
