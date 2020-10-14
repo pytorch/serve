@@ -23,6 +23,7 @@ public class MetricLogEventImpl implements MetricLogEvent  {
         this.metric = Metric.parse(message);
     }
 
+    @Override
     public String getLevel() {
         return level;
     }
@@ -44,6 +45,7 @@ public class MetricLogEventImpl implements MetricLogEvent  {
         this.message = message;
     }
 
+    @Override
     public Date getTimestamp() {
         return timestamp;
     }
@@ -51,7 +53,6 @@ public class MetricLogEventImpl implements MetricLogEvent  {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
-
 
 }
 

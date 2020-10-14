@@ -52,6 +52,7 @@ public class Metric implements BaseMetric {
         this.dimensions = Arrays.asList(dimensions);
     }
 
+    @Override
     public String getHostName() {
         return hostName;
     }
@@ -60,6 +61,7 @@ public class Metric implements BaseMetric {
         this.hostName = hostName;
     }
 
+    @Override
     public String getRequestId() {
         return requestId;
     }
@@ -68,6 +70,7 @@ public class Metric implements BaseMetric {
         this.requestId = requestId;
     }
 
+    @Override
     public String getMetricName() {
         return metricName;
     }
@@ -76,6 +79,7 @@ public class Metric implements BaseMetric {
         this.metricName = metricName;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
@@ -84,6 +88,7 @@ public class Metric implements BaseMetric {
         this.value = value;
     }
 
+    @Override
     public String getUnit() {
         return unit;
     }
@@ -92,6 +97,7 @@ public class Metric implements BaseMetric {
         this.unit = unit;
     }
 
+    @Override
     public List<BaseDimension> getDimensions() {
         return dimensions;
     }
@@ -100,6 +106,7 @@ public class Metric implements BaseMetric {
         this.dimensions = dimensions;
     }
 
+    @Override
     public String getTimestamp() {
         return timestamp;
     }

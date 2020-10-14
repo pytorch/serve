@@ -18,6 +18,7 @@ public class Dimension implements BaseDimension{
         this.value = value;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -26,6 +27,7 @@ public class Dimension implements BaseDimension{
         this.name = name;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
