@@ -13,7 +13,7 @@ class TestService:
 
     model_name = 'testmodel'
     model_dir = os.path.abspath('ts/tests/unit_tests/test_utils/')
-    manifest = "testmanifest"
+    manifest = {"model": {"modelVersion": "1.0"}}
     data = [
         {"requestId": b"123", "parameters": [
             {"name": "xyz", "value": "abc", "contentType": "text/csv"}
