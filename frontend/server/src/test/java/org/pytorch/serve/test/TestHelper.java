@@ -47,8 +47,8 @@ public final class TestHelper {
                 String methodName = method.getName();
                 int parameterCount = method.getParameterCount();
                 try {
-                    if (parameterCount == 0 && methodName.startsWith("get")
-                            || methodName.startsWith("is")) {
+                    if (parameterCount == 0 && (methodName.startsWith("get")
+                            || methodName.startsWith("is"))) {
                         method.invoke(obj);
                     } else if (methodName.startsWith("set") && parameterCount == 1) {
                         Class<?> type = method.getParameterTypes()[0];
