@@ -5,13 +5,10 @@ configurations {
 }
 
 dependencies {
-    compile fileTree(dir: '../libs', includes: ['*.jar'])
     compile "com.google.code.gson:gson:${gson_version}"
-
-
     extraLibs "io.prometheus:simpleclient:${prometheus_version}"
     extraLibs "io.prometheus:simpleclient_servlet:${prometheus_version}"
-    //compile "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    compile "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
     testImplementation "commons-cli:commons-cli:${commons_cli_version}"
     testImplementation "org.testng:testng:${testng_version}"
     testImplementation "org.mockito:mockito-core:${mockito_version}"

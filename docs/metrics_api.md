@@ -1,38 +1,85 @@
-# Metrics API
+# Metrics Plugin Endpoint
 
-Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md). The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a [Prometheus Server](#prometheus-server) to the endpoint and use [Grafana](#grafana) for dashboards.
+There are three types of Endpoints supported by TorchServe and TorchServe SDK.
+1. Inference
+2. Management
+3. Metrics
 
-By default these APIs are enable however same can be disabled by setting `enable_metrics_api=false` in torchserve config.properties file.
+Metrics Endpoints listen on port 8082 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
+TorchServe does not provide any inbuilt metrics API, however a metrics API which returns Prometheus formatted metrics is added as a part of the plugin.
+This plugin can be extended by the users or a new metrics endpoint API plugin can also be added.
+By default these Metric endpoints are enabled however same can be disabled by setting `enable_metrics_endpoints=false` in torchserve config.properties file.
 For details refer [Torchserve config](configuration.md) docs.
 
-```console
-curl http://127.0.0.1:8082/metrics
+How to use Prometheus plugin endpoint?
+1. Build jar of the plugin.
+2. Add the jar to Java classpath manually or specify the "plugins_path" property in config.properties for torchserve start command.
+3. Use metrics API to get metrics in Prometheus format
 
-# HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
-# TYPE ts_inference_latency_microseconds counter
-ts_inference_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noopversioned",model_version="1.11",} 1990.348
-ts_inference_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noop",model_version="default",} 2032.411
-# HELP ts_inference_requests_total Total number of inference requests.
-# TYPE ts_inference_requests_total counter
-ts_inference_requests_total{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noopversioned",model_version="1.11",} 1.0
-ts_inference_requests_total{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noop",model_version="default",} 1.0
-# HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
-# TYPE ts_queue_latency_microseconds counter
-ts_queue_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noopversioned",model_version="1.11",} 364.884
-ts_queue_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noop",model_version="default",} 82.349
+
+```shell
+cd ${TORCHSEVE_HOME}
+
+# to run the test cases in plugins
+plugins/gradlew -p plugins test
+
+# use command below to generate jars in ${TORCHSEVE_HOME}plugins/build/plugins folder
+plugins/gradlew -p plugins clean bS
+
+# OR use command below
+python setup.py  build_plugins -p endpoints
+
+# create a config.properties file and add plugins_path=${TORCHSEVE_HOME}/plugins/build/plugins
+vi config.properties
+
+# start the server
+torchserve --start --ts-config config.properties --model-store frontend/modelarchive/src/test/resources/models
+
+# Fire same APIs to generate metric values
+curl -X POST "http://localhost:8081/models?url=noop.mar"
+curl -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
+curl http://localhost:8080/predictions/noop
+
+```
+
+Use command as shown below to get the metrics:
+
+
+```console
+
+curl -X GET http://localhost:8082/metrics
+# HELP ts_queue_latency_milliseconds Cumulative Queue duration in milliseconds
+# TYPE ts_queue_latency_milliseconds histogram
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.005",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.01",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.025",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.05",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.075",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.1",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.25",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.5",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="0.75",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="1.0",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="2.5",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="5.0",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="7.5",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="10.0",} 3.0
+ts_queue_latency_milliseconds_bucket{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",le="+Inf",} 3.0
+ts_queue_latency_milliseconds_count{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",} 3.0
+ts_queue_latency_milliseconds_sum{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",} 0.0
+# HELP memory_used System Memory used
+# TYPE memory_used gauge
+memory_used{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",} 3302.43359375
 ```
 
 ```console
-curl "http://127.0.0.1:8082/metrics?name[]=ts_inference_latency_microseconds&name[]=ts_queue_latency_microseconds" --globoff
-
-# HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
-# TYPE ts_inference_latency_microseconds counter
-ts_inference_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noopversioned",model_version="1.11",} 1990.348
-ts_inference_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noop",model_version="default",} 2032.411
-# HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
-# TYPE ts_queue_latency_microseconds counter
-ts_queue_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noopversioned",model_version="1.11",} 364.884
-ts_queue_latency_microseconds{uuid="d5f84dfb-fae8-4f92-b217-2f385ca7470b",model_name="noop",model_version="default",} 82.349
+curl -X GET "http://localhost:8082/metrics?name[]=ts_queue_latency_milliseconds_sum&name[]=memory_used" --globoff
+# HELP ts_queue_latency_milliseconds Cumulative Queue duration in milliseconds
+# TYPE ts_queue_latency_milliseconds histogram
+ts_queue_latency_milliseconds_sum{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",model_name="noop",model_version="null",} 0.0
+# HELP memory_used System Memory used
+# TYPE memory_used gauge
+memory_used{uuid="b5b23535-9d55-4564-8865-4fda3ce8aa2c",} 3540.0
 ```
 
 #### Prometheus server
