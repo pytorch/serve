@@ -25,7 +25,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -37,7 +37,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -68,7 +68,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -80,7 +80,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/mnist.mar"
 						},
 						{
 							"key": "model_name",
@@ -111,7 +111,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar&model_name=densenet161",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -123,7 +123,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/densenet161.mar"
 						},
 						{
 							"key": "model_name",
@@ -169,7 +169,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar&model_name=densenet161",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -181,7 +181,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/densenet161.mar"
 						},
 						{
 							"key": "model_name",
@@ -323,7 +323,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -335,7 +335,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/mnist.mar"
 						},
 						{
 							"key": "model_name",
@@ -409,7 +409,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -421,7 +421,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/mnist.mar"
 						},
 						{
 							"key": "model_name",
@@ -579,7 +579,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -591,7 +591,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/mnist.mar"
 						},
 						{
 							"key": "model_name",
@@ -866,7 +866,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&runtime=python4",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&runtime=python4",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -878,7 +878,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -956,7 +956,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -968,7 +968,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -1374,7 +1374,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1386,7 +1386,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -1460,7 +1460,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&batch_size=3&initial_workers=3&response_timeout=0",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&batch_size=3&initial_workers=3&response_timeout=0",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1472,7 +1472,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -1515,7 +1515,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&response_timeout=0",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&response_timeout=0",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1527,7 +1527,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -1596,7 +1596,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1608,7 +1608,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar"
 						},
 						{
 							"key": "model_name",
@@ -1677,7 +1677,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=dd&initial_workers=1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=dd&initial_workers=1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1689,7 +1689,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar"
 						},
 						{
 							"key": "model_name",
@@ -1762,7 +1762,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2&initial_workers=1&max_batch_delay=junk",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2&initial_workers=1&max_batch_delay=junk",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1774,7 +1774,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar"
 						},
 						{
 							"key": "model_name",
@@ -1851,7 +1851,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=-1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=-1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1863,7 +1863,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -1932,7 +1932,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=true",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=true",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -1944,7 +1944,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/resnet-18.mar"
 						},
 						{
 							"key": "model_name",
@@ -2013,7 +2013,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=-1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=-1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -2025,7 +2025,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/resnet-18.mar"
 						},
 						{
 							"key": "model_name",
@@ -2094,7 +2094,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=false",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=false",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -2106,7 +2106,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/resnet-18.mar"
 						},
 						{
 							"key": "model_name",
@@ -2606,7 +2606,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -2618,7 +2618,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/invalid-resnet-18.mar"
 						},
 						{
 							"key": "model_name",
@@ -3268,7 +3268,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -3280,7 +3280,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -3352,7 +3352,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -3364,7 +3364,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -3436,7 +3436,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -3448,7 +3448,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
@@ -3520,7 +3520,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1",
 					"protocol": "{{protocol}}",
 					"host": [
 						"{{hostname}}"
@@ -3532,7 +3532,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
