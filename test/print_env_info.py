@@ -172,7 +172,7 @@ def get_nvidia_driver_version():
     return run_and_parse_first_match(smi, r'Driver Version: (.*?) ')
 
 
-def get_gpu_info():
+def get_nvidia_gpu_info():
     if get_platform() == 'darwin':
         if TORCH_AVAILABLE and torch.cuda.is_available():
             return torch.cuda.get_device_name(None)
@@ -268,7 +268,7 @@ def populate_os_env():
 def populate_cuda_env(cuda_available_str):
     cuda_env["is_cuda_available"] = cuda_available_str
     cuda_env["cuda_runtime_version"] = get_running_cuda_version()
-    cuda_env["nvidia_gpu_models"] = get_gpu_info()
+    cuda_env["nvidia_gpu_models"] = get_nvidia_gpu_info()
     cuda_env["nvidia_driver_version"] = get_nvidia_driver_version()
     cuda_env["cudnn_version"] = get_cudnn_version()
 
