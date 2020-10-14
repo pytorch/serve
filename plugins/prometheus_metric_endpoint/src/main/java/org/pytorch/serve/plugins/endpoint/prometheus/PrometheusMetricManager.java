@@ -3,13 +3,11 @@ package org.pytorch.serve.plugins.endpoint.prometheus;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Histogram;
-
 import java.util.UUID;
 
 /**
- * This class registers different metrics with Prometheus registry
- * and provides wrapper methods to update the metric values
- *
+ * This class registers different metrics with Prometheus registry and provides wrapper methods to
+ * update the metric values
  */
 public final class PrometheusMetricManager {
 
@@ -20,7 +18,6 @@ public final class PrometheusMetricManager {
     private Histogram queueLatency;
     private Histogram handlerlatency;
     private Gauge memoryUsed;
-
 
     private PrometheusMetricManager() {
         String[] metricsLabels = {"uuid", "model_name", "model_version"};
@@ -34,7 +31,7 @@ public final class PrometheusMetricManager {
         memoryUsed =
                 Gauge.build()
                         .name("memory_used")
-                        .labelNames(new String[]{"uuid"})
+                        .labelNames(new String[] {"uuid"})
                         .help("System Memory used")
                         .register();
 
@@ -124,9 +121,6 @@ public final class PrometheusMetricManager {
      * @param memoryUsedValue name of the model
      */
     public void addMemoryUsed(double memoryUsedValue) {
-        memoryUsed
-                .labels(METRICS_UUID)
-                .set(memoryUsedValue);
+        memoryUsed.labels(METRICS_UUID).set(memoryUsedValue);
     }
-
 }

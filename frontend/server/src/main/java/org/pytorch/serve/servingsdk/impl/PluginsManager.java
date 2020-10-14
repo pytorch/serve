@@ -22,8 +22,7 @@ public final class PluginsManager {
     private Map<String, ModelServerEndpoint> managementEndpoints;
     private Map<String, ModelServerEndpoint> metricEndpoints;
 
-    private PluginsManager() {
-    }
+    private PluginsManager() {}
 
     public static PluginsManager getInstance() {
         return INSTANCE;
@@ -67,10 +66,12 @@ public final class PluginsManager {
     }
 
     private void initializeMetricListeners() throws InvalidPluginException {
-        ServiceLoader<MetricEventListenerRegistry> loader = ServiceLoader.load(MetricEventListenerRegistry.class);
+        ServiceLoader<MetricEventListenerRegistry> loader =
+                ServiceLoader.load(MetricEventListenerRegistry.class);
         for (MetricEventListenerRegistry registry : loader) {
             Class<? extends MetricEventListenerRegistry> registryClass = registry.getClass();
-            logger.info("Registering metric listener for plugin class {}.", registryClass.getName());
+            logger.info(
+                    "Registering metric listener for plugin class {}.", registryClass.getName());
             registry.register(MetricEventPublisherImpl.getInstance());
         }
     }
@@ -98,5 +99,4 @@ public final class PluginsManager {
     public Map<String, ModelServerEndpoint> getMetricEndPoints() {
         return metricEndpoints;
     }
-
 }

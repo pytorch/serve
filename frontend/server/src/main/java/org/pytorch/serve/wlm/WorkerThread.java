@@ -101,10 +101,12 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(1);
-        Dimension[] dimensions = {new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.WORKER),
-                new Dimension(DimensionRegistry.MODELNAME, model.getModelName()),
-                new Dimension(DimensionRegistry.MODELVERSION, model.getVersion()),
-                new Dimension(DimensionRegistry.WORKERNAME, getWorkerName())};
+        Dimension[] dimensions = {
+            new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.WORKER),
+            new Dimension(DimensionRegistry.MODELNAME, model.getModelName()),
+            new Dimension(DimensionRegistry.MODELVERSION, model.getVersion()),
+            new Dimension(DimensionRegistry.WORKERNAME, getWorkerName())
+        };
         workerLoadTime =
                 new Metric(
                         InbuiltMetricsRegistry.WORKERLOADTIME,
@@ -169,10 +171,12 @@ public class WorkerThread implements Runnable {
                 req = null;
                 String workerThreadTime =
                         String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
-                Dimension[] dimensions = { new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.WORKER),
-                        new Dimension(DimensionRegistry.MODELNAME, model.getModelName()),
-                        new Dimension(DimensionRegistry.MODELVERSION, model.getVersion()),
-                        new Dimension(DimensionRegistry.WORKERNAME, thread.getName())};
+                Dimension[] dimensions = {
+                    new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.WORKER),
+                    new Dimension(DimensionRegistry.MODELNAME, model.getModelName()),
+                    new Dimension(DimensionRegistry.MODELVERSION, model.getVersion()),
+                    new Dimension(DimensionRegistry.WORKERNAME, thread.getName())
+                };
 
                 loggerTsMetrics.info(
                         new Metric(

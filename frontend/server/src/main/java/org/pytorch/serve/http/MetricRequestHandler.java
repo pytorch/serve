@@ -7,12 +7,7 @@ import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 
-
-
-/**
- * A class handling inbound HTTP requests to the Metrics API.
- *
- */
+/** A class handling inbound HTTP requests to the Metrics API. */
 public class MetricRequestHandler extends HttpRequestHandlerChain {
 
     /** Creates a new {@code MetricRequestHandler} instance. */
@@ -29,7 +24,7 @@ public class MetricRequestHandler extends HttpRequestHandlerChain {
             throws ModelException {
         if (endpointMap.getOrDefault(segments[1], null) != null) {
             handleCustomEndpoint(ctx, req, segments, decoder);
-        } else{
+        } else {
             HttpRequestHandlerChain invalidRequestHandler = new InvalidRequestHandler();
             invalidRequestHandler.handleRequest(ctx, req, decoder, segments);
         }

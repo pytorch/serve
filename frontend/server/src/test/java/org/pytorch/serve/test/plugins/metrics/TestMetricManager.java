@@ -6,13 +6,11 @@ public final class TestMetricManager {
 
     private static final TestMetricManager METRIC_MANAGER = new TestMetricManager();
 
-
     private int inferRequestCount;
     private double backendResponseLatency;
     private double queueLatency;
     private double handlerlatency;
     private double memoryUsed;
-
 
     private TestMetricManager() {
         inferRequestCount = 0;
@@ -26,7 +24,6 @@ public final class TestMetricManager {
         return METRIC_MANAGER;
     }
 
-
     public void incBackendResponseLatency(double value) {
         backendResponseLatency += value;
     }
@@ -35,11 +32,9 @@ public final class TestMetricManager {
         queueLatency += value;
     }
 
-
     public void incHandlerlatency(double value) {
         handlerlatency += value;
     }
-
 
     public void incMemoryUsed(double value) {
         memoryUsed += value;
@@ -58,5 +53,4 @@ public final class TestMetricManager {
         map.put("memoryUsed", String.valueOf(memoryUsed));
         return map;
     }
-
 }

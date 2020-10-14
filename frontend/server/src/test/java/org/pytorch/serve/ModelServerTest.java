@@ -46,7 +46,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-
 public class ModelServerTest {
     private static final String ERROR_NOT_FOUND =
             "Requested resource is not found, please refer to API document.";
@@ -186,7 +185,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopModel"})
-    public void testMetricsPlugin() throws InterruptedException  {
+    public void testMetricsPlugin() throws InterruptedException {
 
         class Local {
             HashMap<String, String> getMetrics() throws InterruptedException {
@@ -196,7 +195,8 @@ public class ModelServerTest {
                 TestUtils.callMetricsEndpoint(channel);
                 TestUtils.getLatch().await();
                 HashMap<String, String> map =
-                        JsonUtils.GSON.fromJson(TestUtils.getResult(), new HashMap<String, String>().getClass());
+                        JsonUtils.GSON.fromJson(
+                                TestUtils.getResult(), new HashMap<String, String>().getClass());
                 return map;
             }
         }
@@ -1690,7 +1690,6 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
     }
-
 
     private void loadTests(Channel channel, String model, String modelName)
             throws InterruptedException {

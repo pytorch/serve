@@ -1,14 +1,12 @@
 package org.pytorch.serve.test.plugins.metrics;
 
 import java.util.List;
-
 import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 import org.pytorch.serve.servingsdk.metrics.BaseMetric;
 import org.pytorch.serve.servingsdk.metrics.DimensionRegistry;
 import org.pytorch.serve.servingsdk.metrics.InbuiltMetricsRegistry;
 import org.pytorch.serve.servingsdk.metrics.MetricEventListener;
 import org.pytorch.serve.servingsdk.metrics.MetricLogEvent;
-
 
 public class TestMetricEventListener implements MetricEventListener {
 
@@ -57,6 +55,5 @@ public class TestMetricEventListener implements MetricEventListener {
             default:
                 break;
         }
-
     }
 }

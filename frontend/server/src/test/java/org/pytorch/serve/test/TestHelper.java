@@ -16,8 +16,7 @@ import org.apache.commons.io.FileUtils;
 
 public final class TestHelper {
 
-    private TestHelper() {
-    }
+    private TestHelper() {}
 
     public static void testGetterSetters(Class<?> baseClass)
             throws IOException, ClassNotFoundException {
@@ -47,8 +46,8 @@ public final class TestHelper {
                 String methodName = method.getName();
                 int parameterCount = method.getParameterCount();
                 try {
-                    if (parameterCount == 0 && (methodName.startsWith("get")
-                            || methodName.startsWith("is"))) {
+                    if (parameterCount == 0
+                            && (methodName.startsWith("get") || methodName.startsWith("is"))) {
                         method.invoke(obj);
                     } else if (methodName.startsWith("set") && parameterCount == 1) {
                         Class<?> type = method.getParameterTypes()[0];
@@ -75,7 +74,7 @@ public final class TestHelper {
         File classPath = new File(path);
         if (classPath.isDirectory()) {
             String rootPath = classPath.getCanonicalPath();
-            String[] filters = new String[]{"class"};
+            String[] filters = new String[] {"class"};
             Collection<File> files = FileUtils.listFiles(classPath, filters, true);
             for (File file : files) {
                 String fileName = file.getCanonicalPath();

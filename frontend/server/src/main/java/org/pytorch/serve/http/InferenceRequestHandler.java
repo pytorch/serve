@@ -183,9 +183,11 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             return;
         }
 
-        Dimension[] dimensions = { new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.MODEL),
-                new Dimension(DimensionRegistry.MODELNAME, modelName),
-                new Dimension(DimensionRegistry.MODELVERSION, modelVersion) };
+        Dimension[] dimensions = {
+            new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.MODEL),
+            new Dimension(DimensionRegistry.MODELNAME, modelName),
+            new Dimension(DimensionRegistry.MODELVERSION, modelVersion)
+        };
         loggerTsMetrics.info(
                 new Metric(
                         InbuiltMetricsRegistry.INFERENCE,

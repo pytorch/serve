@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.pytorch.serve.servingsdk.Context;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -29,8 +28,6 @@ public class MetricsEndpoint extends ModelServerEndpoint {
         HashMap<String, String> data = metricManager.getData();
         Gson gson = new Gson();
         String json = gson.toJson(data);
-        rsp.getOutputStream()
-                .write(json.getBytes(StandardCharsets.UTF_8));
+        rsp.getOutputStream().write(json.getBytes(StandardCharsets.UTF_8));
     }
-
 }

@@ -6,10 +6,8 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
@@ -118,7 +116,6 @@ public class Job {
                 "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
                 System.nanoTime() - scheduled);
-
     }
 
     public void sendError(HttpResponseStatus status, String error) {
@@ -138,21 +135,22 @@ public class Job {
                 System.nanoTime() - begin);
     }
 
-    private void logMetric(String metricName,  long metricValue){
+    private void logMetric(String metricName, long metricValue) {
         String queueTime =
-                String.valueOf(
-                        TimeUnit.MILLISECONDS.convert(metricValue, TimeUnit.NANOSECONDS));
+                String.valueOf(TimeUnit.MILLISECONDS.convert(metricValue, TimeUnit.NANOSECONDS));
 
-        Dimension[] dimensions = {new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.MODEL),
-                new Dimension(DimensionRegistry.MODELNAME, modelName),
-                new Dimension(DimensionRegistry.MODELVERSION, modelVersion)};
+        Dimension[] dimensions = {
+            new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.MODEL),
+            new Dimension(DimensionRegistry.MODELNAME, modelName),
+            new Dimension(DimensionRegistry.MODELVERSION, modelVersion)
+        };
 
         loggerTsMetrics.info(
-                new Metric(metricName,
+                new Metric(
+                        metricName,
                         queueTime,
                         "ms",
                         ConfigManager.getInstance().getHostName(),
                         dimensions));
-
     }
 }

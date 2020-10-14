@@ -41,7 +41,8 @@ public final class NettyUtils {
 
     private static final String REQUEST_ID = "x-request-id";
     private static final AttributeKey<Session> SESSION_KEY = AttributeKey.valueOf("session");
-    private static final Dimension DIMENSION = new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.HOST);
+    private static final Dimension DIMENSION =
+            new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.HOST);
     private static final Metric REQUESTS_2_XX =
             new Metric(
                     InbuiltMetricsRegistry.REQUESTS2XX,

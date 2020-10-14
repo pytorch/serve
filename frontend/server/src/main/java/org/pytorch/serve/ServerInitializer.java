@@ -70,7 +70,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
         }
 
         if (ConfigManager.getInstance().isMetricEndpointsEnable()
-                && ConnectorType.ALL.equals(connectorType)
+                        && ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
