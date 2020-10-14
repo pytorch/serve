@@ -15,27 +15,28 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-
+/**
+ * This class extends ModelServerEndpoint from Torch Serve SDK and acts as Prometheus Metric endpoint
+ * At the time of initialization of Torch Serve server, the class gets loaded.
+ */
 @Endpoint(
         urlPattern = "metrics",
         endpointType = EndpointTypes.METRIC,
         description = "Prometheus Metric endpoint")
 public class PrometheusMetrics extends ModelServerEndpoint {
 
+    /**
+     * Handle the Get Request and respond back with requested Prometheus Metrics
+     *
+     */
     @Override
     public void doGet(Request req, Response rsp, Context ctx) throws IOException {
-        Properties prop = ctx.getConfig();
         Map<String, List<String>> params_map = req.getParameterMap();
         List<String> params = params_map.getOrDefault("name[]", Collections.emptyList());
-
 
         Writer writer = new StringWriter();
         TextFormat.write004(writer, CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(
                 new HashSet<>(params)));
-
-
-        // 6 * 1024 * 1024
-        int maxRequestSize = Integer.parseInt(prop.getProperty("max_request_size", "6291456"));
 
         rsp.setContentType(TextFormat.CONTENT_TYPE_004);
         rsp.getOutputStream()

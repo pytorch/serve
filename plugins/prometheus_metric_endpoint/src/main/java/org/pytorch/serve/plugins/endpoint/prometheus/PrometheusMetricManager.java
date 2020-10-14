@@ -6,6 +6,11 @@ import io.prometheus.client.Histogram;
 
 import java.util.UUID;
 
+/**
+ * This class registers different metrics with Prometheus registry
+ * and provides wrapper methods to update the metric values
+ *
+ */
 public final class PrometheusMetricManager {
 
     private static final PrometheusMetricManager METRIC_MANAGER = new PrometheusMetricManager();
@@ -103,13 +108,14 @@ public final class PrometheusMetricManager {
     /**
      * Counts a valid inference request to be processed
      *
+     * @param value value to increment
      * @param modelName name of the model
      * @param modelVersion version of the model
      */
-    public void incInferCount(String modelName, String modelVersion) {
+    public void incInferCount(long value, String modelName, String modelVersion) {
         inferRequestCount
                 .labels(METRICS_UUID, modelName, getOrDefaultModelVersion(modelVersion))
-                .inc();
+                .inc(value);
     }
 
     /**
