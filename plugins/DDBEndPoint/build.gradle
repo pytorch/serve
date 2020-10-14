@@ -1,0 +1,34 @@
+dependencies {
+    compile "com.google.code.gson:gson:${gson_version}"
+    compile "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    implementation platform('software.amazon.awssdk:bom:2.13.54')
+    implementation 'software.amazon.awssdk:dynamodb-enhanced'
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+project.ext{
+    sagemaker = true
+}
+
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
+
+jar {
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+jar {
+
+    includeEmptyDirs = false
+
+    exclude "META-INF/maven/**"
+    exclude "META-INF/INDEX.LIST"
+    exclude "META-INF/MANIFEST*"
+    exclude "META-INF//LICENSE*"
+    exclude "META-INF//NOTICE*"
+}

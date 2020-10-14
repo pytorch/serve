@@ -102,6 +102,9 @@ def start():
             if not args.model_store and props.get('model_store'):
                 args.model_store = props.get('model_store')
 
+        if args.plugins_jar:
+            class_path += ":" + args.plugins_jar
+
         cmd.append("-cp")
         cmd.append(class_path)
 
@@ -138,9 +141,6 @@ def start():
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
                         sys.exit(1)
-        if args.snapshot_store:
-            cmd.append("-ss")
-            cmd.append(args.snapshot_store)
 
 
         try:

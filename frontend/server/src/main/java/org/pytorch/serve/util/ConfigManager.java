@@ -76,7 +76,6 @@ public final class ConfigManager {
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
-    private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
 
@@ -125,11 +124,6 @@ public final class ConfigManager {
             System.setProperty("METRICS_LOCATION", metricsLocation);
         } else if (System.getProperty("METRICS_LOCATION") == null) {
             System.setProperty("METRICS_LOCATION", "logs");
-        }
-
-        String snapshotStore = args.getSnapshotStore();
-        if (snapshotStore != null) {
-            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
         }
 
         String filePath = System.getenv("TS_CONFIG_FILE");
@@ -358,10 +352,6 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
-    public String getSnapshotStore() {
-        return prop.getProperty(TS_SNAPSHOT_STORE, "FS");
-    }
-
     public String getModelSnapshot() {
         return prop.getProperty(MODEL_SNAPSHOT, null);
     }
@@ -477,7 +467,7 @@ public final class ConfigManager {
         if (isSnapshotDisabled()) {
             return null;
         }
-        SnapshotSerializer serializer = SnapshotSerializerFactory.getSerializer(getSnapshotStore());
+        SnapshotSerializer serializer = SnapshotSerializerFactory.getSerializer();
         return serializer.getLastSnapshot();
     }
 
@@ -672,7 +662,6 @@ public final class ConfigManager {
         private String modelStore;
         private String[] models;
         private boolean snapshotDisabled;
-        private String snapshotStore;
 
         public Arguments() {}
 
@@ -682,7 +671,6 @@ public final class ConfigManager {
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
-            snapshotStore = cmd.getOptionValue("snapshot-store");
         }
 
         public static Options getOptions() {
@@ -721,13 +709,6 @@ public final class ConfigManager {
                             .argName("NO-CONFIG-SNAPSHOT")
                             .desc("disable torchserve snapshot")
                             .build());
-            options.addOption(
-                    Option.builder("ss")
-                            .longOpt("snapshot-store")
-                            .argName("SNAPSHOT-STORE")
-                            .hasArg()
-                            .desc("snapshot store (e.g. DDB), default is local FS")
-                            .build());
             return options;
         }
 
@@ -765,14 +746,6 @@ public final class ConfigManager {
 
         public void setSnapshotDisabled(boolean snapshotDisabled) {
             this.snapshotDisabled = snapshotDisabled;
-        }
-
-        public String getSnapshotStore() {
-            return snapshotStore;
-        }
-
-        public void setSnapshotStorage(String snapshotStore) {
-            this.snapshotStore = snapshotStore;
         }
     }
 }

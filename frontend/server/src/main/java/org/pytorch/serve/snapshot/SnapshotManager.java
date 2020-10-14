@@ -11,13 +11,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
-import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 
 public final class SnapshotManager {
 
@@ -40,8 +40,7 @@ public final class SnapshotManager {
     private SnapshotManager(ConfigManager configManager) {
         this.configManager = configManager;
         this.modelManager = ModelManager.getInstance();
-        this.snapshotSerializer =
-                SnapshotSerializerFactory.getSerializer(configManager.getSnapshotStore());
+        this.snapshotSerializer = SnapshotSerializerFactory.getSerializer();
     }
 
     private void saveSnapshot(String snapshotName) {

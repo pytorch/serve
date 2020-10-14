@@ -24,11 +24,6 @@ allprojects {
         jcenter()
     }
 
-    dependencies {
-        implementation platform('software.amazon.awssdk:bom:2.13.54')
-        implementation 'software.amazon.awssdk:dynamodb'
-    }
-
     idea {
         module {
             outputDir = file('build/classes/java/main')

@@ -28,8 +28,8 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
-import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.servingsdk.snapshot.Snapshot;
+import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
@@ -415,7 +415,6 @@ public class SnapshotTest {
         prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
-        prop.put("snapshot_store", "FS");
     }
 
     private String getLastSnapshot() {

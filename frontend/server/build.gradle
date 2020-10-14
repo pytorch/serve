@@ -3,6 +3,8 @@ dependencies {
     implementation project(":modelarchive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    implementation platform('software.amazon.awssdk:bom:2.13.54')
+    implementation 'software.amazon.awssdk:dynamodb-enhanced'
     testImplementation "org.testng:testng:${testng_version}"
 }
 

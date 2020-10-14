@@ -27,9 +27,9 @@ public final class PluginsManager {
     }
 
     public void initialize() {
+        logger.info("Initializing plugins manager...");
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
-
     }
 
     private boolean validateEndpointPlugin(Annotation a, EndpointTypes type) {
@@ -38,11 +38,15 @@ public final class PluginsManager {
                 && ((Endpoint) a).endpointType().equals(type);
     }
 
-    public SnapshotSerializer getSnapShotSerializer()
-            throws InvalidPluginException {
+    public SnapshotSerializer getSnapShotSerializer() {
+       logger.info("Trying to load snapshot serializer via plugin....");
         ServiceLoader<SnapshotSerializer> loader = ServiceLoader.load(SnapshotSerializer.class);
-        SnapshotSerializer snapShotSerializer = loader.findFirst().get();
-        return snapShotSerializer;
+        if (loader.findFirst().isPresent()) {
+            SnapshotSerializer snapShotSerializer = loader.findFirst().get();
+            logger.info("Snapshot serializer via plugin has been loaded successfully");
+            return snapShotSerializer;
+        }
+        return null;
     }
 
     private HashMap<String, ModelServerEndpoint> getEndpoints(EndpointTypes type)

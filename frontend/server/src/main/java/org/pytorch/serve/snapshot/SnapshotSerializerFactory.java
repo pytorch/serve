@@ -8,16 +8,16 @@ public final class SnapshotSerializerFactory {
 
     private SnapshotSerializerFactory() {}
 
-    private static synchronized void initialize(String storageType) {
+    private static synchronized void initialize() {
         snapshotSerializer = PluginsManager.getInstance().getSnapShotSerializer();
-        if ("FS".equalsIgnoreCase(storageType)) {
+        if (snapshotSerializer == null) {
             snapshotSerializer = new FSSnapshotSerializer();
         }
     }
 
-    public static synchronized SnapshotSerializer getSerializer(String storageType) {
+    public static synchronized SnapshotSerializer getSerializer() {
         if (snapshotSerializer == null) {
-            SnapshotSerializerFactory.initialize(storageType);
+            SnapshotSerializerFactory.initialize();
         }
         return snapshotSerializer;
     }
