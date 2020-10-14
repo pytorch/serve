@@ -73,7 +73,9 @@ class TsModelLoader(ModelLoader):
         if os.path.exists(manifest_file):
             with open(manifest_file) as f:
                 manifest = json.load(f)
-        metrics = MetricsStore(uuid.uuid4(), model_name, manifest["model"]["modelVersion"] if manifest else None)
+
+        model_version = manifest.get("model", {}).get("modelVersion", None) if manifest else None
+        metrics = MetricsStore(uuid.uuid4(), model_name, model_version)
         try:
             temp = handler.split(":", 1)
             module_name = temp[0]
