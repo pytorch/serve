@@ -18,7 +18,7 @@ wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
     curl http://127.0.0.1:8080/predictions/fcn -T examples/image_segmenter/persons.jpg
     ```
 * Output
-An array of shape [ Batch, Height, Width, 2] where the final dimensions are [class, probability]
+An array of shape [Batch, Height, Width, 2] where the final dimensions are [class, probability]
 
 ```json
 [[[[0.0, 0.9993857145309448], [0.0, 0.9993857145309448], [0.0, 0.9993857145309448], [0.0, 0.9993857145309448], [0.0, 0.9993864297866821], [0.0, 0.999385416507721], [0.0, 0.9993811845779419], [0.0, 0.9993740320205688] ... ]]]

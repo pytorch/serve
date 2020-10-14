@@ -15,10 +15,10 @@ wget https://download.pytorch.org/models/deeplabv3_resnet101_coco-586e9e4e.pth
     mkdir model_store
     mv deeplabv3_resnet101.mar model_store/
     torchserve --start --model-store model_store --models deeplabv3=deeplabv3_resnet101.mar
-    curl http://127.0.0.1:8080/predictions/deeplabv3 -T examples/image_segmenter/deeplabv3/persons.jpg
+    curl http://127.0.0.1:8080/predictions/deeplabv3 -T examples/image_segmenter/persons.jpg
     ```
 * Output
-An array of shape [ Batch, Height, Width, 2] where the final dimensions are [class, probability]
+An array of shape [Batch, Height, Width, 2] where the final dimensions are [class, probability]
 
 # TODO: test and update output
 ```json
