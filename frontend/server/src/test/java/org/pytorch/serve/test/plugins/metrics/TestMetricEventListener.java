@@ -1,6 +1,7 @@
 package org.pytorch.serve.test.plugins.metrics;
 
 import java.util.List;
+
 import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 import org.pytorch.serve.servingsdk.metrics.BaseMetric;
 import org.pytorch.serve.servingsdk.metrics.DimensionRegistry;
@@ -16,17 +17,22 @@ public class TestMetricEventListener implements MetricEventListener {
         BaseMetric metric = metricLogEvent.getMetric();
         String metricName = metric.getMetricName();
         List<BaseDimension> dimensions = metric.getDimensions();
-        String dimLevel= null;
+        String dimLevel = null;
         String dimModelName = null;
         String dimModelVersion = null;
         for (BaseDimension dimension : dimensions) {
             switch (dimension.getName()) {
                 case DimensionRegistry.LEVEL:
-                    dimLevel = dimension.getValue();  break;
+                    dimLevel = dimension.getValue();
+                    break;
                 case DimensionRegistry.MODELNAME:
-                    dimModelName =  dimension.getValue();  break;
+                    dimModelName = dimension.getValue();
+                    break;
                 case DimensionRegistry.MODELVERSION:
-                    dimModelVersion =  dimension.getValue();  break;
+                    dimModelVersion = dimension.getValue();
+                    break;
+                default:
+                    break;
             }
         }
 

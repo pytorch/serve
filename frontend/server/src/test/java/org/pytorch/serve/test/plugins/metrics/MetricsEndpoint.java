@@ -1,17 +1,19 @@
 package org.pytorch.serve.test.plugins.metrics;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.google.gson.Gson;
 import org.pytorch.serve.servingsdk.Context;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.http.Request;
 import org.pytorch.serve.servingsdk.http.Response;
-
-
 
 @Endpoint(
         urlPattern = "metrics",

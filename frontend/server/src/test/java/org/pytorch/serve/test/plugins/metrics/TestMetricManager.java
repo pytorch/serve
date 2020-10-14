@@ -1,4 +1,5 @@
 package org.pytorch.serve.test.plugins.metrics;
+
 import java.util.HashMap;
 
 public final class TestMetricManager {
@@ -48,7 +49,7 @@ public final class TestMetricManager {
         inferRequestCount += value;
     }
 
-    public HashMap<String, String> getData(){
+    public HashMap<String, String> getData() {
         HashMap<String, String> map = new HashMap<>();
         map.put("inferRequestCount", String.valueOf(inferRequestCount));
         map.put("queueLatency", String.valueOf(queueLatency));
