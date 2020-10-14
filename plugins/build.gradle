@@ -60,7 +60,7 @@ configure(javaProjects()) {
 
     test {
         useTestNG() {
-            // suiteXmlFiles << new File(rootDir, "testng.xml") //This is how to add custom testng.xml
+           suites 'testng.xml'
         }
 
         testLogging {
