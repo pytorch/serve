@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 import os
+import pathlib
 
 try:
     import torch
@@ -219,14 +220,14 @@ def get_cudnn_version():
 
 def get_torchserve_version():
     # fetch the torchserve version from version.txt file
-    with open(f"{os.getcwd()}/../ts/version.txt", 'r') as file:
+    with open(f"{os.path.dirname(os.path.abspath(__file__))}/../ts/version.txt", 'r') as file:
         version = file.readline().rstrip()
     return version
 
 
 def get_torch_model_archiver():
     # fetch the torch-model-archiver version from version.txt file
-    with open(f"{os.getcwd()}/../model-archiver/model_archiver/version.txt", 'r') as file:
+    with open(f"{os.path.dirname(os.path.abspath(__file__))}/../model-archiver/model_archiver/version.txt", 'r') as file:
         version = file.readline().rstrip()
     return version
 
