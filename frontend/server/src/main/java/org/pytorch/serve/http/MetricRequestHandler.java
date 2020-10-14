@@ -1,10 +1,12 @@
 package org.pytorch.serve.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
-import org.pytorch.serve.archive.*;
-import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import java.util.Map;
+import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+
 
 
 /**
