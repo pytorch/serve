@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_v2.mar",
         "model_name":"my_text_classifier",
         "worker":1,
         "synchronous":"true",
@@ -16,7 +16,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/my_text_classifier_scripted_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_scripted_v2.mar",
         "model_name":"my_text_classifier_scripted",
         "worker":1,
         "synchronous":"true",
@@ -32,7 +32,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar",
         "model_name":"squeezenet1_1",
         "worker":1,
         "synchronous":"true",
@@ -49,7 +49,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/squeezenet1_1_scripted.mar",
         "model_name":"squeezenet1_1_scripted",
         "worker":1,
         "synchronous":"true",
@@ -66,7 +66,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/densenet161.mar",
         "model_name":"densenet161",
         "worker":1,
         "synchronous":"true",
@@ -83,7 +83,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/alexnet.mar",
         "model_name":"alexnet",
         "worker":1,
         "synchronous":"true",
@@ -100,7 +100,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/alexnet_scripted.mar",
         "model_name":"alexnet_scripted",
         "worker":1,
         "synchronous":"true",
@@ -117,7 +117,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/resnet-18.mar",
         "model_name":"resnet-18",
         "worker":1,
         "synchronous":"true",
@@ -134,7 +134,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-18_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/resnet-18_scripted.mar",
         "model_name":"resnet-18_scripted",
         "worker":1,
         "synchronous":"true",
@@ -151,7 +151,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/vgg11_v2.mar",
         "model_name":"vgg11",
         "worker":1,
         "synchronous":"true",
@@ -168,7 +168,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/vgg11_scripted.mar",
         "model_name":"vgg11_scripted",
         "worker":1,
         "synchronous":"true",
@@ -185,7 +185,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/mnist_v2.mar",
         "model_name":"mnist",
         "worker":1,
         "synchronous":"true",
@@ -194,7 +194,7 @@
         "expected":"0"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/mnist_scripted_v2.mar",
         "model_name":"mnist_scripted",
         "worker":1,
         "synchronous":"true",
@@ -203,35 +203,35 @@
         "expected":"0"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/fastrcnn.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/fastrcnn.mar",
         "model_name":"fastrcnn",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/object_detector/persons.jpg"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/maskrcnn.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/maskrcnn.mar",
         "model_name":"maskrcnn",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/object_detector/persons.jpg"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/fcn_resnet_101.mar",
         "model_name":"fcn_resnet_101",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/object_detector/persons.jpg"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/fcn_resnet_101_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/fcn_resnet_101_scripted.mar",
         "model_name":"fcn_resnet_101_scripted",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/object_detector/persons.jpg"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar",
         "model_name":"resnet152",
         "worker":1,
         "synchronous":"true",
@@ -248,7 +248,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/resnet-152-scripted_v2.mar",
         "model_name":"resnet-152-batch_scripted",
         "worker":1,
         "synchronous":"true",
@@ -266,14 +266,14 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/roberta_qa_no_torchscript.mar",
         "model_name":"roberta_qa_no_torchscript",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/Huggingface_Transformers/sample_text.txt"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_token_classification_no_torchscript.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/bert_token_classification_no_torchscript.mar",
         "model_name":"bert_token_classification_no_torchscript",
         "worker":"1",
         "synchronous":"true",
@@ -343,7 +343,7 @@
         ]
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/bert_seqc_without_torchscript.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/bert_seqc_without_torchscript.mar",
         "model_name":"bert_seqc_without_torchscript",
         "worker":"1",
         "synchronous":"true",
