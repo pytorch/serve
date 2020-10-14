@@ -162,13 +162,18 @@ docker exec -it <container_name> /bin/bash
 ```
 You will be landing at /home/model-server/.
 
-3. Now Execute torch-model-archiver command e.g.
+3. Download the model weights if you have not done so already (they are not part of the repo)
+```bash
+curl -o /home/model-server/examples/image_classifier/densenet161-8d451a50.pth https://download.pytorch.org/models/densenet161-8d451a50.pth
+```
+
+4. Now Execute torch-model-archiver command e.g.
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/model-server/examples/image_classifier/densenet_161/model.py --serialized-file /home/model-server/examples/image_classifier/densenet161-8d451a50.pth --export-path /home/model-server/model-store --extra-files /home/model-server/examples/image_classifier/index_to_name.json --handler image_classifier
 ```
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
-4. desnet161.mar file should be present at /home/model-server/model-store
+5. desnet161.mar file should be present at /home/model-server/model-store
 
 # Running TorchServe in a Production Docker Environment.
 
@@ -190,7 +195,7 @@ You may want to consider the following aspects / docker options when deploying t
 
 * Exposing specific ports / volumes between the host & docker env.
 
-    *  ```-p8080:p8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    *  ```-p8080:8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
     * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
 For example,
