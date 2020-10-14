@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.servingsdk.metrics.BaseDimension;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
-import org.pytorch.serve.test.plugins.metrics.TestMetricManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
@@ -204,12 +202,12 @@ public class ModelServerTest {
         }
         HashMap<String, String> map = new Local().getMetrics();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        int current_value = Integer.parseInt(map.get("inferRequestCount"));
+        int currentValue = Integer.parseInt(map.get("inferRequestCount"));
 
         testLoadModelWithInitialWorkers("noop.mar", "noopversioned_v1.7", "1.11");
         testPredictions("noopversioned_v1.7", "OK", "1.11");
         HashMap<String, String> newmap = new Local().getMetrics();
-        Assert.assertEquals(Integer.parseInt(newmap.get("inferRequestCount")), current_value + 1);
+        Assert.assertEquals(Integer.parseInt(newmap.get("inferRequestCount")), currentValue + 1);
     }
 
     @Test(
