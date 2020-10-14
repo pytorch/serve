@@ -81,6 +81,15 @@ def __get_list_params(parsed_url):
 
 
 def test_management_apis():
+    api_mapping = {
+        "register": "RegisterModel",
+        "unregister": "UnregisterModel",
+        "scale": "ScaleWorker",
+        "set_default": "SetDefault",
+        "list": "ListModels",
+        "describe": "DescribeModel"
+    }
+
     with open(os.path.dirname(__file__) + management_data_json, 'rb') as f:
         test_data = json.loads(f.read())
 
@@ -89,7 +98,7 @@ def test_management_apis():
             api_name = item['type']
             api = globals()["__get_" + api_name + "_params"]
             params = api(parse.urlsplit(item['path']))
-            getattr(test_gRPC_utils, api_name + "_model")(**params)
+            test_gRPC_utils.run_management_api(api_mapping[api_name], **params)
         except grpc.RpcError as e:
             if 'grpc_status_code' in item:
                 assert e.code().value[0] == item['grpc_status_code']

@@ -3,25 +3,25 @@
     "type": "register",
     "test": "Register Model",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
   },
   {
     "type": "register",
     "test": "Register Model Mnist",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist"
   },
   {
     "type": "register",
     "test": "Register Model Densenet161",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar&model_name=densenet161"
   },
   {
     "type": "register",
     "test": "Model Re-Registration Densenet161",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar&model_name=densenet161",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar&model_name=densenet161",
     "status_code": 500,
     "grpc_status_code": 13
   },
@@ -49,7 +49,7 @@
     "type": "register",
     "test": "Register Mnist Model with Invalid Handler",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler"
   },
   {
     "type": "unregister",
@@ -61,7 +61,7 @@
     "type": "register",
     "test": "Register Mnist Model with Invalid Handler",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist&handler=invalidHandler"
   },
   {
     "type": "scale",
@@ -105,7 +105,7 @@
     "type": "register",
     "test": "Register Model invalid Runtime",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&runtime=python4",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&runtime=python4",
     "status_code": 400,
     "grpc_status_code": 3
   },
@@ -119,7 +119,7 @@
     "type": "register",
     "test": "Register Model",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
   },
   {
     "type": "scale",
@@ -158,14 +158,14 @@
     "status_code": 202
   },
   {
-    "type": "scale",
+    "type": "set_default",
     "test": "Set Default Model Version",
     "METHOD": "PUT",
     "path": "models/squeezenet1_1/1.0/set-default",
     "status_code": 200
   },
   {
-    "type": "scale",
+    "type": "set_default",
     "test": "Set Default Valid Model Invalid Version",
     "METHOD": "PUT",
     "path": "models/squeezenet1_1/0.0/set-default",
@@ -190,7 +190,7 @@
     "type": "register",
     "test": "Register Model with Additional Params",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle"
   },
   {
     "type": "unregister",
@@ -202,7 +202,7 @@
     "type": "register",
     "test": "Register Model with Additional Params and response_timeout as 0",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&batch_size=3&initial_workers=3&response_timeout=0",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&batch_size=3&initial_workers=3&response_timeout=0",
     "status_code": 500,
     "grpc_status_code": 13
   },
@@ -210,7 +210,7 @@
     "type": "register",
     "test": "Register Model with response_timeout as 0",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&response_timeout=0"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&response_timeout=0"
   },
   {
     "type": "unregister",
@@ -222,7 +222,7 @@
     "type": "register",
     "test": "Register Model with Batch Size",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2"
   },
   {
     "type": "unregister",
@@ -234,7 +234,7 @@
     "type": "register",
     "test": "Register Model with Non integer Batch Size",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=dd&initial_workers=1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=dd&initial_workers=1"
   },
   {
     "type": "unregister",
@@ -246,7 +246,7 @@
     "type": "register",
     "test": "Register Model with integer Batch Size but non integer max batch delay parameter",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2&initial_workers=1&max_batch_delay=junk"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar&model_name=resnet152&batch_size=2&initial_workers=1&max_batch_delay=junk"
   },
   {
     "type": "unregister",
@@ -258,7 +258,7 @@
     "type": "register",
     "test": "Register Squeezenet Model Negative initial workers",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=-1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=-1"
   },
   {
     "type": "unregister",
@@ -270,7 +270,7 @@
     "type": "register",
     "test": "Register Resnet Model Synchronous",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=true"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=true"
   },
   {
     "type": "unregister",
@@ -282,7 +282,7 @@
     "type": "register",
     "test": "Register Model non boolean Synchronous value",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=-1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=-1"
   },
   {
     "type": "unregister",
@@ -294,7 +294,7 @@
     "type": "register",
     "test": "Register Resnet Model Asynchronous",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=false",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&model_name=resnet-18&synchronous=false",
     "status_code": 200
   },
   {
@@ -374,7 +374,7 @@
     "type": "scale",
     "test": "Register Model - Invalid URL",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
     "status_code": 400,
     "grpc_status_code": 3
   },
@@ -468,7 +468,7 @@
     "grpc_status_code": 3
   },
   {
-    "type": "scale",
+    "type": "set_default",
     "test": "Update Version - Invalid Model",
     "METHOD": "PUT",
     "path": "models/invalid_squeezenet1_1/1.0/set-default",
@@ -493,7 +493,7 @@
     "type": "register",
     "test": "Register Model",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
   },
   {
     "type": "unregister",
@@ -505,7 +505,7 @@
     "type": "register",
     "test": "Register Model",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
   },
   {
     "type": "unregister",
@@ -517,7 +517,7 @@
     "type": "register",
     "test": "Register Model",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
   },
   {
     "type": "unregister",
@@ -529,7 +529,7 @@
     "type": "register",
     "test": "Register Model",
     "METHOD": "POST",
-    "path": "models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
   },
   {
     "type": "unregister",
