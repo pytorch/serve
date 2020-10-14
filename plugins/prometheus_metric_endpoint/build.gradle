@@ -1,0 +1,24 @@
+dependencies {
+    compile fileTree(dir: '../libs', includes: ['*.jar'])
+    compile "com.google.code.gson:gson:${gson_version}"
+    implementation "io.prometheus:simpleclient:${prometheus_version}"
+    implementation "io.prometheus:simpleclient_servlet:${prometheus_version}"
+    //compile "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    testImplementation "commons-cli:commons-cli:${commons_cli_version}"
+    testImplementation "org.testng:testng:${testng_version}"
+    testImplementation "org.mockito:mockito-core:${mockito_version}"
+}
+
+project.ext{
+    sagemaker = true
+}
+
+jar {
+    includeEmptyDirs = false
+
+    exclude "META-INF/maven/**"
+    exclude "META-INF/INDEX.LIST"
+    exclude "META-INF/MANIFEST*"
+    exclude "META-INF//LICENSE*"
+    exclude "META-INF//NOTICE*"
+}
