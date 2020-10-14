@@ -236,7 +236,7 @@ public class ModelServerTest {
 
         ListModelsResponse resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), ListModelsResponse.class);
-        Assert.assertEquals(resp.getModels().size(), 1);
+        Assert.assertEquals(resp.getModels().size(), 2);
     }
 
     @Test(
