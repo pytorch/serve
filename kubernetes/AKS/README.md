@@ -94,7 +94,7 @@ Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that w
 
 Your output should look similar to
 
-pod/model-store-pod created
+```pod/model-store-pod created```
 
 Verify that the pod is created by excuting.
 
