@@ -138,8 +138,10 @@ class BaseHandler(abc.ABC):
         data_preprocess = self.preprocess(data)
         output_inference = self.inference(data_preprocess)
         output_explain = self.explain_handle(data_preprocess, data)
-        output_inference = self.postprocess(output_inference, output_explain)
-
+        if output_explain:
+            output_inference = self.postprocess(output_inference, output_explain)
+        else :
+            output_inference = self.postprocess(output_inference)
         return output_inference
 
     def explain_handle(self, data_preprocess, raw_data):
