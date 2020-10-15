@@ -109,8 +109,8 @@ nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
 #### 2.6 Down and copy MAR / config files
 
 ```shell
-wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
-wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
+wget https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
+wget https://torchserve.pytorch.org/mar_files/mnist.mar
 
 kubectl exec --tty pod/model-store-pod -- mkdir /mnt/azure/model-store/
 kubectl cp squeezenet1_1.mar model-store-pod:/mnt/azure/model-store/squeezenet1_1.mar
