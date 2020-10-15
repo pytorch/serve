@@ -116,7 +116,7 @@ nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
 
 #### 2.6 Down and copy MAR / config files
 
-```shell
+```bash
 wget https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
 wget https://torchserve.pytorch.org/mar_files/mnist.mar
 
