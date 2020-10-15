@@ -56,9 +56,13 @@ Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NV
 
 ```kubectl apply -f templates/nvidia-device-plugin-ds.yaml```
 `kubectl get pods` should show something similar to:
+
+```bash
 NAME                  READY  STATUS  RESTARTS  AGE
 
 nvidia-device-plugin-daemonset-7lvxd  1/1   Running  0     42s
+```
+
 
 #### 2.3 Create a storage class
 
@@ -80,11 +84,13 @@ Verify that the PVC / PV is created by excuting.
 
 Your output should look similar to
 
+```bash
 NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
 persistentvolumeclaim/model-store-claim   Bound    pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            managed-premium   29s
 
 NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                       STORAGECLASS      REASON   AGE
 persistentvolume/pvc-c9e235a8-ca2b-4d04-8f25-8262de1bb915   1Gi        RWO            Delete           Bound    default/model-store-claim   managed-premium            28s
+```
 
 #### 2.5 Create a pod and copy MAR / config files
 
@@ -102,9 +108,11 @@ Verify that the pod is created by excuting.
 
 Your output should look similar to
 
+```bash
 NAME                                   READY   STATUS    RESTARTS   AGE
 model-store-pod                        1/1     Running   0          143m
 nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
+```
 
 #### 2.6 Down and copy MAR / config files
 
@@ -126,6 +134,7 @@ Verify that the MAR / config files have been copied to the directory.
 
 Your output should look similar to
 
+```bash
 /mnt/azure/
 /mnt/azure/config
 /mnt/azure/config/config.properties
@@ -133,6 +142,7 @@ Your output should look similar to
 /mnt/azure/model-store
 /mnt/azure/model-store/mnist.mar
 /mnt/azure/model-store/squeezenet1_1.mar
+```
 
 #### 2.7 Install Torchserve using Helm Charts
 
@@ -143,12 +153,14 @@ Enter the Helm directory and install TorchServe using Helm Charts.
 
 Your output should look similar to
 
+```bash
 NAME: ts
 LAST DEPLOYED: Thu Aug 20 02:07:38 2020
 NAMESPACE: default
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
+```
 
 #### 2.8 Check the status of TorchServe
 
@@ -156,6 +168,7 @@ TEST SUITE: None
 
 The installation will take a few minutes. Output like this means the installation is not completed yet.
 
+```bash
 NAME                               READY   STATUS              RESTARTS   AGE
 torchserve-75f5b67469-5hnsn        0/1     ContainerCreating   0          6s
 
@@ -163,6 +176,7 @@ Output like this means the installation is completed.
 
 NAME                               READY   STATUS    RESTARTS   AGE
 torchserve-75f5b67469-5hnsn        1/1     Running   0          2m36s
+```
 
 ### 3 Test Torchserve Installation
 
@@ -174,9 +188,11 @@ Fetch the Load Balancer Extenal IP by executing.
 
 Your output should look similar to
 
+```bash
 NAME               TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                         AGE
 kubernetes         ClusterIP      10.0.0.1       <none>         443/TCP                         5d19h
 torchserve         LoadBalancer   10.0.39.88     your-external-IP   8080:30306/TCP,8081:30442/TCP   48s
+```
 
 #### 3.2 Test Management / Prediction APIs
 
