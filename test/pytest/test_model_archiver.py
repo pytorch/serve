@@ -93,7 +93,7 @@ def test_multiple_model_versions_registration():
 def test_duplicate_model_registration_using_local_url_followed_by_http_url():
     # Registration through local mar url is already complete in previous test case.
     # Now try to register same model using http url in this next step
-    response = test_utils.register_model("resnet18", "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar")
+    response = test_utils.register_model("resnet18", "https://torchserve.pytorch.org/mar_files/resnet-18.mar")
     time.sleep(15)
     if json.loads(response.content)['code'] == 500 and \
             json.loads(response.content)['type'] == "InternalServerException":
@@ -108,7 +108,7 @@ def test_duplicate_model_registration_using_local_url_followed_by_http_url():
 def test_duplicate_model_registration_using_http_url_followed_by_local_url():
     # Register using http url
     clean_mar_file("resnet-18.mar")
-    response = test_utils.register_model("resnet18", "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar")
+    response = test_utils.register_model("resnet18", "https://torchserve.pytorch.org/mar_files/resnet-18.mar")
 
     create_resnet_archive()
     response = test_utils.register_model("resnet18", "resnet-18.mar")

@@ -22,7 +22,7 @@ aws cloudformation create-stack \
 * Once the cloudformation stack creation is complete, you can get the **TorchServeManagementURL** and **TorchServeInferenceURL** of the instance from the cloudformation output tab on AWS console and test with the following commands
 
 ```
-> curl --insecure -X POST "<TorchServeManagementURL>/models?initial_workers=1&synchronous=false&url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+> curl --insecure -X POST "<TorchServeManagementURL>/models?initial_workers=1&synchronous=false&url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 {
   "status": "Processing worker updates..."
 }
@@ -37,7 +37,7 @@ aws cloudformation create-stack \
     "models": [
         {
             "modelName": "squeezenet1_1",
-            "modelUrl": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+            "modelUrl": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
         }
      ]
 }
@@ -94,7 +94,7 @@ aws cloudformation create-stack \
   --template-body file://ec2-asg.yaml \
   --capabilities CAPABILITY_IAM \
   --parameters ParameterKey=KeyName,ParameterValue=useastcfntemplate \
-               ParameterKey=ModelPath,ParameterValue="https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+               ParameterKey=ModelPath,ParameterValue="https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 ```
 
 * Once the cloudformation stack creation is complete, you can get the **TorchServeManagementURL** and **TorchServeInferenceURL** of the instance from the cloudformation output tab on AWS console and test with the following commands
