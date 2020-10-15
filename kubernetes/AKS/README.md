@@ -105,7 +105,6 @@ Your output should look similar to
 NAME                                   READY   STATUS    RESTARTS   AGE
 model-store-pod                        1/1     Running   0          143m
 nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
-torchserve-576df559ff-tww7q            1/1     Running   0          141m
 
 #### 2.6 Down and copy MAR / config files
 
