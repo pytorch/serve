@@ -55,7 +55,7 @@ chmod 700 get_helm.sh
 Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
 
 ```kubectl apply -f templates/nvidia-device-plugin-ds.yaml```
-
+`kubectl get pods` should show something similar to:
 NAME                  READY  STATUS  RESTARTS  AGE
 
 nvidia-device-plugin-daemonset-7lvxd  1/1   Running  0     42s
