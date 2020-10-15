@@ -37,7 +37,7 @@ public class PrometheusMetricEventListener implements MetricEventListener {
         // However note that its not exhaustive list, for.ex. custom metrics are not part of this
         // list
         switch (metricName) {
-            case (InbuiltMetricsRegistry.INFERENCE):
+            case (InbuiltMetricsRegistry.INFERENCEREQUESTS):
                 prometheusMetricManager.incInferCount(
                         Integer.parseInt(metric.getValue()), dimModelName, dimModelVersion);
                 break;

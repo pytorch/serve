@@ -37,7 +37,7 @@ public class TestMetricEventListener implements MetricEventListener {
         TestMetricManager metricManager = TestMetricManager.getInstance();
 
         switch (metricName) {
-            case (InbuiltMetricsRegistry.INFERENCE):
+            case (InbuiltMetricsRegistry.INFERENCEREQUESTS):
                 metricManager.incInferRequestCount(Integer.parseInt(metric.getValue()));
                 break;
             case (InbuiltMetricsRegistry.QUEUETIME):

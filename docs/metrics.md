@@ -25,16 +25,22 @@ The location of log files and metric files can be configured i in the [log4j.pro
 
 | Metric Name | Dimension | Unit | Semantics |
 |---|---|---|---|
-| CPUUtilization | host | percentage | CPU utilization on host |
-| DiskAvailable | host | GB | disk available on host |
-| DiskUsed | host | GB | disk used on host |
-| DiskUtilization | host | percentage | disk used on host |
-| MemoryAvailable | host | MB | memory available on host |
-| MemoryUsed | host | MB | memory used on host |
-| MemoryUtilization | host | percentage | memory utilization on host |
-| Requests2XX | host | count | logged for every request responded in 200-300 status code range |
-| Requests4XX | host |count | logged for every request responded in 400-500 status code range |
-| Requests5XX | host | count | logged for every request responded with status code above 500 |
+| CPUUtilization | Host | percentage | CPU utilization on host |
+| DiskAvailable | Host | GB | disk available on host |
+| DiskUsed | Host | GB | disk used on host |
+| DiskUtilization | Host | percentage | disk used on host |
+| MemoryAvailable | Host | MB | memory available on host |
+| MemoryUsed | Host | MB | memory used on host |
+| MemoryUtilization | Host | percentage | memory utilization on host |
+| Requests2XX | Host | Count | logged for every request responded in 200-300 status code range |
+| Requests4XX | Host |Count | logged for every request responded in 400-500 status code range |
+| Requests5XX | Host | Count | logged for every request responded with status code above 500 |
+| InferenceRequests | Model | Count | logged for every inference request |
+| QueueTime | Model | ms | wait time in queue for inference job  |
+| BackendResponseTime | Model | ms | time taken by Python backend to respond to inference request after the job wait is over |
+| HandlerTime | Model | ms | time taken by handler's handle method for inference. This is added in Base handler.|
+| WorkerThreadTime | Worker, Model | ms | time taken by inference worker thread minus the backend response time |
+| WorkerLoadTime | Worker, Model | ms | time taken by worker to load the model |
 
 ## Formatting
 

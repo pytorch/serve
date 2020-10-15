@@ -190,7 +190,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         };
         loggerTsMetrics.info(
                 new Metric(
-                        InbuiltMetricsRegistry.INFERENCE,
+                        InbuiltMetricsRegistry.INFERENCEREQUESTS,
                         "1",
                         "Count",
                         ConfigManager.getInstance().getHostName(),

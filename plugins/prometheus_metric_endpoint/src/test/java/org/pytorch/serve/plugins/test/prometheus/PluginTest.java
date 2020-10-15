@@ -85,7 +85,7 @@ public class PluginTest {
         outputStream.reset();
 
         Mockito.when(mle.getMetric()).thenReturn(bm);
-        Mockito.when(bm.getMetricName()).thenReturn(InbuiltMetricsRegistry.INFERENCE);
+        Mockito.when(bm.getMetricName()).thenReturn(InbuiltMetricsRegistry.INFERENCEREQUESTS);
         Mockito.when(bm.getValue()).thenReturn("1");
         Mockito.when(bm.getDimensions()).thenReturn(Arrays.asList(new BaseDimension[] {bd1, bd2}));
         Mockito.when(bd1.getName()).thenReturn(DimensionRegistry.MODELNAME);

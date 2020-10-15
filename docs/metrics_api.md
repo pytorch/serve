@@ -1,46 +1,43 @@
-# Metrics Plugin Endpoint
+# Prometheus Metrics Plugin Endpoint
 
-There are three types of Endpoints supported by TorchServe and TorchServe SDK.
-1. Inference
-2. Management
-3. Metrics
-
-Metrics Endpoints listen on port 8082 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 TorchServe does not provide any inbuilt metrics API, however a metrics API which returns Prometheus formatted metrics is added as a part of the plugin.
-This plugin can be extended by the users or a new metrics endpoint API plugin can also be added.
-By default these Metric endpoints are enabled however same can be disabled by setting `enable_metrics_endpoints=false` in torchserve config.properties file.
-For details refer [Torchserve config](configuration.md) docs.
+This plugin can be extended by the users or a new metrics endpoint API plugin can also be added. For more details see [here](metrics_plugin.md).
 
-How to use Prometheus plugin endpoint?
+## How to use Prometheus plugin endpoint?
 1. Build jar of the plugin.
 2. Add the jar to Java classpath manually or specify the "plugins_path" property in config.properties for torchserve start command.
-3. Use metrics API to get metrics in Prometheus format
+3. Use metrics API to get metrics in Prometheus format  
+
+**Note:** In TorchServe, the endpoints are divided in three categories Inference, Management and Metrics. 
+The Prometheus Metric plugin is added as Metric Endpoint. Metric Endpoints listen on port 8082 and only accessible from localhost by default. 
+By default these Metric endpoints are enabled however same can be disabled by setting `enable_metrics_endpoints=false` in torchserve config.properties file.
+To change the default setting, see [TorchServe Configuration](configuration.md).  
 
 
-```shell
-cd ${TORCHSEVE_HOME}
-
-# to run the test cases in plugins
-plugins/gradlew -p plugins test
-
-# use command below to generate jars in ${TORCHSEVE_HOME}plugins/build/plugins folder
-plugins/gradlew -p plugins clean bS
-
-# OR use command below
-python setup.py  build_plugins -p endpoints
-
-# create a config.properties file and add plugins_path=${TORCHSEVE_HOME}/plugins/build/plugins
-vi config.properties
-
-# start the server
-torchserve --start --ts-config config.properties --model-store frontend/modelarchive/src/test/resources/models
-
-# Fire same APIs to generate metric values
-curl -X POST "http://localhost:8081/models?url=noop.mar"
-curl -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
-curl http://localhost:8080/predictions/noop
-
-```
+    ```shell
+    cd ${TORCHSEVE_HOME}
+    
+    # to run the test cases in plugins
+    plugins/gradlew -p plugins test
+    
+    # use command below to generate jars in ${TORCHSEVE_HOME}plugins/build/plugins folder
+    plugins/gradlew -p plugins clean bS
+    
+    # OR use command below
+    python setup.py  build_plugins -p endpoints
+    
+    # create a config.properties file and add plugins_path=${TORCHSEVE_HOME}/plugins/build/plugins
+    vi config.properties
+    
+    # start the server
+    torchserve --start --ts-config config.properties --model-store frontend/modelarchive/src/test/resources/models
+    
+    # Fire same APIs to generate metric values
+    curl -X POST "http://localhost:8081/models?url=noop.mar"
+    curl -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
+    curl http://localhost:8080/predictions/noop
+    
+    ```
 
 Use command as shown below to get the metrics:
 
