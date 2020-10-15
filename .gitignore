@@ -4,4 +4,6 @@ dist/
 *__pycache__*
 *.egg-info/
 .idea
+.github/actions/
+.github/.DS_Store
 .DS_Store

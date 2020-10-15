@@ -42,7 +42,7 @@ Following _jobs_ are executed under these workflows -
 1. **build** : Builds torchserve and torch-model-archiver
 2. **modelarchiver-tests** : Executes pylint, unit and integration pytests on model archiver module
 3. **frontend-tests** : Executes frontend gradle tests
-4. **python-tests** : Executes pylint, unit and integration pytests on torchserve module
+4. **torchserve-tests** : Executes pylint, unit and integration pytests on torchserve module
 5. **sanity-tests** : Executes the sanity scripts
 6. **api-tests** : Executes newman test suite for API testing
 7. **regression-tests** : Executes the regression script

@@ -93,8 +93,9 @@ public class ModelArchiveTest {
         File destinationFile = new File(destination);
         FileUtils.copyFile(sourceFile, destinationFile);
 
-        String fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        String fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
+
         File modelLocation = new File(modelStore + "/mnist1.mar");
         Assert.assertTrue(modelLocation.exists());
         ModelArchive.removeModel(modelStore, fileUrl);
@@ -140,6 +141,42 @@ public class ModelArchiveTest {
                 () ->
                         ModelArchive.downloadModel(
                                 ALLOWED_URLS_LIST, "src/test/resources/", "models"));
+
+        archive.clean();
+    }
+
+    @Test
+    public void archiveTest() throws ModelException, IOException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
+
+        archive.getManifest().getModel().setModelVersion(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().getModel().setModelName(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setModel(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setRuntime(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        archive.getManifest().setRuntime(null);
+        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(null, "/noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel(modelStore, "../noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class, () -> archive.downloadModel("null", "/noop"));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel("src/test/resources/", "models"));
 
         archive.clean();
     }
@@ -191,6 +228,6 @@ public class ModelArchiveTest {
     public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
-                ALLOWED_URLS_LIST, modelStore, "file://" + modelStore + "/mnist1.mar");
+                ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
     }
 }

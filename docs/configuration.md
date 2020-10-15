@@ -216,6 +216,7 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `initial_worker_port` : This is the initial port number for auto assigning port to worker process.
 * `model_store` : Path of model store directory.
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
