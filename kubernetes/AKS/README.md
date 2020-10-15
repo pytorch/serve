@@ -72,7 +72,7 @@ A storage class is used to define how an Azure file share is created. If multipl
 
 Your output should look similar to
 
-persistentvolumeclaim/model-store-claim created
+```persistentvolumeclaim/model-store-claim created```
 
 Verify that the PVC / PV is created by excuting.
 
