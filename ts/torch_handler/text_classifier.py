@@ -58,7 +58,7 @@ class TextClassifier(TextHandler):
         offsets = torch.as_tensor([0], device=self.device)
         return super().inference(data, offsets)
 
-    def postprocess(self, data):
+    def postprocess(self, data, output_explain = None):
         data = F.softmax(data)
         data = data.tolist()
         return map_class_to_label(data, self.mapping)

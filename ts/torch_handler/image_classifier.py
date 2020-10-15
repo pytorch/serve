@@ -36,7 +36,7 @@ class ImageClassifier(VisionHandler):
     def get_max_result_classes(self):
         return self.topk
 
-    def postprocess(self, data):
+    def postprocess(self, data, output_explain = None):
         ps = F.softmax(data, dim=1)
         probs, classes = torch.topk(ps, self.topk, dim=1)
         probs = probs.tolist()

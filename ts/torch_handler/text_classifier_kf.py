@@ -71,7 +71,7 @@ class TextClassifier(TextHandler):
         offsets = torch.as_tensor([0], device=self.device)
         return super().inference(text_tensor, offsets)
 
-    def postprocess(self, data):
+    def postprocess(self, data, output_explain = None):
         """
         Override to customize the post-processing
         :param data: Torch tensor, containing prediction output from the model
@@ -80,7 +80,10 @@ class TextClassifier(TextHandler):
         logger.info("inference shape %d", data.shape)
         data = F.softmax(data)
         data = data.tolist()
-        return map_class_to_label(data, self.mapping)
+        response["predictions"] = map_class_to_label(data, self.mapping)
+        if output_explain:
+            response["explanations"] = output_explain
+        return [response]
 
     def get_insights(self, text_preprocess, _, target=0):
         """

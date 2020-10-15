@@ -37,5 +37,9 @@ class MNISTDigitClassifier(ImageClassifier):
 
         return torch.stack(images)
 
-    def postprocess(self, data):
-        return data.argmax(1).tolist()
+    def postprocess(self, data, output_explain = None):
+        response = {}
+        response["predictions"] = data.argmax(1).tolist()
+        if output_explain:
+            response["explanations"] = output_explain
+        return [response]
