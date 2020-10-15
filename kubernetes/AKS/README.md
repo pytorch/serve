@@ -136,7 +136,7 @@ Your output should look similar to
 
 #### 2.7 Install Torchserve using Helm Charts
 
-Enter the Helm directory and install TorchServe using Helm Charts
+Enter the Helm directory and install TorchServe using Helm Charts.
 ```cd ../Helm```
 
 ```helm install ts .```
