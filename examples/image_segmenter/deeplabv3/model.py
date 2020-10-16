@@ -16,8 +16,6 @@ class DeepLabV3ImageSegmenter(DeepLabV3):
         return_layers['layer3'] = 'aux'
         backbone = IntermediateLayerGetter(backbone, return_layers=return_layers)
 
-        inplanes = 1024
-        aux_classifier = DeepLabHead(inplanes, num_classes)
         inplanes = 2048
         classifier = DeepLabHead(inplanes, num_classes)
 
