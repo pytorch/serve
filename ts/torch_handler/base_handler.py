@@ -31,8 +31,16 @@ class BaseHandler(abc.ABC):
         self.target = 0
 
     def initialize(self, context):
-        """First try to load torchscript else load eager mode state_dict based model"""
+        """Initialize function loads the model.pt file and initialized the model object.
 
+        Args:
+            context (context): It is a JSON Object containing information
+            pertaining to the model artifacts parameters.
+
+        Raises:
+            RuntimeError: Raises the Runtime error when the model.py is missing
+
+        """
         properties = context.system_properties
         self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(
@@ -54,9 +62,7 @@ class BaseHandler(abc.ABC):
 
         if model_file:
             logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(
-                model_dir, model_file, model_pt_path
-            )
+            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
         else:
             logger.debug("Loading torchscript model")
             self.model = self._load_torchscript_model(model_pt_path)
@@ -73,9 +79,33 @@ class BaseHandler(abc.ABC):
         self.initialized = True
 
     def _load_torchscript_model(self, model_pt_path):
+        """Loads the PyTorch model and returns the NN model object.
+
+        Args:
+            model_pt_path (str): denotes the path of the model file.
+
+        Returns:
+            (NN Model Object) : Loads the model object.
+        """
         return torch.jit.load(model_pt_path, map_location=self.map_location)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
+        """
+        Loads the pickle file from the given model path.
+
+        Args:
+            model_dir (str): Points to the location of the model artefacts.
+            model_file (.py): the file which contains the model class.
+            model_pt_path (str): points to the location of the model pickle file.
+
+        Raises:
+            RuntimeError: It raises this error when the model.py file is missing.
+            ValueError: Raises value error when there is more than one class in the label,
+                        since the mapping supports only one label per class.
+
+        Returns:
+            serialized model file: Returns the pickled pytorch model file
+        """
         model_def_path = os.path.join(model_dir, model_file)
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
@@ -97,17 +127,28 @@ class BaseHandler(abc.ABC):
 
     def preprocess(self, data):
         """
-        Override to customize the pre-processing
-        :param data: Python list of data items
-        :return: input tensor on a device
+        Preprocess function to convert the request input to a tensor(Torchserve supported format).
+        The user needs to override to customize the pre-processing
+
+        Args :
+            data (list): List of the data from the request input.
+
+        Returns:
+            tensor: Returns the tensor data of the input
         """
         return torch.as_tensor(data, device=self.device)
 
     def inference(self, data, *args, **kwargs):
         """
-        Override to customize the inference
-        :param data: Torch tensor, matching the model input shape
-        :return: Prediction output as Torch tensor
+        The Inference Function is used to make a prediction call on the given input request.
+        The user needs to over-ride the inference function to customize it.
+
+        Args:
+            data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
+            The shape should match the model input shape.
+
+        Returns:
+            Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         marshalled_data = data.to(self.device)
         with torch.no_grad():
@@ -116,16 +157,29 @@ class BaseHandler(abc.ABC):
 
     def postprocess(self, data):
         """
-        Override to customize the post-processing
-        :param data: Torch tensor, containing prediction output from the model
-        :return: Python list
+        The post process function makes use of the output from the inference and converts into a
+        Torchserve supported response output.
+
+        Args:
+            data (Torch Tensor): The torch tensor received from the prediction output of the model.
+
+        Returns:
+            List: The post process function returns a list of the predicted output.
         """
 
         return data.tolist()
 
     def handle(self, data, context):
-        """
-        Entry point for default handler
+        """Entry point for default handler. It takes the data from the input request and returns
+           the predicted outcome for the input.
+
+        Args:
+            data (list): The input data that needs to be made a prediction request on.
+            context (Context): It is a JSON Object containing information pertaining to
+                               the model artefacts parameters.
+
+        Returns:
+            list : Returns a list of dictionary with the predicted response.
         """
 
         # It can be used for pre or post processing if needed as additional request
@@ -140,16 +194,19 @@ class BaseHandler(abc.ABC):
         output_explain = self.explain_handle(data_preprocess, data)
         if output_explain:
             output_inference = self.postprocess(output_inference, output_explain)
-        else :
+        else:
             output_inference = self.postprocess(output_inference)
         return output_inference
 
     def explain_handle(self, data_preprocess, raw_data):
-        """
-        Captum explanations handler
-        :param data_preprocess: Preprocessed data to be used for captum
-        :param raw_data: The unprocessed data to get target from the request
-        :return dict
+        """Captum explanations handler
+
+        Args:
+            data_preprocess (Torch Tensor): Preprocessed data to be used for captum
+            raw_data (list): The unprocessed data to get target from the request
+
+        Returns:
+            dict : A dictionary response with the explanations response.
         """
         output_explain = None
         inputs = None
@@ -164,14 +221,19 @@ class BaseHandler(abc.ABC):
                     inputs = row.get("data")
                     target = row.get("target")
 
-                output_explain = self.get_insights(
-                    data_preprocess, inputs, target
-                )
+                output_explain = self.get_insights(data_preprocess, inputs, target)
                 return output_explain
         return output_explain
 
     @abstractmethod
     def get_insights(self, tensor_data, raw_data, target):
-        """
-        Calculates the captum insights
+        """Calculates the captum insights
+
+        Args:
+            tensor_data (tensor): The Preprocessed Tensor
+            raw_data (list): The raw input data from the request
+            target (int): The class label.
+
+        Returns:
+            dict : Dictionary of the "tensor importances" from the captum attributions.
         """
