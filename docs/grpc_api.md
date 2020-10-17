@@ -4,7 +4,7 @@ TorchServe also supports [gRPC APIs](../frontend/server/src/main/resources/proto
 
 TorchServe provides following gRPCs apis
 
-* [Inference API](../frontend/server/src/main/resources/proto/management.proto)
+* [Inference API](../frontend/server/src/main/resources/proto/inference.proto)
   - **Ping** : Gets the health status of the running server
   - **Predictions** : Gets predictions from the served model
 
