@@ -13,10 +13,9 @@ class DeepLabV3ImageSegmenter(DeepLabV3):
         backbone = resnet.resnet101(pretrained=pretrained_backbone,
                                     replace_stride_with_dilation=[False, True, True])
         return_layers = {'layer4': 'out'}
-        return_layers['layer3'] = 'aux'
         backbone = IntermediateLayerGetter(backbone, return_layers=return_layers)
 
         inplanes = 2048
         classifier = DeepLabHead(inplanes, num_classes)
 
-        super(DeepLabV3ImageSegmenter, self).__init__(backbone, classifier, aux_classifier)
+        super(DeepLabV3ImageSegmenter, self).__init__(backbone, classifier,)
