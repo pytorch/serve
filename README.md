@@ -149,8 +149,8 @@ Complete the following steps:
 The following code completes all three steps:
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:
