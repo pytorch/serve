@@ -6,7 +6,7 @@ This quickstart requires that you are running the Azure CLI version 2.0.64 or la
 
 #### 1.1 Set Azure account information
 
-```az login``` 
+```az login```
 
 ```az account set -s your-subscription-ID```
 
@@ -22,7 +22,7 @@ The following example creates a resource group named *myResourceGroup* in the *e
 
 Use the [az aks create](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-create) command to create an AKS cluster. The following example creates a cluster named *myAKSCluster* with one node. This will take several minutes to complete.
 
-```az aks create  --resource-group myResourceGroup  --name myAKSCluster --node-vm-size Standard_NC6   --node-count 1```
+```az aks create --resource-group myResourceGroup --name myAKSCluster --node-vm-size Standard_NC6 --node-count 1 --generate-ssh-keys```
 
 #### 1.4 Connect to the cluster
 
@@ -274,4 +274,18 @@ Your output should look similar to
     ]
   }
 ]
+```
+
+### 4 Delete the cluster
+
+To avoid Azure charges, you should clean up unneeded resources. When the aks cluster is no longer needed, use the az aks delete command to remove aks cluster.
+
+```
+az aks delete --name myAKSCluster --resource-group myResourceGroup --yes --no-wait
+```
+
+Or if resource group is no longer needed, use the az group delete command to remove the resource group and all related resources.
+
+```
+az group delete --name myResourceGroup --yes --no-wait
 ```
