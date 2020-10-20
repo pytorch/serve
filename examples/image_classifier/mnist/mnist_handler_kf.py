@@ -25,7 +25,7 @@ class MNISTDigitClassifier(ImageClassifier):
         """The preprocess function of MNIST program converts the input data to a float tensor
 
         Args:
-            data (tensor): Input data from the request is in the form of a Tensor
+            data (List): Input data from the request is in the form of a Tensor
 
         Returns:
             list : The preprocess function returns the input image as a list of float tensors.
