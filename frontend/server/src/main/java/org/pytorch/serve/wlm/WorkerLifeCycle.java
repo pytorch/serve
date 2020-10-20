@@ -54,7 +54,7 @@ public class WorkerLifeCycle {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
-        String[] args = new String[6];
+        String[] args = new String[16];
         args[0] = EnvironmentUtils.getPythonRunTime(model);
         args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
         args[2] = "--sock-type";
