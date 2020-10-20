@@ -35,40 +35,40 @@ DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/c
 ```
 
 ## Start a container with a TorchServe image
-The following examples will start the container with 8080/81 port exposed to outer-world/localhost.
+The following examples will start the container with 8080/81/82 port exposed to outer-world/localhost.
 
 #### Start CPU container
 
 For the latest version, you can use the `latest` tag:
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 pytorch/torchserve:latest
 ```
 
 For specific versions you can pass in the specific tag to use (ex: pytorch/torchserve:0.1.1-cpu):
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 pytorch/torchserve:0.1.1-cpu
 ```
 
 #### Start GPU container
 
 For GPU latest image with gpu devices 1 and 2:
 ```bash
-docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 -p 8082:8082 pytorch/torchserve:latest-gpu
 ```
 
 For specific versions you can pass in the specific tag to use (ex: 0.1.1-cuda10.1-cudnn7-runtime):
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
 ```
 
 For the latest version, you can use the `latest-gpu` tag:
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 torchserve:gpu-latest
 ```
 
 #### Accessing TorchServe APIs inside container
 
-The TorchServe's inference and management APIs can be accessed on localhost over 8080 and 8081 ports respectively. Example :
+The TorchServe's inference, management and metrics APIs can be accessed on localhost over 8080, 8081 and 8082 ports respectively. Example :
 
 ```bash
 curl http://localhost:8080/ping
@@ -148,7 +148,7 @@ To create mar [model archive] file for torchserve deployment, you can use follow
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
 ```
 
 1. List your container or skip this if you know cotainer name 
@@ -195,7 +195,7 @@ You may want to consider the following aspects / docker options when deploying t
 
 * Exposing specific ports / volumes between the host & docker env.
 
-    *  ```-p8080:8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    *  ```-p8080:8080 -p8081:8081 -p8082:8082``` TorchServe uses default ports 8080 / 8081 / 8082 for inference, management anbd metrics APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
     * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
 For example,
@@ -206,5 +206,6 @@ docker run --rm --shm-size=1g \
         --ulimit stack=67108864 \
         -p8080:8080 \
         -p8081:8081 \
+        -p8082:8082 \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
 ```

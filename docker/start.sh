@@ -29,7 +29,7 @@ do
 done
 echo "Starting $IMAGE_NAME docker image"
 
-docker run $DOCKER_RUNTIME $GPU_DEVICES -d --rm -it -p 8080:8080 -p 8081:8081 $IMAGE_NAME > /dev/null 2>&1
+docker run $DOCKER_RUNTIME $GPU_DEVICES -d --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 $IMAGE_NAME > /dev/null 2>&1
 
 container_id=$(docker ps --filter="ancestor=$IMAGE_NAME" -q | xargs)
 
@@ -48,7 +48,8 @@ else
 fi
 
 echo "TorchServe is up and running with resnet-18 model"
-echo "Management APIs are accessible on http://127.0.0.1:8081"
 echo "Inference APIs are accessible on http://127.0.0.1:8080"
+echo "Management APIs are accessible on http://127.0.0.1:8081"
+echo "Metrics APIs are accessible on http://127.0.0.1:8082"
 echo "For more details refer TorchServe documentation"
 echo "To stop docker container for TorchServe use command : docker container stop $container_id"

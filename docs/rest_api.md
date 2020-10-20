@@ -9,5 +9,5 @@ When TorchServe starts, it starts two web services:
 * [Management API](management_api.md)
 * [Metrics API](metrics_api.md)
 
-By default, TorchServe listens on port 8080 for the Inference API and 8081 for the Management API.
+By default, TorchServe listens on port 8080 for the Inference API, 8081 for the Management API and 8082 for the Metrics API.
 Both APIs are accessible only from localhost by default. To enable access from a remote host, see [TorchServe Configuration](configuration.md).

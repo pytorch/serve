@@ -13,6 +13,9 @@ spec:
   - name: mdl
     port: {{ .Values.torchserve.management_port }}
     targetPort: ts-management
+  - name: metrics
+    port: {{ .Values.torchserve.metrics_port }}
+    targetPort: ts-metrics
   type: LoadBalancer
   selector:
     app: torchserve
@@ -46,6 +49,8 @@ spec:
           containerPort: {{ .Values.torchserve.inference_port }}
         - name: ts-management
           containerPort: {{ .Values.torchserve.management_port }}
+        - name: ts-metrics
+          containerPort: {{ .Values.torchserve.metrics_port }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - mountPath: {{ .Values.torchserve.pvd_mount }}

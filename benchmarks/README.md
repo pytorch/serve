@@ -304,7 +304,7 @@ The benchmarks can also be used to analyze the backend performance using cProfil
     If using external docker container for TorchServe:
     * start docker with /tmp directory mapped to local /tmp and set `TS_BENCHMARK` to True.
     ```
-        docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+        docker run --rm -it -e TS_BENCHMARK=True -v /tmp:/tmp -p 8080:8080 -p 8081:8081 -p 8082:8082 pytorch/torchserve:latest
     ```
 
 3. Register a model & perform inference to collect profiling data. This can be done with the benchmark script described in the previous section.

@@ -541,6 +541,7 @@
   | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
   | `management-port`  | TS Inference port        | `8080`                          |
   | `inference-port`   | TS Management port       | `8081`                          |
+  | `metrics-port`     | TS Metrics port          | `8082`                          |
   | `replicas`         | K8S deployment replicas  | `1`                             |
   | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
   | `persistence.size` | Storage size to request  | `1Gi`                           |
@@ -568,6 +569,7 @@
   torchserve:
     management_port: 8081
     inference_port: 8080
+    metrics_port: 8082
     pvd_mount: /home/model-server/shared/
     n_gpu: 1
     n_cpu: 1
@@ -624,11 +626,11 @@
 
   ```bash
   ubuntu@ip-172-31-65-0:~/ts/rel/serve$ kubectl get svc
-  NAME         TYPE           CLUSTER-IP      EXTERNAL-IP                                                              PORT(S)                         AGE
-  torchserve   LoadBalancer   10.100.142.22   your_elb.us-west-2.elb.amazonaws.com   8080:31115/TCP,8081:31751/TCP   14m
+  NAME         TYPE           CLUSTER-IP      EXTERNAL-IP                            PORT(S)                                        AGE
+  torchserve   LoadBalancer   10.100.142.22   your_elb.us-west-2.elb.amazonaws.com   8080:30428/TCP,8081:31415/TCP,8082:30453/TCP   14m
   ```
 
-  Now execute the following commands to test Management / Prediction APIs
+  Now execute the following commands to test Management / Prediction / Metrics APIs
   ```bash
   curl http://your_elb.us-west-2.elb.amazonaws.com:8081/models
   
@@ -708,6 +710,21 @@
     {
       "leopard": 0.006023923866450787
     }
+  ]
+
+  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8082/metrcis
+
+  # You should something similar to the following
+  [
+    # HELP ts_inference_requests_total Total number of inference requests.
+    # TYPE ts_inference_requests_total counter
+    ts_inference_requests_total{uuid="837e6ea7-d5c1-4e9d-8f2f-0a67178f22e6",model_name="squeezenet1_1",model_version="default",} 1.0
+    # HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+    # TYPE ts_queue_latency_microseconds counter
+    ts_queue_latency_microseconds{uuid="837e6ea7-d5c1-4e9d-8f2f-0a67178f22e6",model_name="squeezenet1_1",model_version="default",} 247.487
+    # HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+    # TYPE ts_inference_latency_microseconds counter
+    ts_inference_latency_microseconds{uuid="837e6ea7-d5c1-4e9d-8f2f-0a67178f22e6",model_name="squeezenet1_1",model_version="default",} 73541.565
   ]
   ```
   
