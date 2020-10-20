@@ -36,6 +36,7 @@ pip install torchserve torch-model-archiver
 ---
 wget https://download.pytorch.org/models/fcn_resnet101_coco-7ecb50ca.pth
 torch-model-archiver --model-name fcn --version 1.0 --model-file examples/image_segmenter/fcn/model.py --serialized-file examples/image_segmenter/fcn_resnet101_coco-7ecb50ca.pth --handler image_segmenter --extra-files examples/image_segmenter/fcn/fcn.py,examples/image_segmenter/fcn/intermediate_layer_getter.py
+mkdir model-store
 mv fcn.mar model-store/
 ---
 docker pull pytorch/torchserve
