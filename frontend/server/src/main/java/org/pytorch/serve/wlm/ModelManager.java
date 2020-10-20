@@ -94,7 +94,8 @@ public final class ModelManager {
 
         createVersionedModel(model, versionId);
 
-        setupModelDependencies(tempModel);
+        setupModelDependencies(model);
+
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
         }
@@ -128,6 +129,8 @@ public final class ModelManager {
 
         createVersionedModel(model, versionId);
 
+        setupModelDependencies(model);
+
         if (configManager.isDebug()) {
             model.setPort(9000);
         } else {
@@ -135,8 +138,6 @@ public final class ModelManager {
         }
 
         logger.info("Model {} loaded.", model.getModelName());
-
-        setupModelDependencies(tempModel);
 
         return archive;
     }

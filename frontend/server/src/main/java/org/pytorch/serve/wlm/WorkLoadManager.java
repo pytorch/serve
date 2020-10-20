@@ -196,13 +196,11 @@ public class WorkLoadManager {
                 Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                 workerDestroyed =
                         workerKillProcess.waitFor(
-                                configManager.getUnregisterModelTimeout(),
-                                TimeUnit.SECONDS);
+                                configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
             } catch (InterruptedException | IOException e) {
                 logger.warn(
                         "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
-                return future;
+                return HttpResponseStatus.INTERNAL_SERVER_ERROR;
             }
             if (!workerDestroyed) {
                 logger.warn("WorkerThread timed out while cleaning, please resend request.");
@@ -215,7 +213,7 @@ public class WorkLoadManager {
     private String getKillCmd() {
         String operatingSystem = System.getProperty("os.name").toLowerCase();
         String killCMD;
-        if (operatingSystem.indexOf("win") >= 0) {
+        if (operatingSystem.contains("win")) {
             killCMD = "taskkill /f /PID %s";
         } else {
             killCMD = "kill -9 %s";
