@@ -731,7 +731,7 @@
     * Check that your AWS vCPU limits can support your cluster configuration (https://console.aws.amazon.com/ec2/home#Limits). e.g. "Running G4DN Dedicated Hosts	" may be set to 0 by default causing the node group creation to fail.
   * IAM Policy of the role used during cluster creation - [Minimum IAM Policy](https://eksctl.io/usage/minimum-iam-policies/)
 
-  * Inspect your Cloudformation console's events tab to diagonize any possible issues. You should able be able to find the following resources at the end of this step in the respective AWS consoles
+  * Inspect your Cloudformation console's events tab to diagonize any possible issues. You should be able to find the following resources at the end of this step in the respective AWS consoles
     * EKS Cluser in the EKS UI
     * AutoScaling Group of the Node Groups
     * EC2 Node correponding to the node groups.
