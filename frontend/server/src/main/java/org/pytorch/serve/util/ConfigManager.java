@@ -77,6 +77,7 @@ public final class ConfigManager {
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
+    private static final String TS_PRELOAD_MODEL = "preload_model";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
@@ -275,6 +276,10 @@ public final class ConfigManager {
                 binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
         return Connector.parse(binding, connectorType);
+    }
+
+    public String getPreloadModel() {
+        return getProperty(TS_PRELOAD_MODEL, "false");
     }
 
     public boolean getPreferDirectBuffer() {
@@ -552,6 +557,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nPreload model: "
+                + prop.getProperty(TS_PRELOAD_MODEL, "false")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nAllowed Urls: "

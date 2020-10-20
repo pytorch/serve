@@ -27,6 +27,7 @@ public class Model {
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
+    public static final String PRE_LOAD_MODEL = "preLoadModel";
 
     private static final Logger logger = LoggerFactory.getLogger(Model.class);
 
@@ -35,6 +36,8 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private String preloadModel;
+    private AtomicInteger port; // Port on which the model server is running
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
@@ -42,17 +45,21 @@ public class Model {
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
 
+    private WorkerThread serverThread;
+
     // Per worker thread job queue. This separates out the control queue from data queue
     private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
-    public Model(ModelArchive modelArchive, int queueSize) {
+    public Model(ModelArchive modelArchive, int queueSize, String preloadModel) {
         this.modelArchive = modelArchive;
+        this.preloadModel = preloadModel;
         batchSize = 1;
         maxBatchDelay = 100;
         jobsDb = new ConcurrentHashMap<>();
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
         failedInfReqs = new AtomicInteger(0);
+        port = new AtomicInteger(-1);
         lock = new ReentrantLock();
         modelVersionName =
                 new ModelVersionName(
@@ -69,6 +76,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        modelInfo.addProperty(PRE_LOAD_MODEL, preloadModel());
 
         return modelInfo;
     }
@@ -79,6 +87,7 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        preloadModel = modelInfo.get(PRE_LOAD_MODEL).getAsString();
     }
 
     public String getModelName() {
@@ -211,6 +220,14 @@ public class Model {
         }
     }
 
+    public int getPort() {
+        return port.get();
+    }
+
+    public void setPort(int port) {
+        this.port.set(port);
+    }
+
     public int incrFailedInfReqs() {
         return failedInfReqs.incrementAndGet();
     }
@@ -225,5 +242,17 @@ public class Model {
 
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public WorkerThread getServerThread() {
+        return serverThread;
+    }
+
+    public void setServerThread(WorkerThread serverThread) {
+        this.serverThread = serverThread;
+    }
+
+    public String preloadModel() {
+        return preloadModel;
     }
 }

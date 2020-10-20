@@ -13,13 +13,23 @@ public class ModelLoadModelRequest extends BaseModelRequest {
     private String handler;
     private int batchSize;
     private int gpuId;
+    private String ioFileDescriptor;
 
-    public ModelLoadModelRequest(Model model, int gpuId) {
+    public ModelLoadModelRequest(Model model, int gpuId, String fd) {
         super(WorkerCommands.LOAD, model.getModelName());
         this.gpuId = gpuId;
         modelPath = model.getModelDir().getAbsolutePath();
         handler = model.getModelArchive().getManifest().getModel().getHandler();
         batchSize = model.getBatchSize();
+        ioFileDescriptor = fd;
+    }
+
+    public String getIoFileDescriptor() {
+        return ioFileDescriptor;
+    }
+
+    public void setIoFileDescriptor(String ioFileDescriptor) {
+        this.ioFileDescriptor = ioFileDescriptor;
     }
 
     public String getModelPath() {

@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeoutException;
 import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
@@ -63,8 +64,9 @@ public final class ModelManager {
         return modelManager;
     }
 
-    public ModelArchive registerModel(String url, String defaultModelName)
-            throws ModelException, IOException, InterruptedException {
+    public ModelArchive registerModel(String url, String defaultModelName, String preloadModel)
+            throws ModelException, IOException, InterruptedException, ExecutionException,
+                    TimeoutException {
         return registerModel(
                 url,
                 null,
@@ -73,29 +75,34 @@ public final class ModelManager {
                 1,
                 100,
                 configManager.getDefaultResponseTimeout(),
-                defaultModelName);
+                defaultModelName,
+                preloadModel);
     }
 
-    public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
-            throws ModelException, IOException, InterruptedException {
+    public void registerAndUpdateModel(String modelName, JsonObject modelInfo, String preloadModel)
+            throws ModelException, IOException, InterruptedException, ExecutionException,
+                    TimeoutException {
 
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
         ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
 
-        Model tempModel = createModel(archive, modelInfo);
+        Model model = createModel(archive, modelInfo, preloadModel);
 
         String versionId = archive.getModelVersion();
 
-        createVersionedModel(tempModel, versionId);
+        createVersionedModel(model, versionId);
 
-        setupModelDependencies(tempModel);
+        setupModelDependencies(model);
+
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
         }
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
+        startBackendServer(model);
+
+        logger.info("Model {} loaded.", model.getModelName());
 
         updateModel(modelName, versionId, true);
     }
@@ -108,21 +115,29 @@ public final class ModelManager {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
-            String defaultModelName)
-            throws ModelException, IOException, InterruptedException {
+            String defaultModelName,
+            String preloadModel)
+            throws ModelException, IOException, InterruptedException, ExecutionException,
+                    TimeoutException {
 
         ModelArchive archive =
                 createModelArchive(modelName, url, handler, runtime, defaultModelName);
 
-        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
+        Model model = createModel(archive, batchSize, maxBatchDelay, responseTimeout, preloadModel);
 
         String versionId = archive.getModelVersion();
 
-        createVersionedModel(tempModel, versionId);
+        createVersionedModel(model, versionId);
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
+        setupModelDependencies(model);
 
-        setupModelDependencies(tempModel);
+        if (configManager.isDebug()) {
+            model.setPort(9000);
+        } else {
+            startBackendServer(model);
+        }
+
+        logger.info("Model {} loaded.", model.getModelName());
 
         return archive;
     }
@@ -195,17 +210,22 @@ public final class ModelManager {
     }
 
     private Model createModel(
-            ModelArchive archive, int batchSize, int maxBatchDelay, int responseTimeout) {
-        Model model = new Model(archive, configManager.getJobQueueSize());
+            ModelArchive archive,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            String preloadModel)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Model model = new Model(archive, configManager.getJobQueueSize(), preloadModel);
         model.setBatchSize(batchSize);
         model.setMaxBatchDelay(maxBatchDelay);
         model.setResponseTimeout(responseTimeout);
-
         return model;
     }
 
-    private Model createModel(ModelArchive archive, JsonObject modelInfo) {
-        Model model = new Model(archive, configManager.getJobQueueSize());
+    private Model createModel(ModelArchive archive, JsonObject modelInfo, String preloadModel)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Model model = new Model(archive, configManager.getJobQueueSize(), preloadModel);
         model.setModelState(modelInfo);
         return model;
     }
@@ -222,6 +242,11 @@ public final class ModelManager {
     }
 
     public HttpResponseStatus unregisterModel(String modelName, String versionId) {
+        return unregisterModel(modelName, versionId, false);
+    }
+
+    public HttpResponseStatus unregisterModel(
+            String modelName, String versionId, boolean isShutDown) {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             logger.warn("Model not found: " + modelName);
@@ -239,7 +264,8 @@ public final class ModelManager {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
-            CompletableFuture<HttpResponseStatus> futureStatus = wlm.modelChanged(model, false);
+            CompletableFuture<HttpResponseStatus> futureStatus =
+                    wlm.modelChanged(model, false, isShutDown);
             httpResponseStatus = futureStatus.get();
 
             // Only continue cleaning if resource cleaning succeeded
@@ -258,8 +284,9 @@ public final class ModelManager {
             if (vmodel.getAllVersions().size() == 0) {
                 modelsNameMap.remove(modelName);
             }
-
-            ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
+            if (!isShutDown) {
+                ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
+            }
         } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpResponseStatus.BAD_REQUEST;
@@ -290,6 +317,15 @@ public final class ModelManager {
         }
 
         return httpResponseStatus;
+    }
+
+    public void startBackendServer(Model model)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
+        if (model == null) {
+            throw new AssertionError("Model not found");
+        }
+        wlm.addServerThread(model, future);
     }
 
     private CompletableFuture<HttpResponseStatus> updateModel(
@@ -349,7 +385,7 @@ public final class ModelManager {
         return wlm.getWorkers(modelVersionName);
     }
 
-    public Map<Integer, WorkerThread> getWorkers() {
+    public Map<Integer, WorkerThread> getWorkers() throws ModelVersionNotFoundException {
         return wlm.getWorkers();
     }
 

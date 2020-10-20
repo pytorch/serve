@@ -46,7 +46,7 @@ public class BatchAggregator {
                 if (gpu != null) {
                     gpuId = Integer.parseInt(gpu);
                 }
-                return new ModelLoadModelRequest(model, gpuId);
+                return new ModelLoadModelRequest(model, gpuId, threadName);
             } else {
                 j.setScheduled();
                 req.addRequest(j.getPayload());

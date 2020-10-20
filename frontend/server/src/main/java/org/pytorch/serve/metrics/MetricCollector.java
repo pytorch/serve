@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.pytorch.serve.wlm.ModelManager;
@@ -94,7 +95,7 @@ public class MetricCollector implements Runnable {
                     worker.setMemory(Long.parseLong(tokens[1]));
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | ModelVersionNotFoundException e) {
             logger.error("", e);
         }
     }
