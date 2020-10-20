@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +94,7 @@ public final class ModelManager {
 
         createVersionedModel(model, versionId);
 
+        setupModelDependencies(tempModel);
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
         }
@@ -132,6 +136,8 @@ public final class ModelManager {
 
         logger.info("Model {} loaded.", model.getModelName());
 
+        setupModelDependencies(tempModel);
+
         return archive;
     }
 
@@ -142,7 +148,9 @@ public final class ModelManager {
             Manifest.RuntimeType runtime,
             String defaultModelName)
             throws FileAlreadyExistsException, ModelException, IOException {
-        ModelArchive archive = ModelArchive.downloadModel(configManager.getModelStore(), url);
+        ModelArchive archive =
+                ModelArchive.downloadModel(
+                        configManager.getAllowedUrls(), configManager.getModelStore(), url);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
@@ -164,6 +172,40 @@ public final class ModelManager {
         archive.validate();
 
         return archive;
+    }
+
+    private void setupModelDependencies(Model model)
+            throws IOException, InterruptedException, ModelException {
+        String requirementsFile =
+                model.getModelArchive().getManifest().getModel().getRequirementsFile();
+
+        if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
+            Path requirementsFilePath =
+                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
+
+            String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+
+            String packageInstallCommand =
+                    pythonRuntime
+                            + " -m pip install -U -t "
+                            + model.getModelDir().getAbsolutePath()
+                            + " -r "
+                            + requirementsFilePath; // NOPMD
+
+            String[] envp =
+                    EnvironmentUtils.getEnvString(configManager.getModelServerHome(), null, null);
+            Process process =
+                    Runtime.getRuntime()
+                            .exec(
+                                    packageInstallCommand,
+                                    envp,
+                                    model.getModelDir().getAbsoluteFile());
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new ModelException(
+                        "Custom pip package installation failed for " + model.getModelName());
+            }
+        }
     }
 
     private Model createModel(

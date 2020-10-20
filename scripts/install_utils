@@ -16,22 +16,34 @@ install_java_deps()
   JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
 	if [ "$JAVA_VERSION" != "11" ]
   then
-    sudo apt-get install -y openjdk-11-jdk
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      brew tap AdoptOpenJDK/openjdk
+      brew cask install adoptopenjdk11
+    else
+      sudo apt-get install -y openjdk-11-jdk
+    fi
   fi
   set -e
 }
 
 install_torch_deps()
 {
-	# replace this with requirements.txt when ready
-	pip install torch torchtext torchvision sentencepiece psutil future
+  if [ is_gpu_instance ] && [ "$1" == "cuda101" ];
+  then
+	  pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
+	else
+	  pip install -U -r requirements.txt
+	fi
 }
 
 install_pytest_suite_deps()
 {
-	# set pylint to version 2.4.4 because of following bug with pylint 2.5 released on 27th April 2020
-  # https://github.com/PyCQA/pylint/issues/3524
-  pip install mock pytest pylint==2.4.4 pytest-mock pytest-cov
+  pip install -U -r requirements/developer.txt
+}
+
+install_bert_dependencies()
+{
+  pip install transformers
 }
 
 build_frontend() {
@@ -66,10 +78,23 @@ run_backend_python_linting()
   fi
 }
 
+run_model_archiver_python_linting()
+{
+  cd model-archiver
+  if pylint -rn --rcfile=./model_archiver/tests/pylintrc model_archiver/.;
+  then
+    echo "Model archiver python linting suite execution successful"
+  else
+    echo "Model archiver python linting execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
 run_model_archiver_UT_suite()
 {
   cd model-archiver
-  if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/unit_tests/;
+  if python -m pytest --cov-report html:htmlcov_ut --cov=model_archiver/ model_archiver/tests/unit_tests/;
   then
     echo "Model-archiver UT test suite execution successfully"
   else
@@ -82,7 +107,7 @@ run_model_archiver_UT_suite()
 run_model_archiver_IT_suite()
 {
   cd model-archiver
-  if python -m pytest --cov-report html:htmlcov --cov=model_archiver/ model_archiver/tests/integ_tests/;
+  if python -m pytest --cov-report html:htmlcov_it --cov=model_archiver/ model_archiver/tests/integ_tests/;
   then
     echo "Model-archiver IT test suite execution successful"
   else
@@ -143,7 +168,7 @@ stop_torchserve()
 register_model()
 {
   echo "Registering $1 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$1.mar&initial_workers=1&synchronous=true")
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
 
   if [ ! "$response" == 200 ]
   then
@@ -196,6 +221,24 @@ clean_up_build_residuals()
   rm -rf ts/metrics/__pycache__/
   rm -rf ts/protocol/__pycache__/
   rm -rf ts/utils/__pycache__/
-  rm -rf frontend/modelarchive/build
-  rm -rf frontend/server/build
+}
+
+is_gpu_instance()
+{
+  [ -x "$(command -v nvidia-smi)" ]
+}
+
+run_markdown_link_checker(){
+  STATUS=0
+  shopt -s globstar
+  set +e
+  for i in **/*.md; do # Whitespace-safe and recursive
+        markdown-link-check $i --config link_check_config.json
+        if [ $?  -ne  0 ] ; then
+          echo Broken links in $i
+          STATUS=1
+        fi
+  done
+  set -e
+  exit $STATUS
 }

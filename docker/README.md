@@ -41,27 +41,27 @@ The following examples will start the container with 8080/81 port exposed to out
 
 For the latest version, you can use the `latest` tag:
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
 ```
 
-For specific versions you can pass in the specific tag to use (ex: 0.1-cpu):
+For specific versions you can pass in the specific tag to use (ex: pytorch/torchserve:0.1.1-cpu):
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 torchserve:0.1-cpu
+docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
 ```
 
 #### Start GPU container
 
 For GPU latest image with gpu devices 1 and 2:
 ```bash
-docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 torchserve:latest
+docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
 ```
 
-For specific versions you can pass in the specific tag to use (ex: 0.1-cuda10.1-cudnn7-runtime):
+For specific versions you can pass in the specific tag to use (ex: 0.1.1-cuda10.1-cudnn7-runtime):
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:0.1-cuda10.1-cudnn7-runtime
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
 ```
 
-For the latest version, you can use the `gpu-latest` tag:
+For the latest version, you can use the `latest-gpu` tag:
 ```bash
 docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest
 ```
@@ -85,15 +85,15 @@ To build the TorchServe image for a CPU device using the `master` branch, use th
 ```
 
 Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))- 
-```bash 
-1. Do one more clone -> `git clone https://github.com/pytorch/serve.git`
-2. cd serve;git checkout <branch>;cd ..
 
 For cpu -
-3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.cpu -t torchserve:dev .
+```
+DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t torchserve:dev .
+```
 
 For gpu - 
-3. DOCKER_BUILDKIT=1 docker build --file Dockerfile_dev.gpu -t torchserve:dev .
+```
+DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t torchserve:dev --build-arg MACHINE_TYPE=gpu --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 .
 ```
 
 To create a Docker image for a specific branch, use the following command:
@@ -118,6 +118,12 @@ To create a Docker image for a GPU device with a specific branch, use following 
 
 ```bash
 ./build_image.sh -b <branch_name> --gpu
+```
+
+To create a Docker image for a GPU device with Cuda 10.1, use following command:
+
+```bash
+./build_image.sh --gpu --cudaversion cuda101
 ```
 
 To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
@@ -156,13 +162,18 @@ docker exec -it <container_name> /bin/bash
 ```
 You will be landing at /home/model-server/.
 
-3. Now Execute torch-model-archiver command e.g.
+3. Download the model weights if you have not done so already (they are not part of the repo)
+```bash
+curl -o /home/model-server/examples/image_classifier/densenet161-8d451a50.pth https://download.pytorch.org/models/densenet161-8d451a50.pth
+```
+
+4. Now Execute torch-model-archiver command e.g.
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/model-server/examples/image_classifier/densenet_161/model.py --serialized-file /home/model-server/examples/image_classifier/densenet161-8d451a50.pth --export-path /home/model-server/model-store --extra-files /home/model-server/examples/image_classifier/index_to_name.json --handler image_classifier
 ```
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
-4. desnet161.mar file should be present at /home/model-server/model-store
+5. desnet161.mar file should be present at /home/model-server/model-store
 
 # Running TorchServe in a Production Docker Environment.
 
@@ -184,7 +195,7 @@ You may want to consider the following aspects / docker options when deploying t
 
 * Exposing specific ports / volumes between the host & docker env.
 
-    *  ```-p8080:p8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    *  ```-p8080:8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
     * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
 For example,

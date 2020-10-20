@@ -1,0 +1,3 @@
+./scripts/setup_wsl_ubuntu
+export PATH=$HOME/.local/bin:$PATH
+./scripts/install_from_src

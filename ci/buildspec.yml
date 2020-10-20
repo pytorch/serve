@@ -8,16 +8,8 @@ phases:
       - apt-get update
       - apt-get install -y curl gnupg2
       - pip install pip -U
-      - pip install future
-      - pip install Pillow
-      - pip install pytest
-      - pip install wheel
-      - pip install twine
-      - pip install pytest-mock -U
-      - pip install requests
-      - pip install psutil
 
   build:
     commands:
-      - ./torchserve_sanity.sh
+      - ./torchserve_sanity.sh cuda101
       - cd serving-sdk/ && mvn clean install -q && cd ../

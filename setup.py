@@ -34,6 +34,7 @@ import ts
 
 pkgs = find_packages()
 
+
 def pypi_description():
     """
     Imports the long description for the project page
@@ -77,12 +78,8 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         if os.path.exists(self.source_server_file):
             os.remove(self.source_server_file)
 
-        # Remove build/lib directory.
-        if os.path.exists('build/lib/'):
-            rmtree('build/lib/')
-
         try:
-            subprocess.check_call('frontend/gradlew -p frontend clean build', shell=True)
+            subprocess.check_call('frontend/gradlew -p frontend clean assemble', shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -132,7 +129,7 @@ class BuildPlugins(Command):
 if __name__ == '__main__':
     version = detect_model_server_version()
 
-    requirements = ['Pillow', 'psutil', 'future']
+    requirements = ['Pillow', 'psutil', 'future', 'packaging']
 
     setup(
         name='torchserve',
@@ -153,7 +150,6 @@ if __name__ == '__main__':
         entry_points={
             'console_scripts': [
                 'torchserve=ts.model_server:start',
-                'torchserve-export=ts.export_model:main'
             ]
         },
         include_package_data=True,

@@ -13,13 +13,13 @@ do
           ;;
         -g|--gpu)
           DOCKER_RUNTIME="--gpus all"
-          IMAGE_NAME="pytorch/torchserve:latest-gpu"
+          IMAGE_NAME="pytorch/torchserve:dev-gpu"
           shift
           ;;
 	-d|--gpu_devices)
           if test $
           then
-            IMAGE_NAME="pytorch/torchserve:latest-gpu"
+            IMAGE_NAME="pytorch/torchserve:dev-gpu"
             GPU_DEVICES='--gpus '"\"device=$2\""'' 
             shift
           fi
@@ -38,7 +38,7 @@ sleep 30
 echo "Successfully started torchserve in docker"
 
 echo "Registering resnet-18 model"
-response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar&initial_workers=1&synchronous=true")
+response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/resnet-18.mar&initial_workers=1&synchronous=true")
 
 if [ ! "$response" == 200 ]
 then

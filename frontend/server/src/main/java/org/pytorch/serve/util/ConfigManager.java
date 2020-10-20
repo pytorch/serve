@@ -51,6 +51,7 @@ public final class ConfigManager {
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
+    private static final String TS_METRICS_ADDRESS = "metrics_address";
     private static final String TS_LOAD_MODELS = "load_models";
     private static final String TS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
     private static final String TS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
@@ -78,6 +79,10 @@ public final class ConfigManager {
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PRELOAD_MODEL = "preload_model";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
+    private static final String TS_ALLOWED_URLS = "allowed_urls";
+    private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
+    private static final String TS_METRICS_FORMAT = "metrics_format";
+    private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -91,6 +96,8 @@ public final class ConfigManager {
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
+
+    public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
     public static final String PYTHON_EXECUTABLE = "python";
 
@@ -256,14 +263,19 @@ public final class ConfigManager {
                 || Boolean.parseBoolean(prop.getProperty(TS_DEBUG, "false"));
     }
 
-    public Connector getListener(boolean management) {
+    public Connector getListener(ConnectorType connectorType) {
         String binding;
-        if (management) {
-            binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
-        } else {
-            binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                binding = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
-        return Connector.parse(binding, management);
+        return Connector.parse(binding, connectorType);
     }
 
     public String getPreloadModel() {
@@ -272,6 +284,18 @@ public final class ConfigManager {
 
     public boolean getPreferDirectBuffer() {
         return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
+    }
+
+    public boolean getInstallPyDepPerModel() {
+        return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
+    }
+
+    public String getMetricsFormat() {
+        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
+    }
+
+    public boolean isMetricApiEnable() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
 
     public int getNettyThreads() {
@@ -308,17 +332,13 @@ public final class ConfigManager {
         }
         int workers = getConfiguredDefaultWorkersPerModel();
 
-        if ((workers == 0) && (prop.getProperty("NUM_WORKERS", null) != null)) {
-            workers = getIntProperty("NUM_WORKERS", 0);
-        }
-
         if (workers == 0) {
             workers = getNumberOfGpu();
         }
         if (workers == 0) {
             workers = Runtime.getRuntime().availableProcessors();
         }
-        setProperty("NUM_WORKERS", Integer.toString(workers));
+
         return workers;
     }
 
@@ -433,7 +453,7 @@ public final class ConfigManager {
         }
 
         return SslContextBuilder.forServer(privateKey, chain)
-                .protocols("TLSv1.2")
+                .protocols(new String[] {"TLSv1.2"})
                 .ciphers(supportedCiphers)
                 .build();
     }
@@ -512,9 +532,11 @@ public final class ConfigManager {
                 + "\nConfig file: "
                 + prop.getProperty("tsConfigFile", "N/A")
                 + "\nInference address: "
-                + getListener(false)
+                + getListener(ConnectorType.INFERENCE_CONNECTOR)
                 + "\nManagement address: "
-                + getListener(true)
+                + getListener(ConnectorType.MANAGEMENT_CONNECTOR)
+                + "\nMetrics address: "
+                + getListener(ConnectorType.METRICS_CONNECTOR)
                 + "\nModel Store: "
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "
@@ -538,7 +560,15 @@ public final class ConfigManager {
                 + "\nPreload model: "
                 + prop.getProperty(TS_PRELOAD_MODEL, "false")
                 + "\nPrefer direct buffer: "
-                + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false");
+                + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
+                + "\nAllowed Urls: "
+                + getAllowedUrls()
+                + "\nCustom python dependency for model allowed: "
+                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
+                + "\nMetrics report format: "
+                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
+                + "\nEnable metrics API: "
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
     }
 
     public boolean useNativeIo() {
@@ -656,6 +686,11 @@ public final class ConfigManager {
         } catch (IOException | InterruptedException e) {
             return 0;
         }
+    }
+
+    public List<String> getAllowedUrls() {
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "file://.*|http(s)?://.*");
+        return Arrays.asList(allowedURL.split(","));
     }
 
     public boolean isSnapshotDisabled() {

@@ -8,7 +8,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ![Architecture Diagram](https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg)
 
 ### Terminology:
-* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients as well manages the models lifecycle.
+* **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients and manages the lifecycles of the models.
 * **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
 * **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
 * **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
@@ -17,92 +17,52 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
+* [Install TorchServe on windows subsystem for linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
 ## Install TorchServe
 
-Conda instructions are provided in more detail, but you may also use `pip` and `virtualenv` if that is your preference.
-**Note:** Java 11 is required. Instructions for installing Java 11 for Ubuntu or macOS are provided in the [Install with Conda](#install-with-conda) section.
-
-### Install with pip
-
 1. Install Java 11
 
+    For Ubuntu
     ```bash
     sudo apt-get install openjdk-11-jdk
     ```
-
-1. Use `pip` to install TorchServe and the model archiver:
-
-    ``` bash
-    pip install torch torchtext torchvision sentencepiece psutil future
-    pip install torchserve torch-model-archiver
-    ```
-
-### Install with Conda
-**Note:** For Conda, Python 3.8 is required to run Torchserve
-
-#### Ubuntu
-
-1. Install Java 11
-
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-
-1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-1. Create an environment and install torchserve and torch-model-archiver
-    For CPU
-
-    ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
-    ```
-
-    For GPU
-
-    ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision cudatoolkit=10.1 -c pytorch -c powerai
-    ```
-
-1. Activate the environment
-
-    ```bash
-    source activate torchserve
-    ```
-
-2. Optional if using torchtext models
-    ```bash
-    pip install sentencepiece
-    ```
-
-#### macOS
-
-1. Install Java 11
-
+   
+   For Mac
     ```bash
     brew tap AdoptOpenJDK/openjdk
     brew cask install adoptopenjdk11
     ```
 
-1. Install Conda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
-1. Create an environment and install torchserve and torch-model-archiver
+2. Install python pre-requisite packages
+
+ - For CPU or GPU-Cuda 10.2
 
     ```bash
-    conda create --name torchserve torchserve torch-model-archiver psutil future pytorch torchtext torchvision -c pytorch -c powerai
+    pip install -U -r requirements.txt
     ```
-
-1. Activate the environment
-
+ - For GPU with Cuda 10.1
+ 
     ```bash
-    source activate torchserve
-    ```
+    pip install -U -r requirements_gpu.txt
+   ```
 
-2. Optional if using torchtext models
-    ```bash
-    pip install sentencepiece
+3. Install torchserve and torch-model-archiver
+
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
     ```
+    conda install torchserve torch-model-archiver
+    ```
+   
+    For Pip
+    ```
+    pip install torchserve torch-model-archiver
+    ```
+   
+   **Note:** For Conda, Python 3.8 is required to run Torchserve
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
@@ -115,16 +75,10 @@ Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
 
-#### For Debian Based Systems
-Verified on EC2 instances running Ubuntu DL AMI 28.x
+#### For Debian Based Systems/ MacOS
 
 ```
-./scripts/install_from_src_ubuntu
-```
-#### For MAC OS
-
-```
-./scripts/install_from_src_macos
+./scripts/install_from_src
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
@@ -177,7 +131,7 @@ torchserve --start --ncs --model-store model_store --models densenet161.mar
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
 
-**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs). This start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
+**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
 
 ### Get predictions from a model
 
@@ -195,8 +149,8 @@ Complete the following steps:
 The following code completes all three steps:
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:
@@ -237,9 +191,9 @@ You see output specifying that TorchServe has stopped.
 
 
 ### Concurrency And Number of Workers
-TorchServe exposes configurations which allows the user to configure the number of worker threads on CPU and GPUs. This is an important config property that can speed up the server depending on the workload.
+TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 *Note: the following property has bigger impact under heavy workloads.*
-If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` which tells the server to use a specific number of GPU per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
+If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
 ```
 ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 ```
@@ -264,5 +218,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 
 To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md). Cheers!
 
+## Disclaimer 
+This repository is jointly operated and maintained by Amazon, Facebook and a number of individual contributors listed in the [CONTRIBUTORS](https://github.com/pytorch/serve/graphs/contributors) file. For questions directed at Facebook, please send an email to opensource@fb.com. For questions directed at Amazon, please send an email to torchserve@amazon.com. For all other questions, please open up an issue in this repository [here](https://github.com/pytorch/serve/issues).
 
 *TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*

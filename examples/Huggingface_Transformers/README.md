@@ -72,13 +72,15 @@ Once, setup_config.json has been set properly, the next step is to run " Downloa
 
 `python Download_Transformer_models.py`
 
-This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory. In case, the "vocab.txt" was not saved into this directory, we can load the tokenizer from pre-trained model vocab, this case has been addressed in the handler.
+This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory. 
 
 
 
 #### Setting the extra_files
 
-There are few files that are used for model packaging and at the inference time. "index_to_name.json"  is passed as extra file to the model archiver and used for mapping predictions to labels. "sample_text.txt", is used at the inference time to pass the text that we want to get the inference on.
+There are few files that are used for model packaging and at the inference time. "index_to_name.json"  is passed as extra file to the model archiver and used for mapping predictions to labels. "sample_text.txt", is used at the inference time to pass the text that we want to get the inference on. In case vocab related files are not passed extra files, the handler will load the tokenizer from a pre_trained model. 
+
+In case of having a customized vocab or having vocab.json that need the tokenizer work with, it is required to pass all other tokenizer related files such tokenizer_config.json, special_tokens_map.json, config.json and if available merges.txt.
 
 index_to_name.json for question answering is not required.
 
@@ -97,7 +99,7 @@ To use Transformer handler for question answering, the sample_text.txt should be
 Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on "bert-base-uncased" off the shelf, for sequence classification and Torchscript as save_mode. To fine-tune BERT, RoBERTa or other models, for question ansewering you can refer to [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. Model packaging using pretrained for save_mode can be done as follows:
 
 ```
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json, ./Seq_classification_artifacts/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
 
 ```
 
@@ -109,6 +111,15 @@ torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.
 ```
 
 As a reminder, if you are using this handler for sequence or token classification, it's needed to pass the label mapping of the predictions, "index_to_name.json", through the  --extra-files as well.
+
+An example of passing customized vocab file for the tokenizer is:
+
+```
+torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./vocab.json,./config.json,./special_tokens_map.json,./tokenizer_config.json,./merges.txt,./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+
+```
+
+As a reminder, if model checkpoints are saved in pytorch_model.bin ("saved_mode" should be set to "pretrained" in the setup_config.json) you need to pass it instead of traced_model.pt. 
 
 ### Registering the Model on TorchServe and Running Inference
 
@@ -123,3 +134,18 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
 
+### Registering the Model on TorchServe and Running batch Inference
+
+The following uses .mar file created from  model packaging using pretrained for save_mode to register the model for batch inference on sequence classification, by setting the batch_size when registering the model.
+
+```
+mkdir model_store
+mv BERTSeqClassification.mar model_store/
+torchserve --start --model-store model_store 
+
+curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+```
+
+Now to run the batch inference follwoing command can be used:
+
+`curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt&`
