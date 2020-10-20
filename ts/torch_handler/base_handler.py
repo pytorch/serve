@@ -225,7 +225,7 @@ class BaseHandler(abc.ABC):
                 return output_explain
         return output_explain
 
-    @abstractmethod
+    
     def get_insights(self, tensor_data, raw_data, target):
         """Calculates the captum insights
 
@@ -237,3 +237,4 @@ class BaseHandler(abc.ABC):
         Returns:
             dict : Dictionary of the "tensor importances" from the captum attributions.
         """
+        return None
