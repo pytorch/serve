@@ -23,8 +23,7 @@ class BaseEnvelope(ABC):
         results = self._handle_fn(data, context)
 
         if results:
-            output = results
-            results = self.format_output(output)
+            results = self.format_output(results)
 
         return results
 

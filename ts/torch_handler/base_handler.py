@@ -27,7 +27,6 @@ class BaseHandler(abc.ABC):
         self.context = None
         self.manifest = None
         self.map_location = None
-        self.explain = False
         self.target = 0
 
     def initialize(self, context):
@@ -185,55 +184,9 @@ class BaseHandler(abc.ABC):
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
         self.context = context
-        if not self.initialized:
-            self.initialize(self.context)
-        output_explain = None
 
-        data_preprocess = self.preprocess(data)
-        output_inference = self.inference(data_preprocess)
-        output_explain = self.explain_handle(data_preprocess, data)
-        if output_explain:
-            output_inference = self.postprocess(output_inference, output_explain)
-        else:
-            output_inference = self.postprocess(output_inference)
-        return output_inference
-
-    def explain_handle(self, data_preprocess, raw_data):
-        """Captum explanations handler
-
-        Args:
-            data_preprocess (Torch Tensor): Preprocessed data to be used for captum
-            raw_data (list): The unprocessed data to get target from the request
-
-        Returns:
-            dict : A dictionary response with the explanations response.
-        """
-        output_explain = None
-        inputs = None
-        target = 0
-        if self.context and self.context.get_request_header(0, "explain"):
-            if self.context.get_request_header(0, "explain") == "True":
-                self.explain = True
-                logger.info("Calculating Explanations")
-                row = raw_data[0]
-                if isinstance(row, dict):
-                    logger.info("Getting data and target")
-                    inputs = row.get("data")
-                    target = row.get("target")
-
-                output_explain = self.get_insights(data_preprocess, inputs, target)
-                return output_explain
-        return output_explain
-    
-    def get_insights(self, tensor_data, raw_data, target):
-        """Calculates the captum insights
-
-        Args:
-            tensor_data (tensor): The Preprocessed Tensor
-            raw_data (list): The raw input data from the request
-            target (int): The class label.
-
-        Returns:
-            dict : Dictionary of the "tensor importances" from the captum attributions.
-        """
-        return None
+        data = self.preprocess(data)
+        output = self.inference(data)
+        output = self.postprocess(output)
+        
+        return output

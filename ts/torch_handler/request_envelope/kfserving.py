@@ -39,7 +39,7 @@ class KFservingEnvelope(BaseEnvelope):
 
     def format_output(self, outputs):
         """
-        Returns the prediction response and captum explanation response of the input request.
+        Returns the prediction response of the input request.
 
         Args:
             outputs (List): The outputs arguments is in the form of a list of dictionaries.
@@ -50,10 +50,6 @@ class KFservingEnvelope(BaseEnvelope):
         output = outputs[
             0
         ]  # Removing the outer list added in base handler for consistency
-        response = {}
-        response["predictions"] = output["predictions"]
-        if "explanations" in output:
-            response["explanations"] = output["explanations"]
 
-        logger.info("The Response of KFServing %s", response)
-        return [response]
+        logger.info("The Response of KFServing %s", output)
+        return [output]
