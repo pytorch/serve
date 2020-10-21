@@ -133,3 +133,60 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
+
+
+##### Serving a Torchserve model in KFServing 
+
+The Inference Request to be hit should follow the below KFServing API Spec:
+http://127.0.0.1:8080/v1/models/<modelname>:predict
+
+For example, we have used a pre-trained Sequence Classification BERT Model to serve the model in KFServing. 
+
+We have created a custom handler filed called Transformer_handler_generalized_kf.py and use this file to create the .mar file
+
+We need to add the kfserving as a part of the config.properties file. Place the config.properties in the parent folder where you serve the model from. The content of the config.properties file is as below:
+
+'''
+service_envelope=kfserving
+'''
+
+The following steps are to be followed to serve the models on the KFServing side:
+
+ * Step - 1 : Create the model archive file for the text classification problem. 
+	'''
+	torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler Transformer_model/Transformer_handler_generalized.py --source-vocab Transformer_model/vocab.txt --extra-files "Transformer_model/config.json,Transformer_model/setup_config.json,Transformer_model/index_to_name.json"
+
+	'''
+ * Step - 2	 : Start the Torchserve model using the below command :
+	'''
+	chserve --start --model-store model_store --ncs --models my_tc=BERTSeqClassification.marr
+	
+	'''
+ * Step - 3 : Start the Postman Application and make a POST request to hit the inference endpoint
+
+The Endpoint URL : http://127.0.0.1:8080/v1/models/my_tc:predict
+
+The sample Request on the http client body is as below:
+
+{
+"instances":[{
+            "name":"context",
+            "data":"Bloomberg has reported on the economy",
+            "target":0
+
+  }]    
+}
+
+The Response is as below:
+
+
+The response is as below :
+
+{
+	"predictions" : [
+		
+		"Accepted"
+	]
+}
+
+
