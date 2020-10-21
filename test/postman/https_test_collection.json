@@ -115,7 +115,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -127,7 +127,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",
