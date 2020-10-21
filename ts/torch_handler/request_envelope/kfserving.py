@@ -26,7 +26,7 @@ class KFservingEnvelope(BaseEnvelope):
         logger.info("Parse input data_list %s", self._data_list)
         data = self._data_list[0]
 
-        # IF the KF Transformer and Explainer sends in data as bytesarray
+        # If the KF Transformer and Explainer sends in data as bytesarray
         if isinstance(data, (bytes, bytearray)):
 
             data = data.decode()

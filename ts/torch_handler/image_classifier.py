@@ -29,18 +29,17 @@ class ImageClassifier(VisionHandler):
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
-        
+
     def set_max_result_classes(self, topk):
         self.topk = topk
 
     def get_max_result_classes(self):
         return self.topk
 
-    def postprocess(self, data, output_explain = None):
+    def postprocess(self, data, output_explain=None):
         ps = F.softmax(data, dim=1)
         probs, classes = torch.topk(ps, self.topk, dim=1)
         probs = probs.tolist()
         classes = classes.tolist()
         return map_class_to_label(probs, self.mapping, classes)
-    
-
+        

@@ -224,7 +224,6 @@ class BaseHandler(abc.ABC):
                 output_explain = self.get_insights(data_preprocess, inputs, target)
                 return output_explain
         return output_explain
-
     
     def get_insights(self, tensor_data, raw_data, target):
         """Calculates the captum insights
