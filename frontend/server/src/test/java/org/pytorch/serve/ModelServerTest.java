@@ -681,8 +681,6 @@ public class ModelServerTest {
 
         ByteBuffer allBytes = ByteBuffer.allocate(0x100);
         IntStream.range(0, 0x100).forEach(i -> allBytes.put((byte) i));
-        // https://github.com/netty/netty/issues/10284
-        allBytes.put(' ', (byte) 0);
 
         Charset charset = StandardCharsets.ISO_8859_1;
         HttpPostRequestEncoder.EncoderMode mode = HttpPostRequestEncoder.EncoderMode.RFC1738;
