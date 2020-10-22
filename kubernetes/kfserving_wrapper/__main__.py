@@ -72,9 +72,7 @@ def parse_config():
 
 
 if __name__ == "__main__":
-    # model = PyTorchModel(args.model_name, args.model_class_name, args.model_dir)
-    # model_names =
-    # predictor_host =
+
     model_names, inference_address, management_address, model_dir = parse_config()
 
     models = []

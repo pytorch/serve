@@ -97,11 +97,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                     self.mapping = json.load(f)
             else:
                 logger.warning("Missing the index_to_name.json file.")
-
-            # ------------------------------- Captum initialization ----------------------------#
-        self.lig = LayerIntegratedGradients(
-            captum_sequence_forward, self.model.bert.embeddings
-        )
         self.initialized = True
 
     def preprocess(self, data):
@@ -220,7 +215,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         return [prediction]
 
-    def postprocess(self, inference_output, output_explain=None):
+    def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
 
         Args:
@@ -233,120 +228,5 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """
         response = {}
         response["predictions"] = inference_output
-        if output_explain:
-            response["explanations"] = output_explain
         return [response]
-
-    def get_insights(self, input_ids, text, target):
-        """This function calls the layer integrated gradient to get word importance
-        of the input text
-
-        Args:
-            input_ids (int): Denotes an ID to map an Input Request
-            text (str): The Text specified in the input request
-            target (int): The Target can be set to any acceptable label under the user's discretion.
-
-        Returns:
-            (list): Returns a list of importances and words.
-        """
-        input_ids, ref_input_ids, attention_mask = construct_input_ref(
-            text, self.tokenizer, self.device
-        )
-        all_tokens = get_word_token(input_ids, self.tokenizer)
-        attributions, delta = self.lig.attribute(
-            inputs=input_ids,
-            baselines=ref_input_ids,
-            target=self.target,
-            additional_forward_args=(attention_mask, 0, self.model),
-            return_convergence_delta=True,
-        )
-
-        attributions_sum = summarize_attributions(attributions)
-        response = {}
-        response["importances"] = attributions_sum.tolist()
-        response["words"] = all_tokens
-        return [response]
-
-
-def construct_input_ref(text, tokenizer, device):
-    """For a given text, this function creates token id, reference id and
-    attention mask based on encode which is faster for captum insights
-
-    Args:
-        text (str): The text specified in the input request
-        tokenizer (AutoTokenizer Class Object): To word tokenize the input text
-        device (cpu or gpu): Type of the Environment the server runs on.
-
-    Returns:
-        input_id(Tensor): It attributes to the tensor of the input tokenized words
-        ref_input_ids(Tensor): to be filled
-        attention mask() : to be filled
-    """
-    text_ids = tokenizer.encode(text, add_special_tokens=False)
-    # construct input token ids
-    logger.info("text_ids %s", text_ids)
-    logger.info("[tokenizer.cls_token_id] %s", [tokenizer.cls_token_id])
-    input_ids = [tokenizer.cls_token_id] + text_ids + [tokenizer.sep_token_id]
-    logger.info("input_ids %s", input_ids)
-
-    input_ids = torch.tensor([input_ids], device=device)
-    # construct reference token ids
-    ref_input_ids = (
-        [tokenizer.cls_token_id]
-        + [tokenizer.pad_token_id] * len(text_ids)
-        + [tokenizer.sep_token_id]
-    )
-    ref_input_ids = torch.tensor([ref_input_ids], device=device)
-    # construct attention mask
-    attention_mask = torch.ones_like(input_ids)
-    return input_ids, ref_input_ids, attention_mask
-
-
-def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
-    """A custom forward function to access different positions of the predictions
-
-    Args:
-        inputs ([type]): [description]
-        attention_mask ([type], optional): [description]. Defaults to None.
-        position (int, optional): [description]. Defaults to 0.
-        model ([type], optional): [description]. Defaults to None.
-
-    Returns:
-        [type]: [description]
-    """
-    model.eval()
-    model.zero_grad()
-    pred = model(inputs, attention_mask=attention_mask)
-    pred = pred[position]
-    return pred
-
-
-def summarize_attributions(attributions):
-    """Summarises the attribution across multiple runs
-
-    Args:
-        attributions ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    attributions = attributions.sum(dim=-1).squeeze(0)
-    attributions = attributions / torch.norm(attributions)
-    return attributions
-
-
-def get_word_token(input_ids, tokenizer):
-    """constructs word tokens from token id
-
-    Args:
-        input_ids ([type]): [description]
-        tokenizer ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    indices = input_ids[0].detach().tolist()
-    tokens = tokenizer.convert_ids_to_tokens(indices)
-    # Remove unicode space character from BPE Tokeniser
-    tokens = [token.replace("Ġ", "") for token in tokens]
-    return tokens
+        

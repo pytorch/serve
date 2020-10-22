@@ -36,8 +36,6 @@ class TextHandler(BaseHandler, ABC):
         super(TextHandler, self).__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer("basic_english")
-        self.input_text = None
-        self.lig = None
         self.initialized = None
 
     def initialize(self, context):
@@ -47,7 +45,6 @@ class TextHandler(BaseHandler, ABC):
         super(TextHandler, self).initialize(context)
         self.initialized = False
         self.source_vocab = torch.load(self.manifest["model"]["sourceVocab"])
-        self.lig = LayerIntegratedGradients(self.model, self.model.embedding)
         self.initialized = True
 
     def _expand_contractions(self, text):
@@ -102,21 +99,4 @@ class TextHandler(BaseHandler, ABC):
 
     def _tokenize(self, text):
         return self.tokenizer(text)
-
-    def get_word_token(self, input_tokens):
-        """
-        Constructs word tokens from text
-        """
-        # Remove unicode space character from BPE Tokeniser
-        tokens = [token.replace("Ġ", "") for token in input_tokens]
-        return tokens
-
-    def summarize_attributions(self, attributions):
-        """
-        Summarises the attribution across multiple runs
-        """
-        attributions = F.softmax(attributions)
-        attributions_sum = attributions.sum(dim=-1)
-        logger.info("attributions sum shape %d", attributions_sum.shape)
-        attributions = attributions / torch.norm(attributions_sum)
-        return attributions
+        

@@ -16,14 +16,8 @@ class VisionHandler(BaseHandler, ABC):
     Base class for all vision handlers
     """
 
-    def initialize(self, context):
-        super(VisionHandler, self).initialize(context)
-        self.ig = IntegratedGradients(self.model)
-        self.initialized = True
-
     def preprocess(self, data):
-        images = []
-        
+        images = []        
         for row in data:
             # Compat layer: normally the envelope should just return the data
             # directly, but older versions of Torchserve didn't have envelope.
@@ -36,8 +30,3 @@ class VisionHandler(BaseHandler, ABC):
             images.append(image)
 
         return torch.stack(images)
-
-    def get_insights(self, tensor_data, raw_data, target=0):
-        print("input shape", tensor_data.shape)
-        return self.ig.attribute(tensor_data, target=target, n_steps=15).tolist()
-        

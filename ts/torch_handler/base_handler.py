@@ -6,7 +6,6 @@ import abc
 import logging
 import os
 import importlib.util
-from abc import abstractmethod
 import torch
 from ..utils.util import list_classes_from_module, load_label_mapping
 
@@ -27,7 +26,6 @@ class BaseHandler(abc.ABC):
         self.context = None
         self.manifest = None
         self.map_location = None
-        self.target = 0
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.

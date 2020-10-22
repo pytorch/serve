@@ -46,7 +46,7 @@ class MNISTDigitClassifier(ImageClassifier):
 
         return torch.stack(images)
 
-    def postprocess(self, data, output_explain=None):
+    def postprocess(self, data):
         """The post process of MNIST converts the predicted output response to a label.
 
         Args:
@@ -60,6 +60,4 @@ class MNISTDigitClassifier(ImageClassifier):
         """
         response = {}
         response["predictions"] = data.argmax(1).tolist()
-        if output_explain:
-            response["explanations"] = output_explain
         return [response]

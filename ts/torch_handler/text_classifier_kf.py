@@ -56,7 +56,7 @@ class TextClassifier(TextHandler):
             [self.source_vocab[token] for token in ngrams_iterator(text, self.ngrams)],
             device=self.device,
         )
-        return text_tensor, text
+        return text_tensor
 
     def inference(self, data, *args, **kwargs):
         """The Inference Request is made through this function and the user
@@ -71,11 +71,10 @@ class TextClassifier(TextHandler):
             (Torch Tensor): The predicted response from the model is returned
                             in this function.
         """
-        text_tensor, _ = data
         offsets = torch.as_tensor([0], device=self.device)
-        return super().inference(text_tensor, offsets)
+        return super().inference(data, offsets)
 
-    def postprocess(self, data, output_explain=None):
+    def postprocess(self, data):
         """
         The post process function converts the prediction response into a
            Torchserve compatible format
@@ -93,48 +92,5 @@ class TextClassifier(TextHandler):
         data = F.softmax(data)
         data = data.tolist()
         response["predictions"] = map_class_to_label(data, self.mapping)
-        if output_explain:
-            response["explanations"] = output_explain
-        return [response]
 
-    def get_insights(self, text_preprocess, _, target=0):
-        """Calculates the captum insights
-
-        Args:
-            text_preprocess (tensor): Tensor of the Text Input
-            _ (str): The Raw text data specified in the input request
-            target (int): Defaults to 0, the user needs to specify the target
-                          for the captum explanation.
-
-        Returns:
-            (dict): Returns a dictionary of the word token importances
-        """
-        text_tensor, all_tokens = text_preprocess
-        token_reference = TokenReferenceBase()
-        logger.info("input_text shape %s", len(text_tensor.shape))
-        logger.info("get_insights target %s", target)
-        offsets = torch.tensor([0])
-
-        all_tokens = self.get_word_token(all_tokens)
-        logger.info("text_tensor tokenized shape %s", text_tensor.shape)
-        reference_indices = token_reference.generate_reference(
-            text_tensor.shape[0], device=self.device
-        ).squeeze(0)
-        logger.info("reference indices shape %s", reference_indices.shape)
-
-        # all_tokens = self.get_word_token(text)
-        attributions = self.lig.attribute(
-            text_tensor,
-            reference_indices,
-            additional_forward_args=(offsets),
-            return_convergence_delta=False,
-            target=target,
-        )
-
-        logger.info("attributions shape %s", attributions.shape)
-        attributions_sum = self.summarize_attributions(attributions)
-        response = {}
-
-        response["importances"] = attributions_sum.tolist()
-        response["words"] = all_tokens
         return [response]
