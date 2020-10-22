@@ -5,8 +5,7 @@
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
 * [Batch Inference with TorchServe's default handlers](#batch-inference-with-torchserves-default-handlers)
-* [Batch Inference with TorchServe using ResNet-152 model](#batch-inference-with-torchserve-using-resnet-152-model)   
-* [Conclusion](#conclusion)   
+* [Batch Inference with TorchServe using ResNet-152 model](#batch-inference-with-torchserve-using-resnet-152-model)  
 
 ## Introduction
 
@@ -25,7 +24,7 @@ Before jumping into this document, read the following docs:
 
 ## Batch Inference with TorchServe's default handlers
 
-TorchServe's default handlers do not support batch inference.
+TorchServe's default handlers support batch inference out of box except for `text_classifier` handler.
 
 ## Batch Inference with TorchServe using ResNet-152 model
 
@@ -60,7 +59,7 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 
 ## Demo to configure TorchServe with batch-supported model
 
-In this section lets bring up model server and launch Resnet-152 model, which has been built to handle a batch of request.
+In this section lets bring up model server and launch Resnet-152 model, which uses the default `image_classifier` handler for batch inferencing.
 
 ### Prerequisites
 
@@ -79,9 +78,6 @@ management_address=http://0.0.0.0:8081
 $ torchserve --start --model-store model_store
 ```
 
-**Note**: This example assumes that the resnet-152.mar file is available in the `model_store`.
-For more details on creating resnet-152 mar file and serving it on TorchServe refer [resnet152 image classification example](../examples/image_classifier/resnet_152_batch/README.md)
-
 * Verify that TorchServe is up and running
 
 ```text
@@ -94,7 +90,7 @@ $ curl localhost:8080/ping
 * Now let's launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a `max_batch_delay` of 10ms.
 
 ```text
-$ curl -X POST "localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_delay=10&initial_workers=1"
+$ curl -X POST "localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&batch_size=8&max_batch_delay=10&initial_workers=1"
 {
   "status": "Processing worker updates..."
 }
@@ -103,25 +99,28 @@ $ curl -X POST "localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_
 * Verify that the workers were started properly.
 
 ```text
-$ curl localhost:8081/models/resnet-152
-{
-  "modelName": "resnet-152",
-  "modelUrl": "https://s3.amazonaws.com/model-server/model_archive_1.0/examples/resnet-152-batching/resnet-152.mar",
-  "runtime": "python",
-  "minWorkers": 1,
-  "maxWorkers": 1,
-  "batchSize": 8,
-  "maxBatchDelay": 10,
-  "workers": [
-    {
-      "id": "9008",
-      "startTime": "2019-02-19T23:56:33.907Z",
-      "status": "READY",
-      "gpu": false,
-      "memoryUsage": 607715328
-    }
-  ]
-}
+[
+  {
+    "modelName": "resnet-152-batch_v2",
+    "modelVersion": "2.0",
+    "modelUrl": "https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
+    "runtime": "python",
+    "minWorkers": 1,
+    "maxWorkers": 1,
+    "batchSize": 3,
+    "maxBatchDelay": 5000,
+    "loadedAtStartup": false,
+    "workers": [
+      {
+        "id": "9000",
+        "startTime": "2020-07-28T05:04:05.465Z",
+        "status": "READY",
+        "gpu": false,
+        "memoryUsage": 0
+      }
+    ]
+  }
+]
 ```
 
 * Now let's test this service.
@@ -129,58 +128,18 @@ $ curl localhost:8081/models/resnet-152
   * Get an image to test this service
 
     ```text
-    $ curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+    $ curl -LJO https://github.com/pytorch/serve/raw/master/examples/image_classifier/kitten.jpg
     ```
 
   * Run inference to test the model.
 
     ```text
-      $ curl localhost/predictions/resnet-152 -T kitten.jpg
+      $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
       {
-        "probability": 0.7148938179016113,
-        "class": "n02123045 tabby, tabby cat"
-      },
-      {
-        "probability": 0.22877725958824158,
-        "class": "n02123159 tiger cat"
-      },
-      {
-        "probability": 0.04032370448112488,
-        "class": "n02124075 Egyptian cat"
-      },
-      {
-        "probability": 0.00837081391364336,
-        "class": "n02127052 lynx, catamount"
-      },
-      {
-        "probability": 0.0006728120497427881,
-        "class": "n02129604 tiger, Panthera tigris"
+          "tiger_cat": 0.5848360657691956,
+          "tabby": 0.3782736361026764,
+          "Egyptian_cat": 0.03441936895251274,
+          "lynx": 0.0005633446853607893,
+          "quilt": 0.0002698268508538604
       }
     ```
-
-* Now that we have the service up and running, we can run performance tests with the same kitten image as follows. There are multiple tools to measure performance of web-servers. We will use
-[apache-bench](https://httpd.apache.org/docs/2.4/programs/ab.html) to run our performance tests. We chose `apache-bench` for our tests because of the ease of installation and ease of running tests.
-
-Before running this test, we need to first install `apache-bench` on our system. Since we were running this on an Ubuntu host, we install `apache-bench` as follows:
-
-```bash
-$ sudo apt-get update && sudo apt-get install apache2-utils
-```
-
-Now that installation is done, we can run performance benchmark test as follows.
-
-```text
-$ ab -k -l -n 10000 -c 1000 -T "image/jpeg" -p kitten.jpg localhost:8080/predictions/resnet-152
-```
-
-The above test simulates TorchServe receiving 1000 concurrent requests at once and a total of 10,000 requests. All of these requests are directed to the endpoint "localhost:8080/predictions/resnet-152", which assumes
-that resnet-152 is already registered and scaled-up on TorchServe. We had done this registration and scaling up in the above steps.
-
-## Conclusion
-
-The take away from this example is that batching is a very useful feature. In cases where the services receive heavy load of requests or each request has high I/O,
-it's advantageous to batch the requests. This allows for maximally utilizing the compute resources, especially GPU resources, which are more expensive. But customers should do their due diligence and perform enough tests to find optimal batch size depending on the number of GPUs available
-and number of models loaded per GPU.
-You should also analyze your traffic patterns before enabling the batch inference. As shown in the above experiments,
-services receiving TPS less than than the batch size would lead to consistent "batch delay" timeouts and cause the response latency per request to spike.
-As with any cutting-edge technology, batch inference is definitely a double-edged sword.

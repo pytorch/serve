@@ -2,7 +2,4 @@ future
 psutil
 wheel
 requests
-torch
-torchvision
-torchtext
 sentencepiece

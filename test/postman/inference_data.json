@@ -83,23 +83,6 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/densenet161_scripted.mar",
-        "model_name":"densenet161_scripted",
-        "worker":1,
-        "synchronous":"true",
-        "file":"../examples/image_classifier/kitten.jpg",
-        "content-type":"application/json",
-        "validator":"image_classification",
-        "expected":{
-            "tiger_cat":0.4693359136581421,
-            "tabby":0.4633873701095581,
-            "Egyptian_cat":0.06456154584884644,
-            "lynx":0.001282821292988956,
-            "plastic_bag":0.00023323031200561672
-        },
-        "tolerance":1
-    },
-    {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar",
         "model_name":"alexnet",
         "worker":1,
@@ -168,6 +151,23 @@
         "tolerance":1
     },
     {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_v2.mar",
+        "model_name":"vgg11",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/image_classifier/kitten.jpg",
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+            "tiger_cat":0.5501413345336914,
+            "tabby":0.3231860101222992,
+            "Egyptian_cat":0.11440037935972214,
+            "lynx":0.006006305105984211,
+            "tiger":0.004394155461341143
+        },
+        "tolerance":1
+    },
+    {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar",
         "model_name":"vgg11_scripted",
         "worker":1,
@@ -185,7 +185,7 @@
         "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar",
         "model_name":"mnist",
         "worker":1,
         "synchronous":"true",
@@ -194,7 +194,7 @@
         "expected":"0"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/mnist_scripted_v2.mar",
         "model_name":"mnist_scripted",
         "worker":1,
         "synchronous":"true",
@@ -231,28 +231,39 @@
         "file":"../examples/object_detector/persons.jpg"
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar",
         "model_name":"resnet152",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
-        "expected":[
-            "n02123159",
-            "tiger_cat"
-        ]
+        "validator":"image_classification",
+        "expected":{
+          "tiger_cat": 0.5848360657691956,
+          "tabby": 0.3782736361026764,
+          "Egyptian_cat": 0.03441936895251274,
+          "lynx": 0.0005633446853607893,
+          "quilt": 0.0002698268508538604
+        },
+        "tolerance":1
     },
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_scripted.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/resnet-152-scripted_v2.mar",
         "model_name":"resnet-152-batch_scripted",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
-        "expected":[
-            "n02123159",
-            "tiger_cat"
-        ]
+        "validator":"image_classification",
+        "expected":{
+          "tiger_cat": 0.5848360657691956,
+          "tabby": 0.3782736361026764,
+          "Egyptian_cat": 0.03441936895251274,
+          "lynx": 0.0005633446853607893,
+          "quilt": 0.0002698268508538604
+        }
+        ,
+        "tolerance":1
     },
     {
         "url":"https://torchserve.s3.amazonaws.com/mar_files/roberta_qa_no_torchscript.mar",

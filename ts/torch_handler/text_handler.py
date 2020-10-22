@@ -4,6 +4,7 @@
 Base module for all text based default handler.
 Contains various text based utility methods
 """
+import os
 import re
 import logging
 import string
@@ -44,8 +45,24 @@ class TextHandler(BaseHandler, ABC):
         """
         super(TextHandler, self).initialize(context)
         self.initialized = False
-        self.source_vocab = torch.load(self.manifest["model"]["sourceVocab"])
+        source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
+        if source_vocab:
+            # Backward compatibility
+            self.source_vocab = torch.load(source_vocab)
+        else:
+            self.source_vocab = torch.load(self.get_source_vocab_path(ctx))
         self.initialized = True
+
+    def get_source_vocab_path(self, ctx):
+        properties = ctx.system_properties
+        model_dir = properties.get("model_dir")
+        source_vocab_path = os.path.join(model_dir, "source_vocab.pt")
+
+        if os.path.isfile(source_vocab_path):
+            return source_vocab_path
+        else:
+            raise Exception('Missing the source_vocab file. Refer default handler '
+                            'documentation for details on using text_handler.')
 
     def _expand_contractions(self, text):
         """
