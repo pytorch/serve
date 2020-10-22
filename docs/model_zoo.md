@@ -29,5 +29,6 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | Resnet 152 Scripted |Image Classification | ImageNet | 215 MB | [.mar](https://torchserve.pytorch.org/mar_files/resnet-152-scripted_v2.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg) |Torchscripted |
 | Text classifier Scripted | Text Classification | AG_NEWS | 169 MB | [.mar](https://torchserve.pytorch.org/mar_files/my_text_classifier_scripted_v2.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt) |Torchscripted |
 | FCN ResNet 101 Scripted | Image Segmentation | COCO | 193 MB | [.mar](https://torchserve.pytorch.org/mar_files/fcn_resnet_101_scripted.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg) |Torchscripted |
+| DeepLabV3 ResNet 101 Scripted | Image Segmentation | COCO | 217 MB | [.mar](https://www.dropbox.com/s/dik25o64dh4gklg/deeplabv3_resnet_101_scripted.mar?dl=0) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg) |Torchscripted |
 
 Refer [example](../examples) for more details on above models.
