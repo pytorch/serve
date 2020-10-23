@@ -57,8 +57,7 @@ public class ModelArchiveTest {
         final List<String> customUrlPatternList =
                 Arrays.asList(
                         "http(s)?://s3.amazonaws.com.*",
-                        "https://torchserve.pytorch.org/mar_files/.*",
-                        "https://www.dropbox.com/s/.*/.*");
+                        "https://torchserve.pytorch.org/mar_files/.*");
         ModelArchive.downloadModel(
                 customUrlPatternList,
                 modelStore,
