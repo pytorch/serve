@@ -12,7 +12,6 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import java.util.List;
 import java.util.Map;
 
-import io.netty.util.internal.StringUtil;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
@@ -75,8 +74,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             if (segments[3].contains(":predict")) {
                 handleKFV1Predictions(ctx, req, segments, false);
             } 
-        } 
-        else {
+        } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
     }
