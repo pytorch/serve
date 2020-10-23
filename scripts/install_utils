@@ -168,7 +168,12 @@ stop_torchserve()
 register_model()
 {
   echo "Registering $1 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
+  if [ $1 == "deeplabv3_resnet_101" ]
+  then
+      response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://www.dropbox.com/s/2otj6ssf69bnb33/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
+  else
+      response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
+  fi
 
   if [ ! "$response" == 200 ]
   then
