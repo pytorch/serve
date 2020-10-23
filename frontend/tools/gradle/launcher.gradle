@@ -3,6 +3,7 @@ apply plugin: LauncherPlugin
 clean.dependsOn killServer
 
 import org.gradle.internal.jvm.Jvm
+import org.gradle.util.CollectionUtils
 
 class LauncherPlugin implements Plugin<Project> {
     void apply(Project project) {

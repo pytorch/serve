@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/densenet161_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/densenet161_scripted.mar",
         "model_name":"densenet161_scripted",
         "worker":1,
         "synchronous":"true",
