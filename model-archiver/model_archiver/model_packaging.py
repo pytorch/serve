@@ -52,15 +52,7 @@ def generate_model_archive():
     Generate a model archive file
     :return:
     """
-
-    model_handlers = {
-        'text_classifier': 'text',
-        'image_classifier': 'vision',
-        'object_detector': 'vision',
-        'image_segmenter': 'vision',
-        'text_classifier_kf': 'text'
-    }
-
+    
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
     manifest = ModelExportUtils.generate_manifest_json(args)
