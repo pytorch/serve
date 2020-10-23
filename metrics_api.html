@@ -297,17 +297,17 @@ For details refer <a class="reference internal" href="configuration.html"><span 
 <div class="section" id="prometheus-server">
 <h2>Prometheus server<a class="headerlink" href="#prometheus-server" title="Permalink to this headline">¶</a></h2>
 <p>To view these metrics on a Prometheus server, download and install using the instructions <a class="reference external" href="https://prometheus.io/download/#prometheus">here</a>. Create a minimal <code class="docutils literal notranslate"><span class="pre">prometheus.yml</span></code> config file as below and run <code class="docutils literal notranslate"><span class="pre">./prometheus</span> <span class="pre">--config.file=prometheus.yml</span></code>.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
-  <span class="nt">scrape_interval</span><span class="p">:</span>     <span class="l l-Scalar l-Scalar-Plain">15s</span>
-  <span class="nt">evaluation_interval</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">15s</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">global</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">scrape_interval</span><span class="p p-Indicator">:</span>     <span class="l l-Scalar l-Scalar-Plain">15s</span>
+  <span class="l l-Scalar l-Scalar-Plain">evaluation_interval</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">15s</span>
 
-<span class="nt">scrape_configs</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;prometheus&#39;</span>
-    <span class="nt">static_configs</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:9090&#39;</span><span class="p p-Indicator">]</span>
-  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;torchserve&#39;</span>
-    <span class="nt">static_configs</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:8082&#39;</span><span class="p p-Indicator">]</span> <span class="c1">#TorchServe metrics endpoint</span>
+<span class="l l-Scalar l-Scalar-Plain">scrape_configs</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">job_name</span><span class="p p-Indicator">:</span> <span class="s">&#39;prometheus&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">static_configs</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">targets</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:9090&#39;</span><span class="p p-Indicator">]</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">job_name</span><span class="p p-Indicator">:</span> <span class="s">&#39;torchserve&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">static_configs</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">targets</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:8082&#39;</span><span class="p p-Indicator">]</span> <span class="c1">#TorchServe metrics endpoint</span>
 </pre></div>
 </div>
 <p>Navigate to http://localhost:9090/ on a browser to execute queries and create graphs</p>

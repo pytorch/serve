@@ -1,80 +1,92 @@
 # Advanced configuration
 
-One of design goal of TorchServe is easy to use. The default settings form TorchServe should be sufficient for most of use cases. This document describe advanced configurations that allows user to deep customize TorchServe's behavior.
+TorchServe is meant to be easy to use. The default settings form TorchServe should be sufficient for most use cases.
+If you want to customize TorchServe, the configuration options described in this topic are available.
+
+There are three ways to configure TorchServe. In order of priority, the are:
+
+1. Environment variables
+2. Command line arguments
+3. Configuration file
+
+For example, the value of an environment variable overrides both command line arguments and
+a property in the configuration file. The value of a command line argument overrides
+a value in the configuration file.
 
 ## Environment variables
 
-User can set environment variables to change TorchServe behavior, following is a list of variables that user can set for TorchServe:
+You can change TorchServe behavior by setting the following environment variables:
+
 * JAVA_HOME
 * PYTHONPATH
 * TS_CONFIG_FILE
 * LOG_LOCATION
 * METRICS_LOCATION
 
-**Note:** environment variable has higher priority that command line or config.properties. It will override other property values.
+**Note:** Environment variables have higher priority than command line or config.properties.
+The value of an environment variable overrides other property values.
 
 ## Command line parameters
 
-User can following parameters to start TorchServe, those parameters will override default TorchServe behavior:
+Customize TorchServe behavior by using the following command line arguments when you call `torchserve`:
 
-* **--ts-config** TorchServe will load specified configuration file if TS_CONFIG_FILE is not set.
-* **--model-store** This parameter will override `model_store` property in config.properties file.
-* **--models** This parameter will override `load_models' property in config.properties.
-* **--log-config** This parameter will override default log4j.properties.
-* **--foreground** This parameter will run the TorchServe in foreground. If this option is
-                        disabled, the TorchServe will run in the background.
+* **--ts-config** TorchServe loads the specified configuration file if `TS_CONFIG_FILE` environment variable is not set
+* **--model-store** Overrides the `model_store` property in config.properties file
+* **--models** Overrides the `load_models` property in config.properties
+* **--log-config** Overrides the default log4j.properties
+* **--foreground** Runs TorchServe in the foreground. If this option is
+                        disabled, TorchServe runs in the background
 
-See [Running the TorchServe](server.md) for detail.
+For more detailed information about `torchserve` command line options, see [Serve Models with TorchServe](server.md).
 
 ## config.properties file
 
-TorchServe use a `config.properties` file to store configurations. TorchServe use following order to locate this `config.properties` file:
-1. if `TS_CONFIG_FILE` environment variable is set, TorchServe will load the configuration from the environment variable.
-2. if `--ts-config` parameter is passed to `torchserve`, TorchServe will load the configuration from the parameter.
-3. if there is a `config.properties` in current folder where user start the `torchserve`, TorchServe will load the `config.properties` file form current working directory.
-4. If none of above is specified, TorchServe will load built-in configuration with default values.
+TorchServe uses a `config.properties` file to store configurations. TorchServe uses following, in order of priority, to locate this `config.properties` file:
+
+1. If the `TS_CONFIG_FILE` environment variable is set, TorchServe loads the configuration from the path specified by the environment variable.
+2. If `--ts-config` parameter is passed to `torchserve`, TorchServe loads the configuration from the path specified by the parameter.
+3. If there is a `config.properties` in the folder where you call `torchserve`, TorchServe loads the `config.properties` file from the current working directory.
+4. If none of the above is specified, TorchServe loads a built-in configuration with default values.
 
 ### Customize JVM options
 
-The restrict TorchServe frontend memory footprint, certain JVM options is set via **vmargs** property in `config.properties` file
+To control TorchServe frontend memory footprint, configure the **vmargs** property in the `config.properties` file
 
 * default: N/A, use JVM default options
 
-User can adjust those JVM options for fit their memory requirement if needed.
+Adjust JVM options to fit your memory requirement.
 
 ### Load models at startup
 
-User can configure load models while TorchServe startup. TorchServe can load models from `model_store` or from HTTP(s) URL.
+You can configure TorchServe to load models during startup by setting the `model_store` and `load_models` properties.
+The following values are valid:
 
-* model_store
-	* standalone: default: N/A, load models from local disk is disabled. Following syntax can be used to configure lost of models to be loaded on startup :
-	
-```python
-# load all models present in model store
-load_models=all
-# load models from model store with mar names only
-load_models=model1.mar,model2.mar
-# load models from model store with model name and mar file
-load_models=model1=model1.mar,model2=model2.mar
-```
+* `load_models`
+  * `standalone`: default: N/A, No models are loaded at start up.
+  * `all`: Load all models present in `model_store`.
+  * `model1.mar, model2.mar`: Load models in the specified MAR files from `model_store`.
+  * `model1=model1.mar, model2=model2.mar`: Load models with the specified names and MAR files from `model_store`.
 
-* load_models
-	* standalone: default: N/A, no models will be load on startup.
-```python
-model_store=<path to model store directory which stores the local mar files.>
-```
+* `model_store`
+  * `standalone`: default: N/A, Loading models from the local disk is disabled.
+  * `pathname`: The model store location is specified by the value of `pathname`.
 
-**Note:** `model_store` and `load_models` property can be override by command line parameters.
+**Note:** `model_store` and `load_models` properties are overridden by command line parameters, if specified.
 
 ### Configure TorchServe listening address and port
 
-TorchServe doesn't support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default. Inference API is listening on 8080 port and accepting HTTP request. Management API is listening on 8081 port and accepting HTTP request. See [Enable SSL](#enable-ssl) for configuring HTTPS.
+TorchServe doesn't support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default.
+The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
+See [Enable SSL](#enable-ssl) to configure HTTPS.
 
-* inference_address: inference API binding address, default: http://127.0.0.1:8080
-* management_address: management API binding address, default: http://127.0.0.1:8081
-* In order to run predictions on models via public-ip specify IP address as `0.0.0.0` to make is accessible over all network interfaces or to the explicit IP-address as shown in example below.
+* `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
+* `management_address`: management API binding address. Default: http://127.0.0.1:8081
+* `metrics_address`: metrics API binding address. Default: http://127.0.0.1:8082
+* To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
+  To run predictions on models on a specific IP address, specify the IP address and port.
 
 Here are a couple of examples:
+
 ```properties
 # bind inference API to all network interfaces with SSL enabled
 inference_address=https://0.0.0.0:8443
@@ -87,17 +99,20 @@ inference_address=https://172.16.1.10:8080
 
 ### Enable SSL
 
-For users who want to enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`. The default is port 443, however you can make TorchServe listen on whatever port you set to accept https requests. For example, to receive https traffic on port 8443, you would use: `inference_address=https://127.0.0.1:8443`.
+To enable HTTPs, you can change `inference_address`, `management_address` or `metrics_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
+The default is port 443, but you can make TorchServe listen on whatever port you set to accept https requests.
+For example, to receive https traffic on port 8443, you would use: `inference_address=https://127.0.0.1:8443`.
 
 You must also provide a certificate and private key to enable SSL. TorchServe supports two ways to configure SSL:
+
 1. Use a keystore:
-	* **keystore:** the keystore file location. If multiple private key entries exist in the keystore, the first one will be used.
-	* **keystore_pass**: the keystore password. The password (if applicable) MUST be the same as keystore password.
-    * **keystore_type**: the type of keystore. Default: PKCS12.
+  * **keystore:** the keystore file location. If multiple private key entries exist in the keystore, the first one will be used.
+  * **keystore_pass**: the keystore password. The password (if applicable) MUST be the same as keystore password.
+  * **keystore_type**: the type of keystore. Default: PKCS12.
 
 2. Use private-key/certificate files:
-	* **private_key_file**: the private key file location. Supports both PKCS8 and OpenSSL private keys.
-	* **certificate_file**: the X509 certificate chain file location.
+  * **private_key_file**: the private key file location. Supports both PKCS8 and OpenSSL private keys.
+  * **certificate_file**: the X509 certificate chain file location.
 
 #### Examples
 
@@ -107,11 +122,12 @@ You must also provide a certificate and private key to enable SSL. TorchServe su
 keytool -genkey -keyalg RSA -alias ts -keystore keystore.p12 -storepass changeit -storetype PKCS12 -validity 3600 -keysize 2048 -dname "CN=www.MY_TS.com, OU=Cloud Service, O=model server, L=Palo Alto, ST=California, C=US"
 ```
 
-Config following property in config.properties:
+Configure the following properties in config.properties:
 
-```properties
+```bash
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 keystore=keystore.p12
 keystore_pass=changeit
 keystore_type=PKCS12
@@ -128,11 +144,13 @@ Config following property in config.properties:
 ```properties
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 private_key_file=mykey.key
 certificate_file=mycert.pem
 ```
 
 ### Configure Cross-Origin Resource Sharing (CORS)
+
 CORS is a mechanism that uses additional HTTP headers to tell a browser to let a
 web application running at one origin (domain) have permission to access selected
 resources from a server at a different origin.
@@ -148,30 +166,75 @@ cors_allowed_methods=GET, POST, PUT, OPTIONS
 cors_allowed_headers=X-Custom-Header
 ```
 
+### Prefer direct buffer
+Configuration parameter prefer_direct_buffer controls if the model server will be using direct memory specified by -XX:MaxDirectMemorySize. This parameter is for model server only and  doesn't affect other packages' usage of direct memory buffer. Default: false
 
-### Restrict backend worker to access environment variable
+```properties
+prefer_direct_buffer=true
+```
 
-Environment variable may contains sensitive information like AWS credentials. Backend worker will execute arbitrary model's custom code, which may expose security risk. TorchServe provides a `blacklist_env_vars` property which allows user to restrict which environment variable can be accessed by backend worker.
+### Allow model specific custom python packages.
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup. User can supply a requirements.txt file containing the required list of python packages to be installed by `TorchServe` for seamless model serving.
+Configuration parameter `install_py_dep_per_model` controls if the model server will install the python packages using the `requirements` file supplied with the model archive. Default: false
 
-* blacklist_env_vars: a regular expression to filter out environment variable names, default: all environment variable will be visible to backend worker.
+```properties
+install_py_dep_per_model=true
+```
+
+User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file. 
+
+### Restrict backend worker to access environment variables
+
+Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
+which might expose a security risk. TorchServe provides a `blacklist_env_vars` property that allows you to restrict which environment variables can be accessed by backend workers.
+
+* `blacklist_env_vars`: a regular expression to filter out environment variable names. Default: all environment variables are visible to backend workers.
 
 ### Limit GPU usage
-By default, TorchServe will use all available GPUs for inference, you use `number_of_gpu` to limit the usage of GPUs.
 
-* number_of_gpu: max number of GPUs that TorchServe can use for inference, default: available GPUs in system.
+By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu` to limit the usage of GPUs.
+
+* `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
+
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
+		     This is used in conjunction with `enable_meterics_api` option above.
 
 ### Other properties
 
-Most of those properties are designed for performance tuning. Adjusting those numbers will impact scalability and throughput.
+Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
-* enable_envvars_config: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. default: false
-* number_of_netty_threads: number frontend netty thread, default: number of logical processors available to the JVM.
-* netty_client_threads: number of backend netty thread, default: number of logical processors available to the JVM.
-* default_workers_per_model: number of workers to create for each model that loaded at startup time, default: available GPUs in system or number of logical processors available to the JVM.
-* job_queue_size: number inference jobs that frontend will queue before backend can serve, default 100.
-* async_logging: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled, default: false.
-* default_response_timeout: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. default: 120 seconds.
-* unregister_model_timeout: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. default: 120 seconds.
-* decode_input_request: Configuration to let backend workers to decode requests, when the content type is known.
+* `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
+* `number_of_netty_threads`: Number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
+* `netty_client_threads`: Number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
+* `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
+* `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
+* `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
+* `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
+* `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
+* `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
-the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". default: true  
+the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `model_store` : Path of model store directory.
+* `model_server_home` : Torchserve home directory. 
+* `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
+* `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
+eg : To allow base URLs "https://s3.amazonaws.com/" and "https://torchserve.pytorch.org/" use following regex string
+```
+allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*
+```
+
+---
+
+**NOTE**
+
+All the above config properties can be set using environment variable as follows.
+- set `enable_envvars_config` to true in config.properties
+- export environment variable for property as`TS_<PROPERTY_NAME>`. 
+
+  eg: to set inference_address property run cmd
+  `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
+
+---

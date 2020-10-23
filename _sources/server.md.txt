@@ -1,6 +1,7 @@
-# Running the TorchServe
+# Running TorchServe
 
 ## Contents of this Document
+
 * [Overview](#overview)
 * [Technical Details](#technical-details)
 * [Model Files](#model-files)
@@ -33,29 +34,34 @@ After this deep dive, you might also be interested in:
 
 ## Model Files
 
-The rest of this topic focus on serving of model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
+The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
 
 ## Command Line Interface
 
 ```bash
 $ torchserve --help
-usage: torechserve [-h] [--start]
+usage: torchserve [-h] [-v | --version]
+                          [--start]
                           [--stop]
                           [--ts-config TS_CONFIG]
                           [--model-store MODEL_STORE]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
-Torchserve
+torchserve
+
+mandatory arguments:
+  --model-store MODEL_STORE
+                        Model store location where models can be loaded
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --version         Return TorchServe Version
   --start               Start the model-server
   --stop                Stop the model-server
   --ts-config TS_CONFIG
                         Configuration file for TorchServe
-  --model-store MODEL_STORE
-                        Model store location where models can be loaded
+
   --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
                         Models to be loaded using [model_name=]model_location
                         format. Location can be a HTTP URL, a model archive
@@ -63,13 +69,16 @@ optional arguments:
                         MODEL_STORE.
   --log-config LOG_CONFIG
                         Log4j configuration file for TorchServe
+  --ncs, --no-config-snapshots         
+                        Disable snapshot feature
 ```
 
 #### Arguments:
+
 Example where no models are loaded at start time:
 
 ```bash
-torchserve
+torchserve --model-store /models
 ```
 
 There are no default required arguments to start the server
@@ -81,7 +90,8 @@ There are no default required arguments to start the server
         http link: http://hostname/path/to/resource
 
     b) to load all the models in model store set model value to "all"
-    
+
+
     ```bash
     torchserve --model-store /models --start --models all
     ```
@@ -89,9 +99,9 @@ There are no default required arguments to start the server
     c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.
 
     d) Multiple models loading are also supported by specifying multiple name path pairs.
-    
+
     e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
-    
+
 1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
@@ -106,14 +116,14 @@ This topic is covered in much more detail on the [custom service documentation p
 Let's say you have a model named `super-fancy-net.mar` in `/models` folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the "not-hot-dog" API. In this case we might invoke TorchServe like this:
 
 ```bash
-torchserve --start  --model-store /models --models not-hot-dog=super-fancy-net.mar
+torchserve --start --model-store /models --models not-hot-dog=super-fancy-net.mar
 ```
 
 This would serve a prediction endpoint at `predictions/not-hot-dog/` and run your custom service code in the archive, the manifest in archive would point to the entry point.
 
 ### Serving Multiple Models with TorchServe
 
-Example loading all models available in model_store while starting torchserve:
+Example loading all models available in `model_store` while starting TorchServe:
 
 ```bash
 torchserve --start --model-store /models --models all
@@ -131,17 +141,6 @@ Here's an example for running the resnet-18 and the vgg16 models using local mod
 torchserve --start --model-store /models --models resnet-18=resnet-18.mar squeezenet=squeezenet_v1.1.mar
 ```
 
-If you don't have the model files locally, then you can call TorchServe using URLs to the model files.
-
-```bash
-torchserve --models resnet=https://<s3_path>/resnet-18.mar squeezenet=https://<s3_path>/squeezenet_v1.1.mar
-```
-
-This will setup a local host serving resnet-18 model and squeezenet model on the same port, using the default 8080. Check http://127.0.0.1:8081/models to see that each model has an endpoint for prediction. In this case you would see `predictions/resnet` and `predictions/squeezenet`
-
-
 ### Logging and Metrics
 
 For details on logging see the [logging documentation](logging.md). For details on metrics see the [metrics documentation](metrics.md).
-
-

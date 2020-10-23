@@ -1,9 +1,0 @@
-TorchServe
-==================================
-TorchServe is a flexible and easy to use tool for serving PyTorch models.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Documentation
-
-   overview

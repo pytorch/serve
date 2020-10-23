@@ -363,7 +363,7 @@ $ torchserve --start --model-store model_store
 <ul class="simple">
 <li><p>Now let’s launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> of 10ms.</p></li>
 </ul>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&amp;batch_size=8&amp;max_batch_delay=10&amp;initial_workers=1&quot;
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&amp;batch_size=8&amp;max_batch_delay=10&amp;initial_workers=1&quot;
 {
   &quot;status&quot;: &quot;Processing worker updates...&quot;
 }
@@ -376,7 +376,7 @@ $ torchserve --start --model-store model_store
   {
     &quot;modelName&quot;: &quot;resnet-152-batch_v2&quot;,
     &quot;modelVersion&quot;: &quot;2.0&quot;,
-    &quot;modelUrl&quot;: &quot;https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch_v2.mar&quot;,
+    &quot;modelUrl&quot;: &quot;https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&quot;,
     &quot;runtime&quot;: &quot;python&quot;,
     &quot;minWorkers&quot;: 1,
     &quot;maxWorkers&quot;: 1,

@@ -307,13 +307,13 @@
 </ul>
 <div class="section" id="curl-example">
 <h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl http://localhost:8080/predictions/resnet-18 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18 -T kitten_small.jpg
 
 or:
 
-curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten.jpg&quot;</span>
+curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
 </pre></div>
 </div>
 <p>To get predictions from a specific version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}/{version}</span></code>:</p>
@@ -324,13 +324,13 @@ curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=
 </div>
 <div class="section" id="id1">
 <h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
 
 or:
 
-curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;data=@kitten.jpg&quot;</span>
+curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
 </pre></div>
 </div>
 <p>The result is JSON that tells you that the image is most likely a tabby cat. The highest prediction was:</p>
