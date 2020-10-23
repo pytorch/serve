@@ -66,6 +66,36 @@
 			"response": []
 		},
 		{
+			"name": "HTTPS Metrics API Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0aa1325d-be34-4128-840e-e1d26cae31f5",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-metric-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-metric-port}}"
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "HTTPS Register Model - SqueezeNet",
 			"event": [
 				{
@@ -85,7 +115,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -97,7 +127,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 						},
 						{
 							"key": "model_name",

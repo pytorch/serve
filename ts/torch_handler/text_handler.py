@@ -1,5 +1,3 @@
-# pylint: disable=W0223
-# Details : https://github.com/PyCQA/pylint/issues/3098
 """
 Base module for all text based default handler.
 Contains various text based utility methods
@@ -10,7 +8,6 @@ import logging
 import string
 import unicodedata
 from abc import ABC
-from captum.attr import LayerIntegratedGradients
 import torch
 import torch.nn.functional as F
 from torchtext.data.utils import get_tokenizer
@@ -34,16 +31,13 @@ class TextHandler(BaseHandler, ABC):
     """
 
     def __init__(self):
-        super(TextHandler, self).__init__()
+        super().__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer("basic_english")
         self.initialized = None
 
     def initialize(self, context):
-        """
-        Loads the model and Initializes the necessary artifacts
-        """
-        super(TextHandler, self).initialize(context)
+        super().initialize(context)
         self.initialized = False
         source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
         if source_vocab:

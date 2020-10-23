@@ -16,6 +16,7 @@ import io.netty.util.internal.StringUtil;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.NettyUtils;
@@ -199,6 +200,8 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             NettyUtils.sendJsonResponse(ctx, resp);
             return;
         }
+
+        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
         Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage =
@@ -218,6 +221,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             throw new ServiceUnavailableException(responseMessage);
         }
     }
+
     private static RequestInput parseRequest(
         ChannelHandlerContext ctx, FullHttpRequest req, QueryStringDecoder decoder) {
         String requestId = NettyUtils.getRequestId(ctx.channel());
