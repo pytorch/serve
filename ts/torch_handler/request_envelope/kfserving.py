@@ -45,11 +45,8 @@ class KFservingEnvelope(BaseEnvelope):
             outputs (List): The outputs arguments is in the form of a list of dictionaries.
 
         Returns:
-            (list): The response is returned as a list of predictions and explanations
+            (list): The response is returned as a list of predictions
         """
-        output = outputs[
-            0
-        ]  # Removing the outer list added in base handler for consistency
 
-        logger.info("The Response of KFServing %s", output)
-        return [output]
+        logger.info("The Response of KFServing %s", outputs)
+        return outputs
