@@ -106,7 +106,7 @@ $ curl -X POST "localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_
 $ curl localhost:8081/models/resnet-152
 {
   "modelName": "resnet-152",
-  "modelUrl": "<local_OR_cloud_url>/resnet-152.mar",
+  "modelUrl": "https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar",
   "runtime": "python",
   "minWorkers": 1,
   "maxWorkers": 1,
@@ -129,7 +129,7 @@ $ curl localhost:8081/models/resnet-152
   * Get an image to test this service
 
     ```text
-    $ curl -O https://github.com/pytorch/serve/examples/image_classifier/resnet_18/kitten.jpg
+    $ curl -O https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg
     ```
 
   * Run inference to test the model.
