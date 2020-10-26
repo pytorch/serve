@@ -27,7 +27,7 @@ OUT_DIR = os.path.join(BENCHMARK_DIR, 'out/')
 RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource/')
 
 RESOURCE_MAP = {
-    'kitten.jpg': 'https://s3.amazonaws.com/model-server/inputs/kitten.jpg'
+    'kitten.jpg': 'https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg'
 }
 
 # Listing out all the JMX files

@@ -5,6 +5,9 @@ metadata:
   name: torchserve
   labels:
     app: torchserve
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8082'
 spec:
   ports:
   - name: preds
