@@ -102,8 +102,8 @@ def start():
             if not args.model_store and props.get('model_store'):
                 args.model_store = props.get('model_store')
 
-        if args.plugins_jar:
-            class_path += ":" + args.plugins_jar
+        if args.plugins_path:
+            class_path += ":" + args.plugins_path + "/*" if "*" not in args.plugins_path else ":" + args.plugins_path
 
         cmd.append("-cp")
         cmd.append(class_path)

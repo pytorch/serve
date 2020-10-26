@@ -32,37 +32,7 @@ The snapshots are by default in `{LOG_LOCATION}\config` directory, where `{LOG_L
 
 **Note** : Models passed in --models parameter while starting TorchServe are ignored if restoring from a snapshot.
 
-# Using AWS Dynamo DB as snapshot store
+# Changing snapshot store
 
-Torchserve snapshots are store/serialized in local file system (FS). The snapshot serializer is responsible for saving snapshot. 
-At present, torchserve supports two types of serializer, 1. `FS` 2. and `DDB` 
-
-You can change snapshot serializer as follow  from default `FS` to AWS Dynamo database (DDB) - 
-- Assuming you have AWS account and required privileged to create DDB tables
-
-1. Create following two tables (using aws console) -
-    - `latest_snapshots`
-    
-      `Primary key -> snapshotName`
-      
-    - `snapshots`
-    
-      `Primary key -> snapshotName`
-      
-      Select `Add sort key`
-      
-      `Sort key -> createdOn`
-
-2. DDB serializer uses `DefaultCredentialsProvider` which supports following authorization mechanisms - 
- 
-    - Environment Variables - AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
-    - Credential profiles file at the default location (~/.aws/credentials) shared by all AWS SDKs and the AWS CLI
-    - Credentials delivered through the Amazon EC2 container service if AWS_CONTAINER_CREDENTIALS_RELATIVE_URI" environment variable is set and security manager has permission to access the variable,
-    - Instance profile credentials delivered through the Amazon EC2 metadata service
-    
-     Please configure desired auth. mechanism from above list.
-
-3. Start torchserve with DDB
-`torchserve --start --model-store <your-model-store-path> --snapshot-store DDB`
-
-To be implemented -> Ability to supply snapshot from `snapshot` table via command line.
+Torchserve snapshots are store/serialized in local file system (FS). You can change snapshot serializer by using a plugin.
+Refer [DDBEndPoint](../plugins/docs/ddb_endpoint.md) plugin for details.

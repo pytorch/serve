@@ -1,4 +1,4 @@
-package org.pytorch.serve.plugins.ddb;
+package org.pytorch.serve.plugins.ddb.snapshot;
 
 import software.amazon.awssdk.enhanced.dynamodb.extensions.annotations.DynamoDbVersionAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -34,9 +34,6 @@ public class Snapshots {
     }
 
     @DynamoDbSortKey
-    // Defines an LSI (customers_by_date) with a sort key of 'createdDate' and also declares the
-    // same attribute as a sort key for the GSI named 'customers_by_name'
-    // @DynamoDbSecondarySortKey(indexNames = {"createdOnSort-index", "createdOnMonth-index"})
     String getCreatedOn() {
         return createdOn;
     }
