@@ -31,6 +31,7 @@ import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -262,7 +263,7 @@ public class SnapshotTest {
         server.start();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(false, configManager);
+            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
             if (channel != null) {
                 break;
             }
@@ -287,7 +288,7 @@ public class SnapshotTest {
         server.start();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(false, configManager);
+            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
             if (channel != null) {
                 break;
             }
@@ -300,7 +301,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testRestartTorchServeWithSnapshotAsConfig"})
     public void testNoSnapshotOnInvalidModelRegister() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.registerModel(channel, "InvalidModel", "InvalidModel", false, true);
 
@@ -311,7 +312,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelRegister"})
     public void testNoSnapshotOnInvalidModelUnregister() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "InvalidModel", null, true);
 
@@ -322,7 +323,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelUnregister"})
     public void testNoSnapshotOnInvalidModelVersionUnregister() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.registerModel(channel, "noopversioned", "3.0", false, true);
 
@@ -333,7 +334,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelVersionUnregister"})
     public void testNoSnapshotOnInvalidModelScale() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.scaleModel(channel, "invalidModel", null, 1, true);
 
@@ -344,7 +345,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelScale"})
     public void testNoSnapshotOnInvalidModelVersionScale() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.scaleModel(channel, "noopversioned", "3.0", 1, true);
 
@@ -355,7 +356,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelVersionScale"})
     public void testNoSnapshotOnInvalidModelVersionSetDefault() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         String requestURL = "/models/noopversioned/3.0/set-default";
 
