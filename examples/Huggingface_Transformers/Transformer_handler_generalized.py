@@ -75,10 +75,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """
         input_batch = None
         for idx, data in enumerate(requests):
-            text = data.get("data")
-            if text is None:
-                text = data.get("body")
-            input_text = text.decode('utf-8')
+            input_text = data.get("data")
+            if input_text is None:
+                input_text = data.get("body")
+            if isinstance(input_text, (bytes, bytearray)):
+                input_text = input_text.decode('utf-8')
+                
             max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
             #preprocessing text for sequence_classification and token_classification.
