@@ -32,7 +32,8 @@ class TextClassifier(TextHandler):
 
         line = data[0]
         text = line.get("data") or line.get("body")
-        text = text.decode('utf-8')
+        if isinstance(text, (bytes, bytearray)):
+            text = text.decode('utf-8')
 
         text = self._remove_html_tags(text)
         text = text.lower()

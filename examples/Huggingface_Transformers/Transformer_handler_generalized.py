@@ -163,6 +163,21 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         return inferences
 
+    # def postprocess(self, inference_output):
+    #     # TODO: Add any needed post-processing of the model predictions here
+    #     return inference_output
+
     def postprocess(self, inference_output):
-        # TODO: Add any needed post-processing of the model predictions here
-        return inference_output
+        """Post Process Function converts the predicted response into Torchserve readable format.
+
+        Args:
+            inference_output (list): It contains the predicted response of the input text.
+            output_explain (list): It contains a list of dictionary with importances and
+            words as parameters. Defaults to None if only predict endpoint is hit.
+
+        Returns:
+            (list): Returns a list of the Predictions and Explanations.
+        """
+        response = {}
+        response["predictions"] = inference_output
+        return [response]

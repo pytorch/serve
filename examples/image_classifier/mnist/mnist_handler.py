@@ -21,4 +21,7 @@ class MNISTDigitClassifier(ImageClassifier):
     ])
     
     def postprocess(self, data):
-        return data.argmax(1).tolist()
+        # return data.argmax(1).tolist()
+        response = {}
+        response["predictions"] = data.argmax(1).tolist()
+        return [response]

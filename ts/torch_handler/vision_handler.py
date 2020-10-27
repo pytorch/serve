@@ -14,13 +14,35 @@ class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
-
     def preprocess(self, data):
-        images = []        
+        """The preprocess function of MNIST program converts the input data to a float tensor
+
+        Args:
+            data (List): Input data from the request is in the form of a Tensor
+
+        Returns:
+            list : The preprocess function returns the input image as a list of float tensors.
+        """
+        images = []
+
         for row in data:
+            # Compat layer: normally the envelope should just return the data
+            # directly, but older versions of Torchserve didn't have envelope.
             image = row.get("data") or row.get("body")
-            image = Image.open(io.BytesIO(image))
-            image = self.image_processing(image)
+            if isinstance(image, (bytearray, bytes)):
+                image = Image.open(io.BytesIO(image))
+                image = self.image_processing(image)
+            else:
+                image = torch.FloatTensor(image)
             images.append(image)
 
         return torch.stack(images)
+    # def preprocess(self, data):
+    #     images = []        
+    #     for row in data:
+    #         image = row.get("data") or row.get("body")
+    #         image = Image.open(io.BytesIO(image))
+    #         image = self.image_processing(image)
+    #         images.append(image)
+
+    #     return torch.stack(images)
