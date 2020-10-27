@@ -1,4 +1,5 @@
 import os
+import kfserving
 from kfserving.kfmodel_repository import KFModelRepository, MODEL_MOUNT_DIRS
 from TorchserveModel import TorchserveModel
 import logging
