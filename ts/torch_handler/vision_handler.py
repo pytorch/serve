@@ -8,7 +8,6 @@ import io
 import torch
 from PIL import Image
 from .base_handler import BaseHandler
-from captum.attr import IntegratedGradients
 
 
 class VisionHandler(BaseHandler, ABC):

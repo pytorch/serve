@@ -4,10 +4,6 @@ Module for image classification default handler
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
-from torchvision import models
-
-import json
-import numpy as np
 
 from .vision_handler import VisionHandler
 from ..utils.util  import map_class_to_label
