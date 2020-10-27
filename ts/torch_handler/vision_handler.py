@@ -8,7 +8,7 @@ import io
 import torch
 from PIL import Image
 from .base_handler import BaseHandler
-
+import base64
 
 class VisionHandler(BaseHandler, ABC):
     """
@@ -29,20 +29,19 @@ class VisionHandler(BaseHandler, ABC):
             # Compat layer: normally the envelope should just return the data
             # directly, but older versions of Torchserve didn't have envelope.
             image = row.get("data") or row.get("body")
+            
+            if isinstance(image, str):
+                # if the image is a string of bytesarray.
+                image = base64.b64decode(image)
+            
+            # If the image is sent as bytesarray
             if isinstance(image, (bytearray, bytes)):
                 image = Image.open(io.BytesIO(image))
                 image = self.image_processing(image)
             else:
+                # if the image is a list
                 image = torch.FloatTensor(image)
+            
             images.append(image)
 
         return torch.stack(images)
-    # def preprocess(self, data):
-    #     images = []        
-    #     for row in data:
-    #         image = row.get("data") or row.get("body")
-    #         image = Image.open(io.BytesIO(image))
-    #         image = self.image_processing(image)
-    #         images.append(image)
-
-    #     return torch.stack(images)
