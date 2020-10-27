@@ -75,11 +75,12 @@ public class RestJob extends Job {
         }
         logger.debug(
                 "Waiting time ns: {}, Backend time ns: {}",
-                scheduled - begin,
-                System.nanoTime() - scheduled);
+                getScheduled() - getBegin(),
+                System.nanoTime() - getScheduled());
         String queueTime =
                 String.valueOf(
-                        TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
+                        TimeUnit.MILLISECONDS.convert(
+                                getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
         loggerTsMetrics.info(
                 new Metric(
                         "QueueTime",

@@ -4,12 +4,23 @@ import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.grpc.inference.PredictionResponse;
+import org.pytorch.serve.metrics.Dimension;
+import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
+    private static final Logger logger = LoggerFactory.getLogger(Job.class);
+    private static final org.apache.log4j.Logger loggerTsMetrics =
+            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final Dimension DIMENSION = new Dimension("Level", "Host");
+
     private StreamObserver<PredictionResponse> predictionResponseObserver;
 
     public GRPCJob(
@@ -34,6 +45,22 @@ public class GRPCJob extends Job {
         PredictionResponse reply = PredictionResponse.newBuilder().setPrediction(output).build();
         predictionResponseObserver.onNext(reply);
         predictionResponseObserver.onCompleted();
+
+        logger.debug(
+                "Waiting time ns: {}, Backend time ns: {}",
+                getScheduled() - getBegin(),
+                System.nanoTime() - getScheduled());
+        String queueTime =
+                String.valueOf(
+                        TimeUnit.MILLISECONDS.convert(
+                                getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
+        loggerTsMetrics.info(
+                new Metric(
+                        "QueueTime",
+                        queueTime,
+                        "ms",
+                        ConfigManager.getInstance().getHostName(),
+                        DIMENSION));
     }
 
     @Override
