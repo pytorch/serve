@@ -47,7 +47,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
  - For GPU with Cuda 10.1
  
     ```bash
-    pip install -U -r requirements_gpu.txt
+    pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
    ```
 
 3. Install torchserve and torch-model-archiver
@@ -171,8 +171,8 @@ Complete the following steps:
 The following code completes all three steps:
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:
