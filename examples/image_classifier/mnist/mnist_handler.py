@@ -7,6 +7,7 @@ from ts.torch_handler.image_classifier import ImageClassifier
 import base64
 import torch
 
+
 class MNISTDigitClassifier(ImageClassifier):
     """
     MNISTDigitClassifier handler class. This handler extends class ImageClassifier from image_classifier.py, a
@@ -19,9 +20,9 @@ class MNISTDigitClassifier(ImageClassifier):
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
-    
+
     def postprocess(self, data):
         # return data.argmax(1).tolist()
-        response = {}
-        response["predictions"] = data.argmax(1).tolist()
-        return [response]
+        # response = {}
+        # response["predictions"] = data.argmax(1).tolist()
+        return data.argmax(1).tolist()

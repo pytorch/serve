@@ -47,6 +47,15 @@ class KFservingEnvelope(BaseEnvelope):
         Returns:
             (list): The response is returned as a list of predictions
         """
-
+        response = {}
         logger.info("The Response of KFServing %s", outputs)
+        if not self._is_explain():
+            response["predictions"] = outputs
         return outputs
+        
+    def _is_explain(self):
+        if self.context and self.context.get_request_header(0, "explain"):
+            if self.context.get_request_header(0, "explain") == "True":
+                return True
+        
+        return False

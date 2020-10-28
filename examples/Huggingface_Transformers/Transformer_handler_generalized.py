@@ -4,10 +4,11 @@ import logging
 import os
 import ast
 import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering,AutoModelForTokenClassification
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForTokenClassification
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
+
 
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
@@ -24,7 +25,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
-        #read configs for the mode, model_name, etc. from setup_config.json
+        # read configs for the mode, model_name, etc. from setup_config.json
         setup_config_path = os.path.join(model_dir, "setup_config.json")
         if os.path.isfile(setup_config_path):
             with open(setup_config_path) as setup_config_file:
@@ -32,16 +33,16 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning('Missing the setup_config.json file.')
 
-        #Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
-        #further setup config can be added.
+        # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
+        # further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
             self.model = torch.jit.load(model_pt_path)
         elif self.setup_config["save_mode"] == "pretrained":
-            if self.setup_config["mode"]== "sequence_classification":
+            if self.setup_config["mode"] == "sequence_classification":
                 self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-            elif self.setup_config["mode"]== "question_answering":
+            elif self.setup_config["mode"] == "question_answering":
                 self.model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
-            elif self.setup_config["mode"]== "token_classification":
+            elif self.setup_config["mode"] == "token_classification":
                 self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
             else:
                 logger.warning('Missing the operation mode.')
@@ -49,9 +50,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.warning('Missing the checkpoint or state_dict.')
 
         if not os.path.isfile(os.path.join(model_dir, "vocab.*")):
-            self.tokenizer = AutoTokenizer.from_pretrained(self.setup_config["model_name"],do_lower_case=self.setup_config["do_lower_case"])
+            self.tokenizer = AutoTokenizer.from_pretrained(self.setup_config["model_name"], do_lower_case=self.setup_config["do_lower_case"])
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_dir,do_lower_case=self.setup_config["do_lower_case"])
+            self.tokenizer = AutoTokenizer.from_pretrained(model_dir, do_lower_case=self.setup_config["do_lower_case"])
 
         self.model.to(self.device)
         self.model.eval()
@@ -61,7 +62,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
         # Question answering does not need the index_to_name.json file.
-        if not self.setup_config["mode"]== "question_answering":
+        if not self.setup_config["mode"] == "question_answering":
             if os.path.isfile(mapping_file_path):
                 with open(mapping_file_path) as f:
                     self.mapping = json.load(f)
@@ -80,15 +81,15 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 input_text = data.get("body")
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode('utf-8')
-                
+
             max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
-            #preprocessing text for sequence_classification and token_classification.
-            if self.setup_config["mode"]== "sequence_classification" or self.setup_config["mode"]== "token_classification" :
-                inputs = self.tokenizer.encode_plus(input_text,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
-            #preprocessing text for question_answering.
-            elif self.setup_config["mode"]== "question_answering":
-                #TODO Reading the context from a pickeled file or other fromats that
+            # preprocessing text for sequence_classification and token_classification.
+            if self.setup_config["mode"] == "sequence_classification" or self.setup_config["mode"] == "token_classification":
+                inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors='pt')
+            # preprocessing text for question_answering.
+            elif self.setup_config["mode"] == "question_answering":
+                # TODO Reading the context from a pickeled file or other fromats that
                 # fits the requirements of the task in hand. If this is done then need to
                 # modify the following preprocessing accordingly.
 
@@ -100,7 +101,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 question_context= ast.literal_eval(input_text)
                 question = question_context["question"]
                 context = question_context["context"]
-                inputs = self.tokenizer.encode_plus(question, context,max_length = int(max_length),pad_to_max_length = True, add_special_tokens=True, return_tensors="pt")
+                inputs = self.tokenizer.encode_plus(question, context, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors="pt")
             input_ids = inputs["input_ids"].to(self.device)
             if input_ids.shape is not None:
                 if input_batch is None:
@@ -115,7 +116,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         inferences = []
         # Handling inference for sequence_classification.
-        if self.setup_config["mode"]== "sequence_classification":
+        if self.setup_config["mode"] == "sequence_classification":
             predictions = self.model(input_batch)
             print("This the output size from the Seq classification model", predictions[0].size())
             print("This the output from the Seq classification model", predictions)
@@ -123,7 +124,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             num_rows, num_cols = predictions[0].shape
             for i in range(num_rows):
                 out = predictions[0][i].unsqueeze(0)
-                y_hat= out.argmax(1).item()
+                y_hat = out.argmax(1).item()
                 predicted_idx = str(y_hat)
                 inferences.append(self.mapping[predicted_idx])
         # Handling inference for question_answering.

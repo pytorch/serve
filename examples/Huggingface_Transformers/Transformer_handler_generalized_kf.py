@@ -229,4 +229,4 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         response = {}
         response["predictions"] = inference_output
         return [response]
-        
+                 

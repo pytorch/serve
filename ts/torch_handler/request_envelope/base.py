@@ -8,6 +8,7 @@ KFServing to a set of flat Python items, and vice versa.
 
 from abc import ABC, abstractmethod
 
+
 class BaseEnvelope(ABC):
     """
     Interface for all envelopes.
