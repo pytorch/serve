@@ -26,6 +26,7 @@ torchserve_env = {
 
 python_env = {
     "python_version": "N/A",
+    "python_executable_path": "N/A",
     "pip_version": "",
     "pip_packages": []
 }
@@ -250,6 +251,7 @@ def populate_torchserve_env(torch_pkg):
 def populate_python_env(pip_version, pip_list_output):
     python_env["python_version"] = f'{sys.version_info[0]}.{sys.version_info[1]} ' \
                                    f'({sys.maxsize.bit_length() + 1}-bit runtime)'
+    python_env["python_executable_path"] = sys.executable
     python_env["pip_version"] = pip_version
     python_env["pip_packages"] = pip_list_output
 
@@ -304,6 +306,7 @@ Torchserve branch: {torchserve_branch}
 {torch_model_archiver}
 
 Python version: {python_version}
+Python executable: {python_executable_path}
 
 Versions of relevant python libraries:
 {pip_packages}
