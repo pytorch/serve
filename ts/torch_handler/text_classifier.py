@@ -79,10 +79,7 @@ class TextClassifier(TextHandler):
             (list): Returns the response containing the predictions and explanations
                     (if the Endpoint is hit).It takes the form of a list of dictionary.
         """
-        response = {}
         logger.info("inference shape %s", data.shape)
         data = F.softmax(data)
         data = data.tolist()
-        response["predictions"] = map_class_to_label(data, self.mapping)
-
-        return [response]
+        return map_class_to_label(data, self.mapping)

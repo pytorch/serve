@@ -186,5 +186,5 @@ class BaseHandler(abc.ABC):
         data = self.preprocess(data)
         output = self.inference(data)
         output = self.postprocess(output)
-        
+        print("base handler output", output)
         return output

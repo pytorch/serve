@@ -16,8 +16,9 @@ class BaseEnvelope(ABC):
     """
     def __init__(self, handle_fn):
         self._handle_fn = handle_fn
-
+        self.context = None
     def handle(self, data, context):
+        self.context = context
         if data:
             data = self.parse_input(data)
 
