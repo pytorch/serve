@@ -70,8 +70,8 @@ public final class ModelManager {
                 null,
                 null,
                 null,
-                1,
-                100,
+                configManager.getDefaultBatchSize(),
+                configManager.getDefaultMaxBatchDelay(),
                 configManager.getDefaultResponseTimeout(),
                 defaultModelName);
     }

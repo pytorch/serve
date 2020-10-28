@@ -82,6 +82,9 @@ public final class ConfigManager {
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_DEFAULT_BATCH_SIZE_PER_MODEL = "default_batch_size_per_model";
+    private static final String TS_DEFAULT_MAX_BATCH_DELAY_PER_MODEL =
+            "default_max_batch_delay_in_ms_per_model";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -506,6 +509,34 @@ public final class ConfigManager {
         }
     }
 
+    public int getConfiguredDefaultBatchSizePerModel() {
+        return getIntProperty(TS_DEFAULT_BATCH_SIZE_PER_MODEL, 1);
+    }
+
+    public int getDefaultBatchSize() {
+        int batchSize = getConfiguredDefaultBatchSizePerModel();
+
+        if (batchSize < 1) {
+            batchSize = 1;
+        }
+
+        return batchSize;
+    }
+
+    public int getConfiguredDefaultMaxBatchDelayPerModel() {
+        return getIntProperty(TS_DEFAULT_MAX_BATCH_DELAY_PER_MODEL, 100);
+    }
+
+    public int getDefaultMaxBatchDelay() {
+        int maxBatchDelay = getConfiguredDefaultMaxBatchDelayPerModel();
+
+        if (maxBatchDelay <= 0) {
+            maxBatchDelay = 100;
+        }
+
+        return maxBatchDelay;
+    }
+
     public String dumpConfigurations() {
         Runtime runtime = Runtime.getRuntime();
         return "\nTorchserve version: "
@@ -561,7 +592,11 @@ public final class ConfigManager {
                 + "\nMetrics report format: "
                 + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
-                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nDefault batch size per model: "
+                + getDefaultBatchSize()
+                + "\nDefault max batch dealy in ms per model: "
+                + getDefaultMaxBatchDelay();
     }
 
     public boolean useNativeIo() {
