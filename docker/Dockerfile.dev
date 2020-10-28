@@ -20,7 +20,8 @@ ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION=latest
 #kfserving branch
 ARG BRANCH_NAME_KF=master
-ARG ENTRY_POINT = kfserve # should be changed to kfserve for kfserving 
+# should be changed to kfserve for kfserving
+ARG ENTRY_POINT=kfserve  
 
 ENV PYTHONUNBUFFERED TRUE
 
@@ -65,7 +66,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server \
     && cp -R kubernetes/kfserving_wrapper /home/model-server/kfserving_wrapper \
-    && cp docker/config.properties /home/model-server/config.properties
+    && cp docker/config.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
 EXPOSE 8080 8081
@@ -73,7 +74,8 @@ USER model-server
 WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
-CMD ["$ENTRY_POINT"]
+RUN if [ "$ENTRY_POINT" = "kfserve" ] ; then CMD ["kfserve"]; \
+    && elif [ "$ENTRY_POINT" = "serve" ] ; then CMD ["serve"]; fi
 
 # Build CodeBuild Image
 FROM compile-image AS codebuild-image
