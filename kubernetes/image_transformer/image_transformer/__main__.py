@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import kfserving
 import argparse
 import json
+import kfserving
 from .image_transformer import ImageTransformer
 from .transformer_model_repository import TransformerModelRepository
+
 DEFAULT_MODEL_NAME = "model"
 
 parser = argparse.ArgumentParser(parents=[kfserving.kfserver.parser])
-parser.add_argument('--predictor_host', help='The URL for the model predict function', required=True)
+parser.add_argument(
+    "--predictor_host", help="The URL for the model predict function", required=True
+)
 
 args, _ = parser.parse_known_args()
 
@@ -42,13 +45,13 @@ def parse_config():
                 # Assign key value pair to dict
                 # strip() removes white space from the ends of strings
                 keys[name.strip()] = value.strip()
-              
-    keys['model_snapshot'] = json.loads(keys['model_snapshot'])
-    
-    models = keys['model_snapshot']['models']
+
+    keys["model_snapshot"] = json.loads(keys["model_snapshot"])
+
+    models = keys["model_snapshot"]["models"]
     model_names = []
-    
-    #Get all the model_names
+
+    # Get all the model_names
     for model, value in models.items():
         model_names.append(model)
     if not model_names:
@@ -63,4 +66,7 @@ if __name__ == "__main__":
     for model_name in model_names:
         transformer = ImageTransformer(model_name, predictor_host=args.predictor_host)
         models.append(transformer)
-    kfserving.KFServer(registered_models=TransformerModelRepository(args.predictor_host),http_port = 8080).start(models=models)
+    kfserving.KFServer(
+        registered_models=TransformerModelRepository(args.predictor_host),
+        http_port=8080,
+    ).start(models=models)
