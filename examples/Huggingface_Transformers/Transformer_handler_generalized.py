@@ -175,12 +175,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         Args:
             inference_output (list): It contains the predicted response of the input text.
-            output_explain (list): It contains a list of dictionary with importances and
-            words as parameters. Defaults to None if only predict endpoint is hit.
-
         Returns:
             (list): Returns a list of the Predictions and Explanations.
-        """
-        response = {}
-        response["predictions"] = inference_output
-        return [response]
+        """ 
+        return inference_output
