@@ -21,7 +21,7 @@ ARG CUDA_VERSION=latest
 #kfserving branch
 ARG BRANCH_NAME_KF=master
 # should be changed to kfserve for kfserving
-ARG ENTRY_POINT=kfserve  
+ENV ENTRY_POINT=kfserve  
 
 ENV PYTHONUNBUFFERED TRUE
 
@@ -74,8 +74,9 @@ USER model-server
 WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
-RUN if [ "$ENTRY_POINT" = "kfserve" ] ; then CMD ["kfserve"]; \
-    && elif [ "$ENTRY_POINT" = "serve" ] ; then CMD ["serve"]; fi
+# RUN if [ "$ENTRY_POINT" = "kfserve" ] ; then CMD ["kfserve"]; \
+#     && elif [ "$ENTRY_POINT" = "serve" ] ; then CMD ["serve"]; fi
+# CMD ["echo $ENTRY_POINT"]
 
 # Build CodeBuild Image
 FROM compile-image AS codebuild-image
