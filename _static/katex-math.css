@@ -9,6 +9,8 @@
     overflow-y: hidden;
     padding-left: 2px;
     padding-right: 2px;
+    padding-bottom: 1px;
+    padding-top: 1px;
 }
 /* Increase margin around equations */
 .katex-display {
