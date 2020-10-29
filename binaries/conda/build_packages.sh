@@ -16,5 +16,4 @@ for pkg in ${PKGS}; do
             set +x
         )
     done
-    rm $pkg/meta.yaml
 done
