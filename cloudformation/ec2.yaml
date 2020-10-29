@@ -178,11 +178,23 @@ Resources:
       PortRange:
         From: '8080'
         To: '8080'
-  InboundSSHPublicNetworkAclEntry:
+  InboundMetricsPublicNetworkAclEntry:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId: !Ref 'PublicNetworkAcl'
       RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: '0.0.0.0/0'
+      PortRange:
+        From: '8082'
+        To: '8082'
+  InboundSSHPublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '103'
       Protocol: '6'
       RuleAction: allow
       Egress: 'false'
@@ -194,7 +206,7 @@ Resources:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId: !Ref 'PublicNetworkAcl'
-      RuleNumber: '103'
+      RuleNumber: '104'
       Protocol: '6'
       RuleAction: allow
       Egress: 'false'
@@ -234,6 +246,10 @@ Resources:
           ToPort: '8081'
           CidrIp: !Ref 'ManagementLocation'
         - IpProtocol: tcp
+          FromPort: '8082'
+          ToPort: '8082'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
           CidrIp: !Ref 'SSHLocation'
@@ -253,6 +269,7 @@ Resources:
                content: !Sub |
                  inference_address=https://0.0.0.0:8080
                  management_address=https://0.0.0.0:8081
+                 metrics_address=https://0.0.0.0:8082
                  private_key_file=/etc/torchserve/server.key
                  certificate_file=/etc/torchserve/server.pem
                mode: '000400'
@@ -421,3 +438,10 @@ Outputs:
       - - https://
         - !GetAtt 'TorchServeInstance.PublicDnsName'
         - :8080
+  TorchServeMetricsURL:
+    Description: Metrics URL for newly created TorchServe stack
+    Value: !Join
+      - ''
+      - - https://
+        - !GetAtt 'TorchServeInstance.PublicDnsName'
+        - :8082

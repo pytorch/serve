@@ -27,7 +27,7 @@ OUT_DIR = os.path.join(BENCHMARK_DIR, 'out/')
 RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource/')
 
 RESOURCE_MAP = {
-    'kitten.jpg': 'https://s3.amazonaws.com/model-server/inputs/kitten.jpg'
+    'kitten.jpg': 'https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg'
 }
 
 # Listing out all the JMX files
@@ -48,12 +48,12 @@ MODEL_VGG = 'vgg11'
 MODEL_RESNET_152 = 'resnet-152-batch'
 
 MODEL_MAP = {
-    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
-    MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
+    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
+    MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
 }
 
 
