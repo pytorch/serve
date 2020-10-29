@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-if [[ "$ENTRY_POINT" = "serve" ]]; then
+if [[ "$1" = "serve" ]]; then
     shift 1
     torchserve --start --ts-config /home/model-server/config.properties
-elif [[ "$ENTRY_POINT" = "kfserve" ]]; then
+elif [[ "$1" = "kfserve" ]]; then
     shift 1
     eval "$@"
     python /serve/kubernetes/kfserving_wrapper/__main__.py 

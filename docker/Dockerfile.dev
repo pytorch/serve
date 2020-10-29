@@ -76,7 +76,7 @@ ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 # RUN if [ "$ENTRY_POINT" = "kfserve" ] ; then CMD ["kfserve"]; \
 #     && elif [ "$ENTRY_POINT" = "serve" ] ; then CMD ["serve"]; fi
-# CMD ["echo $ENTRY_POINT"]
+CMD ["${ENTRY_POINT}"]
 
 # Build CodeBuild Image
 FROM compile-image AS codebuild-image
