@@ -1,7 +1,8 @@
 package org.pytorch.serve.servingsdk.metrics;
 
 /**
- * This interface specifies add and remove listener methods
+ * This interface specifies method to add and remove listener.
+ *
  */
 public interface MetricEventPublisher {
     void addMetricEventListener(MetricEventListener listener);
