@@ -17,13 +17,26 @@ cleanup()
   rm scripts/*_pb2*.py
 }
 
-set +u
-install_torch_deps $1
-set -u
+setup()
+{
+  set +u
+  install_torch_deps $1
+  set -u
 
-install_pytest_suite_deps
+  install_pytest_suite_deps
 
-install_bert_dependencies
+  install_bert_dependencies
+
+  install_java_deps
+
+  branch=$(git branch | grep "*")
+  branch_head=${branch:2}
+
+  echo
+  python3 test/print_env_info.py $branch_head
+}
+
+setup $1
 
 run_backend_pytest
 
