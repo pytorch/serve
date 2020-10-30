@@ -28,3 +28,7 @@ class MockContext():
 
         if torch.cuda.is_available() and gpu_id:
             self.system_properties['gpu_id'] = gpu_id
+
+    def get_request_header(self, index, key):
+        if key == "explain":
+            return False
