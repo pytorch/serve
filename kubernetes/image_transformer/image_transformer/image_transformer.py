@@ -46,9 +46,7 @@ def image_transform(instance):
     """
     byte_array = base64.b64decode(instance["data"])
     image = Image.open(io.BytesIO(byte_array))
-    a = np.asarray(image)
-    im = Image.fromarray(a)
-    instance["data"] = image_processing(im).tolist()
+    instance["data"] = image_processing(image).tolist()
     logging.info(instance)
     return instance
 
