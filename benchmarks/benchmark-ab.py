@@ -10,9 +10,10 @@ import click
 import click_config_file
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import requests
 
-default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar",
+default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.mar",
                      'gpus': '',
                      'exec_env': 'local',
                      'batch_size': 1,
@@ -23,7 +24,9 @@ default_ab_params = {'url': "https://torchserve.s3.amazonaws.com/mar_files/resne
                      'input': '../examples/image_classifier/kitten.jpg',
                      'content_type': 'application/jpg',
                      'image': '',
-                     'docker_runtime': ''}
+                     'docker_runtime': '',
+                     'backend_profiling': False
+                     }
 
 execution_params = default_ab_params.copy()
 result_file = "/tmp/benchmark/result.txt"
@@ -37,7 +40,7 @@ def json_provider(file_path, cmd_name):
 
 @click.command()
 @click.argument('test_plan', default='custom')
-@click.option('--url', '-u', default='https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar',
+@click.option('--url', '-u', default='https://torchserve.pytorch.org/mar_files/resnet-18.mar',
               help='Input model url')
 @click.option('--exec_env', '-e', type=click.Choice(['local', 'docker'], case_sensitive=False), default='local',
               help='Execution environment')
@@ -47,16 +50,18 @@ def json_provider(file_path, cmd_name):
 @click.option('--requests', '-r', default=100, help='Number of requests')
 @click.option('--batch_size', '-bs', default=1, help='Batch size of model')
 @click.option('--batch_delay', '-bd', default=200, help='Batch delay of model')
-@click.option('--input', '-i', 'input_file', default='../examples/image_classifier/kitten.jpg',
+@click.option('--input', '-i', default='../examples/image_classifier/kitten.jpg',
               type=click.Path(exists=True), help='The input file path for model')
 @click.option('--content_type', '-ic', default='application/jpg', help='Input file content type')
 @click.option('--workers', '-w', default=1, help='Number model workers')
 @click.option('--image', '-di', default='', help='Use custom docker image for benchmark')
 @click.option('--docker_runtime', '-dr', default='', help='Specify required docker runtime')
+@click.option('--backend_profiling', '-bp', default=False,
+              help='Enable backend profiling using CProfile. Default False')
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
-def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input_file, workers,
-              content_type, image, docker_runtime):
+def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
+              content_type, image, docker_runtime, backend_profiling):
     input_params = {'url': url,
                     'gpus': gpus,
                     'exec_env': exec_env,
@@ -65,10 +70,11 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
                     'workers': workers,
                     'concurrency': concurrency,
                     'requests': requests,
-                    'input': input_file,
+                    'input': input,
                     'content_type': content_type,
                     'image': image,
-                    'docker_runtime': docker_runtime
+                    'docker_runtime': docker_runtime,
+                    'backend_profiling': backend_profiling
                     }
 
     # set ab params
@@ -179,13 +185,17 @@ def docker_torchserve_start():
             docker_image = "pytorch/torchserve:latest"
         execute(f"docker pull {docker_image}", wait=True)
 
+    backend_profiling = ''
+    if execution_params['backend_profiling']:
+        backend_profiling = '-e TS_BENCHMARK=True'
+
     # delete existing ts conatiner instance
     click.secho("*Removing existing ts conatiner instance...", fg='green')
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} --name ts --user root -p 8080:8080 -p 8081:8081 " \
-                     f"-v /tmp/benchmark:/tmp/benchmark {enable_gpu} -itd {docker_image} " \
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 8080:8080 -p 8081:8081 " \
+                     f"-v /tmp:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
                      f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
@@ -219,24 +229,34 @@ def update_exec_params(input_param):
 
 def generate_report():
     click.secho("\n\nGenerating Reports...", fg='green')
-    extract_prediction_latency()
+    extract_metrics()
     generate_csv_output()
     generate_latency_graph()
+    generate_profile_graph()
     click.secho("\nTest suite execution complete.", fg='green')
 
 
-def extract_prediction_latency():
-    pattern = re.compile("PredictionTime")
-    all_lines = []
+metrics = {"predict.txt": "PredictionTime",
+           "handler_time.txt": "HandlerTime",
+           "waiting_time.txt": "QueueTime",
+           "worker_thread.txt": "WorkerThreadTime"}
+
+
+def extract_metrics():
     with open(metric_log) as f:
         lines = f.readlines()
-    for line in lines:
-        if pattern.search(line):
-            all_lines.append(line.split("|")[0].split(':')[3].strip())
 
-    with  open('/tmp/benchmark/predict.txt', 'w') as outf:
-        all_lines = map(lambda x: x + '\n', all_lines)
-        outf.writelines(all_lines)
+    for k, v in metrics.items():
+        all_lines = []
+        pattern = re.compile(v)
+        for line in lines:
+            if pattern.search(line):
+                all_lines.append(line.split("|")[0].split(':')[3].strip())
+
+        click.secho(f"\nWriting extracted {v} metrics to {k} ", fg='green')
+        with open(f'/tmp/benchmark/{k}', 'w') as outf:
+            all_lines = map(lambda x: x + '\n', all_lines)
+            outf.writelines(all_lines)
 
 
 def generate_csv_output():
@@ -266,6 +286,10 @@ def generate_csv_output():
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
 
+    for m in metrics:
+        df = pd.read_csv(f"/tmp/benchmark/{m}", header=None, names=['data'])
+        artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
+
     with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
         csvwriter.writerow(artifacts.keys())
@@ -286,11 +310,71 @@ def generate_latency_graph():
     df = pd.read_csv('/tmp/benchmark/predict.txt', header=None, names=['latency'])
     iteration = df.index
     latency = df.latency
-    plt.xlabel('Requests ')
+    a4_dims = (11.7, 8.27)
+    plt.figure(figsize=(a4_dims))
+    plt.xlabel('Requests')
     plt.ylabel('Prediction time')
     plt.title('Prediction latency')
     plt.bar(iteration, latency)
     plt.savefig("/tmp/benchmark/predict_latency.png")
+
+
+def generate_profile_graph():
+    click.secho("*Preparing Profile graphs...", fg='green')
+
+    plot_data = {}
+    for m in metrics:
+        df = pd.read_csv(f'/tmp/benchmark/{m}', header=None)
+        m = m.split('.txt')[0]
+        plot_data[f"{m}_index"] = df.index
+        plot_data[f"{m}_values"] = df.values
+
+    if execution_params['requests'] > 100:
+        sampling = int(execution_params['requests'] / 100)
+    else:
+        sampling = 1
+    print(f"Working with sampling rate of {sampling}")
+
+    a4_dims = (11.7, 8.27)
+    grid = plt.GridSpec(3, 2, wspace=0.2, hspace=0.2)
+    plt.figure(figsize=a4_dims)
+    fig1 = plt.subplot(grid[0, 0])
+    fig2 = plt.subplot(grid[0, 1])
+    fig3 = plt.subplot(grid[1, 0])
+    fig4 = plt.subplot(grid[1, 1])
+    fig5 = plt.subplot(grid[2, 0:])
+
+    def plot_line(fig, data, color='blue', title=None):
+        fig.set_title(title)
+        fig.set_ylabel('Time (ms)')
+        fig.set_xlabel('Percentage of queries')
+        fig.grid()
+        plot_points = np.arange(0, 100, 100 / len(data))
+        x = plot_points[:len(data):sampling]
+        y = data[::sampling]
+        fig.plot(x, y, f'tab:{color}')
+
+    # Queue Time
+    plot_line(fig1, data=plot_data["waiting_time_values"], color='pink', title='Queue Time')
+
+    # handler Predict Time
+    plot_line(fig2, data=plot_data["handler_time_values"], color='orange',
+              title='Handler Time(pre & post processing + inference time)')
+
+    # Worker time
+    plot_line(fig3, data=plot_data["worker_thread_values"], color='green', title='Worker Thread Time')
+
+    # Predict Time
+    plot_line(fig4, data=plot_data["predict_values"], color='red',
+              title='Prediction time(handler time+python worker overhead)')
+
+    # Plot in one graph
+    plot_line(fig5, data=plot_data["waiting_time_values"], color='pink')
+    plot_line(fig5, data=plot_data["handler_time_values"], color='orange')
+    plot_line(fig5, data=plot_data["predict_values"], color='red')
+    plot_line(fig5, data=plot_data["worker_thread_values"], color='green', title='Combined Graph')
+    fig5.grid()
+    plt.savefig("api-profile1.png", bbox_inches='tight')
 
 
 def stop_torchserve():
@@ -310,26 +394,26 @@ def soak():
 
 
 def vgg11_1000r_10c():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/vgg11.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
 
 
 def vgg11_10000r_100c():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/vgg11.mar'
     execution_params['requests'] = 10000
     execution_params['concurrency'] = 100
 
 
 def resnet152_batch():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
     execution_params['batch_size'] = 4
 
 
 def resnet152_batch_docker():
-    execution_params['url'] = 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
     execution_params['batch_size'] = 4

@@ -189,7 +189,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             boolean isRunning = worker.isRunning();
             int gpuId = worker.getGpuId();
             long memory = worker.getMemory();
-            resp.addWorker(workerId, startTime, isRunning, gpuId, memory);
+            int pid = worker.getPid();
+            String gpuUsage = worker.getGpuUsage();
+            resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
 
         return resp;

@@ -65,7 +65,6 @@ public class Manifest {
         private String envelope;
         private String requirementsFile;
 
-
         public Model() {}
 
         public String getModelName() {

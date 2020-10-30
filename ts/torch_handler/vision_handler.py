@@ -25,12 +25,7 @@ class VisionHandler(BaseHandler, ABC):
         images = []
         
         for row in data:
-            # Compat layer: normally the envelope should just return the data
-            # directly, but older versions of Torchserve didn't have envelope.
-            if isinstance(row, dict):
-                image = row.get("data") or row.get("body") or row
-            else:
-                image = row
+            image = row.get("data") or row.get("body")
             image = Image.open(io.BytesIO(image))
             image = self.image_processing(image)
             images.append(image)

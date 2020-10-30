@@ -1,0 +1,11 @@
+apiVersion: v1
+name: torchserve
+home: https://github.com/helm/charts
+version: 0.1
+appVersion: 0.1
+description: Torchserve Serving is an open-source software library for serving PyTorch Models
+sources:
+- https://github.com/pytorch/serve
+maintainers:
+- name: Dhanasekar Karuppasamy
+  email: dhanak@amazon.com

@@ -1,7 +1,13 @@
 ## To check branch stability run the sanity suite as follows
 
+ - For CPU or GPU with Cuda 10.2
+ 
 ```bash
 ./torchserve_sanity.sh
+```
+ - For GPU with Cuda 10.1
+ ```bash
+./torchserve_sanity.sh cuda101
 ```
 
 ## To run frontend build suite run following command

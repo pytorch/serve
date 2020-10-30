@@ -3,5 +3,9 @@ dist/
 *pyc
 *__pycache__*
 *.egg-info/
+.idea
 *htmlcov*
 .coverage
+.github/actions/
+.github/.DS_Store
+.DS_Store

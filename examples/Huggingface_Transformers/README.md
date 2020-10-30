@@ -134,59 +134,18 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
 
+### Registering the Model on TorchServe and Running batch Inference
 
-##### Serving a Torchserve model in KFServing 
+The following uses .mar file created from  model packaging using pretrained for save_mode to register the model for batch inference on sequence classification, by setting the batch_size when registering the model.
 
-The Inference Request to be hit should follow the below KFServing API Spec:
-http://127.0.0.1:8080/v1/models/<modelname>:predict
+```
+mkdir model_store
+mv BERTSeqClassification.mar model_store/
+torchserve --start --model-store model_store 
 
-For example, we have used a pre-trained Sequence Classification BERT Model to serve the model in KFServing. 
+curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+```
 
-We have created a custom handler filed called Transformer_handler_generalized_kf.py and use this file to create the .mar file
+Now to run the batch inference follwoing command can be used:
 
-We need to add the kfserving as a part of the config.properties file. Place the config.properties in the parent folder where you serve the model from. The content of the config.properties file is as below:
-
-'''
-service_envelope=kfserving
-'''
-
-The following steps are to be followed to serve the models on the KFServing side:
-
- * Step - 1 : Create the model archive file for the text classification problem. 
-	'''
-	torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler Transformer_model/Transformer_handler_generalized.py --source-vocab Transformer_model/vocab.txt --extra-files "Transformer_model/config.json,Transformer_model/setup_config.json,Transformer_model/index_to_name.json"
-
-	'''
- * Step - 2	 : Start the Torchserve model using the below command :
-	'''
-	chserve --start --model-store model_store --ncs --models my_tc=BERTSeqClassification.marr
-	
-	'''
- * Step - 3 : Start the Postman Application and make a POST request to hit the inference endpoint
-
-The Endpoint URL : http://127.0.0.1:8080/v1/models/my_tc:predict
-
-The sample Request on the http client body is as below:
-
-{
-"instances":[{
-            "name":"context",
-            "data":"Bloomberg has reported on the economy",
-            "target":0
-
-  }]    
-}
-
-The Response is as below:
-
-
-The response is as below :
-
-{
-	"predictions" : [
-		
-		"Accepted"
-	]
-}
-
-
+`curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt&`

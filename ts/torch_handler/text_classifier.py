@@ -30,13 +30,8 @@ class TextClassifier(TextHandler):
         Returns a Tensor
         """
 
-        row = data[0]
-        # Compat layer: normally the envelope should just return the data
-        # directly, but older versions of Torchserve didn't have envelope.
-        if isinstance(row, dict):
-            text = row.get("data") or row.get("body") or row
-        else:
-            text = row
+        line = data[0]
+        text = line.get("data") or line.get("body")
         text = text.decode('utf-8')
 
         text = self._remove_html_tags(text)

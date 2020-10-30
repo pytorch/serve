@@ -28,7 +28,12 @@ install_java_deps()
 
 install_torch_deps()
 {
-	pip install -U -r requirements.txt
+  if [ is_gpu_instance ] && [ "$1" == "cuda101" ];
+  then
+	  pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
+	else
+	  pip install -U -r requirements.txt
+	fi
 }
 
 install_pytest_suite_deps()
@@ -163,7 +168,7 @@ stop_torchserve()
 register_model()
 {
   echo "Registering $1 model"
-  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
+  response=$(curl --write-out %{http_code} --silent --output /dev/null --retry 5 -X POST "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/$1.mar&initial_workers=1&synchronous=true&model_name=$1")
 
   if [ ! "$response" == 200 ]
   then
@@ -216,6 +221,24 @@ clean_up_build_residuals()
   rm -rf ts/metrics/__pycache__/
   rm -rf ts/protocol/__pycache__/
   rm -rf ts/utils/__pycache__/
-  rm -rf frontend/modelarchive/build
-  rm -rf frontend/server/build
+}
+
+is_gpu_instance()
+{
+  [ -x "$(command -v nvidia-smi)" ]
+}
+
+run_markdown_link_checker(){
+  STATUS=0
+  shopt -s globstar
+  set +e
+  for i in **/*.md; do # Whitespace-safe and recursive
+        markdown-link-check $i --config link_check_config.json
+        if [ $?  -ne  0 ] ; then
+          echo Broken links in $i
+          STATUS=1
+        fi
+  done
+  set -e
+  exit $STATUS
 }

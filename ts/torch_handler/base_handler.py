@@ -6,8 +6,9 @@ import abc
 import logging
 import os
 import importlib.util
-from abc import abstractmethod
+import time
 import torch
+
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,6 @@ class BaseHandler(abc.ABC):
     Base default handler to load torchscript or eager mode [state_dict] models
     Also, provides handle method per torch serve custom model specification
     """
-
     def __init__(self):
         self.model = None
         self.mapping = None
@@ -32,6 +32,7 @@ class BaseHandler(abc.ABC):
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
+	   First try to load torchscript else load eager mode state_dict based model.
 
         Args:
             context (context): It is a JSON Object containing information
@@ -70,7 +71,7 @@ class BaseHandler(abc.ABC):
         self.model.to(self.device)
         self.model.eval()
 
-        logger.debug(f"Model file {model_pt_path} loaded successfully")
+        logger.debug('Model file %s loaded successfully', model_pt_path)
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
@@ -141,7 +142,7 @@ class BaseHandler(abc.ABC):
     def inference(self, data, *args, **kwargs):
         """
         The Inference Function is used to make a prediction call on the given input request.
-        The user needs to over-ride the inference function to customize it.
+        The user needs to override the inference function to customize it.
 
         Args:
             data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
@@ -184,10 +185,10 @@ class BaseHandler(abc.ABC):
 
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
+        start_time = time.time()
+
         self.context = context
-        if not self.initialized:
-            self.initialize(self.context)
-        output_explain = None
+        metrics = self.context.metrics
 
         data_preprocess = self.preprocess(data)
         output_inference = self.inference(data_preprocess)
@@ -196,6 +197,9 @@ class BaseHandler(abc.ABC):
             output_inference = self.postprocess(output_inference, output_explain)
         else:
             output_inference = self.postprocess(output_inference)
+
+	stop_time = time.time()
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return output_inference
 
     def explain_handle(self, data_preprocess, raw_data):
