@@ -37,56 +37,50 @@ The above command generated the model's state dict as model.pt and the vocab use
     curl http://127.0.0.1:8080/predictions/my_tc -T examples/text_classification/sample_text.txt
     ```
 
-#Serve the Text classification model with KFServing API spec:
 
-The Inference Request to be hit should follow the below KFServing API Spec:
-http://127.0.0.1:8080/v1/models/<modelname>:predict
 
-We have created a handler filed called text_classifier_kf.py and made it as a default handler to serve Text Classification models on the KFServing side. 
+#Serve a custom model on Torchserve with KFServing API Spec for Inference:
 
-We need to add the kfserving as a part of the config.properties file. Place the config.properties in the parent folder where you serve the model from. The content of the config.properties file is as below:
+
+
+To serve the model in KFserving for Inference, follow the below steps :
+
+* Step 1 : specify kfserving as the envelope in the config.properties file as below :
 
 '''
 service_envelope=kfserving
 '''
 
-The following steps are to be followed to serve the models on the KFServing side:
+* Step 1 : Create a .mar file by invoking the below command :
 
- * Step - 1: Run the command below to train the model and generate  model.pt and source_vocab.pt files for .mar file creation. Point the directory to “serve/examples/text_classification” and open a terminal and write the command below:
-	'''
-	./run_script.sh
+'''
+torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --handler text_classifier --extra-files "serve/examples/text_classification/index_to_name.json,serve/examples/text_classification/source_vocab.pt"
+'''
 
-	'''
+* Step - 2 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
+	     Refer the document for creating torchserve image with kfserving wrapper 
 
- * Step - 2 : Create the model archive file for the text classification problem. 
-	'''
-	torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --source-vocab serve/examples/text_classification/source_vocab.pt --handler text_classifier_kf --extra-files "serve/examples/text_classification/index_to_name.json"
+* Step - 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
+<the doc link>
 
-	'''
- * Step - 3 : Start the Torchserve model using the below command :
-	'''
-	torchserve --start  --model-store model_store --ncs --models my_tc=my_text_classifier.mar
-	
-	'''
- * Step - 4 : Start the Postman Application and make a POST request to hit the inference endpoint
+* Step - 4 : Make a postman request as below :
 
-The Endpoint URL : http://127.0.0.1:8080/v1/models/my_tc:predict
+Name of the POST URL  : <inference request address>/v1/models/my_tc:predict
 
-The sample Request on the http client body is as below:
+* Step - 5	 : In the request body, specify the request as below:
 
 {
 "instances":[{
             "name":"context",
-            "data":"Bloomberg has reported on the economy",
-            "target":0
+            "data":"Bloomberg has reported on the economy"
 
   }]    
 }
 
-The Response is as below:
 
+.
 
-The response is as below :
+The Prediction response is as below :
 
 {
 	"predictions" : [
@@ -101,8 +95,5 @@ The response is as below :
 
 
 
-
-
-	
 
 
