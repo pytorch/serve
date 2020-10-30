@@ -59,7 +59,6 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && pip install captum \
     && pip install transformers\
     && pip install . \
-    && cd .. \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp kubernetes/kf_predictor_docker/dockerd-entrypoint_kf.sh /usr/local/bin/dockerd-entrypoint_kf.sh \
