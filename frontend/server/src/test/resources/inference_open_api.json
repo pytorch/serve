@@ -127,7 +127,7 @@
         }
       }
     },
-    "/predictions/{model_name}": {
+    "/v1/models/{model_name}:predict": {
       "post": {
         "description": "Predictions entry point to get inference using default model version.",
         "operationId": "predictions",
@@ -256,7 +256,7 @@
         }
       }
     },
-    "/v1/models/{model_name}:predict": {
+    "/predictions/{model_name}": {
       "post": {
         "description": "Predictions entry point to get inference using default model version.",
         "operationId": "predictions",

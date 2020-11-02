@@ -11,7 +11,6 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import java.util.List;
 import java.util.Map;
-
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
@@ -72,8 +71,8 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             }
         } else if (isKFV1InferenceReq(segments)) {
             if (segments[3].contains(":predict")) {
-                handleKFV1Predictions(ctx, req, segments, false);
-            } 
+                handleKFV1Predictions(ctx, req, segments);
+            }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
@@ -127,13 +126,11 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleKFV1Predictions(
-            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments, boolean explain)
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
             throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelVersion = null;
         String modelName = segments[3].split(":")[0];
-        
         predict(ctx, req, null, modelName, modelVersion);
-
     }
 
     private void handleInvocations(
@@ -221,7 +218,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     private static RequestInput parseRequest(
-        ChannelHandlerContext ctx, FullHttpRequest req, QueryStringDecoder decoder) {
+            ChannelHandlerContext ctx, FullHttpRequest req, QueryStringDecoder decoder) {
         String requestId = NettyUtils.getRequestId(ctx.channel());
         RequestInput inputData = new RequestInput(requestId);
         if (decoder != null) {
