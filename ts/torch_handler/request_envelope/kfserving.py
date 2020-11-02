@@ -11,10 +11,8 @@ class KFservingEnvelope(BaseEnvelope):
     """
     This function is used to handle the input request specified in KFServing
     format and converts it into a Torchserve readable format.
-
     Args:
         data - List of Input Request in KFServing Format
-
     Returns:
         [list]: Returns the list of the Input Request in Torchserve Format
     """
@@ -47,13 +45,17 @@ class KFservingEnvelope(BaseEnvelope):
         Returns:
             (list): The response is returned as a list of predictions and explanations
         """
-        output = outputs[
-            0
-        ]  # Removing the outer list added in base handler for consistency
         response = {}
-        response["predictions"] = output["predictions"]
-        if "explanations" in output:
-            response["explanations"] = output["explanations"]
-
-        logger.info("The Response of KFServing %s", response)
+        logger.info("The Response of KFServing %s", outputs)
+        if not self._is_explain():
+            response["predictions"] = outputs
+        else:
+            response["explanations"] = outputs
         return [response]
+
+    def _is_explain(self):
+        if self.context and self.context.get_request_header(0, "explain"):
+            if self.context.get_request_header(0, "explain") == "True":
+                return True
+
+        return False

@@ -191,16 +191,16 @@ class BaseHandler(abc.ABC):
         metrics = self.context.metrics
 
         data_preprocess = self.preprocess(data)
-        output_inference = self.inference(data_preprocess)
-        output_explain = self.explain_handle(data_preprocess, data)
-        if output_explain:
-            output_inference = self.postprocess(output_inference, output_explain)
-        else:
-            output_inference = self.postprocess(output_inference)
+        
+        if not self._is_explain():
+            output = self.inference(data_preprocess)
+            output = self.postprocess(output)
+        else :
+            output = self.explain_handle(data_preprocess, data)
 
-	stop_time = time.time()
+        stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
-        return output_inference
+        return output
 
     def explain_handle(self, data_preprocess, raw_data):
         """Captum explanations handler
@@ -215,18 +215,18 @@ class BaseHandler(abc.ABC):
         output_explain = None
         inputs = None
         target = 0
-        if self.context and self.context.get_request_header(0, "explain"):
-            if self.context.get_request_header(0, "explain") == "True":
-                self.explain = True
-                logger.info("Calculating Explanations")
-                row = raw_data[0]
-                if isinstance(row, dict):
-                    logger.info("Getting data and target")
-                    inputs = row.get("data")
-                    target = row.get("target")
+              
+        logger.info("Calculating Explanations")
+        row = raw_data[0]
+        if isinstance(row, dict):
+            logger.info("Getting data and target")
+            inputs = row.get("data")
+            target = row.get("target")
+            if not target:
+                target = 0
 
-                output_explain = self.get_insights(data_preprocess, inputs, target)
-                return output_explain
+        output_explain = self.get_insights(data_preprocess, inputs, target)
+        return output_explain
         return output_explain
     
     def get_insights(self, tensor_data, raw_data, target):
@@ -241,3 +241,9 @@ class BaseHandler(abc.ABC):
             dict : Dictionary of the "tensor importances" from the captum attributions.
         """
         return None
+    
+    def _is_explain(self):
+        if self.context and self.context.get_request_header(0, "explain"):
+            if self.context.get_request_header(0, "explain") == "True":
+                self.explain = True
+                return True
