@@ -6,7 +6,9 @@ import abc
 import logging
 import os
 import importlib.util
+import time
 import torch
+
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,7 @@ class BaseHandler(abc.ABC):
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
+	   First try to load torchscript else load eager mode state_dict based model.
 
         Args:
             context (context): It is a JSON Object containing information
@@ -67,7 +70,7 @@ class BaseHandler(abc.ABC):
         self.model.to(self.device)
         self.model.eval()
 
-        logger.debug(f"Model file {model_pt_path} loaded successfully")
+        logger.debug('Model file %s loaded successfully', model_pt_path)
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
@@ -181,10 +184,15 @@ class BaseHandler(abc.ABC):
 
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
+        start_time = time.time()
+
         self.context = context
+        metrics = self.context.metrics
 
         data = self.preprocess(data)
-        output = self.inference(data)
-        output = self.postprocess(output)
-        print("base handler output", output)
-        return output
+        data = self.inference(data)
+        data = self.postprocess(data)
+
+        stop_time = time.time()
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        return data
