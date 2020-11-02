@@ -62,7 +62,10 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                         handleInvocations(ctx, req, decoder, segments);
                         break;
                     case "predictions":
-                        handlePredictions(ctx, req, segments);
+                        handlePredictions(ctx, req, segments, false);
+                        break;
+                    case "explanations":
+                        handlePredictions(ctx, req, segments, true);
                         break;
                     default:
                         handleLegacyPredict(ctx, req, decoder, segments);
@@ -85,6 +88,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 || (segments.length >= 2
                         && (segments[1].equals("ping")
                                 || segments[1].equals("predictions")
+                                || segments[1].equals("explanations")
                                 || segments[1].equals("api-description")
                                 || segments[1].equals("invocations")
                                 || endpointMap.containsKey(segments[1])))
@@ -114,7 +118,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handlePredictions(
-            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments, boolean explain)
             throws ModelNotFoundException, ModelVersionNotFoundException {
         if (segments.length < 3) {
             throw new ResourceNotFoundException();
@@ -125,6 +129,11 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (segments.length == 4) {
             modelVersion = segments[3];
         }
+        req.headers().add("explain", "False");
+        if (explain) {
+            req.headers().add("explain", "True");
+        }
+
         predict(ctx, req, null, segments[2], modelVersion);
     }
 
@@ -134,14 +143,12 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         String modelVersion = null;
         String modelName = segments[3].split(":")[0];
         
+        req.headers().add("explain", "False");
         if (explain) {
             req.headers().add("explain", "True");
         }
-        else if (explain == false){
-            req.headers().add("explain", "False");
-        }
-        predict(ctx, req, null, modelName, modelVersion);
 
+        predict(ctx, req, null, modelName, modelVersion);
     }
 
     private void handleInvocations(
