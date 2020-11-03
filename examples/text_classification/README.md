@@ -47,41 +47,33 @@ To serve the model in KFserving for Inference, follow the below steps :
 
 * Step 1 : specify kfserving as the envelope in the config.properties file as below :
 
-'''
+```bash
 service_envelope=kfserving
-'''
+```
 
-* Step 1 : Create a .mar file by invoking the below command :
+* Step 2 : Create a .mar file by invoking the below command :
 
-'''
+```bash
 torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --handler text_classifier --extra-files "serve/examples/text_classification/index_to_name.json,serve/examples/text_classification/source_vocab.pt"
-'''
+```
 
-* Step - 2 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
-	     Refer the document for creating torchserve image with kfserving wrapper 
+* Step 3 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
+	    Refer the document for creating torchserve image with kfserving wrapper
+	   
 
-* Step - 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
-<the doc link>
+* Step 4 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
+[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kf_predictor_docker/README.md)
 
-* Step - 4 : Make a postman request as below :
+* Step 5 : Make the curl request as below:
 
-Name of the POST URL  : <inference request address>/v1/models/my_tc:predict
-
-* Step - 5	 : In the request body, specify the request as below:
-
-{
-"instances":[{
-            "name":"context",
-            "data":"Bloomberg has reported on the economy"
-
-  }]    
-}
-
-
+```bash
+ curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:predict
+```
 .
 
 The Prediction response is as below :
 
+```bash
 {
 	"predictions" : [
 	   {
@@ -92,8 +84,7 @@ The Prediction response is as below :
 	   }
 	]
 }
-
-
+```
 
 
 

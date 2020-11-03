@@ -45,49 +45,37 @@ To serve the model in KFserving for Inference, follow the below steps :
 
 * Step 1 : specify kfserving as the envelope in the config.properties file as below :
 
-'''
+```bash
 service_envelope=kfserving
-'''
+```
 
 * Step 1 : Create a .mar file by invoking the below command :
 
-'''
+```bash
 torch-model-archiver --model-name mnist --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
-'''
+```
 
-* Step - 2 : Ensure that the docker image for Torchserve and the Image Transformer is created and accessible by the KFServing Environment. 
+* Step 2 : Ensure that the docker image for Torchserve and the Image Transformer is created and accessible by the KFServing Environment. 
 	     Refer the document for creating torchserve image with kfserving wrapper 
 
-* Step - 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
-<the doc link>
+* Step 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
+[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kubernetes/kf_predictor_docker/README.md)
 
-* Step - 4 : Make a postman request as below :
-
-Name of the POST URL  : <inference request address>/v1/models/mnist:predict
-
-* Step - 5	 : In the request body, specify the request as below:
-
-{
-    "instances": [
-        {
-            "name": "context",
-            "data": "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-        }
-    ]
-}
-
-		
-The Bytes Array in the example above is for "2.png". Likewise, the bytes array of the input image needs to specified.
+* Step 4 : Make the curl request as below:
+```bash
+ curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:predict
+```
 
 The Prediction response is as below :
-The response is as below :
 
+```bash
 {
 	"predictions" : [
 
 	2
 		]
 }
+```
 
 
 

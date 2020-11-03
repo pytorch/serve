@@ -160,47 +160,39 @@ To serve the model in KFserving for Inference, follow the below steps :
 
 * Step 1 : specify kfserving as the envelope in the config.properties file as below :
 
-'''
+```bash
 service_envelope=kfserving
-'''
+```
 
 * Step 1 : Create a .mar file by invoking the below command :
 
-'''
+```bash
 torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler Transformer_model/Transformer_handler_generalized.py --source-vocab Transformer_model/vocab.txt --extra-files "Transformer_model/config.json,Transformer_model/setup_config.json,Transformer_model/index_to_name.json"
-'''
+```
 
-* Step - 2 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
+* Step 2 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
 	     Refer the document for creating torchserve image with kfserving wrapper 
-* Step - 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
-<the doc link>
 
-* Step - 4 : Make a postman request as below :
+* Step 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
 
-Name of the POST URL  : <inference request address>/v1/models/bert:predict
+[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kubernetes/kf_predictor_docker/README.md)
 
-* Step - 5	 : In the request body, specify the request as below:
+* Step 4 : Make a curl request as below:
 
-{
-"instances":[{
-            "name":"context",
-            "data":"Bloomberg has reported on the economy"
-
-  }]    
-}
-
-
-.
+```bash
+curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_kf.json http://127.0.0.1:8085/v1/models/bert:predict
+```
 
 The Prediction response is as below :
 
-
+```bash
 {
 	"predictions" : [
 		
 		"Accepted"
 	]
 }
+```
 
 
 
