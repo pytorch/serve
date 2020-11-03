@@ -52,7 +52,7 @@ def generate_model_archive():
     Generate a model archive file
     :return:
     """
-    
+
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
     manifest = ModelExportUtils.generate_manifest_json(args)

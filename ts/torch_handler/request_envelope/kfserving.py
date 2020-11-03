@@ -1,8 +1,10 @@
+"""
+This file is used to handle the KFServing input requests
+in TorchServe
+"""
 import json
-from itertools import chain
-from base64 import b64decode
-from .base import BaseEnvelope
 import logging
+from .base import BaseEnvelope
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ class KFservingEnvelope(BaseEnvelope):
         logger.info("KFServing parsed inputs %s", self._inputs)
         return self._inputs
 
-    def format_output(self, outputs):
+    def format_output(self, data):
         """
         Returns the prediction response of the input request.
 
@@ -48,14 +50,14 @@ class KFservingEnvelope(BaseEnvelope):
             (list): The response is returned as a list of predictions
         """
         response = {}
-        logger.info("The Response of KFServing %s", outputs)
+        logger.info("The Response of KFServing %s", data)
         if not self._is_explain():
-            response["predictions"] = outputs
+            response["predictions"] = data
         return [response]
 
     def _is_explain(self):
         if self.context and self.context.get_request_header(0, "explain"):
             if self.context.get_request_header(0, "explain") == "True":
                 return True
-        
+
         return False

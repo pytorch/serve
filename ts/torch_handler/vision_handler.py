@@ -5,10 +5,10 @@ Base module for all vision handlers
 """
 from abc import ABC
 import io
+import base64
 import torch
 from PIL import Image
 from .base_handler import BaseHandler
-import base64
 
 
 class VisionHandler(BaseHandler, ABC):
@@ -33,7 +33,7 @@ class VisionHandler(BaseHandler, ABC):
             if isinstance(image, str):
                 # if the image is a string of bytesarray.
                 image = base64.b64decode(image)
-            
+
             # If the image is sent as bytesarray
             if isinstance(image, (bytearray, bytes)):
                 image = Image.open(io.BytesIO(image))
@@ -41,7 +41,7 @@ class VisionHandler(BaseHandler, ABC):
             else:
                 # if the image is a list
                 image = torch.FloatTensor(image)
-                            
+
             images.append(image)
 
         return torch.stack(images)

@@ -30,5 +30,7 @@ class MockContext():
             self.system_properties['gpu_id'] = gpu_id
 
     def get_request_header(self, index, key):
-        if key == "explain":
+        if key == "explain" and index == 0:
             return False
+
+        return True

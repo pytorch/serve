@@ -9,7 +9,6 @@ import string
 import unicodedata
 from abc import ABC
 import torch
-import torch.nn.functional as F
 from torchtext.data.utils import get_tokenizer
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
@@ -110,4 +109,3 @@ class TextHandler(BaseHandler, ABC):
 
     def _tokenize(self, text):
         return self.tokenizer(text)
-        
