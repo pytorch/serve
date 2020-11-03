@@ -27,8 +27,8 @@ parser.add_argument(
 
 args, _ = parser.parse_known_args()
 
-#CONFIG_PATH = "/mnt/models/config/config.properties"
-CONFIG_PATH = "/Users/Chiffon/Documents/Technical/Ideas2It/Facebook project/fb_serve/abs_kfserving_envelope/config.properties"
+CONFIG_PATH = "/mnt/models/config/config.properties"
+
 
 def parse_config():
     separator = "="
