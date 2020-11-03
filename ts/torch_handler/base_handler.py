@@ -220,7 +220,7 @@ class BaseHandler(abc.ABC):
         row = raw_data[0]
         if isinstance(row, dict):
             logger.info("Getting data and target")
-            inputs = row.get("data")
+            inputs = row.get("data") or row.get("body")
             target = row.get("target")
             if not target:
                 target = 0
