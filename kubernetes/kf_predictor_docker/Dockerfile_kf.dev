@@ -9,14 +9,13 @@
 #
 #       For reference: 
 #           https://docs.docker.com/develop/develop-images/build_enhancements
-#Dockerfile for V1 Beta spec - BERT
 
 ARG BASE_IMAGE=ubuntu:18.04
 ARG BUILD_TYPE=dev
 FROM ${BASE_IMAGE} AS compile-image
 
 ARG BASE_IMAGE
-ARG BRANCH_NAME=issue_411_kfserving_v1_infer
+ARG BRANCH_NAME=master
 ARG MACHINE_TYPE=cpu
 ARG BRANCH_NAME_KF=master
 ENV PYTHONUNBUFFERED TRUE
@@ -52,7 +51,7 @@ ARG CUDA_VERSION=latest
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git clone -b ${BRANCH_NAME_KF} https://github.com/kubeflow/kfserving.git \
     && pip install -e ./kfserving/python/kfserving \
-    && git clone https://github.com/abishekchiff/serve.git \
+    && git clone https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
 	  && ./scripts/install_from_src $CUDA_VERSION \
