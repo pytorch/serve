@@ -134,6 +134,13 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
 
+
+
+For captum Explanations on the Torchserve side, use the below curl request:
+```bash
+curl -X POST http://127.0.0.1:8080/explanations/my_tc -T ./Seq_classification_artifacts/sample_text.txt
+```
+
 ### Registering the Model on TorchServe and Running batch Inference
 
 The following uses .mar file created from  model packaging using pretrained for save_mode to register the model for batch inference on sequence classification, by setting the batch_size when registering the model.
@@ -149,3 +156,88 @@ curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERTS
 Now to run the batch inference follwoing command can be used:
 
 `curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt&`
+
+
+#Serve a custom model on Torchserve with KFServing API Spec for Inference and Captum Explanations:
+
+The example considered here is for BERT Sequence Classification.
+
+To serve the model in KFserving for Inference, follow the below steps :
+
+
+* Step 1 : specify kfserving as the envelope in the config.properties file as below :
+
+```bash
+service_envelope=kfserving
+```
+
+* Step 1 : Create a .mar file by invoking the below command :
+
+```bash
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler Transformer_model/Transformer_handler_generalized.py --source-vocab Transformer_model/vocab.txt --extra-files "Transformer_model/config.json,Transformer_model/setup_config.json,Transformer_model/index_to_name.json"
+```
+
+* Step - 2 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
+	     Refer the document for creating torchserve image with kfserving wrapper 
+* Step - 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
+[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kf_predictor_docker/README.md)
+
+* Step - 4 : Make a curl request as below for Inference:
+
+```bash
+curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_kf.json http://127.0.0.1:8085/v1/models/bert:predict
+```
+
+The Prediction response is as below :
+
+```bash
+{
+	"predictions" : [
+		
+		"Accepted"
+	]
+}
+```
+
+
+* Step - 5 : Make a curl request as below for Explanations:
+
+```bash
+curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_kf.json http://127.0.0.1:8085/v1/models/bert:explain
+```
+
+The Explanation response is as below :
+
+```bash
+{
+  "explanations": [
+    {
+      "importances": [
+        0.0,
+        -0.6324464886855062,
+        -0.03311582455592391,
+        0.26816950103292936,
+        -0.29124773714666485,
+        0.5422589134206756,
+        -0.3848765077942276,
+        0.0
+      ],
+      "words": [
+        "[CLS]",
+        "bloomberg",
+        "has",
+        "reported",
+        "on",
+        "the",
+        "economy",
+        "[SEP]"
+      ]
+    }
+  ]
+}
+```
+
+
+
+
+
