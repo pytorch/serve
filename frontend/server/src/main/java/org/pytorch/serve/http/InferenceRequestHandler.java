@@ -101,8 +101,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         return segments.length == 4
                 && "v1".equals(segments[1])
                 && "models".equals(segments[2])
-                && (segments[3].contains(":predict")
-                || segments[3].contains(":explain"));
+                && (segments[3].contains(":predict") || segments[3].contains(":explain"));
     }
 
     private void validatePredictionsEndpoint(String[] segments) {
@@ -142,7 +141,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelVersion = null;
         String modelName = segments[3].split(":")[0];
-        
+
         req.headers().add("explain", "False");
         if (explain) {
             req.headers().add("explain", "True");

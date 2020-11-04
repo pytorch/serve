@@ -20,5 +20,4 @@ public class KFV1ModelReadyResponse {
     public void setReady(boolean ready) {
         this.ready = ready;
     }
-
 }

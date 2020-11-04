@@ -205,8 +205,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        KFV1ModelReadyResponse resp = createKFV1ModelReadyResponse(
-                modelManager, modelName, model);
+        KFV1ModelReadyResponse resp = createKFV1ModelReadyResponse(modelManager, modelName, model);
         NettyUtils.sendJsonResponse(ctx, resp);
     }
 
@@ -215,7 +214,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
         KFV1ModelReadyResponse resp = new KFV1ModelReadyResponse();
         List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
         resp.setName(modelName);
-        resp.setReady(workers.size() > 0);
+        resp.setReady(!workers.isEmpty());
         return resp;
     }
 
