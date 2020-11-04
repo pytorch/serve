@@ -67,7 +67,7 @@ torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file 
 * Step 5 : Make the curl request as below:
 
 ```bash
- curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:predict
 ```
 .
 

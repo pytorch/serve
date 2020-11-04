@@ -59,11 +59,11 @@ torch-model-archiver --model-name mnist --version 1.0 --model-file serve/example
 	     Refer the document for creating torchserve image with kfserving wrapper 
 
 * Step 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
-[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kubernetes/kf_predictor_docker/README.md)
+[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kf_predictor_docker/README.md)
 
 * Step 4 : Make the curl request as below:
 ```bash
- curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:predict
 ```
 
 The Prediction response is as below :

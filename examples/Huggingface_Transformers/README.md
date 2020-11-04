@@ -175,12 +175,12 @@ torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serializ
 
 * Step 3 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
 
-[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kubernetes/kf_predictor_docker/README.md)
+[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kf_predictor_docker/README.md)
 
 * Step 4 : Make a curl request as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_kf.json http://127.0.0.1:8085/v1/models/bert:predict
+curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/bert_kf.json http://127.0.0.1:8085/v1/models/bert:predict
 ```
 
 The Prediction response is as below :
