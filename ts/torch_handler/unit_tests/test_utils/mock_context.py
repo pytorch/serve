@@ -1,9 +1,9 @@
 """
 Mocks for adding model context without loading all of Torchserve
 """
-
+import uuid
 import torch
-
+from ts.metrics.metrics_store import MetricsStore
 
 class MockContext():
     """
@@ -31,6 +31,7 @@ class MockContext():
             self.system_properties['gpu_id'] = gpu_id
         
         self.explain = False
+        self.metrics = MetricsStore(uuid.uuid4(), "model_name")
 
     def get_request_header(self, idx, exp):
         if idx and exp:
