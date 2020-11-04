@@ -141,6 +141,13 @@ For captum Explanations on the Torchserve side, use the below curl request:
 curl -X POST http://127.0.0.1:8080/explanations/my_tc -T ./Seq_classification_artifacts/sample_text.txt
 ```
 
+In order to run Captum Explanations with the request input in a json file, follow the below steps:
+
+In the config.properties, specify `service_envelope=body` and make the curl request as below:
+```bash
+curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_ts.json http://127.0.0.1:8085/explanations/bert_explain
+```
+
 ### Registering the Model on TorchServe and Running batch Inference
 
 The following uses .mar file created from  model packaging using pretrained for save_mode to register the model for batch inference on sequence classification, by setting the batch_size when registering the model.
@@ -185,7 +192,7 @@ torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serializ
 * Step - 4 : Make a curl request as below for Inference:
 
 ```bash
-curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_kf.json http://127.0.0.1:8085/v1/models/bert:predict
+curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/bert_kf.json http://127.0.0.1:8085/v1/models/bert:predict
 ```
 
 The Prediction response is as below :
@@ -203,7 +210,7 @@ The Prediction response is as below :
 * Step - 5 : Make a curl request as below for Explanations:
 
 ```bash
-curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_kf.json http://127.0.0.1:8085/v1/models/bert:explain
+curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/bert_kf.json http://127.0.0.1:8085/v1/models/bert:explain
 ```
 
 The Explanation response is as below :

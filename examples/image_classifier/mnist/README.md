@@ -39,6 +39,13 @@ For captum Explanations on the Torchserve side, use the below curl request:
 curl http://127.0.0.1:8080/explanations/mnist -T examples/image_classifier/mnist/test_data/0.png
 ```
 
+In order to run Captum Explanations with the request input in a json file, follow the below steps:
+
+In the config.properties, specify `service_envelope=body` and make the curl request as below:
+```bash
+curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_ts.json http://127.0.0.1:8085/explanations/mnist_explain
+```
+
 #Serve a custom model on Torchserve with KFServing API Spec for Inference and Captum Explanations:
 
 
@@ -68,7 +75,7 @@ torch-model-archiver --model-name mnist --version 1.0 --model-file serve/example
 
 * Step 5 : Make the curl request as below for Inference:
 ```bash
- curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:predict
 ```
 
 The Prediction response is as below :
@@ -84,7 +91,7 @@ The Prediction response is as below :
 
 * Step 6 : Make the curl request as below for Explanations:
 ```bash
- curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:explain
 ```
 
 The Explanation response is as below :

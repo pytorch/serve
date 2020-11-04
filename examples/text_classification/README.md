@@ -41,6 +41,14 @@ To make a captum explanations request on the Torchserve side, use the below comm
 ```bash
 curl -X POST http://127.0.0.1:8080/explanations/my_tc -T examples/text_classification/sample_text.txt
 ```
+
+In order to run Captum Explanations with the request input in a json file, follow the below steps:
+
+In the config.properties, specify `service_envelope=body` and make the curl request as below:
+```bash
+curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_ts.json http://127.0.0.1:8085/explanations/my_tc_explain
+```
+
 #Serve a custom model on Torchserve with KFServing API Spec for Inference:
 
 
@@ -69,7 +77,7 @@ torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file 
 * Step 5 : Make the curl request as below for predict:
 
 ```bash
- curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:predict
 ```
 .
 
@@ -93,7 +101,7 @@ The Prediction response is as below :
 Make the curl request as below:
 
 ```bash
- curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:explain
 ```
 
 The explanation response is as below :
