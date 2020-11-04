@@ -49,7 +49,7 @@ test_object_detector () {
   rm -rf $TEST_DIR/models/tmp
 }
 
-# test_base_handler
+test_base_handler
 test_image_classifier
-# test_image_segmenter
-# test_object_detector
+test_image_segmenter
+test_object_detector
