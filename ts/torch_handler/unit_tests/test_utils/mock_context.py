@@ -4,6 +4,7 @@ Mocks for adding model context without loading all of Torchserve
 
 import torch
 
+
 class MockContext():
     """
     Mock class to replicate the context passed into model initialize
@@ -28,3 +29,11 @@ class MockContext():
 
         if torch.cuda.is_available() and gpu_id:
             self.system_properties['gpu_id'] = gpu_id
+        
+        self.explain = False
+
+    def get_request_header(self, idx, exp):
+        if idx and exp:
+            if self.explain:
+                return True
+        return False
