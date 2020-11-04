@@ -191,7 +191,7 @@ class BaseHandler(abc.ABC):
         metrics = self.context.metrics
 
         data_preprocess = self.preprocess(data)
-        
+
         if not self._is_explain():
             output = self.inference(data_preprocess)
             output = self.postprocess(output)
@@ -215,7 +215,7 @@ class BaseHandler(abc.ABC):
         output_explain = None
         inputs = None
         target = 0
-              
+
         logger.info("Calculating Explanations")
         row = raw_data[0]
         if isinstance(row, dict):
@@ -227,23 +227,10 @@ class BaseHandler(abc.ABC):
 
         output_explain = self.get_insights(data_preprocess, inputs, target)
         return output_explain
-        return output_explain
-    
-    def get_insights(self, tensor_data, raw_data, target):
-        """Calculates the captum insights
 
-        Args:
-            tensor_data (tensor): The Preprocessed Tensor
-            raw_data (list): The raw input data from the request
-            target (int): The class label.
-
-        Returns:
-            dict : Dictionary of the "tensor importances" from the captum attributions.
-        """
-        return None
-    
     def _is_explain(self):
         if self.context and self.context.get_request_header(0, "explain"):
             if self.context.get_request_header(0, "explain") == "True":
                 self.explain = True
                 return True
+        return False

@@ -18,6 +18,9 @@ class BaseEnvelope(ABC):
         self._handle_fn = handle_fn
         self.context = None
     def handle(self, data, context):
+        """
+        The Input Requests are handled here.
+        """
         self.context = context
         if data:
             data = self.parse_input(data)

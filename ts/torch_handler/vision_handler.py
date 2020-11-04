@@ -5,11 +5,11 @@ Base module for all vision handlers
 """
 from abc import ABC
 import io
+import base64
 import torch
 from PIL import Image
-from .base_handler import BaseHandler
 from captum.attr import IntegratedGradients
-import base64
+from .base_handler import BaseHandler
 
 
 class VisionHandler(BaseHandler, ABC):
@@ -20,7 +20,7 @@ class VisionHandler(BaseHandler, ABC):
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)
         self.initialized = True
-        
+
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
 
@@ -39,7 +39,7 @@ class VisionHandler(BaseHandler, ABC):
             if isinstance(image, str):
                 # if the image is a string of bytesarray.
                 image = base64.b64decode(image)
-            
+
             # If the image is sent as bytesarray
             if isinstance(image, (bytearray, bytes)):
                 image = Image.open(io.BytesIO(image))
@@ -47,12 +47,12 @@ class VisionHandler(BaseHandler, ABC):
             else:
                 # if the image is a list
                 image = torch.FloatTensor(image)
-                            
+
             images.append(image)
 
         return torch.stack(images)
 
-    def get_insights(self, tensor_data, raw_data, target=0):
+    def get_insights(self, tensor_data, _, target=0):
         print("input shape", tensor_data.shape)
         return self.ig.attribute(tensor_data, target=target, n_steps=15).tolist()
         
