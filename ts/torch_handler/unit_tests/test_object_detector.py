@@ -33,4 +33,4 @@ def test_handle(model_setup):
     test_data = [{'data': image_bytes}] * 2
     results = handler.handle(test_data, context)
     assert(len(results) == 2)
-    assert('bench' in results[0])
+    assert(any('bench' in d for d in results[0]))
