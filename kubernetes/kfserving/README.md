@@ -1,4 +1,4 @@
-##End to End Documentation for Torchserve - KFserving Model Serving
+## End to End Documentation for Torchserve - KFserving Model Serving
 
 The documentation covers the steps to run Torchserve inside the KFServing environment for the mnist model. 
 
@@ -6,14 +6,16 @@ The documentation covers the steps to run Torchserve inside the KFServing enviro
 ```bash
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
 ```
+For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md). 
 
-* Step - 2 : Create a docker image for the Torchserve Repo. The dockerfile is located in serve/kubernetes/kf_predictor_docker as Dockerfile_kf.dev. Use the below command to create the docker image :
+
+* Step - 2 : Create a docker image for the Torchserve Repo. The dockerfile is located in serve/kubernetes/kfserving/kf_predictor_docker as Dockerfile_kf.dev. Use the below command to create the docker image :
 
 ```bash
 DOCKER_BUILDKIT=1 docker build --no-cache --file Dockerfile_kf.dev -t <docker image name> .
 ```
 
-The KFServing wrapper will be started along with Torchserve inside the image.
+The KFServing wrapper will be started along with Torchserve inside the image. Refer [KFServing Wrapper](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/kfserving_wrapper/README.md) to understand how it works.
 
 * Step - 3 : Push the docker image to the docker registry that you can access from. 
 
@@ -25,7 +27,8 @@ The KFServing wrapper will be started along with Torchserve inside the image.
  number_of_netty_threads=4
  service_envelope=kfserving
  job_queue_size=10
- model_store=/mnt/models/model-store model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"<model_name>":{"1.0":{"defaultVersion":true,"marName":"<name of the mar file.>","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
+ model_store=/mnt/models/model-store
+ model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"<model_name>":{"1.0":{"defaultVersion":true,"marName":"<name of the mar file.>","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
 ```
 
 
@@ -34,20 +37,25 @@ Please note that, the port for inference address should be set at 8085 since KFS
 
 When we make an Inference Request,  in Torchserve it makes use of port 8080, whereas on the KFServing side it makes use of port 8085.
 
-Ensure that the KFServing envelope is specified in the config file as shown above. The path of the model store should be mentioned as /mnt/models/model-store because KFServing.
+Ensure that the KFServing envelope is specified in the config file as shown above. The path of the model store should be mentioned as /mnt/models/model-store because KFServing mounts the model store from that path.
 
-* Step - 5 : KFServing makes use of Transformer, hence a docker image for KFServing needs to be created.  Preprocess functions in kf_handler take in list as data as opposed to the bytes array in the previous Mnist handler. The list of data is received from a kfserving image transformer. This is done as kfserving does not allow a bytes array in the request input. Due to the above reason the Mnist_kf_handler converts the list to Tensor,while the original mnist handler converts bytes array to tensor.
+* Step - 5 : 
 
-* Step - 6 : The dockerfile for the Image Transformer is located inside the serve/kubernetes/image_transformer folder.  Create the docker image for the Image Transformer using the below command :
+KFServing takes the input request in the form of a JSON Array for Image Classification tasks. However, the input can be specified as a BytesArray as well. If done so, the transformer needs to be specified in the config yml file. The functionality of the transformer is to convert the BytesArray into a JSON Array. If JSON Array is given as Input Request, the transformer needn't be specified in the config yml file. In this example, we have used the input as BytesArray, hence the Transformer is specifed in the config.yml file(Step 10). BERT and Text Classifier Model don't require a Transformer for KFServing.
+
+* Step - 6 : The dockerfile for the Image Transformer is located inside the serve/kubernetes/kfserving/image_transformer folder.  Create the docker image for the Image Transformer using the below command :
 ```bash
 docker build -t <image_name>:<tag> -f transformer.Dockerfile .
 ```
 
 * Step - 7 : Push the docker image of the Image Transformer to a hub that you can access it from. 
 
-* Step - 8 : Create PVC and PV pods in KFServing. You need to create a local storage PVC and PV pod. You can see below the examples of the pvc.yaml and pv_pod.yaml
+* Step - 8 : Create PVC and PV pods in KFServing
 
-The pvc.yaml looks like below:
+ You need to create a local storage PVC and PV pod. You can see below the examples of the pvc.yaml and pv_pod.yaml
+
+pvc.yaml:
+
 ```bash
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -65,7 +73,7 @@ spec:
    path: "/mnt/data"
 ```
 
-The pv_pod.yaml looks like below:
+pv_pod.yaml:
 
 ```bash
 apiVersion: v1
@@ -88,7 +96,7 @@ spec:
 ```
 
 
-* Step - 9 : Copy the Model Files and Configure properties.
+* Step - 9 : Copy the Model Files and Config Properties.
  
 First, create the model store and the config directory using the below command :
 ```bash
@@ -105,7 +113,7 @@ kubectl cp config.properties model-store-pod:/pv/config/config.properties -c mod
 
 * Step - 10 : Create the Inference Service
 
-This step is for deployment of the Inference Service using the server. For the Image Classification task alone Image Transformer needs to be specified in the inference service yaml file. 
+For the Image Classification task alone Image Transformer needs to be specified in the inference service yaml file. 
 
 CPU Deployment : For deployment in CPU the sample yaml file is shown as below 
 
@@ -118,7 +126,7 @@ metadata:
 spec:
   transformer:
     containers:
-      - image: dockerkc1/image-transformer:v1beta
+      - image: <transformer_docker_image>
         name: transformer-container
         env:
           - name: STORAGE_URI
@@ -149,7 +157,7 @@ torch-pred   http://torch-pred.kfserving-test.example.com   True    39m
 * Step - 12 : Hit the Curl Request to make a prediction as below :
 
 ```bash
-curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" http://<instance>.<region>amazonaws.com/v1/models/mnist_kf:predict -d @./input.json
+curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
 ```
 
 The JSON Input content is as below :
@@ -172,6 +180,8 @@ The response is as below :
   ]
 }
 ```
+
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md). .
 
 ### Troubleshooting guide for KFServing :
 
@@ -207,15 +217,3 @@ MODEL_NAME=torch-pred
 SERVICE_HOSTNAME=$(kubectl get route ${MODEL_NAME}-predictor-default
  -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 ```
-
-
-
-
- 
-
-
-
-
-
-
-
