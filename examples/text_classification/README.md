@@ -53,11 +53,20 @@ curl -H "Content-Type: application/json" --data @examples/text_classification/te
 
 The explain is called with the following request api http://127.0.0.1:8080/explanations/bert_explain
 #### The handler changes:
+
 1. The handlers should initialize.
 ```python
 self.lig = LayerIntegratedGradients(captum_sequence_forward, self.model.bert.embeddings) 
 ```
 in the initialize function for the captum to work.
+
 2. The Base handler handle uses the explain_handle method to perform captum insights based on whether user wants predictions or explanations. These methods can be overriden to make your changes in the handler.
+
 3. The get_insights method in the handler is called by the explain_handle method to calculate insights using captum.
+
 4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
+
+---
+**NOTE**
+The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
+---
