@@ -60,11 +60,11 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && pip install . \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
-    && cp kubernetes/kf_predictor_docker/dockerd-entrypoint_kf.sh /usr/local/bin/dockerd-entrypoint_kf.sh \
+    && cp kubernetes/kfserving/kf_predictor_docker/dockerd-entrypoint_kf.sh /usr/local/bin/dockerd-entrypoint_kf.sh \
     && chmod +x /usr/local/bin/dockerd-entrypoint_kf.sh \
     && chown -R model-server /home/model-server \
-    && cp -R kubernetes/kfserving_wrapper /home/model-server/kfserving_wrapper \
-    && cp kubernetes/kf_predictor_docker/config_kf.properties /home/model-server/config.properties \
+    && cp -R kubernetes/kfserving/kfserving_wrapper /home/model-server/kfserving_wrapper \
+    && cp kubernetes/kfserving/kf_predictor_docker/config_kf.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
 EXPOSE 8080 8081 8082
