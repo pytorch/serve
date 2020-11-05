@@ -46,90 +46,18 @@ In order to run Captum Explanations with the request input in a json file, follo
 
 In the config.properties, specify `service_envelope=body` and make the curl request as below:
 ```bash
-curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_ts.json http://127.0.0.1:8085/explanations/my_tc_explain
+curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_ts.json http://127.0.0.1:8080/explanations/my_tc_explain
 ```
 
-#Serve a custom model on Torchserve with KFServing API Spec for Inference:
+### Captum Explanations
 
-
-
-To serve the model in KFserving for Inference, follow the below steps :
-
-* Step 1 : specify kfserving as the envelope in the config.properties file as below :
-
-```bash
-service_envelope=kfserving
+The explain is called with the following request api http://127.0.0.1:8080/explanations/bert_explain
+#### The handler changes:
+1. The handlers should initialize.
+```python
+self.lig = LayerIntegratedGradients(captum_sequence_forward, self.model.bert.embeddings) 
 ```
-
-* Step 2 : Create a .mar file by invoking the below command :
-
-```bash
-torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --handler text_classifier --extra-files "serve/examples/text_classification/index_to_name.json,serve/examples/text_classification/source_vocab.pt"
-```
-
-* Step 3 : Ensure that the docker image for Torchserve is created and accessible by the KFServing Environment. 
-	    Refer the document for creating torchserve image with kfserving wrapper
-	   
-
-* Step 4 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
-[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kf_predictor_docker/README.md)
-
-* Step 5 : Make the curl request as below for predict:
-
-```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:predict
-```
-.
-
-The Prediction response is as below :
-
-```bash
-{
-	"predictions" : [
-	   {
-		"World" : 0.0036
-		"Sports" : 0.0065
-		"Business" :0.9160
-		"Sci/Tec" :0.079
-	   }
-	]
-}
-```
-
-* Step 6 : Make the curl request as below for explain :
-
-Make the curl request as below:
-
-```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/text_classifier_kf.json http://127.0.0.1:8085/v1/models/my_tc:explain
-```
-
-The explanation response is as below :
-
-```bash
-{
-  "explanations": [
-    {
-      "importances": [
-        [
-          0.00017786371265739233,
-          0.9824386919377469,
-          4.193646962600815e-06,
-          0.00014836451651210265,
-          6.149280398342056e-05,
-          -------,
-	  -------
-        ]
-      ],
-      "words": [
-        "bloomberg",
-        "has",
-        "reported",
-        "on",
-        "the",
-        "economy"
-      ]
-    }
-  ]
-}
-```
+in the initialize function for the captum to work.
+2. The Base handler handle uses the explain_handle method to perform captum insights based on whether user wants predictions or explanations. These methods can be overriden to make your changes in the handler.
+3. The get_insights method in the handler is called by the explain_handle method to calculate insights using captum.
+4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.

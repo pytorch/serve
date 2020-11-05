@@ -43,80 +43,20 @@ In order to run Captum Explanations with the request input in a json file, follo
 
 In the config.properties, specify `service_envelope=body` and make the curl request as below:
 ```bash
-curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_ts.json http://127.0.0.1:8085/explanations/mnist_explain
+curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_ts.json http://127.0.0.1:8080/explanations/mnist_explain
 ```
 
-#Serve a custom model on Torchserve with KFServing API Spec for Inference and Captum Explanations:
+### Captum Explanations
 
+The explain is called with the following request api http://127.0.0.1:8080/explanations/mnist_explain
 
+#### The handler changes:
 
-KFServing makes use of Image Transformer - it converts bytes array into float tensor. So the input request should take the shape of a Bytes Array.
-
-
-To serve the model in KFserving for Inference, follow the below steps :
-
-* Step 1 : specify kfserving as the envelope in the config.properties file as below :
-
-```bash
-service_envelope=kfserving
+1. The handlers should initialize.
+```python
+self.ig = IntegratedGradients(self.model)
 ```
-
-* Step 2 : Create a .mar file by invoking the below command :
-
-```bash
-torch-model-archiver --model-name mnist --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
-```
-
-* Step 3 : Ensure that the docker image for Torchserve and the Image Transformer is created and accessible by the KFServing Environment. 
-	     Refer the document for creating torchserve image with kfserving wrapper 
-
-* Step 4 : Create an Inference Service in the Kubeflow, refer to the doc below to initiate the process:
-[End to End Torchserve KFServing Model Serving](https://github.com/pytorch/serve/blob/master/kf_predictor_docker/README.md)
-
-* Step 5 : Make the curl request as below for Inference:
-```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:predict
-```
-
-The Prediction response is as below :
-
-```bash
-{
-	"predictions" : [
-
-	2
-		]
-}
-```
-
-* Step 6 : Make the curl request as below for Explanations:
-```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist_kf.json http://127.0.0.1:8085/v1/models/mnist:explain
-```
-
-The Explanation response is as below :
-
-```bash
-{
-  "explanations": [
-    [
-      [
-        [
-          0.004570948731989492,
-          0.006216969640322402,
-          0.008197565423679522,
-          0.009563574612830427,
-          0.008999274832810742,
-          0.009673474804303854,
-          0.007599905146155397,
-          ------,
-	  ------
-
-        ]
-      ]
-    ]
-  ]
-}
-```
-
-
+in the initialize function for the captum to work.(It is initialized in the base class-vision_handler)
+2. The Base handler handle uses the explain_handle method to perform captum insights based on whether user wants predictions or explanations. These methods can be overriden to make your changes in the handler.
+3. The get_insights method in the handler is called by the explain_handle method to calculate insights using captum.
+4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
