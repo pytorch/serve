@@ -159,6 +159,8 @@ torch-pred   http://torch-pred.kfserving-test.example.com   True    39m
 ```bash
 curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
 ```
+The image file can be converted into string of bytes array by running
+```bash python img2bytearray.py filename ```
 
 The JSON Input content is as below :
 

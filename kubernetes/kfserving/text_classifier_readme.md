@@ -90,12 +90,11 @@ The Explanation response is as below :
 	###	KFServing Request:
 	```
 	{
-
-		"instances":[
+	"instances": [
 		{
-			"data" : "The recent climate change across world is impacting negatively"
+			"data": "The recent climate change across world is impacting negatively"
 		}
-					]
+	]
 	}
 	```
 

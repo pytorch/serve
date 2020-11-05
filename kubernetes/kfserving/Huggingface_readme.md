@@ -89,9 +89,9 @@ The Explanation response is as below :
 	{
 
 		"instances":[
-        {
-          "data" : "The recent climate change across world is impacting negatively"
-        }
+						{
+							"data" : "The recent climate change across world is impacting negatively"
+						}
 					]
 	}
 	```
@@ -103,11 +103,3 @@ The Explanation response is as below :
 * 2)The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in the 	 regular torchserve.
 
     So in the preprocess method of [Transformer_handler_generalized.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py), KFServing doesn't require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
-
-
-
-
-
-
-
-
