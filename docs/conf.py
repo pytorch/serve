@@ -44,7 +44,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinxcontrib.katex',
-    'recommonmark'
+    'recommonmark',
+    'sphinx_markdown_tables'
 
 ]
 
@@ -224,4 +225,3 @@ intersphinx_mapping = {
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'torch': ('https://pytorch.org/docs/stable/', None),
 }
-
