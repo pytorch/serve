@@ -27,7 +27,7 @@ setup()
 
   install_java_deps
 
-  branch=$(git symbolic-ref --short HEAD)
+  branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 
   echo
   python3 test/print_env_info.py $branch
