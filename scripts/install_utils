@@ -28,7 +28,7 @@ install_java_deps()
 
 install_torch_deps()
 {
-  if [ is_gpu_instance ] && [ ! -z "$1" ];
+  if is_gpu_instance && [ ! -z "$1" ];
   then
 	  pip install -U -r requirements_$1.txt -f https://download.pytorch.org/whl/torch_stable.html
 	else
