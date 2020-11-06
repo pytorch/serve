@@ -48,7 +48,9 @@ install_torchserve_from_source() {
   sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
   sudo apt-get -y install npm
   sudo npm install -g n
-  sudo n latest
+  # newman installation fails with latest version of node js
+  # ref : https://github.com/npm/cli/issues/2000
+  sudo n 14.13.1
   export PATH="$PATH"
   sudo npm install -g newman newman-reporter-html
 
