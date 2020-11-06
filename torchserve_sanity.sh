@@ -27,11 +27,10 @@ setup()
 
   install_java_deps
 
-  branch=$(git branch | grep "*")
-  branch_head=${branch:2}
+  branch=$(git symbolic-ref --short HEAD)
 
   echo
-  python3 test/print_env_info.py $branch_head
+  python3 test/print_env_info.py $branch
 }
 
 setup $1
