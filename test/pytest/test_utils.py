@@ -56,7 +56,7 @@ def register_model(model_name, url):
         ('initial_workers', '1'),
         ('synchronous', 'true'),
     )
-    register_model_with_params(params)
+    return register_model_with_params(params)
 
 
 def register_model_with_params(params):
