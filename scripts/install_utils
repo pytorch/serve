@@ -223,10 +223,22 @@ clean_up_build_residuals()
   rm -rf ts/utils/__pycache__/
 }
 
-is_gpu_instance()
-{
-  [ -x "$(command -v nvidia-smi)" ]
+is_gpu_instance(){
+  if command -v nvidia-smi;
+  then
+    nvidia-smi | grep 'NVIDIA-SMI has failed'
+    if [ $? == 0 ];
+    then
+      return 1
+    else
+      return 0
+    fi
+
+  else
+    return 1
+  fi
 }
+
 
 run_markdown_link_checker(){
   STATUS=0
