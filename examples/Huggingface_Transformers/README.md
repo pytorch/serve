@@ -164,6 +164,10 @@ Now to run the batch inference follwoing command can be used:
 
 `curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt&`
 
+--- 
+**NOTE** Batches is not currently implemented for explanations 
+---
+
 ### Captum Explanations
 
 The explain is called with the following request api http://127.0.0.1:8080/explanations/bert_explain
@@ -183,6 +187,11 @@ in the initialize function for the captum to work.
 
 Functions for captum like construct_input_ref, captum_sequence_forward, summarize_attributions, get_word_token should be implemented.
 
+### Implementation Approach for captum batches
+Batches is not currently implemented for explanations 
+The batch inputs, target and preprocessed inputs can be stored in a list in the explain handle function and directly passed to the get_insights function of the handler.
+
+As captum makes many predictions for each sample, there may be a timeout for the response when batching is implemented. 
 
 ### Captum Explanations for Visual Insights
 
