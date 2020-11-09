@@ -182,3 +182,9 @@ in the initialize function for the captum to work.
 4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
 
 Functions for captum like construct_input_ref, captum_sequence_forward, summarize_attributions, get_word_token should be implemented.
+
+
+### Captum Explanations for Visual Insights
+
+The [Captum Explanations for Visual Insights Notebook](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Captum_visualization_for_bert.ipynb) gives an insight into how the captum explanations can be used to visually represent the attributions and word importances. The pre-requisite is to have the prediction response ready. In this example, the prediction response from the BERT Seq Classification is used. 
+
