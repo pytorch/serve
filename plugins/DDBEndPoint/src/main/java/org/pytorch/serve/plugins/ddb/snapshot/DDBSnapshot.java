@@ -7,38 +7,38 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 @DynamoDbBean
-public class Snapshots {
+public class DDBSnapshot {
     private String snapshotName;
     private String createdOnMonth;
     private String createdOn;
     private String snapshot;
     private Long version;
 
-    public Snapshots() {}
+    public DDBSnapshot() {}
 
     @DynamoDbPartitionKey
-    String getSnapshotName() {
+    public String getSnapshotName() {
         return snapshotName;
     }
 
-    void setSnapshotName(String snapshotName) {
+    public void setSnapshotName(String snapshotName) {
         this.snapshotName = snapshotName;
     }
 
-    String getSnapshot() {
+    public String getSnapshot() {
         return snapshot;
     }
 
-    void setSnapshot(String snapshot) {
+    public void setSnapshot(String snapshot) {
         this.snapshot = snapshot;
     }
 
     @DynamoDbSortKey
-    String getCreatedOn() {
+    public String getCreatedOn() {
         return createdOn;
     }
 
-    void setCreatedOn(String createdOn) {
+    public void setCreatedOn(String createdOn) {
         this.createdOn = createdOn;
     }
 

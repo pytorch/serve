@@ -39,11 +39,11 @@ public final class PluginsManager {
     }
 
     public SnapshotSerializer getSnapShotSerializer() {
-       logger.info("Trying to load snapshot serializer via plugin....");
+        logger.info(" Loading snapshot serializer plugin...");
         ServiceLoader<SnapshotSerializer> loader = ServiceLoader.load(SnapshotSerializer.class);
         if (loader.findFirst().isPresent()) {
             SnapshotSerializer snapShotSerializer = loader.findFirst().get();
-            logger.info("Snapshot serializer via plugin has been loaded successfully");
+            logger.info("Snapshot serializer plugin has been loaded successfully");
             return snapShotSerializer;
         }
         return null;

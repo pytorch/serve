@@ -1,3 +1,9 @@
+repositories {
+    maven {
+        url 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/release'
+    }
+}
+
 dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
@@ -5,22 +11,31 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb-enhanced'
     implementation 'org.codehaus.groovy:groovy-all:2.3.11'
     testImplementation "org.testng:testng:${testng_version}"
-    testImplementation 'org.mockito:mockito-all:1.10.19'
+    testImplementation 'com.amazonaws:DynamoDBLocal:1.13.2'
 }
 
 project.ext{
     sagemaker = true
 }
 
+task copyNativeDeps(type: Copy) {
+    from(configurations.testRuntimeClasspath) {
+        include '*.dll'
+        include '*.dylib'
+        include '*.so'
+    }
+    into 'build/libs'
+}
+
 configurations {
     test {
+
+        dependsOn copyNativeDeps
+        systemProperty 'java.library.path', 'build/libs'
+        systemProperty 'sqlite4java.library.path', 'build/libs'
+
         useTestNG() {
             suites 'testng.xml'
-        }
-
-        testLogging {
-            showStandardStreams = true
-            events "passed", "skipped", "failed", "standardOut", "standardError"
         }
     }
 }
@@ -38,3 +53,4 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
