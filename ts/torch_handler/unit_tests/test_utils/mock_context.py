@@ -1,6 +1,7 @@
 """
 Mocks for adding model context without loading all of Torchserve
 """
+
 import uuid
 import torch
 from ts.metrics.metrics_store import MetricsStore
@@ -13,7 +14,8 @@ class MockContext():
                  model_pt_file='model.pt',
                  model_dir='ts/torch_handler/unit_tests/models/tmp',
                  model_file='model.py',
-                 gpu_id='0'):
+                 gpu_id='0',
+                 model_name = "mnist"):
         self.manifest = {
             'model': {
                 'serializedFile': model_pt_file,
