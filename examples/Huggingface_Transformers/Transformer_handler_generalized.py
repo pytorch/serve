@@ -222,12 +222,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """ 
         return inference_output
 
-    def get_insights(self, input_ids, text, target):
+    def get_insights(self, input_batch, text, target):
         """This function calls the layer integrated gradient to get word importance
         of the input text
 
         Args:
-            input_ids (int): Denotes an ID to map an Input Request
+            input_batch (int): Batches of tokens IDs of text
             text (str): The Text specified in the input request
             target (int): The Target can be set to any acceptable label under the user's discretion.
 
@@ -252,6 +252,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         response = {}
         response["importances"] = attributions_sum.tolist()
         response["words"] = all_tokens
+        response["delta"] = delta[0].tolist()
         return [response]
 
 
@@ -266,8 +267,9 @@ def construct_input_ref(text, tokenizer, device):
 
     Returns:
         input_id(Tensor): It attributes to the tensor of the input tokenized words
-        ref_input_ids(Tensor): to be filled
-        attention mask() : to be filled
+        ref_input_ids(Tensor): Ref Input IDs are used as baseline for the attributions
+        attention mask() :  The attention mask is a binary tensor indicating the position
+         of the padded indices so that the model does not attend to them.
     """
     text_ids = tokenizer.encode(text, add_special_tokens=False)
     # construct input token ids
@@ -290,16 +292,20 @@ def construct_input_ref(text, tokenizer, device):
 
 
 def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
-    """A custom forward function to access different positions of the predictions
+    """This function is used to get the predictions from the model and this function 
+    can be used independent of the type of the BERT Task. In case of a QnA, there is no
+    need to create two models. one model with different positions can be used.
 
     Args:
-        inputs ([type]): [description]
-        attention_mask ([type], optional): [description]. Defaults to None.
-        position (int, optional): [description]. Defaults to 0.
-        model ([type], optional): [description]. Defaults to None.
+        inputs (list): Input for Predictions
+        attention_mask (list, optional): The attention mask is a binary tensor indicating the position
+         of the padded indices so that the model does not attend to them, it defaults to None.
+        position (int, optional): Position depends on the BERT Task. If it is a QnA, 
+        then positon is set to 1. Defaults to 0.
+        model ([type], optional): Name of the model, it defaults to None.
 
     Returns:
-        [type]: [description]
+        list: Prediction Outcome
     """
     model.eval()
     model.zero_grad()
@@ -312,10 +318,10 @@ def summarize_attributions(attributions):
     """Summarises the attribution across multiple runs
 
     Args:
-        attributions ([type]): [description]
+        attributions ([list): attributions from the Layer Integrated Gradients
 
     Returns:
-        [type]: [description]
+        list : Returns the attributions after normalizing them. 
     """
     attributions = attributions.sum(dim=-1).squeeze(0)
     attributions = attributions / torch.norm(attributions)
@@ -323,14 +329,15 @@ def summarize_attributions(attributions):
 
 
 def get_word_token(input_ids, tokenizer):
-    """constructs word tokens from token id
+    """constructs word tokens from token id using the BERT's
+    Auto Tokenizer
 
     Args:
-        input_ids ([type]): [description]
-        tokenizer ([type]): [description]
+        input_ids (list): Input IDs from construct_input_ref method
+        tokenizer (class): The Auto Tokenizer Pre-Trained model object
 
     Returns:
-        [type]: [description]
+        (list): Returns the word tokens
     """
     indices = input_ids[0].detach().tolist()
     tokens = tokenizer.convert_ids_to_tokens(indices)
