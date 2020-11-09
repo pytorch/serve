@@ -32,7 +32,7 @@ The snapshots are by default in `{LOG_LOCATION}\config` directory, where `{LOG_L
 
 **Note** : Models passed in --models parameter while starting TorchServe are ignored if restoring from a snapshot.
 
-# Changing snapshot store
+# Changing snapshot storage
 
-Torchserve snapshots are store/serialized in local file system (FS). You can change snapshot serializer by using a plugin.
+Torchserve snapshots are saved/serialized to local file system (FS). You can change snapshot serializer by using a plugin.
 Refer [DDBEndPoint](../plugins/docs/ddb_endpoint.md) plugin for details.
