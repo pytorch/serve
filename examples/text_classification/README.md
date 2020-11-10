@@ -48,6 +48,7 @@ In the config.properties, specify `service_envelope=body` and make the curl requ
 ```bash
 curl -H "Content-Type: application/json" --data @examples/text_classification/text_classifier_ts.json http://127.0.0.1:8080/explanations/my_tc_explain
 ```
+When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
 ### Captum Explanations
 
