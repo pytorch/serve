@@ -98,7 +98,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 # and related text as values.
                 # we use this format here seperate question and text for encoding.
 
-                question_context= ast.literal_eval(input_text)
+                question_context = ast.literal_eval(input_text)
                 question = question_context["question"]
                 context = question_context["context"]
                 inputs = self.tokenizer.encode_plus(question, context, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors="pt")
@@ -128,7 +128,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 predicted_idx = str(y_hat)
                 inferences.append(self.mapping[predicted_idx])
         # Handling inference for question_answering.
-        elif self.setup_config["mode"]== "question_answering":
+        elif self.setup_config["mode"] == "question_answering":
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
             answer_start_scores, answer_end_scores = self.model(input_batch)
@@ -141,9 +141,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # inferences = []
             for i in range(num_rows):
                 answer_start_scores_one_seq = answer_start_scores[i].unsqueeze(0)
-                answer_start= torch.argmax(answer_start_scores_one_seq)
+                answer_start = torch.argmax(answer_start_scores_one_seq)
                 answer_end_scores_one_seq = answer_end_scores[i].unsqueeze(0)
-                answer_end= torch.argmax(answer_end_scores_one_seq) + 1
+                answer_end = torch.argmax(answer_end_scores_one_seq) + 1
                 prediction = self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_batch[i].tolist()[answer_start:answer_end]))
                 inferences.append(prediction)
             logger.info("Model predicted: '%s'", prediction)
@@ -166,10 +166,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         return inferences
 
-    # def postprocess(self, inference_output):
-    #     # TODO: Add any needed post-processing of the model predictions here
-    #     return inference_output
-
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
 
@@ -177,5 +173,5 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             inference_output (list): It contains the predicted response of the input text.
         Returns:
             (list): Returns a list of the Predictions and Explanations.
-        """ 
+        """
         return inference_output
