@@ -2,6 +2,9 @@ package org.pytorch.serve.servingsdk.metrics;
 
 /**
  * This is a registry for different metric dimensions and their values.
+ * The purpose of this registry is to list and refer all the Dimensions available in TorchServe in one place.
+ * It is expected whenever a new metric Dimension get added in TorchServe, a corresponding entry should be made here.
+ * Plugin writers then will be able to refer this list.
  * This is not exhaustive list. Dimension can be added to Metric without adding it to this Registry.
  */
 public class DimensionRegistry {

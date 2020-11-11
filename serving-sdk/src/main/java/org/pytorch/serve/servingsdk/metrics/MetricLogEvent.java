@@ -24,6 +24,3 @@ public interface MetricLogEvent {
      */
     Date getTimestamp();
 }
-
-
-

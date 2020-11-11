@@ -1,10 +1,12 @@
 package org.pytorch.serve.servingsdk.metrics;
 
 /**
- * This is a registry for different Metrics available in Torch Serve.
- * This is not exhaustive list.
- * A Metric can be created or logged without adding it's entry to this registry.
- */
+ * This is a registry for different Metrics available in TorchServe.
+ * The purpose of this registry is to list and refer all the Metrics available in TorchServe in one place.
+ * It is expected thar whenever a new metrics get added in TorchServe, a corresponding entry should be made here.
+ * Plugin writers then will be able to refer this list.
+ * This is not exhaustive list. A Metric can be created or logged without adding it's entry to this registry.
+ * */
 public class InbuiltMetricsRegistry {
     public static final String INFERENCEREQUESTS = "InferenceRequests";
     public static final String QUEUETIME = "QueueTime";
