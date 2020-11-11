@@ -37,7 +37,7 @@ public class EnsembleTest {
        Node c = new Node<>("c");
        Node d = new Node<>("d");
        Node e = new Node<>("e");
-        Node f = new Node<>("f");
+       Node f = new Node<>("f");
 
 
        dag.addNode(a);

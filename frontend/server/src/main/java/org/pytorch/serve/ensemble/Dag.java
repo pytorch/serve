@@ -31,7 +31,6 @@ public class Dag {
     }
 
     public boolean hasEdgeTo(Node<?> from, Node<?> to){
-
         return dagMap.get(from.getName()).get("inDegree").contains(to.getName());
     }
 
@@ -140,25 +139,18 @@ public class Dag {
 
                 }
             }
-
-
         }
 
         if(topoSortedList.size() != nodes.size()){
-            throw new Exception("Cyclic graph");
+            throw new Exception("Not a valid DAG");
         }
         executorService.shutdown();
         return topoSortedList;
 
     }
 
-
-
     ArrayList<NodeOutput>  execute(Set<String> readyToExecute ){
-
-
         ArrayList<NodeOutput> out = new ArrayList<>();
-
         for(String name : readyToExecute){
             futures.add(executorCompletionService.submit(nodes.get(name)));
         }
