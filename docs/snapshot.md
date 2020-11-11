@@ -32,4 +32,4 @@ The snapshots are by default in `{LOG_LOCATION}\config` directory, where `{LOG_L
 
 **Note** : 
 1. Models passed in --models parameter while starting TorchServe are ignored if restoring from a snapshot.
-2. For windows, if shutdown snapshot file is not generated then you can use last snapshot file as shutdown file is replica of last snapshot.
+2. For windows, if shutdown snapshot file is not generated then you can use last snapshot file.
