@@ -61,6 +61,7 @@ public class SnapshotTest {
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        configManager.setIniitialWorkerPort(9500);
         server = new ModelServer(configManager);
         server.start();
     }
@@ -366,7 +367,7 @@ public class SnapshotTest {
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req).sync();
-        channel.closeFuture().sync();
+        channel.close().sync();
 
         validateSnapshot("snapshot9.cfg");
     }
@@ -418,6 +419,7 @@ public class SnapshotTest {
         prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
+        prop.put("initial_worker_port", 9500);
     }
 
     private String getLastSnapshot() {

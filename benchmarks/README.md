@@ -45,8 +45,8 @@ python3 windows_install_dependencies.py "C:\\Program Files"
 ## Models
 
 The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). We currently support the following:
-- [resnet: ResNet-18 (Default)](https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar)
-- [squeezenet: SqueezeNet V1.1](https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar)
+- [resnet: ResNet-18 (Default)](https://torchserve.pytorch.org/mar_files/resnet-18.mar)
+- [squeezenet: SqueezeNet V1.1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar)
 
 ## Benchmarks
 
@@ -210,7 +210,7 @@ The benchmark comes with pre-configured test plans which can be used directly to
 ### Run benchmark with a customized test plan
 This command will run Torchserve locally and perform benchmarking on the VGG11 model with test plan `soak` test plan soak has been configured with default Resnet-18 model, here we override it by providing extra parameters. Similarly, all parameters can be customized with a Test plan
 
-`python benchmark-ab.py soak --url https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar`
+`python benchmark-ab.py soak --url https://torchserve.pytorch.org/mar_files/vgg11.mar`
 
 ### Run benchmark in docker
 This command will run Torchserve inside a docker container and perform benchmarking with default parameters. The docker image used here is the latest CPU based torchserve image available on the docker hub. The custom image can also be used using the `--image` parameter.
@@ -228,7 +228,7 @@ This command will use all the configuration parameters given in config.json file
 ### Sample config file
 ```json
 {
-  "url":"https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
+  "url":"https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar",
   "requests": 1000,
   "concurrency": 10,
   "input": "../examples/image_classifier/kitten.jpg",
@@ -238,7 +238,7 @@ This command will use all the configuration parameters given in config.json file
 ```
 ### Benchmark parameters
 The following parameters can be used to run the AB benchmark suite.
-- url: Input model URL. Default: "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+- url: Input model URL. Default: "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 - device: Execution device type. Default: cpu
 - exec_env: Execution environment. Default: docker
 - concurrency: Concurrency of requests. Default: 10
@@ -275,7 +275,7 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample output CSV
 | Benchmark | Model | Concurrency | Requests | TS failed requests | TS throughput | TS latency P50 | TS latency P90| TS latency P90 | TS latency mean | TS error rate | Model_p50 | Model_p90 | Model_p99 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---| ---|
-| AB | https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
+| AB | https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
 
 ### Sample latency graph
 ![](predict_latency.png)

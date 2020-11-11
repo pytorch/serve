@@ -50,24 +50,24 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = DownloadModelException.class,
             expectedExceptionsMessageRegExp =
-                    "Failed to download model from: https://torchserve\\.s3\\.amazonaws\\.com/mar_files/mnist_non_exist\\.mar")
+                    "Failed to download model from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
     public void testAllowedMultiUrls() throws ModelException, IOException {
         // test multiple urls added to allowed list
         String modelStore = "src/test/resources/models";
         final List<String> customUrlPatternList =
                 Arrays.asList(
                         "http(s)?://s3.amazonaws.com.*",
-                        "https://torchserve.s3.amazonaws.com/mar_files/.*");
+                        "https://torchserve.pytorch.org/mar_files/.*");
         ModelArchive.downloadModel(
                 customUrlPatternList,
                 modelStore,
-                "https://torchserve.s3.amazonaws.com/mar_files/mnist_non_exist.mar");
+                "https://torchserve.pytorch.org/mar_files/mnist_non_exist.mar");
     }
 
     @Test(
             expectedExceptions = ModelNotFoundException.class,
             expectedExceptionsMessageRegExp =
-                    "Given URL https://torchserve\\.s3\\.amazonaws.com/mar_files/mnist\\.mar does not match any allowed URL\\(s\\)")
+                    "Given URL https://torchserve\\.pytorch.org/mar_files/mnist\\.mar does not match any allowed URL\\(s\\)")
     public void testBlockedUrl() throws ModelException, IOException {
         // test blocked url
         String modelStore = "src/test/resources/models";
@@ -76,7 +76,7 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(
                 customUrlPatternList,
                 modelStore,
-                "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
+                "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
     @Test
@@ -185,7 +185,7 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST,
                 modelStore,
-                "https://torchserve.s3.amazonaws.com/mar_files/mnist.mar");
+                "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
     @Test(expectedExceptions = DownloadModelException.class)

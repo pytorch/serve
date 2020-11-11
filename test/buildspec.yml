@@ -10,8 +10,3 @@ phases:
   build:
     commands:
       - python test/regression_tests.py
-
-artifacts:
-  files:
-    - test/artifacts # Newman api tests - logs and results
-  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 

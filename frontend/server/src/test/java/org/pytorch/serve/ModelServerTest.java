@@ -714,9 +714,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelRegisterWithDefaultWorkers"})
     public void testLoadModelFromURL() throws InterruptedException {
         testLoadModel(
-                "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar",
-                "squeezenet",
-                "1.0");
+                "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar", "squeezenet", "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
@@ -804,7 +802,7 @@ public class ModelServerTest {
                 resp.getMessage(),
                 "Custom pip package installation failed for custom_invalid_python_dep");
         setConfiguration("install_py_dep_per_model", "false");
-        channel.close();
+        channel.close().sync();
     }
 
     @Test(
@@ -820,7 +818,8 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
-        channel.close();
+        // TestUtils.unregisterModel(channel, "memory_error",null, true);
+        channel.close().sync();
     }
 
     @Test(
@@ -836,7 +835,7 @@ public class ModelServerTest {
         TestUtils.registerModel(channel, "prediction-memory-error.mar", "pred-err", true, false);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        channel.close();
+        channel.close().sync();
 
         // Test for prediction
         channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
@@ -852,7 +851,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
-        channel.close();
+        channel.close().sync();
 
         // Unload the model
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -885,7 +884,7 @@ public class ModelServerTest {
                 status.getStatus(),
                 "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
 
-        channel.close();
+        channel.close().sync();
 
         channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -908,7 +907,7 @@ public class ModelServerTest {
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
         Assert.assertEquals(TestUtils.getResult(), "Invalid response");
-        channel.close();
+        channel.close().sync();
     }
 
     @Test(

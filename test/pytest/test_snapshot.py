@@ -40,7 +40,7 @@ def test_snapshot_created_on_start_and_stop():
 def snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
     test_utils.delete_all_snapshots()
     test_utils.start_torchserve()
-    requests.post('http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/'
+    requests.post('http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/'
                   + model_mar)
     time.sleep(10)
     test_utils.stop_torchserve()
@@ -212,11 +212,11 @@ def test_restart_torchserve_with_one_of_model_mar_removed():
     test_utils.delete_model_store()
     test_utils.start_torchserve()
     requests.post(
-        'http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar')
+        'http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar')
     time.sleep(15)
     # 2nd model
     requests.post(
-        'http://127.0.0.1:8081/models?url=https://torchserve.s3.amazonaws.com/mar_files/mnist.mar')
+        'http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar')
     time.sleep(15)
     test_utils.stop_torchserve()
 
