@@ -7,3 +7,4 @@ pytest-cov
 nvgpu
 transformers
 numpy
+pygit2

@@ -11,7 +11,9 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
+import io.netty.handler.codec.http.multipart.MemoryAttribute;
 import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -21,12 +23,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
@@ -633,6 +638,83 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsDoNotDecodeRequest"})
+    public void testPredictionsEchoMultipart()
+            throws HttpPostRequestEncoder.ErrorDataEncoderException, InterruptedException,
+                    IOException {
+        Channel inferChannel = TestUtils.getInferenceChannel(configManager);
+        Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
+        loadTests(mgmtChannel, "echo.mar", "echo");
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/echo");
+
+        ByteBuffer allBytes = ByteBuffer.allocate(0x100);
+        IntStream.range(0, 0x100).forEach(i -> allBytes.put((byte) i));
+
+        HttpPostRequestEncoder encoder = new HttpPostRequestEncoder(req, true);
+        MemoryFileUpload data =
+                new MemoryFileUpload(
+                        "data", "allBytes.bin", "application/octet-stream", null, null, 0x100);
+        data.setContent(Unpooled.copiedBuffer(allBytes));
+        encoder.addBodyHttpData(data);
+
+        inferChannel.writeAndFlush(encoder.finalizeRequest());
+        if (encoder.isChunked()) {
+            inferChannel.writeAndFlush(encoder).sync();
+        }
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(TestUtils.getContent(), data.get());
+        unloadTests(mgmtChannel, "echo");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsEchoMultipart"})
+    public void testPredictionsEchoNoMultipart()
+            throws HttpPostRequestEncoder.ErrorDataEncoderException, InterruptedException,
+                    IOException {
+        Channel inferChannel = TestUtils.getInferenceChannel(configManager);
+        Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
+        loadTests(mgmtChannel, "echo.mar", "echo");
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/echo");
+
+        ByteBuffer allBytes = ByteBuffer.allocate(0x100);
+        IntStream.range(0, 0x100).forEach(i -> allBytes.put((byte) i));
+
+        Charset charset = StandardCharsets.ISO_8859_1;
+        HttpPostRequestEncoder.EncoderMode mode = HttpPostRequestEncoder.EncoderMode.RFC1738;
+        HttpPostRequestEncoder encoder =
+                new HttpPostRequestEncoder(new DefaultHttpDataFactory(), req, false, charset, mode);
+        MemoryAttribute data = new MemoryAttribute("data", charset);
+        data.setContent(Unpooled.copiedBuffer(allBytes));
+        encoder.addBodyHttpData(data);
+
+        inferChannel.writeAndFlush(encoder.finalizeRequest());
+        if (encoder.isChunked()) {
+            inferChannel.writeAndFlush(encoder).sync();
+        }
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(TestUtils.getContent(), data.get());
+        unloadTests(mgmtChannel, "echo");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsEchoNoMultipart"})
     public void testPredictionsModifyResponseHeader()
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
