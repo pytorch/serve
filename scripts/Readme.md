@@ -5,11 +5,8 @@ The scripts are designed to execute independent of each other.
 1. [install_dependencies.py](install_dependencies.py) : Helps you install build and test dependencies for torchserve (like java, torch packages, newman, etc)
    ```
    # Example
-   python scripts/install_dependencies.py --java --python-packages --nodejs --node-packages
+   python scripts/install_dependencies.py
 
-   # For help
-   python scripts/install_dependencies.py --help
-   ```
 2. [tsutils.py](tsutils.py.py) : Import this module in your scripts to have access to utility methods like start\stop torchserve, register\infer\unregister models, etc.
 3. [shell_utils.py](shell_utils.py) : Import this module in your scripts to have access to utility methods like download file, remove directory, unzip files, etc
 4. [install_from_src.py](install_from_src.py) : Installs torch and torch-model-archiver from source.

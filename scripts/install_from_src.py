@@ -48,8 +48,8 @@ def clean_up_build_residuals():
 
 def install_from_src():
     clean_slate()
-    install_torchserve()
     install_torch_model_archiver()
+    install_torchserve()    
     clean_up_build_residuals()
 
 

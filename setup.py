@@ -125,7 +125,7 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                    subprocess.check_call(build_plugins_command[platform.system()], shell=True)
+                subprocess.check_call(build_plugins_command[platform.system()], shell=True)
             else:
                 raise OSError("No such rule exists")
         except OSError:

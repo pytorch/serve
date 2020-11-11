@@ -62,7 +62,7 @@ git checkout <branch_name>
 ```
 Install dependencies (if not already installed)
 ```bash
-python scripts/install_dependencies.py --python-packages --nodejs --node-packages
+python scripts/install_dependencies.py
 ```
 > For GPU with Cuda 10.1, make sure add the `--cu101` flag to the above command
 Execute regression suite
