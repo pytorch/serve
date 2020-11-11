@@ -13,7 +13,8 @@
 * For base Ubuntu with GPU, install following nvidia container toolkit and driver-
   * [Nvidia container toolkit](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster)
   * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
-* NOTE - torchserve docker images have not been certified on windows native.
+  
+* NOTE - Dockerfiles have not been tested on windows native platform.
 
 ## First things first
 
