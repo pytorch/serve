@@ -17,8 +17,6 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import org.pytorch.serve.servingsdk.snapshot.Snapshot;
-import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

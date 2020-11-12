@@ -1,4 +1,4 @@
-package org.pytorch.serve.servingsdk.snapshot;
+package org.pytorch.serve.snapshot;
 
 import com.google.gson.JsonObject;
 import java.util.Map;
