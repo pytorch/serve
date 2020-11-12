@@ -4,7 +4,7 @@ import os
 import workflow_archiver
 
 
-def test_model_export_tool_version():
+def test_workflow_export_tool_version():
     """
     Test the model archive version
     :return:
