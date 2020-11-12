@@ -1,6 +1,6 @@
 import sys
 import os
-from test import print_env_info
+import print_env_info
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
