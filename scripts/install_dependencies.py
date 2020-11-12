@@ -17,7 +17,7 @@ class Common():
 
     def install_torch_packages(self, cuda_version):
         if self.is_gpu_instance:
-            if cuda_version == 'cu101':
+            if cuda_version is not None:
                 os.system(f"pip install -U -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
             else:
                 os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
@@ -72,11 +72,15 @@ class Darwin(Common):
     def install_nodejs(self):
         os.system("brew install node")
 
-    def install_torch_packages(self, cu101=False):
+    def install_torch_packages(self, cuda_version=''):
         os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
+    parser.add_argument('--cuda', default=None, choices=['cu101'], help="CUDA version for torch")
+    args = parser.parse_args()
+
     os_map = {
         "Linux": Linux,
         "Windows": Windows,
@@ -88,5 +92,5 @@ if __name__ == "__main__":
     # Sequence of installation to be maintained
     system.install_java()
     system.install_nodejs()
-    system.install_python_packages(cuda_version=sys.argv[1])
+    system.install_python_packages(cuda_version=args.cuda)
     system.install_node_packages()
