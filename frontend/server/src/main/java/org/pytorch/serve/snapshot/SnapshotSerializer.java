@@ -1,6 +1,5 @@
 package org.pytorch.serve.snapshot;
 
-
 import java.io.IOException;
 
 public interface SnapshotSerializer {
