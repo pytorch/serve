@@ -11,6 +11,15 @@ from model_archiver.model_archiver_error import ModelArchiverError
 
 
 # noinspection PyClassHasNoInit
+def _validate_mar(patches):
+    if platform.system() == "Windows":
+        patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-model.mar")
+    else:
+        patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
+
+# noinspection PyClassHasNoInit
+
+
 class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
@@ -26,7 +35,7 @@ class TestExportModelUtils:
         def test_export_file_is_none(self, patches):
             patches.path_exists.return_value = False
             ret_val = ModelExportUtils.check_mar_already_exists('some-model', None, False)
-            _validate_mar()
+            _validate_mar(patches)
             assert ret_val == "/Users/dummyUser"
 
         def test_export_file_is_not_none(self, patches):
@@ -37,13 +46,13 @@ class TestExportModelUtils:
         def test_export_file_already_exists_with_override(self, patches):
             patches.path_exists.return_value = True
             ModelExportUtils.check_mar_already_exists('some-model', None, True)
-            _validate_mar()
+            _validate_mar(patches)
 
         def test_export_file_already_exists_with_override_false(self, patches):
             patches.path_exists.return_value = True
             with pytest.raises(ModelArchiverError):
                 ModelExportUtils.check_mar_already_exists('some-model', None, False)
-            _validate_mar()
+            _validate_mar(patches)
 
         def test_export_file_is_none_tar(self, patches):
             patches.path_exists.return_value = False
@@ -55,25 +64,6 @@ class TestExportModelUtils:
                 patches.path_exists.assert_called_once_with("/Users/dummyUser/some-model.tar.gz")
             assert ret_val == "/Users/dummyUser"
 
-        def test_export_file_is_none_tar(self, patches):
-            patches.path_exists.return_value = False
-            ret_val = ModelExportUtils.check_mar_already_exists('some-model', None, False, archive_format='no-archive')
-
-            if platform.system() == "Windows":
-                patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-model")
-            else:
-                patches.path_exists.assert_called_once_with("/Users/dummyUser/some-model")
-            assert ret_val == "/Users/dummyUser"
-        
-        def _validate_mar(self):
-            if platform.system() == "Windows":
-                patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-model.mar")
-            else:
-                patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
-
-                
-    
-    # noinspection PyClassHasNoInit
     class TestArchiveTypes:
         def test_archive_types(self):
             from model_archiver.model_packaging_utils import archiving_options as ar_opts

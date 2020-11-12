@@ -288,15 +288,11 @@ def generate_csv_output():
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
 
-<<<<<<< HEAD
-    with open(os.path.join(TMP_DIR, 'benchmark/ab_report.csv'), 'w')as csv_file:
-=======
     for m in metrics:
-        df = pd.read_csv(f"/tmp/benchmark/{m}", header=None, names=['data'])
+        df = pd.read_csv(f"{TMP_DIR}/benchmark/{m}", header=None, names=['data'])
         artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
 
-    with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
->>>>>>> master
+    with open(os.path.join(TMP_DIR, 'benchmark/ab_report.csv'), 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
         csvwriter.writerow(artifacts.keys())
         csvwriter.writerow(artifacts.values())

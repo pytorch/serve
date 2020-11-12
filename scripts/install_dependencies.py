@@ -17,7 +17,7 @@ class Common():
 
     def install_torch_packages(self, cuda_version):
         if self.is_gpu_instance:
-            if cuda_version=='cu101':
+            if cuda_version == 'cu101':
                 os.system(f"pip install -U -r requirements/torch_cu101.txt -f {self.torch_stable_url}")
             else:
                 os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
