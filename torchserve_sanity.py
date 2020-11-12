@@ -5,7 +5,7 @@ from scripts.test_sanity import test_sanity
 from scripts.shell_utils import rm_dir
 from scripts.test_frontend import test_frontend
 import scripts.tsutils as ts
-from test import print_env_info
+import test.print_env_info as build_hdr_printer
 
 
 def torchserve_sanity():
@@ -38,6 +38,6 @@ def cleanup():
 if __name__ == '__main__':
     from pygit2 import Repository
     git_branch = Repository('.').head.shorthand
-    print_env_info.main(git_branch)
+    build_hdr_printer.main(git_branch)
 
     torchserve_sanity()
