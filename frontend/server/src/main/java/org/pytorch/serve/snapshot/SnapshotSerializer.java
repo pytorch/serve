@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public interface SnapshotSerializer {
 
-    void saveSnapshot(Snapshot snapshot) throws IOException;
+    public void saveSnapshot(Snapshot snapshot) throws IOException;
 
-    Snapshot getSnapshot(String modelSnapshot) throws IOException;
+    public Snapshot getSnapshot(String modelSnapshot) throws IOException;
 }
