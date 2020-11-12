@@ -20,38 +20,29 @@ class TestExportModelUtils:
         def patches(self, mocker):
             Patches = namedtuple('Patches', ['getcwd', 'path_exists'])
             patches = Patches(mocker.patch('os.getcwd'), mocker.patch('os.path.exists'))
-
             patches.getcwd.return_value = '/Users/dummyUser'
-
             return patches
 
         def test_export_file_is_none(self, patches):
             patches.path_exists.return_value = False
             ret_val = ModelExportUtils.check_mar_already_exists('some-model', None, False)
-
             _validate_mar()
-            
             assert ret_val == "/Users/dummyUser"
 
         def test_export_file_is_not_none(self, patches):
             patches.path_exists.return_value = False
             ModelExportUtils.check_mar_already_exists('some-model', '/Users/dummyUser/', False)
-
             patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
 
         def test_export_file_already_exists_with_override(self, patches):
             patches.path_exists.return_value = True
-
             ModelExportUtils.check_mar_already_exists('some-model', None, True)
-
             _validate_mar()
 
         def test_export_file_already_exists_with_override_false(self, patches):
             patches.path_exists.return_value = True
-
             with pytest.raises(ModelArchiverError):
                 ModelExportUtils.check_mar_already_exists('some-model', None, False)
-
             _validate_mar()
 
         def test_export_file_is_none_tar(self, patches):
@@ -80,6 +71,8 @@ class TestExportModelUtils:
             else:
                 patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
 
+                
+    
     # noinspection PyClassHasNoInit
     class TestArchiveTypes:
         def test_archive_types(self):
@@ -91,7 +84,7 @@ class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
     class TestCustomModelTypes:
-
+        
         model_path = '/Users/dummyUser'
 
         @pytest.fixture()
