@@ -48,6 +48,10 @@ run_model_archiver_python_linting
 
 run_model_archiver_UT_suite
 
+run_workflow_archiver_python_linting
+
+run_workflow_archiver_UT_suite
+
 set +u
 ./scripts/install_from_src $1
 set -u
@@ -64,6 +68,8 @@ then
 fi
 
 run_model_archiver_IT_suite
+
+run_workflow_archiver_IT_suite
 
 mkdir -p model_store
 

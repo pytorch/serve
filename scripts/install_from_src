@@ -12,6 +12,7 @@ install_torch_deps $1
 set -u
 
 build_install_server
-build_install_archiver
+build_install_model_archiver
+build_install_workflow_archiver
 
 clean_up_build_residuals
