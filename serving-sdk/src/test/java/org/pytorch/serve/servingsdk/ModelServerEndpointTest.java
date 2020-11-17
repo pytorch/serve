@@ -12,6 +12,9 @@ import org.pytorch.serve.servingsdk.http.Request;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.http.Response;
+import org.pytorch.serve.servingsdk.metrics.MetricEventListener;
+import org.pytorch.serve.servingsdk.metrics.MetricEventListenerRegistry;
+import org.pytorch.serve.servingsdk.metrics.MetricEventPublisher;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,6 +32,9 @@ public class ModelServerEndpointTest {
     Model m;
     Worker w;
     ModelServerEndpoint mse;
+    MetricEventListenerRegistry melr;
+    MetricEventPublisher mep;
+    MetricEventListener mel;
     Request req;
     Response rsp;
     ByteArrayOutputStream outputStream;
@@ -41,6 +47,9 @@ public class ModelServerEndpointTest {
         w = Mockito.mock(Worker.class);
         ea = Mockito.mock(Endpoint.class);
         mse = Mockito.mock(ModelServerEndpoint.class);
+        melr = Mockito.mock(MetricEventListenerRegistry.class);
+        mep = Mockito.mock(MetricEventPublisher.class);
+        mel = Mockito.mock(MetricEventListener.class);
         req = Mockito.mock(Request.class);
         rsp = Mockito.mock(Response.class);
         outputStream = new ByteArrayOutputStream();
@@ -148,12 +157,26 @@ public class ModelServerEndpointTest {
         Assert.assertEquals("This is a test", outputStream.toString());
     }
 
+    private void testMetricEventListenerRegistry() throws IOException {
+        Class melr_class = MetricEventListenerRegistry.class;
+        Assert.assertEquals(5, melr_class.getDeclaredMethods().length);
+        for(Method m : melr_class.getDeclaredMethods()) {
+            switch (m.getName()) {
+                case "register":
+                    break;
+                default:
+                    Assert.fail("Invalid method found");
+            }
+        }
+    }
+
+
     private void testEndpointAnnotation() {
         Assert.assertEquals(3, Endpoint.class.getDeclaredMethods().length);
         Assert.assertEquals("myEndpoint", ea.urlPattern());
         Assert.assertEquals(EndpointTypes.INFERENCE, ea.endpointType());
         Assert.assertEquals("This is a test endpoint", ea.description());
-        Assert.assertEquals(3, EndpointTypes.class.getFields().length);
+        Assert.assertEquals(4, EndpointTypes.class.getFields().length);
     }
 
     private void testWorkerInterface(Worker w) {
