@@ -136,7 +136,7 @@ run_postman_test() {(
   stop_torch_serve
   start_torchserve $MODEL_STORE $TS_LOG_FILE
   newman run -e postman/environment.json -x --verbose postman/management_api_test_collection.json \
-	  -r cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
+	  -d postman/management_data.json cli,html --reporter-html-export $ROOT_DIR/report/management_report.html >>$1 2>&1
 
 
   # Run Inference API Tests after Restart
@@ -173,8 +173,10 @@ run_pytest() {(
   set -e
   mkdir -p $ROOT_DIR/report/
   cd $CODEBUILD_WD/test/pytest
+  python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/ --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto ../../frontend/server/src/main/resources/proto/management.proto
   stop_torch_serve
   pytest . -v >>$1 2>&1
+  rm -rf inference_pb2*.py
   cd -
 
 )}
@@ -192,6 +194,7 @@ install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_
 
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
+
 run_pytest $TEST_EXECUTION_LOG_FILE
 
 echo "** Tests Complete **"

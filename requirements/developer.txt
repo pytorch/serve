@@ -6,3 +6,6 @@ pytest-mock
 pytest-cov
 nvgpu
 numpy
+grpcio
+protobuf
+grpcio-tools

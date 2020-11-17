@@ -79,7 +79,7 @@ public class ModelServerTest {
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
 
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
         String version = configManager.getProperty("version", null);
         try (InputStream is = new FileInputStream("src/test/resources/inference_open_api.json")) {
             listInferenceApisResult =
@@ -1621,8 +1621,10 @@ public class ModelServerTest {
         FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
         configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
         configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
+        configManagerValidPort.setProperty("grpc_inference_port", "10010");
+        configManagerValidPort.setProperty("grpc_management_port", "10011");
         ModelServer serverValidPort = new ModelServer(configManagerValidPort);
-        serverValidPort.start();
+        serverValidPort.startRESTserver();
 
         Channel channel = null;
         Channel managementChannel = null;
@@ -1664,7 +1666,7 @@ public class ModelServerTest {
         configManagerInvalidPort.setProperty("inference_address", "https://127.0.0.1:65536");
         ModelServer serverInvalidPort = new ModelServer(configManagerInvalidPort);
         try {
-            serverInvalidPort.start();
+            serverInvalidPort.startRESTserver();
         } catch (Exception e) {
             Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
             Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");

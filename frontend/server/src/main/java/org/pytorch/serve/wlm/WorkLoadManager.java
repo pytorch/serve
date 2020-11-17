@@ -1,8 +1,8 @@
 package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,17 +84,17 @@ public class WorkLoadManager {
         return numWorking;
     }
 
-    public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup) {
+    public CompletableFuture<Integer> modelChanged(Model model, boolean isStartup) {
         synchronized (model.getModelVersionName()) {
             boolean isSnapshotSaved = false;
-            CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
+            CompletableFuture<Integer> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
             List<WorkerThread> threads;
             if (minWorker == 0) {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
-                    future.complete(HttpResponseStatus.OK);
+                    future.complete(HttpURLConnection.HTTP_OK);
                     if (!isStartup) {
                         SnapshotManager.getInstance().saveSnapshot();
                     }
@@ -131,13 +131,13 @@ public class WorkLoadManager {
                         } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                            future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
                             return future;
                         }
                         if (!workerDestroyed) {
                             logger.warn(
                                     "WorkerThread timed out while cleaning, please resend request.");
-                            future.complete(HttpResponseStatus.REQUEST_TIMEOUT);
+                            future.complete(HttpURLConnection.HTTP_CLIENT_TIMEOUT);
                             return future;
                         }
                     }
@@ -146,7 +146,7 @@ public class WorkLoadManager {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;
                 }
-                future.complete(HttpResponseStatus.OK);
+                future.complete(HttpURLConnection.HTTP_OK);
             }
             if (!isStartup && !isSnapshotSaved) {
                 SnapshotManager.getInstance().saveSnapshot();
@@ -158,7 +158,7 @@ public class WorkLoadManager {
     private String getKillCmd() {
         String operatingSystem = System.getProperty("os.name").toLowerCase();
         String killCMD;
-        if (operatingSystem.indexOf("win") >= 0) {
+        if (operatingSystem.contains("win")) {
             killCMD = "taskkill /f /PID %s";
         } else {
             killCMD = "kill -9 %s";
@@ -167,10 +167,7 @@ public class WorkLoadManager {
     }
 
     private void addThreads(
-            List<WorkerThread> threads,
-            Model model,
-            int count,
-            CompletableFuture<HttpResponseStatus> future) {
+            List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = configManager.getNumberOfGpu();
         for (int i = 0; i < count; ++i) {
