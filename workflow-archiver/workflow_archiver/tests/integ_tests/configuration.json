@@ -1,0 +1,26 @@
+  [{
+    "name": "packaging_war",
+    "workflow-name": "workflow",
+    "spec-file": "workflow_archiver/tests/integ_tests/resources/test_spec.yaml",
+    "handler": "workflow_archiver/tests/integ_tests/resources/test_handler.py",
+    "export-path": "/tmp/workflow",
+    "iterations": 1
+  },
+  {
+    "name": "packaging_war_with_existing_name_without_force",
+    "workflow-name": "workflow",
+    "spec-file": "workflow_archiver/tests/integ_tests/resources/test_spec.yaml",
+    "handler": "workflow_archiver/tests/integ_tests/resources/test_handler.py",
+    "export-path": "/tmp/workflow",
+    "iterations": 2,
+    "expect-error": true
+  },
+  {
+    "name": "packaging_war_with_existing_name_with_force",
+    "workflow-name": "workflow",
+    "spec-file": "workflow_archiver/tests/integ_tests/resources/test_spec.yaml",
+    "handler": "workflow_archiver/tests/integ_tests/resources/test_handler.py",
+    "export-path": "/tmp/workflow",
+    "iterations": 2,
+    "force": true
+  }]
