@@ -1,4 +1,4 @@
-package org.pytorch.serve.http;
+package org.pytorch.serve.http.messages;
 
 import java.util.ArrayList;
 import java.util.List;

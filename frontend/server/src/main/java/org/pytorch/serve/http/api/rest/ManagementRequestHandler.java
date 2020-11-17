@@ -1,4 +1,4 @@
-package org.pytorch.serve.http;
+package org.pytorch.serve.http.api.rest;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -22,6 +22,9 @@ import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.http.*;
+import org.pytorch.serve.http.messages.DescribeModelResponse;
+import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.snapshot.SnapshotManager;
@@ -33,7 +36,7 @@ import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerThread;
 
 /**
- * A class handling inbound HTTP requests to the management API.
+ * A class handling inbound HTTP requests to the workflow management API.
  *
  * <p>This class
  */
@@ -45,7 +48,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     @Override
-    protected void handleRequest(
+    public void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,

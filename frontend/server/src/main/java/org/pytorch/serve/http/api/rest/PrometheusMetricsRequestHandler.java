@@ -1,4 +1,4 @@
-package org.pytorch.serve.http;
+package org.pytorch.serve.http.api.rest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
     }
 
     @Override
-    protected void handleRequest(
+    public void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,

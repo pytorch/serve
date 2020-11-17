@@ -1,4 +1,4 @@
-package org.pytorch.serve.http;
+package org.pytorch.serve.http.api.rest;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -14,6 +14,10 @@ import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.http.BadRequestException;
+import org.pytorch.serve.http.HttpRequestHandlerChain;
+import org.pytorch.serve.http.ResourceNotFoundException;
+import org.pytorch.serve.http.ServiceUnavailableException;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
@@ -28,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class handling inbound HTTP requests to the management API.
+ * A class handling inbound HTTP requests to the inference API.
  *
  * <p>This class
  */
@@ -42,7 +46,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     @Override
-    protected void handleRequest(
+    public void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
