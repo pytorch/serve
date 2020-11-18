@@ -265,7 +265,9 @@ public final class ModelManager {
                 modelsNameMap.remove(modelName);
             }
 
-            ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
+            if (!isCleanUp) {
+                ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
+            }
         } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpResponseStatus.BAD_REQUEST;
