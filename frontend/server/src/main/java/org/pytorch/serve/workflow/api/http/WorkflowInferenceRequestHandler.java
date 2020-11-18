@@ -9,26 +9,31 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.ServiceUnavailableException;
+import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
-import org.pytorch.serve.wlm.Job;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * A class handling inbound HTTP requests to the workflow inference API.
@@ -37,7 +42,8 @@ import java.util.Map;
  */
 public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
 
-    private static final Logger logger = LoggerFactory.getLogger(org.pytorch.serve.http.api.rest.InferenceRequestHandler.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(org.pytorch.serve.http.api.rest.InferenceRequestHandler.class);
 
     /** Creates a new {@code WorkflowInferenceRequestHandler} instance. */
     public WorkflowInferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
@@ -49,17 +55,29 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
-            String[] segments) throws ModelException {
+            String[] segments)
+            throws ModelException {
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
                 switch (segments[1]) {
                     case "ping":
-                        ModelManager.getInstance().workerStatus(ctx);
+                        Runnable r =
+                                () -> {
+                                    String response = ApiUtils.getWorkerStatus();
+                                    NettyUtils.sendJsonResponse(
+                                            ctx,
+                                            new StatusResponse(
+                                                    response, HttpURLConnection.HTTP_OK));
+                                };
+                        ApiUtils.getTorchServeHealth(r);
                         break;
                     case "predictions":
                         handlePredictions(ctx, req, segments);
+                        break;
+                    default:
+                        throw new ResourceNotFoundException();
                 }
             }
         } else {
@@ -70,18 +88,17 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
     private boolean isInferenceReq(String[] segments) {
         return segments.length == 0
                 || (segments.length >= 2
-                && (segments[1].equals("ping")
-                || segments[1].equals("predictions")
-                || segments[1].equals("api-description")
-                || endpointMap.containsKey(segments[1])))
-                || (segments.length == 4 && segments[1].equals("workflow"))
+                        && (segments[1].equals("ping")
+                                || segments[1].equals("predictions")
+                                || segments[1].equals("api-description")
+                                || endpointMap.containsKey(segments[1])))
                 || (segments.length == 3 && segments[2].equals("predict"))
                 || (segments.length == 4 && segments[3].equals("predict"));
     }
 
     private void handlePredictions(
             ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
-             {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         if (segments.length < 3) {
             throw new ResourceNotFoundException();
         }
@@ -100,7 +117,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String modelName,
             String modelVersion)
-             {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         RequestInput input = parseRequest(ctx, req, decoder);
         if (modelName == null) {
             modelName = input.getStringParameter("model_name");
@@ -110,37 +127,37 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
         }
 
         if (HttpMethod.OPTIONS.equals(req.method())) {
-//            ModelManager modelManager = ModelManager.getInstance();
-//
-//            Model model = modelManager.getModel(modelName, modelVersion);
-//            if (model == null) {
-//                throw new ModelNotFoundException("Model not found: " + modelName);
-//            }
-//
-//            String resp = OpenApiUtils.getModelApi(model);
-//            NettyUtils.sendJsonResponse(ctx, resp);
+            ModelManager modelManager = ModelManager.getInstance();
+
+            Model model = modelManager.getModel(modelName, modelVersion);
+            if (model == null) {
+                throw new ModelNotFoundException("Model not found: " + modelName);
+            }
+
+            String resp = OpenApiUtils.getModelApi(model);
+            NettyUtils.sendJsonResponse(ctx, resp);
             return;
         }
 
-//        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
-//        Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
-//        if (!ModelManager.getInstance().addJob(job)) {
-//            String responseMessage =
-//                    "Model \""
-//                            + modelName
-//                            + "\" Version "
-//                            + modelVersion
-//                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
-//
-//            if (modelVersion == null) {
-//                responseMessage =
-//                        "Model \""
-//                                + modelName
-//                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
-//            }
+        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
+        Job job = new RestJob(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
+        if (!ModelManager.getInstance().addJob(job)) {
+            String responseMessage =
+                    "Model \""
+                            + modelName
+                            + "\" Version "
+                            + modelVersion
+                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
 
-            //throw new ServiceUnavailableException(responseMessage);
-       // }
+            if (modelVersion == null) {
+                responseMessage =
+                        "Model \""
+                                + modelName
+                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
+            }
+
+            throw new ServiceUnavailableException(responseMessage);
+        }
     }
 
     private static RequestInput parseRequest(
@@ -163,7 +180,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
 
         if (HttpPostRequestDecoder.isMultipart(req)
                 || HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(
-                contentType)) {
+                        contentType)) {
             HttpDataFactory factory = new DefaultHttpDataFactory(6553500);
             HttpPostRequestDecoder form = new HttpPostRequestDecoder(factory, req);
             try {
