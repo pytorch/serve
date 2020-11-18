@@ -37,7 +37,7 @@ public abstract class HttpRequestHandlerChain {
         return chain;
     }
 
-    protected abstract void handleRequest(
+    public abstract void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,

@@ -27,6 +27,15 @@ public class Session {
         startTime = System.currentTimeMillis();
     }
 
+    public Session(String remoteIp, String gRPCMethod) {
+        this.remoteIp = remoteIp;
+        method = "gRPC";
+        protocol = "HTTP/2.0";
+        this.uri = gRPCMethod;
+        requestId = UUID.randomUUID().toString();
+        startTime = System.currentTimeMillis();
+    }
+
     public String getRequestId() {
         return requestId;
     }

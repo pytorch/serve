@@ -13,15 +13,30 @@ cleanup()
 
   # clean up residual from model-archiver IT suite.
   rm -rf model_archiver/model-archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it
+
+  rm scripts/*_pb2*.py
 }
 
-set +u
-install_torch_deps $1
-set -u
+setup()
+{
+  set +u
+  install_torch_deps $1
+  set -u
 
-install_pytest_suite_deps
+  install_pytest_suite_deps
 
-install_bert_dependencies
+  install_bert_dependencies
+
+  install_java_deps
+
+  branch=$(git branch | grep "*")
+  branch_head=${branch:2}
+
+  echo
+  python3 test/print_env_info.py $branch_head
+}
+
+setup $1
 
 run_backend_pytest
 
@@ -33,6 +48,10 @@ run_model_archiver_python_linting
 
 run_model_archiver_UT_suite
 
+run_workflow_archiver_python_linting
+
+run_workflow_archiver_UT_suite
+
 set +u
 ./scripts/install_from_src $1
 set -u
@@ -43,11 +62,14 @@ then
     if [ $cuda_status -eq 0 ] ;
     then
       echo Ohh Its NOT running on GPU!!
+      cleanup
       exit 1
     fi
 fi
 
 run_model_archiver_IT_suite
+
+run_workflow_archiver_IT_suite
 
 mkdir -p model_store
 
@@ -61,11 +83,45 @@ model_inputs=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg"
  "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt" "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
 handlers=("object_detector" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "custom" "custom" "custom")
 
+# generate python grpc stubs for Inference API
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+
+
 for i in ${!models[@]};
 do
   model=${models[$i]}
   inputs=$(echo ${model_inputs[$i]} | tr "," "\n")
   handler=${handlers[$i]}
+
+  # gRPC API validation
+  if python scripts/torchserve_grpc_client.py "register" $model; then
+    echo "Successfully registered $model model through gRPC client"
+  else
+    echo "Could not register $model model through gRPC client"
+    cleanup
+    exit 1
+  fi
+
+  for input in ${inputs[@]};
+  do
+    if python scripts/torchserve_grpc_client.py "infer" $model $input; then
+      echo "Successfully validated $handler through gRPC client"
+    else
+      echo "Could not run inference for $model through gRPC client"
+      cleanup
+      exit 1
+    fi
+  done
+
+  if python scripts/torchserve_grpc_client.py "unregister" $model; then
+    echo "Successfully unregistered $model model through gRPC client"
+  else
+    echo "Could not unregister $model model through gRPC client"
+    cleanup
+    exit 1
+  fi
+
+  # REST API validation
   register_model "$model"
   for input in ${inputs[@]};
   do
@@ -78,6 +134,7 @@ do
       echo "Model $model successfully loaded on GPU"
     else
       echo "Something went wrong, model $model did not load on GPU"
+      cleanup
       exit 1
     fi
   fi

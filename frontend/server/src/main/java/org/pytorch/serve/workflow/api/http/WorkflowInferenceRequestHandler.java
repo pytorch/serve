@@ -1,4 +1,4 @@
-package org.pytorch.serve.http;
+package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -9,40 +9,49 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.http.BadRequestException;
+import org.pytorch.serve.http.HttpRequestHandlerChain;
+import org.pytorch.serve.http.ResourceNotFoundException;
+import org.pytorch.serve.http.ServiceUnavailableException;
+import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
-import org.pytorch.serve.wlm.Job;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class handling inbound HTTP requests to the management API.
+ * A class handling inbound HTTP requests to the workflow inference API.
  *
  * <p>This class
  */
-public class InferenceRequestHandler extends HttpRequestHandlerChain {
+public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
 
-    private static final Logger logger = LoggerFactory.getLogger(InferenceRequestHandler.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(org.pytorch.serve.http.api.rest.InferenceRequestHandler.class);
 
-    /** Creates a new {@code InferenceRequestHandler} instance. */
-    public InferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
+    /** Creates a new {@code WorkflowInferenceRequestHandler} instance. */
+    public WorkflowInferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
         endpointMap = ep;
     }
 
     @Override
-    protected void handleRequest(
+    public void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
@@ -54,19 +63,21 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             } else {
                 switch (segments[1]) {
                     case "ping":
-                        ModelManager.getInstance().workerStatus(ctx);
-                        break;
-                    case "models":
-                    case "invocations":
-                        validatePredictionsEndpoint(segments);
-                        handleInvocations(ctx, req, decoder, segments);
+                        Runnable r =
+                                () -> {
+                                    String response = ApiUtils.getWorkerStatus();
+                                    NettyUtils.sendJsonResponse(
+                                            ctx,
+                                            new StatusResponse(
+                                                    response, HttpURLConnection.HTTP_OK));
+                                };
+                        ApiUtils.getTorchServeHealth(r);
                         break;
                     case "predictions":
                         handlePredictions(ctx, req, segments);
                         break;
                     default:
-                        handleLegacyPredict(ctx, req, decoder, segments);
-                        break;
+                        throw new ResourceNotFoundException();
                 }
             }
         } else {
@@ -80,23 +91,9 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                         && (segments[1].equals("ping")
                                 || segments[1].equals("predictions")
                                 || segments[1].equals("api-description")
-                                || segments[1].equals("invocations")
                                 || endpointMap.containsKey(segments[1])))
-                || (segments.length == 4 && segments[1].equals("models"))
                 || (segments.length == 3 && segments[2].equals("predict"))
                 || (segments.length == 4 && segments[3].equals("predict"));
-    }
-
-    private void validatePredictionsEndpoint(String[] segments) {
-        if (segments.length == 2 && "invocations".equals(segments[1])) {
-            return;
-        } else if (segments.length == 4
-                && "models".equals(segments[1])
-                && "invoke".equals(segments[3])) {
-            return;
-        }
-
-        throw new ResourceNotFoundException();
     }
 
     private void handlePredictions(
@@ -112,41 +109,6 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             modelVersion = segments[3];
         }
         predict(ctx, req, null, segments[2], modelVersion);
-    }
-
-    private void handleInvocations(
-            ChannelHandlerContext ctx,
-            FullHttpRequest req,
-            QueryStringDecoder decoder,
-            String[] segments)
-            throws ModelNotFoundException, ModelVersionNotFoundException {
-        String modelName =
-                ("invocations".equals(segments[1]))
-                        ? NettyUtils.getParameter(decoder, "model_name", null)
-                        : segments[2];
-        if (modelName == null || modelName.isEmpty()) {
-            if (ModelManager.getInstance().getStartupModels().size() == 1) {
-                modelName = ModelManager.getInstance().getStartupModels().iterator().next();
-            }
-        }
-        predict(ctx, req, decoder, modelName, null);
-    }
-
-    private void handleLegacyPredict(
-            ChannelHandlerContext ctx,
-            FullHttpRequest req,
-            QueryStringDecoder decoder,
-            String[] segments)
-            throws ModelNotFoundException, ModelVersionNotFoundException {
-
-        String modelVersion = null;
-        if (segments.length == 4 && "predict".equals(segments[3])) {
-            modelVersion = segments[2];
-        } else if (segments.length < 3 || !"predict".equals(segments[2])) {
-            throw new ResourceNotFoundException();
-        }
-
-        predict(ctx, req, decoder, segments[1], modelVersion);
     }
 
     private void predict(
@@ -178,7 +140,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         }
 
         MetricAggregator.handleInferenceMetric(modelName, modelVersion);
-        Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
+        Job job = new RestJob(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage =
                     "Model \""

@@ -9,7 +9,7 @@ public class InvalidRequestHandler extends HttpRequestHandlerChain {
     public InvalidRequestHandler() {}
 
     @Override
-    protected void handleRequest(
+    public void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
