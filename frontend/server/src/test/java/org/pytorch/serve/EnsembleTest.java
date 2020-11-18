@@ -1,5 +1,6 @@
 package org.pytorch.serve;
 
+import org.pytorch.serve.archive.InvalidModelException;
 import org.pytorch.serve.ensemble.Node;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.testng.annotations.AfterClass;
@@ -9,6 +10,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import  org.pytorch.serve.ensemble.Dag;
+import  org.pytorch.serve.ensemble.WorkFlow;
 
 public class EnsembleTest {
 
@@ -30,7 +32,7 @@ public class EnsembleTest {
     }
 
     @Test
-    public void testStartupSnapshot() {
+    public void testDAG() {
        Dag dag= new Dag();
        Node a = new Node<>("a");
        Node b = new Node<>("b");
@@ -67,10 +69,13 @@ public class EnsembleTest {
     }
 
     @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testStartupSnapshot"})
-    public void testUnregisterSnapshot() throws InterruptedException {
-        assert 1==1;
+            alwaysRun = true)
+    public void testWorkFlowYaml() throws InterruptedException, InvalidModelException, IOException {
+          WorkFlow  wf = new WorkFlow("src/test/resources/workflow_spec.yaml");
+
+          System.out.println(wf.getObj());
+
+          Object a = wf.getObj();
 
     }
 

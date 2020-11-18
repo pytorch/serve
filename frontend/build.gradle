@@ -53,7 +53,7 @@ configure(javaProjects()) {
     test.finalizedBy(project.tasks.jacocoTestReport)
 
     compileJava {
-        options.compilerArgs << "-Xlint:all,-options,-static" << "-Werror"
+        options.compilerArgs << "-Xlint:all,-options,-static"
     }
 
     jacocoTestCoverageVerification {

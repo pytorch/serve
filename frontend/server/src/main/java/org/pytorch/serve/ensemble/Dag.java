@@ -112,11 +112,12 @@ public class Dag {
         Set<String> executing = new HashSet<>();
 
         Map<String, Object> inputMap = new HashMap<>();
+
         for (String  s : zeroInDegree){
             nodes.get(s).updateInputDataMap("start", "0");
         }
-        while(zeroInDegree.size() > 0){
 
+        while(zeroInDegree.size() > 0){
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
             readyToExecute.removeAll(executing);
             executing.addAll(readyToExecute);
@@ -144,6 +145,7 @@ public class Dag {
         if(topoSortedList.size() != nodes.size()){
             throw new Exception("Not a valid DAG");
         }
+
         executorService.shutdown();
         return topoSortedList;
 

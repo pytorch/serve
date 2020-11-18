@@ -10,9 +10,11 @@ public class Node<T> implements Callable {
     private String name;
     private String parentName;
     private Map<String, Object> inputDataMap;
+    private WorkflowModel workflowModel;
 
-    public Node(String name) {
+    public Node(String name, WorkflowModel model) {
         this.name = name;
+        this.workflowModel = model;
         this.inputDataMap = new HashMap<>();
     }
 
