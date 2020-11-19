@@ -281,7 +281,11 @@
 <p><code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--no-config-snapshots</span></code></p>
 <p>This prevents to server from storing config snapshot files.</p>
 <p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in  <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory</p>
-<p><strong>Note</strong> : Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p>
+<p><strong>Note</strong> :</p>
+<ol class="simple">
+<li><p>Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p></li>
+<li><p>For windows, if shutdown snapshot file is not generated then you can use last snapshot file.</p></li>
+</ol>
 </div>
 
 

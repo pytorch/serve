@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>To check branch stability run the sanity suite as follows &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe on Windows &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -184,12 +184,14 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">To check branch stability run the sanity suite as follows</a></li>
-<li><a class="reference internal" href="#to-run-frontend-build-suite-run-following-command">To run frontend build suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-backend-pytest-suite-run-following-command">To run backend pytest suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-python-linting-on-ts-package-run-following-command">To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command</a></li>
-<li><a class="reference internal" href="#to-run-pytest-suite-on-model-archiver-run-following-command">To run pytest suite on model-archiver run following command</a></li>
-<li><a class="reference internal" href="#to-run-it-suite-on-model-archiver-run-following-command">To run IT suite on model-archiver run following command</a></li>
+<li><a class="reference internal" href="#">TorchServe on Windows</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#install-from-binaries">Install from binaries</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
 </ul>
 </div>
             
@@ -230,13 +232,13 @@
       </li>
 
         
-      <li>To check branch stability run the sanity suite as follows</li>
+      <li>TorchServe on Windows</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/code_coverage.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/torchserve_on_win_native.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -262,68 +264,82 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="to-check-branch-stability-run-the-sanity-suite-as-follows">
-<h1>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this headline">¶</a></h1>
-<ul>
-<li><p>Install dependencies (if not already installed)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/install_dependencies.py
-</pre></div>
-</div>
-<blockquote>
-<div><p>For GPU with Cuda 10.1, make sure add the <code class="docutils literal notranslate"><span class="pre">cu101</span></code> argument to the above command</p>
-</div></blockquote>
-</li>
-<li><p>Execute sanity suite</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ./torchserve_sanity.py
-</pre></div>
-</div>
-</li>
-</ul>
-</div>
-<div class="section" id="to-run-frontend-build-suite-run-following-command">
-<h1>To run frontend build suite run following command<a class="headerlink" href="#to-run-frontend-build-suite-run-following-command" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>frontend/gradlew -p frontend clean build
-</pre></div>
-</div>
-<p>TorchServe frontend build suite consists of :</p>
+  <div class="section" id="torchserve-on-windows">
+<h1>TorchServe on Windows<a class="headerlink" href="#torchserve-on-windows" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contents-of-this-document">
+<h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>checkstyle</p></li>
-<li><p>findbugs</p></li>
-<li><p>PMD</p></li>
-<li><p>UT</p></li>
+<li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
+<li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
+<li><p><a class="reference external" href="#install-from-source">Install from source</a></p></li>
 </ul>
-<p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">frontend/server/build/reports</span></code></p>
 </div>
-<div class="section" id="to-run-backend-pytest-suite-run-following-command">
-<h1>To run backend pytest suite run following command<a class="headerlink" href="#to-run-backend-pytest-suite-run-following-command" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest --cov-report html:htmlcov --cov<span class="o">=</span>ts/ ts/tests/unit_tests/
-</pre></div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>At present, it has only been certified on windows server 2019 however should work fine on Windows 10.</p></li>
+<li><p>Make sure you are an admin user or have admin rights</p></li>
+<li><p>The instruction given here will use anaconda Powershell terminal to install torchserve</p></li>
+<li><p>Install Anaconda as given <a class="reference external" href="https://docs.anaconda.com/anaconda/install/windows/">here</a></p></li>
+<li><p>Install Git as given <a class="reference external" href="https://github.com/git-for-windows/git/releases/download/v2.28.0.windows.1/Git-2.28.0-64-bit.exe">here</a></p></li>
+<li><p>Install openjdk11</p>
+<ul>
+<li><p>Download <a class="reference external" href="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip">openjdk11</a></p></li>
+<li><p>Unzip and edit/add environment variables i.e. PATH and JAVA_HOME
+e.g.</p></li>
+<li><p>Using command line <code class="docutils literal notranslate"><span class="pre">unzip</span> <span class="pre">openjdk-11*_bin.zip</span></code> or using GUI interface</p></li>
+<li><p>Edit system or user profile environment variable <code class="docutils literal notranslate"><span class="pre">PATH</span></code> value and append path <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk11-path&gt;\bin</span></code> to it</p></li>
+</ul>
+</li>
+</ul>
 </div>
-<p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">htmlcov/</span></code></p>
+<div class="section" id="install-from-binaries">
+<h2>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
+<p>NOTE At present, wheels for windows are not available on PyPi. However following steps can also be used if you have prebuilt torchserve wheel for windows.</p>
+<ul class="simple">
+<li><p>Start ‘Anaconda Powershell Prompt’ (APP) as Admin User i.e. By right click on APP and run following commands</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/pytorch/serve.git</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">-r</span> <span class="pre">requirements_cpu.txt</span></code></p></li>
+<li><p>For local wheel file</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;your-torchserve-wheel-file-name&gt;.whl</span></code></p></li>
+</ul>
+</li>
+<li><p>For PyPi package (N/A at present)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torchserve</span> <span class="pre">torch-model-archiver</span></code></p></li>
+</ul>
+</li>
+<li><p>Start torchserve <code class="docutils literal notranslate"><span class="pre">torchserve.exe</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;path-to-model-store&gt;</span></code></p></li>
+<li><p>For next steps refer <a class="reference external" href="https://github.com/pytorch/serve#serve-a-model">Serving a model</a></p></li>
+</ul>
 </div>
-<div class="section" id="to-run-python-linting-on-ts-package-run-following-command">
-<h1>To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command<a class="headerlink" href="#to-run-python-linting-on-ts-package-run-following-command" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pylint -rn --rcfile<span class="o">=</span>./ts/tests/pylintrc ts/.
-</pre></div>
+<div class="section" id="install-from-source">
+<h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Add system or user profile environment variable name <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> and value as <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk11-path&gt;</span></code></p></li>
+<li><p>Install <a class="reference external" href="https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads">Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019</a></p>
+<p>NOTE ensure that you have restarted system after install above Visual C++ components</p>
+</li>
+<li><p>Start ‘Anaconda Powershell Prompt’ (APP) as Admin User i.e. By right click on APP and run following commands</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/pytorch/serve.git</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">click</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\scripts\install_from_src.py</span></code></p></li>
+<li><p>Refer <a class="reference external" href="https://github.com/pytorch/serve#install-torchserve-for-development">Install torchserve for development</a></p></li>
+</ul>
 </div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/config.properties</span></code>,
+all files in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/snapshot/*</span></code> and <code class="docutils literal notranslate"><span class="pre">frontend/server/src/main/java/org/pytorch/serve/util/ConfigManager.java</span></code></p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">curl</span></code> command fails to execute then run following command on APP (anaconda powershell promopt)
+<code class="docutils literal notranslate"><span class="pre">Remove-item</span> <span class="pre">alias:curl</span></code>
+Refer this <a class="reference external" href="https://stackoverflow.com/questions/25044010/running-curl-on-64-bit-windows">SO answer</a> for details.</p></li>
+</ul>
 </div>
-<div class="section" id="to-run-pytest-suite-on-model-archiver-run-following-command">
-<h1>To run pytest suite on model-archiver run following command<a class="headerlink" href="#to-run-pytest-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> model-archiver
-python -m pytest --cov-report html:htmlcov_ut --cov<span class="o">=</span>model_archiver/ model_archiver/tests/unit_tests/
-</pre></div>
-</div>
-<p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">model-archiver/htmlcov_ut/</span></code></p>
-</div>
-<div class="section" id="to-run-it-suite-on-model-archiver-run-following-command">
-<h1>To run IT suite on model-archiver run following command<a class="headerlink" href="#to-run-it-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> model-archiver
-pip install .
-python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model_archiver/ model_archiver/tests/integ_tests/
-</pre></div>
-</div>
-<p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">model-archiver/htmlcov_it/</span></code></p>
-<p><strong>Note</strong>: All the above commands needs to be excuted from serve home</p>
 </div>
 
 
@@ -360,12 +376,14 @@ python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">To check branch stability run the sanity suite as follows</a></li>
-<li><a class="reference internal" href="#to-run-frontend-build-suite-run-following-command">To run frontend build suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-backend-pytest-suite-run-following-command">To run backend pytest suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-python-linting-on-ts-package-run-following-command">To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command</a></li>
-<li><a class="reference internal" href="#to-run-pytest-suite-on-model-archiver-run-following-command">To run pytest suite on model-archiver run following command</a></li>
-<li><a class="reference internal" href="#to-run-it-suite-on-model-archiver-run-following-command">To run IT suite on model-archiver run following command</a></li>
+<li><a class="reference internal" href="#">TorchServe on Windows</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#install-from-binaries">Install from binaries</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

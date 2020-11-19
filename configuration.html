@@ -496,6 +496,7 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 <li><p><code class="docutils literal notranslate"><span class="pre">decode_input_request</span></code>: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to “true”, backend workers do “Bytearray to JSON object” conversion when the content type is “application/json” and
 the backend workers convert “Bytearray to utf-8 string” when the Content-Type of the request is set to “text*”. Default: true</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_worker_port</span></code> : This is the initial port number for auto assigning port to worker process.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">model_store</span></code> : Path of model store directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">model_server_home</span></code> : Torchserve home directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_request_size</span></code> : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500</p></li>
