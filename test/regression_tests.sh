@@ -4,7 +4,7 @@ set -x
 #set -e
 
 TS_REPO="https://github.com/pytorch/serve"
-BRANCH=${1:-master}
+BRANCH="master"
 ROOT_DIR="/workspace/"
 CODEBUILD_WD=$(pwd)
 MODEL_STORE=$ROOT_DIR"/model_store"
@@ -48,7 +48,9 @@ install_torchserve_from_source() {
   sudo apt-get -y install nodejs-dev node-gyp libssl1.0-dev
   sudo apt-get -y install npm
   sudo npm install -g n
-  sudo n latest
+  # newman installation fails with latest version of node js
+  # ref : https://github.com/npm/cli/issues/2000
+  sudo n 14.13.1
   export PATH="$PATH"
   sudo npm install -g newman newman-reporter-html
 
@@ -63,6 +65,11 @@ install_torchserve_from_source() {
   echo "TS Branch Commit Id : " "$(git rev-parse HEAD)" >> $3
   echo "Build date : " "$(date)" >> $3
   echo "Torchserve Succesfully installed"
+
+  #Get Environment info 
+  echo
+  python3 test/print_env_info.py $2
+  echo "----------------------------------------------------------"
 }
 
 
@@ -172,6 +179,7 @@ run_pytest() {(
 
 )}
 
+
 sudo rm -rf $ROOT_DIR && sudo mkdir $ROOT_DIR
 sudo chown -R $USER:$USER $ROOT_DIR
 cd $ROOT_DIR
@@ -181,6 +189,7 @@ sudo rm -f $TEST_EXECUTION_LOG_FILE $TS_LOG_FILE
 echo "** Execuing TorchServe Regression Test Suite executon for " $TS_REPO " **"
 
 install_torchserve_from_source $TS_REPO $BRANCH  $TEST_EXECUTION_LOG_FILE $CUDA_VERSION
+
 generate_densenet_test_model_archive $MODEL_STORE
 run_postman_test $TEST_EXECUTION_LOG_FILE
 run_pytest $TEST_EXECUTION_LOG_FILE
