@@ -4,20 +4,20 @@ models:
     max-workers: 4
     batch-size: 8
     m1:
-       url : model1.mar #local or S3 path
+       url : noop.mar #local or S3 path
        min-workers: 1   #override the global params
        max-workers: 2
        batch-size: 4
      
     m2:
-       url : model2.mar
+       url : mnist.mar
 
     m3:
-       url : model3.mar
+       url : noop.mar
        batch-size: 2
 
     m4:
-      url : model4.mar
+      url : mnist.mar
  
 dag: #can have only one start node and one end node
   pre_processing : [m1, m3]

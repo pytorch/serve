@@ -79,7 +79,7 @@ public class ModelArchive {
 
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
-                File unzipDir = unzip(is, null);
+                File unzipDir = unzip(is, null, "models");
                 return load(url, unzipDir, true);
             }
         }
@@ -136,9 +136,9 @@ public class ModelArchive {
         }
     }
 
-    public static File unzip(InputStream is, String eTag) throws IOException {
+    public static File unzip(InputStream is, String eTag, String type) throws IOException {
         File tmpDir = FileUtils.getTempDirectory();
-        File modelDir = new File(tmpDir, "models");
+        File modelDir = new File(tmpDir, type);
         FileUtils.forceMkdir(modelDir);
 
         File tmp = File.createTempFile("model", ".download");
