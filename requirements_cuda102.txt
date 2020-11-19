@@ -1,2 +1,2 @@
 -r requirements/production.txt
--r requirements/gpu.txt
+-r requirements/cuda102.txt
