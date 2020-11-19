@@ -51,6 +51,7 @@ public final class ConfigManager {
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
+    private static final String TS_METRICS_ADDRESS = "metrics_address";
     private static final String TS_LOAD_MODELS = "load_models";
     private static final String TS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
     private static final String TS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
@@ -77,7 +78,11 @@ public final class ConfigManager {
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
+    private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
+    private static final String TS_METRICS_FORMAT = "metrics_format";
+    private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -91,6 +96,8 @@ public final class ConfigManager {
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
+
+    public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
     public static final String PYTHON_EXECUTABLE = "python";
 
@@ -256,14 +263,19 @@ public final class ConfigManager {
                 || Boolean.parseBoolean(prop.getProperty(TS_DEBUG, "false"));
     }
 
-    public Connector getListener(boolean management) {
+    public Connector getListener(ConnectorType connectorType) {
         String binding;
-        if (management) {
-            binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
-        } else {
-            binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                binding = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
-        return Connector.parse(binding, management);
+        return Connector.parse(binding, connectorType);
     }
 
     public boolean getPreferDirectBuffer() {
@@ -272,6 +284,14 @@ public final class ConfigManager {
 
     public boolean getInstallPyDepPerModel() {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
+    }
+
+    public String getMetricsFormat() {
+        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
+    }
+
+    public boolean isMetricApiEnable() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
 
     public int getNettyThreads() {
@@ -508,9 +528,11 @@ public final class ConfigManager {
                 + "\nConfig file: "
                 + prop.getProperty("tsConfigFile", "N/A")
                 + "\nInference address: "
-                + getListener(false)
+                + getListener(ConnectorType.INFERENCE_CONNECTOR)
                 + "\nManagement address: "
-                + getListener(true)
+                + getListener(ConnectorType.MANAGEMENT_CONNECTOR)
+                + "\nMetrics address: "
+                + getListener(ConnectorType.METRICS_CONNECTOR)
                 + "\nModel Store: "
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "
@@ -533,8 +555,14 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
+                + "\nAllowed Urls: "
+                + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
-                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false");
+                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
+                + "\nMetrics report format: "
+                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
+                + "\nEnable metrics API: "
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
     }
 
     public boolean useNativeIo() {
@@ -654,8 +682,21 @@ public final class ConfigManager {
         }
     }
 
+    public List<String> getAllowedUrls() {
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "file://.*|http(s)?://.*");
+        return Arrays.asList(allowedURL.split(","));
+    }
+
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public int getIniitialWorkerPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
+    }
+
+    public void setIniitialWorkerPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
     public static final class Arguments {

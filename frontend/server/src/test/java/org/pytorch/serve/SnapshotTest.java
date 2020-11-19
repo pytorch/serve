@@ -31,6 +31,7 @@ import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -53,12 +54,14 @@ public class SnapshotTest {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         System.setProperty("tsConfigFile", "src/test/resources/config.properties");
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        FileUtils.cleanDirectory(new File(System.getProperty("LOG_LOCATION"), "config"));
+
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        configManager.setIniitialWorkerPort(9500);
         server = new ModelServer(configManager);
         server.start();
     }
@@ -83,6 +86,7 @@ public class SnapshotTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(managementChannel, "noop", null, false);
         TestUtils.getLatch().await();
+
         validateSnapshot("snapshot2.cfg");
         waitForSnapshot();
     }
@@ -167,6 +171,7 @@ public class SnapshotTest {
                         HttpHeaderNames.CONTENT_TYPE,
                         HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         channel.writeAndFlush(req);
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -179,7 +184,7 @@ public class SnapshotTest {
         TestUtils.registerModel(managementChannel, "noop.mar", "noopversioned", true, false);
         TestUtils.getLatch().await();
         validateSnapshot("snapshot6.cfg");
-        waitForSnapshot();
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -262,7 +267,7 @@ public class SnapshotTest {
         server.start();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(false, configManager);
+            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
             if (channel != null) {
                 break;
             }
@@ -287,7 +292,7 @@ public class SnapshotTest {
         server.start();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(false, configManager);
+            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
             if (channel != null) {
                 break;
             }
@@ -300,7 +305,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testRestartTorchServeWithSnapshotAsConfig"})
     public void testNoSnapshotOnInvalidModelRegister() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.registerModel(channel, "InvalidModel", "InvalidModel", false, true);
 
@@ -311,7 +316,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelRegister"})
     public void testNoSnapshotOnInvalidModelUnregister() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "InvalidModel", null, true);
 
@@ -322,7 +327,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelUnregister"})
     public void testNoSnapshotOnInvalidModelVersionUnregister() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.registerModel(channel, "noopversioned", "3.0", false, true);
 
@@ -333,7 +338,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelVersionUnregister"})
     public void testNoSnapshotOnInvalidModelScale() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.scaleModel(channel, "invalidModel", null, 1, true);
 
@@ -344,7 +349,7 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelScale"})
     public void testNoSnapshotOnInvalidModelVersionScale() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.scaleModel(channel, "noopversioned", "3.0", 1, true);
 
@@ -355,14 +360,14 @@ public class SnapshotTest {
             alwaysRun = true,
             dependsOnMethods = {"testNoSnapshotOnInvalidModelVersionScale"})
     public void testNoSnapshotOnInvalidModelVersionSetDefault() throws InterruptedException {
-        Channel channel = TestUtils.connect(true, configManager);
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         String requestURL = "/models/noopversioned/3.0/set-default";
 
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req).sync();
-        channel.closeFuture().sync();
+        channel.close().sync();
 
         validateSnapshot("snapshot9.cfg");
     }
@@ -414,6 +419,7 @@ public class SnapshotTest {
         prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
+        prop.put("initial_worker_port", 9500);
     }
 
     private String getLastSnapshot() {
