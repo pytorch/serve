@@ -11,7 +11,7 @@ We have copied the files from above example and made small changes to save the m
 Run the following commands to train the model :
 
 ```bash
-./run_script.sh
+python run_script.py
 ```
 
 The above command generated the model's state dict as model.pt and the vocab used during model training as source_vocab.pt

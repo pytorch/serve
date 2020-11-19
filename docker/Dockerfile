@@ -75,7 +75,9 @@ RUN --mount=type=cache,target=/var/cache/apt \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python3 \
     python3-distutils \
+    python3-dev \
     openjdk-11-jre-headless \
+    build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 
@@ -89,12 +91,13 @@ RUN useradd -m model-server \
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
-    && chown -R model-server /home/model-server
+    && chown -R model-server /home/model-server \
+    && chown -R model-server /home/venv
 
 COPY config.properties /home/model-server/config.properties
 RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
-EXPOSE 8080 8081
+EXPOSE 8080 8081 8082
 
 USER model-server
 WORKDIR /home/model-server

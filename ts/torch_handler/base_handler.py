@@ -6,7 +6,9 @@ import abc
 import logging
 import os
 import importlib.util
+import time
 import torch
+
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 logger = logging.getLogger(__name__)
@@ -120,9 +122,15 @@ class BaseHandler(abc.ABC):
 
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
+        start_time = time.time()
+
         self.context = context
+        metrics = self.context.metrics
 
         data = self.preprocess(data)
         data = self.inference(data)
         data = self.postprocess(data)
+
+        stop_time = time.time()
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return data
