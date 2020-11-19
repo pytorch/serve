@@ -169,14 +169,16 @@ public class WorkFlow {
     }
 
 
-    public void register(int responseTimeout, boolean synchronous) throws ModelException, ExecutionException, InterruptedException {
+    public Vector<StatusResponse> register(int responseTimeout, boolean synchronous) throws ModelException, ExecutionException, InterruptedException {
         Map<String, Node<?>> nodes =  dag.getNodes();
+
+        Vector<StatusResponse> responses = new Vector<StatusResponse>();
         for(Map.Entry<String, Node<?>> entry : nodes.entrySet()) {
             String modelName = entry.getKey();
             Node node = entry.getValue();
             WorkflowModel wfm = node.getWorkflowModel();
 
-            handleRegister(wfm.getUrl(),
+            responses.add(handleRegister(wfm.getUrl(),
                     wfm.getName(),
                     null,
                     wfm.getHandler(),
@@ -186,10 +188,11 @@ public class WorkFlow {
                     wfm.getMaxWorkers(),
                     synchronous,
                     ""
-                    );
+                    ));
         }
 
-   }
+        return responses;
+    }
 
 
     static private StatusResponse handleRegister(

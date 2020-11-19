@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.Vector;
+
 import  org.pytorch.serve.ensemble.Dag;
 import  org.pytorch.serve.ensemble.WorkFlow;
 
@@ -134,12 +136,8 @@ public class EnsembleTest {
           WorkFlow  wf = new WorkFlow(f);
           System.out.println(wf.getObj());
           Object a = wf.getObj();
-
-          wf.register(2000, true);
-
-
-
-
+         Vector<StatusResponse> responses = wf.register(2000, true);
+         System.out.println(responses);
 
     }
 
