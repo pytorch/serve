@@ -371,7 +371,7 @@
   We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/master/stable/efs-provisioner) to create a PersistentVolume backed by EFS. Run the following command to set this up.
 
   ```bash
-  helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  helm repo add stable https://charts.helm.sh/stable
   helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=YOUR-EFS-FS-ID --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name
   ```
 
@@ -793,7 +793,7 @@
   ### Troubleshooting EFS Persitent Volume Creation
 
   #### "Error: failed to download "stable/efs-provisioner"
-  * Run the command `helm repo add stable https://kubernetes-charts.storage.googleapis.com`
+  * Run the command `helm repo add stable https://charts.helm.sh/stable`
   
   #### "exec user process caused “exec format error”
   * Check whether your nodes are x86 based. The current setup instruction does not support ARM based instances.
