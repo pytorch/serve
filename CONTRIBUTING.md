@@ -8,14 +8,15 @@ If you are interested in contributing to TorchServe, your contributions will fal
     - Search for your issue here: https://github.com/pytorch/serve/issues
     - Pick an issue and comment on the task that you want to work on this feature.
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
-      - For CPU or GPU-Cuda 10.2
-        ```bash
-        ./torchserve_sanity.sh
-        ```
-      - For GPU with Cuda 10.1
-        ```bash
-        ./torchserve_sanity.sh cuda101
-        ```
+        - Install dependencies (if not already installed)
+          ```bash
+          python scripts/install_dependencies.py 
+          ```
+          > For GPU with Cuda 10.1, make sure add the `cu101` arg to the above command
+        - Execute sanity suite
+          ```bash
+          python ./torchserve_sanity.py
+          ```
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
