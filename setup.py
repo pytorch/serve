@@ -22,6 +22,7 @@ Setup.py for the model server package
 
 import errno
 import os
+import platform
 import subprocess
 import sys
 from datetime import date
@@ -33,6 +34,13 @@ from setuptools import setup, find_packages, Command
 import ts
 
 pkgs = find_packages()
+
+build_frontend_command = {"Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
+                          "Darwin": "frontend/gradlew -p frontend clean assemble",
+                          "Linux": "frontend/gradlew -p frontend clean assemble"}
+build_plugins_command = {'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
+                         'Darwin': 'plugins/gradlew -p plugins clean bS',
+                         'Linux': 'plugins/gradlew -p plugins clean bS'}
 
 
 def pypi_description():
@@ -79,7 +87,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
             os.remove(self.source_server_file)
 
         try:
-            subprocess.check_call('frontend/gradlew -p frontend clean assemble', shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -117,7 +125,7 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                subprocess.check_call('plugins/gradlew -p plugins clean bS', shell=True)
+                subprocess.check_call(build_plugins_command[platform.system()], shell=True)
             else:
                 raise OSError("No such rule exists")
         except OSError:

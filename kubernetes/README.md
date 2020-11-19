@@ -371,7 +371,7 @@
   We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/master/stable/efs-provisioner) to create a PersistentVolume backed by EFS. Run the following command to set this up.
 
   ```bash
-  helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  helm repo add stable https://charts.helm.sh/stable
   helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=YOUR-EFS-FS-ID --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name
   ```
 
@@ -482,6 +482,7 @@
   ```yaml
   inference_address=http://0.0.0.0:8080
   management_address=http://0.0.0.0:8081
+  metrics_address=http://0.0.0.0:8082
   NUM_WORKERS=1
   number_of_gpu=1
   number_of_netty_threads=32
@@ -539,8 +540,9 @@
   | Parameter          | Description              | Default                         |
   | ------------------ | ------------------------ | ------------------------------- |
   | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
-  | `management-port`  | TS Inference port        | `8080`                          |
-  | `inference-port`   | TS Management port       | `8081`                          |
+  | `inference_port`   | TS Inference port        | `8080`                          |
+  | `management_port`  | TS Management port       | `8081`                          |
+  | `metrics_port`     | TS Mertics port          | `8082`                          |
   | `replicas`         | K8S deployment replicas  | `1`                             |
   | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
   | `persistence.size` | Storage size to request  | `1Gi`                           |
@@ -568,6 +570,7 @@
   torchserve:
     management_port: 8081
     inference_port: 8080
+    metrics_port: 8082
     pvd_mount: /home/model-server/shared/
     n_gpu: 1
     n_cpu: 1
@@ -647,7 +650,7 @@
   }
   
   
-  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
+  curl http://your_elb.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
   
   # You should see something similar to the following
   [
@@ -710,57 +713,113 @@
     }
   ]
   ```
+  ## Metrics
+
+  ## Install prometheus
+  ```
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm install prometheus prometheus prometheus-community/prometheus
+  ```
+ 
+  ## Install grafana
+  ```
+  helm repo add grafana https://grafana.github.io/helm-charts
+  helm install grafana grafana/grafana
+  ```
+  Get admin user password by running:
   
+  ```
+  kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  ```
+
+  ## Add prometheus as data source in grafana
+  ```
+  kubectl get pods
+
+  NAME                                             READY   STATUS    RESTARTS   AGE
+  efs-provisioner-1603257008-b6b54d986-gng9g       1/1     Running   0          5h15m
+  grafana-cbd8775fd-6f8l5                          1/1     Running   0          4h12m
+  model-store-pod                                  1/1     Running   0          4h35m
+  prometheus-alertmanager-776df7bfb5-hpsp4         2/2     Running   0          4h42m
+  prometheus-kube-state-metrics-6df5d44568-zkcm2   1/1     Running   0          4h42m
+  prometheus-node-exporter-fvsd6                   1/1     Running   0          4h42m
+  prometheus-node-exporter-tmfh8                   1/1     Running   0          4h42m
+  prometheus-pushgateway-85948997f7-4s4bj          1/1     Running   0          4h42m
+  prometheus-server-f8677599b-xmjbt                2/2     Running   0          4h42m
+  torchserve-7d468f9894-fvmpj                      1/1     Running   0          4h33m
+
+  kubectl get pod prometheus-server-f8677599b-xmjbt -o jsonpath='{.status.podIPs[0].ip}'
+  192.168.52.141
+  ```
+  ![Add data source](images/grafana_datasource.png)
+
+
+  ## Expose grafana with loadbalancer
+  ```
+  kubectl patch service grafana -p '{"spec": {"type": "LoadBalancer"}}'
+
+  kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+  ```
+
+  ## Login to grafana
+  http://your.grafana.elb.us-west-2.elb.amazonaws.com:3000
 
   ## Troubleshooting
   
+  ### Troubleshooting EKCTL Cluster Creation
 
-  **Troubleshooting EKCTL Cluster Creation**
+  #### EKS Cluster creation fails 
 
-  Possible errors in this step may be a result of 
-
-  * AWS Account limits. 
+  * AWS Account limits
+    ```
+    [✖]  unexpected status "CREATE_IN_PROGRESS" while waiting for CloudFormation stack "eksctl-TorchserveCluster-nodegroup-ng-1"
+    [ℹ]  fetching stack events in attempt to troubleshoot the root cause of the failure
+    [!]  1 error(s) occurred and cluster hasn't been created properly, you may wish to check CloudFormation console
+    [ℹ]  to cleanup resources, run 'eksctl delete cluster --region=us-west-2 --name=TorchserveCluster'
+    [✖]  waiting for CloudFormation stack "eksctl-TorchserveCluster-nodegroup-ng-1": RequestCanceled: waiter context canceled
+    caused by: context deadline exceeded
+    Error: failed to create cluster "TorchserveCluster”
+    ```
+    * Check that your AWS vCPU limits can support your cluster configuration (https://console.aws.amazon.com/ec2/home#Limits). e.g. "Running G4DN Dedicated Hosts	" may be set to 0 by default causing the node group creation to fail.
   * IAM Policy of the role used during cluster creation - [Minimum IAM Policy](https://eksctl.io/usage/minimum-iam-policies/)
 
-  Inspect your Cloudformation console' events tab, to diagonize any possible issues. You should able be able to find the following resources at the end of this step in the respective AWS consoles
+  * Inspect your Cloudformation console's events tab to diagonize any possible issues. You should be able to find the following resources at the end of this step in the respective AWS consoles
+    * EKS Cluser in the EKS UI
+    * AutoScaling Group of the Node Groups
+    * EC2 Node correponding to the node groups.
 
-  * EKS Cluser in the EKS UI
-  * AutoScaling Group of the Node Groups
-  * EC2 Node correponding to the node groups.
+  * Check the eksctl documentation at [eksctl](https://eksctl.io/introduction/) website / [github repo](https://github.com/weaveworks/eksctl/issues). 
 
+  ### Troubleshooting EFS Persitent Volume Creation
+
+  #### "Error: failed to download "stable/efs-provisioner"
+  * Run the command `helm repo add stable https://charts.helm.sh/stable`
   
+  #### "exec user process caused “exec format error”
+  * Check whether your nodes are x86 based. The current setup instruction does not support ARM based instances.
 
-  Also, take a look at [eksctl](https://eksctl.io/introduction/) website / [github repo](https://github.com/weaveworks/eksctl/issues) for any issues. 
-
-  
-
-  **Troubleshooting EFS Persitant Volume Creation** 
-
-  
-
-  Possible error in this step may be a result of one of the following. Your pod my be struck in *Init / Creating* forever / persitant volume claim may be in *Pending* forever.
-
-  * Incorrect CLUSTER_NAME or Duplicate MOUNT_TARGET_GROUP_NAME in `setup_efs.sh` 
-
+  #### My pod is stuck in the *Init / Creating* status. Persitent volume claim is stuck in the *Pending* status
+  * Incorrect CLUSTER_NAME or Duplicate MOUNT_TARGET_GROUP_NAME in `setup_efs.sh`
     * Rerun the script with a different `MOUNT_TARGET_GROUP_NAME` to avoid conflict with a previous run
 
   * Faulty execution of ``setup_efs.sh`` 
-
-    * Look up the screenshots above for the expected AWS Console UI for Security group & EFS. If you dont see the Ingress permissions / Mount points created, Execute steps from ```setup_efs.sh``` to make sure that they complete as expected.  We need 1 Mount point for every region where Nodes would be deployed. *This step is very critical to the setup* . If you run to any errors the `aws-efs-csi` driver might throw errors which might be hard to diagonize.
+    * Look up the screenshots above for the expected AWS Console UI for Security group & EFS. If you don't see the Ingress Permissions / Mount Points created, execute steps from ```setup_efs.sh``` to make sure that they complete as expected.  We need 1 Mount Point for every region where Nodes would be deployed. *This step is critical to the setup* . If you have any errors, the `aws-efs-csi` driver might throw errors which might be hard to diagonize.
 
   * EFS CSI Driver installation
-
-    * Ensure that ```--set efsProvisioner.efsFileSystemId=YOUR-EFS-FS-ID --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name``` is set correctly 
-
+    * Incorrect efs filesystem ID passed when invoking `helm install stable/efs-provisioner ...`
+      * Run `kubectl get pods` then use the pod name to run `kubectl describe pod <efs-provisioner-xxxx>`.
+      * If the output says `mount.nfs:Failed to resolve server xxxxx.efs.us-west-2.amazonaws.com: Name or service not known`, the efs filesystem ID was likely incorrect. To resolve the issue:
+        * Run 'kubectl get pods` and `kubectl delete pod <efs-provisioner-xxxx>` to delete the existing pod.
+        * Run `helm list` and `helm uninstall <efs-provisioner-xxxx>`
+        * Re-run command `helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=<Your EFS ID> --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name` and make sure to use the correct EFS ID in the input. The EFS ID can be found in the output of the `setup_efs` script or by visiting your [AWS EFS console](https://console.aws.amazon.com/efs/home#file-systems)
     * You may inspect the values by running ``helm list`` and ```helm get all YOUR_RELEASE_ID``` to verify if the values used for the installation
-
     * You can execute the following commands to inspect the pods / events to debug EFS / CSI Issues
 
       ```bash
       kubectl get events --sort-by='.metadata.creationTimestamp'
-      
+
       kubectl get pod --all-namespaces # Get the Pod ID
-      
+
       kubectl logs pod/efs-provisioner-YOUR_POD
       kubectl logs pod/efs-provisioner-YOUR_POD
       kubectl describe pod/efs-provisioner-YOUR_POD
@@ -772,30 +831,27 @@
 
       * [Github Page](https://github.com/kubernetes-sigs/aws-efs-csi-driver/) / [Helm Chart](https://github.com/kubernetes-incubator/external-storage/tree/master/aws/efs) / [EKS Workshop](https://www.eksworkshop.com/beginner/190_efs/efs-provisioner/) / [AWS Docs](https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/)
 
-  
-
-  
-
-  **Troubleshooting Torchserve Helm Chart**
-
-  
-
-  Possible errors in this step may be a result of 
-
+### Troubleshooting Torchserve Helm Chart
+  #### Check configuration
   * Incorrect values in ``values.yaml``
-    * Changing values in `torchserve.pvd_mount`  would need corresponding change in `config.properties`
+    * If you changed values in `torchserve.pvd_mount`, make sure `config.properties` was also updated to match the values.
   * Invalid `config.properties`
-    * You can verify these values by running this for local TS installation
-  * TS Pods in *Pending* state
-    * Ensure you have available Nodes in Node Group
+    * You can verify these values by running this for local TS installation.
+  #### TS Pods hanging in *Pending* state
+    * Ensure you have available Nodes in Node Group.
 
-  * Helm Installation
-    * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation
-    * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
-    * If you get an error `invalid: data: Too long: must have at most 1048576 characters`, ensure that you dont have any stale files in your kubernetes dir. Else add them to .helmignore file.
-
-  
-
+  #### Helm Installation Issues
+  * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation.
+  * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
+  * `helm install ts .` fails with `Error: create: failed to create: Request entity too large: limit is 3145728` or `invalid: data: Too long: must have at most 1048576 characters`.
+    * Ensure that you dont have any stale files in your kubernetes directory where you are executing the command. If so, move them out of the directory or add them to .helmignore file.
+  * `kubectl get svc` does't show my torchserve service
+    * Try reinstalling the helm chart by executing `helm uninstall ts` and `helm install ts .`
+  * "Error: unable to build kubernetes objects from release manifest: unable to recognize “”: no matches for kind “ClusterConfig” in version “eksctl.io/v1alpha5”"
+    * Helm is picking up other .yaml files. Make sure you’ve added other files correctly to .helmignore. It should only run with values.yaml.
+  * `kubectl describe pod` shows error message "0/1 nodes are available: 1 Insufficient cpu."
+    * Ensure that the `n_cpu` value in `values.yaml` is set to a number that can be supported by the nodes in the cluster.
+    
   ## Deleting Resources
 
   * Delete EFS `aws efs delete-file-system --file-system-id $FILE_SYSTEM_ID`

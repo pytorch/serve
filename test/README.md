@@ -60,25 +60,18 @@ git clone https://github.com/pytorch/serve
 cd serve 
 git checkout <branch_name>
 ```
-To execute tests on master run: 
-
-`./test/regression_tests.sh `
-
-To execute tests on different run: 
-
-`./test/regression_tests.sh -b <branch_name>`
-
-To execute tests on GPU with Cuda 10.1 run: 
-
-`./test/regression_tests.sh --cudaversion cuda101`
-
-
-You can view the logs for Test execution & the Torch serve in the /tmp dir.
-
+Install dependencies (if not already installed)
+```bash
+python scripts/install_dependencies.py
 ```
-cat /tmp/test_exec.log
-cat /tmp/ts.log 
+> For GPU with Cuda 10.1, make sure add the `--cu101` flag to the above command
+Execute regression suite
+
+To execute regression tests:
+```bash
+python test/regression_tests.py
 ```
+You can view the results of test execution & the torchserve logs in the `test/artifacts/` directory
 
 ### Adding tests
 
