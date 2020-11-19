@@ -5,3 +5,6 @@ pylint
 pytest-mock
 pytest-cov
 nvgpu
+transformers==2.10.0
+numpy
+pygit2
