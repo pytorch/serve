@@ -35,6 +35,13 @@ The benchmarking script requires the following to run:
 - jmeter installed through homebrew or linuxbrew with the plugin manager and the following plugins: jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
 - nvidia-docker
 
+### Windows
+
+For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
+```bash
+python3 windows_install_dependencies.py "C:\\Program Files"
+```
+
 ## Models
 
 The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). We currently support the following:
@@ -182,6 +189,12 @@ apt-get install apache2-utils
 * macOS
 
 Apache Bench is installed in Mac by default. You can test by running ```ab -h```
+
+* Windows
+    - Download apache binaries from [Apache Lounge](https://www.apachelounge.com/download/)
+    - Extract and place the contents at some location eg: `C:\Program Files\`
+    - Add this path `C:\Program Files\Apache24\bin`to the environment variable PATH.
+    NOTE - You may need to  install Visual C++ Redistributable for Visual Studio 2015-2019.
 
 ## Benchmark
 ### Run benchmark
