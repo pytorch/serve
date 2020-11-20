@@ -35,6 +35,14 @@ test_base_handler () {
   mv base_model.pt $TEST_DIR/models/tmp/model.pt
   cp $TEST_DIR/models/base_model.py $TEST_DIR/models/tmp/model.py
   python -m pytest $TEST_DIR/test_base_handler.py
+  rm -rf $TEST_DIR/models/tmp
+}
+
+test_envelope () {
+  mkdir -p $TEST_DIR/models/tmp
+  python $TEST_DIR/models/base_model.py
+  mv base_model.pt $TEST_DIR/models/tmp/model.pt
+  cp $TEST_DIR/models/base_model.py $TEST_DIR/models/tmp/model.py
   python -m pytest $TEST_DIR/test_envelopes.py
   rm -rf $TEST_DIR/models/tmp
 }
@@ -50,6 +58,7 @@ test_object_detector () {
 }
 
 test_base_handler
+test_envelope
 test_image_classifier
 test_image_segmenter
 test_object_detector
