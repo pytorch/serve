@@ -15,6 +15,10 @@ from .test_utils.mock_context import MockContext
 sys.path.append('ts/torch_handler/unit_tests/models/tmp')
 
 @pytest.fixture()
+def model_context():
+    return MockContext()
+
+@pytest.fixture()
 def handle_fn():
     ctx = MockContext()
     handler = BaseHandler()
@@ -22,27 +26,27 @@ def handle_fn():
 
     return handler.handle
 
-def test_json(handle_fn):
+def test_json(handle_fn, model_context):
     test_data = [{'body':{
         'instances': [[1.0, 2.0]]
     }}]
     expected_result = ['{"predictions": [1]}']
 
     envelope = JSONEnvelope(handle_fn)
-    results = envelope.handle(test_data, None)
+    results = envelope.handle(test_data, model_context)
     assert(results == expected_result)
 
-def test_json_batch(handle_fn):
+def test_json_batch(handle_fn, model_context):
     test_data = [{'body':{
         'instances': [[1.0, 2.0], [4.0, 3.0]]
     }}]
     expected_result = ['{"predictions": [1, 0]}']
 
     envelope = JSONEnvelope(handle_fn)
-    results = envelope.handle(test_data, None)
+    results = envelope.handle(test_data, model_context)
     assert(results == expected_result)
 
-def test_json_double_batch(handle_fn):
+def test_json_double_batch(handle_fn, model_context):
     """
     More complex test case. Makes sure the model can
     mux several batches and return the demuxed results
@@ -55,25 +59,26 @@ def test_json_double_batch(handle_fn):
     expected_result = ['{"predictions": [1]}', '{"predictions": [0, 1]}']
 
     envelope = JSONEnvelope(handle_fn)
-    results = envelope.handle(test_data, None)
+    results = envelope.handle(test_data, model_context)
     print(results)
     assert(results == expected_result)
 
-def test_body(handle_fn):
+def test_body(handle_fn, model_context):
     test_data = [{
         'body':[1.0, 2.0]
     }]
     expected_result = [1]
 
     envelope = BodyEnvelope(handle_fn)
-    results = envelope.handle(test_data, None)
+    results = envelope.handle(test_data, model_context)
     assert(results == expected_result)
 
-def test_binary():
+def test_binary(model_context):
     test_data = [{
         'instances': [{'b64': 'YQ=='}]
     }]
 
     envelope = JSONEnvelope(lambda x, y: [row.decode('utf-8') for row in x])
-    results = envelope.handle(test_data, None)
+    results = envelope.handle(test_data, model_context)
     assert(results == ['{"predictions": ["a"]}'])
+    
