@@ -11,7 +11,7 @@ torch-model-archiver --model-name mnist --version 1.0 --model-file serve/example
 
 ## Request and Response
 
-The curl request for Inference is as below:
+### The curl request for Inference is as below:
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
@@ -27,7 +27,7 @@ The Prediction response is as below :
 		]
 }
 ```
-The curl request for Explanation is as below:
+### The curl request for Explanation is as below:
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
@@ -55,6 +55,23 @@ The Explanation response is as below :
       ]
     ]
   ]
+}
+```
+
+### The curl request for the Server Health check 
+
+Server Health check API returns the model's state for inference
+
+```bash
+curl -X GET "http://127.0.0.1:8081/v1/models/mnist"
+```
+
+The response is as below:
+
+```bash
+{
+  "name": "mnist",
+  "ready": true
 }
 ```
 

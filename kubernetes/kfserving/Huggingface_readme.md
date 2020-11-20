@@ -14,7 +14,7 @@ torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serializ
 
 ## Request and Response
 
-The curl request for inference is as below:
+### The curl request for inference is as below:
 ```
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:predict
 ```
@@ -29,7 +29,7 @@ The Prediction response is as below :
 	]
 }
 ```
-The curl request for explanations is as below:
+### The curl request for explanations is as below:
 
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
@@ -74,7 +74,24 @@ The Explanation response is as below :
   ]
 }
 ```
+### The curl request for the Server Health check 
 
+Server Health check API returns the model's state for inference
+
+The API is as below:
+
+```bash
+curl -X GET "http://127.0.0.1:8081/v1/models/bert"
+```
+
+The response is as below:
+
+```bash
+{
+  "name": "bert",
+  "ready": true
+}
+```
 
 ## KFServing changes to the handler files
 
