@@ -83,6 +83,7 @@ public final class ConfigManager {
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -693,6 +694,14 @@ public final class ConfigManager {
 
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public int getIniitialWorkerPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
+    }
+
+    public void setIniitialWorkerPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
     public static final class Arguments {
