@@ -145,42 +145,6 @@ public class ModelArchiveTest {
         archive.clean();
     }
 
-    @Test
-    public void archiveTest() throws ModelException, IOException {
-        String modelStore = "src/test/resources/models";
-        ModelArchive archive = ModelArchive.downloadModel(modelStore, "noop.mar");
-
-        archive.getManifest().getModel().setModelVersion(null);
-        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
-
-        archive.getManifest().getModel().setModelName(null);
-        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
-
-        archive.getManifest().setModel(null);
-        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
-
-        archive.getManifest().setRuntime(null);
-        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
-
-        archive.getManifest().setRuntime(null);
-        Assert.assertThrows(InvalidModelException.class, () -> archive.validate());
-
-        Assert.assertThrows(
-                ModelNotFoundException.class, () -> archive.downloadModel(null, "/noop"));
-
-        Assert.assertThrows(
-                ModelNotFoundException.class, () -> archive.downloadModel(modelStore, "../noop"));
-
-        Assert.assertThrows(
-                ModelNotFoundException.class, () -> archive.downloadModel("null", "/noop"));
-
-        Assert.assertThrows(
-                ModelNotFoundException.class,
-                () -> ModelArchive.downloadModel("src/test/resources/", "models"));
-
-        archive.clean();
-    }
-
     @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformedURL() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
