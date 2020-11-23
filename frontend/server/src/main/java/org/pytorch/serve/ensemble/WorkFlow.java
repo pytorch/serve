@@ -3,7 +3,14 @@ package org.pytorch.serve.ensemble;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.InvalidModelException;
 import org.pytorch.serve.archive.Manifest;
 import org.pytorch.serve.archive.ModelArchive;
@@ -15,22 +22,12 @@ import org.pytorch.serve.wlm.ModelManager;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-
-import org.apache.commons.io.FilenameUtils;
-
-
 public class WorkFlow {
     private LinkedHashMap<String, Object> obj;
-    private int minWorkers=1;
-    private int maxWorkers=1;
-    private int batchSize=1;
-    private int batchSizeDelay=50;
+    private int minWorkers = 1;
+    private int maxWorkers = 1;
+    private int batchSize = 1;
+    private int batchSizeDelay = 50;
     private Map<String, WorkflowModel> models;
     private Dag dag = new Dag();
     private File dir;
@@ -40,82 +37,76 @@ public class WorkFlow {
     private File specFile;
     private File handlerFile;
 
-
     public WorkFlow(File workFlowFile) throws Exception {
         String name = FilenameUtils.getBaseName(workFlowFile.getName());
 
         InputStream is = Files.newInputStream(workFlowFile.toPath());
-        this.dir  = ModelArchive.unzip(is, null, "models");
+        this.dir = ModelArchive.unzip(is, null, "models");
         this.workflowManifest = load(this.dir, true);
         this.specFile = new File(this.dir, this.workflowManifest.getWorfklow().getSpecFile());
         this.handlerFile = new File(this.dir, this.workflowManifest.getWorfklow().getHandler());
         this.models = new HashMap<String, WorkflowModel>();
         this.obj = (LinkedHashMap<String, Object>) this.readFile(this.specFile);
 
-        LinkedHashMap<String, Object> modelsInfo = (LinkedHashMap<String, Object>) this.obj.get("models");
-        for(Map.Entry<String,Object> entry : modelsInfo.entrySet()) {
-                String keyName = entry.getKey();
+        LinkedHashMap<String, Object> modelsInfo =
+                (LinkedHashMap<String, Object>) this.obj.get("models");
+        for (Map.Entry<String, Object> entry : modelsInfo.entrySet()) {
+            String keyName = entry.getKey();
 
-                switch(keyName){
-                    case "min-workers":
-                        minWorkers = (int) entry.getValue();
-                        break;
-                    case "max-workers":
-                        maxWorkers = (int) entry.getValue();
-                        break;
-                    case "batch-size":
-                        batchSize = (int) entry.getValue();
-                        break;
-                    case "batch-size-delay":
-                        batchSizeDelay = (int) entry.getValue();
-                        break;
-                    default:
-                        // entry.getValue().getClass() check object type.
-                        // assuming Map containing model info
+            switch (keyName) {
+                case "min-workers":
+                    minWorkers = (int) entry.getValue();
+                    break;
+                case "max-workers":
+                    maxWorkers = (int) entry.getValue();
+                    break;
+                case "batch-size":
+                    batchSize = (int) entry.getValue();
+                    break;
+                case "batch-size-delay":
+                    batchSizeDelay = (int) entry.getValue();
+                    break;
+                default:
+                    // entry.getValue().getClass() check object type.
+                    // assuming Map containing model info
 
-                        LinkedHashMap<String, Object> model = (LinkedHashMap<String, Object>) entry.getValue();
+                    LinkedHashMap<String, Object> model =
+                            (LinkedHashMap<String, Object>) entry.getValue();
 
-                        WorkflowModel wfm = new WorkflowModel(keyName,
-                                (String) model.get("url"),
-                                (int) model.getOrDefault("min-workers", minWorkers),
-                                (int) model.getOrDefault("max-workers", maxWorkers),
-                                (int) model.getOrDefault("batch-size", batchSize),
-                                (int) model.getOrDefault("batch-size-delay", batchSizeDelay),
-                                null);
+                    WorkflowModel wfm =
+                            new WorkflowModel(
+                                    keyName,
+                                    (String) model.get("url"),
+                                    (int) model.getOrDefault("min-workers", minWorkers),
+                                    (int) model.getOrDefault("max-workers", maxWorkers),
+                                    (int) model.getOrDefault("batch-size", batchSize),
+                                    (int) model.getOrDefault("batch-size-delay", batchSizeDelay),
+                                    null);
 
-                        models.put(keyName, wfm);
-                }
-
+                    models.put(keyName, wfm);
+            }
         }
 
         LinkedHashMap<String, Object> dagInfo = (LinkedHashMap<String, Object>) this.obj.get("dag");
 
-        for ( Map.Entry<String,Object> entry : dagInfo.entrySet()) {
+        for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
             String modelName = entry.getKey();
             WorkflowModel wfm;
-            if(!models.containsKey(modelName)){
-                 wfm  = new WorkflowModel(modelName,
-                        null,
-                        1,
-                        1,
-                          1,
-                         0, this.handlerFile.getPath());
-            }else{
-                wfm =  models.get(modelName);
+            if (!models.containsKey(modelName)) {
+                wfm = new WorkflowModel(modelName, null, 1, 1, 1, 0, this.handlerFile.getPath());
+            } else {
+                wfm = models.get(modelName);
             }
             Node fromNode = new Node(modelName, wfm);
             dag.addNode(fromNode);
-            for(String toModelName: (ArrayList<String>)entry.getValue()){
+            for (String toModelName : (ArrayList<String>) entry.getValue()) {
                 WorkflowModel toWfm;
-                if(!models.containsKey(modelName)){
-                    toWfm  = new WorkflowModel(modelName,
-                            null,
-                            1,
-                            1,
-                            1,
-                            0, this.handlerFile.getPath());
-                }else{
-                    toWfm =  models.get(modelName);
+                if (!models.containsKey(modelName)) {
+                    toWfm =
+                            new WorkflowModel(
+                                    modelName, null, 1, 1, 1, 0, this.handlerFile.getPath());
+                } else {
+                    toWfm = models.get(modelName);
                 }
                 Node toNode = new Node(toModelName, toWfm);
                 dag.addNode(toNode);
@@ -124,12 +115,11 @@ public class WorkFlow {
         }
     }
 
-    private static Object readFile(File file)
-            throws InvalidModelException, IOException {
+    private static Object readFile(File file) throws InvalidModelException, IOException {
         Yaml yaml = new Yaml();
         try (Reader r =
-                     new InputStreamReader(
-                             Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
+                new InputStreamReader(
+                        Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
             return yaml.load(r);
         } catch (YAMLException e) {
             throw new InvalidModelException("Failed to parse yaml.", e);
@@ -160,42 +150,42 @@ public class WorkFlow {
     private static <T> T readFile(File file, Class<T> type)
             throws InvalidModelException, IOException {
         try (Reader r =
-                     new InputStreamReader(
-                             Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
+                new InputStreamReader(
+                        Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
             return GSON.fromJson(r, type);
         } catch (JsonParseException e) {
             throw new InvalidModelException("Failed to parse signature.json.", e);
         }
     }
 
-
-    public Vector<StatusResponse> register(int responseTimeout, boolean synchronous) throws ModelException, ExecutionException, InterruptedException {
-        Map<String, Node<?>> nodes =  dag.getNodes();
+    public Vector<StatusResponse> register(int responseTimeout, boolean synchronous)
+            throws ModelException, ExecutionException, InterruptedException {
+        Map<String, Node<?>> nodes = dag.getNodes();
 
         Vector<StatusResponse> responses = new Vector<StatusResponse>();
-        for(Map.Entry<String, Node<?>> entry : nodes.entrySet()) {
+        for (Map.Entry<String, Node<?>> entry : nodes.entrySet()) {
             String modelName = entry.getKey();
             Node node = entry.getValue();
             WorkflowModel wfm = node.getWorkflowModel();
 
-            responses.add(handleRegister(wfm.getUrl(),
-                    wfm.getName(),
-                    null,
-                    wfm.getHandler(),
-                    wfm.getBatchSize(),
-                    wfm.getMaxBatchDelay(),
-                    responseTimeout,
-                    wfm.getMaxWorkers(),
-                    synchronous,
-                    ""
-                    ));
+            responses.add(
+                    handleRegister(
+                            wfm.getUrl(),
+                            wfm.getName(),
+                            null,
+                            wfm.getHandler(),
+                            wfm.getBatchSize(),
+                            wfm.getMaxBatchDelay(),
+                            responseTimeout,
+                            wfm.getMaxWorkers(),
+                            synchronous,
+                            ""));
         }
 
         return responses;
     }
 
-
-    static private StatusResponse handleRegister(
+    private static StatusResponse handleRegister(
             String modelUrl,
             String modelName,
             Manifest.RuntimeType runtimeType,
@@ -205,30 +195,31 @@ public class WorkFlow {
             int responseTimeout,
             int initialWorkers,
             boolean isSync,
-            String defaultModelName) throws ModelException, ExecutionException, InterruptedException {
+            String defaultModelName)
+            throws ModelException, ExecutionException, InterruptedException {
 
-       ModelManager modelManager = ModelManager.getInstance();
-       final ModelArchive archive;
-       try {
-           archive =
-                   modelManager.registerModel(
-                           modelUrl,
-                           modelName,
-                           runtimeType,
-                           handler,
-                           batchSize,
-                           maxBatchDelay,
-                           responseTimeout,
-                           null,
-                           true);
-       } catch (FileAlreadyExistsException e) {
-           throw new InternalServerException(
-                   "Model file already exists " + FilenameUtils.getName(modelUrl), e);
-       } catch (IOException | InterruptedException e) {
-           throw new InternalServerException("Failed to save model: " + modelUrl, e);
-       }
+        ModelManager modelManager = ModelManager.getInstance();
+        final ModelArchive archive;
+        try {
+            archive =
+                    modelManager.registerModel(
+                            modelUrl,
+                            modelName,
+                            runtimeType,
+                            handler,
+                            batchSize,
+                            maxBatchDelay,
+                            responseTimeout,
+                            null,
+                            true);
+        } catch (FileAlreadyExistsException e) {
+            throw new InternalServerException(
+                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
+        } catch (IOException | InterruptedException e) {
+            throw new InternalServerException("Failed to save model: " + modelUrl, e);
+        }
 
-       modelName = archive.getModelName();
+        modelName = archive.getModelName();
 
         return ApiUtils.updateModelWorkers(
                 modelName,
@@ -241,14 +232,9 @@ public class WorkFlow {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
                 });
-   }
+    }
 
     public Object getObj() {
         return obj;
     }
-
-
 }
-
-
-

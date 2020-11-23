@@ -24,7 +24,6 @@ import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
-import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -46,8 +45,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             LoggerFactory.getLogger(org.pytorch.serve.http.api.rest.InferenceRequestHandler.class);
 
     /** Creates a new {@code WorkflowInferenceRequestHandler} instance. */
-    public WorkflowInferenceRequestHandler() {
-    }
+    public WorkflowInferenceRequestHandler() {}
 
     @Override
     public void handleRequest(

@@ -1,7 +1,6 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -109,13 +108,13 @@ public final class ModelManager {
             int maxBatchDelay,
             int responseTimeout,
             String defaultModelName,
-    boolean ignoreDuplicate)
+            boolean ignoreDuplicate)
             throws ModelException, IOException, InterruptedException {
 
         ModelArchive archive;
-        if(url != null) {
+        if (url != null) {
             archive = createModelArchive(modelName, url, handler, runtime, defaultModelName);
-        }else {
+        } else {
 
             Manifest manifest = new Manifest();
             // TODO - create a mar for function nodes
@@ -132,8 +131,8 @@ public final class ModelManager {
 
         try {
             createVersionedModel(tempModel, versionId);
-        }catch (ConflictStatusException E){
-            if(! ignoreDuplicate) throw E;
+        } catch (ConflictStatusException E) {
+            if (!ignoreDuplicate) throw E;
         }
 
         logger.info("Model {} loaded.", tempModel.getModelName());

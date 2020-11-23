@@ -8,17 +8,9 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
-
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.http.*;
-import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.workflow.WorkflowManager;
@@ -31,8 +23,7 @@ import org.pytorch.serve.workflow.WorkflowManager;
 public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     /** Creates a new {@code WorkflowMgmtRequestHandler} instance. */
-    public WorkflowMgmtRequestHandler() {
-    }
+    public WorkflowMgmtRequestHandler() {}
 
     @Override
     public void handleRequest(
@@ -94,17 +85,17 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleRegisterWorkflows(
-            ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req)  {
+            ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req) {
         StatusResponse status = new StatusResponse();
 
         try {
             RegisterWorkflowRequest registerWFRequest = parseRequest(req, decoder);
-            Future future
-                    = WorkflowManager.getInstance().registerWorkflow(registerWFRequest);
-            status = ((Future<StatusResponse>) future).get();
-        } catch (InterruptedException|ExecutionException e) {
-            status.setHttpResponseCode(500);
-            status.setStatus("Error while registering workflow. Details: "+e.getMessage());
+            status = WorkflowManager.getInstance().registerWorkflow(registerWFRequest);
+            //        } catch (InterruptedException | ExecutionException e) {
+            //            status.setHttpResponseCode(500);
+            //            status.setStatus("Error while registering workflow. Details: " +
+            // e.getMessage());
+            //        }
         } finally {
             sendResponse(ctx, status);
         }

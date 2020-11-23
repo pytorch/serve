@@ -1,6 +1,6 @@
 package org.pytorch.serve.ensemble;
 
-public class WorkflowModel{
+public class WorkflowModel {
 
     private String name;
     private String url;
@@ -10,8 +10,14 @@ public class WorkflowModel{
     private int maxBatchDelay;
     private String handler;
 
-    public WorkflowModel(String name, String url, int minWorkers,
-                         int maxWorkers, int batchSize, int maxBatchDelay, String handler) {
+    public WorkflowModel(
+            String name,
+            String url,
+            int minWorkers,
+            int maxWorkers,
+            int batchSize,
+            int maxBatchDelay,
+            String handler) {
         this.name = name;
         this.url = url;
         this.minWorkers = minWorkers;
@@ -60,7 +66,6 @@ public class WorkflowModel{
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
     }
-
 
     public int getMaxBatchDelay() {
         return maxBatchDelay;

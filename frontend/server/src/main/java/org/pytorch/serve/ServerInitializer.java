@@ -63,8 +63,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                             new InferenceRequestHandler(
                                     PluginsManager.getInstance().getInferenceEndpoints()));
             httpRequestHandlerChain =
-                    httpRequestHandlerChain.setNextHandler(
-                            new WorkflowInferenceRequestHandler());
+                    httpRequestHandlerChain.setNextHandler(new WorkflowInferenceRequestHandler());
         }
         if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)) {
@@ -73,8 +72,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                             new ManagementRequestHandler(
                                     PluginsManager.getInstance().getManagementEndpoints()));
             httpRequestHandlerChain =
-                    httpRequestHandlerChain.setNextHandler(
-                            new WorkflowMgmtRequestHandler());
+                    httpRequestHandlerChain.setNextHandler(new WorkflowMgmtRequestHandler());
         }
         if (ConfigManager.getInstance().isMetricApiEnable()
                         && ConnectorType.ALL.equals(connectorType)

@@ -3,7 +3,6 @@ package org.pytorch.serve.workflow;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.*;
-
 import org.pytorch.serve.ensemble.WorkflowManifest;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.workflow.api.http.DescribeWorkflowResponse;
@@ -23,21 +22,15 @@ public class WorkflowManager {
         return workflowManager;
     }
 
-    public Future registerWorkflow(RegisterWorkflowRequest registerWorkflowRequest) {
-        FutureTask<StatusResponse> registerTask = new FutureTask<StatusResponse>(new Callable<StatusResponse>() {
-            @Override
-            public StatusResponse call() throws Exception {
-                StatusResponse status = new StatusResponse();
-                status.setHttpResponseCode(200);
-                status.setStatus(String.format("Workflow {} has been registered and scaled successfully."));
+    public StatusResponse registerWorkflow(RegisterWorkflowRequest registerWorkflowRequest) {
+        StatusResponse status = new StatusResponse();
+        status.setHttpResponseCode(200);
+        status.setStatus(String.format("Workflow {} has been registered and scaled successfully."));
 
-                WorkflowManifest.Workflow wf = new WorkflowManifest.Workflow();
-                workflows.put(registerWorkflowRequest.getWfName(), wf);
-                return status;
-            }
-        });
+        WorkflowManifest.Workflow wf = new WorkflowManifest.Workflow();
+        workflows.put(registerWorkflowRequest.getWfName(), wf);
 
-        return executorService.submit(registerTask);
+        return status;
     }
 
     public ListWorkflowResponse getWorkflowList(int limit, int pageToken) {
