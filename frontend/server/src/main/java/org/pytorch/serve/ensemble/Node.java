@@ -54,14 +54,15 @@ public class Node<T> implements Callable {
     @Override
     public Object call() throws Exception {
         Random rand = new Random();
-        //System.out.println("result  is "+(String)this.getInputDataMap() + rand.nextInt()+ " for me "+ this.getName());
+        // System.out.println("result  is "+(String)this.getInputDataMap() + rand.nextInt()+ " for
+        // me "+ this.getName());
         ArrayList<String> a = new ArrayList<>();
-        for(Object s :this.getInputDataMap().values()){
+        for (Object s : this.getInputDataMap().values()) {
             a.add((String) s);
         }
 
         a.add(rand.nextInt() + "");
         System.out.println(String.join("-", a));
-        return new NodeOutput(this.getName(),   String.join("-", a));
+        return new NodeOutput(this.getName(), String.join("-", a));
     }
 }

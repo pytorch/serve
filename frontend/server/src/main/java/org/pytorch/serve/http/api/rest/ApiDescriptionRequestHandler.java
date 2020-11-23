@@ -4,7 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.MethodNotAllowedException;
 import org.pytorch.serve.openapi.OpenApiUtils;
@@ -25,7 +26,7 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, DownloadArchiveException {
 
         if (isApiDescription(segments)) {
             String path = decoder.path();

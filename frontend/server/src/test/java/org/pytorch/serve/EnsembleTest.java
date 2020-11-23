@@ -2,8 +2,17 @@ package org.pytorch.serve;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.util.Vector;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.ensemble.Dag;
 import org.pytorch.serve.ensemble.Node;
+import org.pytorch.serve.ensemble.WorkFlow;
 import org.pytorch.serve.ensemble.WorkflowModel;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
@@ -14,17 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.util.Vector;
-
-import  org.pytorch.serve.ensemble.Dag;
-import  org.pytorch.serve.ensemble.WorkFlow;
 
 public class EnsembleTest {
 
@@ -44,11 +42,10 @@ public class EnsembleTest {
         TestUtils.init();
     }
 
-
     @BeforeSuite
     public void beforeSuite()
             throws InterruptedException, IOException, GeneralSecurityException,
-            InvalidSnapshotException {
+                    InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
@@ -91,24 +88,24 @@ public class EnsembleTest {
         Assert.assertEquals(resp.getStatus(), "Healthy");
         Assert.assertTrue(TestUtils.getHeaders().contains("x-request-id"));
     }
+
     @Test
     public void testDAG() {
-       Dag dag = new Dag();
+        Dag dag = new Dag();
 
-       Node a = new Node<>("a", new WorkflowModel("a", "url", 1, 1, 10, 50, null));
-       Node b = new Node<>("b", new WorkflowModel("b", "url", 1, 1, 10, 50, null));
-       Node c = new Node<>("c", new WorkflowModel("c", "url", 1, 1, 10, 50, null));
-       Node d = new Node<>("d", new WorkflowModel("d", "url", 1, 1, 10, 50, null));
-       Node e = new Node<>("e", new WorkflowModel("e", "url", 1, 1, 10, 50, null));
-       Node f = new Node<>("f", new WorkflowModel("f", "url", 1, 1, 10, 50, null));
+        Node a = new Node<>("a", new WorkflowModel("a", "url", 1, 1, 10, 50, null));
+        Node b = new Node<>("b", new WorkflowModel("b", "url", 1, 1, 10, 50, null));
+        Node c = new Node<>("c", new WorkflowModel("c", "url", 1, 1, 10, 50, null));
+        Node d = new Node<>("d", new WorkflowModel("d", "url", 1, 1, 10, 50, null));
+        Node e = new Node<>("e", new WorkflowModel("e", "url", 1, 1, 10, 50, null));
+        Node f = new Node<>("f", new WorkflowModel("f", "url", 1, 1, 10, 50, null));
 
-
-       dag.addNode(a);
-       dag.addNode(b);
-       dag.addNode(c);
-       dag.addNode(d);
-       dag.addNode(e);
-       dag.addNode(f);
+        dag.addNode(a);
+        dag.addNode(b);
+        dag.addNode(c);
+        dag.addNode(d);
+        dag.addNode(e);
+        dag.addNode(f);
 
         try {
             dag.addEdge(a, b);
@@ -131,14 +128,15 @@ public class EnsembleTest {
 
     @Test(alwaysRun = true)
     public void testWorkflowYaml() throws Exception {
-       //torch-workflow-archiver  --workflow-name test  --spec-file /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml --handler /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
-         File f = new File("src/test/resources/test.war");
-          WorkFlow  wf = new WorkFlow(f);
-          System.out.println(wf.getObj());
-          Object a = wf.getObj();
-         Vector<StatusResponse> responses = wf.register(2000, true);
-         System.out.println(responses);
-
+        // torch-workflow-archiver  --workflow-name test  --spec-file
+        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml --handler
+        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py
+        // --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
+        File f = new File("src/test/resources/test.war");
+        WorkFlow wf = new WorkFlow(f);
+        System.out.println(wf.getObj());
+        Object a = wf.getObj();
+        Vector<StatusResponse> responses = wf.register(2000, true);
+        System.out.println(responses);
     }
-
 }

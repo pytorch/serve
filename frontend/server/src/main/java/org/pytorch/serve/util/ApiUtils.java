@@ -12,11 +12,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import org.apache.commons.io.FilenameUtils;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.InvalidModelVersionException;
@@ -103,7 +104,7 @@ public final class ApiUtils {
 
     public static StatusResponse registerModel(RegisterModelRequest registerModelRequest)
             throws ModelException, InternalServerException, ExecutionException,
-                    InterruptedException {
+                    InterruptedException, DownloadArchiveException {
         String modelUrl = registerModelRequest.getModelUrl();
         if (modelUrl == null) {
             throw new BadRequestException("Parameter url is required.");
@@ -128,6 +129,30 @@ public final class ApiUtils {
                 throw new BadRequestException(e);
             }
         }
+
+        return handleRegister(modelUrl,
+                modelName,
+                runtimeType,
+                handler,
+                batchSize,
+                maxBatchDelay,
+                responseTimeout,
+                initialWorkers,
+                registerModelRequest.getSynchronous());
+    }
+
+    public static StatusResponse handleRegister(
+            String modelUrl,
+            String modelName,
+            Manifest.RuntimeType runtimeType,
+            String handler,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            int initialWorkers,
+            boolean isSync)
+            throws ModelException, ExecutionException, InterruptedException,
+            DownloadArchiveException {
 
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;
@@ -167,12 +192,13 @@ public final class ApiUtils {
                 archive.getModelVersion(),
                 initialWorkers,
                 initialWorkers,
-                registerModelRequest.getSynchronous(),
+                isSync,
                 true,
                 f -> {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
                 });
+
     }
 
     public static StatusResponse updateModelWorkers(

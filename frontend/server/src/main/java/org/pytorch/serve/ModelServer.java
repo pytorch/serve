@@ -30,8 +30,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.grpcimpl.GRPCInterceptor;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
 import org.pytorch.serve.metrics.MetricManager;
@@ -192,7 +193,7 @@ public class ModelServer {
                                 workers,
                                 true);
                         startupModels.add(archive.getModelName());
-                    } catch (ModelException | IOException | InterruptedException e) {
+                    } catch (ModelException | IOException | InterruptedException | DownloadArchiveException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -233,7 +234,7 @@ public class ModelServer {
                 modelManager.updateModel(
                         archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());
-            } catch (ModelException | IOException | InterruptedException e) {
+            } catch (ModelException | IOException | InterruptedException | DownloadArchiveException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }

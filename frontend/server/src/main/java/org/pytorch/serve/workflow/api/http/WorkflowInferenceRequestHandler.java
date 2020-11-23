@@ -12,9 +12,11 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.ResourceNotFoundException;
@@ -24,7 +26,6 @@ import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
-import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -46,9 +47,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             LoggerFactory.getLogger(org.pytorch.serve.http.api.rest.InferenceRequestHandler.class);
 
     /** Creates a new {@code WorkflowInferenceRequestHandler} instance. */
-    public WorkflowInferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
-        endpointMap = ep;
-    }
+    public WorkflowInferenceRequestHandler() {}
 
     @Override
     public void handleRequest(
@@ -56,7 +55,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, DownloadArchiveException {
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
