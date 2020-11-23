@@ -236,7 +236,7 @@ public final class TestUtils {
 
     public static Channel connect(
             ConnectorType connectorType, ConfigManager configManager, int readTimeOut) {
-        Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
+        Logger logger = LoggerFactory.getLogger(TestUtils.class);
 
         final Connector connector = configManager.getListener(connectorType);
         try {
