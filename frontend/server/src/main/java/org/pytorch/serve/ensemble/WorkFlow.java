@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import org.apache.commons.io.FileUtils;
-import org.pytorch.serve.archive.InvalidModelException;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.*;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
@@ -20,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -172,13 +169,18 @@ public class WorkFlow {
     public Vector<StatusResponse> register(int responseTimeout, boolean synchronous) throws ModelException, ExecutionException, InterruptedException {
         Map<String, Node<?>> nodes =  dag.getNodes();
 
+        ExecutorService executorService = Executors.newFixedThreadPool(nodes.size());
+        CompletionService executorCompletionService= new ExecutorCompletionService<>(executorService );
+        List<Future> futures = new ArrayList<>();
+
+
         Vector<StatusResponse> responses = new Vector<StatusResponse>();
         for(Map.Entry<String, Node<?>> entry : nodes.entrySet()) {
             String modelName = entry.getKey();
             Node node = entry.getValue();
             WorkflowModel wfm = node.getWorkflowModel();
 
-            responses.add(handleRegister(wfm.getUrl(),
+           HandleRegister a = new HandleRegister(wfm.getUrl(),
                     wfm.getName(),
                     null,
                     wfm.getHandler(),
@@ -188,47 +190,91 @@ public class WorkFlow {
                     wfm.getMaxWorkers(),
                     synchronous,
                     ""
-                    ));
+            );
+
+           futures.add(executorService.submit(a));
+
+        }
+
+        for (Future future:futures) {
+            StatusResponse result = (StatusResponse) executorCompletionService.take().get();
+            responses.add(result);
+            // rest of the code here.
         }
 
         return responses;
     }
 
 
-    static private StatusResponse handleRegister(
-            String modelUrl,
-            String modelName,
-            Manifest.RuntimeType runtimeType,
-            String handler,
-            int batchSize,
-            int maxBatchDelay,
-            int responseTimeout,
-            int initialWorkers,
-            boolean isSync,
-            String defaultModelName) throws ModelException, ExecutionException, InterruptedException {
 
-       ModelManager modelManager = ModelManager.getInstance();
-       final ModelArchive archive;
-       try {
-           archive =
-                   modelManager.registerModel(
-                           modelUrl,
-                           modelName,
-                           runtimeType,
-                           handler,
-                           batchSize,
-                           maxBatchDelay,
-                           responseTimeout,
-                           null,
-                           true);
-       } catch (FileAlreadyExistsException e) {
-           throw new InternalServerException(
-                   "Model file already exists " + FilenameUtils.getName(modelUrl), e);
-       } catch (IOException | InterruptedException e) {
-           throw new InternalServerException("Failed to save model: " + modelUrl, e);
-       }
 
-       modelName = archive.getModelName();
+    public Object getObj() {
+        return obj;
+    }
+
+}
+
+class HandleRegister implements Callable {
+
+    private String modelUrl;
+    private String modelName;
+    private String handler;
+    private Manifest.RuntimeType runtimeType;
+    private int batchSize;
+    private int maxBatchDelay;
+    private int responseTimeout;
+    private int initialWorkers;
+    private boolean isSync;
+    private String defaultModelName;
+
+    public  HandleRegister(String modelUrl,
+                                         String modelName,
+                                         Manifest.RuntimeType runtimeType,
+                                         String handler,
+                                         int batchSize,
+                                         int maxBatchDelay,
+                                         int responseTimeout,
+                                         int initialWorkers,
+                                         boolean isSync,
+                                         String defaultModelName) throws ModelException, ExecutionException, InterruptedException {
+
+        this.modelUrl = modelUrl;
+        this.modelName = modelName;
+        this.runtimeType = runtimeType;
+        this.handler = handler;
+        this.batchSize = batchSize;
+        this.maxBatchDelay = maxBatchDelay;
+        this.responseTimeout = responseTimeout;
+        this.initialWorkers = initialWorkers;
+        this.isSync = isSync;
+        this.defaultModelName = defaultModelName;
+    }
+
+    @Override
+    public StatusResponse call() throws InterruptedException, ExecutionException, ModelException {
+
+        ModelManager modelManager = ModelManager.getInstance();
+        final ModelArchive archive;
+        try {
+            archive =
+                    modelManager.registerModel(
+                            modelUrl,
+                            modelName,
+                            runtimeType,
+                            handler,
+                            batchSize,
+                            maxBatchDelay,
+                            responseTimeout,
+                            null,
+                            true);
+        } catch (FileAlreadyExistsException e) {
+            throw new InternalServerException(
+                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
+        } catch (IOException | InterruptedException e) {
+            throw new InternalServerException("Failed to save model: " + modelUrl, e);
+        }
+
+        modelName = archive.getModelName();
 
         return ApiUtils.updateModelWorkers(
                 modelName,
@@ -241,14 +287,10 @@ public class WorkFlow {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
                 });
-   }
-
-    public Object getObj() {
-        return obj;
     }
 
 
-}
 
+}
 
 
