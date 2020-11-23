@@ -4,7 +4,6 @@ import nvgpu
 import glob
 
 from scripts import tsutils as ts
-from scripts import torchserve_grpc_client
 from scripts.tsutils import generate_grpc_client_stubs
 
 
@@ -36,6 +35,7 @@ def validate_model_on_gpu():
 
 def test_sanity():
     generate_grpc_client_stubs()
+    from scripts import torchserve_grpc_client
     print("## Started sanity tests")
 
     resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
