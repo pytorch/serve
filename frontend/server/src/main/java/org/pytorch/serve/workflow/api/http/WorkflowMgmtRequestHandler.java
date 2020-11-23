@@ -8,13 +8,16 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
+
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.http.HttpRequestHandlerChain;
-import org.pytorch.serve.http.MethodNotAllowedException;
-import org.pytorch.serve.http.ResourceNotFoundException;
-import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.http.*;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
@@ -28,8 +31,7 @@ import org.pytorch.serve.workflow.WorkflowManager;
 public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     /** Creates a new {@code WorkflowMgmtRequestHandler} instance. */
-    public WorkflowMgmtRequestHandler(Map<String, ModelServerEndpoint> ep) {
-        endpointMap = ep;
+    public WorkflowMgmtRequestHandler() {
     }
 
     @Override
@@ -87,17 +89,25 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     private void handleDescribeModel(ChannelHandlerContext ctx, String modelName) {
         ArrayList<DescribeWorkflowResponse> resp =
-                WorkflowManager.getInstance().getModelDescription(modelName);
+                WorkflowManager.getInstance().getWorkflowDescription(modelName);
         NettyUtils.sendJsonResponse(ctx, resp);
     }
 
     private void handleRegisterWorkflows(
-            ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req) {
-        RegisterWorkflowRequest registerModelRequest = parseRequest(req, decoder);
-        StatusResponse statusResponse;
-        statusResponse = WorkflowManager.getInstance().registerModel(registerModelRequest);
+            ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req)  {
+        StatusResponse status = new StatusResponse();
 
-        sendResponse(ctx, statusResponse);
+        try {
+            RegisterWorkflowRequest registerWFRequest = parseRequest(req, decoder);
+            Future future
+                    = WorkflowManager.getInstance().registerWorkflow(registerWFRequest);
+            status = ((Future<StatusResponse>) future).get();
+        } catch (InterruptedException|ExecutionException e) {
+            status.setHttpResponseCode(500);
+            status.setStatus("Error while registering workflow. Details: "+e.getMessage());
+        } finally {
+            sendResponse(ctx, status);
+        }
     }
 
     private void handleUnregisterModel(ChannelHandlerContext ctx, String modelName) {

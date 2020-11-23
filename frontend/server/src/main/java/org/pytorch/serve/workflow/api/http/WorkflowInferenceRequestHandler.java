@@ -46,8 +46,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             LoggerFactory.getLogger(org.pytorch.serve.http.api.rest.InferenceRequestHandler.class);
 
     /** Creates a new {@code WorkflowInferenceRequestHandler} instance. */
-    public WorkflowInferenceRequestHandler(Map<String, ModelServerEndpoint> ep) {
-        endpointMap = ep;
+    public WorkflowInferenceRequestHandler() {
     }
 
     @Override
