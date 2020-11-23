@@ -1,4 +1,4 @@
-package org.pytorch.serve.archive;
+package org.pytorch.serve.archive.model;
 
 import com.google.gson.annotations.SerializedName;
 

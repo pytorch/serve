@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.pytorch.serve.archive.model.InvalidModelException;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -27,7 +31,7 @@ public class ModelArchiveTest {
     }
 
     @Test
-    public void test() throws ModelException, IOException {
+    public void test() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive archive =
                 ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop.mar");
@@ -37,10 +41,10 @@ public class ModelArchiveTest {
     }
 
     @Test(
-            expectedExceptions = DownloadModelException.class,
+            expectedExceptions = DownloadArchiveException.class,
             expectedExceptionsMessageRegExp =
                     "Failed to download model from: https://s3\\.amazonaws\\.com/squeezenet_v1\\.1\\.mod")
-    public void testAllowedURL() throws ModelException, IOException {
+    public void testAllowedURL() throws ModelException, IOException, DownloadArchiveException {
         // test allowed url, return failed to download as file does not exist
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
@@ -48,10 +52,11 @@ public class ModelArchiveTest {
     }
 
     @Test(
-            expectedExceptions = DownloadModelException.class,
+            expectedExceptions = DownloadArchiveException.class,
             expectedExceptionsMessageRegExp =
                     "Failed to download model from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
-    public void testAllowedMultiUrls() throws ModelException, IOException {
+    public void testAllowedMultiUrls()
+            throws ModelException, IOException, DownloadArchiveException {
         // test multiple urls added to allowed list
         String modelStore = "src/test/resources/models";
         final List<String> customUrlPatternList =
@@ -68,7 +73,7 @@ public class ModelArchiveTest {
             expectedExceptions = ModelNotFoundException.class,
             expectedExceptionsMessageRegExp =
                     "Given URL https://torchserve\\.pytorch.org/mar_files/mnist\\.mar does not match any allowed URL\\(s\\)")
-    public void testBlockedUrl() throws ModelException, IOException {
+    public void testBlockedUrl() throws ModelException, IOException, DownloadArchiveException {
         // test blocked url
         String modelStore = "src/test/resources/models";
         final List<String> customUrlPatternList =
@@ -80,7 +85,8 @@ public class ModelArchiveTest {
     }
 
     @Test
-    public void testLocalFile() throws ModelException, IOException, InterruptedException {
+    public void testLocalFile()
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
@@ -103,7 +109,7 @@ public class ModelArchiveTest {
     }
 
     @Test
-    public void archiveTest() throws ModelException, IOException {
+    public void archiveTest() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive archive =
                 ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop.mar");
@@ -144,8 +150,8 @@ public class ModelArchiveTest {
         archive.clean();
     }
 
-    @Test(expectedExceptions = DownloadModelException.class)
-    public void testMalformedURL() throws ModelException, IOException {
+    @Test(expectedExceptions = DownloadArchiveException.class)
+    public void testMalformedURL() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST,
@@ -157,7 +163,7 @@ public class ModelArchiveTest {
             expectedExceptions = ModelNotFoundException.class,
             expectedExceptionsMessageRegExp =
                     "Relative path is not allowed in url: \\.\\./mnist\\.mar")
-    public void testRelativePath() throws ModelException, IOException {
+    public void testRelativePath() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "../mnist.mar");
     }
@@ -165,7 +171,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = ModelNotFoundException.class,
             expectedExceptionsMessageRegExp = "Model store has not been configured\\.")
-    public void testNullModelstore() throws ModelException, IOException {
+    public void testNullModelstore() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = null;
         ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "../mnist.mar");
     }
@@ -173,13 +179,14 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = ModelNotFoundException.class,
             expectedExceptionsMessageRegExp = "Model not found in model store: noop1\\.mar")
-    public void testMarFileNotexist() throws ModelException, IOException {
+    public void testMarFileNotexist() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop1.mar");
     }
 
     @Test(expectedExceptions = FileAlreadyExistsException.class)
-    public void testFileAlreadyExist() throws ModelException, IOException {
+    public void testFileAlreadyExist()
+            throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST,
@@ -187,8 +194,9 @@ public class ModelArchiveTest {
                 "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
-    @Test(expectedExceptions = DownloadModelException.class)
-    public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
+    @Test(expectedExceptions = DownloadArchiveException.class)
+    public void testMalformLocalURL()
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST, modelStore, "file://" + modelStore + "/mnist1.mar");

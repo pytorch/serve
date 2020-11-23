@@ -12,9 +12,11 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.ResourceNotFoundException;
@@ -53,7 +55,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, DownloadArchiveException {
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);

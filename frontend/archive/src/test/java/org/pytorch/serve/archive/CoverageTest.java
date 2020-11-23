@@ -1,6 +1,7 @@
 package org.pytorch.serve.archive;
 
 import java.io.IOException;
+import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.test.TestHelper;
 import org.testng.annotations.Test;
 

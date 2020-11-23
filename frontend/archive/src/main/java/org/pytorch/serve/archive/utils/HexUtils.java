@@ -1,4 +1,4 @@
-package org.pytorch.serve.archive;
+package org.pytorch.serve.archive.utils;
 
 public final class HexUtils {
 

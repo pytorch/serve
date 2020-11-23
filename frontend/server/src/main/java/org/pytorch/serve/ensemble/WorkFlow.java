@@ -11,10 +11,12 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.pytorch.serve.archive.InvalidModelException;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.InvalidModelException;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.utils.ZipUtils;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
@@ -41,7 +43,7 @@ public class WorkFlow {
         String name = FilenameUtils.getBaseName(workFlowFile.getName());
 
         InputStream is = Files.newInputStream(workFlowFile.toPath());
-        this.dir = ModelArchive.unzip(is, null, "models");
+        this.dir = ZipUtils.unzip(is, null, "models");
         this.workflowManifest = load(this.dir, true);
         this.specFile = new File(this.dir, this.workflowManifest.getWorfklow().getSpecFile());
         this.handlerFile = new File(this.dir, this.workflowManifest.getWorfklow().getHandler());
@@ -159,7 +161,8 @@ public class WorkFlow {
     }
 
     public Vector<StatusResponse> register(int responseTimeout, boolean synchronous)
-            throws ModelException, ExecutionException, InterruptedException {
+            throws ModelException, ExecutionException, InterruptedException,
+                    DownloadArchiveException {
         Map<String, Node<?>> nodes = dag.getNodes();
 
         Vector<StatusResponse> responses = new Vector<StatusResponse>();
@@ -196,7 +199,8 @@ public class WorkFlow {
             int initialWorkers,
             boolean isSync,
             String defaultModelName)
-            throws ModelException, ExecutionException, InterruptedException {
+            throws ModelException, ExecutionException, InterruptedException,
+                    DownloadArchiveException {
 
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;

@@ -11,9 +11,10 @@ import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.MethodNotAllowedException;
@@ -46,7 +47,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, DownloadArchiveException {
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
@@ -117,7 +118,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private void handleRegisterModel(
             ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req)
-            throws ModelException {
+            throws ModelException, DownloadArchiveException {
         RegisterModelRequest registerModelRequest = parseRequest(req, decoder);
         StatusResponse statusResponse;
         try {

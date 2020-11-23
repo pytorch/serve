@@ -9,7 +9,9 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
-import org.pytorch.serve.archive.ModelException;
+
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.http.*;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
@@ -31,7 +33,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException {
+            throws ModelException, DownloadArchiveException {
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);

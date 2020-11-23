@@ -16,11 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.job.Job;
@@ -62,7 +63,7 @@ public final class ModelManager {
     }
 
     public ModelArchive registerModel(String url, String defaultModelName)
-            throws ModelException, IOException, InterruptedException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
         return registerModel(
                 url,
                 null,
@@ -76,7 +77,7 @@ public final class ModelManager {
     }
 
     public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
-            throws ModelException, IOException, InterruptedException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
@@ -109,7 +110,7 @@ public final class ModelManager {
             int responseTimeout,
             String defaultModelName,
             boolean ignoreDuplicate)
-            throws ModelException, IOException, InterruptedException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         ModelArchive archive;
         if (url != null) {
@@ -148,7 +149,7 @@ public final class ModelManager {
             String handler,
             Manifest.RuntimeType runtime,
             String defaultModelName)
-            throws ModelException, IOException {
+            throws ModelException, IOException, DownloadArchiveException {
         ModelArchive archive =
                 ModelArchive.downloadModel(
                         configManager.getAllowedUrls(), configManager.getModelStore(), url);
