@@ -10,6 +10,15 @@ public class Node<T> implements Callable {
     private String name;
     private String parentName;
     private Map<String, Object> inputDataMap;
+
+    public WorkflowModel getWorkflowModel() {
+        return workflowModel;
+    }
+
+    public void setWorkflowModel(WorkflowModel workflowModel) {
+        this.workflowModel = workflowModel;
+    }
+
     private WorkflowModel workflowModel;
 
     public Node(String name, WorkflowModel model) {

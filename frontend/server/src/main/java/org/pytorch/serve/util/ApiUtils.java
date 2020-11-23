@@ -141,7 +141,8 @@ public final class ApiUtils {
                             batchSize,
                             maxBatchDelay,
                             responseTimeout,
-                            null);
+                            null,
+                            false);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);

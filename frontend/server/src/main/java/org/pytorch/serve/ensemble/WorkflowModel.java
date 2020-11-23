@@ -7,13 +7,18 @@ public class WorkflowModel{
     private int minWorkers;
     private int maxWorkers;
     private int batchSize;
+    private int maxBatchDelay;
+    private String handler;
 
-    public WorkflowModel(String name, String url, int minWorkers, int maxWorkers, int batchSize) {
+    public WorkflowModel(String name, String url, int minWorkers,
+                         int maxWorkers, int batchSize, int maxBatchDelay, String handler) {
         this.name = name;
         this.url = url;
         this.minWorkers = minWorkers;
         this.maxWorkers = maxWorkers;
         this.batchSize = batchSize;
+        this.maxBatchDelay = maxBatchDelay;
+        this.handler = handler;
     }
 
     public String getName() {
@@ -54,5 +59,18 @@ public class WorkflowModel{
 
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
+    }
+
+
+    public int getMaxBatchDelay() {
+        return maxBatchDelay;
+    }
+
+    public void setMaxBatchDelay(int maxBatchDelay) {
+        this.maxBatchDelay = maxBatchDelay;
+    }
+
+    public String getHandler() {
+        return handler;
     }
 }

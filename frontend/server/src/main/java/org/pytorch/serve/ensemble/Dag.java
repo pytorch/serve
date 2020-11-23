@@ -16,7 +16,6 @@ public class Dag {
     CompletionService<NodeOutput> executorCompletionService= new ExecutorCompletionService<>(executorService);
     List<Future<Integer>> futures = new ArrayList<Future<Integer>>();
 
-
     public void addNode(Node<?> node){
         nodes.put(node.getName(), node);
         Map<String, Set<String>> degreeMap = new HashMap<>();
@@ -92,6 +91,9 @@ public class Dag {
         return getDegreeMap("outDegree");
     }
 
+    public Map<String, Node<?>> getNodes() {
+        return nodes;
+    }
 
     public ArrayList<String> topoSort() throws Exception {
 
@@ -129,7 +131,6 @@ public class Dag {
                 executing.remove(nodeName);
                 zeroInDegree.remove(nodeName);
                 topoSortedList.add(nodeName);
-
 
                 for (String newNodeName : dagMap.get(nodeName).get("outDegree")) {
                     nodes.get(newNodeName).updateInputDataMap(nodeName, output.getData());
