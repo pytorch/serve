@@ -46,12 +46,17 @@ def generate_densenet_test_model_archive():
 
 def run_pytest():
     print("## Started regression pytests")
-    generate_grpc_client_stubs()
     os.chdir(os.path.join(REPO_ROOT, "test", "pytest"))
+    cmd = "python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/" \
+          " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto"
+    status = os.system(cmd)
+    if status != 0:
+        print("Could not generate gRPC client stubs")
+        sys.exit(1)
     cmd = "python -m pytest -v ./"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     status = os.system(cmd)
-    rm_file('scripts/*_pb2*.py', True)
+    rm_file('*_pb2*.py', True)
     return status
 
 

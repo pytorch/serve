@@ -35,7 +35,10 @@ def validate_model_on_gpu():
 
 def test_sanity():
     generate_grpc_client_stubs()
-    from scripts import torchserve_grpc_client
+
+    import pathlib
+    pathlib.Path(__file__).parent.absolute()
+
     print("## Started sanity tests")
 
     resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
@@ -82,15 +85,35 @@ def test_sanity():
         model_inputs = model["inputs"]
         model_handler = model["handler"]
 
-        management_stub = torchserve_grpc_client.get_management_stub()
-        inference_stub = torchserve_grpc_client.get_inference_stub()
+        # Run gRPC sanity
+        register_model_grpc_cmd = f"python scripts/torchserve_grpc_client.py register {model_name}"
+        status = os.system(register_model_grpc_cmd)
 
-        torchserve_grpc_client.register(management_stub, model_name)
+        if status != 0:
+            print("## Failed to register model with torchserve")
+            sys.exit(1)
+        else:
+            print(f"## Successfully registered {model_name} model with torchserve")
+
         for input in model_inputs:
-            torchserve_grpc_client.infer(inference_stub, model_name, input)
+            infer_model_grpc_cmd = f"python scripts/torchserve_grpc_client.py infer {model_name} {input}"
+            status = os.system(infer_model_grpc_cmd)
+            if status != 0:
+                print(f"## Failed to run inference on {model_name} model")
+                sys.exit(1)
+            else:
+                print(f"## Successfully ran inference on {model_name} model.")
 
-        torchserve_grpc_client.unregister(management_stub, model_name)
+        unregister_model_grpc_cmd = f"python scripts/torchserve_grpc_client.py unregister {model_name}"
+        status = os.system(unregister_model_grpc_cmd)
 
+        if status != 0:
+            print(f"## Failed to unregister {model_name}")
+            sys.exit(1)
+        else:
+            print(f"## Successfully unregistered {model_name}")
+
+        # Run REST sanity
         response = ts.register_model(model_name)
         if response and response.status_code == 200:
             print(f"## Successfully registered {model_name} model with torchserve")
