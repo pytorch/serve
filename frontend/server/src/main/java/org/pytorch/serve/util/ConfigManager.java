@@ -74,6 +74,7 @@ public final class ConfigManager {
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
+    private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
@@ -312,6 +313,10 @@ public final class ConfigManager {
 
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
+    }
+
+    public String getTsServiceEnvelope() {
+        return getProperty(TS_SERVICE_ENVELOPE, null);
     }
 
     public Properties getConfiguration() {

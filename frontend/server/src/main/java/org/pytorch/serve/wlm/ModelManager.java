@@ -155,6 +155,8 @@ public final class ModelManager {
             archive.getManifest().getModel().setHandler(configManager.getTsDefaultServiceHandler());
         }
 
+        archive.getManifest().getModel().setEnvelope(configManager.getTsServiceEnvelope());
+
         archive.validate();
 
         return archive;
