@@ -19,6 +19,9 @@
 * [Custom Model Service](custom_service.md) - Describes how to develop custom inference services.
 * [Unit Tests](../ts/tests/README.md) - Housekeeping unit tests for TorchServe.
 * [Benchmark](../benchmarks/README.md) - Use JMeter to run TorchServe through the paces and collect benchmark data
+* [Captum](custom_service.md) - Captum for a custom handler
+
+
 
 ## Default Handlers
 
