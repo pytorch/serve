@@ -25,8 +25,6 @@ class Common():
             os.system(f"pip install -U -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
 
     def install_python_packages(self, cuda_version):
-        os.system("sudo apt-get update")
-        os.system("sudo apt-get install -y python3-dev")
         self.install_torch_packages(cuda_version)
         os.system("pip install -U -r requirements/developer.txt") # developer.txt also installs packages from common.txt
         if os.system("conda") == 0: # If conda is available install conda-build package
@@ -71,11 +69,7 @@ class Darwin(Common):
         os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu101'], help="CUDA version for torch")
-    args = parser.parse_args()
-
+def install_dependencies(cuda_version=None):
     os_map = {
         "Linux": Linux,
         "Windows": Windows,
@@ -87,5 +81,13 @@ if __name__ == "__main__":
     # Sequence of installation to be maintained
     system.install_java()
     system.install_nodejs()
-    system.install_python_packages(cuda_version=args.cuda)
+    system.install_python_packages(cuda_version)
     system.install_node_packages()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
+    parser.add_argument('--cuda', default=None, choices=['cu101'], help="CUDA version for torch")
+    args = parser.parse_args()
+
+    install_dependencies(cuda_version=args.cuda)
+
