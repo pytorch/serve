@@ -25,32 +25,30 @@ class Common():
             os.system(f"pip install -U -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
 
     def install_python_packages(self, cuda_version):
+        os.system("sudo apt-get update")
+        os.system("sudo apt-get install -y python3-dev")
         self.install_torch_packages(cuda_version)
         os.system("pip install -U -r requirements/developer.txt") # developer.txt also installs packages from common.txt
         if os.system("conda") == 0: # If conda is available install conda-build package
             os.system("conda install -y conda-build")
 
     def install_node_packages(self):
-        os.system("npm install -g newman newman-reporter-html markdown-link-check")
+        os.system("sudo apt-get update")
+        os.system("sudo npm install -g newman newman-reporter-html markdown-link-check")
 
     def install_jmeter(self):
-        pass
-
-    def install_ab(self):
         pass
 
 
 class Linux(Common):
     def install_java(self):
-        os.system("apt-get install -y openjdk-11-jdk")
+        os.system("sudo apt-get update")
+        os.system("sudo apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        os.system("curl -sL https://deb.nodesource.com/setup_14.x | bash -")
-        os.system("apt-get update")
-        os.system("apt-get install -y nodejs")
-
-    def install_ab(self):
-        os.system("apt-get install -y apache2-utils")
+        os.system("sudo apt-get update")
+        os.system("sudo curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -")
+        os.system("sudo apt-get install -y nodejs")
 
 
 class Windows(Common):
@@ -58,9 +56,6 @@ class Windows(Common):
         pass
 
     def install_nodejs(self):
-        pass
-
-    def install_ab(self):
         pass
 
 
