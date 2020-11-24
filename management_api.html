@@ -298,7 +298,7 @@
 <li><p>synchronous - whether or not the creation of worker is synchronous. The default value is false. TorchServe will create new workers without waiting for acknowledgement that the previous worker is online.</p></li>
 <li><p>response_timeout - If the model’s backend worker doesn’t respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST <span class="s2">&quot;http://localhost:8081/models?url=https://&lt;s3_path&gt;/squeezenet_v1.1.mar&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST  <span class="s2">&quot;http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&quot;</span>
 
 <span class="o">{</span>
   <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;Model \&quot;squeezenet_v1.1\&quot; Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model.&quot;</span>
@@ -308,7 +308,7 @@
 <p>You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.</p>
 <p>The asynchronous call returns with HTTP code 202 before trying to create workers.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -v -X POST <span class="s2">&quot;http://localhost:8081/models?initial_workers=1&amp;synchronous=false&amp;url=https://&lt;s3_path&gt;/squeezenet_v1.1.mar&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -v -X POST <span class="s2">&quot;http://localhost:8081/models?initial_workers=1&amp;synchronous=false&amp;url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&quot;</span>
 
 &lt; HTTP/1.1 <span class="m">202</span> Accepted
 &lt; content-type: application/json
@@ -322,7 +322,7 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 </pre></div>
 </div>
 <p>The synchronous call returns with HTTP code 200 after all workers have been adjusted.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -v -X POST <span class="s2">&quot;http://localhost:8081/models?initial_workers=1&amp;synchronous=true&amp;url=https://&lt;s3_path&gt;/squeezenet_v1.1.mar&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -v -X POST <span class="s2">&quot;http://localhost:8081/models?initial_workers=1&amp;synchronous=true&amp;url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&quot;</span>
 
 &lt; HTTP/1.1 <span class="m">200</span> OK
 &lt; content-type: application/json
