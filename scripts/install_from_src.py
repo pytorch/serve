@@ -8,8 +8,8 @@ import shutil
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-import tsutils as ts
-import install_dependencies as idep
+import scripts.tsutils as ts
+import scripts.install_dependencies as idep
 
 
 def clean_slate(): 
