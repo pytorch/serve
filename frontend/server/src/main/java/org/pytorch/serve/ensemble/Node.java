@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-public class Node<T> implements Callable {
+public class Node implements Callable<NodeOutput> {
     private String name;
     private String parentName;
     private Map<String, Object> inputDataMap;
@@ -52,7 +52,7 @@ public class Node<T> implements Callable {
     }
 
     @Override
-    public Object call() throws Exception {
+    public NodeOutput call() throws Exception {
         Random rand = new Random();
         // System.out.println("result  is "+(String)this.getInputDataMap() + rand.nextInt()+ " for
         // me "+ this.getName());

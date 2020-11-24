@@ -9,7 +9,6 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
-
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.http.*;
@@ -35,32 +34,28 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException {
         if (isManagementReq(segments)) {
-            if (endpointMap.getOrDefault(segments[1], null) != null) {
-                handleCustomEndpoint(ctx, req, segments, decoder);
-            } else {
-                if (!"workflows".equals(segments[1])) {
-                    throw new ResourceNotFoundException();
-                }
+            if (!"workflows".equals(segments[1])) {
+                throw new ResourceNotFoundException();
+            }
 
-                HttpMethod method = req.method();
-                if (segments.length < 3) {
-                    if (HttpMethod.GET.equals(method)) {
-                        handleListWorkflows(ctx, decoder);
-                        return;
-                    } else if (HttpMethod.POST.equals(method)) {
-                        handleRegisterWorkflows(ctx, decoder, req);
-                        return;
-                    }
-                    throw new MethodNotAllowedException();
-                }
-
+            HttpMethod method = req.method();
+            if (segments.length < 3) {
                 if (HttpMethod.GET.equals(method)) {
-                    handleDescribeModel(ctx, segments[2]);
-                } else if (HttpMethod.DELETE.equals(method)) {
-                    handleUnregisterModel(ctx, segments[2]);
-                } else {
-                    throw new MethodNotAllowedException();
+                    handleListWorkflows(ctx, decoder);
+                    return;
+                } else if (HttpMethod.POST.equals(method)) {
+                    handleRegisterWorkflows(ctx, decoder, req);
+                    return;
                 }
+                throw new MethodNotAllowedException();
+            }
+
+            if (HttpMethod.GET.equals(method)) {
+                handleDescribeWorkflow(ctx, segments[2]);
+            } else if (HttpMethod.DELETE.equals(method)) {
+                handleUnregisterWorkflow(ctx, segments[2]);
+            } else {
+                throw new MethodNotAllowedException();
             }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
@@ -69,7 +64,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
-                || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
+                || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("workflows"))
                 || endpointMap.containsKey(segments[1]);
     }
 
@@ -80,9 +75,9 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
         NettyUtils.sendJsonResponse(ctx, list);
     }
 
-    private void handleDescribeModel(ChannelHandlerContext ctx, String modelName) {
+    private void handleDescribeWorkflow(ChannelHandlerContext ctx, String workflowName) {
         ArrayList<DescribeWorkflowResponse> resp =
-                WorkflowManager.getInstance().getWorkflowDescription(modelName);
+                WorkflowManager.getInstance().getWorkflowDescription(workflowName);
         NettyUtils.sendJsonResponse(ctx, resp);
     }
 
@@ -92,20 +87,25 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
         try {
             RegisterWorkflowRequest registerWFRequest = parseRequest(req, decoder);
-            status = WorkflowManager.getInstance().registerWorkflow(registerWFRequest);
-            //        } catch (InterruptedException | ExecutionException e) {
-            //            status.setHttpResponseCode(500);
-            //            status.setStatus("Error while registering workflow. Details: " +
-            // e.getMessage());
-            //        }
+            status =
+                    WorkflowManager.getInstance()
+                            .registerWorkflow(
+                                    registerWFRequest.getWorkflowName(),
+                                    registerWFRequest.getWorkflowUrl(),
+                                    registerWFRequest.getResponseTimeout(),
+                                    true);
+        } catch (Exception e) {
+            status.setHttpResponseCode(500);
+            status.setStatus("Error while registering workflow. Details: " + e.getMessage());
+            status.setE(e);
         } finally {
             sendResponse(ctx, status);
         }
     }
 
-    private void handleUnregisterModel(ChannelHandlerContext ctx, String modelName) {
-        WorkflowManager.getInstance().unregisterWorkflow(modelName);
-        String msg = "Model \"" + modelName + "\" unregistered";
+    private void handleUnregisterWorkflow(ChannelHandlerContext ctx, String workflowName) {
+        WorkflowManager.getInstance().unregisterWorkflow(workflowName);
+        String msg = "Workflow \"" + workflowName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg, HttpResponseStatus.OK.code()));
     }
 

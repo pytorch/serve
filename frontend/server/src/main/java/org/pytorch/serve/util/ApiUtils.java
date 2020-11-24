@@ -130,6 +130,31 @@ public final class ApiUtils {
             }
         }
 
+        return handleRegister(
+                modelUrl,
+                modelName,
+                runtimeType,
+                handler,
+                batchSize,
+                maxBatchDelay,
+                responseTimeout,
+                initialWorkers,
+                registerModelRequest.getSynchronous());
+    }
+
+    public static StatusResponse handleRegister(
+            String modelUrl,
+            String modelName,
+            Manifest.RuntimeType runtimeType,
+            String handler,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            int initialWorkers,
+            boolean isSync)
+            throws ModelException, ExecutionException, InterruptedException,
+                    DownloadArchiveException {
+
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;
         try {
@@ -168,7 +193,7 @@ public final class ApiUtils {
                 archive.getModelVersion(),
                 initialWorkers,
                 initialWorkers,
-                registerModelRequest.getSynchronous(),
+                isSync,
                 true,
                 f -> {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());

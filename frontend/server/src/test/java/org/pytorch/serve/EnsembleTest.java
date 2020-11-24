@@ -2,17 +2,14 @@ package org.pytorch.serve;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.util.Vector;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.ensemble.Dag;
 import org.pytorch.serve.ensemble.Node;
-import org.pytorch.serve.ensemble.WorkFlow;
 import org.pytorch.serve.ensemble.WorkflowModel;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
@@ -126,17 +123,18 @@ public class EnsembleTest {
         }
     }
 
-    @Test(alwaysRun = true)
-    public void testWorkflowYaml() throws Exception {
-        // torch-workflow-archiver  --workflow-name test  --spec-file
-        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml --handler
-        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py
-        // --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
-        File f = new File("src/test/resources/test.war");
-        WorkFlow wf = new WorkFlow(f);
-        System.out.println(wf.getObj());
-        Object a = wf.getObj();
-        Vector<StatusResponse> responses = wf.register(2000, true);
-        System.out.println(responses);
-    }
+    //    @Test(alwaysRun = true)
+    //    public void testWorkflowYaml() throws Exception {
+    //        // torch-workflow-archiver  --workflow-name test  --spec-file
+    //        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml
+    // --handler
+    //        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py
+    //        // --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
+    //        File f = new File("src/test/resources/test.war");
+    //        WorkFlow wf = new WorkFlow(f);
+    //        System.out.println(wf.getObj());
+    //        Object a = wf.getObj();
+    //        Vector<StatusResponse> responses = wf.register(2000, true);
+    //        System.out.println(responses);
+    //    }
 }
