@@ -4,10 +4,11 @@ import argparse
 
 
 class Common():
-    def __init__(self):
+    def __init__(self, sudo_cmd):
         # Assumption is nvidia-smi is installed on systems with gpu
         self.is_gpu_instance = True if os.system("nvidia-smi") == 0 else False
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
+        self.sudo_cmd = sudo_cmd
 
     def install_java(self):
         pass
@@ -31,40 +32,42 @@ class Common():
             os.system("conda install -y conda-build")
 
     def install_node_packages(self):
-        os.system("npm install -g newman newman-reporter-html markdown-link-check")
+        os.system(f"{self.sudo_cmd}apt-get update")
+        os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
 
     def install_jmeter(self):
         pass
 
-    def install_ab(self):
-        pass
-
 
 class Linux(Common):
+    def __init__(self, sudo_cmd):
+        super().__init__(sudo_cmd)
+
     def install_java(self):
-        os.system("apt-get install -y openjdk-11-jdk")
+        os.system(f"{self.sudo_cmd}apt-get update")
+        os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        os.system("curl -sL https://deb.nodesource.com/setup_14.x | bash -")
-        os.system("apt-get update")
-        os.system("apt-get install -y nodejs")
-
-    def install_ab(self):
-        os.system("apt-get install -y apache2-utils")
+        os.system(f"{self.sudo_cmd}apt-get update")
+        os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+        os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
 
 class Windows(Common):
+    def __init__(self, sudo_cmd):
+        super().__init__(sudo_cmd)
+
     def install_java(self):
         pass
 
     def install_nodejs(self):
-        pass
-
-    def install_ab(self):
         pass
 
 
 class Darwin(Common):
+    def __init__(self, sudo_cmd):
+        super().__init__(sudo_cmd)
+
     def install_java(self):
         os.system("brew tap AdoptOpenJDK/openjdk")
         os.system("brew cask install adoptopenjdk11")
@@ -76,21 +79,25 @@ class Darwin(Common):
         os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu101'], help="CUDA version for torch")
-    args = parser.parse_args()
-
+def install_dependencies(sudo_cmd='sudo ', cuda_version=None):
     os_map = {
         "Linux": Linux,
         "Windows": Windows,
         "Darwin": Darwin
     }
-    system = os_map[platform.system()]()
+    system = os_map[platform.system()](sudo_cmd)
 
     import sys
     # Sequence of installation to be maintained
     system.install_java()
     system.install_nodejs()
-    system.install_python_packages(cuda_version=args.cuda)
+    system.install_python_packages(cuda_version)
     system.install_node_packages()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
+    parser.add_argument('--cuda', default=None, choices=['cu101'], help="CUDA version for torch")
+    args = parser.parse_args()
+
+    install_dependencies('', cuda_version=args.cuda)
+

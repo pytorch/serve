@@ -3,7 +3,7 @@ import sys
 import nvgpu
 import glob
 
-from scripts import tsutils as ts
+from ts_scripts import tsutils as ts
 
 
 def run_markdown_link_checker():
