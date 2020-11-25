@@ -6,7 +6,7 @@ import glob
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from scripts import tsutils
+from ts_scripts import tsutils
 from binaries.conda.build_packages import conda_build
 
 
