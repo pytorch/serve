@@ -26,7 +26,8 @@ def socket_patches(mocker):
         b"\x00\x00\x00\x0a", b"model_path",
         b"\x00\x00\x00\x01",
         b"\x00\x00\x00\x07", b"handler",
-        b"\x00\x00\x00\x01"
+        b"\x00\x00\x00\x01",
+        b"\x00\x00\x00\x08", b"envelope",
     ]
     return mock_patch
 
