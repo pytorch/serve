@@ -4,7 +4,6 @@ from PIL import Image
 from torchvision import transforms
 
 from ts.torch_handler.image_classifier import ImageClassifier
-import base64
 import torch
 
 

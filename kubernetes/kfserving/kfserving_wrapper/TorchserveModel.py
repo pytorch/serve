@@ -16,7 +16,7 @@ PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 
 
 class TorchserveModel(kfserving.KFModel):
-    """In this class, the torchserve side inference and explain end-points requests are handled to
+    """The torchserve side inference and explain end-points requests are handled to
     return a KFServing side response
 
     Args:
@@ -66,7 +66,7 @@ class TorchserveModel(kfserving.KFModel):
         """
         if not self.predictor_host:
             raise NotImplementedError
-        logging.info("kfmodel predict request is %s", json.dumps(request))
+        logging.debug("kfmodel predict request is %s", json.dumps(request))
         logging.info("PREDICTOR_HOST : %s", self.predictor_host)
         headers = {"Content-Type": "application/json; charset=UTF-8"}
         response = await self._http_client.fetch(

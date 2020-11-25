@@ -23,8 +23,8 @@ The Prediction response is as below :
 {
 	"predictions" : [
 
-	2
-		]
+						2
+					]
 }
 ```
 

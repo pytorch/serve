@@ -1,3 +1,5 @@
+""" The images are Transformed and sent to the predictor or explainer """ 
+
 # Copyright 2019 kubeflow.org.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +88,7 @@ class ImageTransformer(kfserving.KFModel):
         return {'instances': [image_transform(instance) for instance in inputs['instances']]}
 
     def postprocess(self, inputs: List) -> List:
-        """Post process function of Torchserve on the KFServing side is 
+        """Post process function of Torchserve on the KFServing side is
         written here.
 
         Args:

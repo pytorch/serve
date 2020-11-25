@@ -1,3 +1,4 @@
+""" Stores image transformer models """
 import os
 
 import logging
@@ -17,7 +18,7 @@ logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
 
 class TransformerModelRepository(KFModelRepository):
-    """The class object for the Image Transformer.
+    """Stores the image Transformer models
 
     Args:
         KFModelRepository (class): KFModel Repository class object of
