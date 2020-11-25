@@ -5,7 +5,7 @@ The scripts are designed to execute independent of each other.
 1. [install_dependencies.py](install_dependencies.py) : Helps you install build and test dependencies for torchserve (like java, torch packages, newman, etc)
    ```
    # Example
-   python scripts/install_dependencies.py
+   python ts_scripts/install_dependencies.py
 
 2. [tsutils.py](tsutils.py.py) : Import this module in your scripts to have access to utility methods like start\stop torchserve, register\infer\unregister models, etc.
 3. [shell_utils.py](shell_utils.py) : Import this module in your scripts to have access to utility methods like download file, remove directory, unzip files, etc
@@ -17,8 +17,8 @@ The scripts are designed to execute independent of each other.
 9. [test_api.py](test_api.py) : Executes newman api collections (management\inference\increased_timeout_inference\https\all)
    ```
    # Example
-   python scripts/test_api.py management
-   python scripts/test_api.py inference
-   python scripts/test_api.py all
+   python ts_scripts/test_api.py management
+   python ts_scripts/test_api.py inference
+   python ts_scripts/test_api.py all
    ```
 10. [test_regression.py](test_regression.py) : Executes regression pytests.

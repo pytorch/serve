@@ -170,4 +170,4 @@ class TestHandleConnection:
         with pytest.raises(ValueError, match=r"Received unknown command.*"):
             model_service_worker.handle_connection(cl_socket)
 
-        cl_socket.send.assert_called()
+        cl_socket.sendall.assert_called()
