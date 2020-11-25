@@ -76,14 +76,14 @@ Modify the values.yaml in the nfs-provisioner with persistent volume name, disk 
 ```bash
 cd GKE
 
-helm instlal nfs-server  ./nfs-provisioner
+helm instlal mynfs  ./nfs-provisioner
 ```
 
 ```kubetl get pods``` should show something similiar to:
 
 ```bash
 NAME                                             READY   STATUS    RESTARTS   AGE
-pod/nfs-server-nfs-provisioner-bcc7c96cc-5xr2k   1/1     Running   0          19h
+pod/mynfs-nfs-provisioner-bcc7c96cc-5xr2k   1/1     Running   0          19h
 ```
 
 #### 2.5 Create PV and PVC
@@ -91,7 +91,7 @@ pod/nfs-server-nfs-provisioner-bcc7c96cc-5xr2k   1/1     Running   0          19
 Run the below command and get NFS server IP:
 
 ```bash
-kubectl get svc -n default nfs-server-nfs-provisioner -o jsonpath='{.spec.clusterIP}'
+kubectl get svc -n default mynfs-nfs-provisioner -o jsonpath='{.spec.clusterIP}'
 ```
 
 Replace storage size and server IP in pv_pvc.yaml with the server IP got from above command. Run the below kubectl command and create PV and PVC
@@ -308,10 +308,66 @@ Your output should look similar to
 ]
 ```
 
-### 4 Delete the cluster
+### 4 Troubleshooting
+
+#### 4.1 Troubleshooting GKE Cluster Creation**
+
+Possible errors in this step may be a result of
+
+* IAM limits.
+* Quota restrictions during cluster creation - [GKE Quotas](https://cloud.google.com/compute/quotas)
+
+You should able be able to find the following resources at the end of this step in the respective Gcoud consoles
+
+* GKE -> Cluser in the Gcloud Console
+
+#### 4.2 Troubleshooting NFS Persitant Volume Creation
+
+Possible error in this step may be a result of one of the following. Your pod my be struck in *Init / Creating* forever / persitant volume claim may be in *Pending* forever.
+
+* Storage disk not created / wrong storage disk name.
+
+  * Check if the storage is created and the correct name is given in the values.yaml
+
+* Node affinity does not match
+
+  * Check affinity zone in values.yaml to match the storage disk.
+
+* Wrong Server IP
+  
+  * Check the server IP mentioned in the pv_pvc.yaml
+
+* You can execute the following commands to inspect the pods / events to debug NFS Issues
+
+    ```bash
+    kubectl get events --sort-by='.metadata.creationTimestamp'
+    kubectl get pod --all-namespaces # Get the Pod ID
+    kubectl logs pod/mynfs-nfs-provisioner-YOUR_POD
+    kubectl logs pod/mynfs-nfs-provisioner-YOUR_POD
+    kubectl describe pod/mynfs-nfs-provisioner-YOUR_POD
+    ```
+
+#### 4.3 Troubleshooting Torchserve Helm Chart
+
+Possible errors in this step may be a result of
+
+* Incorrect values in ``values.yaml``
+  * Changing values in `torchserve.pvd_mount`  would need corresponding change in `config.properties`
+* Invalid `config.properties`
+  * You can verify these values by running this for local TS installation
+* TS Pods in *Pending* state
+  * Ensure you have available Nodes in Node Group
+
+* Helm Installation
+  * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation
+  * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
+  * If you get an error `invalid: data: Too long: must have at most 1048576 characters`, ensure that you dont have any stale files in your kubernetes dir. Else add them to .helmignore file.
+  
+#### 4.4 Delete the Resources
 
 To avoid google charges, you should clean up unneeded resources. When the GKE cluster is no longer needed, use the gcloud container clusters delete command to remove GKE cluster.
 
 ```bash
+gcloud container node-pools delete default-pool --cluster torchserve --region us-west1
 gcloud container clusters delete torchserve --region us-west1
 ```
