@@ -1,8 +1,8 @@
-import os
+""" The torchserve side inference end-points request are handled to
+    return a KFServing side response """
 import json
 from typing import Dict
 import logging
-import requests
 import kfserving
 import tornado.web
 
@@ -49,8 +49,10 @@ class TorchserveModel(kfserving.KFModel):
         logging.info("kfmodel Explain URL set to %s", self.explainer_host)
 
     async def predict(self, request: Dict) -> Dict:
-        """The predict method is called when we hit the inference endpoint and handles the inference request and
-        response from the Torchserve side and passes it on to the KFServing side.
+        """
+        The predict method is called when we hit the inference endpoint and handles
+        the inference request and response from the Torchserve side and passes it on
+        to the KFServing side.
 
         Args:
             request (Dict): Input request from the http client side.
@@ -80,4 +82,3 @@ class TorchserveModel(kfserving.KFModel):
         if response.code != 200:
             raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)
-

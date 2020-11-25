@@ -1,4 +1,4 @@
-""" The images are Transformed and sent to the predictor or explainer """ 
+""" The images are Transformed and sent to the predictor or explainer """
 
 # Copyright 2019 kubeflow.org.
 #
@@ -17,12 +17,11 @@
 import io
 import base64
 import json
-import tornado
 from typing import List, Dict
+import logging
+import tornado
 from PIL import Image
 import torchvision.transforms as transforms
-import logging
-import numpy as np
 import kfserving
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
