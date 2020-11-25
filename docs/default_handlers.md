@@ -46,4 +46,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json)
 
 # Contributing
-If you'd like to edit or create a new default_handler class, make sure to run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.
+If you'd like to edit or create a new default_handler class, you need to take the following steps:
+1. Write a new class derived from BaseHandler. Add it as a separate file in `ts/torch_handler/`
+1. Update `model-archiver/model_packaging.py` to add in your classes name
+1. Run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.
