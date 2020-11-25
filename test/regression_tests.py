@@ -6,9 +6,9 @@ import print_env_info
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from scripts.install_from_src import install_from_src
-from scripts.test_regression import test_regression
-from scripts.test_api import test_api
+from ts_scripts.install_from_src import install_from_src
+from ts_scripts.test_regression import test_regression
+from ts_scripts.test_api import test_api
 
 from pygit2 import Repository
 git_branch = Repository('.').head.shorthand
