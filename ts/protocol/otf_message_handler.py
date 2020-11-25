@@ -192,6 +192,9 @@ def _retrieve_load_msg(conn):
     if gpu_id >= 0:
         msg["gpu"] = gpu_id
 
+    length = _retrieve_int(conn)
+    msg["envelope"] = _retrieve_buffer(conn, length)
+
     return msg
 
 
