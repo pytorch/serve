@@ -47,7 +47,7 @@ cd serve
 
 ./scripts/setup_wsl_ubuntu
 export PATH=$HOME/.local/bin:$PATH
-python ./scripts/install_from_src.py
+python ./ts_scripts/install_from_src.py
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```

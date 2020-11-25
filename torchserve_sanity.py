@@ -1,10 +1,10 @@
-from scripts.test_modelarchiver import test_modelarchiver
-from scripts.test_torchserve import test_torchserve
-from scripts.install_from_src import install_from_src
-from scripts.test_sanity import test_sanity
-from scripts.shell_utils import rm_dir
-from scripts.test_frontend import test_frontend
-import scripts.tsutils as ts
+from ts_scripts.test_modelarchiver import test_modelarchiver
+from ts_scripts.test_torchserve import test_torchserve
+from ts_scripts.install_from_src import install_from_src
+from ts_scripts.test_sanity import test_sanity
+from ts_scripts.shell_utils import rm_dir
+from ts_scripts.test_frontend import test_frontend
+import ts_scripts.tsutils as ts
 import test.print_env_info as build_hdr_printer
 
 
