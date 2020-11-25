@@ -34,7 +34,7 @@ commands:
     steps:
       - run:
           name: Install build and test dependencies for torchserve
-          command: "python scripts/install_dependencies.py"
+          command: "python ts_scripts/install_dependencies.py"
 
   attach-torchserve-workspace:
     description: "Attach the torchserve directory which was saved into workspace"
@@ -59,7 +59,7 @@ commands:
     steps:
       - run:
           name: Start torchserve, Execute << parameters.collection >> API Tests, Stop torchserve
-          command: python scripts/test_api.py << parameters.collection >>
+          command: python ts_scripts/test_api.py << parameters.collection >>
           when: always
 
 
@@ -102,7 +102,7 @@ jobs:
       - install-dependencies
       - run:
           name: Execute frontend gradle tests
-          command: python scripts/test_frontend.py
+          command: python ts_scripts/test_frontend.py
       - store_artifacts:
           name: Store frontend gradle test results
           path: frontend/server/build/reports/tests/test
@@ -117,7 +117,7 @@ jobs:
       - install-dependencies
       - run:
           name: Execute python lint and unit tests
-          command: python scripts/test_torchserve.py
+          command: python ts_scripts/test_torchserve.py
       - store_artifacts:
           name: Store python Test results
           path: result_units
@@ -134,7 +134,7 @@ jobs:
       - install-torchserve
       - run:
           name: Execute sanity tests
-          command: python scripts/test_sanity.py
+          command: python ts_scripts/test_sanity.py
       - store_artifacts:
           name: Store TS logs from sanity tests
           path: logs/
@@ -171,7 +171,7 @@ jobs:
       - install-torchserve
       - run:
           name: Execute regression suite
-          command: python scripts/test_regression.py
+          command: python ts_scripts/test_regression.py
       - store_artifacts:
           name: Store server logs from regression tests
           path: test/pytest/logs/
@@ -232,7 +232,7 @@ jobs:
       - install-torchserve
       - run:
           name: Execute python lint, unit and integration tests
-          command: python scripts/test_modelarchiver.py
+          command: python ts_scripts/test_modelarchiver.py
       - store_artifacts:
           name: Store unit tests results from model archiver tests
           path: model-archiver/result_units
