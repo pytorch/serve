@@ -45,7 +45,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - `git clone https://github.com/pytorch/serve.git`
  - `pip install click`
  - `cd serve`
- - `python .\scripts\install_from_src.py`
+ - `python .\ts_scripts\install_from_src.py`
  - Refer [Install torchserve for development](https://github.com/pytorch/serve#install-torchserve-for-development)
 
 ## Troubleshooting
