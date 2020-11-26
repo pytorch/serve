@@ -92,7 +92,7 @@ public class WorkFlow {
             String modelName = entry.getKey();
             WorkflowModel wfm;
             if (!models.containsKey(modelName)) {
-                wfm = new WorkflowModel(modelName, null, 1, 1, 1, 0, this.handlerFile.getPath());
+                wfm = new WorkflowModel(modelName, null, 1, 1, 1, 0, this.handlerFile.getPath()+":"+modelName);
             } else {
                 wfm = models.get(modelName);
             }
@@ -100,12 +100,12 @@ public class WorkFlow {
             dag.addNode(fromNode);
             for (String toModelName : (ArrayList<String>) entry.getValue()) {
                 WorkflowModel toWfm;
-                if (!models.containsKey(modelName)) {
+                if (!models.containsKey(toModelName)) {
                     toWfm =
                             new WorkflowModel(
-                                    modelName, null, 1, 1, 1, 0, this.handlerFile.getPath());
+                                    toModelName, null, 1, 1, 1, 0, this.handlerFile.getPath()+":"+toModelName);
                 } else {
-                    toWfm = models.get(modelName);
+                    toWfm = models.get(toModelName);
                 }
                 Node toNode = new Node(toModelName, toWfm);
                 dag.addNode(toNode);

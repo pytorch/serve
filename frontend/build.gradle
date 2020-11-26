@@ -59,14 +59,14 @@ configure(javaProjects()) {
     test.finalizedBy(project.tasks.jacocoTestReport)
 
     compileJava {
-        options.compilerArgs << "-Xlint:all,-options,-static"
+        options.compilerArgs << "-Xlint:all,-options,-static" << "-Werror"
     }
 
     jacocoTestCoverageVerification {
         violationRules {
             rule {
                 limit {
-                    minimum = 0.10
+                    minimum = 0.70
                 }
             }
             afterEvaluate {

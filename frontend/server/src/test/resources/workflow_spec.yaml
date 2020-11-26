@@ -4,20 +4,20 @@ models:
     max-workers: 4
     batch-size: 8
     m1:
-       url : noop.mar #local or S3 path
+       url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/noop_v2.mar #local or S3 path
        min-workers: 1   #override the global params
        max-workers: 2
        batch-size: 4
      
     m2:
-       url : mnist.mar
+       url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/echo.mar
 
     m3:
-       url : noop.mar
+       url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/noop.mar
        batch-size: 2
 
     m4:
-      url : mnist.mar
+      url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/mnist.mar
  
 dag: #can have only one start node and one end node
   pre_processing : [m1, m3]

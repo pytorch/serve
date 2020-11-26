@@ -13,6 +13,7 @@ public class RegisterWorkflowRequest {
     @SerializedName("url")
     private String workflowUrl;
 
+
     public RegisterWorkflowRequest(QueryStringDecoder decoder) {}
 
     public void setWorkflowName(String workflowName) {
@@ -38,4 +39,5 @@ public class RegisterWorkflowRequest {
     public void setWorkflowUrl(String workflowUrl) {
         this.workflowUrl = workflowUrl;
     }
+
 }
