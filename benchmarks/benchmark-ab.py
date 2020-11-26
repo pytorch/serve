@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 import re
 import shutil
 import time

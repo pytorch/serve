@@ -103,7 +103,6 @@ public class ModelArchiveTest {
         FileUtils.deleteQuietly(destinationFile);
     }
 
-    /*
     @Test
     public void archiveTest() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
@@ -145,7 +144,6 @@ public class ModelArchiveTest {
 
         archive.clean();
     }
-    */
 
     @Test(expectedExceptions = DownloadModelException.class)
     public void testMalformedURL() throws ModelException, IOException {

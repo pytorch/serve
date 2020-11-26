@@ -1,7 +1,8 @@
 # Prometheus Metrics Plugin Endpoint
 
-TorchServe does not provide any inbuilt metrics API, however a metrics API which returns Prometheus formatted metrics is added as a part of the plugin.
-This plugin can be extended by the users or a new metrics endpoint API plugin can also be added. For more details see [here](metrics_plugin.md).
+TorchServe does not provide inbuilt Metrics API, however a Metrics API which returns Prometheus formatted metrics 
+is added as a part of the plugin. This plugin can be extended by the users or a new metrics endpoint API plugin can 
+also be added. For more details see [here](metrics_plugin.md).
 
 ## How to use Prometheus plugin endpoint?
 1. Build jar of the plugin.
