@@ -75,7 +75,8 @@ public class WorkFlow {
             }
         }
 
-        LinkedHashMap<String, Object> dagInfo = (LinkedHashMap<String, Object>) this.workflowSpec.get("dag");
+        LinkedHashMap<String, Object> dagInfo =
+                (LinkedHashMap<String, Object>) this.workflowSpec.get("dag");
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
             String modelName = entry.getKey();
@@ -175,5 +176,4 @@ public class WorkFlow {
     public String getWorkflowDag() {
         return this.workflowSpec.get("dag").toString();
     }
-
 }

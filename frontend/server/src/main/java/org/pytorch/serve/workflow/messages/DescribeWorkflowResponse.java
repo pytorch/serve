@@ -10,7 +10,7 @@ public class DescribeWorkflowResponse {
     private int maxBatchDelay;
     private String workflowDag;
 
-    public DescribeWorkflowResponse(){}
+    public DescribeWorkflowResponse() {}
 
     public String getWorkflowName() {
         return workflowName;
@@ -60,10 +60,11 @@ public class DescribeWorkflowResponse {
         this.maxBatchDelay = maxBatchDelay;
     }
 
-    public String getWorkflowDag() { return workflowDag; }
+    public String getWorkflowDag() {
+        return workflowDag;
+    }
 
     public void setWorkflowDag(String workflowDag) {
         this.workflowDag = workflowDag;
     }
-
 }

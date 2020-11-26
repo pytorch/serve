@@ -146,7 +146,8 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
         }
     }
 
-    private static DescribeWorkflowResponse createWorkflowResponse(String workflowName, WorkFlow workflow){
+    private static DescribeWorkflowResponse createWorkflowResponse(
+            String workflowName, WorkFlow workflow) {
         DescribeWorkflowResponse response = new DescribeWorkflowResponse();
         response.setWorkflowName(workflowName);
         response.setWorkflowUrl(workflow.getWorkflowArchive().getUrl());
@@ -157,5 +158,4 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
         response.setWorkflowDag(workflow.getWorkflowDag());
         return response;
     }
-
 }
