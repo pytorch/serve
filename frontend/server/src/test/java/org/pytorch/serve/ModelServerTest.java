@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
