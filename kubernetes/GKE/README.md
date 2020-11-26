@@ -16,6 +16,20 @@ Use the [gcloud container clusters create](https://cloud.google.com/kubernetes-e
 
 ```bash
 gcloud container clusters create torchserve --machine-type n1-standard-4 --accelerator type=nvidia-tesla-t4,count=1 --num-nodes 1 --region us-west1 --node-locations us-west1-a
+
+WARNING: Warning: basic authentication is deprecated, and will be removed in GKE control plane versions 1.19 and newer. For a list of recommended authentication methods, see: https://cloud.google.com/kubernetes-engine/docs/how-to/api-server-authentication
+WARNING: Currently VPC-native is not the default mode during cluster creation. In the future, this will become the default mode and can be disabled using `--no-enable-ip-alias` flag. Use `--[no-]enable-ip-alias` flag to suppress this warning.
+WARNING: Newly created clusters and node-pools will have node auto-upgrade enabled by default. This can be disabled using the `--no-enable-autoupgrade` flag.
+WARNING: Starting with version 1.18, clusters will have shielded GKE nodes by default.
+WARNING: Your Pod address range (`--cluster-ipv4-cidr`) can accommodate at most 1008 node(s). 
+WARNING: Starting with version 1.19, newly created clusters and node-pools will have COS_CONTAINERD as the default node image when no image type is specified.
+Machines with GPUs have certain limitations which may affect your workflow. Learn more at https://cloud.google.com/kubernetes-engine/docs/how-to/gpus
+Creating cluster ts in us-west1... Cluster is being health-checked (master is healthy)...done.                                                                    
+Created [https://container.googleapis.com/v1/projects/pytorch-tests-261423/zones/us-west1/clusters/ts].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-west1/ts?project=pytorch-tests-261423
+kubeconfig entry generated for ts.
+NAME  LOCATION  MASTER_VERSION   MASTER_IP      MACHINE_TYPE   NODE_VERSION     NUM_NODES  STATUS
+ts    us-west1  1.16.13-gke.401  34.83.140.167  n1-standard-4  1.16.13-gke.401  1          RUNNING
 ```
 
 #### 1.3 Connect to the cluster
@@ -30,6 +44,8 @@ To configure `kubectl` to connect to your Kubernetes cluster, use the [gcloud co
 
 ```bash
 gcloud container clusters get-credentials torchserve --region us-west1 --project pytorch-tests-261423
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for torchserve.
 ```
 
 #### 1.4 Install helm
@@ -44,9 +60,11 @@ chmod 700 get_helm.sh
 
 #### 2.1 Download the github repository and enter the kubernetes directory
 
-```git clone https://github.com/pytorch/serve.git```
+```bash
+git clone https://github.com/pytorch/serve.git
 
-```cd serve/kubernetes/GKE```
+cd serve/kubernetes/GKE
+```
 
 #### 2.2 Install NVIDIA device plugin
 
@@ -54,9 +72,13 @@ Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NV
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+daemonset.apps/nvidia-driver-installer created
 ```
 
-`kubectl get nodes "-o=custom-columns=NAME:.metadata.name,MEMORY:.status.allocatable.memory,CPU:.status.allocatable.cpu,GPU:.status.allocatable.nvidia\.com/gpu"` should show something similar to:
+```bash
+kubectl get nodes "-o=custom-columns=NAME:.metadata.name,MEMORY:.status.allocatable.memory,CPU:.status.allocatable.cpu,GPU:.status.allocatable.nvidia\.com/gpu"
+``` 
+should show something similar to:
 
 ```bash
 NAME                                        MEMORY       CPU     GPU
@@ -67,7 +89,18 @@ gke-torchserve-default-pool-aa9f7d99-ggc9   12698376Ki   3920m   1
 
 A standard storage class is created with google compute disk. If multiple pods need concurrent access to the same storage volume, you need Google NFS. Create the storage disk named *nfs-disk* with the following command:
 
-```gcloud compute disks create --size=100GB --zone=us-west1-a nfs-disk```
+```bash
+gcloud compute disks create --size=200GB --zone=us-west1-a nfs-disk
+
+NAME     ZONE        SIZE_GB  TYPE         STATUS
+nfs-disk  us-west1-a  200      pd-standard  READY
+
+New disks are unformatted. You must format and mount a disk before it
+can be used. You can find instructions on how to do this at:
+
+https://cloud.google.com/compute/docs/disks/add-persistent-disk#formatting
+
+```
 
 #### 2.4 Create NFS Server
 
@@ -76,10 +109,10 @@ Modify the values.yaml in the nfs-provisioner with persistent volume name, disk 
 ```bash
 cd GKE
 
-helm instlal mynfs  ./nfs-provisioner
+helm install mynfs ./nfs-provisioner/
 ```
 
-```kubetl get pods``` should show something similiar to:
+```kubectl get pods``` should show something similiar to:
 
 ```bash
 NAME                                             READY   STATUS    RESTARTS   AGE
@@ -102,7 +135,9 @@ kubectl apply -f templates/pv_pvc.yaml -n default
 
 Verify that the PVC / PV is created by excuting.
 
-```kubectl get pvc,pv -n default```
+```bash
+kubectl get pvc,pv -n default
+```
 
 Your output should look similar to
 
@@ -118,15 +153,21 @@ persistentvolumeclaim/nfs   Bound    nfs      10Gi       RWX                    
 
 Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files.
 
-```kubectl apply -f templates/pod.yaml```
+```bash
+kubectl apply -f templates/pod.yaml
+```
 
 Your output should look similar to
 
-```pod/model-store-pod created```
+```bash
+pod/model-store-pod created
+```
 
 Verify that the pod is created by excuting.
 
-```kubectl get po```
+```bash
+kubectl get po
+```
 
 Your output should look similar to
 
@@ -151,7 +192,9 @@ kubectl cp config.properties model-store-pod:/pv/config/config.properties
 
 Verify that the MAR / config files have been copied to the directory.
 
-```kubectl exec --tty pod/model-store-pod -- ls -lR /pv/```
+```bash
+kubectl exec --tty pod/model-store-pod -- ls -lR /pv/
+```
 
 Your output should look similar to
 
@@ -176,12 +219,24 @@ total 8864
 -rw-rw-r-- 1 1000 1000 4609382 Nov 21 16:11 squeezenet1_1.mar
 ```
 
+Delete model store pod.
+
+```bash
+kubectl delete pod/model-store-pod
+pod "model-store-pod" deleted
+```
+
 #### 2.7 Install Torchserve using Helm Charts
 
 Enter the Helm directory and install TorchServe using Helm Charts.
-```cd ../Helm```
 
-```helm install ts .```
+```bash
+cd ../Helm
+```
+
+```bash
+helm install ts .
+```
 
 Your output should look similar to
 
@@ -196,7 +251,9 @@ TEST SUITE: None
 
 #### 2.8 Check the status of TorchServe
 
-```kubectl get po```
+```bash
+kubectl get po
+```
 
 The installation will take a few minutes. Output like this means the installation is not completed yet.
 
@@ -216,7 +273,9 @@ torchserve-75f5b67469-5hnsn        1/1     Running   0          2m36s
 
 Fetch the Load Balancer Extenal IP by executing.
 
-```kubectl get svc```
+```bash
+kubectl get svc
+```
 
 Your output should look similar to
 
@@ -308,6 +367,32 @@ Your output should look similar to
 ]
 ```
 
+```bash
+curl -v http://your-external-IP:8080/predictions/mnist -T ../../examples/image_classifier/mnist/test_data/0.png
+
+*   Trying 34.82.176.215...
+* Connected to 34.82.176.215 (34.82.176.215) port 8080 (#0)
+> PUT /predictions/mnist HTTP/1.1
+> Host: 34.82.176.215:8080
+> User-Agent: curl/7.47.0
+> Accept: */*
+> Content-Length: 272
+> Expect: 100-continue
+> 
+< HTTP/1.1 100 Continue
+* We are completely uploaded and fine
+< HTTP/1.1 200 
+< x-request-id: 0a70761f-0df4-40dd-9620-2cd98cb810d5
+< Pragma: no-cache
+< Cache-Control: no-cache; no-store, must-revalidate, private
+< Expires: Thu, 01 Jan 1970 00:00:00 UTC
+< content-length: 1
+< connection: keep-alive
+< 
+* Connection #0 to host 34.82.176.215 left intact
+0
+```
+
 ### 4 Troubleshooting
 
 #### 4.1 Troubleshooting GKE Cluster Creation**
@@ -362,12 +447,74 @@ Possible errors in this step may be a result of
   * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation
   * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
   * If you get an error `invalid: data: Too long: must have at most 1048576 characters`, ensure that you dont have any stale files in your kubernetes dir. Else add them to .helmignore file.
-  
-#### 4.4 Delete the Resources
+
+#### 4.4 Troubleshooting Torchserve
+
+* Check pod logs
+
+  ```bash
+  kubectl logs torchserve-75f5b67469-5hnsn -c torchserve -n default
+
+  2020-11-26 14:33:22,974 [INFO ] main org.pytorch.serve.ModelServer - 
+  Torchserve version: 0.1.1
+  TS Home: /home/venv/lib/python3.6/site-packages
+  Current directory: /home/model-server
+  Temp directory: /home/model-server/tmp
+  Number of GPUs: 1
+  Number of CPUs: 1
+  Max heap size: 989 M
+  Python executable: /home/venv/bin/python3
+  Config file: /home/model-server/shared/config/config.properties
+  Inference address: http://0.0.0.0:8080
+  Management address: http://0.0.0.0:8081
+  Model Store: /home/model-server/shared/model-store
+  Initial Models: N/A
+  Log dir: /home/model-server/logs
+  Metrics dir: /home/model-server/logs
+  Netty threads: 32
+  Netty client threads: 0
+  Default workers per model: 1
+  Blacklist Regex: N/A
+  Maximum Response Size: 6553500
+  Maximum Request Size: 6553500
+  Prefer direct buffer: false
+  2020-11-26 14:33:23,004 [INFO ] main org.pytorch.serve.snapshot.SnapshotManager - Started restoring models from snapshot {"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
+  ```
+
+* Inspect pod
+
+  ```bash
+  kubectl exec -it torchserve-75f5b67469-5hnsn -c torchserve -n default -- bash
+  ```
+
+#### 4.5 Delete the Resources
 
 To avoid google charges, you should clean up unneeded resources. When the GKE cluster is no longer needed, use the gcloud container clusters delete command to remove GKE cluster.
 
 ```bash
 gcloud container node-pools delete default-pool --cluster torchserve --region us-west1
+
+The following node pool will be deleted.
+[default-pool] in cluster [torchserve] in [us-west1]
+
+Do you want to continue (Y/n)?  y
+
+done.
+
+Deleted [https://container.googleapis.com/v1/projects/pytorch-tests-261423/zones/us-west1/clusters/torchserve/nodePools/default-pool].
+```
+
+```bash
 gcloud container clusters delete torchserve --region us-west1
+
+The following clusters will be deleted.
+ - [torchserve] in [us-west1]
+
+Do you want to continue (Y/n)?  y
+
+Deleting cluster torchserve...
+
+done.
+
+Deleted [https://container.googleapis.com/v1/projects/pytorch-tests-261423/zones/us-west1/clusters/torchserve].
 ```

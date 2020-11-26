@@ -15,7 +15,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: nfs
+  name: model-store-claim
 spec:
   accessModes:
     - ReadWriteMany
