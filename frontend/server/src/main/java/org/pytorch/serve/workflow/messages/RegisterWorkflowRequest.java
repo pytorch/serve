@@ -1,4 +1,4 @@
-package org.pytorch.serve.workflow.api.http;
+package org.pytorch.serve.workflow.messages;
 
 import com.google.gson.annotations.SerializedName;
 import io.netty.handler.codec.http.QueryStringDecoder;

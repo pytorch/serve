@@ -92,7 +92,15 @@ public class WorkFlow {
             String modelName = entry.getKey();
             WorkflowModel wfm;
             if (!models.containsKey(modelName)) {
-                wfm = new WorkflowModel(modelName, null, 1, 1, 1, 0, this.handlerFile.getPath()+":"+modelName);
+                wfm =
+                        new WorkflowModel(
+                                modelName,
+                                null,
+                                1,
+                                1,
+                                1,
+                                0,
+                                this.handlerFile.getPath() + ":" + modelName);
             } else {
                 wfm = models.get(modelName);
             }
@@ -103,7 +111,13 @@ public class WorkFlow {
                 if (!models.containsKey(toModelName)) {
                     toWfm =
                             new WorkflowModel(
-                                    toModelName, null, 1, 1, 1, 0, this.handlerFile.getPath()+":"+toModelName);
+                                    toModelName,
+                                    null,
+                                    1,
+                                    1,
+                                    1,
+                                    0,
+                                    this.handlerFile.getPath() + ":" + toModelName);
                 } else {
                     toWfm = models.get(toModelName);
                 }

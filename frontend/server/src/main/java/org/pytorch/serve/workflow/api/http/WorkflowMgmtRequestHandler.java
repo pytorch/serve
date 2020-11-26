@@ -15,6 +15,9 @@ import org.pytorch.serve.http.*;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.workflow.WorkflowManager;
+import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
+import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
+import org.pytorch.serve.workflow.messages.RegisterWorkflowRequest;
 
 /**
  * A class handling inbound HTTP requests to the workflow management API.
@@ -64,7 +67,8 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
-                || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("workflows"))
+                || ((segments.length >= 2 && segments.length <= 4)
+                        && segments[1].equals("workflows"))
                 || endpointMap.containsKey(segments[1]);
     }
 
