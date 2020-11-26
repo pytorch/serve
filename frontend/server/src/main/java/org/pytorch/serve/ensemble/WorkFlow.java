@@ -1,23 +1,17 @@
 package org.pytorch.serve.ensemble;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import org.pytorch.serve.archive.model.InvalidModelException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
 public class WorkFlow {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkFlow.class);
-
-    private LinkedHashMap<String, Object> obj;
+    private LinkedHashMap<String, Object> workflowSpec;
 
     private WorkflowArchive workflowArchive;
     private int minWorkers = 1;
@@ -27,16 +21,11 @@ public class WorkFlow {
 
     private Map<String, WorkflowModel> models;
     private Dag dag = new Dag();
-    private File dir;
-    public static String MANIFEST_FILE = "MANIFEST.json";
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    // private WorkflowManifest workflowManifest;
-    private File specFile;
     private File handlerFile;
 
     public WorkFlow(WorkflowArchive workflowArchive) throws InvalidModelException, IOException {
         this.workflowArchive = workflowArchive;
-        this.specFile =
+        File specFile =
                 new File(
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getSpecFile());
@@ -45,10 +34,10 @@ public class WorkFlow {
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
         this.models = new HashMap<String, WorkflowModel>();
-        this.obj = (LinkedHashMap<String, Object>) this.readSpecFile(this.specFile);
+        this.workflowSpec = (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
 
         LinkedHashMap<String, Object> modelsInfo =
-                (LinkedHashMap<String, Object>) this.obj.get("models");
+                (LinkedHashMap<String, Object>) this.workflowSpec.get("models");
         for (Map.Entry<String, Object> entry : modelsInfo.entrySet()) {
             String keyName = entry.getKey();
 
@@ -86,7 +75,8 @@ public class WorkFlow {
             }
         }
 
-        LinkedHashMap<String, Object> dagInfo = (LinkedHashMap<String, Object>) this.obj.get("dag");
+        LinkedHashMap<String, Object> dagInfo =
+                (LinkedHashMap<String, Object>) this.workflowSpec.get("dag");
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
             String modelName = entry.getKey();
@@ -139,8 +129,8 @@ public class WorkFlow {
         }
     }
 
-    public Object getObj() {
-        return obj;
+    public Object getWorkflowSpec() {
+        return workflowSpec;
     }
 
     public Dag getDag() {
@@ -149,5 +139,41 @@ public class WorkFlow {
 
     public WorkflowArchive getWorkflowArchive() {
         return workflowArchive;
+    }
+
+    public int getMinWorkers() {
+        return minWorkers;
+    }
+
+    public void setMinWorkers(int minWorkers) {
+        this.minWorkers = minWorkers;
+    }
+
+    public int getMaxWorkers() {
+        return maxWorkers;
+    }
+
+    public void setMaxWorkers(int maxWorkers) {
+        this.maxWorkers = maxWorkers;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getBatchSizeDelay() {
+        return batchSizeDelay;
+    }
+
+    public void setBatchSizeDelay(int batchSizeDelay) {
+        this.batchSizeDelay = batchSizeDelay;
+    }
+
+    public String getWorkflowDag() {
+        return this.workflowSpec.get("dag").toString();
     }
 }
