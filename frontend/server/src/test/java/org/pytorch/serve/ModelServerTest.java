@@ -11,7 +11,9 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
+import io.netty.handler.codec.http.multipart.MemoryAttribute;
 import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -21,12 +23,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.http.DescribeModelResponse;
@@ -114,7 +120,9 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), listInferenceApisResult);
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                listInferenceApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -127,7 +135,9 @@ public class ModelServerTest {
         TestUtils.getRoot(channel);
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), listManagementApisResult);
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                listManagementApisResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -140,7 +150,9 @@ public class ModelServerTest {
         TestUtils.describeModelApi(channel, "noop");
         TestUtils.getLatch().await();
 
-        Assert.assertEquals(TestUtils.getResult(), noopApiResult);
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                noopApiResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
     }
 
     @Test(
@@ -619,6 +631,83 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsDoNotDecodeRequest"})
+    public void testPredictionsEchoMultipart()
+            throws HttpPostRequestEncoder.ErrorDataEncoderException, InterruptedException,
+                    IOException {
+        Channel inferChannel = TestUtils.getInferenceChannel(configManager);
+        Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
+        loadTests(mgmtChannel, "echo.mar", "echo");
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/echo");
+
+        ByteBuffer allBytes = ByteBuffer.allocate(0x100);
+        IntStream.range(0, 0x100).forEach(i -> allBytes.put((byte) i));
+
+        HttpPostRequestEncoder encoder = new HttpPostRequestEncoder(req, true);
+        MemoryFileUpload data =
+                new MemoryFileUpload(
+                        "data", "allBytes.bin", "application/octet-stream", null, null, 0x100);
+        data.setContent(Unpooled.copiedBuffer(allBytes));
+        encoder.addBodyHttpData(data);
+
+        inferChannel.writeAndFlush(encoder.finalizeRequest());
+        if (encoder.isChunked()) {
+            inferChannel.writeAndFlush(encoder).sync();
+        }
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(TestUtils.getContent(), data.get());
+        unloadTests(mgmtChannel, "echo");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsEchoMultipart"})
+    public void testPredictionsEchoNoMultipart()
+            throws HttpPostRequestEncoder.ErrorDataEncoderException, InterruptedException,
+                    IOException {
+        Channel inferChannel = TestUtils.getInferenceChannel(configManager);
+        Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
+        loadTests(mgmtChannel, "echo.mar", "echo");
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/echo");
+
+        ByteBuffer allBytes = ByteBuffer.allocate(0x100);
+        IntStream.range(0, 0x100).forEach(i -> allBytes.put((byte) i));
+
+        Charset charset = StandardCharsets.ISO_8859_1;
+        HttpPostRequestEncoder.EncoderMode mode = HttpPostRequestEncoder.EncoderMode.RFC1738;
+        HttpPostRequestEncoder encoder =
+                new HttpPostRequestEncoder(new DefaultHttpDataFactory(), req, false, charset, mode);
+        MemoryAttribute data = new MemoryAttribute("data", charset);
+        data.setContent(Unpooled.copiedBuffer(allBytes));
+        encoder.addBodyHttpData(data);
+
+        inferChannel.writeAndFlush(encoder.finalizeRequest());
+        if (encoder.isChunked()) {
+            inferChannel.writeAndFlush(encoder).sync();
+        }
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(TestUtils.getContent(), data.get());
+        unloadTests(mgmtChannel, "echo");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsEchoNoMultipart"})
     public void testPredictionsModifyResponseHeader()
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
@@ -716,7 +805,7 @@ public class ModelServerTest {
         File destinationFile = new File(destination);
         String fileUrl = "";
         FileUtils.copyFile(sourceFile, destinationFile);
-        fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
         testLoadModel(fileUrl, "mnist1", "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
         FileUtils.deleteQuietly(destinationFile);
@@ -749,6 +838,14 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromURL"})
+    public void testUnregisterURLModel() throws InterruptedException {
+        testUnregisterModel("squeezenet", null);
+        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterURLModel"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
@@ -780,19 +877,12 @@ public class ModelServerTest {
                 resp.getMessage(),
                 "Custom pip package installation failed for custom_invalid_python_dep");
         setConfiguration("install_py_dep_per_model", "false");
+        channel.close().sync();
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
-    public void testUnregisterURLModel() throws InterruptedException {
-        testUnregisterModel("squeezenet", null);
-        Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterURLModel"})
     public void testLoadingMemoryError() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -803,7 +893,8 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
-        channel.close();
+        // TestUtils.unregisterModel(channel, "memory_error",null, true);
+        channel.close().sync();
     }
 
     @Test(
@@ -819,7 +910,7 @@ public class ModelServerTest {
         TestUtils.registerModel(channel, "prediction-memory-error.mar", "pred-err", true, false);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        channel.close();
+        channel.close().sync();
 
         // Test for prediction
         channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
@@ -835,7 +926,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
-        channel.close();
+        channel.close().sync();
 
         // Unload the model
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -843,7 +934,7 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         Assert.assertNotNull(channel);
 
-        TestUtils.unregisterModel(channel, "pred-err", null, false);
+        TestUtils.unregisterModel(channel, "pred-err", null, true);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
@@ -868,7 +959,7 @@ public class ModelServerTest {
                 status.getStatus(),
                 "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
 
-        channel.close();
+        channel.close().sync();
 
         channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -891,6 +982,7 @@ public class ModelServerTest {
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
         Assert.assertEquals(TestUtils.getResult(), "Invalid response");
+        channel.close().sync();
     }
 
     @Test(
@@ -1520,69 +1612,6 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelFailure"})
-    public void testTSValidPort()
-            throws InterruptedException, InvalidSnapshotException, GeneralSecurityException,
-                    IOException {
-        // test case for verifying port range refer
-        // https://github.com/pytorch/serve/issues/291
-        ConfigManager.init(new ConfigManager.Arguments());
-        ConfigManager configManagerValidPort = ConfigManager.getInstance();
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManagerValidPort.setProperty("inference_address", "https://127.0.0.1:42523");
-        configManagerValidPort.setProperty("metrics_address", "https://127.0.0.1:42524");
-        ModelServer serverValidPort = new ModelServer(configManagerValidPort);
-        serverValidPort.start();
-
-        Channel channel = null;
-        Channel managementChannel = null;
-        for (int i = 0; i < 5; ++i) {
-            channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManagerValidPort);
-            if (channel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        for (int i = 0; i < 5; ++i) {
-            managementChannel =
-                    TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManagerValidPort);
-            if (managementChannel != null) {
-                break;
-            }
-            Thread.sleep(100);
-        }
-
-        Assert.assertNotNull(channel, "Failed to connect to inference port.");
-        Assert.assertNotNull(managementChannel, "Failed to connect to management port.");
-
-        TestUtils.ping(configManagerValidPort);
-
-        serverValidPort.stop();
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testTSValidPort"})
-    public void testTSInvalidPort() throws IOException {
-        // test case for verifying port range refer
-        // https://github.com/pytorch/serve/issues/291
-        // invalid port test
-        ConfigManager.init(new ConfigManager.Arguments());
-        ConfigManager configManagerInvalidPort = ConfigManager.getInstance();
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
-        configManagerInvalidPort.setProperty("inference_address", "https://127.0.0.1:65536");
-        ModelServer serverInvalidPort = new ModelServer(configManagerInvalidPort);
-        try {
-            serverInvalidPort.start();
-        } catch (Exception e) {
-            Assert.assertEquals(e.getClass(), IllegalArgumentException.class);
-            Assert.assertEquals(e.getMessage(), "Invalid port number: https://127.0.0.1:65536");
-        }
     }
 
     private void testLoadModel(String url, String modelName, String version)

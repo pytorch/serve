@@ -31,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.ConnectorType;
+import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public final class TestUtils {
 
     static CountDownLatch latch;
     static HttpResponseStatus httpStatus;
+    static byte[] content;
     static String result;
     static HttpHeaders headers;
     private static Channel inferenceChannel;
@@ -84,6 +86,14 @@ public final class TestUtils {
 
     public static void setLatch(CountDownLatch newLatch) {
         latch = newLatch;
+    }
+
+    public static byte[] getContent() {
+        return content;
+    }
+
+    public static void setContent(byte[] newContent) {
+        content = newContent;
     }
 
     public static String getResult() {
@@ -227,7 +237,7 @@ public final class TestUtils {
 
     public static Channel connect(
             ConnectorType connectorType, ConfigManager configManager, int readTimeOut) {
-        Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
+        Logger logger = LoggerFactory.getLogger(TestUtils.class);
 
         final Connector connector = configManager.getListener(connectorType);
         try {
@@ -334,7 +344,8 @@ public final class TestUtils {
         @Override
         public void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
             httpStatus = msg.status();
-            result = msg.content().toString(StandardCharsets.UTF_8);
+            content = NettyUtils.getBytes(msg.content());
+            result = new String(content, StandardCharsets.UTF_8);
             headers = msg.headers();
             latch.countDown();
         }

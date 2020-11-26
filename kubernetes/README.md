@@ -371,7 +371,7 @@
   We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/master/stable/efs-provisioner) to create a PersistentVolume backed by EFS. Run the following command to set this up.
 
   ```bash
-  helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  helm repo add stable https://charts.helm.sh/stable
   helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=YOUR-EFS-FS-ID --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name
   ```
 
@@ -482,6 +482,7 @@
   ```yaml
   inference_address=http://0.0.0.0:8080
   management_address=http://0.0.0.0:8081
+  metrics_address=http://0.0.0.0:8082
   NUM_WORKERS=1
   number_of_gpu=1
   number_of_netty_threads=32
@@ -539,8 +540,9 @@
   | Parameter          | Description              | Default                         |
   | ------------------ | ------------------------ | ------------------------------- |
   | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
-  | `management-port`  | TS Inference port        | `8080`                          |
-  | `inference-port`   | TS Management port       | `8081`                          |
+  | `inference_port`   | TS Inference port        | `8080`                          |
+  | `management_port`  | TS Management port       | `8081`                          |
+  | `metrics_port`     | TS Mertics port          | `8082`                          |
   | `replicas`         | K8S deployment replicas  | `1`                             |
   | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
   | `persistence.size` | Storage size to request  | `1Gi`                           |
@@ -568,6 +570,7 @@
   torchserve:
     management_port: 8081
     inference_port: 8080
+    metrics_port: 8082
     pvd_mount: /home/model-server/shared/
     n_gpu: 1
     n_cpu: 1
@@ -647,7 +650,7 @@
   }
   
   
-  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
+  curl http://your_elb.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
   
   # You should see something similar to the following
   [
@@ -710,7 +713,56 @@
     }
   ]
   ```
+  ## Metrics
+
+  ## Install prometheus
+  ```
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm install prometheus prometheus prometheus-community/prometheus
+  ```
+ 
+  ## Install grafana
+  ```
+  helm repo add grafana https://grafana.github.io/helm-charts
+  helm install grafana grafana/grafana
+  ```
+  Get admin user password by running:
   
+  ```
+  kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  ```
+
+  ## Add prometheus as data source in grafana
+  ```
+  kubectl get pods
+
+  NAME                                             READY   STATUS    RESTARTS   AGE
+  efs-provisioner-1603257008-b6b54d986-gng9g       1/1     Running   0          5h15m
+  grafana-cbd8775fd-6f8l5                          1/1     Running   0          4h12m
+  model-store-pod                                  1/1     Running   0          4h35m
+  prometheus-alertmanager-776df7bfb5-hpsp4         2/2     Running   0          4h42m
+  prometheus-kube-state-metrics-6df5d44568-zkcm2   1/1     Running   0          4h42m
+  prometheus-node-exporter-fvsd6                   1/1     Running   0          4h42m
+  prometheus-node-exporter-tmfh8                   1/1     Running   0          4h42m
+  prometheus-pushgateway-85948997f7-4s4bj          1/1     Running   0          4h42m
+  prometheus-server-f8677599b-xmjbt                2/2     Running   0          4h42m
+  torchserve-7d468f9894-fvmpj                      1/1     Running   0          4h33m
+
+  kubectl get pod prometheus-server-f8677599b-xmjbt -o jsonpath='{.status.podIPs[0].ip}'
+  192.168.52.141
+  ```
+  ![Add data source](images/grafana_datasource.png)
+
+
+  ## Expose grafana with loadbalancer
+  ```
+  kubectl patch service grafana -p '{"spec": {"type": "LoadBalancer"}}'
+
+  kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+  ```
+
+  ## Login to grafana
+  http://your.grafana.elb.us-west-2.elb.amazonaws.com:3000
 
   ## Troubleshooting
   
@@ -741,7 +793,7 @@
   ### Troubleshooting EFS Persitent Volume Creation
 
   #### "Error: failed to download "stable/efs-provisioner"
-  * Run the command `helm repo add stable https://kubernetes-charts.storage.googleapis.com`
+  * Run the command `helm repo add stable https://charts.helm.sh/stable`
   
   #### "exec user process caused “exec format error”
   * Check whether your nodes are x86 based. The current setup instruction does not support ARM based instances.

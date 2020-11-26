@@ -3,12 +3,13 @@ package org.pytorch.serve.servingsdk.metrics;
 
 
 /**
- * This class defines the abstract class for public abstract class MetricListenerRegistry {
+ * This class defines the abstract class to facilitate the registration of plugin's MetricEventListener
  */
 public abstract class MetricEventListenerRegistry {
 
     /**
-     * This method is called when a HTTP DELETE method is invoked for the defined custom model server endpoint
+     * This method is called at the time of TorchServe initialization to register the MetricEventListener with
+     * MetricEventPublisher.
      * @param mep - MetricEventPublisher to register the listener
      */
     public void register(MetricEventPublisher mep){

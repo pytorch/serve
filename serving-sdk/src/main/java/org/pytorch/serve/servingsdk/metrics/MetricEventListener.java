@@ -7,6 +7,7 @@ package org.pytorch.serve.servingsdk.metrics;
 public interface MetricEventListener {
     /**
      * Handle the MetricLogEvent
+     * It gets called when MetricEventPublisher broadcasts the event to listeners
      * @param event - MetricLogEvent
      */
     void handle(MetricLogEvent event);

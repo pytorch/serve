@@ -2,26 +2,25 @@ package org.pytorch.serve.servingsdk.metrics;
 
 import java.util.Date;
 
-
+/**
+ * This interface specifies add and remove listener methods
+ */
 public interface MetricLogEvent {
     /**
      * Get the log level
-     * @return The name of this model
+     * @return The log level
      */
     String getLevel();
 
     /**
-     * Get the name of this model
-     * @return The name of this model
+     * Get the logged message as a  BaseMetric
+     * @return BaseMetric object
      */
     BaseMetric getMetric();
 
     /**
-     * Get the name of this model
-     * @return The name of this model
+     * Get the log Timestamp
+     * @return The Timestamp
      */
     Date getTimestamp();
 }
-
-
-

@@ -122,13 +122,21 @@ public class DescribeModelResponse {
     }
 
     public void addWorker(
-            String id, long startTime, boolean isRunning, int gpuId, long memoryUsage) {
+            String id,
+            long startTime,
+            boolean isRunning,
+            int gpuId,
+            long memoryUsage,
+            int pid,
+            String gpuUsage) {
         Worker worker = new Worker();
         worker.setId(id);
         worker.setStartTime(new Date(startTime));
         worker.setStatus(isRunning ? "READY" : "UNLOADING");
-        worker.setGpu(gpuId >= 0);
         worker.setMemoryUsage(memoryUsage);
+        worker.setPid(pid);
+        worker.setGpu(gpuId >= 0);
+        worker.setGpuUsage(gpuUsage);
         workers.add(worker);
     }
 
@@ -145,10 +153,28 @@ public class DescribeModelResponse {
         private String id;
         private Date startTime;
         private String status;
-        private boolean gpu;
         private long memoryUsage;
+        private int pid;
+        private boolean gpu;
+        private String gpuUsage;
 
         public Worker() {}
+
+        public String getGpuUsage() {
+            return gpuUsage;
+        }
+
+        public void setGpuUsage(String gpuUsage) {
+            this.gpuUsage = gpuUsage;
+        }
+
+        public int getPid() {
+            return pid;
+        }
+
+        public void setPid(int pid) {
+            this.pid = pid;
+        }
 
         public String getId() {
             return id;

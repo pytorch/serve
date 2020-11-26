@@ -74,6 +74,7 @@ public final class ConfigManager {
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
+    private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
@@ -81,6 +82,7 @@ public final class ConfigManager {
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_ENABLE_METRICS_ENDPOINTS = "enable_metrics_endpoints";
+    private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -304,6 +306,10 @@ public final class ConfigManager {
 
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
+    }
+
+    public String getTsServiceEnvelope() {
+        return getProperty(TS_SERVICE_ENVELOPE, null);
     }
 
     public Properties getConfiguration() {
@@ -679,6 +685,14 @@ public final class ConfigManager {
 
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public int getIniitialWorkerPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
+    }
+
+    public void setIniitialWorkerPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
     public static final class Arguments {

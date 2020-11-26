@@ -243,7 +243,7 @@ public final class NettyUtils {
             case Attribute:
                 Attribute attribute = (Attribute) data;
                 try {
-                    return new InputParameter(name, attribute.getValue());
+                    return new InputParameter(name, getBytes(attribute.getByteBuf()));
                 } catch (IOException e) {
                     throw new AssertionError(e);
                 }
