@@ -1,14 +1,13 @@
 package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.ensemble.WorkFlow;
@@ -101,8 +100,8 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-        } catch (Exception e) {
-            status.setHttpResponseCode(500);
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            status.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
         } finally {

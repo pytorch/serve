@@ -1,6 +1,7 @@
 package org.pytorch.serve.ensemble;
 
-public class InvalidDAGException extends Throwable {
-    public InvalidDAGException(String not_a_valid_dag) {
+public class InvalidDAGException extends Exception {
+    public InvalidDAGException(String msg) {
+        super(msg);
     }
 }

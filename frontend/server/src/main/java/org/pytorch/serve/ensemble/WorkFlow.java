@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import org.pytorch.serve.archive.model.InvalidModelException;
+import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -23,7 +24,7 @@ public class WorkFlow {
     private Dag dag = new Dag();
     private File handlerFile;
 
-    public WorkFlow(WorkflowArchive workflowArchive) throws InvalidModelException, IOException {
+    public WorkFlow(WorkflowArchive workflowArchive) throws IOException, InvalidDAGException, InvalidWorkflowException {
         this.workflowArchive = workflowArchive;
         File specFile =
                 new File(
@@ -118,14 +119,14 @@ public class WorkFlow {
         }
     }
 
-    private static Object readSpecFile(File file) throws InvalidModelException, IOException {
+    private static Object readSpecFile(File file) throws IOException, InvalidWorkflowException {
         Yaml yaml = new Yaml();
         try (Reader r =
                 new InputStreamReader(
                         Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
             return yaml.load(r);
         } catch (YAMLException e) {
-            throw new InvalidModelException("Failed to parse yaml.", e);
+            throw new InvalidWorkflowException("Failed to parse yaml.", e);
         }
     }
 
