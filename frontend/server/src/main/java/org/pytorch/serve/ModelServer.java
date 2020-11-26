@@ -48,6 +48,7 @@ import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.ServerGroups;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
+import org.pytorch.serve.workflow.WorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,6 +139,7 @@ public class ModelServer {
     private void initModelStore() throws InvalidSnapshotException, IOException {
         WorkLoadManager wlm = new WorkLoadManager(configManager, serverGroups.getBackendGroup());
         ModelManager.init(configManager, wlm);
+        WorkflowManager.init(configManager);
         SnapshotManager.init(configManager);
         Set<String> startupModels = ModelManager.getInstance().getStartupModels();
         String defaultModelName;
@@ -193,7 +195,10 @@ public class ModelServer {
                                 workers,
                                 true);
                         startupModels.add(archive.getModelName());
-                    } catch (ModelException | IOException | InterruptedException | DownloadArchiveException e) {
+                    } catch (ModelException
+                            | IOException
+                            | InterruptedException
+                            | DownloadArchiveException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -234,7 +239,10 @@ public class ModelServer {
                 modelManager.updateModel(
                         archive.getModelName(), archive.getModelVersion(), workers, workers, true);
                 startupModels.add(archive.getModelName());
-            } catch (ModelException | IOException | InterruptedException | DownloadArchiveException e) {
+            } catch (ModelException
+                    | IOException
+                    | InterruptedException
+                    | DownloadArchiveException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }

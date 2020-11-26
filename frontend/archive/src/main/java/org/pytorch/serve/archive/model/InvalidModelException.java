@@ -1,6 +1,5 @@
 package org.pytorch.serve.archive.model;
 
-
 public class InvalidModelException extends ModelException {
 
     private static final long serialVersionUID = 1L;

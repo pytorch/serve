@@ -12,7 +12,6 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;

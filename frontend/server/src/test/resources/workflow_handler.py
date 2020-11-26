@@ -1,7 +1,7 @@
 
 
-def preprocessing(data, context):
+def pre_processing(data, context):
     pass
 
-def postprocessing(data, context):
+def post_processing(data, context):
     pass

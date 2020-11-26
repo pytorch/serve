@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
@@ -135,7 +136,7 @@ public final class SnapshotManager {
 
         } catch (IOException e) {
             logger.error("Error while retrieving snapshot details. Details: {}", e.getMessage());
-        } catch (ModelException | InterruptedException e) {
+        } catch (ModelException | InterruptedException | DownloadArchiveException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
     }

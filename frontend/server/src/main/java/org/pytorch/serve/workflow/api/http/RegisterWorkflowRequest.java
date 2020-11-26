@@ -1,27 +1,43 @@
 package org.pytorch.serve.workflow.api.http;
 
+import com.google.gson.annotations.SerializedName;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
 public class RegisterWorkflowRequest {
-    private String wfName;
+    @SerializedName("workflow_name")
+    private String workflowName;
 
-    private String responseTimeout;
+    @SerializedName("response_timeout")
+    private int responseTimeout;
+
+    @SerializedName("url")
+    private String workflowUrl;
+
 
     public RegisterWorkflowRequest(QueryStringDecoder decoder) {}
 
-    public void setWfName(String wfName) {
-        this.wfName = wfName;
+    public void setWorkflowName(String workflowName) {
+        this.workflowName = workflowName;
     }
 
-    public String getWfName() {
-        return wfName;
+    public String getWorkflowName() {
+        return workflowName;
     }
 
-    public String getResponseTimeout() {
+    public int getResponseTimeout() {
         return responseTimeout;
     }
 
-    public void setResponseTimeout(String responseTimeout) {
+    public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
     }
+
+    public String getWorkflowUrl() {
+        return workflowUrl;
+    }
+
+    public void setWorkflowUrl(String workflowUrl) {
+        this.workflowUrl = workflowUrl;
+    }
+
 }

@@ -5,15 +5,15 @@ import java.util.concurrent.*;
 
 /** Direct acyclic graph for ensemble */
 public class Dag {
-    private Map<String, Node<?>> nodes = new HashMap<>();
+    private Map<String, Node> nodes = new HashMap<>();
     private Map<String, Map<String, Set<String>>> dagMap = new HashMap<>();
 
     ExecutorService executorService = Executors.newFixedThreadPool(4);
     CompletionService<NodeOutput> executorCompletionService =
             new ExecutorCompletionService<>(executorService);
-    List<Future<Integer>> futures = new ArrayList<Future<Integer>>();
+    List<Future<NodeOutput>> futures = new ArrayList<Future<NodeOutput>>();
 
-    public void addNode(Node<?> node) {
+    public void addNode(Node node) {
         nodes.put(node.getName(), node);
         Map<String, Set<String>> degreeMap = new HashMap<>();
         degreeMap.put("inDegree", new HashSet<String>());
@@ -21,15 +21,15 @@ public class Dag {
         dagMap.put(node.getName(), degreeMap);
     }
 
-    public boolean isNodeExist(Node<?> node) {
+    public boolean isNodeExist(Node node) {
         return nodes.containsKey(node.getName());
     }
 
-    public boolean hasEdgeTo(Node<?> from, Node<?> to) {
+    public boolean hasEdgeTo(Node from, Node to) {
         return dagMap.get(from.getName()).get("inDegree").contains(to.getName());
     }
 
-    public void addEdge(Node<?> from, Node<?> to) throws Exception {
+    public void addEdge(Node from, Node to) throws Exception {
         if (!isNodeExist(from)) {
             addNode(from);
         }
@@ -84,7 +84,7 @@ public class Dag {
         return getDegreeMap("outDegree");
     }
 
-    public Map<String, Node<?>> getNodes() {
+    public Map<String, Node> getNodes() {
         return nodes;
     }
 

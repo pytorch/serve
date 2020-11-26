@@ -130,7 +130,8 @@ public final class ApiUtils {
             }
         }
 
-        return handleRegister(modelUrl,
+        return handleRegister(
+                modelUrl,
                 modelName,
                 runtimeType,
                 handler,
@@ -152,7 +153,7 @@ public final class ApiUtils {
             int initialWorkers,
             boolean isSync)
             throws ModelException, ExecutionException, InterruptedException,
-            DownloadArchiveException {
+                    DownloadArchiveException {
 
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;
@@ -198,7 +199,6 @@ public final class ApiUtils {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
                     return null;
                 });
-
     }
 
     public static StatusResponse updateModelWorkers(
