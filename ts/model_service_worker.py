@@ -111,12 +111,12 @@ class TorchModelServiceWorker(object):
                 pr.enable()
             if cmd == b'I':
                 resp = service.predict(msg)
-                cl_socket.send(resp)
+                cl_socket.sendall(resp)
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
                 resp += create_load_model_response(code, result)
-                cl_socket.send(resp)
+                cl_socket.sendall(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
             else:

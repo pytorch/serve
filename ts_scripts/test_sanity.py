@@ -2,9 +2,8 @@ import os
 import sys
 import nvgpu
 import glob
-
-from scripts import tsutils as ts
-from scripts.tsutils import generate_grpc_client_stubs
+from ts_scripts import tsutils as ts
+from ts_scripts.tsutils import generate_grpc_client_stubs
 
 
 def run_markdown_link_checker():
