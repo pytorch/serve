@@ -96,4 +96,8 @@ public class WorkflowManager {
     }
 
     public void unregisterWorkflow(String wfName) {}
+
+    public WorkFlow getWorkflow(String workflowName){
+        return workflowMap.get(workflowName);
+    }
 }
