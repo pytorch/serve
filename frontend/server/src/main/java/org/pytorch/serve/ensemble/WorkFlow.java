@@ -45,8 +45,12 @@ public class WorkFlow {
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
         this.models = new HashMap<String, WorkflowModel>();
-        this.obj = (LinkedHashMap<String, Object>) this.readSpecFile(this.specFile);
 
+        @SuppressWarnings("unchecked")
+        LinkedHashMap<String, Object> obj1 = (LinkedHashMap<String, Object>) this.readSpecFile(this.specFile);
+        this.obj = obj1;
+
+        @SuppressWarnings("unchecked")
         LinkedHashMap<String, Object> modelsInfo =
                 (LinkedHashMap<String, Object>) this.obj.get("models");
         for (Map.Entry<String, Object> entry : modelsInfo.entrySet()) {
@@ -68,7 +72,7 @@ public class WorkFlow {
                 default:
                     // entry.getValue().getClass() check object type.
                     // assuming Map containing model info
-
+                    @SuppressWarnings("unchecked")
                     LinkedHashMap<String, Object> model =
                             (LinkedHashMap<String, Object>) entry.getValue();
 
@@ -86,6 +90,7 @@ public class WorkFlow {
             }
         }
 
+        @SuppressWarnings("unchecked")
         LinkedHashMap<String, Object> dagInfo = (LinkedHashMap<String, Object>) this.obj.get("dag");
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
@@ -106,7 +111,10 @@ public class WorkFlow {
             }
             Node fromNode = new Node(modelName, wfm);
             dag.addNode(fromNode);
-            for (String toModelName : (ArrayList<String>) entry.getValue()) {
+
+            @SuppressWarnings("unchecked")
+            ArrayList<String> values = (ArrayList<String>) entry.getValue();
+            for (String toModelName : values ) {
                 WorkflowModel toWfm;
                 if (!models.containsKey(toModelName)) {
                     toWfm =
