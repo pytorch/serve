@@ -34,7 +34,7 @@ public class WorkFlow {
     private File specFile;
     private File handlerFile;
 
-    public WorkFlow(WorkflowArchive workflowArchive) throws Exception {
+    public WorkFlow(WorkflowArchive workflowArchive) throws InvalidModelException, IOException {
         this.workflowArchive = workflowArchive;
         this.specFile =
                 new File(

@@ -1,11 +1,8 @@
 package org.pytorch.serve.workflow;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.*;
 import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.InvalidModelException;
+import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.ensemble.Node;
@@ -16,6 +13,13 @@ import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
 import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class WorkflowManager {
     private static WorkflowManager workflowManager;
@@ -47,43 +51,57 @@ public class WorkflowManager {
         return archive;
     }
 
-    private WorkFlow createWorkflow(WorkflowArchive archive) throws Exception {
+    private WorkFlow createWorkflow(WorkflowArchive archive) throws InvalidModelException, IOException {
         return new WorkFlow(archive);
     }
 
-    public StatusResponse registerWorkflow(
-            String workflowName, String url, int responseTimeout, boolean synchronous)
-            throws Exception {
-        WorkflowArchive archive = createWorkflowArchive(workflowName, url);
-        WorkFlow workflow = createWorkflow(archive);
-
-        Map<String, Node> nodes = workflow.getDag().getNodes();
-
-        Vector<StatusResponse> responses = new Vector<StatusResponse>();
-        for (Map.Entry<String, Node> entry : nodes.entrySet()) {
-            Node node = entry.getValue();
-            WorkflowModel wfm = node.getWorkflowModel();
-
-            responses.add(
-                    ApiUtils.handleRegister(
-                            wfm.getUrl(),
-                            wfm.getName(),
-                            null,
-                            wfm.getHandler(),
-                            wfm.getBatchSize(),
-                            wfm.getMaxBatchDelay(),
-                            responseTimeout,
-                            wfm.getMaxWorkers(),
-                            synchronous));
-        }
-
+    public StatusResponse registerWorkflow(String workflowName, String url, int responseTimeout, boolean synchronous) {
         StatusResponse status = new StatusResponse();
-        status.setHttpResponseCode(200);
-        status.setStatus(
-                String.format(
-                        "Workflow %s has been registered and scaled successfully.", workflowName));
+        try {
+            WorkflowArchive archive = createWorkflowArchive(workflowName, url);
+            WorkFlow workflow = createWorkflow(archive);
 
-        workflowMap.putIfAbsent(workflowName, workflow);
+            Map<String, Node> nodes = workflow.getDag().getNodes();
+            Vector<StatusResponse> responses = new Vector<StatusResponse>();
+            for (Map.Entry<String, Node> entry : nodes.entrySet()) {
+                Node node = entry.getValue();
+                WorkflowModel wfm = node.getWorkflowModel();
+
+                responses.add(
+                        ApiUtils.handleRegister(
+                                wfm.getUrl(),
+                                wfm.getName(),
+                                null,
+                                wfm.getHandler(),
+                                wfm.getBatchSize(),
+                                wfm.getMaxBatchDelay(),
+                                responseTimeout,
+                                wfm.getMaxWorkers(),
+                                synchronous));
+            }
+
+            status.setHttpResponseCode(200);
+            status.setStatus(
+                    String.format(
+                            "Workflow %s has been registered and scaled successfully.", workflowName));
+
+            workflowMap.putIfAbsent(workflowName, workflow);
+         } catch (DownloadArchiveException e) {
+             e.printStackTrace();
+         } catch (IOException e) {
+             e.printStackTrace();
+         } catch (WorkflowException e) {
+             e.printStackTrace();
+         } catch (ExecutionException e) {
+             e.printStackTrace();
+         } catch (InterruptedException e) {
+             e.printStackTrace();
+         } catch (InvalidModelException e) {
+             e.printStackTrace();
+         } catch (ModelException e) {
+             e.printStackTrace();
+         }
+
         return status;
     }
 

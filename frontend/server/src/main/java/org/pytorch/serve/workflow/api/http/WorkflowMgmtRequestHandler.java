@@ -91,6 +91,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
         try {
             RegisterWorkflowRequest registerWFRequest = parseRequest(req, decoder);
+
             status =
                     WorkflowManager.getInstance()
                             .registerWorkflow(
