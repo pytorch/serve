@@ -89,8 +89,8 @@ def unregister_model(model_name, protocol="http", host="localhost", port="8081")
 
 def generate_grpc_client_stubs():
     print("## Started generating gRPC clinet stubs")
-    cmd = "python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts " \
-          "--grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto " \
+    cmd = "python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts " \
+          "--grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto " \
           "frontend/server/src/main/resources/proto/management.proto"
     status = os.system(cmd)
     if status != 0:
