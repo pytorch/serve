@@ -1,4 +1,4 @@
-package org.pytorch.serve.workflow.api.http;
+package org.pytorch.serve.workflow.messages;
 
 import com.google.gson.annotations.SerializedName;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -12,7 +12,6 @@ public class RegisterWorkflowRequest {
 
     @SerializedName("url")
     private String workflowUrl;
-
 
     public RegisterWorkflowRequest(QueryStringDecoder decoder) {}
 
@@ -39,5 +38,4 @@ public class RegisterWorkflowRequest {
     public void setWorkflowUrl(String workflowUrl) {
         this.workflowUrl = workflowUrl;
     }
-
 }

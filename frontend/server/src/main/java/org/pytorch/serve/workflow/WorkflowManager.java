@@ -14,8 +14,8 @@ import org.pytorch.serve.ensemble.WorkflowModel;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.workflow.api.http.DescribeWorkflowResponse;
-import org.pytorch.serve.workflow.api.http.ListWorkflowResponse;
+import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
+import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 
 public class WorkflowManager {
     private static WorkflowManager workflowManager;

@@ -17,7 +17,6 @@ import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.workflow.WorkflowManager;
-import org.pytorch.serve.workflow.api.http.RegisterWorkflowRequest;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
@@ -49,7 +48,7 @@ public class EnsembleTest {
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
 
-        //"/Users/demo/git/serve/frontend/modelarchive/src/test/resources/models"
+        // "/Users/demo/git/serve/frontend/modelarchive/src/test/resources/models"
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
 
@@ -127,23 +126,27 @@ public class EnsembleTest {
         }
     }
 
-        @Test(alwaysRun = true)
-        public void testWorkflowYaml() throws Exception {
+    @Test(alwaysRun = true)
+    public void testWorkflowYaml() throws Exception {
 
-            // torch-workflow-archiver  --workflow-name test  --spec-file /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml --handler  /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
+        // torch-workflow-archiver  --workflow-name test  --spec-file
+        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml --handler
+        // /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py
+        // --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
 
-            try {
-                StatusResponse status = WorkflowManager.getInstance()
-                        .registerWorkflow(
-                                "test.war",
-                                "file:///Users/demo/git/serve/frontend/server/src/test/resources/test.war",
-                                300,
-                                true);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            } finally {
+        try {
+            StatusResponse status =
+                    WorkflowManager.getInstance()
+                            .registerWorkflow(
+                                    "test.war",
+                                    "file:///Users/demo/git/serve/frontend/server/src/test/resources/test.war",
+                                    300,
+                                    true);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
 
-            }
-       }
+        }
+    }
 }
