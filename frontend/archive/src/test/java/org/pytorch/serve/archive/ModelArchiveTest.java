@@ -101,6 +101,7 @@ public class ModelArchiveTest {
 
         String fileUrl = "file://" + parent + "/archive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
+
         File modelLocation = new File(modelStore + "/mnist1.mar");
         Assert.assertTrue(modelLocation.exists());
         ModelArchive.removeModel(modelStore, fileUrl);
@@ -199,6 +200,6 @@ public class ModelArchiveTest {
             throws ModelException, IOException, InterruptedException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
-                ALLOWED_URLS_LIST, modelStore, "file://" + modelStore + "/mnist1.mar");
+                ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
     }
 }

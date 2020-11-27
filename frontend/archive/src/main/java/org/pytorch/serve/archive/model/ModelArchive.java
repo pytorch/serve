@@ -44,7 +44,6 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-
         try {
             ArchiveUtils.downloadArchive(allowedUrls, modelLocation, marFileName, url);
         } catch (InvalidArchiveURLException e) {
