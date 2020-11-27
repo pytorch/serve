@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
-import org.pytorch.serve.archive.model.InvalidModelException;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.yaml.snakeyaml.Yaml;
@@ -24,7 +23,8 @@ public class WorkFlow {
     private Dag dag = new Dag();
     private File handlerFile;
 
-    public WorkFlow(WorkflowArchive workflowArchive) throws IOException, InvalidDAGException, InvalidWorkflowException {
+    public WorkFlow(WorkflowArchive workflowArchive)
+            throws IOException, InvalidDAGException, InvalidWorkflowException {
         this.workflowArchive = workflowArchive;
         File specFile =
                 new File(
