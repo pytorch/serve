@@ -1,7 +1,6 @@
 package org.pytorch.serve.workflow;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.*;
@@ -14,8 +13,6 @@ import org.pytorch.serve.ensemble.WorkflowModel;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
-import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 
 public class WorkflowManager {
     private static WorkflowManager workflowManager;
@@ -87,12 +84,8 @@ public class WorkflowManager {
         return status;
     }
 
-    public ListWorkflowResponse getWorkflowList(int limit, int pageToken) {
-        return null;
-    }
-
-    public ArrayList<DescribeWorkflowResponse> getWorkflowDescription(String wfName) {
-        return null;
+    public ConcurrentHashMap<String, WorkFlow> getWorkflows() {
+        return workflowMap;
     }
 
     public void unregisterWorkflow(String wfName) {}
