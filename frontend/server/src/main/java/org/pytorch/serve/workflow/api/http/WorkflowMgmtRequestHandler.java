@@ -1,14 +1,20 @@
 package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.ensemble.WorkFlow;
@@ -76,7 +82,32 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
     private void handleListWorkflows(ChannelHandlerContext ctx, QueryStringDecoder decoder) {
         int limit = NettyUtils.getIntParameter(decoder, "limit", 100);
         int pageToken = NettyUtils.getIntParameter(decoder, "next_page_token", 0);
-        ListWorkflowResponse list = WorkflowManager.getInstance().getWorkflowList(limit, pageToken);
+        if (limit > 100 || limit < 0) {
+            limit = 100;
+        }
+        if (pageToken < 0) {
+            pageToken = 0;
+        }
+
+        Map<String, WorkFlow> workflows = WorkflowManager.getInstance().getWorkflows();
+
+        List<String> keys = new ArrayList<>(workflows.keySet());
+        Collections.sort(keys);
+        ListWorkflowResponse list = new ListWorkflowResponse();
+
+        int last = pageToken + limit;
+        if (last > keys.size()) {
+            last = keys.size();
+        } else {
+            list.setNextPageToken(String.valueOf(last));
+        }
+
+        for (int i = pageToken; i < last; ++i) {
+            String workflowName = keys.get(i);
+            WorkFlow workFlow = workflows.get(workflowName);
+            list.addModel(workflowName, workFlow.getWorkflowArchive().getUrl());
+        }
+
         NettyUtils.sendJsonResponse(ctx, list);
     }
 
@@ -101,7 +132,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException | ConflictStatusException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);

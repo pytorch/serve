@@ -1,10 +1,15 @@
 package org.pytorch.serve.ensemble;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
-import org.pytorch.serve.archive.model.InvalidModelException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.yaml.snakeyaml.Yaml;
@@ -24,7 +29,8 @@ public class WorkFlow {
     private Dag dag = new Dag();
     private File handlerFile;
 
-    public WorkFlow(WorkflowArchive workflowArchive) throws IOException, InvalidDAGException, InvalidWorkflowException {
+    public WorkFlow(WorkflowArchive workflowArchive)
+            throws IOException, InvalidDAGException, InvalidWorkflowException {
         this.workflowArchive = workflowArchive;
         File specFile =
                 new File(
@@ -35,8 +41,11 @@ public class WorkFlow {
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
         this.models = new HashMap<String, WorkflowModel>();
-        this.workflowSpec = (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
+        @SuppressWarnings("unchecked")
+        LinkedHashMap<String, Object> spec = (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
+        this.workflowSpec = spec;
 
+        @SuppressWarnings("unchecked")
         LinkedHashMap<String, Object> modelsInfo =
                 (LinkedHashMap<String, Object>) this.workflowSpec.get("models");
         for (Map.Entry<String, Object> entry : modelsInfo.entrySet()) {
@@ -58,7 +67,7 @@ public class WorkFlow {
                 default:
                     // entry.getValue().getClass() check object type.
                     // assuming Map containing model info
-
+                    @SuppressWarnings("unchecked")
                     LinkedHashMap<String, Object> model =
                             (LinkedHashMap<String, Object>) entry.getValue();
 
@@ -76,6 +85,7 @@ public class WorkFlow {
             }
         }
 
+        @SuppressWarnings("unchecked")
         LinkedHashMap<String, Object> dagInfo =
                 (LinkedHashMap<String, Object>) this.workflowSpec.get("dag");
 
@@ -97,7 +107,10 @@ public class WorkFlow {
             }
             Node fromNode = new Node(modelName, wfm);
             dag.addNode(fromNode);
-            for (String toModelName : (ArrayList<String>) entry.getValue()) {
+
+            @SuppressWarnings("unchecked")
+            ArrayList<String> values = (ArrayList<String>) entry.getValue();
+            for (String toModelName : values ) {
                 WorkflowModel toWfm;
                 if (!models.containsKey(toModelName)) {
                     toWfm =

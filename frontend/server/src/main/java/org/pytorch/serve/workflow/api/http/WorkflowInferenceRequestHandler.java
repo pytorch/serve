@@ -43,6 +43,9 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelException, DownloadArchiveException {
+        if(segments.length < 3){
+            throw new ResourceNotFoundException();
+        }
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
             handlePredictions(ctx, req, segments);
         } else {
@@ -51,23 +54,14 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handlePredictions(
-            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
-            {
-        if (segments.length < 3) {
-            throw new ResourceNotFoundException();
-        }
-
-        predict(ctx, req, segments[2]);
-    }
-
-    private void predict(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
-            String wfName)
+            String[] segments)
             {
         RequestInput input = parseRequest(ctx, req);
-        if (wfName == null) {
-                throw new BadRequestException("Parameter model_name is required.");
+        String workflow_name = segments[2];
+        if (workflow_name == null) {
+                throw new BadRequestException("Parameter workflow_name is required.");
         }
 
 //        Job job = new RestJob(ctx, wfName, WorkerCommands.PREDICT, input);
