@@ -135,8 +135,6 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-
-            System.out.println("asd");
         } catch (InterruptedException
                 | ExecutionException
                 | IOException

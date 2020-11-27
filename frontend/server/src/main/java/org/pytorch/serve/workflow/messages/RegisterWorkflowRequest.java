@@ -43,4 +43,5 @@ public class RegisterWorkflowRequest {
     public void setWorkflowUrl(String workflowUrl) {
         this.workflowUrl = workflowUrl;
     }
+
 }

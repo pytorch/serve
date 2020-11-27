@@ -126,7 +126,6 @@ public class EnsembleTest {
 
     @Test(alwaysRun = true)
     public void testWorkflowYaml() throws Exception {
-
         //         torch-workflow-archiver  --workflow-name test  --spec-file
         //         /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml
         // --handler
