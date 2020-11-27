@@ -94,12 +94,12 @@ public class ModelArchiveTest {
 
         // Setup: This test needs mar file in local path. Copying mnist.mar from model folder.
         String source = modelStore + "/mnist.mar";
-        String destination = parent + "/modelarchive/mnist1.mar";
+        String destination = parent + "/archive/mnist1.mar";
         File sourceFile = new File(source);
         File destinationFile = new File(destination);
         FileUtils.copyFile(sourceFile, destinationFile);
 
-        String fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        String fileUrl = "file://" + parent + "/archive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
         File modelLocation = new File(modelStore + "/mnist1.mar");
         Assert.assertTrue(modelLocation.exists());

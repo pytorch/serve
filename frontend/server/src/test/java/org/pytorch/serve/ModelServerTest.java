@@ -797,12 +797,12 @@ public class ModelServerTest {
         String parent = curDirFile.getParent();
 
         String source = configManager.getModelStore() + "/mnist.mar";
-        String destination = parent + "/modelarchive/mnist1.mar";
+        String destination = parent + "/archive/mnist1.mar";
         File sourceFile = new File(source);
         File destinationFile = new File(destination);
         String fileUrl = "";
         FileUtils.copyFile(sourceFile, destinationFile);
-        fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        fileUrl = "file://" + parent + "/archive/mnist1.mar";
         testLoadModel(fileUrl, "mnist1", "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
         FileUtils.deleteQuietly(destinationFile);
