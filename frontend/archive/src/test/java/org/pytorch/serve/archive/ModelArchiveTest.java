@@ -43,7 +43,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = DownloadArchiveException.class,
             expectedExceptionsMessageRegExp =
-                    "Failed to download model from: https://s3\\.amazonaws\\.com/squeezenet_v1\\.1\\.mod")
+                    "Failed to download archive from: https://s3\\.amazonaws\\.com/squeezenet_v1\\.1\\.mod")
     public void testAllowedURL() throws ModelException, IOException, DownloadArchiveException {
         // test allowed url, return failed to download as file does not exist
         String modelStore = "src/test/resources/models";
@@ -54,7 +54,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = DownloadArchiveException.class,
             expectedExceptionsMessageRegExp =
-                    "Failed to download model from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
+                    "Failed to download archive from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
     public void testAllowedMultiUrls()
             throws ModelException, IOException, DownloadArchiveException {
         // test multiple urls added to allowed list
