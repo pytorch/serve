@@ -17,10 +17,7 @@ import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.ensemble.WorkFlow;
-import org.pytorch.serve.http.HttpRequestHandlerChain;
-import org.pytorch.serve.http.MethodNotAllowedException;
-import org.pytorch.serve.http.ResourceNotFoundException;
-import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.http.*;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.workflow.WorkflowManager;
@@ -135,7 +132,6 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getResponseTimeout(),
                                     true);
 
-            System.out.println("asd");
         } catch (InterruptedException | ExecutionException | IOException | ConflictStatusException e) {
             status.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
