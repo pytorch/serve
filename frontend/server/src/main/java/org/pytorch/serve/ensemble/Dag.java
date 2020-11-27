@@ -29,7 +29,7 @@ public class Dag {
         return dagMap.get(from.getName()).get("inDegree").contains(to.getName());
     }
 
-    public void addEdge(Node from, Node to) throws Exception {
+    public void addEdge(Node from, Node to) throws InvalidDAGException {
         if (!isNodeExist(from)) {
             addNode(from);
         }
@@ -38,11 +38,11 @@ public class Dag {
         }
 
         if (from.getName().equals(to.getName())) {
-            throw new Exception("Self loop exception");
+            throw new InvalidDAGException("Self loop exception");
         }
 
         if (hasEdgeTo(to, from)) {
-            throw new Exception("loop exception");
+            throw new InvalidDAGException("loop exception");
         }
 
         dagMap.get(from.getName()).get("outDegree").add(to.getName());
@@ -136,7 +136,7 @@ public class Dag {
         }
 
         if (topoSortedList.size() != nodes.size()) {
-            throw new Exception("Not a valid DAG");
+            throw new InvalidDAGException("Not a valid DAG");
         }
 
         executorService.shutdown();
