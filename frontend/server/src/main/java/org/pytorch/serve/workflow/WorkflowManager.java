@@ -130,10 +130,10 @@ public final class WorkflowManager {
 
             if(failed){
                 status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                status.setStatus(
-                        String.format(
-                                "Workflow %s has failed to register. Failures: %s",
-                                workflowName, failedMessages.toString()));
+                String message =  String.format("Workflow %s has failed to register. Failures: %s",
+                                workflowName, failedMessages.toString());
+                status.setStatus(message);
+                status.setE(new WorkflowException(message));
 
                 Map<String, Node> unregisterNodes = new HashMap<>();
                 for(String nodeName : successNodes){
@@ -161,7 +161,7 @@ public final class WorkflowManager {
             status.setE(e);
         } catch (Exception e) {
             status.setHttpResponseCode(HttpResponseStatus.BAD_REQUEST.code());
-            status.setStatus("Invalid workflow specification");
+            status.setStatus("Failed to register workflow");
             status.setE(e);
         } finally {
             executorService.shutdown();
