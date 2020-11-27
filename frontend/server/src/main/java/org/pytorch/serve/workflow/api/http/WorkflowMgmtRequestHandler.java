@@ -154,7 +154,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleUnregisterWorkflow(ChannelHandlerContext ctx, String workflowName) {
-        WorkflowManager.getInstance().unregisterWorkflow(workflowName);
+        WorkflowManager.getInstance().unregisterWorkflow(workflowName, null);
         String msg = "Workflow \"" + workflowName + "\" unregistered";
         NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg, HttpResponseStatus.OK.code()));
     }
