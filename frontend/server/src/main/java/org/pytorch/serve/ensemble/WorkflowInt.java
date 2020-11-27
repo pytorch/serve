@@ -1,5 +1,5 @@
-// package org.pytorch.serve.ensemble;
-//
+package org.pytorch.serve.ensemble;
+
 // public interface WorkflowManager {
 //
 //    public Status registerWorkflow(File warFile);

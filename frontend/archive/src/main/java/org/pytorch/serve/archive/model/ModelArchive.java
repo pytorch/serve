@@ -48,8 +48,7 @@ public class ModelArchive {
         try {
             ArchiveUtils.downloadArchive(allowedUrls, modelLocation, marFileName, url);
         } catch (InvalidArchiveURLException e) {
-            throw new ModelNotFoundException(
-                    "Given URL " + url + " does not match any allowed URL(s)");
+            throw new ModelNotFoundException(e.getMessage()); // NOPMD
         }
 
         if (url.contains("..")) {

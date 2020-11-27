@@ -18,12 +18,8 @@ import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
 import org.pytorch.serve.archive.utils.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WorkflowArchive {
-
-    private static final Logger logger = LoggerFactory.getLogger(WorkflowArchive.class);
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -56,8 +52,7 @@ public class WorkflowArchive {
         try {
             ArchiveUtils.downloadArchive(allowedUrls, workflowLocation, warFileName, url);
         } catch (InvalidArchiveURLException e) {
-            throw new WorkflowNotFoundException(
-                    "Given URL " + url + " does not match any allowed URL(s)");
+            throw new WorkflowNotFoundException(e.getMessage()); // NOPMD
         }
 
         if (url.contains("..")) {

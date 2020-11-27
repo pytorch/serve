@@ -20,12 +20,12 @@ import org.pytorch.serve.archive.model.InvalidModelException;
 
 public final class ArchiveUtils {
 
-    private ArchiveUtils() {}
-
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final Pattern VALID_URL_PATTERN =
             Pattern.compile("file?://.*|http(s)?://.*", Pattern.CASE_INSENSITIVE);
+
+    private ArchiveUtils() {}
 
     public static <T> T readFile(File file, Class<T> type)
             throws InvalidModelException, IOException {

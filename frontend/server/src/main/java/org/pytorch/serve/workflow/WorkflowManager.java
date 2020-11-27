@@ -23,7 +23,7 @@ import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WorkflowManager {
+public final class WorkflowManager {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
     private static WorkflowManager workflowManager;

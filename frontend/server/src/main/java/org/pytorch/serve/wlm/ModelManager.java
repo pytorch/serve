@@ -134,7 +134,9 @@ public final class ModelManager {
         try {
             createVersionedModel(tempModel, versionId);
         } catch (ConflictStatusException E) {
-            if (!ignoreDuplicate) throw E;
+            if (!ignoreDuplicate) {
+                throw E;
+            }
         }
 
         logger.info("Model {} loaded.", tempModel.getModelName());
