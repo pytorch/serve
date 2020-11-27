@@ -35,13 +35,10 @@ public class WorkFlow {
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
         this.models = new HashMap<String, WorkflowModel>();
-        this.workflowSpec = (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
-
         @SuppressWarnings("unchecked")
-        LinkedHashMap<String, Object> obj1 = (LinkedHashMap<String, Object>) this.readSpecFile(this.specFile);
-        this.obj = obj1;
+        LinkedHashMap<String, Object> spec = (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
+        this.workflowSpec = spec;
 
-        @SuppressWarnings("unchecked")
         @SuppressWarnings("unchecked")
         LinkedHashMap<String, Object> modelsInfo =
                 (LinkedHashMap<String, Object>) this.workflowSpec.get("models");
