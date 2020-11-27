@@ -18,7 +18,11 @@ import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.ensemble.WorkFlow;
-import org.pytorch.serve.http.*;
+import org.pytorch.serve.http.ConflictStatusException;
+import org.pytorch.serve.http.HttpRequestHandlerChain;
+import org.pytorch.serve.http.MethodNotAllowedException;
+import org.pytorch.serve.http.ResourceNotFoundException;
+import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.workflow.WorkflowManager;
@@ -132,7 +136,10 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-        } catch (InterruptedException | ExecutionException | IOException | ConflictStatusException e) {
+        } catch (InterruptedException
+                | ExecutionException
+                | IOException
+                | ConflictStatusException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
@@ -163,8 +170,8 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     private void sendResponse(ChannelHandlerContext ctx, StatusResponse statusResponse) {
         if (statusResponse != null) {
-            if (statusResponse.getHttpResponseCode() >= 200
-                    && statusResponse.getHttpResponseCode() < 300) {
+            if (statusResponse.getHttpResponseCode() >= HttpURLConnection.HTTP_OK
+                    && statusResponse.getHttpResponseCode() < HttpURLConnection.HTTP_MULT_CHOICE) {
                 NettyUtils.sendJsonResponse(ctx, statusResponse);
             } else {
                 // Re-map HTTPURLConnections HTTP_ENTITY_TOO_LARGE to Netty's INSUFFICIENT_STORAGE
@@ -172,7 +179,9 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                 NettyUtils.sendError(
                         ctx,
                         HttpResponseStatus.valueOf(
-                                httpResponseStatus == 413 ? 507 : httpResponseStatus),
+                                httpResponseStatus == HttpURLConnection.HTTP_ENTITY_TOO_LARGE
+                                        ? 507
+                                        : httpResponseStatus),
                         statusResponse.getE());
             }
         }

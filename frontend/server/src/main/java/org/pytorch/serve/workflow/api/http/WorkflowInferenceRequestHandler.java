@@ -1,27 +1,27 @@
 package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import java.net.HttpURLConnection;
+import java.util.Map;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
-import org.pytorch.serve.archive.model.ModelNotFoundException;
-import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
-import org.pytorch.serve.http.*;
-import org.pytorch.serve.job.Job;
-import org.pytorch.serve.job.RestJob;
+import org.pytorch.serve.http.BadRequestException;
+import org.pytorch.serve.http.HttpRequestHandlerChain;
+import org.pytorch.serve.http.ResourceNotFoundException;
+import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
-import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.HttpURLConnection;
-import java.util.Map;
 
 /**
  * A class handling inbound HTTP requests to the workflow inference API.
@@ -43,7 +43,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelException, DownloadArchiveException {
-        if(segments.length < 3){
+        if (segments.length < 3) {
             throw new ResourceNotFoundException();
         }
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
@@ -54,20 +54,18 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handlePredictions(
-            ChannelHandlerContext ctx,
-            FullHttpRequest req,
-            String[] segments)
-            {
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments) {
         RequestInput input = parseRequest(ctx, req);
-        String workflow_name = segments[2];
-        if (workflow_name == null) {
-                throw new BadRequestException("Parameter workflow_name is required.");
+        String wfName = segments[2];
+        if (wfName == null) {
+            throw new BadRequestException("Parameter workflow_name is required.");
         }
 
-//        Job job = new RestJob(ctx, wfName, WorkerCommands.PREDICT, input);
-//        if (!ModelManager.getInstance().addJob(job)) {
-//            throw new ServiceUnavailableException("Model \""+ wfName + " has no worker to serve inference request. Please use scale workers API to add workers.");
-//        }
+        //        Job job = new RestJob(ctx, wfName, WorkerCommands.PREDICT, input);
+        //        if (!ModelManager.getInstance().addJob(job)) {
+        //            throw new ServiceUnavailableException("Model \""+ wfName + " has no worker to
+        // serve inference request. Please use scale workers API to add workers.");
+        //        }
         StatusResponse status = new StatusResponse();
         status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
         status.setStatus("Got inference request");
@@ -92,8 +90,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
         }
     }
 
-    private static RequestInput parseRequest(
-            ChannelHandlerContext ctx, FullHttpRequest req) {
+    private static RequestInput parseRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
         String requestId = NettyUtils.getRequestId(ctx.channel());
         RequestInput inputData = new RequestInput(requestId);
 

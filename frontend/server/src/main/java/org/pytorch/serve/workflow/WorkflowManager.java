@@ -1,5 +1,13 @@
 package org.pytorch.serve.workflow;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+
+import io.netty.channel.ChannelHandlerContext;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
@@ -14,15 +22,10 @@ import org.pytorch.serve.ensemble.WorkflowModel;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 public final class WorkflowManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
@@ -94,15 +97,15 @@ public final class WorkflowManager {
                             workflowName));
 
             workflowMap.putIfAbsent(workflowName, workflow);
-         } catch (DownloadArchiveException e) {
-             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
-             status.setStatus("Failed to download workflow archive file");
-             status.setE(e);
-         } catch (WorkflowException | InvalidDAGException e) {
+        } catch (DownloadArchiveException e) {
+            status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
+            status.setStatus("Failed to download workflow archive file");
+            status.setE(e);
+        } catch (WorkflowException | InvalidDAGException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Invalid workflow specification");
             status.setE(e);
-         } catch (ModelException e) {
+        } catch (ModelException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Failed to register workflow models");
             status.setE(e);
@@ -133,13 +136,18 @@ public final class WorkflowManager {
                             })
                     .start();
         }
+
+        workflowMap.remove(workflowName);
+        WorkflowArchive.removeWorkflow(workflowName, workflow.getWorkflowArchive().getUrl());
     }
 
     public WorkFlow getWorkflow(String workflowName) {
         return workflowMap.get(workflowName);
     }
 
-    public void predict(){
-        
+    public void predict( ChannelHandlerContext ctx,
+                         String wfName,
+                         RequestInput input) {
+
     }
 }
