@@ -12,16 +12,21 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Direct acyclic graph for ensemble */
 public class Dag {
+
+    private static final Logger logger = LoggerFactory.getLogger(Dag.class);
+
     private Map<String, Node> nodes = new HashMap<>();
     private Map<String, Map<String, Set<String>>> dagMap = new HashMap<>();
 
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
-    CompletionService<NodeOutput> executorCompletionService =
+    private ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private CompletionService<NodeOutput> executorCompletionService =
             new ExecutorCompletionService<>(executorService);
-    List<Future<NodeOutput>> futures = new ArrayList<Future<NodeOutput>>();
+    private List<Future<NodeOutput>> futures = new ArrayList<Future<NodeOutput>>();
 
     public void addNode(Node node) {
         nodes.put(node.getName(), node);
@@ -31,7 +36,7 @@ public class Dag {
         dagMap.put(node.getName(), degreeMap);
     }
 
-    public boolean isNodeExist(Node node) {
+    public boolean checkNodeExist(Node node) {
         return nodes.containsKey(node.getName());
     }
 
@@ -40,10 +45,10 @@ public class Dag {
     }
 
     public void addEdge(Node from, Node to) throws InvalidDAGException {
-        if (!isNodeExist(from)) {
+        if (!checkNodeExist(from)) {
             addNode(from);
         }
-        if (!isNodeExist(to)) {
+        if (!checkNodeExist(to)) {
             addNode(to);
         }
 
@@ -63,7 +68,7 @@ public class Dag {
         Set<String> startNodes = new HashSet<>();
         for (Map.Entry<String, Map<String, Set<String>>> entry : dagMap.entrySet()) {
             Set<String> value = entry.getValue().get(degree);
-            if (value.size() == 0) {
+            if (value.isEmpty()) {
                 startNodes.add(entry.getKey());
             }
         }
@@ -98,7 +103,7 @@ public class Dag {
         return nodes;
     }
 
-    public ArrayList<String> topoSort() throws Exception {
+    public ArrayList<String> topoSort() throws InvalidDAGException {
 
         Map<String, Integer> inDegreeMap = getInDegreeMap();
         ArrayList<String> topoSortedList = new ArrayList<String>();
@@ -106,23 +111,21 @@ public class Dag {
         Set<String> leafNodes = getLeafNodeNames();
 
         if (startNodes.size() != 1) {
-            throw new Exception("DAG should have only one start node");
+            throw new InvalidDAGException("DAG should have only one start node");
         }
 
         if (leafNodes.size() != 1) {
-            throw new Exception("DAG should have only one end node");
+            throw new InvalidDAGException("DAG should have only one end node");
         }
 
         Set<String> zeroInDegree = startNodes;
         Set<String> executing = new HashSet<>();
 
-        Map<String, Object> inputMap = new HashMap<>();
-
         for (String s : zeroInDegree) {
             nodes.get(s).updateInputDataMap("start", "0");
         }
 
-        while (zeroInDegree.size() > 0) {
+        while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
             readyToExecute.removeAll(executing);
             executing.addAll(readyToExecute);
@@ -153,7 +156,7 @@ public class Dag {
         return topoSortedList;
     }
 
-    ArrayList<NodeOutput> execute(Set<String> readyToExecute) {
+    private ArrayList<NodeOutput> execute(Set<String> readyToExecute) {
         ArrayList<NodeOutput> out = new ArrayList<>();
         for (String name : readyToExecute) {
             futures.add(executorCompletionService.submit(nodes.get(name)));
@@ -161,12 +164,11 @@ public class Dag {
 
         try {
             NodeOutput result = executorCompletionService.take().get();
-            System.out.println("Result: " + result.getNodeName() + " " + (String) result.getData());
+            logger.info("Result: " + result.getNodeName() + " " + result.getData());
             out.add(result);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Failed to execute workflow Node.");
+            logger.error(e.getMessage());
         }
         return out;
     }

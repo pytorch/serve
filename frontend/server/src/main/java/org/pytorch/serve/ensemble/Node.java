@@ -10,15 +10,6 @@ public class Node implements Callable<NodeOutput> {
     private String name;
     private String parentName;
     private Map<String, Object> inputDataMap;
-
-    public WorkflowModel getWorkflowModel() {
-        return workflowModel;
-    }
-
-    public void setWorkflowModel(WorkflowModel workflowModel) {
-        this.workflowModel = workflowModel;
-    }
-
     private WorkflowModel workflowModel;
 
     public Node(String name, WorkflowModel model) {
@@ -43,6 +34,14 @@ public class Node implements Callable<NodeOutput> {
         this.parentName = parentName;
     }
 
+    public WorkflowModel getWorkflowModel() {
+        return workflowModel;
+    }
+
+    public void setWorkflowModel(WorkflowModel workflowModel) {
+        this.workflowModel = workflowModel;
+    }
+
     public Map<String, Object> getInputDataMap() {
         return inputDataMap;
     }
@@ -62,7 +61,7 @@ public class Node implements Callable<NodeOutput> {
         }
 
         a.add(rand.nextInt() + "");
-        System.out.println(String.join("-", a));
+        // System.out.println(String.join("-", a));
         return new NodeOutput(this.getName(), String.join("-", a));
     }
 }

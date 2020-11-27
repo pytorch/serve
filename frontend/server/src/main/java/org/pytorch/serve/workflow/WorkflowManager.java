@@ -1,8 +1,12 @@
 package org.pytorch.serve.workflow;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.grpc.netty.shaded.io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.channel.ChannelHandlerContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -16,6 +20,7 @@ import org.pytorch.serve.ensemble.*;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +46,6 @@ class ModelRegistrationResult{
 
 
 public final class WorkflowManager {
-
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
     private static WorkflowManager workflowManager;
     private final ConfigManager configManager;
@@ -107,8 +111,10 @@ public final class WorkflowManager {
 
             for (int i = 0; i < futures.size(); i++) {
                  Future<ModelRegistrationResult> future = executorCompletionService.take();
-                 if(future.isCancelled())
+                 if(future.isCancelled()) {
+                     failed = true;
                      continue;
+                 }
 
                 ModelRegistrationResult result = future.get();
                  if(result.getResponse().getHttpResponseCode() != HttpURLConnection.HTTP_OK){
@@ -116,9 +122,10 @@ public final class WorkflowManager {
                      failedMessages.add(result.getResponse().getStatus());
                      for (Future<ModelRegistrationResult> f : futures)
                          f.cancel(false);
+                 }else{
+                     successNodes.add(result.getModelName());
                  }
                  responses.add(result.getResponse());
-                successNodes.add(result.getModelName());
             }
 
             if(failed){
@@ -228,6 +235,8 @@ public final class WorkflowManager {
     public WorkFlow getWorkflow(String workflowName) {
         return workflowMap.get(workflowName);
     }
+
+    public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {}
 }
 
 

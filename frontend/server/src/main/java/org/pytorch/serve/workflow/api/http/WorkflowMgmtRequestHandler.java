@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -78,8 +79,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
     private boolean isManagementReq(String[] segments) {
         return segments.length == 0
                 || ((segments.length >= 2 && segments.length <= 4)
-                        && segments[1].equals("workflows"))
-                || endpointMap.containsKey(segments[1]);
+                        && segments[1].equals("workflows"));
     }
 
     private void handleListWorkflows(ChannelHandlerContext ctx, QueryStringDecoder decoder) {
@@ -139,15 +139,9 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                 | ExecutionException
                 | IOException
                 | ConflictStatusException e) {
-            status.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
-
-        } catch (Exception e) {
-            status.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-            status.setStatus("Error while registering workflow. Details: " + e.getMessage());
-            status.setE(e);
-
         } finally {
             sendResponse(ctx, status);
         }
@@ -175,8 +169,8 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
     private void sendResponse(ChannelHandlerContext ctx, StatusResponse statusResponse) {
         if (statusResponse != null) {
-            if (statusResponse.getHttpResponseCode() >= 200
-                    && statusResponse.getHttpResponseCode() < 300) {
+            if (statusResponse.getHttpResponseCode() >= HttpURLConnection.HTTP_OK
+                    && statusResponse.getHttpResponseCode() < HttpURLConnection.HTTP_MULT_CHOICE) {
                 NettyUtils.sendJsonResponse(ctx, statusResponse);
             } else {
                 // Re-map HTTPURLConnections HTTP_ENTITY_TOO_LARGE to Netty's INSUFFICIENT_STORAGE
@@ -184,7 +178,9 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                 NettyUtils.sendError(
                         ctx,
                         HttpResponseStatus.valueOf(
-                                httpResponseStatus == 413 ? 507 : httpResponseStatus),
+                                httpResponseStatus == HttpURLConnection.HTTP_ENTITY_TOO_LARGE
+                                        ? 507
+                                        : httpResponseStatus),
                         statusResponse.getE());
             }
         }
