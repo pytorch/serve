@@ -1,7 +1,6 @@
 package org.pytorch.serve.archive.model;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -11,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
+import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
 import org.pytorch.serve.archive.utils.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +47,8 @@ public class ModelArchive {
 
         try {
             ArchiveUtils.downloadArchive(allowedUrls, modelLocation, marFileName, url);
-        } catch (FileNotFoundException e) {
-            throw new ModelNotFoundException(
-                    "Given URL " + url + " does not match any allowed URL(s)");
+        } catch (InvalidArchiveURLException e) {
+            throw new ModelNotFoundException(e.getMessage()); // NOPMD
         }
 
         if (url.contains("..")) {

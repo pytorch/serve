@@ -43,7 +43,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = DownloadArchiveException.class,
             expectedExceptionsMessageRegExp =
-                    "Failed to download model from: https://s3\\.amazonaws\\.com/squeezenet_v1\\.1\\.mod")
+                    "Failed to download archive from: https://s3\\.amazonaws\\.com/squeezenet_v1\\.1\\.mod")
     public void testAllowedURL() throws ModelException, IOException, DownloadArchiveException {
         // test allowed url, return failed to download as file does not exist
         String modelStore = "src/test/resources/models";
@@ -54,7 +54,7 @@ public class ModelArchiveTest {
     @Test(
             expectedExceptions = DownloadArchiveException.class,
             expectedExceptionsMessageRegExp =
-                    "Failed to download model from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
+                    "Failed to download archive from: https://torchserve\\.pytorch\\.org/mar_files/mnist_non_exist\\.mar")
     public void testAllowedMultiUrls()
             throws ModelException, IOException, DownloadArchiveException {
         // test multiple urls added to allowed list
@@ -94,12 +94,12 @@ public class ModelArchiveTest {
 
         // Setup: This test needs mar file in local path. Copying mnist.mar from model folder.
         String source = modelStore + "/mnist.mar";
-        String destination = parent + "/modelarchive/mnist1.mar";
+        String destination = parent + "/archive/mnist1.mar";
         File sourceFile = new File(source);
         File destinationFile = new File(destination);
         FileUtils.copyFile(sourceFile, destinationFile);
 
-        String fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        String fileUrl = "file://" + parent + "/archive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
         File modelLocation = new File(modelStore + "/mnist1.mar");
         Assert.assertTrue(modelLocation.exists());
