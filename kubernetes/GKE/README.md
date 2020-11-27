@@ -6,8 +6,23 @@ This quickstart requires that you are running the gcloud version 319.0.0 or late
 
 #### 1.1 Set Gcloud account information
 
+Create a gcloud configuration with account and project info.
+
 ```bash
 gcloud init
+```
+
+Set compute/region and compute/zone in config
+
+```bash
+gcloud config set compute/region us-west1
+gcloud config set compute/zone us-west1-a
+```
+
+If you have multiple configurations, activate required config.
+
+```bash
+gcloud config configurations activate <config_name>
 ```
 
 #### 1.2 Create GKE cluster
@@ -15,7 +30,7 @@ gcloud init
 Use the [gcloud container clusters create](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster) command to create an GKE cluster. The following example creates a cluster named *torchserve* with one node with a *nvidia-tesla-t4* GPU. This will take several minutes to complete.
 
 ```bash
-gcloud container clusters create torchserve --machine-type n1-standard-4 --accelerator type=nvidia-tesla-t4,count=1 --num-nodes 1 --region us-west1 --node-locations us-west1-a
+gcloud container clusters create torchserve --machine-type n1-standard-4 --accelerator type=nvidia-tesla-t4,count=1 --num-nodes 1
 
 WARNING: Warning: basic authentication is deprecated, and will be removed in GKE control plane versions 1.19 and newer. For a list of recommended authentication methods, see: https://cloud.google.com/kubernetes-engine/docs/how-to/api-server-authentication
 WARNING: Currently VPC-native is not the default mode during cluster creation. In the future, this will become the default mode and can be disabled using `--no-enable-ip-alias` flag. Use `--[no-]enable-ip-alias` flag to suppress this warning.
@@ -25,8 +40,8 @@ WARNING: Your Pod address range (`--cluster-ipv4-cidr`) can accommodate at most 
 WARNING: Starting with version 1.19, newly created clusters and node-pools will have COS_CONTAINERD as the default node image when no image type is specified.
 Machines with GPUs have certain limitations which may affect your workflow. Learn more at https://cloud.google.com/kubernetes-engine/docs/how-to/gpus
 Creating cluster ts in us-west1... Cluster is being health-checked (master is healthy)...done.                                                                    
-Created [https://container.googleapis.com/v1/projects/pytorch-tests-261423/zones/us-west1/clusters/ts].
-To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-west1/ts?project=pytorch-tests-261423
+Created [https://container.googleapis.com/v1/projects/xxxxx-xxxx-35xx55/zones/us-west1/clusters/ts].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-west1/ts?project=xxxxx-xxxx-35xx55
 kubeconfig entry generated for ts.
 NAME  LOCATION  MASTER_VERSION   MASTER_IP      MACHINE_TYPE   NODE_VERSION     NUM_NODES  STATUS
 ts    us-west1  1.16.13-gke.401  34.83.140.167  n1-standard-4  1.16.13-gke.401  1          RUNNING
@@ -43,7 +58,7 @@ gcloud components install kubectl
 To configure `kubectl` to connect to your Kubernetes cluster, use the [gcloud container clusters get-credentials](https://cloud.google.com/sdk/gcloud/reference/container/clusters/get-credentials) command. This command downloads credentials and configures the Kubernetes CLI to use them.
 
 ```bash
-gcloud container clusters get-credentials torchserve --region us-west1 --project pytorch-tests-261423
+gcloud container clusters get-credentials torchserve
 Fetching cluster endpoint and auth data.
 kubeconfig entry generated for torchserve.
 ```
@@ -66,7 +81,15 @@ git clone https://github.com/pytorch/serve.git
 cd serve/kubernetes/GKE
 ```
 
-#### 2.2 Install NVIDIA device plugin
+**_NOTE:_** By default the helm chart installs GPU version of torchserve. Follow steps in section [2.2](####-2.2-For-CPU-setup) for running in a CPU only cluster. For GPU setup section [2.2](####-2.2-For-CPU-setup) can be skipped.
+
+#### 2.2 For CPU setup
+
+* Change torchserve image in Helm/values.yaml to the CPU version
+* Set `n_gpu` to `0` in Helm/values.yaml
+* Skip NVIDIA plugin installation in section [2.3](#####-2.3-Install-NVIDIA-device-plugin)
+  
+#### 2.3 Install NVIDIA device plugin
 
 Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
 
@@ -85,7 +108,7 @@ NAME                                        MEMORY       CPU     GPU
 gke-torchserve-default-pool-aa9f7d99-ggc9   12698376Ki   3920m   1
 ```
 
-#### 2.3 Create a storage disk
+#### 2.4 Create a storage disk
 
 A standard storage class is created with google compute disk. If multiple pods need concurrent access to the same storage volume, you need Google NFS. Create the storage disk named *nfs-disk* with the following command:
 
@@ -102,7 +125,7 @@ https://cloud.google.com/compute/docs/disks/add-persistent-disk#formatting
 
 ```
 
-#### 2.4 Create NFS Server
+#### 2.5 Create NFS Server
 
 Modify the values.yaml in the nfs-provisioner with persistent volume name, disk name and node affinity zones and install nfs-provisioner using helm.
 
@@ -119,7 +142,7 @@ NAME                                             READY   STATUS    RESTARTS   AG
 pod/mynfs-nfs-provisioner-bcc7c96cc-5xr2k   1/1     Running   0          19h
 ```
 
-#### 2.5 Create PV and PVC
+#### 2.6 Create PV and PVC
 
 Run the below command and get NFS server IP:
 
@@ -149,7 +172,7 @@ NAME                        STATUS   VOLUME   CAPACITY   ACCESS MODES   STORAGEC
 persistentvolumeclaim/nfs   Bound    nfs      10Gi       RWX                           20h
 ```
 
-#### 2.6 Create a pod and copy MAR / config files
+#### 2.7 Create a pod and copy MAR / config files
 
 Create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files.
 
@@ -176,7 +199,7 @@ NAME                                              READY   STATUS    RESTARTS   A
 model-store-pod                                   1/1     Running   0          143m
 ```
 
-#### 2.6 Down and copy MAR / config files
+#### 2.8 Down and copy MAR / config files
 
 ```bash
 wget https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
@@ -226,7 +249,7 @@ kubectl delete pod/model-store-pod
 pod "model-store-pod" deleted
 ```
 
-#### 2.7 Install Torchserve using Helm Charts
+#### 2.9 Install Torchserve using Helm Charts
 
 Enter the Helm directory and install TorchServe using Helm Charts.
 
@@ -249,7 +272,7 @@ REVISION: 1
 TEST SUITE: None
 ```
 
-#### 2.8 Check the status of TorchServe
+#### 2.10 Check the status of TorchServe
 
 ```bash
 kubectl get po
@@ -492,7 +515,18 @@ Possible errors in this step may be a result of
 To avoid google charges, you should clean up unneeded resources. When the GKE cluster is no longer needed, use the gcloud container clusters delete command to remove GKE cluster.
 
 ```bash
-gcloud container node-pools delete default-pool --cluster torchserve --region us-west1
+gcloud compute disks delete nfs-disk
+
+The following disks will be deleted:
+ - [nfs-disk] in [us-west1-a]
+
+Do you want to continue (Y/n)?  y
+
+Deleted [https://www.googleapis.com/compute/v1/projects/xxxxx-xxxx-356xx55/zones/us-west1-a/disks/nfs-disk].
+```
+
+```bash
+gcloud container node-pools delete default-pool --cluster torchserve
 
 The following node pool will be deleted.
 [default-pool] in cluster [torchserve] in [us-west1]
@@ -501,11 +535,11 @@ Do you want to continue (Y/n)?  y
 
 done.
 
-Deleted [https://container.googleapis.com/v1/projects/pytorch-tests-261423/zones/us-west1/clusters/torchserve/nodePools/default-pool].
+Deleted [https://container.googleapis.com/v1/projects/xxxxx-xxxx-35xx55/zones/us-west1/clusters/torchserve/nodePools/default-pool].
 ```
 
 ```bash
-gcloud container clusters delete torchserve --region us-west1
+gcloud container clusters delete torchserve
 
 The following clusters will be deleted.
  - [torchserve] in [us-west1]
@@ -516,5 +550,5 @@ Deleting cluster torchserve...
 
 done.
 
-Deleted [https://container.googleapis.com/v1/projects/pytorch-tests-261423/zones/us-west1/clusters/torchserve].
+Deleted [https://container.googleapis.com/v1/projects/xxxxx-xxxx-35xx55/zones/us-west1/clusters/torchserve].
 ```

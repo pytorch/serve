@@ -6,7 +6,7 @@ spec:
   volumes:
     - name: mypvc
       persistentVolumeClaim:
-        claimName: nfs
+        claimName: model-store-claim
   containers:
     - name: model-store
       image: ubuntu
