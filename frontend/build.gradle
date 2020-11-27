@@ -66,7 +66,7 @@ configure(javaProjects()) {
         violationRules {
             rule {
                 limit {
-                    minimum = 0.70
+                    minimum = 0.10
                 }
             }
             afterEvaluate {
