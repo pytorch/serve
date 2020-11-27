@@ -14,7 +14,7 @@ sys.path.append('ts/torch_handler/unit_tests/models/tmp')
 
 @pytest.fixture()
 def model_setup():
-    context = MockContext(model_name = "mnist")
+    context = MockContext(model_name="mnist")
     with open('ts/torch_handler/unit_tests/models/tmp/images/kitten.jpg', 'rb') as fin:
         image_bytes = fin.read()
     return (context, image_bytes)

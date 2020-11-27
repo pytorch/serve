@@ -1,5 +1,10 @@
+import platform
+import shutil
 import subprocess
 import os
+import time
+from concurrent.futures import thread
+from os import path
 import glob
 import requests
 import json
@@ -23,29 +28,6 @@ def logs_created(no_config_snapshots=False):
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
     assert len(glob.glob('logs/ts_log.log')) == 1
-
-
-def validate_config_file(config_file):
-    test_utils.start_torchserve(snapshot_file=config_file)
-    response = requests.get('http://localhost:8080/ping')
-    assert json.loads(response.content)['status'] == 'Healthy'
-
-
-def validate_ts_config(config_file=None):
-    if config_file:
-        try:
-            with open(config_file, "r+") as f:
-                for line in f:
-                    if line.startswith('#') or line in ['\n', '\r\n']:
-                        continue  # skip comments
-                    line = line.strip()
-                    # Check whether it is a key value pair seperated by "=" character
-                    assert len(line.split("=")) == 2
-        except Exception as e:
-            assert False, "Invalid configuration file"
-        else:
-            assert True, "Valid config file found"
-
 
 def validate_metrics_created(no_config_snapshots=False):
     test_utils.delete_all_snapshots()
@@ -112,34 +94,6 @@ def test_metrics_startup_cfg_created_snapshot_disabled():
     assert len(glob.glob('logs/config/*startup.cfg')) == 0
 
 
-def test_malformed_ts_config():
-    """Validates that Torchserve validates the config file parameters correctly and
-    ignores any unknown key-value parameters and starts successfully!!"""
-
-    cmd1 = ["cp", "" + test_utils.CODEBUILD_WD + "/benchmarks/config.properties", test_utils.ROOT_DIR]
-    cmd2 = ["cp", "" + test_utils.CODEBUILD_WD + "/benchmarks/config.properties",
-            test_utils.ROOT_DIR + "malformed-config.properties"]
-    subprocess.run(cmd1)
-    subprocess.run(cmd2)
-    config_file = "/workspace/config.properties"
-    malformed_config_file = "/workspace/malformed-config.properties"
-    with open(malformed_config_file, "r+") as f:
-        f.writelines(["non-keyvaluepair\n"])
-    # First validate well-formed config file
-    try:
-        conf_file = config_file
-        validate_config_file(conf_file)
-        # Next validate malformed config file
-        conf_file = malformed_config_file
-        validate_config_file(conf_file)
-    finally:
-        cmd1 = ["rm", "-rf", config_file]
-        cmd2 = ["rm", "-rf", malformed_config_file]
-        subprocess.run(cmd1)
-        subprocess.run(cmd2)
-        test_utils.delete_all_snapshots()
-
-
 def test_log_location_var_snapshot_disabled():
     """
     Validates that non metrics logs get saved in directory configured via LOG_LOCATION
@@ -152,7 +106,8 @@ def test_log_location_var_snapshot_disabled():
     # We stop torchserve again here so that we can remove the LOG_LOCATION setting from environment variable
     test_utils.stop_torchserve()
     del os.environ['LOG_LOCATION']
-    for f in glob.glob(test_utils.ROOT_DIR + "*.log"):
+    for f in glob.glob(path.join(test_utils.ROOT_DIR, "*.log")):
+        print("-------------Deleting " + f)
         os.remove(f)
     # Remove any old snapshots
     test_utils.delete_all_snapshots()
@@ -170,15 +125,21 @@ def test_log_location_var_snapshot_enabled():
     requests.post('http://127.0.0.1:8081/models?url=densenet161.mar')
     # We stop torchserve again here so that we can remove the LOG_LOCATION setting from environment variable
     test_utils.stop_torchserve()
+    print('Waiting to stop')
+    time.sleep(15)
     del os.environ['LOG_LOCATION']
+
     # In case of snapshot enabled, we get these three config files additionally in the custom directory
-    assert len(glob.glob(test_utils.ROOT_DIR + 'config/*startup.cfg')) >= 1
-    assert len(glob.glob(test_utils.ROOT_DIR + 'config/*shutdown.cfg')) >= 1
-    assert len(glob.glob(test_utils.ROOT_DIR + 'config/*snap*.cfg')) >= 1
-    for f in glob.glob(test_utils.ROOT_DIR + "*.log"):
+    assert len(glob.glob(path.join(test_utils.ROOT_DIR,'config/*startup.cfg'))) >= 1
+    if platform.system() != "Windows":
+        assert len(glob.glob(path.join(test_utils.ROOT_DIR, 'config/*shutdown.cfg'))) >= 1
+    assert len(glob.glob(path.join(test_utils.ROOT_DIR, 'config/*snap*.cfg'))) >= 1
+    for f in glob.glob(path.join(test_utils.ROOT_DIR, "*.log")):
+        print("-------------Deleting "+f)
         os.remove(f)
-    cmd = ["rm", "-rf", test_utils.ROOT_DIR + 'config']
-    subprocess.run(cmd)
+
+    shutil.rmtree(path.join(test_utils.ROOT_DIR, 'config'))
+
     # Remove any old snapshots
     test_utils.delete_all_snapshots()
 
@@ -262,7 +223,8 @@ def test_metrics_location_var_snapshot_enabled():
     del os.environ['METRICS_LOCATION']
     # In case of snapshot enabled, we get these three config files additionally in the custom directory
     assert len(glob.glob('logs/config/*startup.cfg')) >= 1
-    assert len(glob.glob('logs/config/*shutdown.cfg')) >= 1
+    if platform.system() != "Windows":
+        assert len(glob.glob('logs/config/*shutdown.cfg')) >= 1
     assert len(glob.glob('logs/config/*snap*.cfg')) >= 1
     for f in glob.glob(test_utils.ROOT_DIR + "*.log"):
         os.remove(f)
@@ -286,12 +248,13 @@ def test_log_location_and_metric_location_vars_snapshot_enabled():
     del os.environ['LOG_LOCATION']
     del os.environ['METRICS_LOCATION']
     assert len(glob.glob(test_utils.ROOT_DIR + 'config/*startup.cfg')) >= 1
-    assert len(glob.glob(test_utils.ROOT_DIR + 'config/*shutdown.cfg')) >= 1
+    if platform.system() != "Windows":
+        assert len(glob.glob(test_utils.ROOT_DIR + 'config/*shutdown.cfg')) >= 1
     assert len(glob.glob(test_utils.ROOT_DIR + 'config/*snap*.cfg')) >= 1
     for f in glob.glob(test_utils.ROOT_DIR + "*.log"):
         os.remove(f)
-    cmd = ["rm", "-rf", test_utils.ROOT_DIR + 'config']
-    subprocess.run(cmd)
+
+    shutil.rmtree(path.join(test_utils.ROOT_DIR, 'config'))
 
 
 def test_log_location_var_snapshot_disabled_custom_path_read_only():
@@ -305,7 +268,7 @@ def test_log_location_var_snapshot_disabled_custom_path_read_only():
     # First remove existing logs otherwise it may be a false positive case
     for f in glob.glob('logs/*.log'):
         os.remove(f)
-    RDONLY_DIR = '/workspace/rdonly_dir'
+    RDONLY_DIR = path.join(test_utils.ROOT_DIR, 'rdonly_dir')
     os.environ['LOG_LOCATION'] = RDONLY_DIR
     try:
         run_log_location_var(custom_path=RDONLY_DIR, no_config_snapshots=True)
@@ -329,7 +292,7 @@ def test_metrics_location_var_snapshot_enabled_rdonly_dir():
     # First remove existing logs otherwise it may be a false positive case
     for f in glob.glob('logs/*.log'):
         os.remove(f)
-    RDONLY_DIR = '/workspace/rdonly_dir'
+    RDONLY_DIR = path.join(test_utils.ROOT_DIR,'rdonly_dir')
     os.environ['METRICS_LOCATION'] = RDONLY_DIR
     try:
         run_metrics_location_var(custom_path=RDONLY_DIR, no_config_snapshots=False)
