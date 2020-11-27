@@ -1,13 +1,12 @@
 package org.pytorch.serve.workflow;
 
+import io.netty.channel.ChannelHandlerContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-
-import io.netty.channel.ChannelHandlerContext;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
@@ -23,7 +22,6 @@ import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,9 +143,5 @@ public final class WorkflowManager {
         return workflowMap.get(workflowName);
     }
 
-    public void predict( ChannelHandlerContext ctx,
-                         String wfName,
-                         RequestInput input) {
-
-    }
+    public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {}
 }

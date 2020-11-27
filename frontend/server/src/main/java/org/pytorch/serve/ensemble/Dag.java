@@ -31,7 +31,7 @@ public class Dag {
         dagMap.put(node.getName(), degreeMap);
     }
 
-    public boolean isNodeExist(Node node) {
+    public boolean checkNodeExist(Node node) {
         return nodes.containsKey(node.getName());
     }
 
@@ -40,10 +40,10 @@ public class Dag {
     }
 
     public void addEdge(Node from, Node to) throws InvalidDAGException {
-        if (!isNodeExist(from)) {
+        if (!checkNodeExist(from)) {
             addNode(from);
         }
-        if (!isNodeExist(to)) {
+        if (!checkNodeExist(to)) {
             addNode(to);
         }
 

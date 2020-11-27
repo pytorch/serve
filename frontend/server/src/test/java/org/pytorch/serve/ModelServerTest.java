@@ -1320,7 +1320,7 @@ public class ModelServerTest {
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
         Assert.assertEquals(
-                resp.getMessage(), "Failed to download model from: http://localhost:aaaa");
+                resp.getMessage(), "Failed to download archive from: http://localhost:aaaa");
     }
 
     @Test(
@@ -1343,7 +1343,7 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
         Assert.assertEquals(
                 resp.getMessage(),
-                "Failed to download model from: http://localhost:18888/fake.mar");
+                "Failed to download archive from: http://localhost:18888/fake.mar");
     }
 
     @Test(
@@ -1366,7 +1366,7 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
         Assert.assertEquals(
                 resp.getMessage(),
-                "Failed to download model from: https://localhost:8443/fake.mar");
+                "Failed to download archive from: https://localhost:8443/fake.mar");
     }
 
     @Test(
