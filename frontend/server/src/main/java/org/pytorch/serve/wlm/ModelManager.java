@@ -133,9 +133,9 @@ public final class ModelManager {
 
         try {
             createVersionedModel(tempModel, versionId);
-        } catch (ConflictStatusException E) {
+        } catch (ConflictStatusException e) {
             if (!ignoreDuplicate) {
-                throw E;
+                throw e;
             }
         }
 

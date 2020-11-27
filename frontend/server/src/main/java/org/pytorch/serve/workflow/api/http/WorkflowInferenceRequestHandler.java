@@ -56,6 +56,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
     private void handlePredictions(
             ChannelHandlerContext ctx, FullHttpRequest req, String[] segments) {
         RequestInput input = parseRequest(ctx, req);
+        logger.info(input.toString());
         String wfName = segments[2];
         if (wfName == null) {
             throw new BadRequestException("Parameter workflow_name is required.");

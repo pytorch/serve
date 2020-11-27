@@ -3,8 +3,9 @@ package org.pytorch.serve.workflow;
 import io.netty.channel.ChannelHandlerContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
@@ -70,7 +71,7 @@ public final class WorkflowManager {
             WorkFlow workflow = createWorkflow(archive);
 
             Map<String, Node> nodes = workflow.getDag().getNodes();
-            Vector<StatusResponse> responses = new Vector<StatusResponse>();
+            List<StatusResponse> responses = new ArrayList<>();
             for (Map.Entry<String, Node> entry : nodes.entrySet()) {
                 Node node = entry.getValue();
                 WorkflowModel wfm = node.getWorkflowModel();

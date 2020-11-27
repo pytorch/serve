@@ -25,9 +25,7 @@ public class WorkFlow {
     private int batchSize = 1;
     private int batchSizeDelay = 50;
 
-    private Map<String, WorkflowModel> models;
     private Dag dag = new Dag();
-    private File handlerFile;
 
     public WorkFlow(WorkflowArchive workflowArchive)
             throws IOException, InvalidDAGException, InvalidWorkflowException {
@@ -36,11 +34,12 @@ public class WorkFlow {
                 new File(
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getSpecFile());
-        this.handlerFile =
+        File handlerFile =
                 new File(
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
-        this.models = new HashMap<String, WorkflowModel>();
+
+        Map<String, WorkflowModel> models = new HashMap<String, WorkflowModel>();
 
         @SuppressWarnings("unchecked")
         LinkedHashMap<String, Object> spec =
@@ -103,7 +102,7 @@ public class WorkFlow {
                                 1,
                                 1,
                                 0,
-                                this.handlerFile.getPath() + ":" + modelName);
+                                handlerFile.getPath() + ":" + modelName);
             } else {
                 wfm = models.get(modelName);
             }
@@ -123,7 +122,7 @@ public class WorkFlow {
                                     1,
                                     1,
                                     0,
-                                    this.handlerFile.getPath() + ":" + toModelName);
+                                    handlerFile.getPath() + ":" + toModelName);
                 } else {
                     toWfm = models.get(toModelName);
                 }
