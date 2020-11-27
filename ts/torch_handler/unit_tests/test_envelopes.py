@@ -81,4 +81,3 @@ def test_binary(model_context):
     envelope = JSONEnvelope(lambda x, y: [row.decode('utf-8') for row in x])
     results = envelope.handle(test_data, model_context)
     assert(results == ['{"predictions": ["a"]}'])
-        
