@@ -35,6 +35,7 @@ test_base_handler () {
   mv base_model.pt $TEST_DIR/models/tmp/model.pt
   cp $TEST_DIR/models/base_model.py $TEST_DIR/models/tmp/model.py
   python -m pytest $TEST_DIR/test_base_handler.py
+  python -m pytest $TEST_DIR/test_envelopes.py
   rm -rf $TEST_DIR/models/tmp
 }
 

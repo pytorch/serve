@@ -37,7 +37,7 @@ class TorchModelServiceWorker(object):
             self.sock_name, self.port = s_name, -1
             try:
                 os.remove(s_name)
-            except OSError as e :
+            except OSError as e:
                 if os.path.exists(s_name):
                     raise RuntimeError("socket already in use: {}.".format(s_name)) from e
 
@@ -111,12 +111,12 @@ class TorchModelServiceWorker(object):
                 pr.enable()
             if cmd == b'I':
                 resp = service.predict(msg)
-                cl_socket.send(resp)
+                cl_socket.sendall(resp)
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
                 resp += create_load_model_response(code, result)
-                cl_socket.send(resp)
+                cl_socket.sendall(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
             else:
@@ -132,6 +132,8 @@ class TorchModelServiceWorker(object):
         """
         if not DEBUG:
             self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
+
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)

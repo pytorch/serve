@@ -15,7 +15,7 @@ class MockContext():
                  model_dir='ts/torch_handler/unit_tests/models/tmp',
                  model_file='model.py',
                  gpu_id='0',
-                 model_name = "mnist"):
+                 model_name="mnist"):
         self.manifest = {
             'model': {
                 'serializedFile': model_pt_file,
