@@ -206,9 +206,9 @@ public final class WorkflowManager {
 
     public void unregisterWorkflow(String workflowName) {
         WorkFlow workflow = workflowMap.get(workflowName);
-        Dag dag = workflow.getDag();
-        unregisterModels(dag.getNodes());
-        workflowMap.remove(workflow);
+        Map<String, Node> nodes = workflow.getDag().getNodes();
+        unregisterModels(nodes);
+        workflowMap.remove(workflowName);
         WorkflowArchive.removeWorkflow(workflowName, workflow.getWorkflowArchive().getUrl());
     }
 
@@ -238,5 +238,3 @@ public final class WorkflowManager {
 
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {}
 }
-
-
