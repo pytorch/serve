@@ -18,6 +18,7 @@ import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
 import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
@@ -83,23 +84,23 @@ public class WorkflowManager {
                                 synchronous));
             }
 
-            status.setHttpResponseCode(200);
+            status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
             status.setStatus(
                     String.format(
                             "Workflow %s has been registered and scaled successfully.", workflowName));
 
             workflowMap.putIfAbsent(workflowName, workflow);
          } catch (DownloadArchiveException e) {
-             status.setHttpResponseCode(HttpResponseStatus.BAD_REQUEST.code());
+             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
              status.setStatus("Failed to download workflow archive file");
              status.setE(e);
          } catch (WorkflowException | InvalidDAGException e) {
-            status.setHttpResponseCode(HttpResponseStatus.BAD_REQUEST.code());
+            status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Invalid workflow specification");
             status.setE(e);
          } catch (ModelException e) {
-            status.setHttpResponseCode(HttpResponseStatus.BAD_REQUEST.code());
-            status.setStatus("Failed to workflow models");
+            status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
+            status.setStatus("Failed to register workflow models");
             status.setE(e);
          }
 
@@ -118,5 +119,9 @@ public class WorkflowManager {
 
     public WorkFlow getWorkflow(String workflowName) {
         return workflowMap.get(workflowName);
+    }
+
+    public void predict(){
+        
     }
 }

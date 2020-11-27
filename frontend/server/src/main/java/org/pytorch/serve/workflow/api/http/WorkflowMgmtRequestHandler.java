@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -101,7 +102,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getResponseTimeout(),
                                     true);
         } catch (InterruptedException | ExecutionException | IOException e) {
-            status.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
         } finally {
