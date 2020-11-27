@@ -133,6 +133,9 @@ public final class WorkflowManager {
                             })
                     .start();
         }
+
+        workflowMap.remove(workflowName);
+        WorkflowArchive.removeWorkflow(workflowName, workflow.getWorkflowArchive().getUrl());
     }
 
     public WorkFlow getWorkflow(String workflowName) {

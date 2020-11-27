@@ -42,7 +42,8 @@ public class WorkFlow {
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
         this.models = new HashMap<String, WorkflowModel>();
         @SuppressWarnings("unchecked")
-        LinkedHashMap<String, Object> spec = (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
+        LinkedHashMap<String, Object> spec =
+                (LinkedHashMap<String, Object>) this.readSpecFile(specFile);
         this.workflowSpec = spec;
 
         @SuppressWarnings("unchecked")
@@ -110,7 +111,7 @@ public class WorkFlow {
 
             @SuppressWarnings("unchecked")
             ArrayList<String> values = (ArrayList<String>) entry.getValue();
-            for (String toModelName : values ) {
+            for (String toModelName : values) {
                 WorkflowModel toWfm;
                 if (!models.containsKey(toModelName)) {
                     toWfm =

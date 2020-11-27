@@ -127,10 +127,11 @@ public class EnsembleTest {
     @Test(alwaysRun = true)
     public void testWorkflowYaml() throws Exception {
 
-//         torch-workflow-archiver  --workflow-name test  --spec-file
-//         /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml --handler
-//         /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py
-//         --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
+        //         torch-workflow-archiver  --workflow-name test  --spec-file
+        //         /Users/demo/git/serve/frontend/server/src/test/resources/workflow_spec.yaml
+        // --handler
+        //         /Users/demo/git/serve/frontend/server/src/test/resources/workflow_handler.py
+        //         --export-path /Users/demo/git/serve/frontend/server/src/test/resources/ -f
 
         try {
             StatusResponse status =
@@ -143,8 +144,6 @@ public class EnsembleTest {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-        } finally {
-
         }
     }
 }
