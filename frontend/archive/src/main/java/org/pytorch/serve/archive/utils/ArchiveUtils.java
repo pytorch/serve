@@ -38,13 +38,21 @@ public final class ArchiveUtils {
         }
     }
 
-    public static boolean isAllowedUrl(List<String> allowedUrls, String url) {
+    public static boolean validateURL(List<String> allowedUrls, String url)
+            throws InvalidArchiveURLException {
+        boolean patternMatch = false;
         for (String temp : allowedUrls) {
             if (Pattern.compile(temp, Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
-                return true;
+                patternMatch = true;
+                return patternMatch;
             }
         }
-        return false;
+        if (isValidURL(url)) {
+            // case when url is valid url but does not match valid hosts
+            throw new InvalidArchiveURLException(
+                    "Given URL " + url + " does not match any allowed URL(s)");
+        }
+        return patternMatch;
     }
 
     public static boolean isValidURL(String url) {
@@ -53,24 +61,20 @@ public final class ArchiveUtils {
 
     public static boolean downloadArchive(
             List<String> allowedUrls, File location, String archiveName, String url)
-            throws FileAlreadyExistsException, FileNotFoundException, DownloadArchiveException {
-        if (ArchiveUtils.isValidURL(url)) {
-            if (ArchiveUtils.isAllowedUrl(allowedUrls, url)) {
-                if (location.exists()) {
-                    throw new FileAlreadyExistsException(archiveName);
-                }
-                try {
-                    FileUtils.copyURLToFile(new URL(url), location);
-                } catch (IOException e) {
-                    FileUtils.deleteQuietly(location);
-                    throw new DownloadArchiveException(
-                            "Failed to download archive from: " + url, e);
-                }
+            throws FileAlreadyExistsException, FileNotFoundException, DownloadArchiveException,
+                    InvalidArchiveURLException {
+        if (validateURL(allowedUrls, url)) {
+            if (location.exists()) {
+                throw new FileAlreadyExistsException(archiveName);
             }
-        } else {
-            throw new FileNotFoundException(
-                    "Given URL " + url + " does not match any allowed URL(s)");
+            try {
+                FileUtils.copyURLToFile(new URL(url), location);
+            } catch (IOException e) {
+                FileUtils.deleteQuietly(location);
+                throw new DownloadArchiveException("Failed to download archive from: " + url, e);
+            }
         }
+
         return true;
     }
 }
