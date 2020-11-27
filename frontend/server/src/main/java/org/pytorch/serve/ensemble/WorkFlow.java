@@ -17,7 +17,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 public class WorkFlow {
 
-    private LinkedHashMap<String, Object> workflowSpec;
+    private Map<String, Object> workflowSpec;
 
     private WorkflowArchive workflowArchive;
     private int minWorkers = 1;
@@ -47,8 +47,8 @@ public class WorkFlow {
         this.workflowSpec = spec;
 
         @SuppressWarnings("unchecked")
-        LinkedHashMap<String, Object> modelsInfo =
-                (LinkedHashMap<String, Object>) this.workflowSpec.get("models");
+        Map<String, Object> modelsInfo =
+                (Map<String, Object>) this.workflowSpec.get("models");
         for (Map.Entry<String, Object> entry : modelsInfo.entrySet()) {
             String keyName = entry.getKey();
 
@@ -87,8 +87,8 @@ public class WorkFlow {
         }
 
         @SuppressWarnings("unchecked")
-        LinkedHashMap<String, Object> dagInfo =
-                (LinkedHashMap<String, Object>) this.workflowSpec.get("dag");
+        Map<String, Object> dagInfo =
+                (Map<String, Object>) this.workflowSpec.get("dag");
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
             String modelName = entry.getKey();
@@ -133,12 +133,14 @@ public class WorkFlow {
         }
     }
 
-    private static Object readSpecFile(File file) throws IOException, InvalidWorkflowException {
+    private static Map<String, Object>  readSpecFile(File file) throws IOException, InvalidWorkflowException {
         Yaml yaml = new Yaml();
         try (Reader r =
                 new InputStreamReader(
                         Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
-            return yaml.load(r);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> loadedYaml = (Map<String, Object>) yaml.load(r);
+            return loadedYaml;
         } catch (YAMLException e) {
             throw new InvalidWorkflowException("Failed to parse yaml.", e);
         }
