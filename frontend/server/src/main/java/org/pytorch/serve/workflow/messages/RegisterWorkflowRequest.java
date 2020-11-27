@@ -2,6 +2,7 @@ package org.pytorch.serve.workflow.messages;
 
 import com.google.gson.annotations.SerializedName;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import org.pytorch.serve.util.NettyUtils;
 
 public class RegisterWorkflowRequest {
     @SerializedName("workflow_name")
@@ -13,8 +14,11 @@ public class RegisterWorkflowRequest {
     @SerializedName("url")
     private String workflowUrl;
 
-
-    public RegisterWorkflowRequest(QueryStringDecoder decoder) {}
+    public RegisterWorkflowRequest(QueryStringDecoder decoder) {
+        workflowName = NettyUtils.getParameter(decoder, "name", null);
+        responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
+        workflowUrl = NettyUtils.getParameter(decoder, "url", null);
+    }
 
     public void setWorkflowName(String workflowName) {
         this.workflowName = workflowName;

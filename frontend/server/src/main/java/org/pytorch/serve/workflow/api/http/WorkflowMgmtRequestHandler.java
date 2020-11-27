@@ -1,16 +1,16 @@
 package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.ensemble.WorkFlow;
 import org.pytorch.serve.http.*;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
@@ -80,8 +80,9 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleDescribeWorkflow(ChannelHandlerContext ctx, String workflowName) {
-        ArrayList<DescribeWorkflowResponse> resp =
-                WorkflowManager.getInstance().getWorkflowDescription(workflowName);
+        ArrayList<DescribeWorkflowResponse> resp = new ArrayList<>();
+        WorkFlow workFlow = WorkflowManager.getInstance().getWorkflow(workflowName);
+        resp.add(createWorkflowResponse(workflowName, workFlow));
         NettyUtils.sendJsonResponse(ctx, resp);
     }
 
@@ -91,6 +92,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
 
         try {
             RegisterWorkflowRequest registerWFRequest = parseRequest(req, decoder);
+
             status =
                     WorkflowManager.getInstance()
                             .registerWorkflow(
@@ -98,8 +100,8 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-        } catch (Exception e) {
-            status.setHttpResponseCode(500);
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            status.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
         } finally {
@@ -142,5 +144,18 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                         statusResponse.getE());
             }
         }
+    }
+
+    private static DescribeWorkflowResponse createWorkflowResponse(
+            String workflowName, WorkFlow workflow) {
+        DescribeWorkflowResponse response = new DescribeWorkflowResponse();
+        response.setWorkflowName(workflowName);
+        response.setWorkflowUrl(workflow.getWorkflowArchive().getUrl());
+        response.setBatchSize(workflow.getBatchSize());
+        response.setMaxBatchDelay(workflow.getBatchSizeDelay());
+        response.setMaxWorkers(workflow.getMaxWorkers());
+        response.setMinWorkers(workflow.getMinWorkers());
+        response.setWorkflowDag(workflow.getWorkflowDag());
+        return response;
     }
 }
