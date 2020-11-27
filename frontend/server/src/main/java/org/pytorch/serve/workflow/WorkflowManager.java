@@ -197,13 +197,10 @@ public final class WorkflowManager {
         return workflowMap;
     }
 
-    public void unregisterWorkflow(String workflowName, ArrayList<String> unregisterNodes) {
+    public void unregisterWorkflow(String workflowName) {
         WorkFlow workflow = workflowMap.get(workflowName);
-        Map<String, Node> nodes = null;
         Dag dag = workflow.getDag();
-
         unregisterModels(dag.getNodes());
-
         workflowMap.remove(workflow);
         WorkflowArchive.removeWorkflow(workflowName, workflow.getWorkflowArchive().getUrl());
     }
