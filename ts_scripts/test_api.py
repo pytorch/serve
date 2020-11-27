@@ -2,7 +2,7 @@ import glob
 import os
 import sys
 import argparse
-from scripts import tsutils as ts
+from ts_scripts import tsutils as ts
 
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
