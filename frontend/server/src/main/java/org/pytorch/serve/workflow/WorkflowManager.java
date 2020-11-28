@@ -4,12 +4,16 @@ import io.netty.channel.ChannelHandlerContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.pytorch.serve.archive.DownloadArchiveException;
-import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
@@ -22,6 +26,7 @@ import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.workflow.messages.ModelRegistrationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,39 +67,77 @@ public final class WorkflowManager {
     }
 
     public StatusResponse registerWorkflow(
-            String workflowName, String url, int responseTimeout, boolean synchronous)
-            throws IOException, ExecutionException, InterruptedException {
+            String workflowName, String url, int responseTimeout, boolean synchronous) {
         StatusResponse status = new StatusResponse();
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        CompletionService<ModelRegistrationResult> executorCompletionService =
+                new ExecutorCompletionService<>(executorService);
+        boolean failed = false;
+        ArrayList<String> failedMessages = new ArrayList<>();
+        ArrayList<String> successNodes = new ArrayList<>();
         try {
             WorkflowArchive archive = createWorkflowArchive(workflowName, url);
             WorkFlow workflow = createWorkflow(archive);
 
             Map<String, Node> nodes = workflow.getDag().getNodes();
-            List<StatusResponse> responses = new ArrayList<>();
+
+            List<Future<ModelRegistrationResult>> futures = new ArrayList<>();
+
             for (Map.Entry<String, Node> entry : nodes.entrySet()) {
                 Node node = entry.getValue();
                 WorkflowModel wfm = node.getWorkflowModel();
 
-                responses.add(
-                        ApiUtils.handleRegister(
-                                wfm.getUrl(),
-                                wfm.getName(),
-                                null,
-                                wfm.getHandler(),
-                                wfm.getBatchSize(),
-                                wfm.getMaxBatchDelay(),
-                                responseTimeout,
-                                wfm.getMaxWorkers(),
-                                synchronous));
+                futures.add(
+                        executorCompletionService.submit(
+                                () -> registerModelWrapper(wfm, responseTimeout, synchronous)));
             }
 
-            status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
-            status.setStatus(
-                    String.format(
-                            "Workflow %s has been registered and scaled successfully.",
-                            workflowName));
+            int i = 0;
+            while (i < futures.size()) {
+                i++;
+                Future<ModelRegistrationResult> future = executorCompletionService.take();
+                if (future.isCancelled()) {
+                    failed = true;
+                    continue;
+                }
 
-            workflowMap.putIfAbsent(workflowName, workflow);
+                ModelRegistrationResult result = future.get();
+                if (result.getResponse().getHttpResponseCode() != HttpURLConnection.HTTP_OK) {
+                    failed = true;
+                    failedMessages.add(result.getResponse().getStatus());
+                    for (Future<ModelRegistrationResult> f : futures) {
+                        f.cancel(false);
+                    }
+                } else {
+                    successNodes.add(result.getModelName());
+                }
+            }
+
+            if (failed) {
+                status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                String message =
+                        String.format(
+                                "Workflow %s has failed to register. Failures: %s",
+                                workflowName, failedMessages.toString());
+                status.setStatus(message);
+                status.setE(new WorkflowException(message));
+
+                Map<String, Node> unregisterNodes = new HashMap<>();
+                for (String nodeName : successNodes) {
+                    unregisterNodes.put(nodeName, nodes.get(nodeName));
+                }
+                unregisterModels(unregisterNodes);
+
+            } else {
+                status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
+                status.setStatus(
+                        String.format(
+                                "Workflow %s has been registered and scaled successfully.",
+                                workflowName));
+
+                workflowMap.putIfAbsent(workflowName, workflow);
+            }
+
         } catch (DownloadArchiveException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Failed to download workflow archive file");
@@ -103,13 +146,40 @@ public final class WorkflowManager {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Invalid workflow specification");
             status.setE(e);
-        } catch (ModelException e) {
+        } catch (Exception e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
-            status.setStatus("Failed to register workflow models");
+            status.setStatus("Failed to register workflow");
             status.setE(e);
+        } finally {
+            executorService.shutdown();
+        }
+        return status;
+    }
+
+    public ModelRegistrationResult registerModelWrapper(
+            WorkflowModel wfm, int responseTimeout, boolean synchronous) {
+        StatusResponse status = new StatusResponse();
+        try {
+            status =
+                    ApiUtils.handleRegister(
+                            wfm.getUrl(),
+                            wfm.getName(),
+                            null,
+                            wfm.getHandler(),
+                            wfm.getBatchSize(),
+                            wfm.getMaxBatchDelay(),
+                            responseTimeout,
+                            wfm.getMaxWorkers(),
+                            synchronous);
+        } catch (Exception e) {
+            status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+            status.setStatus(
+                    String.format(
+                            "Workflow Node %s failed to register. %s",
+                            wfm.getName(), e.getMessage()));
         }
 
-        return status;
+        return new ModelRegistrationResult(wfm.getName(), status);
     }
 
     public ConcurrentHashMap<String, WorkFlow> getWorkflows() {
@@ -119,6 +189,13 @@ public final class WorkflowManager {
     public void unregisterWorkflow(String workflowName) {
         WorkFlow workflow = workflowMap.get(workflowName);
         Map<String, Node> nodes = workflow.getDag().getNodes();
+        unregisterModels(nodes);
+        workflowMap.remove(workflowName);
+        WorkflowArchive.removeWorkflow(workflowName, workflow.getWorkflowArchive().getUrl());
+    }
+
+    public void unregisterModels(Map<String, Node> nodes) {
+
         for (Map.Entry<String, Node> entry : nodes.entrySet()) {
             Node node = entry.getValue();
             WorkflowModel wfm = node.getWorkflowModel();
@@ -134,9 +211,6 @@ public final class WorkflowManager {
                             })
                     .start();
         }
-
-        workflowMap.remove(workflowName);
-        WorkflowArchive.removeWorkflow(workflowName, workflow.getWorkflowArchive().getUrl());
     }
 
     public WorkFlow getWorkflow(String workflowName) {

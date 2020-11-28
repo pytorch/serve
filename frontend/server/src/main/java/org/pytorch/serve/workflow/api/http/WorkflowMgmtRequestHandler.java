@@ -8,13 +8,11 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.ensemble.WorkFlow;
@@ -135,10 +133,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-        } catch (InterruptedException
-                | ExecutionException
-                | IOException
-                | ConflictStatusException e) {
+        } catch (ConflictStatusException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
