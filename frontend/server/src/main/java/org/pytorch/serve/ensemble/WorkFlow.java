@@ -47,8 +47,7 @@ public class WorkFlow {
         this.workflowSpec = spec;
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modelsInfo =
-                (Map<String, Object>) this.workflowSpec.get("models");
+        Map<String, Object> modelsInfo = (Map<String, Object>) this.workflowSpec.get("models");
         for (Map.Entry<String, Object> entry : modelsInfo.entrySet()) {
             String keyName = entry.getKey();
 
@@ -87,8 +86,7 @@ public class WorkFlow {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> dagInfo =
-                (Map<String, Object>) this.workflowSpec.get("dag");
+        Map<String, Object> dagInfo = (Map<String, Object>) this.workflowSpec.get("dag");
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
             String modelName = entry.getKey();
@@ -133,7 +131,8 @@ public class WorkFlow {
         }
     }
 
-    private static Map<String, Object>  readSpecFile(File file) throws IOException, InvalidWorkflowException {
+    private static Map<String, Object> readSpecFile(File file)
+            throws IOException, InvalidWorkflowException {
         Yaml yaml = new Yaml();
         try (Reader r =
                 new InputStreamReader(
