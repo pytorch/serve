@@ -13,12 +13,11 @@ import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
+import org.pytorch.serve.archive.workflow.Manifest;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.pytorch.serve.archive.workflow.WorkflowException;
-import org.pytorch.serve.ensemble.InvalidDAGException;
-import org.pytorch.serve.ensemble.Node;
-import org.pytorch.serve.ensemble.WorkFlow;
-import org.pytorch.serve.ensemble.WorkflowModel;
+import org.pytorch.serve.ensemble.*;
+import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
@@ -144,5 +143,12 @@ public final class WorkflowManager {
         return workflowMap.get(workflowName);
     }
 
-    public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {}
+    public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {
+        WorkFlow wf = workflowMap.get(wfName);
+        if(wf != null){
+            String prediction = wf.getDag().executeFlow(input);
+        }else {
+            throw new ResourceNotFoundException();
+        }
+    }
 }
