@@ -37,6 +37,7 @@ public final class OpenApiUtils {
     private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
         openApi.addPath("/ping", getPingPath());
+        // The prediction api to access torchserve from kfserving v1 predictor 
         openApi.addPath("/v1/models/{model_name}:predict", getPredictionsPath(false));
         openApi.addPath("/predictions/{model_name}", getPredictionsPath(false));
         openApi.addPath("/predictions/{model_name}/{model_version}", getPredictionsPath(true));
