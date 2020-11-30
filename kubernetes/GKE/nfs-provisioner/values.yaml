@@ -39,7 +39,7 @@ service:
   statdPort: 662
 
 persistentDisk:
-  name: nfs-disk
+  name: nfs-disk  # Name of the disk created
 
 persistentVolume:
   name: mypvc
@@ -67,7 +67,7 @@ affinity:
         - matchExpressions:
           - key: "failure-domain.beta.kubernetes.io/zone"
             operator: In
-            values: ["us-west1-a"]
+            values: ["us-west1-a"]  # Update with zone of your storage disk
 
 ingress:
   enabled: true

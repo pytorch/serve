@@ -27,10 +27,10 @@ gcloud config configurations activate <config_name>
 
 #### 1.2 Create GKE cluster
 
-Use the [gcloud container clusters create](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster) command to create an GKE cluster. The following example creates a cluster named *torchserve* with one node with a *nvidia-tesla-t4* GPU. This will take several minutes to complete.
+Use the [gcloud container clusters create](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster) command to create an GKE cluster. The following example creates a cluster named *torchserve* with one node. This will take several minutes to complete.
 
 ```bash
-gcloud container clusters create torchserve --machine-type n1-standard-4 --accelerator type=nvidia-tesla-t4,count=1 --num-nodes 1
+gcloud container clusters create torchserve --machine-type n1-standard-4 --num-nodes 1
 
 WARNING: Warning: basic authentication is deprecated, and will be removed in GKE control plane versions 1.19 and newer. For a list of recommended authentication methods, see: https://cloud.google.com/kubernetes-engine/docs/how-to/api-server-authentication
 WARNING: Currently VPC-native is not the default mode during cluster creation. In the future, this will become the default mode and can be disabled using `--no-enable-ip-alias` flag. Use `--[no-]enable-ip-alias` flag to suppress this warning.
@@ -45,6 +45,16 @@ To inspect the contents of your cluster, go to: https://console.cloud.google.com
 kubeconfig entry generated for ts.
 NAME  LOCATION  MASTER_VERSION   MASTER_IP      MACHINE_TYPE   NODE_VERSION     NUM_NODES  STATUS
 ts    us-west1  1.16.13-gke.401  34.83.140.167  n1-standard-4  1.16.13-gke.401  1          RUNNING
+```
+
+##### 1.2.1 Add GPU Accelerator
+
+For running a cluster with GPU accelerator use `--accelerator type=,count=`
+
+The below command creates a cluster with a single n1-standard-4 node with and nvidia-testla-t4 GPU accelerator.
+
+```bash
+gcloud container clusters create torchserve --machine-type n1-standard-4 --accelerator type=nvidia-tesla-t4,count=1 --num-nodes 1
 ```
 
 #### 1.3 Connect to the cluster
@@ -100,7 +110,8 @@ daemonset.apps/nvidia-driver-installer created
 
 ```bash
 kubectl get nodes "-o=custom-columns=NAME:.metadata.name,MEMORY:.status.allocatable.memory,CPU:.status.allocatable.cpu,GPU:.status.allocatable.nvidia\.com/gpu"
-``` 
+```
+
 should show something similar to:
 
 ```bash

@@ -8,14 +8,13 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    # FIXED: Use internal DNS name
-    server: 10.79.243.38
+    server: 10.79.243.38  # Modify nfs-server IP
     path: "/"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: model-store-claim
+  name: model-store-claim # See to that this match PVC name in torchserve
 spec:
   accessModes:
     - ReadWriteMany

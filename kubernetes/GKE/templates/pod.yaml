@@ -6,7 +6,7 @@ spec:
   volumes:
     - name: mypvc
       persistentVolumeClaim:
-        claimName: model-store-claim
+        claimName: model-store-claim  # Update PV Claim name
   containers:
     - name: model-store
       image: ubuntu
