@@ -49,8 +49,7 @@ public final class ApiUtils {
             pageToken = 0;
         }
 
-        ModelManager modelManager = ModelManager.getInstance();
-        Map<String, Model> models = modelManager.getDefaultModels();
+        Map<String, Model> models = ModelManager.getInstance().getDefaultModels(true);
 
         List<String> keys = new ArrayList<>(models.keySet());
         Collections.sort(keys);

@@ -360,18 +360,25 @@ public final class ModelManager {
         return updateModel(modelName, versionId, minWorkers, maxWorkers, false, false);
     }
 
-    public Map<String, Model> getDefaultModels() {
+    public Map<String, Model> getDefaultModels(boolean skipFuntions) {
         ConcurrentHashMap<String, Model> defModelsMap = new ConcurrentHashMap<>();
         for (String key : modelsNameMap.keySet()) {
             ModelVersionedRefs mvr = modelsNameMap.get(key);
             if (mvr != null) {
                 Model defaultModel = mvr.getDefaultModel();
                 if (defaultModel != null) {
+                    if (skipFuntions && defaultModel.getModelUrl() == null) {
+                        continue;
+                    }
                     defModelsMap.put(key, defaultModel);
                 }
             }
         }
         return defModelsMap;
+    }
+
+    public Map<String, Model> getDefaultModels() {
+        return getDefaultModels(false);
     }
 
     public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {
