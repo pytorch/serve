@@ -11,13 +11,16 @@ import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Node implements Callable<NodeOutput> {
+
+    private static final Logger logger = LoggerFactory.getLogger(Node.class);
     private String name;
     private String parentName;
     private Map<String, Object> inputDataMap;
     private WorkflowModel workflowModel;
-    private String wfModelVersion;
 
     public Node(String name, WorkflowModel model) {
         this.name = name;
@@ -59,7 +62,7 @@ public class Node implements Callable<NodeOutput> {
 
     @Override
     public NodeOutput call() throws Exception {
-        return invoke_model();
+        return invokeModel();
         //        Random rand = new Random();
         //        ArrayList<String> a = new ArrayList<>();
         //        for (Object s : this.getInputDataMap().values()) {
@@ -69,7 +72,7 @@ public class Node implements Callable<NodeOutput> {
         //        return new NodeOutput(this.getName(), String.join("-", a));
     }
 
-    private NodeOutput invoke_model() {
+    private NodeOutput invokeModel() {
         try {
             // TODO remove hard coding for model version
             CompletableFuture<FullHttpResponse> respFuture = new CompletableFuture<>();
@@ -84,15 +87,13 @@ public class Node implements Callable<NodeOutput> {
                 FullHttpResponse resp = respFuture.get();
 
                 return new NodeOutput(this.getName(), resp);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Failed to execute workflow Node.");
+                logger.error(e.getMessage());
             }
-        } catch (ModelNotFoundException e) {
-            e.printStackTrace();
-        } catch (ModelVersionNotFoundException e) {
-            e.printStackTrace();
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            logger.error("Model not found.");
+            logger.error(e.getMessage());
         }
         return null;
     }

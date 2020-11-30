@@ -131,10 +131,8 @@ public class Dag {
     public ArrayList<NodeOutput> execute(RequestInput input, ArrayList<String> topoSortedList) {
 
         Map<String, Integer> inDegreeMap = getInDegreeMap();
-        // ArrayList<String> topoSortedList = new ArrayList<String>();
 
         Set<String> zeroInDegree = getStartNodeNames();
-        ;
         Set<String> executing = new HashSet<>();
 
         for (String s : zeroInDegree) {
@@ -179,7 +177,6 @@ public class Dag {
     public ArrayList<NodeOutput> executeNode(Set<String> readyToExecute) {
         ArrayList<NodeOutput> out = new ArrayList<>();
         for (String name : readyToExecute) {
-            System.out.println(name);
             futures.add(executorCompletionService.submit(nodes.get(name)));
         }
 
@@ -197,7 +194,6 @@ public class Dag {
     private ArrayList<NodeOutput> validateNode(Set<String> readyToExecute) {
         ArrayList<NodeOutput> out = new ArrayList<>();
         for (String name : readyToExecute) {
-            System.out.println(name);
             futures.add(executorCompletionService.submit(nodes.get(name)));
         }
 

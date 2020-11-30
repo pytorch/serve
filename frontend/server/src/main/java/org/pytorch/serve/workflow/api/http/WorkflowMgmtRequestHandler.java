@@ -133,8 +133,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                     registerWFRequest.getWorkflowUrl(),
                                     registerWFRequest.getResponseTimeout(),
                                     true);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (ConflictStatusException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus("Error while registering workflow. Details: " + e.getMessage());
             status.setE(e);
