@@ -1,7 +1,12 @@
 package org.pytorch.serve.workflow;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -230,7 +235,12 @@ public final class WorkflowManager {
             ArrayList<NodeOutput> result = wf.getDag().executeFlow(input);
             NodeOutput prediction = result.get(0);
             if (prediction != null && prediction.getData() != null) {
-                NettyUtils.sendHttpResponse(ctx, (FullHttpResponse) prediction.getData(), true);
+                FullHttpResponse resp =
+                        new DefaultFullHttpResponse(
+                                HttpVersion.HTTP_1_1, HttpResponseStatus.OK, false);
+                resp.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+                resp.content().writeBytes((byte[]) prediction.getData());
+                NettyUtils.sendHttpResponse(ctx, resp, true);
             } else {
                 throw new InternalServerException("Workflow inference failed!");
             }

@@ -28,7 +28,7 @@ public class RestJob extends Job {
     private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     private ChannelHandlerContext ctx;
-    private CompletableFuture<FullHttpResponse> responsePromise;
+    private CompletableFuture<byte[]> responsePromise;
 
     public RestJob(
             ChannelHandlerContext ctx,
@@ -75,7 +75,7 @@ public class RestJob extends Job {
                     getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         } else if (responsePromise != null) {
-            responsePromise.complete(resp);
+            responsePromise.complete(body);
         }
 
         logger.debug(
@@ -113,7 +113,7 @@ public class RestJob extends Job {
                     new DefaultFullHttpResponse(
                             HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(status), false);
             fullResp.content().writeBytes(error.getBytes());
-            responsePromise.complete(fullResp);
+            responsePromise.complete(error.getBytes());
         }
 
         logger.debug(
@@ -122,11 +122,11 @@ public class RestJob extends Job {
                 System.nanoTime() - getBegin());
     }
 
-    public CompletableFuture<FullHttpResponse> getResponsePromise() {
+    public CompletableFuture<byte[]> getResponsePromise() {
         return responsePromise;
     }
 
-    public void setResponsePromise(CompletableFuture<FullHttpResponse> responsePromise) {
+    public void setResponsePromise(CompletableFuture<byte[]> responsePromise) {
         this.responsePromise = responsePromise;
     }
 }

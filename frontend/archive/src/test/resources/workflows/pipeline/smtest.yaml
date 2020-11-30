@@ -11,3 +11,4 @@ models:
  
 dag:
   preprocessing: [m1]
+  m1: [postprocessing]

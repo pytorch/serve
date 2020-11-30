@@ -163,7 +163,8 @@ public class Dag {
 
                 for (String newNodeName : dagMap.get(nodeName).get("outDegree")) {
                     List<InputParameter> params = new ArrayList<>();
-                    params.add(new InputParameter("body", output.getData().toString()));
+                    byte[] response = (byte[]) output.getData();
+                    params.add(new InputParameter("body", response));
                     input.setParameters(params);
                     nodes.get(newNodeName).updateInputDataMap("input", input);
                     inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);

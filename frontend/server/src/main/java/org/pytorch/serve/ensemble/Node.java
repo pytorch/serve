@@ -1,6 +1,5 @@
 package org.pytorch.serve.ensemble;
 
-import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -75,7 +74,7 @@ public class Node implements Callable<NodeOutput> {
     private NodeOutput invokeModel() {
         try {
             // TODO remove hard coding for model version
-            CompletableFuture<FullHttpResponse> respFuture = new CompletableFuture<>();
+            CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
             RestJob job =
                     ApiUtils.addInferenceJob(
                             null,
@@ -84,7 +83,7 @@ public class Node implements Callable<NodeOutput> {
                             (RequestInput) inputDataMap.get("input"));
             job.setResponsePromise(respFuture);
             try {
-                FullHttpResponse resp = respFuture.get();
+                byte[] resp = respFuture.get();
 
                 return new NodeOutput(this.getName(), resp);
             } catch (InterruptedException | ExecutionException e) {
