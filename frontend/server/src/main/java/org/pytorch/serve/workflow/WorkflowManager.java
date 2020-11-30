@@ -13,18 +13,21 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import io.netty.handler.codec.http.FullHttpResponse;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
-import org.pytorch.serve.archive.workflow.Manifest;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.ensemble.*;
+import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.workflow.messages.ModelRegistrationResult;
 import org.slf4j.Logger;
@@ -118,7 +121,7 @@ public final class WorkflowManager {
                 String message =
                         String.format(
                                 "Workflow %s has failed to register. Failures: %s",
-                                workflowName, failedMessages.toString());
+                                workflow.getWorkflowArchive().getWorkflowName(), failedMessages.toString());
                 status.setStatus(message);
                 status.setE(new WorkflowException(message));
 
@@ -220,7 +223,13 @@ public final class WorkflowManager {
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {
         WorkFlow wf = workflowMap.get(wfName);
         if(wf != null){
-            String prediction = wf.getDag().executeFlow(input);
+            ArrayList<NodeOutput> result = wf.getDag().executeFlow(input);
+            NodeOutput prediction = result.get(0);
+            if(prediction != null && prediction.getData() != null) {
+                NettyUtils.sendHttpResponse(ctx, (FullHttpResponse)prediction.getData(), true);
+            }else{
+                throw new InternalServerException("Workflow inference failed!");
+            }
         }else {
             throw new ResourceNotFoundException();
         }

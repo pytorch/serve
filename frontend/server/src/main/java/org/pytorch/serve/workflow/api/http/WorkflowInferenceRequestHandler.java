@@ -1,16 +1,10 @@
 package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import java.net.HttpURLConnection;
-import java.util.Map;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.http.BadRequestException;
@@ -20,8 +14,11 @@ import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.workflow.WorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * A class handling inbound HTTP requests to the workflow inference API.
@@ -61,17 +58,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
         if (wfName == null) {
             throw new BadRequestException("Parameter workflow_name is required.");
         }
-
-        //        Job job = new RestJob(ctx, wfName, WorkerCommands.PREDICT, input);
-        //        if (!ModelManager.getInstance().addJob(job)) {
-        //            throw new ServiceUnavailableException("Model \""+ wfName + " has no worker to
-        // serve inference request. Please use scale workers API to add workers.");
-        //        }
-        StatusResponse status = new StatusResponse();
-        status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
-        status.setStatus("Got inference request");
-        status.setE(new Exception("All is well"));
-        sendResponse(ctx, status);
+        WorkflowManager.getInstance().predict(ctx, wfName, input);
     }
 
     private void sendResponse(ChannelHandlerContext ctx, StatusResponse statusResponse) {

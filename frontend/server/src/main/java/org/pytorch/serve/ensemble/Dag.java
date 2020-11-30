@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,10 +105,11 @@ public class Dag {
         return nodes;
     }
 
-    public ArrayList<String> topoSort() throws InvalidDAGException {
+    public ArrayList<NodeOutput> executeFlow(RequestInput input) {
+        return execute(input,null);
+    }
 
-        Map<String, Integer> inDegreeMap = getInDegreeMap();
-        ArrayList<String> topoSortedList = new ArrayList<String>();
+    public ArrayList<String> topoSort() throws InvalidDAGException {
         Set<String> startNodes = getStartNodeNames();
         Set<String> leafNodes = getLeafNodeNames();
 
@@ -118,25 +121,47 @@ public class Dag {
             throw new InvalidDAGException("DAG should have only one end node");
         }
 
-        Set<String> zeroInDegree = startNodes;
+        ArrayList<String> topoSortedList = new ArrayList<>();
+        execute(null, topoSortedList);
+        if (topoSortedList.size() != nodes.size()) {
+            throw new InvalidDAGException("Not a valid DAG");
+        }
+        return topoSortedList;
+    }
+
+    public ArrayList<NodeOutput> execute(RequestInput input, ArrayList<String> topoSortedList) {
+
+        Map<String, Integer> inDegreeMap = getInDegreeMap();
+        //ArrayList<String> topoSortedList = new ArrayList<String>();
+
+        Set<String> zeroInDegree = getStartNodeNames();;
         Set<String> executing = new HashSet<>();
 
         for (String s : zeroInDegree) {
             nodes.get(s).updateInputDataMap("start", "0");
         }
 
+        ArrayList<NodeOutput> outputs = null;
+
         while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
             readyToExecute.removeAll(executing);
             executing.addAll(readyToExecute);
 
-            ArrayList<NodeOutput> outputs = execute(readyToExecute);
+
+            if(topoSortedList != null){
+                outputs = validateNode(readyToExecute);
+            }else{
+                outputs = executeNode(readyToExecute);
+            }
 
             for (NodeOutput output : outputs) {
                 String nodeName = output.getNodeName();
                 executing.remove(nodeName);
                 zeroInDegree.remove(nodeName);
-                topoSortedList.add(nodeName);
+                if(topoSortedList != null) {
+                    topoSortedList.add(nodeName);
+                }
 
                 for (String newNodeName : dagMap.get(nodeName).get("outDegree")) {
                     nodes.get(newNodeName).updateInputDataMap(nodeName, output.getData());
@@ -148,17 +173,32 @@ public class Dag {
             }
         }
 
-        if (topoSortedList.size() != nodes.size()) {
-            throw new InvalidDAGException("Not a valid DAG");
-        }
-
         executorService.shutdown();
-        return topoSortedList;
+        return outputs;
     }
 
-    private ArrayList<NodeOutput> execute(Set<String> readyToExecute) {
+    public ArrayList<NodeOutput> executeNode(Set<String> readyToExecute) {
         ArrayList<NodeOutput> out = new ArrayList<>();
         for (String name : readyToExecute) {
+            System.out.println(name);
+            futures.add(executorCompletionService.submit(nodes.get(name)));
+        }
+
+        try {
+            NodeOutput result = executorCompletionService.take().get();
+            logger.info("Result: " + result.getNodeName() + " " + result.getData());
+            out.add(result);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Failed to execute workflow Node.");
+            logger.error(e.getMessage());
+        }
+        return out;
+    }
+
+    private ArrayList<NodeOutput> validateNode(Set<String> readyToExecute) {
+        ArrayList<NodeOutput> out = new ArrayList<>();
+        for (String name : readyToExecute) {
+            System.out.println(name);
             futures.add(executorCompletionService.submit(nodes.get(name)));
         }
 

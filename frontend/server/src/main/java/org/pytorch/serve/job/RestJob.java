@@ -1,5 +1,6 @@
 package org.pytorch.serve.job;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -7,6 +8,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.metrics.Dimension;
@@ -27,6 +29,7 @@ public class RestJob extends Job {
     private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     private ChannelHandlerContext ctx;
+    private CompletableFuture<FullHttpResponse> responsePromise;
 
     public RestJob(
             ChannelHandlerContext ctx,
@@ -72,7 +75,10 @@ public class RestJob extends Job {
             MetricAggregator.handleInferenceMetric(
                     getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
+        }else if(responsePromise != null){
+            responsePromise.complete(resp);
         }
+
         logger.debug(
                 "Waiting time ns: {}, Backend time ns: {}",
                 getScheduled() - getBegin(),
@@ -103,11 +109,23 @@ public class RestJob extends Job {
             status = (status == 413) ? 507 : status;
             NettyUtils.sendError(
                     ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
+        } else if(responsePromise != null){
+            FullHttpResponse fullResp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(status),false);
+            fullResp.content().writeBytes(error.getBytes());
+            responsePromise.complete(fullResp);
         }
 
         logger.debug(
                 "Waiting time ns: {}, Inference time ns: {}",
                 getScheduled() - getBegin(),
                 System.nanoTime() - getBegin());
+    }
+
+    public CompletableFuture<FullHttpResponse> getResponsePromise() {
+        return responsePromise;
+    }
+
+    public void setResponsePromise(CompletableFuture<FullHttpResponse> responsePromise) {
+        this.responsePromise = responsePromise;
     }
 }
