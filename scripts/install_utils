@@ -43,7 +43,7 @@ install_pytest_suite_deps()
 
 install_bert_dependencies()
 {
-  pip install transformers=3.5.1
+  pip install transformers==3.5.1
 }
 
 build_frontend() {
