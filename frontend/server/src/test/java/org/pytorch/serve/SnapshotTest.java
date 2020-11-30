@@ -54,12 +54,14 @@ public class SnapshotTest {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         System.setProperty("tsConfigFile", "src/test/resources/config.properties");
-        FileUtils.deleteQuietly(new File(System.getProperty("LOG_LOCATION"), "config"));
+        FileUtils.cleanDirectory(new File(System.getProperty("LOG_LOCATION"), "config"));
+
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        configManager.setIniitialWorkerPort(9500);
         server = new ModelServer(configManager);
         server.start();
     }
@@ -84,6 +86,7 @@ public class SnapshotTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(managementChannel, "noop", null, false);
         TestUtils.getLatch().await();
+
         validateSnapshot("snapshot2.cfg");
         waitForSnapshot();
     }
@@ -168,6 +171,7 @@ public class SnapshotTest {
                         HttpHeaderNames.CONTENT_TYPE,
                         HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         channel.writeAndFlush(req);
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -180,7 +184,7 @@ public class SnapshotTest {
         TestUtils.registerModel(managementChannel, "noop.mar", "noopversioned", true, false);
         TestUtils.getLatch().await();
         validateSnapshot("snapshot6.cfg");
-        waitForSnapshot();
+        waitForSnapshot(5000);
     }
 
     @Test(
@@ -363,7 +367,7 @@ public class SnapshotTest {
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, requestURL);
         channel.writeAndFlush(req).sync();
-        channel.closeFuture().sync();
+        channel.close().sync();
 
         validateSnapshot("snapshot9.cfg");
     }
@@ -415,6 +419,7 @@ public class SnapshotTest {
         prop.put("default_workers_per_model", 4);
         prop.put("number_of_gpu", 4);
         prop.put("version", "0.1.1");
+        prop.put("initial_worker_port", 9500);
     }
 
     private String getLastSnapshot() {
