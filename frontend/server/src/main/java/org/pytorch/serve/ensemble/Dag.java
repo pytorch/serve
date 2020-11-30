@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +162,10 @@ public class Dag {
                 }
 
                 for (String newNodeName : dagMap.get(nodeName).get("outDegree")) {
-                    nodes.get(newNodeName).updateInputDataMap("input", output.getData());
+                    List<InputParameter> params = new ArrayList<>();
+                    params.add(new InputParameter("body", output.getData().toString()));
+                    input.setParameters(params);
+                    nodes.get(newNodeName).updateInputDataMap("input", input);
                     inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
                     if (inDegreeMap.get(newNodeName) == 0) {
                         zeroInDegree.add(newNodeName);

@@ -80,7 +80,7 @@ public class Node implements Callable<NodeOutput> {
                     ApiUtils.addInferenceJob(
                             null,
                             workflowModel.getName(),
-                            "1.0",
+                            null,
                             (RequestInput) inputDataMap.get("input"));
             job.setResponsePromise(respFuture);
             try {
