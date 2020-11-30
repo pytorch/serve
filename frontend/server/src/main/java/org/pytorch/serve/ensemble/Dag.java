@@ -138,7 +138,7 @@ public class Dag {
         Set<String> executing = new HashSet<>();
 
         for (String s : zeroInDegree) {
-            nodes.get(s).updateInputDataMap("start", "0");
+            nodes.get(s).updateInputDataMap("input", input);
         }
 
         ArrayList<NodeOutput> outputs = null;
@@ -164,7 +164,7 @@ public class Dag {
                 }
 
                 for (String newNodeName : dagMap.get(nodeName).get("outDegree")) {
-                    nodes.get(newNodeName).updateInputDataMap(nodeName, output.getData());
+                    nodes.get(newNodeName).updateInputDataMap("input", output.getData());
                     inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
                     if (inDegreeMap.get(newNodeName) == 0) {
                         zeroInDegree.add(newNodeName);
