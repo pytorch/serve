@@ -16,7 +16,7 @@ public class RegisterWorkflowRequest {
 
     public RegisterWorkflowRequest(QueryStringDecoder decoder) {
         workflowName = NettyUtils.getParameter(decoder, "workflow_name", null);
-        responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
+        responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", 120);
         workflowUrl = NettyUtils.getParameter(decoder, "url", null);
     }
 

@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,7 @@ public class Dag {
     }
 
     public ArrayList<NodeOutput> executeFlow(RequestInput input) {
-        return execute(input,null);
+        return execute(input, null);
     }
 
     public ArrayList<String> topoSort() throws InvalidDAGException {
@@ -132,9 +131,10 @@ public class Dag {
     public ArrayList<NodeOutput> execute(RequestInput input, ArrayList<String> topoSortedList) {
 
         Map<String, Integer> inDegreeMap = getInDegreeMap();
-        //ArrayList<String> topoSortedList = new ArrayList<String>();
+        // ArrayList<String> topoSortedList = new ArrayList<String>();
 
-        Set<String> zeroInDegree = getStartNodeNames();;
+        Set<String> zeroInDegree = getStartNodeNames();
+        ;
         Set<String> executing = new HashSet<>();
 
         for (String s : zeroInDegree) {
@@ -148,10 +148,9 @@ public class Dag {
             readyToExecute.removeAll(executing);
             executing.addAll(readyToExecute);
 
-
-            if(topoSortedList != null){
+            if (topoSortedList != null) {
                 outputs = validateNode(readyToExecute);
-            }else{
+            } else {
                 outputs = executeNode(readyToExecute);
             }
 
@@ -159,7 +158,7 @@ public class Dag {
                 String nodeName = output.getNodeName();
                 executing.remove(nodeName);
                 zeroInDegree.remove(nodeName);
-                if(topoSortedList != null) {
+                if (topoSortedList != null) {
                     topoSortedList.add(nodeName);
                 }
 

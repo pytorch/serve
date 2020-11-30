@@ -1,6 +1,5 @@
 package org.pytorch.serve.job;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -75,7 +74,7 @@ public class RestJob extends Job {
             MetricAggregator.handleInferenceMetric(
                     getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
-        }else if(responsePromise != null){
+        } else if (responsePromise != null) {
             responsePromise.complete(resp);
         }
 
@@ -109,8 +108,10 @@ public class RestJob extends Job {
             status = (status == 413) ? 507 : status;
             NettyUtils.sendError(
                     ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
-        } else if(responsePromise != null){
-            FullHttpResponse fullResp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(status),false);
+        } else if (responsePromise != null) {
+            FullHttpResponse fullResp =
+                    new DefaultFullHttpResponse(
+                            HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(status), false);
             fullResp.content().writeBytes(error.getBytes());
             responsePromise.complete(fullResp);
         }

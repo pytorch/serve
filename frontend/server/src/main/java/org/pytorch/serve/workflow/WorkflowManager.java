@@ -1,6 +1,7 @@
 package org.pytorch.serve.workflow;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -13,8 +14,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import io.netty.handler.codec.http.FullHttpResponse;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
@@ -121,7 +120,8 @@ public final class WorkflowManager {
                 String message =
                         String.format(
                                 "Workflow %s has failed to register. Failures: %s",
-                                workflow.getWorkflowArchive().getWorkflowName(), failedMessages.toString());
+                                workflow.getWorkflowArchive().getWorkflowName(),
+                                failedMessages.toString());
                 status.setStatus(message);
                 status.setE(new WorkflowException(message));
 
@@ -136,9 +136,9 @@ public final class WorkflowManager {
                 status.setStatus(
                         String.format(
                                 "Workflow %s has been registered and scaled successfully.",
-                                workflowName));
+                                workflow.getWorkflowArchive().getWorkflowName()));
 
-                workflowMap.putIfAbsent(workflowName, workflow);
+                workflowMap.putIfAbsent(workflow.getWorkflowArchive().getWorkflowName(), workflow);
             }
 
         } catch (DownloadArchiveException e) {
@@ -222,15 +222,15 @@ public final class WorkflowManager {
 
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {
         WorkFlow wf = workflowMap.get(wfName);
-        if(wf != null){
+        if (wf != null) {
             ArrayList<NodeOutput> result = wf.getDag().executeFlow(input);
             NodeOutput prediction = result.get(0);
-            if(prediction != null && prediction.getData() != null) {
-                NettyUtils.sendHttpResponse(ctx, (FullHttpResponse)prediction.getData(), true);
-            }else{
+            if (prediction != null && prediction.getData() != null) {
+                NettyUtils.sendHttpResponse(ctx, (FullHttpResponse) prediction.getData(), true);
+            } else {
                 throw new InternalServerException("Workflow inference failed!");
             }
-        }else {
+        } else {
             throw new ResourceNotFoundException();
         }
     }

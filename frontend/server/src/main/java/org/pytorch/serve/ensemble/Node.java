@@ -1,17 +1,16 @@
 package org.pytorch.serve.ensemble;
 
 import io.netty.handler.codec.http.FullHttpResponse;
-import org.pytorch.serve.archive.model.ModelNotFoundException;
-import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
-import org.pytorch.serve.job.RestJob;
-import org.pytorch.serve.util.ApiUtils;
-import org.pytorch.serve.util.messages.RequestInput;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
+import org.pytorch.serve.job.RestJob;
+import org.pytorch.serve.util.ApiUtils;
+import org.pytorch.serve.util.messages.RequestInput;
 
 public class Node implements Callable<NodeOutput> {
     private String name;
@@ -61,23 +60,29 @@ public class Node implements Callable<NodeOutput> {
     @Override
     public NodeOutput call() throws Exception {
         return invoke_model();
-//        Random rand = new Random();
-//        ArrayList<String> a = new ArrayList<>();
-//        for (Object s : this.getInputDataMap().values()) {
-//            a.add((String) s);
-//        }
-//        a.add(rand.nextInt() + "");
-//        return new NodeOutput(this.getName(), String.join("-", a));
+        //        Random rand = new Random();
+        //        ArrayList<String> a = new ArrayList<>();
+        //        for (Object s : this.getInputDataMap().values()) {
+        //            a.add((String) s);
+        //        }
+        //        a.add(rand.nextInt() + "");
+        //        return new NodeOutput(this.getName(), String.join("-", a));
     }
 
-    private NodeOutput invoke_model(){
+    private NodeOutput invoke_model() {
         try {
-            //TODO remove hard coding for model version
+            // TODO remove hard coding for model version
             CompletableFuture<FullHttpResponse> respFuture = new CompletableFuture<>();
-            RestJob job = ApiUtils.addInferenceJob(null, workflowModel.getName(), "1.0", (RequestInput) inputDataMap.get("input"));
+            RestJob job =
+                    ApiUtils.addInferenceJob(
+                            null,
+                            workflowModel.getName(),
+                            "1.0",
+                            (RequestInput) inputDataMap.get("input"));
             job.setResponsePromise(respFuture);
             try {
                 FullHttpResponse resp = respFuture.get();
+
                 return new NodeOutput(this.getName(), resp);
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -1,0 +1,7 @@
+{
+	"archiverVersion": "1.0",
+	"description": "smtest workflow",
+	"createdOn": "11/29/2020",
+	"workflow": {"workflowName": "smtest", "handler": "smtest.py", "specFile": "smtest.yaml"}
+}
+

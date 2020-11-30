@@ -2,6 +2,16 @@ package org.pytorch.serve.util;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
@@ -26,17 +36,6 @@ import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.ModelVersionedRefs;
 import org.pytorch.serve.wlm.WorkerThread;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
 public final class ApiUtils {
 
@@ -377,10 +376,9 @@ public final class ApiUtils {
         return resp;
     }
 
-    public static RestJob addInferenceJob(ChannelHandlerContext ctx,
-                                       String modelName,
-                                       String version,
-                                       RequestInput input) throws ModelNotFoundException, ModelVersionNotFoundException {
+    public static RestJob addInferenceJob(
+            ChannelHandlerContext ctx, String modelName, String version, RequestInput input)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage =
