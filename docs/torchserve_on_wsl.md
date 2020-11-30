@@ -44,7 +44,10 @@ pip install torchserve torch-model-archiver
 ```
 git clone https://github.com/pytorch/serve.git
 cd serve
-./scripts/install_from_src_wsl
+
+./scripts/setup_wsl_ubuntu
+export PATH=$HOME/.local/bin:$PATH
+python ./ts_scripts/install_from_src.py
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
