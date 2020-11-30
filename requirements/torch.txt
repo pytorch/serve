@@ -2,4 +2,3 @@ torch==1.6.0
 torchvision==0.7.0
 torchtext==0.7.0
 torchaudio==0.6.0
-captum==0.2.0
