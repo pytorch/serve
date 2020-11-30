@@ -180,6 +180,7 @@ public class WorkerThread implements Runnable {
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
+                long wtStartTime = System.currentTimeMillis();
                 backendChannel.writeAndFlush(req).sync();
 
                 long begin = System.currentTimeMillis();
@@ -217,6 +218,15 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
+                String workerThreadTime =
+                        String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
+                loggerTsMetrics.info(
+                        new Metric(
+                                "WorkerThreadTime",
+                                workerThreadTime,
+                                "ms",
+                                ConfigManager.getInstance().getHostName(),
+                                new Dimension("Level", "Host")));
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);

@@ -6,12 +6,12 @@ This folder contains nightly regression tests execututed against TorchServe mast
 
 * CPU : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiS1QvY3lIUEdUb3hZVWNnbmJ2SEZCdExRNmNkNW9EVk1ZaFNldEk4Q0h3TU1qemwzQ29GNW0xMGFhZkxpOFpiMjUrZVVRVDUrSkh2ZDhBeFprdW5iNjRRPSIsIml2UGFyYW1ldGVyU3BlYyI6IjlvcjRqSTNMTmNhcExZbUwiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 * GPU : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiazI0eDNKZElyMjZDU1QweThPV1A2UmlXaVFmM3g4N0M0NGQ0aHdTQ09aR2pkNFJRUmNsd1A4aFk0K1Q3MmJKMG9oR1c0aHpYWlVRbWlGYS9mVmdIUW84PSIsIml2UGFyYW1ldGVyU3BlYyI6IjJxenJYam1lYXNZTFVvMjQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+* Windows : ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiMzN3Z2lyb1QzVzNJMzJFL1Z6czZDRG5CdW80dUk1c2hvRzlHZkhLcHRqZkJUN1VYRnhwbDlhVWpETUdYOFpJWUVBcGxxM2VmNFk3SUZPR3lnWmF3empBPSIsIml2UGFyYW1ldGVyU3BlYyI6IkhycnVqdFNqYnFDVVQ4aVIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
+Latest Test Logs : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/latest/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/latest/test_exec.log)
 
-Latest Test Logs : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/latest/test_exec.log)
+Test Logs By Date - Update Date in URL : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log)
 
-
-Test Logs By Date - Update Date in URL : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-07-10/tmp/test_exec.log)
 
 ### Running the test manually.
 
@@ -60,25 +60,18 @@ git clone https://github.com/pytorch/serve
 cd serve 
 git checkout <branch_name>
 ```
-To execute tests on master run: 
-
-`./test/regression_tests.sh `
-
-To execute tests on different run: 
-
-`./test/regression_tests.sh -b <branch_name>`
-
-To execute tests on GPU with Cuda 10.1 run: 
-
-`./test/regression_tests.sh --cudaversion cuda101`
-
-
-You can view the logs for Test execution & the Torch serve in the /tmp dir.
-
+Install dependencies (if not already installed)
+```bash
+python scripts/install_dependencies.py
 ```
-cat /tmp/test_exec.log
-cat /tmp/ts.log 
+> For GPU with Cuda 10.1, make sure add the `--cu101` flag to the above command
+Execute regression suite
+
+To execute regression tests:
+```bash
+python test/regression_tests.py
 ```
+You can view the results of test execution & the torchserve logs in the `test/artifacts/` directory
 
 ### Adding tests
 
@@ -91,4 +84,4 @@ Specifically to test for inference against a new model
 ![POSTMAN UI](screenshot/postman.png)
 
 Afterwards, export the collection as a v2.1 collection and replace the existing exported collection.
-To add a new suite of tests, add a new collection to /postman and update regression_tests.sh to run the new collection and buldsepc.yml to keep track of the report.
+To add a new suite of tests, add a new collection to /postman and update regression_tests.py to run the new collection and buildspec.yml to keep track of the report.
