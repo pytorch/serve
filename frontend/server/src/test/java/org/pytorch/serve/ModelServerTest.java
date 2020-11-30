@@ -46,6 +46,8 @@ import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
+import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
+import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
@@ -853,6 +855,79 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterURLModel"})
+    public void testRegisterWorkflow() throws InterruptedException {
+        testLoadWorkflow("smtest.war", "smtest");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflow"})
+    public void testListWorkflow() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.listWorkflow(channel);
+        TestUtils.getLatch().await();
+
+        ListWorkflowResponse resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), ListWorkflowResponse.class);
+        Assert.assertEquals(resp.getWorkflows().size(), 1);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testListWorkflow"})
+    public void testDescribeWorkflow() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeWorkflow(channel, "smtest");
+        TestUtils.getLatch().await();
+
+        DescribeWorkflowResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeWorkflowResponse[].class);
+        Assert.assertEquals(resp.length, 1);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeWorkflow"})
+    public void testWorkflowPrediction() throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/wfpredict/" + "smtest";
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getResult(), "0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testWorkflowPrediction"})
+    public void testUnregisterWorkflow() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.unregisterWorkflow(channel, "smtest", false);
+        TestUtils.getLatch().await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Workflow \"smtest\" unregistered");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterWorkflow"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
@@ -1702,6 +1777,19 @@ public class ModelServerTest {
                         + "\" Version: "
                         + version
                         + " registered with 1 initial workers");
+    }
+
+    private void testLoadWorkflow(String url, String workflowName) throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerWorkflow(channel, url, workflowName, false);
+        TestUtils.getLatch().await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(
+                resp.getStatus(),
+                "Workflow " + workflowName + " has been registered and scaled successfully.");
     }
 
     private void testPredictions(String modelName, String expectedOutput, String version)

@@ -211,6 +211,7 @@ public final class WorkflowManager {
         for (Map.Entry<String, Node> entry : nodes.entrySet()) {
             Node node = entry.getValue();
             WorkflowModel wfm = node.getWorkflowModel();
+
             new Thread(
                             () -> {
                                 try {
