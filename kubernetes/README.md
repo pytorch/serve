@@ -764,6 +764,11 @@
   ## Login to grafana
   http://your.grafana.elb.us-west-2.elb.amazonaws.com:3000
 
+  ## Logging
+
+  Follow the link for log aggregation with EFK Stack.\
+  [Log aggregation using EFK stack](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
+
   ## Troubleshooting
   
   ### Troubleshooting EKCTL Cluster Creation
