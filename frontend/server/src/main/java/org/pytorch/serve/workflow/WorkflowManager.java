@@ -59,7 +59,7 @@ public final class WorkflowManager {
             throws DownloadArchiveException, IOException, WorkflowException {
         WorkflowArchive archive =
                 WorkflowArchive.downloadWorkflow(
-                        configManager.getAllowedUrls(), configManager.getModelStore(), url);
+                        configManager.getAllowedUrls(), configManager.getWorkflowStore(), url);
         if (!(workflowName == null || workflowName.isEmpty())) {
             archive.getManifest().getWorkflow().setWorkflowName(workflowName);
         }
