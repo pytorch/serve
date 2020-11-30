@@ -1,4 +1,4 @@
-package org.pytorch.serve.archive;
+package org.pytorch.serve.archive.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,10 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.pytorch.serve.archive.model.InvalidModelException;
-import org.pytorch.serve.archive.model.ModelArchive;
-import org.pytorch.serve.archive.model.ModelException;
-import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
