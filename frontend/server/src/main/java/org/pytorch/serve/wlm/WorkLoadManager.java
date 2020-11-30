@@ -97,7 +97,7 @@ public class WorkLoadManager {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpURLConnection.HTTP_OK);
-                    if (!isStartup && !isCleanUp) {
+                    if (!isStartup && !isCleanUp && !model.isWorkflowModel()) {
                         SnapshotManager.getInstance().saveSnapshot();
                     }
                     return future;
@@ -144,13 +144,13 @@ public class WorkLoadManager {
                         }
                     }
                 }
-                if (!isStartup && !isCleanUp) {
+                if (!isStartup && !isCleanUp && !model.isWorkflowModel()) {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;
                 }
                 future.complete(HttpURLConnection.HTTP_OK);
             }
-            if (!isStartup && !isSnapshotSaved && !isCleanUp) {
+            if (!isStartup && !isSnapshotSaved && !isCleanUp && !model.isWorkflowModel()) {
                 SnapshotManager.getInstance().saveSnapshot();
             }
             return future;

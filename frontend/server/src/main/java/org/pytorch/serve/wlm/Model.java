@@ -40,6 +40,8 @@ public class Model {
     private int responseTimeout;
     private ModelVersionName modelVersionName;
 
+    private boolean isWorkflowModel;
+
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
 
@@ -136,6 +138,14 @@ public class Model {
 
     public void setMaxBatchDelay(int maxBatchDelay) {
         this.maxBatchDelay = maxBatchDelay;
+    }
+
+    public boolean isWorkflowModel() {
+        return isWorkflowModel;
+    }
+
+    public void setWorkflowModel(boolean workflowModel) {
+        isWorkflowModel = workflowModel;
     }
 
     public void addJob(String threadId, Job job) {

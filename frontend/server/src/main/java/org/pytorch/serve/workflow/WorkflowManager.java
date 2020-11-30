@@ -182,7 +182,8 @@ public final class WorkflowManager {
                             wfm.getMaxBatchDelay(),
                             responseTimeout,
                             wfm.getMaxWorkers(),
-                            synchronous);
+                            synchronous,
+                            true);
         } catch (Exception e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             status.setStatus(

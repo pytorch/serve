@@ -143,7 +143,8 @@ public final class ApiUtils {
                 maxBatchDelay,
                 responseTimeout,
                 initialWorkers,
-                registerModelRequest.getSynchronous());
+                registerModelRequest.getSynchronous(),
+                false);
     }
 
     public static StatusResponse handleRegister(
@@ -155,7 +156,8 @@ public final class ApiUtils {
             int maxBatchDelay,
             int responseTimeout,
             int initialWorkers,
-            boolean isSync)
+            boolean isSync,
+            boolean isWorkflowModel)
             throws ModelException, ExecutionException, InterruptedException,
                     DownloadArchiveException {
 
@@ -172,7 +174,8 @@ public final class ApiUtils {
                             maxBatchDelay,
                             responseTimeout,
                             null,
-                            false);
+                            false,
+                            isWorkflowModel);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);
@@ -188,7 +191,9 @@ public final class ApiUtils {
                             + "\" Version: "
                             + archive.getModelVersion()
                             + " registered with 0 initial workers. Use scale workers API to add workers for the model.";
-            SnapshotManager.getInstance().saveSnapshot();
+            if (!isWorkflowModel) {
+                SnapshotManager.getInstance().saveSnapshot();
+            }
             return new StatusResponse(msg, HttpURLConnection.HTTP_OK);
         }
 

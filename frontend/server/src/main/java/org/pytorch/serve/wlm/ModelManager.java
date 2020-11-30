@@ -73,6 +73,7 @@ public final class ModelManager {
                 100,
                 configManager.getDefaultResponseTimeout(),
                 defaultModelName,
+                false,
                 false);
     }
 
@@ -109,7 +110,8 @@ public final class ModelManager {
             int maxBatchDelay,
             int responseTimeout,
             String defaultModelName,
-            boolean ignoreDuplicate)
+            boolean ignoreDuplicate,
+            boolean isWorkflowModel)
             throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         ModelArchive archive;
@@ -127,7 +129,8 @@ public final class ModelManager {
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         }
 
-        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
+        Model tempModel =
+                createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
 
         String versionId = archive.getModelVersion();
 
@@ -216,11 +219,16 @@ public final class ModelManager {
     }
 
     private Model createModel(
-            ModelArchive archive, int batchSize, int maxBatchDelay, int responseTimeout) {
+            ModelArchive archive,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setBatchSize(batchSize);
         model.setMaxBatchDelay(maxBatchDelay);
         model.setResponseTimeout(responseTimeout);
+        model.setWorkflowModel(isWorkflowModel);
 
         return model;
     }
@@ -228,6 +236,7 @@ public final class ModelManager {
     private Model createModel(ModelArchive archive, JsonObject modelInfo) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setModelState(modelInfo);
+        model.setWorkflowModel(false);
         return model;
     }
 
