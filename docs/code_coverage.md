@@ -1,16 +1,13 @@
 ## To check branch stability run the sanity suite as follows
-
-Ensure that node dependency are already installed in your system. Refer [Install Node dependency](#install-markdown-link-checker-dependencies)  
-
- - For CPU or GPU with Cuda 10.2
- 
-```bash
-./torchserve_sanity.sh
-```
- - For GPU with Cuda 10.1
- ```bash
-./torchserve_sanity.sh cuda101
-```
+ - Install dependencies (if not already installed)
+   ```bash
+   python scripts/install_dependencies.py
+   ```
+   > For GPU with Cuda 10.1, make sure add the `cu101` argument to the above command
+ - Execute sanity suite
+   ```bash
+   python ./torchserve_sanity.py
+   ```
 
 ## To run frontend build suite run following command
 
