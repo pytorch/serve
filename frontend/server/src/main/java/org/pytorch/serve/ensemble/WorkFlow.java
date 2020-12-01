@@ -23,7 +23,7 @@ public class WorkFlow {
     private int minWorkers = 1;
     private int maxWorkers = 1;
     private int batchSize = 1;
-    private int batchSizeDelay = 50;
+    private int maxBatchDelay = 50;
 
     private Dag dag = new Dag();
 
@@ -61,8 +61,8 @@ public class WorkFlow {
                 case "batch-size":
                     batchSize = (int) entry.getValue();
                     break;
-                case "batch-size-delay":
-                    batchSizeDelay = (int) entry.getValue();
+                case "max-batch-delay":
+                    maxBatchDelay = (int) entry.getValue();
                     break;
                 default:
                     // entry.getValue().getClass() check object type.
@@ -78,7 +78,7 @@ public class WorkFlow {
                                     (int) model.getOrDefault("min-workers", minWorkers),
                                     (int) model.getOrDefault("max-workers", maxWorkers),
                                     (int) model.getOrDefault("batch-size", batchSize),
-                                    (int) model.getOrDefault("batch-size-delay", batchSizeDelay),
+                                    (int) model.getOrDefault("max-batch-delay", maxBatchDelay),
                                     null);
 
                     models.put(keyName, wfm);
@@ -181,12 +181,12 @@ public class WorkFlow {
         this.batchSize = batchSize;
     }
 
-    public int getBatchSizeDelay() {
-        return batchSizeDelay;
+    public int getMaxBatchDelay() {
+        return maxBatchDelay;
     }
 
-    public void setBatchSizeDelay(int batchSizeDelay) {
-        this.batchSizeDelay = batchSizeDelay;
+    public void setMaxBatchDelay(int maxBatchDelay) {
+        this.maxBatchDelay = maxBatchDelay;
     }
 
     public String getWorkflowDag() {

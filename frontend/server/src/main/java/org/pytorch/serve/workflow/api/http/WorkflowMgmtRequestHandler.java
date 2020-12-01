@@ -187,7 +187,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
         response.setWorkflowName(workflowName);
         response.setWorkflowUrl(workflow.getWorkflowArchive().getUrl());
         response.setBatchSize(workflow.getBatchSize());
-        response.setMaxBatchDelay(workflow.getBatchSizeDelay());
+        response.setMaxBatchDelay(workflow.getMaxBatchDelay());
         response.setMaxWorkers(workflow.getMaxWorkers());
         response.setMinWorkers(workflow.getMinWorkers());
         response.setWorkflowDag(workflow.getWorkflowDag());
