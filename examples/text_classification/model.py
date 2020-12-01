@@ -30,7 +30,7 @@ class TextSentiment(nn.Module):
         self.fc.bias.data.zero_()
 
     def forward(self, text, offsets):
-        r"""
+        """
         Arguments:
             text: 1-D tensor representing a bag of text tensors
             offsets: a list of offsets to delimit the 1-D text tensor
