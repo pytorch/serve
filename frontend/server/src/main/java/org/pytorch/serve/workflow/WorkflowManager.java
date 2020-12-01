@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorCompletionService;
@@ -43,6 +44,9 @@ import org.slf4j.LoggerFactory;
 
 public final class WorkflowManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
+
+    private ExecutorService inferenceExecutorService =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private static WorkflowManager workflowManager;
     private final ConfigManager configManager;
     private final ConcurrentHashMap<String, WorkFlow> workflowMap;
@@ -234,18 +238,38 @@ public final class WorkflowManager {
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
-            ArrayList<NodeOutput> result = wf.getDag().executeFlow(input);
-            NodeOutput prediction = result.get(0);
-            if (prediction != null && prediction.getData() != null) {
-                FullHttpResponse resp =
-                        new DefaultFullHttpResponse(
-                                HttpVersion.HTTP_1_1, HttpResponseStatus.OK, false);
-                resp.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-                resp.content().writeBytes((byte[]) prediction.getData());
-                NettyUtils.sendHttpResponse(ctx, resp, true);
-            } else {
-                throw new InternalServerException("Workflow inference failed!");
-            }
+            CompletableFuture<List<NodeOutput>> predictionFuture =
+                    CompletableFuture.supplyAsync(
+                            () -> wf.getDag().executeFlow(input), inferenceExecutorService);
+            predictionFuture
+                    .thenApplyAsync(
+                            (predictions) -> {
+                                NodeOutput prediction = predictions.get(0);
+                                if (prediction != null && prediction.getData() != null) {
+                                    FullHttpResponse resp =
+                                            new DefaultFullHttpResponse(
+                                                    HttpVersion.HTTP_1_1,
+                                                    HttpResponseStatus.OK,
+                                                    false);
+                                    resp.headers()
+                                            .set(
+                                                    HttpHeaderNames.CONTENT_TYPE,
+                                                    HttpHeaderValues.APPLICATION_JSON);
+                                    resp.content().writeBytes((byte[]) prediction.getData());
+                                    NettyUtils.sendHttpResponse(ctx, resp, true);
+                                } else {
+                                    throw new InternalServerException(
+                                            "Workflow inference request failed!");
+                                }
+                                return null;
+                            },
+                            inferenceExecutorService)
+                    .exceptionally(
+                            ex -> {
+                                NettyUtils.sendError(
+                                        ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, ex);
+                                return null;
+                            });
         } else {
             throw new ResourceNotFoundException();
         }
