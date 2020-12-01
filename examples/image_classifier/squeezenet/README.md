@@ -13,7 +13,7 @@ curl http://127.0.0.1:8080/predictions/squeezenet1_1 -T examples/image_classifie
 
 #### TorchScript example using alexnet image classifier:
 
-* Save the Squeezenet1_1 model in as an executable script module or a traced script:
+* Save the Squeezenet1_1 model as an executable script module or a traced script:
 
   * Save model using scripting
     ```python
