@@ -175,7 +175,6 @@ public class Dag {
             }
         }
 
-        executorService.shutdown();
         return outputs;
     }
 
