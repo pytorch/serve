@@ -61,6 +61,8 @@ gcloud container clusters create torchserve --machine-type n1-standard-4 --accel
 
 To manage a Kubernetes cluster, you use [kubectl](https://kubernetes.io/docs/user-guide/kubectl/), the Kubernetes command-line client. If you use GKE Cloud Shell, `kubectl` is already installed. To install `kubectl` locally, use the [gcloud components install](https://kubernetes.io/docs/tasks/tools/install-kubectl/) command:
 
+Below command require Cloud SDK component manager enabled.
+
 ```bash
 gcloud components install kubectl
 ```
@@ -260,172 +262,9 @@ kubectl delete pod/model-store-pod
 pod "model-store-pod" deleted
 ```
 
-#### 2.9 Install Torchserve using Helm Charts
+### 3 Install Torchserve
 
-Enter the Helm directory and install TorchServe using Helm Charts.
-
-```bash
-cd ../Helm
-```
-
-```bash
-helm install ts .
-```
-
-Your output should look similar to
-
-```bash
-NAME: ts
-LAST DEPLOYED: Thu Aug 20 02:07:38 2020
-NAMESPACE: default
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
-```
-
-#### 2.10 Check the status of TorchServe
-
-```bash
-kubectl get po
-```
-
-The installation will take a few minutes. Output like this means the installation is not completed yet.
-
-```bash
-NAME                               READY   STATUS              RESTARTS   AGE
-torchserve-75f5b67469-5hnsn        0/1     ContainerCreating   0          6s
-
-Output like this means the installation is completed.
-
-NAME                               READY   STATUS    RESTARTS   AGE
-torchserve-75f5b67469-5hnsn        1/1     Running   0          2m36s
-```
-
-### 3 Test Torchserve Installation
-
-#### 3.1 Fetch the Load Balancer Extenal IP
-
-Fetch the Load Balancer Extenal IP by executing.
-
-```bash
-kubectl get svc
-```
-
-Your output should look similar to
-
-```bash
-NAME               TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                         AGE
-kubernetes         ClusterIP      10.0.0.1       <none>         443/TCP                         5d19h
-torchserve         LoadBalancer   10.0.39.88     your-external-IP   8080:30306/TCP,8081:30442/TCP   48s
-```
-
-#### 3.2 Test Management / Prediction APIs
-
-```bash
-curl http://your-external-IP:8081/models
-```
-
-Your output should look similar to
-
-```json
-{
-  "models": [
-    {
-      "modelName": "mnist",
-      "modelUrl": "mnist.mar"
-    },
-    {
-      "modelName": "squeezenet1_1",
-      "modelUrl": "squeezenet1_1.mar"
-    }
-  ]
-}
-```
-
-```bash
-curl http://your-external-IP:8081/models/mnist
-```
-
-Your output should look similar to
-
-```json
-[
-  {
-    "modelName": "mnist",
-    "modelVersion": "1.0",
-    "modelUrl": "mnist.mar",
-    "runtime": "python",
-    "minWorkers": 5,
-    "maxWorkers": 5,
-    "batchSize": 1,
-    "maxBatchDelay": 200,
-    "loadedAtStartup": false,
-    "workers": [
-      {
-        "id": "9003",
-        "startTime": "2020-08-20T03:06:38.435Z",
-        "status": "READY",
-        "gpu": false,
-        "memoryUsage": 32194560
-      },
-      {
-        "id": "9004",
-        "startTime": "2020-08-20T03:06:38.436Z",
-        "status": "READY",
-        "gpu": false,
-        "memoryUsage": 31842304
-      },
-      {
-        "id": "9005",
-        "startTime": "2020-08-20T03:06:38.436Z",
-        "status": "READY",
-        "gpu": false,
-        "memoryUsage": 44621824
-      },
-      {
-        "id": "9006",
-        "startTime": "2020-08-20T03:06:38.436Z",
-        "status": "READY",
-        "gpu": false,
-        "memoryUsage": 42045440
-      },
-      {
-        "id": "9007",
-        "startTime": "2020-08-20T03:06:38.436Z",
-        "status": "READY",
-        "gpu": false,
-        "memoryUsage": 31584256
-      }
-    ]
-  }
-]
-```
-
-```bash
-curl -v http://your-external-IP:8080/predictions/mnist -T ../../examples/image_classifier/mnist/test_data/0.png
-
-*   Trying 34.82.176.215...
-* Connected to 34.82.176.215 (34.82.176.215) port 8080 (#0)
-> PUT /predictions/mnist HTTP/1.1
-> Host: 34.82.176.215:8080
-> User-Agent: curl/7.47.0
-> Accept: */*
-> Content-Length: 272
-> Expect: 100-continue
-> 
-< HTTP/1.1 100 Continue
-* We are completely uploaded and fine
-< HTTP/1.1 200 
-< x-request-id: 0a70761f-0df4-40dd-9620-2cd98cb810d5
-< Pragma: no-cache
-< Cache-Control: no-cache; no-store, must-revalidate, private
-< Expires: Thu, 01 Jan 1970 00:00:00 UTC
-< content-length: 1
-< connection: keep-alive
-< 
-* Connection #0 to host 34.82.176.215 left intact
-0
-```
+[Install Torchserve using Helm Chart](../README.md#-Torchserve-on-Kubernetes)
 
 ### 4 Troubleshooting
 
@@ -465,61 +304,6 @@ Possible error in this step may be a result of one of the following. Your pod my
     kubectl logs pod/mynfs-nfs-provisioner-YOUR_POD
     kubectl describe pod/mynfs-nfs-provisioner-YOUR_POD
     ```
-
-#### 4.3 Troubleshooting Torchserve Helm Chart
-
-Possible errors in this step may be a result of
-
-* Incorrect values in ``values.yaml``
-  * Changing values in `torchserve.pvd_mount`  would need corresponding change in `config.properties`
-* Invalid `config.properties`
-  * You can verify these values by running this for local TS installation
-* TS Pods in *Pending* state
-  * Ensure you have available Nodes in Node Group
-
-* Helm Installation
-  * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation
-  * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
-  * If you get an error `invalid: data: Too long: must have at most 1048576 characters`, ensure that you dont have any stale files in your kubernetes dir. Else add them to .helmignore file.
-
-#### 4.4 Troubleshooting Torchserve
-
-* Check pod logs
-
-  ```bash
-  kubectl logs torchserve-75f5b67469-5hnsn -c torchserve -n default
-
-  2020-11-26 14:33:22,974 [INFO ] main org.pytorch.serve.ModelServer - 
-  Torchserve version: 0.1.1
-  TS Home: /home/venv/lib/python3.6/site-packages
-  Current directory: /home/model-server
-  Temp directory: /home/model-server/tmp
-  Number of GPUs: 1
-  Number of CPUs: 1
-  Max heap size: 989 M
-  Python executable: /home/venv/bin/python3
-  Config file: /home/model-server/shared/config/config.properties
-  Inference address: http://0.0.0.0:8080
-  Management address: http://0.0.0.0:8081
-  Model Store: /home/model-server/shared/model-store
-  Initial Models: N/A
-  Log dir: /home/model-server/logs
-  Metrics dir: /home/model-server/logs
-  Netty threads: 32
-  Netty client threads: 0
-  Default workers per model: 1
-  Blacklist Regex: N/A
-  Maximum Response Size: 6553500
-  Maximum Request Size: 6553500
-  Prefer direct buffer: false
-  2020-11-26 14:33:23,004 [INFO ] main org.pytorch.serve.snapshot.SnapshotManager - Started restoring models from snapshot {"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
-  ```
-
-* Inspect pod
-
-  ```bash
-  kubectl exec -it torchserve-75f5b67469-5hnsn -c torchserve -n default -- bash
-  ```
 
 #### 4.5 Delete the Resources
 
