@@ -111,6 +111,9 @@ public class WorkFlow {
             ArrayList<String> values = (ArrayList<String>) entry.getValue();
             for (String toModelName : values) {
                 WorkflowModel toWfm;
+                if (toModelName == null || ("").equals(toModelName.strip())) {
+                    continue;
+                }
                 if (!models.containsKey(toModelName)) {
                     toWfm =
                             new WorkflowModel(

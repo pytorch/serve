@@ -478,7 +478,7 @@
           "200": {
             "description": "TorchServe application metrics",
             "content": {
-              "text/plain; version\u003d0.0.4; charset\u003dutf-8": {
+              "text/plain; version=0.0.4; charset=utf-8": {
                 "schema": {
                   "type": "object",
                   "required": [
