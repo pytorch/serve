@@ -111,7 +111,6 @@ public class Dag {
 
     public ArrayList<String> topoSort() throws InvalidDAGException {
         Set<String> startNodes = getStartNodeNames();
-        Set<String> leafNodes = getLeafNodeNames();
 
         if (startNodes.size() != 1) {
             throw new InvalidDAGException("DAG should have only one start node");
@@ -139,7 +138,6 @@ public class Dag {
         ArrayList<NodeOutput> outputs = new ArrayList<>();
         ArrayList<NodeOutput> leafOutputs = new ArrayList<>();
 
-
         while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
             readyToExecute.removeAll(executing);
@@ -160,23 +158,23 @@ public class Dag {
                 }
 
                 Set<String> outNodeNames = dagMap.get(nodeName).get("outDegree");
-                if (outNodeNames.size() == 0) {
+                if (outNodeNames.isEmpty()) {
                     leafOutputs.add(output);
                 } else {
-                for (String newNodeName : outNodeNames) {
-                    if (topoSortedList == null) {
-                        List<InputParameter> params = new ArrayList<>();
-                        byte[] response = (byte[]) output.getData();
-                        params.add(new InputParameter("body", response));
-                        input.setParameters(params);
-                        nodes.get(newNodeName).updateInputDataMap("input", input);
-                    }
-                    inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
-                    if (inDegreeMap.get(newNodeName) == 0) {
-                        zeroInDegree.add(newNodeName);
+                    for (String newNodeName : outNodeNames) {
+                        if (topoSortedList == null) {
+                            List<InputParameter> params = new ArrayList<>();
+                            byte[] response = (byte[]) output.getData();
+                            params.add(new InputParameter("body", response));
+                            input.setParameters(params);
+                            nodes.get(newNodeName).updateInputDataMap("input", input);
+                        }
+                        inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
+                        if (inDegreeMap.get(newNodeName) == 0) {
+                            zeroInDegree.add(newNodeName);
+                        }
                     }
                 }
-              }
             }
         }
 

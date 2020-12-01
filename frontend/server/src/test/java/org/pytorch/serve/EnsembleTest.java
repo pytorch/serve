@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.ensemble.Dag;
 import org.pytorch.serve.ensemble.Node;

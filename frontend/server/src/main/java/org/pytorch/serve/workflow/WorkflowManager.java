@@ -206,7 +206,7 @@ public final class WorkflowManager {
 
     public void unregisterWorkflow(String workflowName) throws WorkflowNotFoundException {
         WorkFlow workflow = workflowMap.get(workflowName);
-        if(workflow == null){
+        if (workflow == null) {
             throw new WorkflowNotFoundException("Workflow not found: " + workflowName);
         }
         Map<String, Node> nodes = workflow.getDag().getNodes();

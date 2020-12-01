@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
-import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.workflow.WorkflowNotFoundException;
 import org.pytorch.serve.ensemble.WorkFlow;
 import org.pytorch.serve.http.ConflictStatusException;
@@ -145,14 +144,18 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleUnregisterWorkflow(ChannelHandlerContext ctx, String workflowName) {
-        StatusResponse statusResponse=null;
+        StatusResponse statusResponse = null;
         try {
             WorkflowManager.getInstance().unregisterWorkflow(workflowName);
             String msg = "Workflow \"" + workflowName + "\" unregistered";
             statusResponse = new StatusResponse(msg, HttpResponseStatus.OK.code());
-        }catch (WorkflowNotFoundException E){
-            String msg = "Error while unregistering the workflow " + workflowName + ". Workflow not found.";
-            statusResponse = new StatusResponse(msg, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        } catch (WorkflowNotFoundException e) {
+            String msg =
+                    "Error while unregistering the workflow "
+                            + workflowName
+                            + ". Workflow not found.";
+            statusResponse =
+                    new StatusResponse(msg, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         }
         NettyUtils.sendJsonResponse(ctx, statusResponse);
     }
