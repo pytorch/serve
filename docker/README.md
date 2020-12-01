@@ -18,7 +18,7 @@
 
 ## First things first
 
-If you have not clone TorchServe source then:
+If you have not cloned TorchServe source then:
 ```bash
 git clone https://github.com/pytorch/serve.git
 cd serve/docker
