@@ -33,10 +33,9 @@ public final class OpenApiUtils {
         openApi.addPath("/metrics", getMetricsPath());
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
-       
-    /**  
-     * The /v1/models/{model_name}:predict prediction api is used to 
-     * access torchserve from kfserving v1 predictor  
+    /**
+     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from
+     * kfserving v1 predictor
      */
     private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
