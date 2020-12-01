@@ -762,7 +762,7 @@
   ```
 
   ## Login to grafana
-  http://your.grafana.elb.us-west-2.elb.amazonaws.com:3000
+  `http://your.grafana.elb.us-west-2.elb.amazonaws.com:3000`
 
   ## Troubleshooting
   

@@ -238,7 +238,7 @@ This command will use all the configuration parameters given in config.json file
 ```
 ### Benchmark parameters
 The following parameters can be used to run the AB benchmark suite.
-- url: Input model URL. Default: "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
+- url: Input model URL. Default: `https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar`
 - device: Execution device type. Default: cpu
 - exec_env: Execution environment. Default: docker
 - concurrency: Concurrency of requests. Default: 10
@@ -275,7 +275,7 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample output CSV
 | Benchmark | Model | Concurrency | Requests | TS failed requests | TS throughput | TS latency P50 | TS latency P90| TS latency P90 | TS latency mean | TS error rate | Model_p50 | Model_p90 | Model_p99 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---| ---|
-| AB | https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
+| AB | [squeezenet1_1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar) | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
 
 ### Sample latency graph
 ![](predict_latency.png)

@@ -7,7 +7,7 @@ The scripts are designed to execute independent of each other.
    # Example
    python ts_scripts/install_dependencies.py
 
-2. [tsutils.py](tsutils.py.py) : Import this module in your scripts to have access to utility methods like start\stop torchserve, register\infer\unregister models, etc.
+2. [tsutils.py](tsutils.py) : Import this module in your scripts to have access to utility methods like start\stop torchserve, register\infer\unregister models, etc.
 3. [shell_utils.py](shell_utils.py) : Import this module in your scripts to have access to utility methods like download file, remove directory, unzip files, etc
 4. [install_from_src.py](install_from_src.py) : Installs torch and torch-model-archiver from source.
 5. [test_frontend.py](test_frontend.py) : Executes gradle tests
