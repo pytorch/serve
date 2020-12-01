@@ -83,6 +83,7 @@
         <exclude name="TooManyMethods"/>
         <exclude name="ExcessiveMethodLength"/>
         <exclude name="ExcessivePublicCount"/>
+        <exclude name="ExcessiveParameterList"/>
     </rule>
 
     <rule ref="category/java/documentation.xml">

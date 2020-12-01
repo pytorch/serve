@@ -151,7 +151,6 @@ public class Dag {
                 outputs = executeNode(readyToExecute);
             }
 
-
             for (NodeOutput output : outputs) {
                 String nodeName = output.getNodeName();
                 executing.remove(nodeName);
@@ -181,7 +180,6 @@ public class Dag {
             }
         }
 
-        executorService.shutdown();
         return leafOutputs;
     }
 

@@ -48,12 +48,16 @@ public final class SnapshotManager {
             return;
         }
 
-        Map<String, Model> defModels = modelManager.getDefaultModels();
+        Map<String, Model> defModels = modelManager.getDefaultModels(true);
         Map<String, Map<String, JsonObject>> modelNameMap = new HashMap<>();
 
         try {
             int modelCount = 0;
             for (Map.Entry<String, Model> m : defModels.entrySet()) {
+
+                if (m.getValue().isWorkflowModel()) {
+                    continue;
+                }
 
                 Set<Entry<String, Model>> versionModels =
                         modelManager.getAllModelVersions(m.getKey());
@@ -106,10 +110,8 @@ public final class SnapshotManager {
     }
 
     public void restore(String modelSnapshot) throws InvalidSnapshotException, IOException {
-        Snapshot snapshot = null;
-
         logger.info("Started restoring models from snapshot {}", modelSnapshot);
-        snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
+        Snapshot snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
         // Validate snapshot
         validate(snapshot);
         // Init. models
