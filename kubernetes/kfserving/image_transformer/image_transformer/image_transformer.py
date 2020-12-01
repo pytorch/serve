@@ -1,3 +1,4 @@
+""" The images are Transformed and sent to the predictor or explainer """
 # Copyright 2019 kubeflow.org.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +16,11 @@
 import io
 import base64
 import json
-import tornado
+import logging
 from typing import List, Dict
+import tornado
 from PIL import Image
 import torchvision.transforms as transforms
-import logging
-import numpy as np
 import kfserving
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
@@ -86,7 +86,7 @@ class ImageTransformer(kfserving.KFModel):
         return {'instances': [image_transform(instance) for instance in inputs['instances']]}
 
     def postprocess(self, inputs: List) -> List:
-        """Post process function of Torchserve on the KFServing side is 
+        """Post process function of Torchserve on the KFServing side is
         written here.
 
         Args:

@@ -1,8 +1,8 @@
-import os
+""" The torchserve side inference end-points request are handled to
+    return a KFServing side response """
 import json
 from typing import Dict
 import logging
-import requests
 import kfserving
 import tornado.web
 
@@ -17,7 +17,7 @@ EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
 class TorchserveModel(kfserving.KFModel):
-    """In this class, the torchserve side inference and explain end-points requests are handled to
+    """The torchserve side inference and explain end-points requests are handled to
     return a KFServing side response
 
     Args:
@@ -50,8 +50,9 @@ class TorchserveModel(kfserving.KFModel):
         logging.info("kfmodel Explain URL set to %s", self.explainer_host)
 
     async def predict(self, request: Dict) -> Dict:
-        """The predict method is called when we hit the inference endpoint and handles the inference request and
-        response from the Torchserve side and passes it on to the KFServing side.
+        """The predict method is called when we hit the inference endpoint and handles
+        the inference request and response from the Torchserve side and passes it on
+        to the KFServing side.
 
         Args:
             request (Dict): Input request from the http client side.
@@ -67,7 +68,7 @@ class TorchserveModel(kfserving.KFModel):
         """
         if not self.predictor_host:
             raise NotImplementedError
-        logging.info("kfmodel predict request is %s", json.dumps(request))
+        logging.debug("kfmodel predict request is %s", json.dumps(request))
         logging.info("PREDICTOR_HOST : %s", self.predictor_host)
         headers = {"Content-Type": "application/json; charset=UTF-8"}
         response = await self._http_client.fetch(
@@ -83,8 +84,9 @@ class TorchserveModel(kfserving.KFModel):
         return json.loads(response.body)
 
     async def explain(self, request: Dict) -> Dict:
-        """The predict method is called when we hit the explain endpoint and handles the explain request and
-        response from the Torchserve side and passes it on to the KFServing side.
+        """The predict method is called when we hit the explain endpoint and handles the
+        explain request and response from the Torchserve side and passes it on to the
+        KFServing side.
 
         Args:
             request (Dict): Input request from the http client side.

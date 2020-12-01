@@ -1,10 +1,9 @@
+""" KFServing wrapper to handler inference in the kfserving_predictor """
 import json
 import logging
-import argparse
 import kfserving
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
-
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 

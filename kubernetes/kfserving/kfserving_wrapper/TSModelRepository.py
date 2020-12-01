@@ -1,14 +1,13 @@
-import os
-import kfserving
-from kfserving.kfmodel_repository import KFModelRepository, MODEL_MOUNT_DIRS
-from TorchserveModel import TorchserveModel
+""" The repository to serve the Torchserve Models in the KFServing side"""
 import logging
+import kfserving
+from kfserving.kfmodel_repository import KFModelRepository
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
 
 class TSModelRepository(KFModelRepository):
-    """The class takes in the KFServing side model related attributes.
+    """A repository of KFServing KFModels
     Args:
         KFModelRepository (object): The parameters from the KFModelRepository is passed
         as inputs to the TSModel Repository.

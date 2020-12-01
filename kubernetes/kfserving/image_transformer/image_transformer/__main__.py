@@ -1,3 +1,4 @@
+""" The images are Transformed and sent to the predictor or explainer """
 # Copyright 2019 kubeflow.org.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
