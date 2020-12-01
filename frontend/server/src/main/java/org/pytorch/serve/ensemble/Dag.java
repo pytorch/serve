@@ -117,10 +117,6 @@ public class Dag {
             throw new InvalidDAGException("DAG should have only one start node");
         }
 
-        if (leafNodes.size() != 1) {
-            throw new InvalidDAGException("DAG should have only one end node");
-        }
-
         ArrayList<String> topoSortedList = new ArrayList<>();
         execute(null, topoSortedList);
         if (topoSortedList.size() != nodes.size()) {
@@ -140,7 +136,9 @@ public class Dag {
             nodes.get(s).updateInputDataMap("input", input);
         }
 
-        ArrayList<NodeOutput> outputs = null;
+        ArrayList<NodeOutput> outputs = new ArrayList<>();
+        ArrayList<NodeOutput> leafOutputs = new ArrayList<>();
+
 
         while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
@@ -153,6 +151,7 @@ public class Dag {
                 outputs = executeNode(readyToExecute);
             }
 
+
             for (NodeOutput output : outputs) {
                 String nodeName = output.getNodeName();
                 executing.remove(nodeName);
@@ -161,22 +160,29 @@ public class Dag {
                     topoSortedList.add(nodeName);
                 }
 
-                for (String newNodeName : dagMap.get(nodeName).get("outDegree")) {
-                    List<InputParameter> params = new ArrayList<>();
-                    byte[] response = (byte[]) output.getData();
-                    params.add(new InputParameter("body", response));
-                    input.setParameters(params);
-                    nodes.get(newNodeName).updateInputDataMap("input", input);
+                Set<String> outNodeNames = dagMap.get(nodeName).get("outDegree");
+                if (outNodeNames.size() == 0) {
+                    leafOutputs.add(output);
+                } else {
+                for (String newNodeName : outNodeNames) {
+                    if (topoSortedList == null) {
+                        List<InputParameter> params = new ArrayList<>();
+                        byte[] response = (byte[]) output.getData();
+                        params.add(new InputParameter("body", response));
+                        input.setParameters(params);
+                        nodes.get(newNodeName).updateInputDataMap("input", input);
+                    }
                     inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
                     if (inDegreeMap.get(newNodeName) == 0) {
                         zeroInDegree.add(newNodeName);
                     }
                 }
+              }
             }
         }
 
         executorService.shutdown();
-        return outputs;
+        return leafOutputs;
     }
 
     public ArrayList<NodeOutput> executeNode(Set<String> readyToExecute) {
@@ -199,16 +205,7 @@ public class Dag {
     private ArrayList<NodeOutput> validateNode(Set<String> readyToExecute) {
         ArrayList<NodeOutput> out = new ArrayList<>();
         for (String name : readyToExecute) {
-            futures.add(executorCompletionService.submit(nodes.get(name)));
-        }
-
-        try {
-            NodeOutput result = executorCompletionService.take().get();
-            logger.info("Result: " + result.getNodeName() + " " + result.getData());
-            out.add(result);
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Failed to execute workflow Node.");
-            logger.error(e.getMessage());
+            out.add(new NodeOutput(name, null));
         }
         return out;
     }

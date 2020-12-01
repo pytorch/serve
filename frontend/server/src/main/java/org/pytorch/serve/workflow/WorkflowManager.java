@@ -25,6 +25,7 @@ import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.pytorch.serve.archive.workflow.WorkflowException;
+import org.pytorch.serve.archive.workflow.WorkflowNotFoundException;
 import org.pytorch.serve.ensemble.InvalidDAGException;
 import org.pytorch.serve.ensemble.Node;
 import org.pytorch.serve.ensemble.NodeOutput;
@@ -198,8 +199,11 @@ public final class WorkflowManager {
         return workflowMap;
     }
 
-    public void unregisterWorkflow(String workflowName) {
+    public void unregisterWorkflow(String workflowName) throws WorkflowNotFoundException {
         WorkFlow workflow = workflowMap.get(workflowName);
+        if(workflow == null){
+            throw new WorkflowNotFoundException("Workflow not found: " + workflowName);
+        }
         Map<String, Node> nodes = workflow.getDag().getNodes();
         unregisterModels(nodes);
         workflowMap.remove(workflowName);
