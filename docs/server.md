@@ -55,8 +55,7 @@ mandatory arguments:
   --model-store MODEL_STORE
                         Model store location where models can be loaded
 
-  -w-workflow-store WORKFLOW_STORE
-                        Workflow store location where workflow can be loaded
+  
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -75,6 +74,8 @@ optional arguments:
                         Log4j configuration file for TorchServe
   --ncs, --no-config-snapshots         
                         Disable snapshot feature
+  --workflow-store WORKFLOW_STORE
+                        Workflow store location where workflow can be loaded. Defaults to model-store
 ```
 
 #### Arguments:
