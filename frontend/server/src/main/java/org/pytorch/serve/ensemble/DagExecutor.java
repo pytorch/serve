@@ -34,7 +34,7 @@ public class DagExecutor {
         inputRequestMap = new ConcurrentHashMap<>();
     }
 
-    public NodeOutput execute(RequestInput input) {
+    public ArrayList<NodeOutput> execute(RequestInput input) {
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         CompletionService<NodeOutput> executorCompletionService =
@@ -53,6 +53,7 @@ public class DagExecutor {
         }
 
         NodeOutput output = null;
+        ArrayList<NodeOutput> leafOutputs = new ArrayList<>();
 
         while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
@@ -77,22 +78,27 @@ public class DagExecutor {
             executing.remove(nodeName);
             zeroInDegree.remove(nodeName);
 
-            for (String newNodeName : this.dag.getDagMap().get(nodeName).get("outDegree")) {
-                List<InputParameter> params = new ArrayList<>();
-                RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
-                byte[] response = (byte[]) output.getData();
-                params.add(new InputParameter("body", response));
-                newInput.setParameters(params);
-                newInput.setHeaders(input.getHeaders());
-                this.inputRequestMap.put(newNodeName, newInput);
-                inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
-                if (inDegreeMap.get(newNodeName) == 0) {
-                    zeroInDegree.add(newNodeName);
+            Set<String> childNodes = this.dag.getDagMap().get(nodeName).get("outDegree");
+            if (childNodes.isEmpty()) {
+                leafOutputs.add(output);
+            } else {
+                for (String newNodeName : childNodes) {
+                    List<InputParameter> params = new ArrayList<>();
+                    RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
+                    byte[] response = (byte[]) output.getData();
+                    params.add(new InputParameter("body", response));
+                    newInput.setParameters(params);
+                    newInput.setHeaders(input.getHeaders());
+                    this.inputRequestMap.put(newNodeName, newInput);
+                    inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
+                    if (inDegreeMap.get(newNodeName) == 0) {
+                        zeroInDegree.add(newNodeName);
+                    }
                 }
             }
         }
 
-        return output;
+        return leafOutputs;
     }
 
     public NodeOutput invokeModel(

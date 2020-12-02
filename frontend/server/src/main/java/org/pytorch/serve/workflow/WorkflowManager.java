@@ -247,15 +247,17 @@ public final class WorkflowManager {
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
             DagExecutor dagExecutor = new DagExecutor(wf.getDag());
-            CompletableFuture<NodeOutput> predictionFuture =
+            CompletableFuture<ArrayList<NodeOutput>> predictionFuture =
                     CompletableFuture.supplyAsync(() -> dagExecutor.execute(input));
             predictionFuture
                     .thenApplyAsync(
                             (predictions) -> {
-
                                 JsonObject result = new JsonObject();
-                                for(NodeOutput prediction: predictions){
-                                    String val = new String((byte[]) prediction.getData(), StandardCharsets.UTF_8);
+                                for (NodeOutput prediction : predictions) {
+                                    String val =
+                                            new String(
+                                                    (byte[]) prediction.getData(),
+                                                    StandardCharsets.UTF_8);
                                     result.addProperty(prediction.getNodeName(), val);
                                 }
                                 NodeOutput prediction = predictions.get(0);
@@ -269,9 +271,11 @@ public final class WorkflowManager {
                                             .set(
                                                     HttpHeaderNames.CONTENT_TYPE,
                                                     HttpHeaderValues.APPLICATION_JSON);
-//                                    resp.content().writeBytes((byte[]) prediction.getData());
-//                                    NettyUtils.sendHttpResponse(ctx, resp, true);
-                                     NettyUtils.sendJsonResponse(ctx, result);
+                                    //
+                                    // resp.content().writeBytes((byte[]) prediction.getData());
+                                    //
+                                    // NettyUtils.sendHttpResponse(ctx, resp, true);
+                                    NettyUtils.sendJsonResponse(ctx, result);
                                 } else {
                                     throw new InternalServerException(
                                             "Workflow inference request failed!");
