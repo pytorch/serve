@@ -96,14 +96,9 @@ public class Dag {
 
     public ArrayList<String> topoSort() throws InvalidDAGException {
         Set<String> startNodes = getStartNodeNames();
-        Set<String> leafNodes = getLeafNodeNames();
 
         if (startNodes.size() != 1) {
             throw new InvalidDAGException("DAG should have only one start node");
-        }
-
-        if (leafNodes.size() != 1) {
-            throw new InvalidDAGException("DAG should have only one end node");
         }
 
         ArrayList<String> topoSortedList = new ArrayList<>();

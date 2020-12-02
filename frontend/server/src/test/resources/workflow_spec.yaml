@@ -2,26 +2,23 @@ models:
     #global model params
     min-workers: 1
     max-workers: 4
-    batch-size: 8
+    batch-size: 3
+    max-batch-delay : 5000
     m1:
-       url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/noop_v2.mar #local or S3 path
+       url : https://torchserve.pytorch.org/mar_files/noop_v2.mar #local or S3 path
        min-workers: 1   #override the global params
        max-workers: 2
        batch-size: 4
      
     m2:
-       url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/echo.mar
+       url : https://torchserve.pytorch.org/mar_files/echo.mar
 
     m3:
-       url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/noop.mar
-       batch-size: 2
+       url : https://torchserve.pytorch.org/mar_files/noop.mar
+       batch-size: 3
 
     m4:
-      url : file:///Users/demo/git/serve/frontend/archive/src/test/resources/models/mnist.mar
+      url : https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
  
-dag: #can have only one start node and one end node
-  pre_processing : [m1, m3]
-  m1 : [m2, m4]
-  m2 : [post_processing]
-  m4 : [post_processing]
-  m3 : [post_processing]
+dag: #can have only one start node
+  pre_processing : [m3, m4]
