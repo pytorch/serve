@@ -29,6 +29,7 @@ import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowNotFoundException;
+import org.pytorch.serve.ensemble.DagExecutor;
 import org.pytorch.serve.ensemble.InvalidDAGException;
 import org.pytorch.serve.ensemble.Node;
 import org.pytorch.serve.ensemble.NodeOutput;
@@ -48,8 +49,9 @@ import org.slf4j.LoggerFactory;
 public final class WorkflowManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
 
-    private ExecutorService inferenceExecutorService =
+    private final ExecutorService inferenceExecutorService =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
     private static WorkflowManager workflowManager;
     private final ConfigManager configManager;
     private final ConcurrentHashMap<String, WorkFlow> workflowMap;
@@ -244,9 +246,9 @@ public final class WorkflowManager {
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input) {
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
-            CompletableFuture<List<NodeOutput>> predictionFuture =
-                    CompletableFuture.supplyAsync(
-                            () -> wf.getDag().executeFlow(input), inferenceExecutorService);
+            DagExecutor dagExecutor = new DagExecutor(wf.getDag());
+            CompletableFuture<NodeOutput> predictionFuture =
+                    CompletableFuture.supplyAsync(() -> dagExecutor.execute(input));
             predictionFuture
                     .thenApplyAsync(
                             (predictions) -> {
