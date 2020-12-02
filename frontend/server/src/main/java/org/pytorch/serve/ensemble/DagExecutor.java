@@ -100,7 +100,7 @@ public class DagExecutor {
         try {
             CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
 
-            RestJob job = ApiUtils.addInferenceJob(null, workflowModel.getName(), null, input);
+            RestJob job = ApiUtils.addRESTInferenceJob(null, workflowModel.getName(), null, input);
             job.setResponsePromise(respFuture);
             try {
                 byte[] resp = respFuture.get();
