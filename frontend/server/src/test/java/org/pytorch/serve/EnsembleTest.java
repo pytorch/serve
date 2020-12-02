@@ -113,14 +113,44 @@ public class EnsembleTest {
             dag.addEdge(e, f);
             dag.addEdge(c, f);
             dag.addEdge(d, f);
+            String[] list = {"a", "b", "c", "d", "e", "f"};
+            Assert.assertEquals(dag.topoSort().toArray(), list);
         } catch (Exception exp) {
-            exp.printStackTrace();
+            Assert.assertTrue(false);
         }
+    }
+
+    @Test
+    public void testDAG1() {
+        Dag dag = new Dag();
+
+        Node a = new Node("a", new WorkflowModel("a", "url", 1, 1, 10, 50, null));
+        Node b = new Node("b", new WorkflowModel("b", "url", 1, 1, 10, 50, null));
+        Node c = new Node("c", new WorkflowModel("c", "url", 1, 1, 10, 50, null));
+        Node d = new Node("d", new WorkflowModel("d", "url", 1, 1, 10, 50, null));
+        Node e = new Node("e", new WorkflowModel("e", "url", 1, 1, 10, 50, null));
+        Node f = new Node("f", new WorkflowModel("f", "url", 1, 1, 10, 50, null));
+
+        dag.addNode(a);
+        dag.addNode(b);
+        dag.addNode(c);
+        dag.addNode(d);
+        dag.addNode(e);
+        dag.addNode(f);
 
         try {
+            dag.addEdge(a, b);
+            dag.addEdge(a, c);
+            dag.addEdge(a, d);
+            dag.addEdge(b, e);
+            dag.addEdge(e, f);
+            dag.addEdge(c, f);
+            dag.addEdge(d, f);
+            dag.addEdge(f, b);
             System.out.println(dag.topoSort());
+            Assert.assertTrue(false);
         } catch (Exception exp) {
-            exp.printStackTrace();
+            Assert.assertTrue(true);
         }
     }
 

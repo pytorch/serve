@@ -1,5 +1,6 @@
 package org.pytorch.serve.workflow;
 
+import com.google.gson.JsonObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -9,6 +10,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.archive.workflow.InvalidWorkflowException;
 import org.pytorch.serve.archive.workflow.WorkflowArchive;
 import org.pytorch.serve.archive.workflow.WorkflowException;
+import org.pytorch.serve.archive.workflow.WorkflowNotFoundException;
 import org.pytorch.serve.ensemble.DagExecutor;
 import org.pytorch.serve.ensemble.InvalidDAGException;
 import org.pytorch.serve.ensemble.Node;
@@ -205,8 +208,11 @@ public final class WorkflowManager {
         return workflowMap;
     }
 
-    public void unregisterWorkflow(String workflowName) {
+    public void unregisterWorkflow(String workflowName) throws WorkflowNotFoundException {
         WorkFlow workflow = workflowMap.get(workflowName);
+        if (workflow == null) {
+            throw new WorkflowNotFoundException("Workflow not found: " + workflowName);
+        }
         Map<String, Node> nodes = workflow.getDag().getNodes();
         unregisterModels(nodes);
         workflowMap.remove(workflowName);
@@ -241,23 +247,37 @@ public final class WorkflowManager {
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
             DagExecutor dagExecutor = new DagExecutor(wf.getDag());
-            CompletableFuture<NodeOutput> predictionFuture =
+            CompletableFuture<ArrayList<NodeOutput>> predictionFuture =
                     CompletableFuture.supplyAsync(() -> dagExecutor.execute(input));
             predictionFuture
                     .thenApplyAsync(
-                            (prediction) -> {
-                                if (prediction != null && prediction.getData() != null) {
-                                    FullHttpResponse resp =
-                                            new DefaultFullHttpResponse(
-                                                    HttpVersion.HTTP_1_1,
-                                                    HttpResponseStatus.OK,
-                                                    false);
-                                    resp.headers()
-                                            .set(
-                                                    HttpHeaderNames.CONTENT_TYPE,
-                                                    HttpHeaderValues.APPLICATION_JSON);
-                                    resp.content().writeBytes((byte[]) prediction.getData());
-                                    NettyUtils.sendHttpResponse(ctx, resp, true);
+                            (predictions) -> {
+                                if (!predictions.isEmpty()) {
+                                    if (predictions.size() == 1) {
+                                        FullHttpResponse resp =
+                                                new DefaultFullHttpResponse(
+                                                        HttpVersion.HTTP_1_1,
+                                                        HttpResponseStatus.OK,
+                                                        false);
+                                        resp.headers()
+                                                .set(
+                                                        HttpHeaderNames.CONTENT_TYPE,
+                                                        HttpHeaderValues.APPLICATION_JSON);
+                                        resp.content()
+                                                .writeBytes((byte[]) predictions.get(0).getData());
+                                        NettyUtils.sendHttpResponse(ctx, resp, true);
+
+                                    } else {
+                                        JsonObject result = new JsonObject();
+                                        for (NodeOutput prediction : predictions) {
+                                            String val =
+                                                    new String(
+                                                            (byte[]) prediction.getData(),
+                                                            StandardCharsets.UTF_8);
+                                            result.addProperty(prediction.getNodeName(), val);
+                                        }
+                                        NettyUtils.sendJsonResponse(ctx, result);
+                                    }
                                 } else {
                                     throw new InternalServerException(
                                             "Workflow inference request failed!");
