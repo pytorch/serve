@@ -94,7 +94,7 @@ public class Dag {
         return dagMap;
     }
 
-    public  ArrayList<String> validate() throws InvalidDAGException {
+    public ArrayList<String> validate() throws InvalidDAGException {
         Set<String> startNodes = getStartNodeNames();
 
         if (startNodes.size() != 1) {

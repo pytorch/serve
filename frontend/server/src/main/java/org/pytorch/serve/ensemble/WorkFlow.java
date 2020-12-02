@@ -71,7 +71,7 @@ public class WorkFlow {
                     @SuppressWarnings("unchecked")
                     LinkedHashMap<String, Object> model =
                             (LinkedHashMap<String, Object>) entry.getValue();
-                    String modelName = workFlowName+"__"+keyName;
+                    String modelName = workFlowName + "__" + keyName;
 
                     WorkflowModel wfm =
                             new WorkflowModel(
@@ -92,7 +92,7 @@ public class WorkFlow {
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
             String nodeName = entry.getKey();
-            String modelName = workFlowName+"__"+nodeName;
+            String modelName = workFlowName + "__" + nodeName;
             WorkflowModel wfm;
             if (!models.containsKey(modelName)) {
                 wfm =
@@ -117,7 +117,7 @@ public class WorkFlow {
                 if (toNodeName == null || ("").equals(toNodeName.strip())) {
                     continue;
                 }
-                String toModelName = workFlowName+"__"+toNodeName;
+                String toModelName = workFlowName + "__" + toNodeName;
                 WorkflowModel toWfm;
                 if (!models.containsKey(toModelName)) {
                     toWfm =
@@ -135,7 +135,6 @@ public class WorkFlow {
                 Node toNode = new Node(toModelName, toWfm);
                 dag.addNode(toNode);
                 dag.addEdge(fromNode, toNode);
-
             }
         }
         dag.validate();

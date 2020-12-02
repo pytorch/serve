@@ -115,7 +115,7 @@ public final class ModelManager {
             throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         ModelArchive archive;
-        if (isWorkflowModel && url == null ) {  //This is  a workflow function
+        if (isWorkflowModel && url == null) { // This is  a workflow function
             Manifest manifest = new Manifest();
             manifest.getModel().setVersion("1.0");
             manifest.getModel().setModelVersion("1.0");

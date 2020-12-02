@@ -278,10 +278,13 @@ public final class ApiUtils {
                                         }
                                     } else {
                                         statusResponse.setHttpResponseCode(v);
-                                        String msg = "Failed to start workers for model "+modelName+ " version: "+modelVersion;
+                                        String msg =
+                                                "Failed to start workers for model "
+                                                        + modelName
+                                                        + " version: "
+                                                        + modelVersion;
                                         statusResponse.setStatus(msg);
-                                        statusResponse.setE(
-                                                new InternalServerException(msg));
+                                        statusResponse.setE(new InternalServerException(msg));
                                         if (onError != null) {
                                             onError.apply(null);
                                         }
@@ -381,27 +384,27 @@ public final class ApiUtils {
         return resp;
     }
 
-    public static RestJob addInferenceJob(
+    public static RestJob addRESTInferenceJob(
             ChannelHandlerContext ctx, String modelName, String version, RequestInput input)
             throws ModelNotFoundException, ModelVersionNotFoundException {
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
-            String responseMessage =
-                    "Model \""
-                            + modelName
-                            + "\" Version "
-                            + version
-                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
-
-            if (version == null) {
-                responseMessage =
-                        "Model \""
-                                + modelName
-                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
-            }
-
+            String responseMessage = getInferenceErrorResponseMessage(modelName, version);
             throw new ServiceUnavailableException(responseMessage);
         }
         return job;
+    }
+
+    @SuppressWarnings("PMD")
+    public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
+        String responseMessage = "Model \"" + modelName;
+
+        if (modelVersion == null) {
+            responseMessage += "\" Version " + modelVersion;
+        }
+
+        responseMessage +=
+                "\" has no worker to serve inference request. Please use scale workers API to add workers.";
+        return responseMessage;
     }
 }

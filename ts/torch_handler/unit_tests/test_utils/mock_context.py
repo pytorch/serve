@@ -33,3 +33,9 @@ class MockContext():
             self.system_properties['gpu_id'] = gpu_id
 
         self.metrics = MetricsStore(uuid.uuid4(), model_name)
+
+    def get_request_header(self, index, key):
+        if key == "explain" and index == 0:
+            return False
+
+        return True

@@ -1,6 +1,5 @@
 package org.pytorch.serve.ensemble;
 
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,17 +37,16 @@ public class DagExecutor {
     public ArrayList<NodeOutput> execute(RequestInput input, ArrayList<String> topoSortedList) {
 
         CompletionService<NodeOutput> executorCompletionService = null;
-        if(topoSortedList ==null) {
+        if (topoSortedList == null) {
             ExecutorService executorService = Executors.newFixedThreadPool(4);
-            executorCompletionService=
-                    new ExecutorCompletionService<>(executorService);
+            executorCompletionService = new ExecutorCompletionService<>(executorService);
         }
 
         Map<String, Integer> inDegreeMap = this.dag.getInDegreeMap();
         Set<String> zeroInDegree = dag.getStartNodeNames();
         Set<String> executing = new HashSet<>();
 
-        if(topoSortedList ==null) {
+        if (topoSortedList == null) {
             for (String s : zeroInDegree) {
                 RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
                 newInput.setHeaders(input.getHeaders());
@@ -59,14 +57,13 @@ public class DagExecutor {
 
         ArrayList<NodeOutput> leafOutputs = new ArrayList<>();
 
-
         while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
             readyToExecute.removeAll(executing);
             executing.addAll(readyToExecute);
 
             ArrayList<NodeOutput> outputs = new ArrayList<>();
-            if(topoSortedList ==null) {
+            if (topoSortedList == null) {
                 for (String name : readyToExecute) {
                     executorCompletionService.submit(
                             () ->
@@ -81,19 +78,18 @@ public class DagExecutor {
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace(); // NOPMD
                 }
-            }else {
+            } else {
                 for (String name : readyToExecute) {
                     outputs.add(new NodeOutput(name, null));
                 }
             }
 
-
-            for (NodeOutput output: outputs){
+            for (NodeOutput output : outputs) {
                 String nodeName = output.getNodeName();
                 executing.remove(nodeName);
                 zeroInDegree.remove(nodeName);
 
-                if(topoSortedList !=null) {
+                if (topoSortedList != null) {
                     topoSortedList.add(nodeName);
                 }
 
@@ -103,7 +99,7 @@ public class DagExecutor {
                 } else {
                     for (String newNodeName : childNodes) {
 
-                        if(topoSortedList ==null) {
+                        if (topoSortedList == null) {
                             List<InputParameter> params = new ArrayList<>();
                             RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
                             byte[] response = (byte[]) output.getData();
@@ -130,7 +126,7 @@ public class DagExecutor {
         try {
             CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
 
-            RestJob job = ApiUtils.addInferenceJob(null, workflowModel.getName(), null, input);
+            RestJob job = ApiUtils.addRESTInferenceJob(null, workflowModel.getName(), null, input);
             job.setResponsePromise(respFuture);
             try {
                 byte[] resp = respFuture.get();

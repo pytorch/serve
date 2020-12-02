@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
@@ -122,10 +121,13 @@ public final class WorkflowManager {
                 if (result.getResponse().getHttpResponseCode() != HttpURLConnection.HTTP_OK) {
                     failed = true;
                     String msg;
-                    if(result.getResponse().getStatus() == null){
-                        msg =  "Failed to register the model "+result.getModelName()+ ". Check error logs.";
-                    }else{
-                        msg=result.getResponse().getStatus();
+                    if (result.getResponse().getStatus() == null) {
+                        msg =
+                                "Failed to register the model "
+                                        + result.getModelName()
+                                        + ". Check error logs.";
+                    } else {
+                        msg = result.getResponse().getStatus();
                     }
                     failedMessages.add(msg);
                 } else {
@@ -137,11 +139,13 @@ public final class WorkflowManager {
                 String rollbackFailure = null;
                 try {
                     removeArtifacts(workflowName, workflow, successNodes);
-                }catch (Exception e){
-                    rollbackFailure = "Error while doing rollback of failed workflow. Details" + e.getMessage();
+                } catch (Exception e) {
+                    rollbackFailure =
+                            "Error while doing rollback of failed workflow. Details"
+                                    + e.getMessage();
                 }
 
-                if(rollbackFailure !=null){
+                if (rollbackFailure != null) {
                     failedMessages.add(rollbackFailure);
                 }
                 status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -200,17 +204,17 @@ public final class WorkflowManager {
         } catch (Exception e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             String msg;
-            if(e.getMessage() == null){
-                msg =  "Check error logs.";
-            }else{
-                msg=e.getMessage();
+            if (e.getMessage() == null) {
+                msg = "Check error logs.";
+            } else {
+                msg = e.getMessage();
             }
             status.setStatus(
                     String.format(
                             "Workflow Node %s failed to register. Details: %s",
                             wfm.getName(), msg));
             status.setE(e);
-            logger.error("Model '"+wfm.getName()+"' failed to register.",e);
+            logger.error("Model '" + wfm.getName() + "' failed to register.", e);
         }
 
         return new ModelRegistrationResult(wfm.getName(), status);
@@ -220,7 +224,8 @@ public final class WorkflowManager {
         return workflowMap;
     }
 
-    public void unregisterWorkflow(String workflowName, ArrayList<String> successNodes) throws WorkflowNotFoundException, InterruptedException, ExecutionException {
+    public void unregisterWorkflow(String workflowName, ArrayList<String> successNodes)
+            throws WorkflowNotFoundException, InterruptedException, ExecutionException {
 
         WorkFlow workflow = workflowMap.get(workflowName);
         if (workflow == null) {
@@ -230,13 +235,18 @@ public final class WorkflowManager {
         removeArtifacts(workflowName, workflow, successNodes);
     }
 
-    public void removeArtifacts(String workflowName, WorkFlow workflow, ArrayList<String> successNodes) throws ExecutionException, InterruptedException {
-        WorkflowArchive.removeWorkflow(configManager.getWorkflowStore(), workflow.getWorkflowArchive().getUrl());
+    public void removeArtifacts(
+            String workflowName, WorkFlow workflow, ArrayList<String> successNodes)
+            throws ExecutionException, InterruptedException {
+        WorkflowArchive.removeWorkflow(
+                configManager.getWorkflowStore(), workflow.getWorkflowArchive().getUrl());
         Map<String, Node> nodes = workflow.getDag().getNodes();
         unregisterModels(workflowName, nodes, successNodes);
     }
 
-    public void unregisterModels(String workflowName, Map<String, Node> nodes, ArrayList<String> successNodes) throws InterruptedException, ExecutionException {
+    public void unregisterModels(
+            String workflowName, Map<String, Node> nodes, ArrayList<String> successNodes)
+            throws InterruptedException, ExecutionException {
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         CompletionService<ModelRegistrationResult> executorCompletionService =
@@ -247,7 +257,8 @@ public final class WorkflowManager {
             Node node = entry.getValue();
             WorkflowModel wfm = node.getWorkflowModel();
 
-            futures.add(executorCompletionService.submit(
+            futures.add(
+                    executorCompletionService.submit(
                             () -> {
                                 StatusResponse status = new StatusResponse();
                                 try {
@@ -255,28 +266,33 @@ public final class WorkflowManager {
                                     status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
                                     status.setStatus(
                                             String.format(
-                                                    "Unregisterd workflow node %s",
-                                                    wfm.getName()));
+                                                    "Unregisterd workflow node %s", wfm.getName()));
                                 } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-                                    if(successNodes == null || successNodes.contains(wfm.getName())) {
-                                        status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                                    if (successNodes == null
+                                            || successNodes.contains(wfm.getName())) {
+                                        status.setHttpResponseCode(
+                                                HttpURLConnection.HTTP_INTERNAL_ERROR);
                                         status.setStatus(
                                                 String.format(
                                                         "Error while unregistering workflow node %s",
                                                         wfm.getName()));
                                         status.setE(e);
-                                        logger.error("Model '"+wfm.getName()+"' failed to unregister.",e);
-                                    }else{
+                                        logger.error(
+                                                "Model '"
+                                                        + wfm.getName()
+                                                        + "' failed to unregister.",
+                                                e);
+                                    } else {
                                         status.setHttpResponseCode(HttpURLConnection.HTTP_OK);
                                         status.setStatus(
                                                 String.format(
                                                         "Error while unregistering workflow node %s but can be ignored.",
                                                         wfm.getName()));
                                         status.setE(e);
-
                                     }
-                                }catch (Exception e){
-                                    status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                                } catch (Exception e) {
+                                    status.setHttpResponseCode(
+                                            HttpURLConnection.HTTP_INTERNAL_ERROR);
                                     status.setStatus(
                                             String.format(
                                                     "Error while unregistering workflow node %s",
@@ -289,7 +305,7 @@ public final class WorkflowManager {
 
         int i = 0;
         boolean failed = false;
-        ArrayList<String> failedMessages= new ArrayList<>();
+        ArrayList<String> failedMessages = new ArrayList<>();
         while (i < futures.size()) {
             i++;
             Future<ModelRegistrationResult> future = executorCompletionService.take();
@@ -301,7 +317,11 @@ public final class WorkflowManager {
         }
 
         if (failed) {
-           throw new InternalServerException("Error while unregistering the workflow "+workflowName+". Details: "+failedMessages.toArray().toString());
+            throw new InternalServerException(
+                    "Error while unregistering the workflow "
+                            + workflowName
+                            + ". Details: "
+                            + failedMessages.toArray().toString());
         }
         executorService.shutdown();
     }
@@ -341,7 +361,9 @@ public final class WorkflowManager {
                                                     new String(
                                                             (byte[]) prediction.getData(),
                                                             StandardCharsets.UTF_8);
-                                            result.add(prediction.getNodeName(), new JsonParser().parse(val).getAsJsonObject());
+                                            result.add(
+                                                    prediction.getNodeName(),
+                                                    new JsonParser().parse(val).getAsJsonObject());
                                         }
                                         NettyUtils.sendJsonResponse(ctx, result);
                                     }
