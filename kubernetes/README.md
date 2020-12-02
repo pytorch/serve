@@ -247,6 +247,11 @@ kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 
 <http://your.grafana.loadbalancer.address:3000>
 
+## Logging
+
+Follow the link for log aggregation with EFK Stack.\
+[Log aggregation using EFK stack](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
+
 ## Troubleshooting
 
 ### Troubleshooting Torchserve Helm Chart
