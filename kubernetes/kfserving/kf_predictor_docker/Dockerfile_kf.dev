@@ -54,7 +54,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git clone https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
-	  && ./scripts/install_from_src $CUDA_VERSION \
+	  && python ts_scripts/install_from_src.py $CUDA_VERSION \
     && pip install captum \
     && pip install transformers\
     && pip install . \
