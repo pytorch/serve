@@ -1,5 +1,6 @@
 package org.pytorch.serve.ensemble;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,65 +35,88 @@ public class DagExecutor {
         inputRequestMap = new ConcurrentHashMap<>();
     }
 
-    public ArrayList<NodeOutput> execute(RequestInput input) {
+    public ArrayList<NodeOutput> execute(RequestInput input, ArrayList<String> topoSortedList) {
 
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-        CompletionService<NodeOutput> executorCompletionService =
-                new ExecutorCompletionService<>(executorService);
+        CompletionService<NodeOutput> executorCompletionService = null;
+        if(topoSortedList ==null) {
+            ExecutorService executorService = Executors.newFixedThreadPool(4);
+            executorCompletionService=
+                    new ExecutorCompletionService<>(executorService);
+        }
 
         Map<String, Integer> inDegreeMap = this.dag.getInDegreeMap();
-
         Set<String> zeroInDegree = dag.getStartNodeNames();
         Set<String> executing = new HashSet<>();
 
-        for (String s : zeroInDegree) {
-            RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
-            newInput.setHeaders(input.getHeaders());
-            newInput.setParameters(input.getParameters());
-            inputRequestMap.put(s, newInput);
+        if(topoSortedList ==null) {
+            for (String s : zeroInDegree) {
+                RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
+                newInput.setHeaders(input.getHeaders());
+                newInput.setParameters(input.getParameters());
+                inputRequestMap.put(s, newInput);
+            }
         }
 
-        NodeOutput output = null;
         ArrayList<NodeOutput> leafOutputs = new ArrayList<>();
+
 
         while (!zeroInDegree.isEmpty()) {
             Set<String> readyToExecute = new HashSet<>(zeroInDegree);
             readyToExecute.removeAll(executing);
             executing.addAll(readyToExecute);
-            for (String name : readyToExecute) {
-                executorCompletionService.submit(
-                        () ->
-                                invokeModel(
-                                        name,
-                                        this.dag.getNodes().get(name).getWorkflowModel(),
-                                        inputRequestMap.get(name)));
+
+            ArrayList<NodeOutput> outputs = new ArrayList<>();
+            if(topoSortedList ==null) {
+                for (String name : readyToExecute) {
+                    executorCompletionService.submit(
+                            () ->
+                                    invokeModel(
+                                            name,
+                                            this.dag.getNodes().get(name).getWorkflowModel(),
+                                            inputRequestMap.get(name)));
+                }
+
+                try {
+                    outputs.add(executorCompletionService.take().get());
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace(); // NOPMD
+                }
+            }else {
+                for (String name : readyToExecute) {
+                    outputs.add(new NodeOutput(name, null));
+                }
             }
 
-            try {
-                output = executorCompletionService.take().get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace(); // NOPMD
-            }
 
-            String nodeName = output.getNodeName();
-            executing.remove(nodeName);
-            zeroInDegree.remove(nodeName);
+            for (NodeOutput output: outputs){
+                String nodeName = output.getNodeName();
+                executing.remove(nodeName);
+                zeroInDegree.remove(nodeName);
 
-            Set<String> childNodes = this.dag.getDagMap().get(nodeName).get("outDegree");
-            if (childNodes.isEmpty()) {
-                leafOutputs.add(output);
-            } else {
-                for (String newNodeName : childNodes) {
-                    List<InputParameter> params = new ArrayList<>();
-                    RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
-                    byte[] response = (byte[]) output.getData();
-                    params.add(new InputParameter("body", response));
-                    newInput.setParameters(params);
-                    newInput.setHeaders(input.getHeaders());
-                    this.inputRequestMap.put(newNodeName, newInput);
-                    inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
-                    if (inDegreeMap.get(newNodeName) == 0) {
-                        zeroInDegree.add(newNodeName);
+                if(topoSortedList !=null) {
+                    topoSortedList.add(nodeName);
+                }
+
+                Set<String> childNodes = this.dag.getDagMap().get(nodeName).get("outDegree");
+                if (childNodes.isEmpty()) {
+                    leafOutputs.add(output);
+                } else {
+                    for (String newNodeName : childNodes) {
+
+                        if(topoSortedList ==null) {
+                            List<InputParameter> params = new ArrayList<>();
+                            RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
+                            byte[] response = (byte[]) output.getData();
+                            params.add(new InputParameter("body", response));
+                            newInput.setParameters(params);
+                            newInput.setHeaders(input.getHeaders());
+                            this.inputRequestMap.put(newNodeName, newInput);
+                        }
+
+                        inDegreeMap.replace(newNodeName, inDegreeMap.get(newNodeName) - 1);
+                        if (inDegreeMap.get(newNodeName) == 0) {
+                            zeroInDegree.add(newNodeName);
+                        }
                     }
                 }
             }

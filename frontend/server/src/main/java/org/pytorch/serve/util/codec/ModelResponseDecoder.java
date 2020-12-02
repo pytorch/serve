@@ -79,7 +79,9 @@ public class ModelResponseDecoder extends ByteToMessageDecoder {
             resp.setPredictions(predictions);
             out.add(resp);
             completed = true;
-        } finally {
+        } catch (Exception e){
+            e.printStackTrace();
+        }finally {
             if (!completed) {
                 in.resetReaderIndex();
             }

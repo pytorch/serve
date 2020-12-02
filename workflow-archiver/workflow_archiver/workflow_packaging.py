@@ -18,6 +18,7 @@ def package_workflow(args, manifest):
     workflow_name = args.workflow_name
     handler = args.handler
     export_file_path = args.export_path
+    extra_files = args.extra_files
 
     temp_files = []
 
@@ -27,7 +28,7 @@ def package_workflow(args, manifest):
         export_file_path = WorkflowExportUtils.check_war_already_exists(workflow_name, export_file_path, args.force)
 
         # Step 2 : Copy all artifacts to temp directory
-        artifact_files = [workflow_spec_file, handler]
+        artifact_files = [workflow_spec_file, handler, extra_files]
 
         workflow_path = WorkflowExportUtils.copy_artifacts(workflow_name, artifact_files)
 

@@ -94,7 +94,7 @@ public class Dag {
         return dagMap;
     }
 
-    public ArrayList<String> topoSort() throws InvalidDAGException {
+    public  ArrayList<String> validate() throws InvalidDAGException {
         Set<String> startNodes = getStartNodeNames();
 
         if (startNodes.size() != 1) {
@@ -102,7 +102,8 @@ public class Dag {
         }
 
         ArrayList<String> topoSortedList = new ArrayList<>();
-        // execute(null, topoSortedList);
+        DagExecutor de = new DagExecutor(this);
+        de.execute(null, topoSortedList);
         if (topoSortedList.size() != nodes.size()) {
             throw new InvalidDAGException("Not a valid DAG");
         }

@@ -115,18 +115,16 @@ public final class ModelManager {
             throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         ModelArchive archive;
-        if (url != null) {
-            archive = createModelArchive(modelName, url, handler, runtime, defaultModelName);
-        } else {
-
+        if (isWorkflowModel && url == null ) {  //This is  a workflow function
             Manifest manifest = new Manifest();
-            // TODO - create a mar for function nodes
             manifest.getModel().setVersion("1.0");
             manifest.getModel().setModelVersion("1.0");
             manifest.getModel().setModelName(modelName);
             manifest.getModel().setHandler(handler);
             File f = new File(handler.split(":")[0]);
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
+        } else {
+            archive = createModelArchive(modelName, url, handler, runtime, defaultModelName);
         }
 
         Model tempModel =
