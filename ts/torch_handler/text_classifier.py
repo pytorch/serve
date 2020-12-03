@@ -32,7 +32,8 @@ class TextClassifier(TextHandler):
 
         line = data[0]
         text = line.get("data") or line.get("body")
-        text = text.decode('utf-8')
+        if isinstance(text, (bytes, bytearray)):
+            text = text.decode('utf-8')
 
         text = self._remove_html_tags(text)
         text = text.lower()
@@ -50,10 +51,34 @@ class TextClassifier(TextHandler):
         return text
 
     def inference(self, data, *args, **kwargs):
+        """The Inference Request is made through this function and the user
+        needs to override the inference function to customize it.
+
+        Args:
+            data (torch tensor): The data is in the form of Torch Tensor
+                                 whose shape should match that of the
+                                  Model Input shape.
+
+        Returns:
+            (Torch Tensor): The predicted response from the model is returned
+                            in this function.
+        """
         offsets = torch.as_tensor([0], device=self.device)
         return super().inference(data, offsets)
 
     def postprocess(self, data):
+        """
+        The post process function converts the prediction response into a
+           Torchserve compatible format
+
+        Args:
+            data (Torch Tensor): The data parameter comes from the prediction output
+            output_explain (None): Defaults to None.
+
+        Returns:
+            (list): Returns the response containing the predictions and explanations
+                    (if the Endpoint is hit).It takes the form of a list of dictionary.
+        """
         data = F.softmax(data)
         data = data.tolist()
         return map_class_to_label(data, self.mapping)

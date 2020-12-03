@@ -5,7 +5,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - python scripts/install_dependencies.py --cuda=cu101
+      - python ts_scripts/install_dependencies.py --cuda=cu101
 
   build:
     commands:
