@@ -242,9 +242,8 @@ CONFIG_PROP_TEMPLATE = os.path.join(TS_BASE, 'benchmarks', 'config_template.prop
 DOCKER_TS_BASE = "/serve"
 DOCKER_CONFIG_PROP = os.path.join(DOCKER_TS_BASE, 'benchmarks', 'config.properties')
 
-ALL_BENCHMARKS = list(itertools.product(('latency', 'throughput'), (MODEL_RESNET_18)))
-
 BENCHMARK_NAMES = ['latency', 'throughput']
+ALL_BENCHMARKS = list(itertools.product(BENCHMARK_NAMES, [MODEL_RESNET_18]))
 
 class ChDir:
     def __init__(self, path):
