@@ -75,6 +75,10 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                         break;
                 }
             }
+        } else if (isKFV1InferenceReq(segments)) {
+            if (segments[3].contains(":predict")) {
+                handleKFV1Predictions(ctx, req, segments);
+            }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
@@ -91,6 +95,13 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 || (segments.length == 4 && segments[1].equals("models"))
                 || (segments.length == 3 && segments[2].equals("predict"))
                 || (segments.length == 4 && segments[3].equals("predict"));
+    }
+
+    private boolean isKFV1InferenceReq(String[] segments) {
+        return segments.length == 4
+                && "v1".equals(segments[1])
+                && "models".equals(segments[2])
+                && (segments[3].contains(":predict"));
     }
 
     private void validatePredictionsEndpoint(String[] segments) {
@@ -118,6 +129,14 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             modelVersion = segments[3];
         }
         predict(ctx, req, null, segments[2], modelVersion);
+    }
+
+    private void handleKFV1Predictions(
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        String modelVersion = null;
+        String modelName = segments[3].split(":")[0];
+        predict(ctx, req, null, modelName, modelVersion);
     }
 
     private void handleInvocations(
