@@ -17,7 +17,8 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
-* [Install TorchServe on windows subsystem for linux](docs/torchserve_on_wsl.md)
+* [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
+* [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
@@ -45,16 +46,16 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     pip install -U -r requirements.txt
     ```
  - For GPU with Cuda 10.1
- 
+
     ```bash
-    pip install -U -r requirements_gpu.txt
+    pip install -U -r requirements_cu101.txt -f https://download.pytorch.org/whl/torch_stable.html
    ```
 
 3. Install torchserve and torch-model-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
     ```
-    conda install torchserve torch-model-archiver
+    conda install torchserve torch-model-archiver -c pytorch
     ```
    
     For Pip
@@ -78,7 +79,7 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 #### For Debian Based Systems/ MacOS
 
 ```
-./scripts/install_from_src
+python ./ts_scripts/install_from_src.py
 ```
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
@@ -149,8 +150,8 @@ Complete the following steps:
 The following code completes all three steps:
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
-curl http://127.0.0.1:8080/predictions/densenet161 -T kitten.jpg
+curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
 The predict endpoint returns a prediction response in JSON. It will look something like the following result:

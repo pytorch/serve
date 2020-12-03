@@ -62,6 +62,7 @@ public class Manifest {
         private String description;
         private String modelVersion;
         private String handler;
+        private String envelope;
         private String requirementsFile;
 
         public Model() {}
@@ -112,6 +113,14 @@ public class Manifest {
 
         public void setHandler(String handler) {
             this.handler = handler;
+        }
+
+        public String getEnvelope() {
+            return envelope;
+        }
+
+        public void setEnvelope(String envelope) {
+            this.envelope = envelope;
         }
     }
 

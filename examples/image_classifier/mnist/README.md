@@ -33,4 +33,3 @@ Run the commands given in following steps from the parent directory of the root 
     torchserve --start --model-store model_store --models mnist=mnist.mar
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
-

@@ -38,7 +38,7 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
     def _load_tacotron2_model(self, model_dir):
         from PyTorch.SpeechSynthesis.Tacotron2.tacotron2 import model as tacotron2
         from PyTorch.SpeechSynthesis.Tacotron2.tacotron2.text import text_to_sequence
-        tacotron2_checkpoint = torch.load(os.path.join(model_dir, 'nvidia_tacotron2pyt_fp32_20190306.pth'))
+        tacotron2_checkpoint = torch.load(os.path.join(model_dir, 'nvidia_tacotron2pyt_fp32_20190427.pth'))
         tacotron2_state_dict = self._unwrap_distributed(tacotron2_checkpoint['state_dict'])
         tacotron2_config = tacotron2_checkpoint['config']
         self.tacotron2_model = tacotron2.Tacotron2(**tacotron2_config)
@@ -58,7 +58,7 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
         with zipfile.ZipFile(model_dir + '/tacotron.zip', 'r') as zip_ref:
             zip_ref.extractall(model_dir)
 
-        waveglow_checkpoint = torch.load(os.path.join(model_dir, "nvidia_waveglowpyt_fp32_20190306.pth"))
+        waveglow_checkpoint = torch.load(os.path.join(model_dir, "nvidia_waveglowpyt_fp32_20190427.pth"))
         waveglow_state_dict = self._unwrap_distributed(waveglow_checkpoint['state_dict'])
         waveglow_config = waveglow_checkpoint['config']
         self.waveglow_model = WaveGlow(**waveglow_config)
