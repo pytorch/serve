@@ -27,6 +27,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     fakeroot \
     ca-certificates \
     dpkg-dev \
+    sudo \
     g++ \
     git \
     python3-dev \

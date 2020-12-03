@@ -16,7 +16,7 @@ def teardown_module(module):
 
 
 def replace_mar_file_with_dummy_mar_in_model_store(model_store=None, model_mar=None):
-    model_store = model_store if (model_store != None) else "/workspace/model_store/"
+    model_store = model_store if (model_store != None) else f"{test_utils.ROOT_DIR}/model_store/"
     if model_mar != None:
         myfilepath = model_store + "/" + model_mar
         if os.path.exists(model_store + "/" + model_mar):
@@ -155,7 +155,7 @@ def test_restart_torchserve_with_last_snapshot_with_model_mar_removed():
     snapshot_created_on_management_api_invoke()
 
     # Now remove the registered model mar file (delete_mar_ fn)
-    test_utils.delete_mar_file_from_model_store(model_store="/workspace/model_store",
+    test_utils.delete_mar_file_from_model_store(model_store=f"{test_utils.ROOT_DIR}/model_store",
                                                 model_mar="densenet")
 
     # Start Torchserve with last generated snapshot file
@@ -188,7 +188,7 @@ def test_replace_mar_file_with_dummy():
 
     # Now replace the registered model mar with dummy file
     replace_mar_file_with_dummy_mar_in_model_store(
-        model_store="/workspace/model_store", model_mar="densenet161.mar")
+        model_store=f"{test_utils.ROOT_DIR}/model_store", model_mar="densenet161.mar")
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
     test_utils.start_torchserve(snapshot_file=snapshot_cfg)
     try:
@@ -227,7 +227,7 @@ def test_restart_torchserve_with_one_of_model_mar_removed():
     test_utils.stop_torchserve()
 
     # Now remove the registered model mar file (delete_mar_ fn)
-    test_utils.delete_mar_file_from_model_store(model_store="/workspace/model_store",
+    test_utils.delete_mar_file_from_model_store(model_store=f"{test_utils.ROOT_DIR}/model_store",
                                                 model_mar="densenet")
 
     # Start Torchserve with existing snapshot file containing reference to one of the model mar file
