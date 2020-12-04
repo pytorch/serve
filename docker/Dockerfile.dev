@@ -40,6 +40,10 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3 get-pip.py
 
+RUN adduser --disabled-password --gecos '' torch-server
+    && adduser torch-server sudo
+    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
@@ -55,7 +59,9 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git checkout ${BRANCH_NAME} \
     && python ts_scripts/install_dependencies.py --cuda $CUDA_VERSION \
     && python ts_scripts/install_from_src.py \
-    && useradd -m model-server \
+    && adduser --disabled-password --gecos '' model-server
+    && adduser model-server sudo
+    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
     && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
@@ -81,6 +87,8 @@ ENV JAVA_VERSION=11 \
   MAVEN_VERSION=3.5.4 \
   MAVEN_CONFIG="/root/.m2" \
   MAVEN_DOWNLOAD_SHA1="22cac91b3557586bb1eba326f2f7727543ff15e3"
+
+USER torch-server
 
 # Install Maven
 RUN set -ex \
