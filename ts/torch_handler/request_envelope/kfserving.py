@@ -13,6 +13,7 @@ class KFservingEnvelope(BaseEnvelope):
     """
     This function is used to handle the input request specified in KFServing
     format and converts it into a Torchserve readable format.
+
     Args:
         data - List of Input Request in KFServing Format
     Returns:

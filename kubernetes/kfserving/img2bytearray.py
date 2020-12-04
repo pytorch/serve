@@ -1,4 +1,4 @@
-""" The file to convert raw image to bytes array """
+""" Converts an image to bytesarray """
 import base64
 import json
 import argparse
@@ -13,10 +13,10 @@ image_read = image.read()
 image_64_encode = base64.b64encode(image_read)
 bytes_array = image_64_encode.decode('utf-8')
 request = {
-  "instances":[ 
-    { 
+  "instances":[
+    {
       "data":{
-      "b64": bytes_array         
+      "b64": bytes_array
       }
     }
   ]

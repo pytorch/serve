@@ -19,7 +19,7 @@ class BaseEnvelope(ABC):
         self.context = None
     def handle(self, data, context):
         """
-        The Input Requests are handled here.
+        The Input Requests and Response are handled here.
         """
         self.context = context
         if data:
