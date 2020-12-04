@@ -1,4 +1,4 @@
-  # Torchserve on Kubernetes
+  # Torchserve on Elastic Kubernetes service (EKS)
 
   ## Overview
 
@@ -6,7 +6,7 @@
 
   ![EKS Overview](images/overview.png)
 
-  In the following sections we would 
+  In the following sections we would
   * Create a EKS Cluster for deploying Torchserve
   * Create a PersistentVolume backed by EFS to store models and config
   * Use Helm charts to deploy Torchserve
@@ -212,12 +212,12 @@
   helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
   helm repo update
   helm install \
-      --version=0.6.0 \
+      --version=0.7.1 \
       --generate-name \
       nvdp/nvidia-device-plugin
   ```
 
-  To verify that the plugin has been installed execute the following command 
+  To verify that the plugin has been installed execute the following command
 
   ```bash
   helm list
@@ -226,12 +226,20 @@
   Your output should look similar to
 
   ```bash
-  ubuntu@ip-172-31-55-101:~/serve/kubernetes$ helm list
   NAME                           	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                     	APP VERSION
-  nvidia-device-plugin-1595917413	default  	1       	2020-07-28 06:23:34.522975795 +0000 UTC	deployed	nvidia-device-plugin-0.6.0	0.6.0
+  nvidia-device-plugin-1607068152	default  	1       	2020-12-04 13:19:16.207166144 +0530 IST	deployed	nvidia-device-plugin-0.7.1	0.7.1      
   ```
 
-  
+  ```bash
+  kubectl get nodes "-o=custom-columns=NAME:.metadata.name,MEMORY:.status.allocatable.memory,CPU:.status.allocatable.cpu,GPU:.status.allocatable.nvidia\.com/gpu"
+  ```
+
+  should show something similar to:
+
+  ```bash
+  NAME                                          MEMORY       CPU     GPU
+  ip-192-168-43-94.us-west-2.compute.internal   57213900Ki   7910m   1
+  ```
 
   ## Setup PersistentVolume backed by EFS
 
@@ -243,7 +251,6 @@
       └── model-store
           ├── mnist.mar
           └── squeezenet1_1.mar
-
 
   **Create EFS Volume for the EKS Cluster**
 

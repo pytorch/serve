@@ -10,11 +10,11 @@ This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. 
 
 ## Using AWS EKS Cluster
 
-[EKS Cluster setup](./EKS/README.md#-Torchserve-on-Kubernetes)
+[EKS Cluster setup](./EKS/README.md#-Torchserve-on-Elastic-Kubernetes-service-(EKS))
 
 ## Using Google GKE Cluster
 
-[GKE Cluster setup](./GKE/README.md##-TorchServe-on-Google-Kubernetes-Engine-(AKS))
+[GKE Cluster setup](./GKE/README.md##-TorchServe-on-Google-Kubernetes-Engine-(GKE))
 
 ## Deploy TorchServe using Helm Charts
 
