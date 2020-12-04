@@ -1,11 +1,13 @@
 import glob
 import os
+import shutil
 import sys
-import argparse
-from ts_scripts import tsutils as ts
-
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
+from ts_scripts import tsutils as ts
+
 TEST_DIR = os.path.join("test")
 MODEL_STORE_DIR = os.path.join("model_store")
 
@@ -99,6 +101,7 @@ def trigger_all():
 def test_api(collection):
     os.chdir(TEST_DIR)
     for DIR in [MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR, ARTIFACTS_HTTPS_DIR] :
+        shutil.rmtree(DIR, True)
         os.makedirs(DIR, exist_ok=True)
 
     switcher = {
@@ -114,11 +117,3 @@ def test_api(collection):
 
     if exit_code != 0:
         sys.exit("## Newman API Tests Failed !")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Execute newman API test suite")
-    parser.add_argument("collection", type=str, help="Collection Name")
-    args = parser.parse_args()
-
-    test_api(args.collection)
