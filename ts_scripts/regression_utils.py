@@ -4,6 +4,8 @@ import sys
 import urllib.request
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
 ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 
 
@@ -58,7 +60,3 @@ def test_regression():
         sys.exit("## Densenet mar creation failed !")
     if py_test_exit_code != 0:
         sys.exit("## TorchServe Regression Pytests Failed")
-
-
-if __name__ == "__main__":
-    test_regression()

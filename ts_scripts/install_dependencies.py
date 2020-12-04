@@ -88,7 +88,6 @@ def install_dependencies(cuda_version=None):
     }
     system = os_map[platform.system()]()
 
-    import sys
     # Sequence of installation to be maintained
     system.install_java()
     system.install_nodejs()
