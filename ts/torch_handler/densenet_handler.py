@@ -6,21 +6,16 @@ import logging
 import os
 import importlib.util
 import time
-import torch
 import io
+import torch
 
 logger = logging.getLogger(__name__)
 
 
 class DenseNetHandler:
     """
-    ImageClassifier handler class. This handler takes an image
+    DenseNetHandler handler class. This handler takes an image
     and returns the name of object in that image.
-    """
-
-    """
-    Base default handler to load torchscript or eager mode [state_dict] models
-    Also, provides handle method per torch serve custom model specification
     """
 
     def __init__(self):
@@ -116,7 +111,6 @@ class DenseNetHandler:
         values = []
         for row in data:
             image = row.get("data") or row.get("body")
-            print("data type for inference "+str(type(image)))
             tensor = torch.load(io.BytesIO(image))
             values.append(tensor)
         data = self.inference(torch.stack(values))
