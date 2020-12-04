@@ -59,9 +59,9 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git checkout ${BRANCH_NAME} \
     && python ts_scripts/install_dependencies.py --cuda $CUDA_VERSION \
     && python ts_scripts/install_from_src.py \
-    && adduser --disabled-password --gecos '' model-server
-    && adduser model-server sudo
-    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+    && adduser --disabled-password --gecos '' model-server \
+    && adduser model-server sudo \
+    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
     && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
