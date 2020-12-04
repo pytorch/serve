@@ -73,6 +73,8 @@ optional arguments:
   -f, --force           When the -f or --force flag is specified, an existing
                         .war file with same name as that provided in --workflow-name
                         in the path specified by --export-path will be overwritten
+  --extra-files EXTRA_FILES
+                        Comma separated path to extra dependency files.
 ```
 
 ## Artifact Details

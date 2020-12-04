@@ -63,4 +63,10 @@ class ArgParser(object):
                                                    ' with same name as that provided in --workflow-name in the path'
                                                    ' specified by --export-path will be overwritten')
 
+        parser_workflow_archiver.add_argument('--extra-files',
+                                   required=False,
+                                   type=str,
+                                   default=None,
+                                   help='Comma separated path to extra dependency files.')
+
         return parser_workflow_archiver

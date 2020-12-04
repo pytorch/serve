@@ -39,6 +39,7 @@ public class WorkFlow {
                         this.workflowArchive.getWorkflowDir(),
                         this.workflowArchive.getManifest().getWorkflow().getHandler());
 
+        String workFlowName = this.workflowArchive.getWorkflowName();
         Map<String, WorkflowModel> models = new HashMap<String, WorkflowModel>();
 
         @SuppressWarnings("unchecked")
@@ -70,10 +71,11 @@ public class WorkFlow {
                     @SuppressWarnings("unchecked")
                     LinkedHashMap<String, Object> model =
                             (LinkedHashMap<String, Object>) entry.getValue();
+                    String modelName = workFlowName + "__" + keyName;
 
                     WorkflowModel wfm =
                             new WorkflowModel(
-                                    keyName,
+                                    modelName,
                                     (String) model.get("url"),
                                     (int) model.getOrDefault("min-workers", minWorkers),
                                     (int) model.getOrDefault("max-workers", maxWorkers),
@@ -81,7 +83,7 @@ public class WorkFlow {
                                     (int) model.getOrDefault("max-batch-delay", maxBatchDelay),
                                     null);
 
-                    models.put(keyName, wfm);
+                    models.put(modelName, wfm);
             }
         }
 
@@ -89,7 +91,8 @@ public class WorkFlow {
         Map<String, Object> dagInfo = (Map<String, Object>) this.workflowSpec.get("dag");
 
         for (Map.Entry<String, Object> entry : dagInfo.entrySet()) {
-            String modelName = entry.getKey();
+            String nodeName = entry.getKey();
+            String modelName = workFlowName + "__" + nodeName;
             WorkflowModel wfm;
             if (!models.containsKey(modelName)) {
                 wfm =
@@ -100,7 +103,7 @@ public class WorkFlow {
                                 1,
                                 1,
                                 0,
-                                handlerFile.getPath() + ":" + modelName);
+                                handlerFile.getPath() + ":" + nodeName);
             } else {
                 wfm = models.get(modelName);
             }
@@ -109,11 +112,13 @@ public class WorkFlow {
 
             @SuppressWarnings("unchecked")
             ArrayList<String> values = (ArrayList<String>) entry.getValue();
-            for (String toModelName : values) {
-                WorkflowModel toWfm;
-                if (toModelName == null || ("").equals(toModelName.strip())) {
+            for (String toNodeName : values) {
+
+                if (toNodeName == null || ("").equals(toNodeName.strip())) {
                     continue;
                 }
+                String toModelName = workFlowName + "__" + toNodeName;
+                WorkflowModel toWfm;
                 if (!models.containsKey(toModelName)) {
                     toWfm =
                             new WorkflowModel(
@@ -123,7 +128,7 @@ public class WorkFlow {
                                     1,
                                     1,
                                     0,
-                                    handlerFile.getPath() + ":" + toModelName);
+                                    handlerFile.getPath() + ":" + toNodeName);
                 } else {
                     toWfm = models.get(toModelName);
                 }
@@ -132,6 +137,7 @@ public class WorkFlow {
                 dag.addEdge(fromNode, toNode);
             }
         }
+        dag.validate();
     }
 
     private static Map<String, Object> readSpecFile(File file)

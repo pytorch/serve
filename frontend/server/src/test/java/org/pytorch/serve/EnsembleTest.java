@@ -87,7 +87,7 @@ public class EnsembleTest {
         Assert.assertTrue(TestUtils.getHeaders().contains("x-request-id"));
     }
 
-    @Test
+    @Test(alwaysRun = true)
     public void testDAG() {
         Dag dag = new Dag();
 
@@ -114,14 +114,14 @@ public class EnsembleTest {
             dag.addEdge(c, f);
             dag.addEdge(d, f);
             String[] list = {"a", "b", "c", "d", "e", "f"};
-            Assert.assertEquals(dag.topoSort().toArray(), list);
+            Assert.assertEquals(dag.validate().toArray(), list);
         } catch (Exception exp) {
             Assert.assertTrue(false);
         }
     }
 
-    @Test
-    public void testDAG1() {
+    @Test(alwaysRun = true)
+    public void testInvalidDAG() {
         Dag dag = new Dag();
 
         Node a = new Node("a", new WorkflowModel("a", "url", 1, 1, 10, 50, null));
@@ -147,7 +147,7 @@ public class EnsembleTest {
             dag.addEdge(c, f);
             dag.addEdge(d, f);
             dag.addEdge(f, b);
-            System.out.println(dag.topoSort());
+            System.out.println(dag.validate());
             Assert.assertTrue(false);
         } catch (Exception exp) {
             Assert.assertTrue(true);

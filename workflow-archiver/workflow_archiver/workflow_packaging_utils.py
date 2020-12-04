@@ -98,7 +98,8 @@ class WorkflowExportUtils(object):
         WorkflowExportUtils.make_dir(workflow_path)
         for path in artifact_files:
             if path:
-                shutil.copy(path, workflow_path)
+                for file in path.split(","):
+                    shutil.copy(file, workflow_path)
 
         return workflow_path
 

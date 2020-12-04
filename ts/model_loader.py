@@ -87,7 +87,7 @@ class TsModelLoader(ModelLoader):
         if function_name is None:
             function_name = "handle"
 
-        if hasattr(module, function_name) or hasattr(module, model_name):
+        if hasattr(module, function_name):
             entry_point = getattr(module, function_name)
             service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size)
 

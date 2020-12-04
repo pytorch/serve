@@ -278,9 +278,13 @@ public final class ApiUtils {
                                         }
                                     } else {
                                         statusResponse.setHttpResponseCode(v);
-                                        statusResponse.setE(
-                                                new InternalServerException(
-                                                        "Failed to start workers"));
+                                        String msg =
+                                                "Failed to start workers for model "
+                                                        + modelName
+                                                        + " version: "
+                                                        + modelVersion;
+                                        statusResponse.setStatus(msg);
+                                        statusResponse.setE(new InternalServerException(msg));
                                         if (onError != null) {
                                             onError.apply(null);
                                         }

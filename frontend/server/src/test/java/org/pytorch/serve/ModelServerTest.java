@@ -1592,7 +1592,8 @@ public class ModelServerTest {
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-        Assert.assertEquals(resp.getMessage(), "Failed to start workers");
+        Assert.assertEquals(
+                resp.getMessage(), "Failed to start workers for model init-error version: null");
     }
 
     @Test(
