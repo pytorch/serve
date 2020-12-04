@@ -88,8 +88,6 @@ ENV JAVA_VERSION=11 \
   MAVEN_CONFIG="/root/.m2" \
   MAVEN_DOWNLOAD_SHA1="22cac91b3557586bb1eba326f2f7727543ff15e3"
 
-USER torch-server
-
 # Install Maven
 RUN set -ex \
   && mkdir -p $MAVEN_HOME \
@@ -98,6 +96,8 @@ RUN set -ex \
   && tar xzvf /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz -C $MAVEN_HOME --strip-components=1 \
   && update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 10000 \
   && mkdir -p $MAVEN_CONFIG
+
+USER torch-server
 
 FROM ${BUILD_TYPE}-image AS final-image
 ARG BUILD_TYPE
