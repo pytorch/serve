@@ -1,12 +1,11 @@
 # Build Spec for AWS CodeBuild CI
 
 version: 0.2
+run-as: torch-server
 
 phases:
   install:
     commands:
-      - apt-get update
-      - apt-get install sudo -y
       - python ts_scripts/install_dependencies.py --cuda=cu101
 
   build:
