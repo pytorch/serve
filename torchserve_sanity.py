@@ -1,5 +1,5 @@
 from ts_scripts.modelarchiver_utils import test_modelarchiver
-from ts_scripts.torchserve_install_utils import test_torchserve
+from ts_scripts.backend_utils import test_torchserve
 from ts_scripts.install_from_src import install_from_src
 from ts_scripts.sanity_utils import test_sanity
 from ts_scripts.shell_utils import rm_dir
