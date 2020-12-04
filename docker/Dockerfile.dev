@@ -40,8 +40,8 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3 get-pip.py
 
-RUN adduser --disabled-password --gecos '' torch-server
-    && adduser torch-server sudo
+RUN adduser --disabled-password --gecos '' torch-server \
+    && adduser torch-server sudo \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
