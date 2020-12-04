@@ -8,11 +8,10 @@ import logging
 import struct
 import sys
 import os
-import torch
 import io
-
 from builtins import bytearray
 from builtins import bytes
+import torch
 
 int_size = 4
 END_OF_LIST = -1
