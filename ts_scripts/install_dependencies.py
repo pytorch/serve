@@ -31,8 +31,11 @@ class Common():
 
     def install_python_packages(self, cuda_version):
         self.install_torch_packages(cuda_version)
-        os.system("pip install -U -r requirements/developer.txt") # developer.txt also installs packages from common.txt
-        if os.system("conda") == 0: # If conda is available install conda-build package
+        os.system("pip install -U pip setuptools")
+        # developer.txt also installs packages from common.txt
+        os.system("pip install -U -r requirements/developer.txt")
+        # If conda is available install conda-build package
+        if os.system("conda") == 0:
             os.system("conda install -y conda-build")
 
     def install_node_packages(self):
