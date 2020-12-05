@@ -38,7 +38,7 @@ For creating GPU based image with the latest CUDA version PyTorch supports (ex. 
 DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
 ```
 
-For creating GPU based image with older CUDA versions (ex. CUDA 10.1), make sure that the `--build-arg CUDA_VERSION=<version>` is specified. The version is in the format "cuda92", "cuda101":
+For creating GPU based image with older CUDA versions (ex. CUDA 10.1), make sure that the `--build-arg CUDA_VERSION=<version>` is specified. The version is in the format "cu92", "cu101":
 
 ```bash
 DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 --build-arg CUDA_VERSION=cu101 -t torchserve:latest .
