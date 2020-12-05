@@ -7,13 +7,13 @@ import sys
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts.tsutils import check_python_version
+from ts_scripts.utils import check_python_version, is_gpu_instance
 
 
 class Common():
     def __init__(self):
         # Assumption is nvidia-smi is installed on systems with gpu
-        self.is_gpu_instance = True if os.system("nvidia-smi") == 0 else False
+        self.is_gpu_instance = is_gpu_instance()
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
         self.sudo_cmd = 'sudo '
 

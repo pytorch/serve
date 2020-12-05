@@ -10,7 +10,7 @@ from ts_scripts.install_from_src import install_from_src
 from ts_scripts.regression_utils import test_regression
 from ts_scripts.api_utils import test_api
 from ts_scripts import print_env_info  as build_hdr_printer
-from ts_scripts.tsutils import check_python_version
+from ts_scripts.utils import check_python_version
 
 check_python_version()
 
