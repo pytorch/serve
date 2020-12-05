@@ -76,15 +76,13 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     pip install torchserve torch-model-archiver
     ```
    
-   **Note:** For Conda, Python 3.8 is required to run Torchserve
-
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
-If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+If you plan to develop with TorchServe and change some source code, you must install it from source code. 
+Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
-Please deactivate any conda env that you might be within.
 Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
