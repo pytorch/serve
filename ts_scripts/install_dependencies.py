@@ -43,15 +43,12 @@ class Linux(Common):
         super().__init__()
 
     def install_java(self):
-        os.system(f"{self.sudo_cmd}apt-get update")
         os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_node_packages(self):
-        os.system(f"{self.sudo_cmd}apt-get update")
         os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
 
     def install_nodejs(self):
-        os.system(f"{self.sudo_cmd}apt-get update")
         os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
         os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
