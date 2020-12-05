@@ -45,19 +45,16 @@ class Common():
 class Linux(Common):
     def __init__(self):
         super().__init__()
+        os.system(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
-        os.system(f"{self.sudo_cmd}apt-get update")
         os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
-    def install_node_packages(self):
-        os.system(f"{self.sudo_cmd}apt-get update")
-        os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
-
     def install_nodejs(self):
-        os.system(f"{self.sudo_cmd}apt-get update")
         os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
         os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
+        os.system(f"{self.sudo_cmd}ln -sf /usr/bin/python3 /usr/bin/python")
+        os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
 
 class Windows(Common):
@@ -81,7 +78,9 @@ class Darwin(Common):
         os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
-        os.system("brew install node")
+        os.system("brew unlink node")
+        os.system("brew install node@14")
+        os.system("brew link --overwrite node@14")
 
     def install_torch_packages(self, cuda_version=''):
         os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
