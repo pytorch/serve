@@ -1,6 +1,13 @@
 import os
 import platform
 import argparse
+import sys
+
+
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
+from ts_scripts.tsutils import check_python_version
 
 
 class Common():
@@ -96,6 +103,7 @@ def install_dependencies(cuda_version=None):
 
 
 if __name__ == "__main__":
+    check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
     parser.add_argument('--cuda', default=None, choices=['cu101', 'latest'], help="CUDA version for torch")
     args = parser.parse_args()

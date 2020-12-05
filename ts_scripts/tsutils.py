@@ -2,6 +2,7 @@ import os
 import platform
 import time
 import requests
+import sys
 
 
 torchserve_command = {
@@ -84,3 +85,10 @@ def unregister_model(model_name, protocol="http", host="localhost", port="8081")
     url = f"{protocol}://{host}:{port}/models/{model_name}"
     response = requests.delete(url, verify=False)
     return response
+
+
+def check_python_version():
+    py_version = sys.version
+    if not py_version.startswith('3.'):
+        print("TorchServe supports Python 3.x only. Please upgrade")
+        exit(1)

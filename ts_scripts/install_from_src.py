@@ -6,11 +6,11 @@ import shutil
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-print((REPO_ROOT))
 sys.path.append(REPO_ROOT)
 
 from ts_scripts import tsutils as ts
 from ts_scripts import print_env_info as build_hdr_printer
+from ts_scripts.tsutils import check_python_version
 
 
 def clean_slate(): 
@@ -58,6 +58,7 @@ def install_from_src():
 
 
 if __name__ == '__main__':
+    check_python_version()
     from pygit2 import Repository
     git_branch = Repository('.').head.shorthand
     build_hdr_printer.main(git_branch)
