@@ -44,6 +44,14 @@ For creating GPU based image with older CUDA versions (ex. CUDA 10.1), make sure
 DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 --build-arg CUDA_VERSION=cu101 -t torchserve:latest .
 ```
 
+Use one of the following base image for docker image based on the required CUDA version
+
+| CUDA version | Base Image |
+|-----|-----|
+|9.2|nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04|
+|10.1|nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04|
+|10.2|nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04|
+
 ## Start a container with a TorchServe image
 
 The following examples will start the container with 8080/81 port exposed to outer-world/localhost.

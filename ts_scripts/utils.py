@@ -11,7 +11,10 @@ def is_conda_env():
 
 
 def check_python_version():
-    py_version = sys.version
-    if not py_version.startswith('3.'):
-        print("TorchServe supports Python 3.x only. Please upgrade")
+    req_version = (3, 6)
+    cur_version = sys.version_info
+
+    if not (cur_version.major == req_version[0] and cur_version.minor >= req_version[1]):
+        print("System version" + str(cur_version))
+        print("TorchServe supports Python 3.6 and higher only. Please upgrade")
         exit(1)

@@ -37,6 +37,12 @@ do
           BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
           shift
           ;;
+        -bi|--baseimage)
+          MACHINE=gpu
+          DOCKER_TAG="pytorch/torchserve:dev-gpu"
+          BASE_IMAGE="$2"
+          shift
+          ;;
         -c|--codebuild)
           BUILD_TYPE="codebuild"
           shift
