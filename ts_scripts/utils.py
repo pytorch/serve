@@ -14,7 +14,7 @@ def check_python_version():
     req_version = (3, 6)
     cur_version = sys.version_info
 
-    if cur_version >= req_version:
+    if not (cur_version.major == req_version[0] and cur_version.minor >= req_version[1]):
         print("System version" + str(cur_version))
         print("TorchServe supports Python 3.6 and higher only. Please upgrade")
         exit(1)
