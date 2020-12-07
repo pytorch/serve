@@ -25,7 +25,7 @@ class Common():
         pass
 
     def install_torch_packages(self, cuda_version):
-        if cuda_version:
+        if cuda_version and cuda_version != "latest":
             os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
         else:
             os.system(f"pip install -U -r requirements/torch.txt")
