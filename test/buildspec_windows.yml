@@ -5,11 +5,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - apt-get update
-      - apt-get install sudo -y
       - python ts_scripts/install_dependencies.py --cuda=cu101
 
   build:
     commands:
-      - python torchserve_sanity.py
-      - cd serving-sdk/ && mvn clean install -q && cd ../
+      - python test/regression_tests.py
