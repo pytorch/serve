@@ -114,7 +114,6 @@ def install_dependencies(cuda_version=None):
         system.install_nodejs()
         system.install_node_packages()
 
-
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
