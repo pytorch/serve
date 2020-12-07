@@ -17,7 +17,8 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
-          echo "-bt, --codebuild specify to created image for codebuild"
+          echo "-bt, --buildtype specify to created image for codebuild"
+          echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
           exit 0
           ;;
