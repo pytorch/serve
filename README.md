@@ -36,13 +36,13 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
  - For GPU with Cuda 10.1
 
    ```bash
-   python ./ts_scripts/install_dependencies.py --cuda cu101
+   python ./ts_scripts/install_dependencies.py --cuda=cu101
    ```
 
  - For GPU with Cuda 9.2
 
    ```bash
-   python ./ts_scripts/install_dependencies.py --cuda cu92
+   python ./ts_scripts/install_dependencies.py --cuda=cu92
    ```
 
 3. Install torchserve and torch-model-archiver
@@ -71,7 +71,7 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 #### For Debian Based Systems/ MacOS
 
 ```
-python ./ts_scripts/install_dependencies.py --environment dev
+python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
 

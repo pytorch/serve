@@ -62,7 +62,7 @@ git checkout <branch_name>
 ```
 Install dependencies (if not already installed)
 ```bash
-python ts_scripts/install_dependencies.py --environment dev
+python ts_scripts/install_dependencies.py --environment=dev
 ```
 > For GPU with Cuda 10.1, make sure to use argument `--cuda=cu101` to to the above command
 Execute regression suite
