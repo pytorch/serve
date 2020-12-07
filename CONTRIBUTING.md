@@ -12,7 +12,7 @@ If you are interested in contributing to TorchServe, your contributions will fal
           ```bash
           python ts_scripts/install_dependencies.py --environment=dev
           ```
-          > For GPU with Cuda 10.1, make sure add the `--cuda=u101` arg to the above command
+          > For GPU with Cuda 10.1, make sure add the `--cuda=cu101` arg to the above command
         - Execute sanity suite
           ```bash
           python ./torchserve_sanity.py

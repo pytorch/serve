@@ -48,9 +48,11 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
  - `git clone https://github.com/pytorch/serve.git`
  - `pip install click`
- - `cd serve`
- - `python .\ts_scripts\install_dependencies.py`
- - `python .\ts_scripts\install_from_src.py`
+ - `cd serve`  
+ -  for development purposes, use command below:  
+   `python .\ts_scripts\install_dependencies.py --environment=dev`
+    for production usage, use command below:  
+   `python .\ts_scripts\install_from_src.py`
  - Refer [Install torchserve for development](https://github.com/pytorch/serve#install-torchserve-for-development)
 
 ## Troubleshooting

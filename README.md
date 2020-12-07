@@ -27,6 +27,9 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 1. Install dependencies
 
+Note: For Conda, Python 3.8 is required to run Torchserve.
+
+#### For Debian Based Systems/ MacOS
  - For CPU or latest supported CUDA version (10.2) for Torch 1.6
 
     ```bash
@@ -45,9 +48,14 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
    python ./ts_scripts/install_dependencies.py --cuda=cu92
    ```
 
+#### For Windows
+    Refer the documentation [here].(docs/torchserve_on_win_native.md)
+
+
 3. Install torchserve and torch-model-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
+
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
@@ -74,6 +82,9 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
+
+#### For Windows
+    Refer the documentation [here].(docs/torchserve_on_win_native.md)
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
