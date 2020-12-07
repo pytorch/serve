@@ -107,10 +107,10 @@ def install_dependencies(cuda_version=None):
 
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + ("production.txt" if args.production == "production" else "developer.txt")
+    requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
     system.install_python_packages(cuda_version, requirements_file_path)
 
-    if args.production == "production":
+    if args.environment == "dev":
         system.install_nodejs()
         system.install_node_packages()
 
@@ -119,8 +119,8 @@ if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
     parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'latest'], help="CUDA version for torch")
-    parser.add_argument('--environment', default='production', choices=['production', 'dev'],
-                        help="environment on which dependencies will be installed")
+    parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
+                        help="environment(production or developer) on which dependencies will be installed")
 
     args = parser.parse_args()
 
