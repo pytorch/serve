@@ -378,7 +378,8 @@
   We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/master/stable/efs-provisioner) to create a PersistentVolume backed by EFS. Run the following command to set this up.
 
   ```bash
-  helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  helm repo add stable https://charts.helm.sh/stable
+  helm repo update
   helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=YOUR-EFS-FS-ID --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name
   ```
 
@@ -654,7 +655,7 @@
   }
   
   
-  curl http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
+  curl http://your_elb.us-west-2.elb.amazonaws.com:8081/models/squeezenet1_1
   
   # You should see something similar to the following
   [
@@ -696,7 +697,7 @@
   
   
   wget https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
-  curl -X POST  http://your_elb.us-west-2.elb.amazonaws.com.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1 -T kitten_small.jpg
+  curl -X POST  http://your_elb.us-west-2.elb.amazonaws.com:8080/predictions/squeezenet1_1 -T kitten_small.jpg
   
   # You should something similar to the following
   [
