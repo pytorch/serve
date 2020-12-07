@@ -25,31 +25,14 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Install TorchServe
 
-1. Install Java 11
-
-    For Ubuntu
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-   
-   For Mac
-    ```bash
-    brew tap AdoptOpenJDK/openjdk
-    brew cask install adoptopenjdk11
-    ```
-
-2. Install python pre-requisite packages
+1. Install dependencies
 
  - For CPU or GPU-Cuda 10.2
 
     ```bash
-    pip install -U -r requirements.txt
+    python ./ts_scripts/install_dependencies.py --production
     ```
- - For GPU with Cuda 10.1
 
-    ```bash
-    pip install -U -r requirements_cu101.txt -f https://download.pytorch.org/whl/torch_stable.html
-   ```
 
 3. Install torchserve and torch-model-archiver
 

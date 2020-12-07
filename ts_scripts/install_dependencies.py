@@ -25,9 +25,9 @@ class Common():
         else:
             os.system(f"pip install -U -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
 
-    def install_python_packages(self, cuda_version):
+    def install_python_packages(self, cuda_version, requirements_file_path):
         self.install_torch_packages(cuda_version)
-        os.system("pip install -U -r requirements/developer.txt") # developer.txt also installs packages from common.txt
+        os.system("pip install -U -r {0}".format(requirements_file_path))
         if os.system("conda") == 0: # If conda is available install conda-build package
             os.system("conda install -y conda-build")
 
@@ -93,14 +93,19 @@ def install_dependencies(cuda_version=None):
 
     # Sequence of installation to be maintained
     system.install_java()
-    system.install_nodejs()
-    system.install_python_packages(cuda_version)
-    system.install_node_packages()
+    requirements_file_path = "requirements/" + ("production.txt" if args.production else "developer.txt")
+    system.install_python_packages(cuda_version, requirements_file_path)
+
+    if args.production:
+        system.install_nodejs()
+        system.install_node_packages()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
     parser.add_argument('--cuda', default=None, choices=['cu101', 'latest'], help="CUDA version for torch")
+    parser.add_argument('--production', action='store_true',  default=False, help="Install dependencies for production setup. "
+                                                                  "If not specified dev setup is assumed.")
     args = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)

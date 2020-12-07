@@ -1,7 +1,7 @@
 # Building TorchServe and Torch-Model-Archiver release binaries 
 1. Make sure all the dependencies are installed
    ```bash
-   python ts_scripts/install_dependencies.py
+   python ts_scripts/install_dependencies.py --production
    ```
    > For GPU with Cuda 10.1, make sure add the `cu101` arg to the above command
    
