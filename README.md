@@ -27,12 +27,23 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 1. Install dependencies
 
- - For CPU or GPU-Cuda 10.2
+ - For CPU or latest supported CUDA version (10.2) for Torch 1.6
 
     ```bash
-    python ./ts_scripts/install_dependencies.py --production
+    python ./ts_scripts/install_dependencies.py
     ```
 
+ - For GPU with Cuda 10.1
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda cu101
+   ```
+
+ - For GPU with Cuda 9.2
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda cu92
+   ```
 
 3. Install torchserve and torch-model-archiver
 
@@ -45,16 +56,14 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     ```
     pip install torchserve torch-model-archiver
     ```
-   
-   **Note:** For Conda, Python 3.8 is required to run Torchserve
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
-If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+If you plan to develop with TorchServe and change some source code, you must install it from source code.
+Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
-Please deactivate any conda env that you might be within.
 Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
@@ -62,7 +71,7 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 #### For Debian Based Systems/ MacOS
 
 ```
-python ./ts_scripts/install_dependencies.py
+python ./ts_scripts/install_dependencies.py --environment dev
 python ./ts_scripts/install_from_src.py
 ```
 
