@@ -6,7 +6,7 @@ import glob
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts import tsutils
+from ts_scripts.utils import is_conda_env
 from binaries.conda.build_packages import conda_build
 
 
@@ -32,7 +32,7 @@ def build():
 
     # Build TS & MA on Conda if available
     conda_build_exit_code = 0
-    if tsutils.is_conda_env():
+    if is_conda_env():
         conda_build_exit_code = conda_build(ts_wheel_path, ma_wheel_path)
 
     # If any one of the steps fail, exit with error
