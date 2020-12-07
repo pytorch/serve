@@ -67,6 +67,12 @@ class Windows(Common):
         super().__init__()
         self.sudo_cmd = ''
 
+    def install_torch_packages(self, cuda_version):
+        if self.is_gpu_instance and cuda_version:
+            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
+        else:
+            os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
+
     def install_java(self):
         pass
 
