@@ -29,7 +29,9 @@ class TorchModelServiceWorker(object):
     """
     Backend worker to handle Model Server's python service code
     """
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
+    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None, service=None, model_loader_args=None, fifo_path=None):
+
+
         self.sock_type = s_type
         if s_type == "unix":
             if s_name is None:
@@ -37,7 +39,7 @@ class TorchModelServiceWorker(object):
             self.sock_name, self.port = s_name, -1
             try:
                 os.remove(s_name)
-            except OSError as e:
+            except OSError as e :
                 if os.path.exists(s_name):
                     raise RuntimeError("socket already in use: {}.".format(s_name)) from e
 
@@ -49,50 +51,14 @@ class TorchModelServiceWorker(object):
         else:
             raise ValueError("Incomplete data provided")
 
-        logging.info("Listening on port: %s", s_name)
+        logging.info("Will listen on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
+        self.port_num = port_num
+        self.service = service
+        self.model_loader_args = model_loader_args
+        self.fifo_path = fifo_path
 
-    @staticmethod
-    def load_model(load_model_request):
-        """
-        Expected command
-        {
-            "command" : "load", string
-            "modelPath" : "/path/to/model/file", string
-            "modelName" : "name", string
-            "gpu" : None if CPU else gpu_id, int
-            "handler" : service handler entry point if provided, string
-            "envelope" : name of wrapper/unwrapper of request data if provided, string
-            "batchSize" : batch size, int
-        }
-
-        :param load_model_request:
-        :return:
-        """
-        try:
-            model_dir = load_model_request["modelPath"].decode("utf-8")
-            model_name = load_model_request["modelName"].decode("utf-8")
-            handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
-            envelope = load_model_request["envelope"].decode("utf-8") if "envelope" in load_model_request else None
-            envelope = envelope if envelope is not None and len(envelope) > 0 else None
-
-            batch_size = None
-            if "batchSize" in load_model_request:
-                batch_size = int(load_model_request["batchSize"])
-
-            gpu = None
-            if "gpu" in load_model_request:
-                gpu = int(load_model_request["gpu"])
-
-            model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope)
-
-            logging.debug("Model %s loaded.", model_name)
-
-            return service, "loaded model {}".format(model_name), 200
-        except MemoryError:
-            return None, "System out of memory", 507
 
     def handle_connection(self, cl_socket):
         """
@@ -101,7 +67,7 @@ class TorchModelServiceWorker(object):
         :param cl_socket:
         :return:
         """
-        service = None
+
         while True:
             if BENCHMARK:
                 pr.disable()
@@ -110,30 +76,24 @@ class TorchModelServiceWorker(object):
             if BENCHMARK:
                 pr.enable()
             if cmd == b'I':
-                resp = service.predict(msg)
-                cl_socket.sendall(resp)
-            elif cmd == b'L':
-                service, result, code = self.load_model(msg)
-                resp = bytearray()
-                resp += create_load_model_response(code, result)
-                cl_socket.sendall(resp)
-                if code != 200:
-                    raise RuntimeError("{} - {}".format(code, result))
+                resp = self.service.predict(msg)
+                cl_socket.send(resp)
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 
-            if service is not None and service.context is not None and service.context.metrics is not None:
-                emit_metrics(service.context.metrics.store)
+            if self.service is not None and self.service.context is not None and self.service.context.metrics is not None:
+                emit_metrics(self.service.context.metrics.store)
 
     def run_server(self):
         """
         Run the backend worker process and listen on a socket
         :return:
         """
-        if not DEBUG:
-            self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
+        sys.stdout = open(self.fifo_path + ".out", "w")
+        sys.stderr = open(self.fifo_path + ".err", "w")
+        logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)
@@ -145,51 +105,18 @@ class TorchModelServiceWorker(object):
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
 
+        if(self.service is None):
+            model_loader = ModelLoaderFactory.get_model_loader()
+            self.service = model_loader.load(*self.model_loader_args)
+
+        logging.info("Waiting for connection ...")
         while True:
-            (cl_socket, _) = self.sock.accept()
-            # workaround error(35, 'Resource temporarily unavailable') on OSX
-            cl_socket.setblocking(True)
+            try:
+                (cl_socket, _) = self.sock.accept()
+                # workaround error(35, 'Resource temporarily unavailable') on OSX
+                cl_socket.setblocking(True)
 
-            logging.info("Connection accepted: %s.", cl_socket.getsockname())
-            self.handle_connection(cl_socket)
-
-
-if __name__ == "__main__":
-    # Remove ts dir from python path to avoid module name conflict.
-    ts_path = os.path.dirname(os.path.realpath(__file__))
-    while ts_path in sys.path:
-        sys.path.remove(ts_path)
-
-    sock_type = None
-    socket_name = None
-
-    # noinspection PyBroadException
-    try:
-        logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
-        args = ArgParser.model_service_worker_args().parse_args()
-        socket_name = args.sock_name
-        sock_type = args.sock_type
-        host = args.host
-        port = args.port
-
-        if BENCHMARK:
-            import cProfile
-            pr = cProfile.Profile()
-            pr.disable()
-            pr.dump_stats('/tmp/tsPythonProfile.prof')
-
-        worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
-        worker.run_server()
-        if BENCHMARK:
-            pr.disable()
-            pr.dump_stats('/tmp/tsPythonProfile.prof')
-
-    except socket.timeout:
-        logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
-    except Exception:  # pylint: disable=broad-except
-        logging.error("Backend worker process died.", exc_info=True)
-    finally:
-        if sock_type == 'unix' and os.path.exists(socket_name):
-            os.remove(socket_name)
-
-    sys.exit(1)
+                logging.info("Connection accepted: %s.", cl_socket.getsockname())
+                self.handle_connection(cl_socket)
+            except socket.timeout:
+                pass

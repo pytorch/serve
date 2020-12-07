@@ -2,7 +2,6 @@ package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,11 +11,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +22,7 @@ public class WorkLoadManager {
     private ExecutorService threadPool;
 
     private ConcurrentHashMap<ModelVersionName, List<WorkerThread>> workers;
+    private ConcurrentHashMap<ModelVersionName, WorkerManagerThread> workerManagers;
 
     private ConfigManager configManager;
     private EventLoopGroup backendGroup;
@@ -40,6 +38,7 @@ public class WorkLoadManager {
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
+        workerManagers = new ConcurrentHashMap<>();
     }
 
     public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {
@@ -92,8 +91,10 @@ public class WorkLoadManager {
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
+            WorkerManagerThread workerManagerThread;
             List<WorkerThread> threads;
             if (minWorker == 0) {
+                workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
@@ -110,38 +111,24 @@ public class WorkLoadManager {
 
             int currentWorkers = threads.size();
             if (currentWorkers < minWorker) {
+                if(currentWorkers == 0 ) {
+                    workerManagerThread = workerManagers
+                            .computeIfAbsent(
+                                    model.getModelVersionName(),
+                                    k -> addWorkerManagerThread(model, future));
+                }
                 addThreads(threads, model, minWorker - currentWorkers, future);
             } else {
                 for (int i = currentWorkers - 1; i >= maxWorker; --i) {
                     WorkerThread thread = threads.remove(i);
-                    WorkerLifeCycle lifecycle = thread.getLifeCycle();
+                    workerManagerThread = workerManagers.get(model.getModelVersionName());
+                    workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
                     thread.shutdown();
 
-                    Process workerProcess = lifecycle.getProcess();
-
-                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
-                    // -> This may nullify process object per destroyForcibly doc.
-                    if (workerProcess != null && workerProcess.isAlive()) {
-                        boolean workerDestroyed = false;
-                        try {
-                            String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());
-                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
-                            workerDestroyed =
-                                    workerKillProcess.waitFor(
-                                            configManager.getUnregisterModelTimeout(),
-                                            TimeUnit.SECONDS);
-                        } catch (InterruptedException | IOException e) {
-                            logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                            future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
-                            return future;
-                        }
-                        if (!workerDestroyed) {
-                            logger.warn(
-                                    "WorkerThread timed out while cleaning, please resend request.");
-                            future.complete(HttpResponseStatus.REQUEST_TIMEOUT);
-                            return future;
-                        }
+                    if(threads.size() == 0){
+                        workerManagerThread.getLifeCycle().exit();
+                        workerManagerThread.shutdown();
+                        workerManagers.remove(workerManagerThread);
                     }
                 }
                 if (!isStartup && !isCleanUp) {
@@ -155,6 +142,25 @@ public class WorkLoadManager {
             }
             return future;
         }
+    }
+
+    private WorkerManagerThread addWorkerManagerThread(
+            Model model,
+            CompletableFuture<HttpResponseStatus> future) {
+
+        WorkerManagerStateListener listener = new WorkerManagerStateListener(future, 1);
+        BatchAggregator aggregator = new BatchAggregator(model);
+
+        WorkerManagerThread thread =
+                new WorkerManagerThread(
+                        configManager,
+                        backendGroup,
+                        configManager.isDebug() ? port.get() : port.getAndIncrement(),
+                        model,
+                        aggregator,
+                        listener);
+        threadPool.submit(thread);
+        return thread;
     }
 
     private void addThreads(
@@ -171,12 +177,15 @@ public class WorkLoadManager {
                 gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
             }
 
+            int portNum = port.incrementAndGet();
+            workerManagers.get(model.getModelVersionName()).scaleUp(portNum);
+
             BatchAggregator aggregator = new BatchAggregator(model);
             WorkerThread thread =
                     new WorkerThread(
                             configManager,
                             backendGroup,
-                            configManager.isDebug() ? port.get() : port.getAndIncrement(),
+                            portNum,
                             gpuId,
                             model,
                             aggregator,

@@ -10,6 +10,8 @@ import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
+import org.pytorch.serve.util.messages.ModelScaleDownRequest;
+import org.pytorch.serve.util.messages.ModelScaleUpRequest;
 import org.pytorch.serve.util.messages.RequestInput;
 
 @ChannelHandler.Sharable
@@ -57,6 +59,58 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
                 buf = new byte[0];
             }
 
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+        } else if (msg instanceof ModelScaleUpRequest) {
+            out.writeByte('U');
+
+            ModelScaleUpRequest request = (ModelScaleUpRequest) msg;
+
+
+            byte[] buf = request.getSockType().getBytes(StandardCharsets.UTF_8);
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+
+            String sockName = request.getSockName();
+            if (sockName != null){
+                buf = sockName.getBytes(StandardCharsets.UTF_8);
+            } else {
+                buf = new byte[0];
+            }
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+
+            String host = request.getHost();
+            if (host != null){
+                buf = host.getBytes(StandardCharsets.UTF_8);
+            } else {
+                buf = new byte[0];
+            }
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+
+            String port = request.getPort();
+            if (port != null){
+                buf = port.getBytes(StandardCharsets.UTF_8);
+            } else {
+                buf = new byte[0];
+            }
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+            buf = request.getFifoPath().getBytes(StandardCharsets.UTF_8);
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+        } else if (msg instanceof ModelScaleDownRequest) {
+            out.writeByte('D');
+
+            ModelScaleDownRequest request = (ModelScaleDownRequest) msg;
+            byte[] buf = request.getPort().getBytes(StandardCharsets.UTF_8);
             out.writeInt(buf.length);
             out.writeBytes(buf);
 

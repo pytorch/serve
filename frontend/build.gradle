@@ -36,9 +36,6 @@ configure(javaProjects()) {
 
     defaultTasks 'jar'
 
-	apply from: file("${rootProject.projectDir}/tools/gradle/formatter.gradle")
-	apply from: file("${rootProject.projectDir}/tools/gradle/check.gradle")
-	apply from: file("${rootProject.projectDir}/tools/gradle/spotbugs.gradle")
 
     test {
         useTestNG() {
@@ -50,19 +47,9 @@ configure(javaProjects()) {
             events "passed", "skipped", "failed", "standardOut", "standardError"
         }
     }
-    test.finalizedBy(project.tasks.jacocoTestReport)
 
     compileJava {
         options.compilerArgs << "-Xlint:all,-options,-static" << "-Werror"
     }
 
-    jacocoTestCoverageVerification {
-        violationRules {
-            rule {
-                limit {
-                    minimum = 0.70
-                }
-            }
-        }
-    }
 }

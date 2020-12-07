@@ -1,81 +1,79 @@
 package org.pytorch.serve.wlm;
 
-import org.pytorch.serve.metrics.Metric;
-import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.Connector;
-import org.pytorch.serve.util.SharedNamedPipeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.messages.EnvironmentUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class WorkerLifeCycle {
+public class WorkerManagerLifeCycle {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerManagerLifeCycle.class);
 
     private ConfigManager configManager;
     private Model model;
     private int pid = -1;
+    private Process process;
     private CountDownLatch latch;
     private boolean success;
     private Connector connector;
     private ReaderThread errReader;
     private ReaderThread outReader;
-    private int port;
 
-    private static final int STD_OUT_POLL_INTERVAL = 1000;
-    private static final int STD_OUT_POLL_ATTEMPTS = 10;
+    public WorkerManagerLifeCycle(ConfigManager configManager, Model model) {
 
-
-    public WorkerLifeCycle(ConfigManager configManager, Model model, int port) {
         this.configManager = configManager;
         this.model = model;
-        this.connector = new Connector(port);
-        this.port = port;
     }
 
-    public static void awaitFileCreate(String path)
-            throws WorkerInitializationException {
-        int retry = STD_OUT_POLL_ATTEMPTS;
-        while (!(new File(path).exists())) {
-            if (--retry <= 0) {
-                throw new WorkerInitializationException("Worker std out file was not created in time");
-            }
-            try {
-                Thread.sleep(STD_OUT_POLL_INTERVAL);
-            } catch (InterruptedException e) {
-                logger.info("Waiting to startup");
-            }
+    public Process getProcess() {
+        return process;
+    }
+
+    public void startWorkerManager(int port) throws WorkerInitializationException, InterruptedException {
+
+        File workingDir = new File(configManager.getModelServerHome());
+        File modelPath;
+        setPort(port);
+        try {
+            modelPath = model.getModelDir().getCanonicalFile();
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed get TS home directory", e);
         }
-    }
 
-    public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
+        String[] args = new String[6];
+        args[0] = EnvironmentUtils.getPythonRunTime(model);
+        args[1] = new File(workingDir, "ts/model_service_worker_manager.py").getAbsolutePath();
+        args[2] = "--sock-type";
+        args[3] = connector.getSocketType();
+        args[4] = connector.isUds() ? "--sock-name" : "--port";
+        args[5] = connector.getSocketPath();
+
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        workingDir.getAbsolutePath(),
+                        modelPath.getAbsolutePath(),
+                        model.getModelArchive().getManifest().getModel().getHandler());
 
         try {
             latch = new CountDownLatch(1);
 
             synchronized (this) {
+                process = Runtime.getRuntime().exec(args, envp, modelPath);
 
                 String threadName =
                         "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
-
-
-                String stdOutFile = SharedNamedPipeUtils.getSharedNamedPipeStdOut(Integer.toString(port));
-                String stdErrFile = SharedNamedPipeUtils.getSharedNamedPipeStdErr(Integer.toString(port));
-
-                awaitFileCreate(stdOutFile);
-
-                logger.info("StdOut file created - " + stdOutFile);
-
-
-                errReader = new ReaderThread(threadName, new FileInputStream(stdOutFile), true, this);
-                outReader = new ReaderThread(threadName, new FileInputStream(stdErrFile), false, this);
-
+                errReader = new ReaderThread(threadName, process.getErrorStream(), true, this);
+                outReader = new ReaderThread(threadName, process.getInputStream(), false, this);
                 errReader.start();
                 outReader.start();
             }
@@ -87,7 +85,7 @@ public class WorkerLifeCycle {
                 return;
             }
             throw new WorkerInitializationException("Backend worker startup time out.");
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new WorkerInitializationException("Failed start worker process", e);
         } finally {
             if (!success) {
@@ -108,10 +106,17 @@ public class WorkerLifeCycle {
     }
 
     public synchronized void exit() {
-        terminateIOStreams();
+        if (process != null) {
+            process.destroyForcibly();
+            connector.clean();
+            terminateIOStreams();
+        }
     }
 
     public synchronized Integer getExitValue() {
+        if (process != null && !process.isAlive()) {
+            return process.exitValue();
+        }
         return null;
     }
 
@@ -122,10 +127,6 @@ public class WorkerLifeCycle {
 
     public synchronized int getPid() {
         return pid;
-    }
-
-    public synchronized int getPort() {
-        return port;
     }
 
     public synchronized void setPid(int pid) {
@@ -140,12 +141,12 @@ public class WorkerLifeCycle {
 
         private InputStream is;
         private boolean error;
-        private WorkerLifeCycle lifeCycle;
+        private WorkerManagerLifeCycle lifeCycle;
         private AtomicBoolean isRunning = new AtomicBoolean(true);
         private static final org.apache.log4j.Logger loggerModelMetrics =
                 org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
-        public ReaderThread(String name, InputStream is, boolean error, WorkerLifeCycle lifeCycle) {
+        public ReaderThread(String name, InputStream is, boolean error, WorkerManagerLifeCycle lifeCycle) {
             super(name + (error ? "-stderr" : "-stdout"));
             this.is = is;
             this.error = error;
@@ -169,7 +170,7 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    if ("Torch worker started.".equals(result)) {
+                    if ("Torch worker manager started.".equals(result)) {
                         lifeCycle.setSuccess(true);
                     } else if (result.startsWith("[PID]")) {
                         lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));

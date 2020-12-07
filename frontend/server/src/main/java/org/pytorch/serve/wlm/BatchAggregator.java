@@ -3,12 +3,17 @@ package org.pytorch.serve.wlm;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
+import org.pytorch.serve.util.messages.ModelScaleDownRequest;
+import org.pytorch.serve.util.messages.ModelScaleUpRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +36,28 @@ public class BatchAggregator {
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
         model.pollBatch(
-                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
+                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs, false);
+
+        for (Job j : jobs.values()) {
+            if (j.isControlCmd()) {
+                    throw new IllegalStateException(
+                            "Received control when expecting inference commands.");
+                }
+                j.setScheduled();
+                req.addRequest(j.getPayload());
+        }
+        return req;
+    }
+
+
+    public BaseModelRequest getCtrlRequest(String threadName, WorkerManagerState state)
+            throws InterruptedException {
+        jobs.clear();
+
+        BaseModelRequest req = null;
+
+        model.pollBatch(
+                threadName, (state == WorkerManagerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs, true);
 
         for (Job j : jobs.values()) {
             if (j.isControlCmd()) {
@@ -41,15 +67,33 @@ public class BatchAggregator {
                                     + "Control messages should be processed/retrieved one at a time.");
                 }
                 RequestInput input = j.getPayload();
-                int gpuId = -1;
-                String gpu = input.getStringParameter("gpu");
-                if (gpu != null) {
-                    gpuId = Integer.parseInt(gpu);
+
+
+                if (j.getCmd() == WorkerCommands.LOAD) {
+
+                    int gpuId = -1;
+                    String gpu = input.getStringParameter("gpu");
+                    if (gpu != null) {
+                        gpuId = Integer.parseInt(gpu);
+                    }
+                    req = new ModelLoadModelRequest(model, gpuId);
+
+                } else if (j.getCmd() == WorkerCommands.SCALE_UP) {
+
+                    String sockType = input.getStringParameter("sock_type");
+                    String sockName = input.getStringParameter("sock_name");
+                    String host = input.getStringParameter("host");
+                    String port = input.getStringParameter("port");
+                    String fifoPath = input.getStringParameter("fifo_path");
+
+
+                    req = new ModelScaleUpRequest(model, sockType, sockName, host, port, fifoPath);
+
+                } else if (j.getCmd() == WorkerCommands.SCALE_DOWN) {
+
+                    String port = input.getStringParameter("port");
+                    req = new ModelScaleDownRequest(model, port);
                 }
-                return new ModelLoadModelRequest(model, gpuId);
-            } else {
-                j.setScheduled();
-                req.addRequest(j.getPayload());
             }
         }
         return req;
