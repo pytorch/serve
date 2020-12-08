@@ -84,11 +84,29 @@ class TorchModelServiceWorker(object):
             if self.service is not None and self.service.context is not None and self.service.context.metrics is not None:
                 emit_metrics(self.service.context.metrics.store)
 
+
+
     def run_server(self):
+        try:
+            logging.error("Run server invoke")
+            loggerc = logging.getLogger('c')
+            loggerc.addHandler(logging.FileHandler('/tmp/loggerc'))
+            loggerc.error("Starting server .... ")
+            self.run_server1()
+        except:
+            e = sys.exc_info()[0]
+            loggerc.error("after the listen....." + str(e))
+
+    def run_server1(self):
         """
         Run the backend worker process and listen on a socket
         :return:
         """
+
+        logger1 = logging.getLogger('1')
+        logger1.addHandler(logging.FileHandler('/tmp/logger1'))
+        logger1.error("testing logger .....")
+
         sys.stdout = open(self.fifo_path + ".out", "w")
         sys.stderr = open(self.fifo_path + ".err", "w")
         logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
@@ -100,7 +118,6 @@ class TorchModelServiceWorker(object):
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
-        self.sock.listen(1)
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
@@ -112,11 +129,16 @@ class TorchModelServiceWorker(object):
         logging.info("Waiting for connection ...")
         while True:
             try:
+                logger1.error("listenning to socket .....")
+                self.sock.listen(1)
                 (cl_socket, _) = self.sock.accept()
                 # workaround error(35, 'Resource temporarily unavailable') on OSX
+                logger1.error("after the listen.....")
                 cl_socket.setblocking(True)
 
                 logging.info("Connection accepted: %s.", cl_socket.getsockname())
                 self.handle_connection(cl_socket)
             except socket.timeout:
+                logger1.error("socket time out .....")
+                logging.info("Connection timedout")
                 pass

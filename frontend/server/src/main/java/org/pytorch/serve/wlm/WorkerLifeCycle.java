@@ -158,12 +158,26 @@ public class WorkerLifeCycle {
 
         @Override
         public void run() {
+
+
+            logger.info("DHANAK ----- WorkerLifcycle - Monitoring for changes");
+
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
                 while (isRunning.get() && scanner.hasNext()) {
+
+
+
+
                     String result = scanner.nextLine();
                     if (result == null) {
+                        logger.info("DHANAK ----- WorkerLifcycle - Monitoring for changes 1 " + result);
+
                         break;
                     }
+
+                    logger.info("DHANAK ----- WorkerLifcycle - Monitoring for changes 2 " + result);
+
+
                     if (result.startsWith("[METRICS]")) {
                         loggerModelMetrics.info(Metric.parse(result.substring(9)));
                         continue;

@@ -56,7 +56,7 @@ def start():
         java = "java" if not java_home else "{}/bin/java".format(java_home)
 
         ts_home = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        cmd = [java, "-Dmodel_server_home={}".format(ts_home)]
+        cmd = [java, "-Dmodel_server_home={}".format(ts_home), "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
         if args.log_config:
             log_config = os.path.realpath(args.log_config)
             if not os.path.isfile(log_config):
