@@ -1,4 +1,4 @@
-## TorchServe on Google Kubernetes Engine (AKS)
+## TorchServe on Google Kubernetes Engine (GKE)
 
 ### 1 Create an GKE cluster
 
