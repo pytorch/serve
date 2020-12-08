@@ -105,11 +105,10 @@ class TorchModelServiceWorker(object):
 
         logger1 = logging.getLogger('1')
         logger1.addHandler(logging.FileHandler('/tmp/logger1'))
-        logger1.error("testing logger .....")
+        logger1.addHandler(logging.FileHandler(self.fifo_path+".out"))
+        logger1.error("testing logger ....." + self.fifo_path+".out")
 
-        sys.stdout = open(self.fifo_path + ".out", "w")
-        sys.stderr = open(self.fifo_path + ".err", "w")
-        logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
+        logging.basicConfig(format="%(message)s", filename=self.fifo_path+".out", filemode="a+", level=logging.INFO)
 
         self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
@@ -121,6 +120,15 @@ class TorchModelServiceWorker(object):
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
+
+
+        logger1.error("[PID]%d", os.getpid())
+        logger1.error("Torch worker started.")
+        logger1.error("Python runtime: %s", platform.python_version())
+
+        with open(self.fifo_path+".out") as f:
+            logger1.error(f.read())
+
 
         if(self.service is None):
             model_loader = ModelLoaderFactory.get_model_loader()

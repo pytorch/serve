@@ -73,8 +73,8 @@ public class WorkerLifeCycle {
                 logger.info("StdOut file created - " + stdOutFile);
 
 
-                errReader = new ReaderThread(threadName, new FileInputStream(stdOutFile), true, this);
-                outReader = new ReaderThread(threadName, new FileInputStream(stdErrFile), false, this);
+                errReader = new ReaderThread(threadName, new File(stdOutFile), true, this);
+                outReader = new ReaderThread(threadName, new File(stdErrFile), false, this);
 
                 errReader.start();
                 outReader.start();
@@ -138,71 +138,72 @@ public class WorkerLifeCycle {
 
     private static final class ReaderThread extends Thread {
 
-        private InputStream is;
+        private static final org.apache.log4j.Logger loggerModelMetrics =
+                org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
+        private final int POLL_FREQUENCY = 500;
+        private File file;
+        private long lastReadPosition;
         private boolean error;
         private WorkerLifeCycle lifeCycle;
         private AtomicBoolean isRunning = new AtomicBoolean(true);
-        private static final org.apache.log4j.Logger loggerModelMetrics =
-                org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
-        public ReaderThread(String name, InputStream is, boolean error, WorkerLifeCycle lifeCycle) {
+        public ReaderThread(String name, File file, boolean error, WorkerLifeCycle lifeCycle) {
             super(name + (error ? "-stderr" : "-stdout"));
-            this.is = is;
+            this.file = file;
             this.error = error;
             this.lifeCycle = lifeCycle;
+            this.lastReadPosition = 0;
         }
 
         public void terminate() {
             isRunning.set(false);
         }
 
+
         @Override
         public void run() {
 
+            while (isRunning.get()) {
 
-            logger.info("DHANAK ----- WorkerLifcycle - Monitoring for changes");
-
-            try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
-                while (isRunning.get() && scanner.hasNext()) {
-
-
-
-
-                    String result = scanner.nextLine();
-                    if (result == null) {
-                        logger.info("DHANAK ----- WorkerLifcycle - Monitoring for changes 1 " + result);
-
-                        break;
-                    }
-
-                    logger.info("DHANAK ----- WorkerLifcycle - Monitoring for changes 2 " + result);
-
-
-                    if (result.startsWith("[METRICS]")) {
-                        loggerModelMetrics.info(Metric.parse(result.substring(9)));
-                        continue;
-                    }
-
-                    if ("Torch worker started.".equals(result)) {
-                        lifeCycle.setSuccess(true);
-                    } else if (result.startsWith("[PID]")) {
-                        lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));
-                    }
-                    if (error) {
-                        logger.warn(result);
-                    } else {
-                        logger.info(result);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Couldn't create scanner - {}", getName(), e);
-            } finally {
-                logger.info("Stopped Scanner - {}", getName());
-                lifeCycle.setSuccess(false);
                 try {
-                    is.close();
-                } catch (IOException e) {
-                    logger.error("Failed to close stream for thread {}", this.getName(), e);
+                    Thread.sleep(POLL_FREQUENCY);
+                } catch (InterruptedException e) {
+                }
+
+                long fileLength = file.length();
+                if (fileLength > lastReadPosition) {
+
+                    try {
+
+                        RandomAccessFile readWriteFileAccess = new RandomAccessFile(file, "rw");
+                        String result = null;
+                        while ((result = readWriteFileAccess.readLine()) != null) {
+
+                            if (result.startsWith("[METRICS]")) {
+                                loggerModelMetrics.info(Metric.parse(result.substring(9)));
+                                continue;
+                            }
+
+                            if ("Torch worker started.".equals(result)) {
+                                lifeCycle.setSuccess(true);
+                            } else if (result.startsWith("[PID]")) {
+                                lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));
+                            }
+                            if (error) {
+                                logger.warn(result);
+                            } else {
+                                logger.info(result);
+                            }
+
+                        }
+                        lastReadPosition = readWriteFileAccess.getFilePointer();
+                        readWriteFileAccess.close();
+                    } catch (IOException e) {
+                        logger.error("Error while reading file - " + file.getName());
+                    } finally {
+                        logger.info("Stopped Scanner - {}", getName());
+                        lifeCycle.setSuccess(false);
+                    }
                 }
             }
         }
