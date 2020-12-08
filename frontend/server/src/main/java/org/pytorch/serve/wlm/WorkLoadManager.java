@@ -119,18 +119,19 @@ public class WorkLoadManager {
                 }
                 addThreads(threads, model, minWorker - currentWorkers, future);
             } else {
+
+                workerManagerThread = workerManagers.get(model.getModelVersionName());
                 for (int i = currentWorkers - 1; i >= maxWorker; --i) {
                     WorkerThread thread = threads.remove(i);
-                    workerManagerThread = workerManagers.get(model.getModelVersionName());
                     workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
                     thread.shutdown();
-
-                    if(threads.size() == 0){
-                        workerManagerThread.getLifeCycle().exit();
-                        workerManagerThread.shutdown();
-                        workerManagers.remove(workerManagerThread);
-                    }
                 }
+                if(threads.size() == 0){
+                    workerManagerThread.getLifeCycle().exit();
+                    workerManagerThread.shutdown();
+                    workerManagers.remove(workerManagerThread);
+                }
+
                 if (!isStartup && !isCleanUp) {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;

@@ -1,18 +1,28 @@
 package org.pytorch.serve.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 public final class SharedNamedPipeUtils {
 
-    public static final String getSharedNamedPipePath(String port) {
+    private SharedNamedPipeUtils() {
+    }
+
+    public static String getSharedNamedPipePath(String port) {
         return System.getProperty("java.io.tmpdir") + "worker_" + port;
     }
 
-    public static final String getSharedNamedPipeStdOut(String port) {
+    public static String getSharedNamedPipeStdOut(String port) {
         return getSharedNamedPipePath(port) + ".out";
     }
 
-    public static final String getSharedNamedPipeStdErr(String port) {
+    public static String getSharedNamedPipeStdErr(String port) {
         return getSharedNamedPipePath(port) + ".err";
     }
 
-    private SharedNamedPipeUtils() {}
+    public static void cleanupSharedNamedPipePathFiles(String port) throws IOException {
+        Files.deleteIfExists(new File(getSharedNamedPipeStdOut(port)).toPath());
+        Files.deleteIfExists(new File(getSharedNamedPipeStdErr(port)).toPath());
+    }
 }

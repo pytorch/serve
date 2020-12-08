@@ -65,6 +65,8 @@ public class WorkerLifeCycle {
                         "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
 
 
+                SharedNamedPipeUtils.cleanupSharedNamedPipePathFiles(Integer.toString(port));
+
                 String stdOutFile = SharedNamedPipeUtils.getSharedNamedPipeStdOut(Integer.toString(port));
                 String stdErrFile = SharedNamedPipeUtils.getSharedNamedPipeStdErr(Integer.toString(port));
 

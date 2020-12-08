@@ -12,6 +12,8 @@ import os
 import platform
 import socket
 import sys
+from datetime import datetime
+
 
 from ts.arg_parser import ArgParser
 from ts.model_loader import ModelLoaderFactory
@@ -126,18 +128,15 @@ class TorchModelServiceWorker(object):
         logger1.error("Torch worker started.")
         logger1.error("Python runtime: %s", platform.python_version())
 
-        with open(self.fifo_path+".out") as f:
-            logger1.error(f.read())
-
 
         if(self.service is None):
             model_loader = ModelLoaderFactory.get_model_loader()
             self.service = model_loader.load(*self.model_loader_args)
 
-        logging.info("Waiting for connection ...")
+        logger1.error("Waiting for connection with socket timeout... " + str(self.sock.gettimeout()))
         while True:
             try:
-                logger1.error("listenning to socket .....")
+                logger1.error("listenning to socket ....." + str(datetime.now()))
                 self.sock.listen(1)
                 (cl_socket, _) = self.sock.accept()
                 # workaround error(35, 'Resource temporarily unavailable') on OSX
@@ -147,6 +146,6 @@ class TorchModelServiceWorker(object):
                 logging.info("Connection accepted: %s.", cl_socket.getsockname())
                 self.handle_connection(cl_socket)
             except socket.timeout:
-                logger1.error("socket time out .....")
+                logger1.error("socket time out ....." + str(datetime.now()))
                 logging.info("Connection timedout")
                 pass
