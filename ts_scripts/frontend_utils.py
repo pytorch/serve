@@ -11,7 +11,3 @@ def test_frontend():
 
     if frontend_gradlew_exit_code != 0:
         sys.exit("## Frontend Gradle Tests Failed !")
-
-
-if __name__ == "__main__":
-    test_frontend()
