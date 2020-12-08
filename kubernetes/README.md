@@ -10,11 +10,11 @@ This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. 
 
 ## Using AWS EKS Cluster
 
-[EKS Cluster setup](./EKS/README.md#-Torchserve-on-Kubernetes)
+[EKS Cluster setup](./EKS/README.md#-Torchserve-on-Elastic-Kubernetes-service-(EKS))
 
 ## Using Google GKE Cluster
 
-[GKE Cluster setup](./GKE/README.md##-TorchServe-on-Google-Kubernetes-Engine-(AKS))
+[GKE Cluster setup](./GKE/README.md##-TorchServe-on-Google-Kubernetes-Engine-(GKE))
 
 ## Deploy TorchServe using Helm Charts
 
@@ -246,6 +246,11 @@ kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ## Login to grafana
 
 <http://your.grafana.loadbalancer.address:3000>
+
+## Logging
+
+Follow the link for log aggregation with EFK Stack.\
+[Log aggregation using EFK stack](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
 
 ## Troubleshooting
 
