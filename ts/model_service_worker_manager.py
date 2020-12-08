@@ -129,24 +129,26 @@ class TorchModelServiceWorkerManager(object):
             worker_id = sock_name if sock_name else port
             self.workers[worker_id] = { "worker" : p, "fifo" : fifo_path }
             return "scaled up", 200
-        except e:
+        except:
+            e = sys.exc_info()[0]
             logging.info("Scale up error" + str(e))
             return "scale up failed", 500
 
     def scale_down(self, scale_down_request):
         try:
             port = scale_down_request["port"].decode("utf-8")
-            fifo_path = self.workers[port]["fifo_path"]
             self.workers[port]["worker"].kill()
             def delete_fifo(file_name):
                 os.remove(file_name) if os.path.exists(file_name) else None
                 open(file_name, "w")
 
-            delete_fifo(fifo_path + ".out")
-            delete_fifo(fifo_path + ".err")
+            #delete_fifo(fifo_path + ".out")
+            #delete_fifo(fifo_path + ".err")
             return "scaled down", 200
-        except e:
+        except:
+            e = sys.exc_info()[0]
             logging.info("Scale down error" + str(e))
+            raise
             return "scale down failed", 500
 
 
@@ -178,15 +180,19 @@ class TorchModelServiceWorkerManager(object):
                     raise RuntimeError("{} - {}".format(code, result))
             elif cmd == b'U':
                 logging.info("Received Scale Up Request")
+                logging.info("Workers before scale up" + str(self.workers))
                 result, code = self.scale_up(msg, service, service_args)
+                logging.info("Workers after scale up" + str(self.workers))
                 resp = bytearray()
                 resp += create_scale_model_response(code, result)
                 cl_socket.send(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
             elif cmd == b'D':
-                 logging.info("Received Scale Down Request")
+                 logging.info("Received Scale Down Request" + str(msg))
+                 logging.info("Workers before scale down" + str(self.workers))
                  result, code = self.scale_down(msg)
+                 logging.info("Workers after scale down" + str(self.workers))
                  resp = bytearray()
                  code, result = 200, 'DONE'
                  resp += create_scale_model_response(code, result)
