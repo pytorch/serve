@@ -9,7 +9,6 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts import tsutils as ts
-from ts_scripts import install_dependencies as idep
 
 
 def clean_slate(): 
@@ -57,5 +56,4 @@ def install_from_src():
 
 
 if __name__ == '__main__':
-    idep.install_dependencies()
     install_from_src()
