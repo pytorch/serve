@@ -48,10 +48,17 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
  - `git clone https://github.com/pytorch/serve.git`
  - `pip install click`
- - `cd serve`
- - `python .\ts_scripts\install_dependencies.py`
- - `python .\ts_scripts\install_from_src.py`
- - Refer [Install torchserve for development](https://github.com/pytorch/serve#install-torchserve-for-development)
+ - `cd serve`  
+ 
+    #### For production usage, use commands below:
+    - `python .\ts_scripts\install_dependencies.py --environment=prod`
+    - `python .\ts_scripts\install_from_src.py`  
+ 
+    #### For development purposes, use commands below: 
+    If you plan to develop with TorchServe and change some source code, commands below will help.
+    The install_dependencies script installs few extra dependencies which are needed for development and testing.
+    - `python .\ts_scripts\install_dependencies.py --environment=dev`
+    - `python .\ts_scripts\install_from_src.py`  
 
 ## Troubleshooting
  - If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in `frontend/server/src/test/resources/config.properties`,
