@@ -31,13 +31,17 @@ class Common():
             os.system(f"pip install -U -r requirements/torch.txt")
 
     def install_python_packages(self, cuda_version, requirements_file_path):
+        if os.system("conda") == 0:
+            # conda install command should run before the pip install commands
+            # as it may reinstall the packages with different versions
+            os.system("conda install -y conda-build")
+
         self.install_torch_packages(cuda_version)
         os.system("pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system("pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package
-        if os.system("conda") == 0:
-            os.system("conda install -y conda-build")
+
 
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
@@ -113,6 +117,7 @@ def install_dependencies(cuda_version=None):
     if args.environment == "dev":
         system.install_nodejs()
         system.install_node_packages()
+
 
 if __name__ == "__main__":
     check_python_version()
