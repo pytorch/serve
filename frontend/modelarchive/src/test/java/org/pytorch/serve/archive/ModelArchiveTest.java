@@ -93,8 +93,9 @@ public class ModelArchiveTest {
         File destinationFile = new File(destination);
         FileUtils.copyFile(sourceFile, destinationFile);
 
-        String fileUrl = "file://" + parent + "/modelarchive/mnist1.mar";
+        String fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
+
         File modelLocation = new File(modelStore + "/mnist1.mar");
         Assert.assertTrue(modelLocation.exists());
         ModelArchive.removeModel(modelStore, fileUrl);
@@ -191,6 +192,6 @@ public class ModelArchiveTest {
     public void testMalformLocalURL() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
-                ALLOWED_URLS_LIST, modelStore, "file://" + modelStore + "/mnist1.mar");
+                ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
     }
 }
