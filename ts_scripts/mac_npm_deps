@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# check whether node in path, if not, add local
+if ! command -v node &> /dev/null
+then
+    PATH=$PATH:/usr/local/bin
+fi
+
+# if node still not in path, there's a problem
+if ! command -v node &> /dev/null
+then
+    echo Error: node not installed
+    exit -1
+fi
+
+npm install -g newman newman-reporter-html markdown-link-check
