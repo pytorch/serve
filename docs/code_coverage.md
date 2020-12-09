@@ -1,7 +1,7 @@
 ## To check branch stability run the sanity suite as follows
  - Install dependencies (if not already installed)
    ```bash
-   python scripts/install_dependencies.py
+   python ts_scripts/install_dependencies.py
    ```
    > For GPU with Cuda 10.1, make sure add the `cu101` argument to the above command
  - Execute sanity suite

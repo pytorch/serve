@@ -77,6 +77,7 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 #### For Debian Based Systems/ MacOS
 
 ```
+python ./ts_scripts/install_dependencies.py
 python ./ts_scripts/install_from_src.py
 ```
 

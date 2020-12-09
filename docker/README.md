@@ -141,7 +141,7 @@ To create a Docker image for a GPU device with a specific branch, use following 
 To create a Docker image for a GPU device with Cuda 10.1, use following command:
 
 ```bash
-./build_image.sh --gpu --cudaversion cuda101
+./build_image.sh --gpu --cudaversion cu101
 ```
 
 To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
