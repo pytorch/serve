@@ -5,7 +5,7 @@ from ts_scripts.sanity_utils import test_sanity
 from ts_scripts.shell_utils import rm_dir, rm_file
 from ts_scripts.frontend_utils import test_frontend
 import ts_scripts.tsutils as ts
-import test.print_env_info as build_hdr_printer
+import ts_scripts.print_env_info as build_hdr_printer
 
 
 def torchserve_sanity():
