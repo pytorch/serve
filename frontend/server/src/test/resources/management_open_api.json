@@ -3,11 +3,12 @@
   "info": {
     "title": "TorchServe APIs",
     "description": "TorchServe is a flexible and easy to use tool for serving deep learning models",
-    "version": "1.0.0"
+    "version": "%s"
   },
   "paths": {
     "/": {
       "options": {
+        "description": "Get openapi description.",
         "operationId": "apiDescription",
         "parameters": [],
         "responses": {
@@ -92,15 +93,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "model_name_pattern",
-            "description": "A model name filter to list only matching models.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -181,7 +173,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "model_url",
+            "name": "url",
             "description": "Model archive download url, support local file or HTTP(s) protocol. For S3, consider use pre-signed url.",
             "required": true,
             "schema": {
@@ -448,24 +440,15 @@
         }
       }
     },
-    "/models/{model_name}[/{model_version}]": {
+    "/models/{model_name}": {
       "get": {
-        "description": "Provides detailed information about the specified version of a model. If no version is specified, returns the details of default version. If \"all\" is specified as version, returns the details about all the versions of the model.",
+        "description": "Provides detailed information about the default version of a model.",
         "operationId": "describeModel",
         "parameters": [
           {
             "in": "path",
             "name": "model_name",
             "description": "Name of model to describe.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "model_version",
-            "description": "Version of model to describe.",
             "required": true,
             "schema": {
               "type": "string"
@@ -584,6 +567,35 @@
               }
             }
           },
+          "404": {
+            "description": "Model not found or Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -616,22 +628,13 @@
         }
       },
       "put": {
-        "description": "Configure number of workers for a specified version of a model. If no version is specified, this applies to the default version of the model. This is a asynchronous call by default. Caller need to call describeModel check if the model workers has been changed.",
+        "description": "Configure number of workers for a default version of a model.This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.",
         "operationId": "setAutoScale",
         "parameters": [
           {
             "in": "path",
             "name": "model_name",
-            "description": "Name of model to describe.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "model_version",
-            "description": "Version of model to describe.",
+            "description": "Name of model to scale workers.",
             "required": true,
             "schema": {
               "type": "string"
@@ -776,7 +779,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -836,8 +839,587 @@
         }
       },
       "delete": {
-        "description": "Unregister the specified version of a model from TorchServe. If no version is specified, TorchServe tries to unregister the default version of the model and unregisters it if it is the only version available. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.",
+        "description": "Unregister the default version of a model from TorchServe if it is the only version available.This is a asynchronous call by default. Caller can call listModels to confirm model is unregistered",
         "operationId": "unregisterModel",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "description": "Name of model to unregister.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "synchronous",
+            "description": "Decides whether the call is synchronous or not, default: false.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timeout",
+            "description": "Waiting up to the specified wait time if necessary for a worker to complete all pending requests. Use 0 to terminate backend worker process immediately. Use -1 for wait infinitely.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "-1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Model unregistered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Model not found or Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request Timeout Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/models/{model_name}/{model_version}": {
+      "get": {
+        "description": "Provides detailed information about the specified version of a model.If \"all\" is specified as version, returns the details about all the versions of the model.",
+        "operationId": "version_describeModel",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "description": "Name of model to describe.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Version of model to describe.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "modelName",
+                    "modelVersion",
+                    "modelUrl",
+                    "minWorkers",
+                    "maxWorkers",
+                    "status",
+                    "workers",
+                    "metrics"
+                  ],
+                  "properties": {
+                    "modelName": {
+                      "type": "string",
+                      "description": "Name of the model."
+                    },
+                    "modelVersion": {
+                      "type": "string",
+                      "description": "Version of the model."
+                    },
+                    "modelUrl": {
+                      "type": "string",
+                      "description": "URL of the model."
+                    },
+                    "minWorkers": {
+                      "type": "integer",
+                      "description": "Configured minimum number of worker."
+                    },
+                    "maxWorkers": {
+                      "type": "integer",
+                      "description": "Configured maximum number of worker."
+                    },
+                    "batchSize": {
+                      "type": "integer",
+                      "description": "Configured batch size."
+                    },
+                    "maxBatchDelay": {
+                      "type": "integer",
+                      "description": "Configured maximum batch delay in ms."
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Overall health status of the model"
+                    },
+                    "workers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "startTime",
+                          "status"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Worker id"
+                          },
+                          "startTime": {
+                            "type": "string",
+                            "description": "Worker start time"
+                          },
+                          "gpu": {
+                            "type": "boolean",
+                            "description": "If running on GPU"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Worker status",
+                            "enum": [
+                              "READY",
+                              "LOADING",
+                              "UNLOADING"
+                            ]
+                          }
+                        }
+                      },
+                      "description": "A list of active backend workers."
+                    },
+                    "metrics": {
+                      "type": "object",
+                      "required": [
+                        "rejectedRequests",
+                        "waitingQueueSize",
+                        "requests"
+                      ],
+                      "properties": {
+                        "rejectedRequests": {
+                          "type": "integer",
+                          "description": "Number requests has been rejected in last 10 minutes."
+                        },
+                        "waitingQueueSize": {
+                          "type": "integer",
+                          "description": "Number requests waiting in the queue."
+                        },
+                        "requests": {
+                          "type": "integer",
+                          "description": "Number requests processed in last 10 minutes."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Model not found or Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Configure number of workers for a specified version of a model. This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.",
+        "operationId": "version_setAutoScale",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "description": "Name of model to scale workers.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_version",
+            "description": "Version of model to scale workers.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_worker",
+            "description": "Minimum number of worker processes.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_worker",
+            "description": "Maximum number of worker processes.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "in": "query",
+            "name": "number_gpu",
+            "description": "Number of GPU worker processes to create.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "0"
+            }
+          },
+          {
+            "in": "query",
+            "name": "synchronous",
+            "description": "Decides whether the call is synchronous or not, default: false.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timeout",
+            "description": "Waiting up to the specified wait time if necessary for a worker to complete all pending requests. Use 0 to terminate backend worker process immediately. Use -1 for wait infinitely.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "-1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Model workers updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "210": {
+            "description": "Partial Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Error type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Model not found or Model version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Unregister the specified version of a model from TorchServe. This is an asynchronous call by default. Caller can call listModels to confirm model is unregistered",
+        "operationId": "version_unregisterModel",
         "parameters": [
           {
             "in": "path",
@@ -918,36 +1500,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "code",
-                    "type",
-                    "message"
-                  ],
-                  "properties": {
-                    "code": {
-                      "type": "integer",
-                      "description": "Error code."
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Error type."
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "Error message."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Model version not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1081,7 +1634,7 @@
             }
           },
           "404": {
-            "description": "Model not found",
+            "description": "Model not found or Model version not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1103,6 +1656,148 @@
                     "message": {
                       "type": "string",
                       "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api-description": {
+      "get": {
+        "description": "Get openapi description.",
+        "operationId": "api-description",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A openapi 3.0.1 descriptor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "openapi",
+                    "info",
+                    "paths"
+                  ],
+                  "properties": {
+                    "openapi": {
+                      "type": "string"
+                    },
+                    "info": {
+                      "type": "object"
+                    },
+                    "paths": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "type",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Error type."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/metrics": {
+      "get": {
+        "description": "Get TorchServe application metrics in prometheus format.",
+        "operationId": "metrics",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name[]",
+            "description": "Names of metrics to filter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TorchServe application metrics",
+            "content": {
+              "text/plain; version\u003d0.0.4; charset\u003dutf-8": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "# HELP",
+                    "# TYPE",
+                    "metric"
+                  ],
+                  "properties": {
+                    "# HELP": {
+                      "type": "string",
+                      "description": "Help text for TorchServe metric."
+                    },
+                    "# TYPE": {
+                      "type": "string",
+                      "description": "Type of TorchServe metric."
+                    },
+                    "metric": {
+                      "type": "string",
+                      "description": "TorchServe application metric."
                     }
                   }
                 }

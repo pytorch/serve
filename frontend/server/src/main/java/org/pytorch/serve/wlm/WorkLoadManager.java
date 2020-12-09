@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,7 @@ public class WorkLoadManager {
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
-        this.port = new AtomicInteger(9000);
+        this.port = new AtomicInteger(configManager.getIniitialWorkerPort());
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
@@ -83,7 +85,8 @@ public class WorkLoadManager {
         return numWorking;
     }
 
-    public CompletableFuture<HttpResponseStatus> modelChanged(Model model, boolean isStartup) {
+    public CompletableFuture<HttpResponseStatus> modelChanged(
+            Model model, boolean isStartup, boolean isCleanUp) {
         synchronized (model.getModelVersionName()) {
             boolean isSnapshotSaved = false;
             CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
@@ -94,6 +97,9 @@ public class WorkLoadManager {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
+                    if (!isStartup && !isCleanUp) {
+                        SnapshotManager.getInstance().saveSnapshot();
+                    }
                     return future;
                 }
             } else {
@@ -113,17 +119,20 @@ public class WorkLoadManager {
 
                     Process workerProcess = lifecycle.getProcess();
 
-                    if (workerProcess.isAlive()) {
+                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
+                    // -> This may nullify process object per destroyForcibly doc.
+                    if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
-                        workerProcess.destroyForcibly();
                         try {
+                            String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());
+                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
                             workerDestroyed =
-                                    workerProcess.waitFor(
+                                    workerKillProcess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
                                             TimeUnit.SECONDS);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException | IOException e) {
                             logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible asynch resource cleanup.");
+                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
                             future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
                             return future;
                         }
@@ -135,13 +144,13 @@ public class WorkLoadManager {
                         }
                     }
                 }
-                if (!isStartup) {
+                if (!isStartup && !isCleanUp) {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;
                 }
                 future.complete(HttpResponseStatus.OK);
             }
-            if (!isStartup && !isSnapshotSaved) {
+            if (!isStartup && !isSnapshotSaved && !isCleanUp) {
                 SnapshotManager.getInstance().saveSnapshot();
             }
             return future;

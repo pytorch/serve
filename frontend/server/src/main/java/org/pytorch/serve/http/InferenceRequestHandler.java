@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.openapi.OpenApiUtils;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -23,7 +26,6 @@ import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
 
 /**
  * A class handling inbound HTTP requests to the management API.
@@ -67,6 +69,10 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                         break;
                 }
             }
+        } else if (isKFV1InferenceReq(segments)) {
+            if (segments[3].contains(":predict")) {
+                handleKFV1Predictions(ctx, req, segments);
+            }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
@@ -85,6 +91,13 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 || (segments.length == 4 && segments[3].equals("predict"));
     }
 
+    private boolean isKFV1InferenceReq(String[] segments) {
+        return segments.length == 4
+                && "v1".equals(segments[1])
+                && "models".equals(segments[2])
+                && (segments[3].contains(":predict"));
+    }
+
     private void validatePredictionsEndpoint(String[] segments) {
         if (segments.length == 2 && "invocations".equals(segments[1])) {
             return;
@@ -99,7 +112,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
     private void handlePredictions(
             ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         if (segments.length < 3) {
             throw new ResourceNotFoundException();
         }
@@ -109,8 +122,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (segments.length == 4) {
             modelVersion = segments[3];
         }
-
         predict(ctx, req, null, segments[2], modelVersion);
+    }
+
+    private void handleKFV1Predictions(
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        String modelVersion = null;
+        String modelName = segments[3].split(":")[0];
+        predict(ctx, req, null, modelName, modelVersion);
     }
 
     private void handleInvocations(
@@ -118,7 +138,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelName =
                 ("invocations".equals(segments[1]))
                         ? NettyUtils.getParameter(decoder, "model_name", null)
@@ -136,7 +156,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
 
         String modelVersion = null;
         if (segments.length == 4 && "predict".equals(segments[3])) {
@@ -154,7 +174,7 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String modelName,
             String modelVersion)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         RequestInput input = parseRequest(ctx, req, decoder);
         if (modelName == null) {
             modelName = input.getStringParameter("model_name");
@@ -176,10 +196,24 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             return;
         }
 
+        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
         Job job = new Job(ctx, modelName, modelVersion, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
-            throw new ServiceUnavailableException(
-                    "No worker is available to serve request: " + modelName);
+            String responseMessage =
+                    "Model \""
+                            + modelName
+                            + "\" Version "
+                            + modelVersion
+                            + " has no worker to serve inference request. Please use scale workers API to add workers.";
+
+            if (modelVersion == null) {
+                responseMessage =
+                        "Model \""
+                                + modelName
+                                + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
+            }
+
+            throw new ServiceUnavailableException(responseMessage);
         }
     }
 

@@ -81,6 +81,7 @@ See [Enable SSL](#enable-ssl) to configure HTTPS.
 
 * `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
 * `management_address`: management API binding address. Default: http://127.0.0.1:8081
+* `metrics_address`: metrics API binding address. Default: http://127.0.0.1:8082
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 
@@ -98,7 +99,7 @@ inference_address=https://172.16.1.10:8080
 
 ### Enable SSL
 
-To enable HTTPs, you can change `inference_address` or `management_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
+To enable HTTPs, you can change `inference_address`, `management_address` or `metrics_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
 The default is port 443, but you can make TorchServe listen on whatever port you set to accept https requests.
 For example, to receive https traffic on port 8443, you would use: `inference_address=https://127.0.0.1:8443`.
 
@@ -126,6 +127,7 @@ Configure the following properties in config.properties:
 ```bash
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 keystore=keystore.p12
 keystore_pass=changeit
 keystore_type=PKCS12
@@ -142,6 +144,7 @@ Config following property in config.properties:
 ```properties
 inference_address=https://127.0.0.1:8443
 management_address=https://127.0.0.1:8444
+metrics_address=https://127.0.0.1:8445
 private_key_file=mykey.key
 certificate_file=mycert.pem
 ```
@@ -163,6 +166,23 @@ cors_allowed_methods=GET, POST, PUT, OPTIONS
 cors_allowed_headers=X-Custom-Header
 ```
 
+### Prefer direct buffer
+Configuration parameter prefer_direct_buffer controls if the model server will be using direct memory specified by -XX:MaxDirectMemorySize. This parameter is for model server only and  doesn't affect other packages' usage of direct memory buffer. Default: false
+
+```properties
+prefer_direct_buffer=true
+```
+
+### Allow model specific custom python packages.
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup. User can supply a requirements.txt file containing the required list of python packages to be installed by `TorchServe` for seamless model serving.
+Configuration parameter `install_py_dep_per_model` controls if the model server will install the python packages using the `requirements` file supplied with the model archive. Default: false
+
+```properties
+install_py_dep_per_model=true
+```
+
+User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file. 
+
 ### Restrict backend worker to access environment variables
 
 Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model's custom code,
@@ -176,18 +196,46 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 
 * `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
 
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
+		     This is used in conjunction with `enable_meterics_api` option above.
+
 ### Other properties
 
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
 * `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
-* `number_of_netty_threads`: number frontend netty thread. Default: number of logical processors available to the JVM.
-* `netty_client_threads`: number of backend netty thread. Default: number of logical processors available to the JVM.
-* `default_workers_per_model`: number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
-* `job_queue_size`: number inference jobs that frontend will queue before backend can serve. Default: 100.
-* `async_logging`: enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
+* `number_of_netty_threads`: Number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
+* `netty_client_threads`: Number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
+* `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
+* `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
+* `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
 * `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `initial_worker_port` : This is the initial port number for auto assigning port to worker process.
+* `model_store` : Path of model store directory.
+* `model_server_home` : Torchserve home directory. 
+* `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
+* `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
+eg : To allow base URLs "https://s3.amazonaws.com/" and "https://torchserve.pytorch.org/" use following regex string
+```
+allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*
+```
+
+---
+
+**NOTE**
+
+All the above config properties can be set using environment variable as follows.
+- set `enable_envvars_config` to true in config.properties
+- export environment variable for property as`TS_<PROPERTY_NAME>`. 
+
+  eg: to set inference_address property run cmd
+  `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
+
+---

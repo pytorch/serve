@@ -1,9 +1,11 @@
 dependencies {
-    compile "io.netty:netty-all:${netty_version}"
-    compile project(":modelarchive")
-    compile "commons-cli:commons-cli:${commons_cli_version}"
-    compile "software.amazon.ai:mms-plugins-sdk:${mms_server_sdk_version}"
-    testCompile "org.testng:testng:${testng_version}"
+    implementation "io.netty:netty-all:${netty_version}"
+    implementation "io.prometheus:simpleclient:${prometheus_version}"
+    implementation "io.prometheus:simpleclient_servlet:${prometheus_version}"
+    implementation project(":modelarchive")
+    implementation "commons-cli:commons-cli:${commons_cli_version}"
+    implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    testImplementation "org.testng:testng:${testng_version}"
 }
 
 apply from: file("${project.rootProject.projectDir}/tools/gradle/launcher.gradle")
@@ -13,7 +15,7 @@ jar {
         attributes 'Main-Class': 'org.pytorch.serve.ModelServer'
     }
     includeEmptyDirs = false
-    from configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    from configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 
     exclude "META-INF/maven/**"
     exclude "META-INF/INDEX.LIST"

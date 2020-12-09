@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerThread;
 import org.slf4j.Logger;
@@ -36,27 +37,9 @@ public class MetricCollector implements Runnable {
             args[1] = "ts/metrics/metric_collector.py";
             File workingDir = new File(configManager.getModelServerHome());
 
-            String pythonPath = System.getenv("PYTHONPATH");
-            String pythonEnv;
-            if ((pythonPath == null || pythonPath.isEmpty())
-                    && (!workingDir.getAbsolutePath().contains("site-package"))) {
-                pythonEnv = "PYTHONPATH=" + workingDir.getAbsolutePath();
-            } else {
-                pythonEnv = "PYTHONPATH=" + pythonPath;
-                if (!workingDir.getAbsolutePath().contains("site-package")) {
-                    pythonEnv += File.pathSeparatorChar + workingDir.getAbsolutePath(); // NOPMD
-                }
-            }
-            // sbin added for macs for python sysctl pythonpath
-            StringBuilder path = new StringBuilder();
-            path.append("PATH=").append(System.getenv("PATH"));
-            String osName = System.getProperty("os.name");
-            if (osName.startsWith("Mac OS X")) {
-                path.append(File.pathSeparatorChar).append("/sbin/");
-            }
-            String[] env = {pythonEnv, path.toString()};
-            final Process p = Runtime.getRuntime().exec(args, env, workingDir);
+            String[] envp = EnvironmentUtils.getEnvString(workingDir.getAbsolutePath(), null, null);
 
+            final Process p = Runtime.getRuntime().exec(args, envp, workingDir); // NOPMD
             ModelManager modelManager = ModelManager.getInstance();
             Map<Integer, WorkerThread> workerMap = modelManager.getWorkers();
             try (OutputStream os = p.getOutputStream()) {

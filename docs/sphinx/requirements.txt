@@ -1,0 +1,6 @@
+sphinx==3.0.3
+recommonmark==0.6.0
+-e git+git://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
+sphinxcontrib.katex
+torch
+sphinx-markdown-tables

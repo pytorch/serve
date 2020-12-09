@@ -6,26 +6,10 @@ phases:
   install:
     commands:
       - apt-get update
-      - apt-get install -y curl
-      - pip install pip -U
-      - pip install future
-      - pip install Pillow
-      - pip install pytest
-      - pip install wheel
-      - pip install twine
-      - pip install pytest-mock -U
-      - pip install requests
-      - pip install psutil
+      - apt-get install sudo -y
+      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
 
   build:
     commands:
-      - ./torchserve_sanity.sh
-      - cd serving-sdk/ && mvn clean deploy && cd ../
-
-artifacts:
-  files:
-    - dist/*.whl
-    - model_archiver/dist/*.whl
-    - frontend/server/build/reports/**/*
-    - frontend/modelarchive/build/reports/**/*
-    - frontend/cts/build/reports/**/*
+      - python torchserve_sanity.py
+      - cd serving-sdk/ && mvn clean install -q && cd ../

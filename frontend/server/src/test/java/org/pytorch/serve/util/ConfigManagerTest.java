@@ -6,15 +6,14 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
 import org.pytorch.serve.TestUtils;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ConfigManagerTest {
@@ -38,39 +37,23 @@ public class ConfigManagerTest {
     }
 
     @SuppressWarnings("unchecked")
-    private void modifyEnv(String key, String val)
-            throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-        try {
+    private void modifyEnv(String key, String val) throws ReflectiveOperationException {
+        if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
-            Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
-            theEnvironmentField.setAccessible(true);
-            Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
-            env.put(key, val);
-            Field theCIEField =
-                    processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
-            theCIEField.setAccessible(true);
-            Map<String, String> cienv = (Map<String, String>) theCIEField.get(null);
+            Field f = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
+            f.setAccessible(true);
+            Map<String, String> cienv = (Map<String, String>) f.get(null);
             cienv.put(key, val);
-        } catch (NoSuchFieldException e) {
-            Class[] classes = Collections.class.getDeclaredClasses();
+        } else {
             Map<String, String> env = System.getenv();
-            for (Class cl : classes) {
-                if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
-                    Field field = cl.getDeclaredField("m");
-                    field.setAccessible(true);
-                    Object obj = field.get(env);
-                    Map<String, String> map = (Map<String, String>) obj;
-                    map.clear();
-                    map.put(key, val);
-                }
-            }
+            Field field = env.getClass().getDeclaredField("m");
+            field.setAccessible(true);
+            ((Map<String, String>) field.get(env)).put(key, val);
         }
     }
 
     @Test
-    public void test()
-            throws IOException, GeneralSecurityException, IllegalAccessException,
-                    NoSuchFieldException, ClassNotFoundException {
+    public void test() throws IOException, GeneralSecurityException, ReflectiveOperationException {
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
         args.setModels(new String[] {"noop_v0.1"});
@@ -104,8 +87,7 @@ public class ConfigManagerTest {
     }
 
     @Test
-    public void testNoEnvVars()
-            throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
+    public void testNoEnvVars() throws ReflectiveOperationException, IOException {
         System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "130");
         ConfigManager.Arguments args = new ConfigManager.Arguments();

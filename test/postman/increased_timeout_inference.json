@@ -1,0 +1,19 @@
+[
+    {
+        "url":"https://torchserve.pytorch.org/mar_files/densenet161_scripted.mar",
+        "model_name":"densenet161_scripted",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/image_classifier/kitten.jpg",
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+            "tiger_cat":0.4693361818790436,
+            "tabby":0.4633876383304596,
+            "Egyptian_cat":0.06456108391284943,
+            "lynx":0.0012828207109123468,
+            "plastic_bag":0.0002332298900000751
+        },
+        "tolerance":5
+    }
+]

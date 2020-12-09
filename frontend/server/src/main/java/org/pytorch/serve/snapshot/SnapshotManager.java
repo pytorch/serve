@@ -1,5 +1,6 @@
 package org.pytorch.serve.snapshot;
 
+import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -8,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
@@ -48,7 +48,7 @@ public final class SnapshotManager {
         }
 
         Map<String, Model> defModels = modelManager.getDefaultModels();
-        Map<String, Map<String, ModelSnapshot>> modelNameMap = new HashMap<>();
+        Map<String, Map<String, JsonObject>> modelNameMap = new HashMap<>();
 
         try {
             int modelCount = 0;
@@ -56,22 +56,17 @@ public final class SnapshotManager {
 
                 Set<Entry<String, Model>> versionModels =
                         modelManager.getAllModelVersions(m.getKey());
-                Map<String, ModelSnapshot> modelInfoMap = new HashMap<>();
+
+                Map<String, JsonObject> modelInfoMap = new HashMap<>();
                 for (Entry<String, Model> versionedModel : versionModels) {
-                    ModelSnapshot model = new ModelSnapshot();
                     String version = String.valueOf(versionedModel.getKey());
-                    model.setBatchSize(versionedModel.getValue().getBatchSize());
-                    model.setDefaultVersion(
+                    boolean isDefaultVersion =
                             m.getValue()
                                     .getVersion()
-                                    .equals(versionedModel.getValue().getVersion()));
-                    model.setMarName(
-                            FilenameUtils.getName(versionedModel.getValue().getModelUrl()));
-                    model.setMaxBatchDelay(versionedModel.getValue().getMaxBatchDelay());
-                    model.setMaxWorkers(versionedModel.getValue().getMaxWorkers());
-                    model.setMinWorkers(versionedModel.getValue().getMinWorkers());
-                    model.setResponseTimeout(versionedModel.getValue().getResponseTimeout());
-                    modelInfoMap.put(version, model);
+                                    .equals(versionedModel.getValue().getVersion());
+
+                    modelInfoMap.put(
+                            version, versionedModel.getValue().getModelState(isDefaultVersion));
                     ++modelCount;
                 }
                 modelNameMap.put(m.getKey(), modelInfoMap);
@@ -123,45 +118,24 @@ public final class SnapshotManager {
     private void initModels(Snapshot snapshot) {
         try {
 
+            Map<String, Map<String, JsonObject>> models = snapshot.getModels();
+
             if (snapshot.getModelCount() <= 0) {
                 logger.warn("Model snapshot is empty. Starting TorchServe without initial models.");
                 return;
             }
-            Map<String, Map<String, ModelSnapshot>> models = snapshot.getModels();
 
-            for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap : models.entrySet()) {
+            for (Map.Entry<String, Map<String, JsonObject>> modelMap : models.entrySet()) {
                 String modelName = modelMap.getKey();
-                String defVersionId = null;
-                for (Map.Entry<String, ModelSnapshot> versionModel :
-                        modelMap.getValue().entrySet()) {
-                    String versionId = versionModel.getKey();
-                    ModelSnapshot modelInfo = versionModel.getValue();
-                    // TODO init/register models
-                    modelManager.registerModel(
-                            modelInfo.getMarName(),
-                            modelName,
-                            null,
-                            null,
-                            modelInfo.getBatchSize(),
-                            modelInfo.getMaxBatchDelay(),
-                            modelInfo.getResponseTimeout(),
-                            modelName);
-                    modelManager.updateModel(
-                            modelName,
-                            versionId,
-                            modelInfo.getMinWorkers(),
-                            modelInfo.getMaxWorkers(),
-                            true);
-                    if (modelInfo.getDefaultVersion()) {
-                        defVersionId = versionId;
-                    }
+                for (Map.Entry<String, JsonObject> versionModel : modelMap.getValue().entrySet()) {
+                    JsonObject modelInfo = versionModel.getValue();
+                    modelManager.registerAndUpdateModel(modelName, modelInfo);
                 }
-                modelManager.setDefaultVersion(modelName, defVersionId);
             }
 
         } catch (IOException e) {
             logger.error("Error while retrieving snapshot details. Details: {}", e.getMessage());
-        } catch (ModelException e) {
+        } catch (ModelException | InterruptedException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
     }
@@ -170,20 +144,20 @@ public final class SnapshotManager {
         logger.info("Validating snapshot {}", snapshot.getName());
         String modelStore = configManager.getModelStore();
 
-        Map<String, Map<String, ModelSnapshot>> models = snapshot.getModels();
-        for (Map.Entry<String, Map<String, ModelSnapshot>> modelMap : models.entrySet()) {
+        Map<String, Map<String, JsonObject>> models = snapshot.getModels();
+        for (Map.Entry<String, Map<String, JsonObject>> modelMap : models.entrySet()) {
             String modelName = modelMap.getKey();
-            for (Map.Entry<String, ModelSnapshot> versionModel : modelMap.getValue().entrySet()) {
+            for (Map.Entry<String, JsonObject> versionModel : modelMap.getValue().entrySet()) {
                 String versionId = versionModel.getKey();
-                String marName = versionModel.getValue().getMarName();
+                String marName = versionModel.getValue().get(Model.MAR_NAME).getAsString();
                 File marFile = new File(modelStore + "/" + marName);
                 if (!marFile.exists()) {
                     logger.error(
-                            "Correspoding mar file for model {}, version {} not found in model store",
+                            "Model archive file for model {}, version {} not found in model store",
                             modelName,
                             versionId);
                     throw new InvalidSnapshotException(
-                            "Correspoding mar file for model :"
+                            "Model archive file for model :"
                                     + modelName
                                     + ", version :"
                                     + versionId
@@ -191,7 +165,7 @@ public final class SnapshotManager {
                 }
             }
         }
-        logger.info("Validated snapshot {}", snapshot.getName());
+        logger.info("Snapshot {} validated successfully", snapshot.getName());
         return true;
     }
 

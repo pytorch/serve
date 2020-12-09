@@ -7,7 +7,12 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.http.InternalServerException;
+import org.pytorch.serve.metrics.Dimension;
+import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.api.MetricAggregator;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -17,6 +22,9 @@ import org.slf4j.LoggerFactory;
 public class Job {
 
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
+    private static final org.apache.log4j.Logger loggerTsMetrics =
+            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     private ChannelHandlerContext ctx;
 
@@ -38,7 +46,7 @@ public class Job {
         this.cmd = cmd;
         this.input = input;
         this.modelVersion = version;
-        begin = System.currentTimeMillis();
+        begin = System.nanoTime();
         scheduled = begin;
     }
 
@@ -67,7 +75,7 @@ public class Job {
     }
 
     public void setScheduled() {
-        scheduled = System.currentTimeMillis();
+        scheduled = System.nanoTime();
     }
 
     public void response(
@@ -76,10 +84,11 @@ public class Job {
             int statusCode,
             String statusPhrase,
             Map<String, String> responseHeaders) {
+        long inferTime = System.nanoTime() - scheduled;
         HttpResponseStatus status =
                 (statusPhrase == null)
                         ? HttpResponseStatus.valueOf(statusCode)
-                        : HttpResponseStatus.valueOf(statusCode, statusPhrase);
+                        : new HttpResponseStatus(statusCode, statusPhrase);
         FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
 
         if (contentType != null && contentType.length() > 0) {
@@ -99,13 +108,24 @@ public class Job {
          * by external clients.
          */
         if (ctx != null) {
+            MetricAggregator.handleInferenceMetric(
+                    modelName, modelVersion, scheduled - begin, inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
-
         logger.debug(
-                "Waiting time: {}, Backend time: {}",
+                "Waiting time ns: {}, Backend time ns: {}",
                 scheduled - begin,
-                System.currentTimeMillis() - scheduled);
+                System.nanoTime() - scheduled);
+        String queueTime =
+                String.valueOf(
+                        TimeUnit.MILLISECONDS.convert(scheduled - begin, TimeUnit.NANOSECONDS));
+        loggerTsMetrics.info(
+                new Metric(
+                        "QueueTime",
+                        queueTime,
+                        "ms",
+                        ConfigManager.getInstance().getHostName(),
+                        DIMENSION));
     }
 
     public void sendError(HttpResponseStatus status, String error) {
@@ -120,8 +140,8 @@ public class Job {
         }
 
         logger.debug(
-                "Waiting time: {}, Inference time: {}",
+                "Waiting time ns: {}, Inference time ns: {}",
                 scheduled - begin,
-                System.currentTimeMillis() - begin);
+                System.nanoTime() - begin);
     }
 }

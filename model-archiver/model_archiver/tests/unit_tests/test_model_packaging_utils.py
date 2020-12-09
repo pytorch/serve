@@ -1,16 +1,25 @@
 
 
 import json
-import os
+import platform
+
 import pytest
 from collections import namedtuple
 from model_archiver.model_packaging_utils import ModelExportUtils
-from model_archiver.manifest_components.engine import EngineType
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_archiver_error import ModelArchiverError
 
 
 # noinspection PyClassHasNoInit
+def _validate_mar(patches):
+    if platform.system() == "Windows":
+        patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-model.mar")
+    else:
+        patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
+
+# noinspection PyClassHasNoInit
+
+
 class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
@@ -20,54 +29,41 @@ class TestExportModelUtils:
         def patches(self, mocker):
             Patches = namedtuple('Patches', ['getcwd', 'path_exists'])
             patches = Patches(mocker.patch('os.getcwd'), mocker.patch('os.path.exists'))
-
             patches.getcwd.return_value = '/Users/dummyUser'
-
             return patches
 
         def test_export_file_is_none(self, patches):
             patches.path_exists.return_value = False
             ret_val = ModelExportUtils.check_mar_already_exists('some-model', None, False)
-
-            patches.path_exists.assert_called_once_with("/Users/dummyUser/some-model.mar")
+            _validate_mar(patches)
             assert ret_val == "/Users/dummyUser"
 
         def test_export_file_is_not_none(self, patches):
             patches.path_exists.return_value = False
             ModelExportUtils.check_mar_already_exists('some-model', '/Users/dummyUser/', False)
-
             patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
 
         def test_export_file_already_exists_with_override(self, patches):
             patches.path_exists.return_value = True
-
             ModelExportUtils.check_mar_already_exists('some-model', None, True)
-
-            patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
+            _validate_mar(patches)
 
         def test_export_file_already_exists_with_override_false(self, patches):
             patches.path_exists.return_value = True
-
             with pytest.raises(ModelArchiverError):
                 ModelExportUtils.check_mar_already_exists('some-model', None, False)
-
-            patches.path_exists.assert_called_once_with('/Users/dummyUser/some-model.mar')
+            _validate_mar(patches)
 
         def test_export_file_is_none_tar(self, patches):
             patches.path_exists.return_value = False
             ret_val = ModelExportUtils.check_mar_already_exists('some-model', None, False, archive_format='tgz')
 
-            patches.path_exists.assert_called_once_with("/Users/dummyUser/some-model.tar.gz")
+            if platform.system() == "Windows":
+                patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-model.tar.gz")
+            else:
+                patches.path_exists.assert_called_once_with("/Users/dummyUser/some-model.tar.gz")
             assert ret_val == "/Users/dummyUser"
 
-        def test_export_file_is_none_tar(self, patches):
-            patches.path_exists.return_value = False
-            ret_val = ModelExportUtils.check_mar_already_exists('some-model', None, False, archive_format='no-archive')
-
-            patches.path_exists.assert_called_once_with("/Users/dummyUser/some-model")
-            assert ret_val == "/Users/dummyUser"
-
-    # noinspection PyClassHasNoInit
     class TestArchiveTypes:
         def test_archive_types(self):
             from model_archiver.model_packaging_utils import archiving_options as ar_opts
@@ -78,7 +74,7 @@ class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
     class TestCustomModelTypes:
-
+        
         model_path = '/Users/dummyUser'
 
         @pytest.fixture()
@@ -136,28 +132,16 @@ class TestExportModelUtils:
             def __init__(self, **kwargs):
                 self.__dict__.update(kwargs)
 
-        author = 'ABC'
-        email = 'ABC@XYZ.com'
-        engine = EngineType.MXNET.value
         model_name = 'my-model'
         handler = 'a.py::my-awesome-func'
         serialized_file = 'model.pt'
         model_file = 'model.pt'
         version = "1.0"
-        source_vocab = None
+        requirements_file = "requirements.txt"
 
-        args = Namespace(author=author, email=email, engine=engine, model_name=model_name, handler=handler,
-                         runtime=RuntimeType.PYTHON.value, serialized_file=serialized_file, model_file=model_file,
-                         version=version, source_vocab=source_vocab)
-
-        def test_publisher(self):
-            pub = ModelExportUtils.generate_publisher(self.args)
-            assert pub.email == self.email
-            assert pub.author == self.author
-
-        def test_engine(self):
-            eng = ModelExportUtils.generate_engine(self.args)
-            assert eng.engine_name == EngineType(self.engine)
+        args = Namespace(model_name=model_name, handler=handler, runtime=RuntimeType.PYTHON.value,
+                         serialized_file=serialized_file, model_file=model_file, version=version,
+                         requirements_file=requirements_file)
 
         def test_model(self):
             mod = ModelExportUtils.generate_model(self.args)
@@ -168,9 +152,7 @@ class TestExportModelUtils:
             manifest = ModelExportUtils.generate_manifest_json(self.args)
             manifest_json = json.loads(manifest)
             assert manifest_json['runtime'] == RuntimeType.PYTHON.value
-            assert 'engine' in manifest_json
             assert 'model' in manifest_json
-            assert 'publisher' in manifest_json
             assert 'license' not in manifest_json
 
     # noinspection PyClassHasNoInit

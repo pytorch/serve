@@ -1,0 +1,10 @@
+-r common.txt
+mock
+pytest
+pylint==2.6.0
+pytest-mock
+pytest-cov
+nvgpu
+transformers==2.10.0
+numpy
+pygit2

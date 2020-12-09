@@ -1,0 +1,32 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: model-store-claim
+  annotations:
+    volume.beta.kubernetes.io/storage-class: aws-efs
+spec:
+  storageClassName: aws-efs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: model-store-pod
+spec:
+  volumes:
+    - name: model-store
+      persistentVolumeClaim:
+        claimName: model-store-claim
+  containers:
+    - name: model-store
+      image: ubuntu
+      command: [ "sleep" ]
+      args: [ "infinity" ]
+      volumeMounts:
+        - mountPath: "/pv/"
+          name: model-store 

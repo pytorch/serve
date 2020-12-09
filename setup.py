@@ -22,6 +22,7 @@ Setup.py for the model server package
 
 import errno
 import os
+import platform
 import subprocess
 import sys
 from datetime import date
@@ -32,7 +33,15 @@ from setuptools import setup, find_packages, Command
 
 import ts
 
-pkgs = find_packages()
+pkgs = find_packages(exclude=["ts_scripts", "test"])
+
+build_frontend_command = {"Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
+                          "Darwin": "frontend/gradlew -p frontend clean assemble",
+                          "Linux": "frontend/gradlew -p frontend clean assemble"}
+build_plugins_command = {'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
+                         'Darwin': 'plugins/gradlew -p plugins clean bS',
+                         'Linux': 'plugins/gradlew -p plugins clean bS'}
+
 
 def pypi_description():
     """
@@ -77,12 +86,8 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         if os.path.exists(self.source_server_file):
             os.remove(self.source_server_file)
 
-        # Remove build/lib directory.
-        if os.path.exists('build/lib/'):
-            rmtree('build/lib/')
-
         try:
-            subprocess.check_call('frontend/gradlew -p frontend clean build', shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -120,7 +125,7 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                subprocess.check_call('plugins/gradlew -p plugins clean bS', shell=True)
+                subprocess.check_call(build_plugins_command[platform.system()], shell=True)
             else:
                 raise OSError("No such rule exists")
         except OSError:
@@ -132,7 +137,7 @@ class BuildPlugins(Command):
 if __name__ == '__main__':
     version = detect_model_server_version()
 
-    requirements = ['Pillow', 'psutil', 'future']
+    requirements = ['Pillow', 'psutil', 'future', 'packaging']
 
     setup(
         name='torchserve',
@@ -153,7 +158,6 @@ if __name__ == '__main__':
         entry_points={
             'console_scripts': [
                 'torchserve=ts.model_server:start',
-                'torchserve-export=ts.export_model:main'
             ]
         },
         include_package_data=True,

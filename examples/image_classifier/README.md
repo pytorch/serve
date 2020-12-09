@@ -16,20 +16,20 @@
 
 #### Sample commands to create a DenseNet161 eager mode model archive, register it on TorchServe and run image prediction
 
-    ```bash
-    wget https://download.pytorch.org/models/densenet161-8d451a50.pth
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
-    mkdir model_store
-    mv densenet161.mar model_store/
-    torchserve --start --model-store model_store --models densenet161=densenet161.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
-
+```bash
+wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
+mkdir model_store
+mv densenet161.mar model_store/
+torchserve --start --model-store model_store --models densenet161=densenet161.mar
+curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
+```
 
 #### TorchScript example using DenseNet161 image classifier:
 
 * Save the Densenet161 model in as an executable script module or a traced script:
 
-1. Save model using scripting
+  * Save model using scripting
    ```python
    #scripted mode
    from torchvision import models
@@ -39,15 +39,16 @@
    sm.save("densenet161.pt")
    ```
 
-2. Save model using tracing
+  * Save model using tracing
    ```python
    #traced mode
    from torchvision import models
    import torch
    model = models.densenet161(pretrained=True)
+   model.eval()
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
-   traced_script_module.save("dense161.pt")
+   traced_script_module.save("densenet161.pt")
    ```  
 
 * Use following commands to register Densenet161 torchscript model on TorchServe and run image prediction
@@ -57,7 +58,7 @@
     mkdir model_store
     mv densenet161_ts.mar model_store/
     torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
-    curl -X POST http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
+    curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
     ```
 #### TorchScript example using custom model and custom handler:
 

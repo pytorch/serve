@@ -10,8 +10,12 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -46,7 +50,8 @@ public class WorkerThread implements Runnable {
     };
 
     private static final long WORKER_TIMEOUT = 2L;
-    private static final ModelRequestEncoder ENCODER = new ModelRequestEncoder();
+    private static final ModelRequestEncoder ENCODER =
+            new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
 
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
@@ -73,6 +78,59 @@ public class WorkerThread implements Runnable {
 
     public WorkerState getState() {
         return state;
+    }
+
+    public String getGpuUsage() {
+        Process process;
+        StringBuffer gpuUsage = new StringBuffer();
+        if (gpuId >= 0) {
+            try {
+                // TODO : add a generic code to capture gpu details for different devices instead of
+                // just NVIDIA
+                process =
+                        Runtime.getRuntime()
+                                .exec(
+                                        "nvidia-smi -i "
+                                                + gpuId
+                                                + " --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
+                process.waitFor();
+                int exitCode = process.exitValue();
+                if (exitCode != 0) {
+                    gpuUsage.append("failed to obtained gpu usage");
+                    InputStream error = process.getErrorStream();
+                    for (int i = 0; i < error.available(); i++) {
+                        logger.error("" + error.read());
+                    }
+                    return gpuUsage.toString();
+                }
+                InputStream stdout = process.getInputStream();
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
+                String line;
+                String[] headers = new String[3];
+                Boolean firstLine = true;
+                while ((line = reader.readLine()) != null) {
+                    if (firstLine) {
+                        headers = line.split(",");
+                        firstLine = false;
+                    } else {
+                        String[] values = line.split(",");
+                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
+                        for (int i = 0; i < headers.length; i++) {
+                            sb.append(headers[i] + "::" + values[i].strip());
+                        }
+                        gpuUsage.append(sb.toString());
+                    }
+                }
+            } catch (Exception e) {
+                gpuUsage.append("failed to obtained gpu usage");
+                logger.error("Exception Raised : " + e.toString());
+            }
+        } else {
+            gpuUsage.append("N/A");
+        }
+
+        return gpuUsage.toString();
     }
 
     public WorkerLifeCycle getLifeCycle() {
@@ -122,6 +180,7 @@ public class WorkerThread implements Runnable {
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
+                long wtStartTime = System.currentTimeMillis();
                 backendChannel.writeAndFlush(req).sync();
 
                 long begin = System.currentTimeMillis();
@@ -159,9 +218,19 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
+                String workerThreadTime =
+                        String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
+                loggerTsMetrics.info(
+                        new Metric(
+                                "WorkerThreadTime",
+                                workerThreadTime,
+                                "ms",
+                                ConfigManager.getInstance().getHostName(),
+                                new Dimension("Level", "Host")));
             }
         } catch (InterruptedException e) {
-            if (state == WorkerState.WORKER_SCALED_DOWN) {
+            logger.debug("System state is : " + state);
+            if (state == WorkerState.WORKER_SCALED_DOWN || state == WorkerState.WORKER_STOPPED) {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
                 logger.debug(
@@ -179,6 +248,7 @@ public class WorkerThread implements Runnable {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
             // of the thread, currentThread.interrupt() might kill next worker.
+            backendChannel.disconnect();
             currentThread.set(null);
             Integer exitValue = lifeCycle.getExitValue();
 
@@ -313,6 +383,7 @@ public class WorkerThread implements Runnable {
         if (backendChannel != null) {
             backendChannel.close();
         }
+        lifeCycle.terminateIOStreams();
         Thread thread = currentThread.getAndSet(null);
         if (thread != null) {
             thread.interrupt();

@@ -45,13 +45,13 @@ To get predictions from the default version of each loaded model, make a REST ca
 ### curl Example
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl -X POST http://localhost:8080/predictions/resnet-18 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18 -T kitten_small.jpg
 
 or:
 
-curl -X POST http://localhost:8080/predictions/resnet-18 -F "data=@kitten.jpg"
+curl http://localhost:8080/predictions/resnet-18 -F "data=@kitten_small.jpg"
 ```
 
 To get predictions from a specific version of each loaded model, make a REST call to `/predictions/{model_name}/{version}`:
@@ -61,13 +61,13 @@ To get predictions from a specific version of each loaded model, make a REST cal
 ## curl Example
 
 ```bash
-curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -T kitten.jpg
+curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
 
 or:
 
-curl -X POST http://localhost:8080/predictions/resnet-18/2.0 -F "data=@kitten.jpg"
+curl http://localhost:8080/predictions/resnet-18/2.0 -F "data=@kitten_small.jpg"
 ```
 
 The result is JSON that tells you that the image is most likely a tabby cat. The highest prediction was:

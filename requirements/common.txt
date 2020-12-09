@@ -1,0 +1,6 @@
+future
+psutil
+wheel
+requests
+sentencepiece
+pillow

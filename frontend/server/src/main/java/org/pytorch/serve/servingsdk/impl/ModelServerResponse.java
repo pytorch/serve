@@ -5,7 +5,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.OutputStream;
-import software.amazon.ai.mms.servingsdk.http.Response;
+import org.pytorch.serve.servingsdk.http.Response;
 
 public class ModelServerResponse implements Response {
 
@@ -22,7 +22,7 @@ public class ModelServerResponse implements Response {
 
     @Override
     public void setStatus(int i, String s) {
-        response.setStatus(HttpResponseStatus.valueOf(i, s));
+        response.setStatus(new HttpResponseStatus(i, s));
     }
 
     @Override
