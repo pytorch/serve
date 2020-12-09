@@ -103,7 +103,7 @@ class TorchModelServiceWorkerManager(object):
 
 
         except MemoryError:
-            return None, "System out of memory", 507
+            return None, None, "System out of memory", 507
 
 
     def scale_up(self, scale_up_request, service, service_args):
