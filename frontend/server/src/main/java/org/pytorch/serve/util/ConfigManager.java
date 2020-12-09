@@ -712,6 +712,7 @@ public final class ConfigManager {
         String protocol = matcher.group(2);
 
         return "https".equalsIgnoreCase(protocol);
+    }
 
     public int getIniitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
