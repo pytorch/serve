@@ -8,6 +8,9 @@ from pathlib import Path
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
+from ts_scripts.utils import check_python_version
+
+
 class Common():
     def __init__(self):
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
