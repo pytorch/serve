@@ -37,6 +37,7 @@ public final class OpenApiUtils {
     private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
         openApi.addPath("/ping", getPingPath());
+        openApi.addPath("/v1/models/{model_name}:predict", getPredictionsPath(false));
         openApi.addPath("/predictions/{model_name}", getPredictionsPath(false));
         openApi.addPath("/predictions/{model_name}/{model_version}", getPredictionsPath(true));
         openApi.addPath("/api-description", getApiDescriptionPath("api-description", true));
@@ -60,6 +61,7 @@ public final class OpenApiUtils {
         openApi.setInfo(info);
 
         openApi.addPath("/prediction/" + modelName, getModelPath(modelName));
+        openApi.addPath("/v1/models/{model_name}:predict", getModelPath(modelName));
 
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
