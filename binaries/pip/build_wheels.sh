@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-source ../../scripts/install_utils
+source ../../ts_scripts/install_utils
 
 cleanup()
 {

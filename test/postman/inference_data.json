@@ -350,5 +350,29 @@
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"text/plain",
         "expected":"Not Accepted"
+    },
+    {
+        "url":"https://torchserve-mar-files.s3.amazonaws.com/TransformerEn2Fr.mar",
+        "model_name":"TransformerEn2Fr",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/nmt_transformer/model_input/sample.txt",
+        "content-type":"application/json",
+        "expected":{
+            "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
+            "french_output" : "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus tôt possible."
+        }
+    },
+    {
+        "url":"https://torchserve-mar-files.s3.amazonaws.com/TransformerEn2De.mar",
+        "model_name":"TransformerEn2De",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/nmt_transformer/model_input/sample.txt",
+        "content-type":"application/json",
+        "expected":{
+            "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
+            "german_output" : "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie möglich."
+        }
     }
 ]

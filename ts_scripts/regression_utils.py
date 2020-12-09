@@ -1,20 +1,18 @@
 import os
-import platform
+import tempfile
 import sys
 import urllib.request
-from scripts.tsutils import generate_grpc_client_stubs
-from scripts.shell_utils import rm_file
-
+from ts_scripts.shell_utils import rm_file
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
+ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 
 
 def generate_densenet_test_model_archive():
     print("## Started densenet mar creation")
-    if platform.system() == "Windows":
-        model_store_dir = os.path.join("C:\\workspace", "model_store")
-    else:
-        model_store_dir = os.path.join("/", "workspace", "model_store")
+    model_store_dir = os.path.join(ROOT_DIR, "model_store")
     model_name = "densenet161_v1"
     version = "1.1"
     model_file = os.path.join(REPO_ROOT, "examples", "image_classifier", "densenet_161", "model.py")
@@ -71,7 +69,3 @@ def test_regression():
         sys.exit("## Densenet mar creation failed !")
     if py_test_exit_code != 0:
         sys.exit("## TorchServe Regression Pytests Failed")
-
-
-if __name__ == "__main__":
-    test_regression()
