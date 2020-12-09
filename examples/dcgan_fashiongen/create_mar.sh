@@ -16,6 +16,8 @@ function cleanup {
 trap cleanup EXIT
 
 # Download and Extract model's source code
+sudo apt-get install zip unzip
+
 wget https://github.com/facebookresearch/pytorch_GAN_zoo/archive/$SRCZIP
 unzip $SRCZIP
 # Get the models directory from the source code and zip it up
