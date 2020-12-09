@@ -1,11 +1,11 @@
-from ts_scripts.test_modelarchiver import test_modelarchiver
-from ts_scripts.test_torchserve import test_torchserve
+from ts_scripts.modelarchiver_utils import test_modelarchiver
+from ts_scripts.backend_utils import test_torchserve
 from ts_scripts.install_from_src import install_from_src
-from ts_scripts.test_sanity import test_sanity
+from ts_scripts.sanity_utils import test_sanity
 from ts_scripts.shell_utils import rm_dir
-from ts_scripts.test_frontend import test_frontend
+from ts_scripts.frontend_utils import test_frontend
 import ts_scripts.tsutils as ts
-import test.print_env_info as build_hdr_printer
+import ts_scripts.print_env_info as build_hdr_printer
 
 
 def torchserve_sanity():

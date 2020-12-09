@@ -3,7 +3,12 @@ import sys
 import nvgpu
 import glob
 
+
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
 from ts_scripts import tsutils as ts
+from ts_scripts import utils
 
 
 def run_markdown_link_checker():
@@ -60,7 +65,7 @@ def test_sanity():
          "handler": "custom"}
     ]
     ts_log_file = os.path.join("logs", "ts_console.log")
-    is_gpu_instance = ts.is_gpu_instance()
+    is_gpu_instance = utils.is_gpu_instance()
 
     os.makedirs("model_store", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
@@ -125,9 +130,9 @@ def test_sanity():
 
     response = ts.run_inference(resnet18_model["name"], resnet18_model["inputs"][0])
     if response and response.status_code == 200:
-        print(f"## Successfully ran inference on {model_name} model.")
+        print(f"## Successfully ran inference on {resnet18_model['name']} model.")
     else:
-        print(f"## Failed to run inference on {model_name} model")
+        print(f"## Failed to run inference on {resnet18_model['name']} model")
         sys.exit(1)
 
     stopped = ts.stop_torchserve()
@@ -137,7 +142,3 @@ def test_sanity():
     #links_ok = run_markdown_link_checker()
     #if not links_ok:
     #    sys.exit("## Markdown Link Checker Failed !")
-
-
-if __name__ == "__main__":
-    test_sanity()
