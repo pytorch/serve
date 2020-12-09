@@ -33,13 +33,8 @@ Currently, Torchserve supports Windows only via WSL(Windows Subsystem for Linux)
 ### Can I do streaming service with Torchserve like streaming speech recognition?
 Torchserve currently supports only inference through HTTP 1.0 - Request / Response style.
 
-### Is it possible to deploy model other than Pytorch framework?
-Yes it is possible to deploy model with custom python handler or you can use [AWS Multi Model Server](https://github.com/awslabs/multi-model-server) a similar model serving framework.
-NOTE : Torchserve has not been certified with any other framework apart from Pytorch.
-
 ### Does Torchserve support other models based on programming languages other than python?
 No, As of now only python based models are supported.
-
 
 ### What benefits does Torchserve have over AWS Multi-Model-Server?
 Torchserve is derived from Multi-Model-Server. However, Torchserve is specifically tuned for Pytorch models. It also has new features like Snapshot and model versioning.
