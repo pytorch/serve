@@ -295,11 +295,11 @@
 <h1>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this headline">¶</a></h1>
 <ul>
 <li><p>Install dependencies (if not already installed)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/install_dependencies.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/install_dependencies.py --environment<span class="o">=</span>dev
 </pre></div>
 </div>
 <blockquote>
-<div><p>For GPU with Cuda 10.1, make sure add the <code class="docutils literal notranslate"><span class="pre">cu101</span></code> argument to the above command</p>
+<div><p>For GPU with Cuda 10.1, make sure add the <code class="docutils literal notranslate"><span class="pre">cuda=cu101</span></code> argument to the above command</p>
 </div></blockquote>
 </li>
 <li><p>Execute sanity suite</p>

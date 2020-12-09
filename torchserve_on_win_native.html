@@ -217,7 +217,11 @@
 <li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li><a class="reference internal" href="#install-from-binaries">Install from binaries</a></li>
-<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a><ul>
+<li><a class="reference internal" href="#for-production-usage-use-commands-below">For production usage, use commands below:</a></li>
+<li><a class="reference internal" href="#for-development-purposes-use-commands-below">For development purposes, use commands below:</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
@@ -320,6 +324,13 @@ e.g.</p></li>
 <li><p>Edit system or user profile environment variable <code class="docutils literal notranslate"><span class="pre">PATH</span></code> value and append path <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk11-path&gt;\bin</span></code> to it</p></li>
 </ul>
 </li>
+<li><p>Install nodejs</p>
+<ul>
+<li><p>Download <a class="reference external" href="https://nodejs.org/dist/v14.15.1/node-v14.15.1-x64.msi">nodejs</a></p></li>
+<li><p>Post installation make sure nodejs is present in PATH environment variable.</p></li>
+<li><p>You may have to re-start windows if your ‘Anaconda Powershell Prompt’ (APP) is not able to detect npm or nodejs commands</p></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="install-from-binaries">
@@ -329,7 +340,7 @@ e.g.</p></li>
 <li><p>Start ‘Anaconda Powershell Prompt’ (APP) as Admin User i.e. By right click on APP and run following commands</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/pytorch/serve.git</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">-r</span> <span class="pre">requirements_cpu.txt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span></code></p></li>
 <li><p>For local wheel file</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;your-torchserve-wheel-file-name&gt;.whl</span></code></p></li>
@@ -347,7 +358,7 @@ e.g.</p></li>
 <div class="section" id="install-from-source">
 <h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><p>Add system or user profile environment variable name <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> and value as <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk11-path&gt;</span></code></p></li>
+<li><p>Esnure that system or user profile environment variable name <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> with value as <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk11-path&gt;</span></code> path is present.</p></li>
 <li><p>Install <a class="reference external" href="https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads">Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019</a></p>
 <p>NOTE ensure that you have restarted system after install above Visual C++ components</p>
 </li>
@@ -355,9 +366,23 @@ e.g.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/pytorch/serve.git</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">click</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
-<li><p>Refer <a class="reference external" href="https://github.com/pytorch/serve#install-torchserve-for-development">Install torchserve for development</a></p></li>
 </ul>
+<div class="section" id="for-production-usage-use-commands-below">
+<h3>For production usage, use commands below:<a class="headerlink" href="#for-production-usage-use-commands-below" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span> <span class="pre">--environment=prod</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="for-development-purposes-use-commands-below">
+<h3>For development purposes, use commands below:<a class="headerlink" href="#for-development-purposes-use-commands-below" title="Permalink to this headline">¶</a></h3>
+<p>If you plan to develop with TorchServe and change some source code, commands below will help.
+The install_dependencies script installs few extra dependencies which are needed for development and testing.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span> <span class="pre">--environment=dev</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
+</ul>
+</div>
 </div>
 <div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
@@ -409,7 +434,11 @@ Refer this <a class="reference external" href="https://stackoverflow.com/questio
 <li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li><a class="reference internal" href="#install-from-binaries">Install from binaries</a></li>
-<li><a class="reference internal" href="#install-from-source">Install from source</a></li>
+<li><a class="reference internal" href="#install-from-source">Install from source</a><ul>
+<li><a class="reference internal" href="#for-production-usage-use-commands-below">For production usage, use commands below:</a></li>
+<li><a class="reference internal" href="#for-development-purposes-use-commands-below">For development purposes, use commands below:</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
