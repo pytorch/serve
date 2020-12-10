@@ -219,7 +219,8 @@
 <li><a class="reference internal" href="#custom-handler-with-module-level-entry-point">Custom handler with <code class="docutils literal notranslate"><span class="pre">module</span></code> level entry point</a></li>
 <li><a class="reference internal" href="#custom-handler-with-class-level-entry-point">Custom handler with <code class="docutils literal notranslate"><span class="pre">class</span></code> level entry point</a></li>
 <li><a class="reference internal" href="#advanced-custom-handlers">Advanced custom handlers</a><ul>
-<li><a class="reference internal" href="#writing-a-custom-handler-from-scratch">Writing a custom handler from scratch</a></li>
+<li><a class="reference internal" href="#writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request">Writing a custom handler from scratch for Prediction and Explanations Request</a></li>
+<li><a class="reference internal" href="#captum-explanations-for-custom-handler">Captum explanations for custom handler</a></li>
 <li><a class="reference internal" href="#extend-default-handlers">Extend default handlers</a></li>
 </ul>
 </li>
@@ -316,8 +317,8 @@ the model when you use the model archiver. TorchServe executes this code when it
 <p>Provide a custom script to:</p>
 <ul class="simple">
 <li><p>Initialize the model instance</p></li>
-<li><p>Pre-process input data before it is sent to the model for inference</p></li>
-<li><p>Customize how the model is invoked for inference</p></li>
+<li><p>Pre-process input data before it is sent to the model for inference or captum explanations</p></li>
+<li><p>Customize how the model is invoked for inference or explanations</p></li>
 <li><p>Post-process output from the model before sending the response to the user</p></li>
 </ul>
 <p>Following is applicable to all types of custom handlers</p>
@@ -434,8 +435,8 @@ You can find out more about these and other TorchServe APIs in <a class="referen
 </div>
 <div class="section" id="advanced-custom-handlers">
 <h2>Advanced custom handlers<a class="headerlink" href="#advanced-custom-handlers" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="writing-a-custom-handler-from-scratch">
-<h3>Writing a custom handler from scratch<a class="headerlink" href="#writing-a-custom-handler-from-scratch" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request">
+<h3>Writing a custom handler from scratch for Prediction and Explanations Request<a class="headerlink" href="#writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request" title="Permalink to this headline">¶</a></h3>
 <p><em>You should generally derive from BaseHandler and ONLY override methods whose behavior needs to change!</em> As you can see in the examples, most of the time you only need to override <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> or <code class="docutils literal notranslate"><span class="pre">postprocess</span></code></p>
 <p>Nonetheless, you are able to write a class from scratch. Below is an example. Basically, it follows a typical Init-Pre-Infer-Post pattern to create maintainable custom handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># custom handler file</span>
@@ -456,6 +457,8 @@ You can find out more about these and other TorchServe APIs in <a class="referen
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">explain</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -515,6 +518,77 @@ You can find out more about these and other TorchServe APIs in <a class="referen
 </pre></div>
 </div>
 <p>Refer <a class="reference external" href="../examples/text_to_speech_synthesizer/waveglow_handler.py">waveglow_handler</a> for more details.</p>
+</div>
+<div class="section" id="captum-explanations-for-custom-handler">
+<h3>Captum explanations for custom handler<a class="headerlink" href="#captum-explanations-for-custom-handler" title="Permalink to this headline">¶</a></h3>
+<p>Torchserve returns the captum explanations for Image Classification, Text Classification and BERT models. It is achieved by placing the below request:
+<code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/explanations/{model_name}</span></code></p>
+<p>The explanations are written as a part of the explain_handle method of base handler. The base handler invokes this explain_handle_method. The arguments that are passed to the explain handle methods are the pre-processed data and the raw data. It invokes the get insights function of the custom handler that returns the captum attributions. The user should write his own get_insights functionality to get the explanations</p>
+<p>For serving a custom handler the captum algorithm should be initialized in the intialize functions of the handler</p>
+<p>The user can override the explain_handle function in the custom handler.
+The user should define their get_insights method for custom handler to get Captum Attributions.</p>
+<p>The above ModelHandler class should have the following methods with captum functionality.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the model and its artifacts</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">.....</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig</span> <span class="o">=</span> <span class="n">LayerIntegratedGradients</span><span class="p">(</span>
+                <span class="n">captum_sequence_forward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">bert</span><span class="o">.</span><span class="n">embeddings</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Invoke by TorchServe for prediction/explanation request.</span>
+<span class="sd">        Do pre-processing of data, prediction using model and postprocessing of prediction/explanations output</span>
+<span class="sd">        :param data: Input data for prediction/explanation</span>
+<span class="sd">        :param context: Initial context contains model server system properties.</span>
+<span class="sd">        :return: prediction/ explanations output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explain</span><span class="p">():</span>
+                <span class="n">model_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">model_input</span><span class="p">)</span>
+                <span class="n">model_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">model_output</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">:</span>
+                <span class="n">model_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explain_handle</span><span class="p">(</span><span class="n">model_input</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model_output</span>
+    
+    <span class="c1"># Present in the base_handler, so override only when neccessary</span>
+    <span class="k">def</span> <span class="nf">explain_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_preprocess</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Captum explanations handler</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_preprocess (Torch Tensor): Preprocessed data to be used for captum</span>
+<span class="sd">            raw_data (list): The unprocessed data to get target from the request</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict : A dictionary response with the explanations response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output_explain</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Calculating Explanations&quot;</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Getting data and target&quot;</span><span class="p">)</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">)</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">output_explain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_insights</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_explain</span>
+
+    <span class="k">def</span> <span class="nf">get_insights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Functionality to get the explanations.</span>
+<span class="sd">        Called from the explain_handle method </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="extend-default-handlers">
 <h3>Extend default handlers<a class="headerlink" href="#extend-default-handlers" title="Permalink to this headline">¶</a></h3>
@@ -642,7 +716,8 @@ The following code snippet can be used in model handler to create the PyTorch de
 <li><a class="reference internal" href="#custom-handler-with-module-level-entry-point">Custom handler with <code class="docutils literal notranslate"><span class="pre">module</span></code> level entry point</a></li>
 <li><a class="reference internal" href="#custom-handler-with-class-level-entry-point">Custom handler with <code class="docutils literal notranslate"><span class="pre">class</span></code> level entry point</a></li>
 <li><a class="reference internal" href="#advanced-custom-handlers">Advanced custom handlers</a><ul>
-<li><a class="reference internal" href="#writing-a-custom-handler-from-scratch">Writing a custom handler from scratch</a></li>
+<li><a class="reference internal" href="#writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request">Writing a custom handler from scratch for Prediction and Explanations Request</a></li>
+<li><a class="reference internal" href="#captum-explanations-for-custom-handler">Captum explanations for custom handler</a></li>
 <li><a class="reference internal" href="#extend-default-handlers">Extend default handlers</a></li>
 </ul>
 </li>
