@@ -1,2 +1,0 @@
--r requirements/production.txt
--r requirements/cuda101.txt

@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-source ../../scripts/install_utils
+source ../../ts_scripts/install_utils
 
 cleanup()
 {
@@ -10,6 +10,11 @@ cleanup()
   rm -rf dist
   rm -rf build
   rm -rf *.egg-info
+}
+
+install_python_deps()
+{
+  pip install -r ../../requirements/common.txt
 }
 
 create_torchserve_wheel()
@@ -40,10 +45,6 @@ create_model_archiver_wheel()
 
   cp dist/*.whl ../binaries/pip/output/
 
-  echo 'sleeping for test'
-
-  sleep 60
-
   cleanup
 
   cd -
@@ -57,7 +58,7 @@ mkdir output
 
 install_java_deps
 
-install_torch_deps
+install_python_deps
 
 create_torchserve_wheel
 

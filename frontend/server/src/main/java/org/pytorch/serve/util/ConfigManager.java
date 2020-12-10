@@ -74,13 +74,19 @@ public final class ConfigManager {
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
+    private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
     private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
+    private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
+    private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
+    private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
+    private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -276,6 +282,20 @@ public final class ConfigManager {
         return Connector.parse(binding, connectorType);
     }
 
+    public int getGRPCPort(ConnectorType connectorType) {
+        String port;
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "9091");
+        } else {
+            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "9090");
+        }
+        return Integer.parseInt(port);
+    }
+
+    public boolean isGRPCSSLEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_GRPC_SSL, "false"));
+    }
+
     public boolean getPreferDirectBuffer() {
         return Boolean.parseBoolean(getProperty(TS_PREFER_DIRECT_BUFFER, "false"));
     }
@@ -310,6 +330,10 @@ public final class ConfigManager {
 
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
+    }
+
+    public String getTsServiceEnvelope() {
+        return getProperty(TS_SERVICE_ENVELOPE, null);
     }
 
     public Properties getConfiguration() {
@@ -395,6 +419,14 @@ public final class ConfigManager {
 
     public String getCorsAllowedHeaders() {
         return prop.getProperty(TS_CORS_ALLOWED_HEADERS);
+    }
+
+    public String getPrivateKeyFile() {
+        return prop.getProperty(TS_PRIVATE_KEY_FILE);
+    }
+
+    public String getCertificateFile() {
+        return prop.getProperty(TS_CERTIFICATE_FILE);
     }
 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
@@ -553,6 +585,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
+                + "\nAllowed Urls: "
+                + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
                 + "\nMetrics report format: "
@@ -678,8 +712,21 @@ public final class ConfigManager {
         }
     }
 
+    public List<String> getAllowedUrls() {
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "file://.*|http(s)?://.*");
+        return Arrays.asList(allowedURL.split(","));
+    }
+
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public int getIniitialWorkerPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
+    }
+
+    public void setIniitialWorkerPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
     public static final class Arguments {

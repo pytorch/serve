@@ -1,5 +1,8 @@
 package org.pytorch.serve;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -18,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +33,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
+import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.grpcimpl.GRPCInterceptor;
+import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -40,6 +47,7 @@ import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.ServerGroups;
+import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
 import org.slf4j.Logger;
@@ -50,6 +58,8 @@ public class ModelServer {
     private Logger logger = LoggerFactory.getLogger(ModelServer.class);
 
     private ServerGroups serverGroups;
+    private Server inferencegRPCServer;
+    private Server managementgRPCServer;
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
@@ -101,7 +111,10 @@ public class ModelServer {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         try {
-            List<ChannelFuture> channelFutures = start();
+            List<ChannelFuture> channelFutures = startRESTserver();
+
+            startGRPCServers();
+
             // Create and schedule metrics manager
             MetricManager.scheduleMetrics(configManager);
             System.out.println("Model server started."); // NOPMD
@@ -180,7 +193,8 @@ public class ModelServer {
                                 archive.getModelVersion(),
                                 workers,
                                 workers,
-                                true);
+                                true,
+                                false);
                         startupModels.add(archive.getModelName());
                     } catch (ModelException | IOException | InterruptedException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
@@ -220,7 +234,12 @@ public class ModelServer {
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName);
                 modelManager.updateModel(
-                        archive.getModelName(), archive.getModelVersion(), workers, workers, true);
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        workers,
+                        workers,
+                        true,
+                        false);
                 startupModels.add(archive.getModelName());
             } catch (ModelException | IOException | InterruptedException e) {
                 logger.warn("Failed to load model: " + url, e);
@@ -296,7 +315,7 @@ public class ModelServer {
      * @throws InterruptedException if interrupted
      * @throws InvalidSnapshotException
      */
-    public List<ChannelFuture> start()
+    public List<ChannelFuture> startRESTserver()
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         stopped.set(false);
@@ -354,6 +373,30 @@ public class ModelServer {
         return futures;
     }
 
+    public void startGRPCServers() throws IOException {
+        inferencegRPCServer = startGRPCServer(ConnectorType.INFERENCE_CONNECTOR);
+        managementgRPCServer = startGRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
+    }
+
+    private Server startGRPCServer(ConnectorType connectorType) throws IOException {
+
+        ServerBuilder<?> s =
+                ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                        .addService(
+                                ServerInterceptors.intercept(
+                                        GRPCServiceFactory.getgRPCService(connectorType),
+                                        new GRPCInterceptor()));
+
+        if (configManager.isGRPCSSLEnabled()) {
+            s.useTransportSecurity(
+                    new File(configManager.getCertificateFile()),
+                    new File(configManager.getPrivateKeyFile()));
+        }
+        Server server = s.build();
+        server.start();
+        return server;
+    }
+
     private boolean validEndpoint(Annotation a, EndpointTypes type) {
         return a instanceof Endpoint
                 && !((Endpoint) a).urlPattern().isEmpty()
@@ -379,18 +422,68 @@ public class ModelServer {
         return !stopped.get();
     }
 
+    private void stopgRPCServer(Server server) {
+        if (server != null) {
+            try {
+                server.shutdown().awaitTermination();
+            } catch (InterruptedException e) {
+                e.printStackTrace(); // NOPMD
+            }
+        }
+    }
+
+    private void exitModelStore() throws ModelNotFoundException {
+        ModelManager modelMgr = ModelManager.getInstance();
+        Map<String, Model> defModels = modelMgr.getDefaultModels();
+
+        for (Map.Entry<String, Model> m : defModels.entrySet()) {
+            Set<Map.Entry<String, Model>> versionModels = modelMgr.getAllModelVersions(m.getKey());
+            String defaultVersionId = m.getValue().getVersion();
+            for (Map.Entry<String, Model> versionedModel : versionModels) {
+                if (defaultVersionId.equals(versionedModel.getKey())) {
+                    continue;
+                }
+                logger.info(
+                        "Unregistering model {} version {}",
+                        versionedModel.getValue().getModelName(),
+                        versionedModel.getKey());
+                modelMgr.unregisterModel(
+                        versionedModel.getValue().getModelName(), versionedModel.getKey(), true);
+            }
+            logger.info(
+                    "Unregistering model {} version {}",
+                    m.getValue().getModelName(),
+                    defaultVersionId);
+            modelMgr.unregisterModel(m.getValue().getModelName(), defaultVersionId, true);
+        }
+    }
+
     public void stop() {
         if (stopped.get()) {
             return;
         }
 
         stopped.set(true);
+
+        stopgRPCServer(inferencegRPCServer);
+        stopgRPCServer(managementgRPCServer);
+
         for (ChannelFuture future : futures) {
-            future.channel().close();
+            try {
+                future.channel().close().sync();
+            } catch (InterruptedException ignore) {
+                ignore.printStackTrace(); // NOPMD
+            }
         }
 
         SnapshotManager.getInstance().saveShutdownSnapshot();
         serverGroups.shutdown(true);
         serverGroups.init();
+
+        try {
+            exitModelStore();
+        } catch (Exception e) {
+            e.printStackTrace(); // NOPMD
+        }
     }
 }

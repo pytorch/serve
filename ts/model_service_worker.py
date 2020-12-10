@@ -37,9 +37,9 @@ class TorchModelServiceWorker(object):
             self.sock_name, self.port = s_name, -1
             try:
                 os.remove(s_name)
-            except OSError:
+            except OSError as e:
                 if os.path.exists(s_name):
-                    raise RuntimeError("socket already in use: {}.".format(s_name))
+                    raise RuntimeError("socket already in use: {}.".format(s_name)) from e
 
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
@@ -63,6 +63,7 @@ class TorchModelServiceWorker(object):
             "modelName" : "name", string
             "gpu" : None if CPU else gpu_id, int
             "handler" : service handler entry point if provided, string
+            "envelope" : name of wrapper/unwrapper of request data if provided, string
             "batchSize" : batch size, int
         }
 
@@ -73,6 +74,9 @@ class TorchModelServiceWorker(object):
             model_dir = load_model_request["modelPath"].decode("utf-8")
             model_name = load_model_request["modelName"].decode("utf-8")
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
+            envelope = load_model_request["envelope"].decode("utf-8") if "envelope" in load_model_request else None
+            envelope = envelope if envelope is not None and len(envelope) > 0 else None
+
             batch_size = None
             if "batchSize" in load_model_request:
                 batch_size = int(load_model_request["batchSize"])
@@ -82,7 +86,7 @@ class TorchModelServiceWorker(object):
                 gpu = int(load_model_request["gpu"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
+            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope)
 
             logging.debug("Model %s loaded.", model_name)
 
@@ -107,12 +111,12 @@ class TorchModelServiceWorker(object):
                 pr.enable()
             if cmd == b'I':
                 resp = service.predict(msg)
-                cl_socket.send(resp)
+                cl_socket.sendall(resp)
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
                 resp += create_load_model_response(code, result)
-                cl_socket.send(resp)
+                cl_socket.sendall(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
             else:
@@ -128,6 +132,8 @@ class TorchModelServiceWorker(object):
         """
         if not DEBUG:
             self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
+
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)

@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -28,8 +29,8 @@ public class ModelArchive {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static final Pattern URL_PATTERN =
-            Pattern.compile("http(s)?://.*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VALID_URL_PATTERN =
+            Pattern.compile("file?://.*|http(s)?://.*", Pattern.CASE_INSENSITIVE);
 
     private static final String MANIFEST_FILE = "MANIFEST.json";
 
@@ -45,7 +46,8 @@ public class ModelArchive {
         this.extracted = extracted;
     }
 
-    public static ModelArchive downloadModel(String modelStore, String url)
+    public static ModelArchive downloadModel(
+            List<String> allowedUrls, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
 
         if (modelStore == null) {
@@ -54,7 +56,7 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-        if (URL_PATTERN.matcher(url).matches()) {
+        if (checkAllowedUrl(allowedUrls, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
             }
@@ -82,6 +84,23 @@ public class ModelArchive {
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
+    }
+
+    public static boolean checkAllowedUrl(List<String> allowedUrls, String url)
+            throws ModelNotFoundException {
+        boolean patternMatch = false;
+        for (String temp : allowedUrls) {
+            if (Pattern.compile(temp, Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
+                patternMatch = true;
+                return patternMatch;
+            }
+        }
+        if (VALID_URL_PATTERN.matcher(url).matches()) {
+            // case when url is valid url but does not match valid hosts
+            throw new ModelNotFoundException(
+                    "Given URL " + url + " does not match any allowed URL(s)");
+        }
+        return patternMatch;
     }
 
     private static ModelArchive load(String url, File dir, boolean extracted)
@@ -178,7 +197,7 @@ public class ModelArchive {
     }
 
     public static void removeModel(String modelStore, String marURL) {
-        if (URL_PATTERN.matcher(marURL).matches()) {
+        if (VALID_URL_PATTERN.matcher(marURL).matches()) {
             String marFileName = FilenameUtils.getName(marURL);
             File modelLocation = new File(modelStore, marFileName);
             FileUtils.deleteQuietly(modelLocation);
