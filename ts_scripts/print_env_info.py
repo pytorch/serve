@@ -50,8 +50,24 @@ cuda_env = {
     "cudnn_version": []
 }
 
-smi = 'nvidia-smi'
+npm_env =  {
+    "npm_pkg_version": []
+}
 
+def get_nvidia_smi():
+    # Note: nvidia-smi is currently available only on Windows and Linux
+    smi = 'nvidia-smi'
+    if get_platform() == 'win32':
+        system_root = os.environ.get('SYSTEMROOT', 'C:\\Windows')
+        program_files_root = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
+        legacy_path = os.path.join(program_files_root, 'NVIDIA Corporation', 'NVSMI', smi)
+        new_path = os.path.join(system_root, 'System32', smi)
+        smis = [new_path, legacy_path]
+        for candidate_smi in smis:
+            if os.path.exists(candidate_smi):
+                smi = f'"{candidate_smi}"'
+                break
+    return smi
 
 def run(command):
     """Returns (return-code, stdout, stderr)"""
@@ -62,6 +78,8 @@ def run(command):
     enc = locale.getpreferredencoding()
     output = output.decode(enc)
     err = err.decode(enc)
+    if output.startswith("├── "):
+       return rc,  output.strip().replace("├── ", ""), err.strip()
     return rc, output.strip(), err.strip()
 
 
@@ -83,16 +101,28 @@ def run_and_parse_first_match(command, regex):
         return "N/A"
     return match.group(1)
 
+def get_npm_packages():
+    """Returns `npm ls -g --depth=0` output. """
 
+    grep_cmd = r'grep "newman\|markdown-link-check"'
+    out = run_and_read_all('npm ls -g --depth=0 | ' + grep_cmd)
+    if out == "N/A":
+        return "**Warning: newman, newman-reporter-html markdown-link-check not installed..."
+    return out 
+        
 def get_pip_packages(package_name=None):
     """Returns `pip list` output. """
 
     # systems generally have `pip` as `pip` or `pip3`
     def run_with_pip(pip):
-        if package_name == "torch":
+        if get_platform() == 'win32':
+            system_root = os.environ.get('SYSTEMROOT', 'C:\\Windows')
+            findstr_cmd = os.path.join(system_root, 'System32', 'findstr')
+            grep_cmd = r'{} /R "numpy torch"'.format(findstr_cmd)
+        elif package_name == "torch":
             grep_cmd = 'grep "' + package_name + '"'
         else:
-            grep_cmd = r'grep "numpy\|pytest\|pylint"'
+            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|future\|wheel\|requests\|sentencepiece\|pillow\|captum\|nvgpu\|pygit2"'
         return run_and_read_all(pip + ' list --format=freeze | ' + grep_cmd)
 
     out = run_with_pip('pip3')
@@ -111,6 +141,8 @@ def get_java_version():
 def get_platform():
     if sys.platform.startswith('linux'):
         return 'linux'
+    elif sys.platform.startswith('win32'):
+        return 'win32'
     elif sys.platform.startswith('cygwin'):
         return 'cygwin'
     elif sys.platform.startswith('darwin'):
@@ -126,6 +158,11 @@ def get_mac_version():
 def get_lsb_version():
     return run_and_parse_first_match('lsb_release -a', r'Description:\t(.*)')
 
+def get_windows_version():
+    system_root = os.environ.get('SYSTEMROOT', 'C:\\Windows')
+    wmic_cmd = os.path.join(system_root, 'System32', 'Wbem', 'wmic')
+    findstr_cmd = os.path.join(system_root, 'System32', 'findstr')
+    return run_and_read_all('{} os get Caption | {} /v Caption'.format(wmic_cmd, findstr_cmd))
 
 def check_release_file():
     return run_and_parse_first_match('cat /etc/*-release', r'PRETTY_NAME="(.*)"')
@@ -134,6 +171,8 @@ def check_release_file():
 def get_os():
     from platform import machine
     platform = get_platform()
+    if platform == 'win32' or platform == 'cygwin':
+        return get_windows_version()
     if platform == 'darwin':
         version = get_mac_version()
         if version is None:
@@ -192,7 +231,12 @@ def get_running_cuda_version():
 
 def get_cudnn_version():
     """This will return a list of libcudnn.so; it's hard to tell which one is being used"""
-    if get_platform() == 'darwin':
+    if get_platform() == 'win32':
+        system_root = os.environ.get('SYSTEMROOT', 'C:\\Windows')
+        cuda_path = os.environ.get('CUDA_PATH', "%CUDA_PATH%")
+        where_cmd = os.path.join(system_root, 'System32', 'where')
+        cudnn_cmd = '{} /R "{}\\bin" cudnn*.dll'.format(where_cmd, cuda_path)
+    elif get_platform() == 'darwin':
         # CUDA libraries and drivers can be found in /usr/local/cuda/. See
         cudnn_cmd = 'ls /usr/local/cuda/lib/libcudnn*'
     else:
@@ -275,6 +319,9 @@ def populate_cuda_env(cuda_available_str):
     cuda_env["cudnn_version"] = get_cudnn_version()
 
 
+def populate_npm_env():
+    npm_env["npm_pkg_version"] = get_npm_packages()
+
 def populate_env_info():
     # torchserve packages
     _, torch_list_output = get_pip_packages("torch")
@@ -295,6 +342,8 @@ def populate_env_info():
     if TORCH_AVAILABLE and torch.cuda.is_available():
         populate_cuda_env("Yes")
 
+    if get_platform() == 'darwin':
+        populate_npm_env()
 
 env_info_fmt = """
 ------------------------------------------------------------------------------------------
@@ -332,16 +381,26 @@ Nvidia driver version: {nvidia_driver_version}
 cuDNN version: {cudnn_version}
 """
 
+npm_info_fmt = """
+Versions of npm installed packages:
+{npm_pkg_version}
+"""
+
 
 def get_pretty_env_info(branch_name):
     global env_info_fmt
     global cuda_info_fmt
+    global npm_info_fmt
     populate_env_info()
     env_dict = {**torchserve_env, **python_env, **java_env, **os_info, "torchserve_branch": branch_name}
 
     if TORCH_AVAILABLE and torch.cuda.is_available():
         env_dict.update(cuda_env)
         env_info_fmt = env_info_fmt + "\n" + cuda_info_fmt
+
+    if get_platform() == 'darwin':
+        env_dict.update(npm_env)
+        env_info_fmt = env_info_fmt + "\n" + npm_info_fmt
 
     return env_info_fmt.format(**env_dict)
 
@@ -352,8 +411,10 @@ def main(branch_name):
 
 
 if __name__ == '__main__':
+    global smi
+    smi = get_nvidia_smi()
     if len(sys.argv) > 1:
         torchserve_branch = sys.argv[1]
-        main(torchserve_branch)
     else:
-        print("Environment headers skipped.")
+        torchserve_branch = ""
+    main(torchserve_branch)
