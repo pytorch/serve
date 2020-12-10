@@ -275,7 +275,7 @@
     {
         "url":"https://torchserve.pytorch.org/mar_files/bert_token_classification_no_torchscript.mar",
         "model_name":"bert_token_classification_no_torchscript",
-        "worker":"1",
+        "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"application/json",
@@ -345,7 +345,7 @@
     {
         "url":"https://torchserve.pytorch.org/mar_files/bert_seqc_without_torchscript.mar",
         "model_name":"bert_seqc_without_torchscript",
-        "worker":"1",
+        "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"text/plain",
