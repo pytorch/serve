@@ -1,0 +1,769 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Troubleshooting guide. &mdash; PyTorch/Serve master documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/torchvision/">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
+                  <span class="dropdown-title">TorchElastic</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+                <div class="version">
+                  master 
+                </div>
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Troubleshooting guide.</a><ul>
+<li><a class="reference internal" href="#deployment-and-config-issues">Deployment and config issues</a><ul>
+<li><a class="reference internal" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.</a></li>
+<li><a class="reference internal" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473">“java.lang.NoSuchMethodError” when starting Torchserve.[473]</a></li>
+<li><a class="reference internal" href="#unable-to-send-big-files-for-inference-request">Unable to send big files for inference request?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#snapshot-related-issues">Snapshot related issues</a><ul>
+<li><a class="reference internal" href="#how-to-disable-snapshot-feature">How to disable Snapshot feature?</a></li>
+<li><a class="reference internal" href="#torchserve-stopped-after-restart-with-invalidsnapshotexception-exception">Torchserve stopped after restart with “InvalidSnapshotException” exception.</a></li>
+<li><a class="reference internal" href="#where-are-snapshot-config-files-stored">Where are snapshot config files stored?</a></li>
+<li><a class="reference internal" href="#how-to-change-temp-directory">How to change Temp Directory?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-related-issues">API related issues</a><ul>
+<li><a class="reference internal" href="#register-model-failed-with-exception-conflictstatusexception-error-code-409">Register model: Failed with exception “ConflictStatusException” &amp; error code 409.</a></li>
+<li><a class="reference internal" href="#register-model-failed-with-exception-downloadmodelexception-error-code-400">Register model: Failed with exception “DownloadModelException” &amp; error code 400.</a></li>
+<li><a class="reference internal" href="#register-model-failed-with-exception-modelnotfoundexception-error-code-404">Register model: Failed with exception “ModelNotFoundException” &amp; error code 404.</a></li>
+<li><a class="reference internal" href="#inference-request-failed-with-exception-serviceunavailableexception-error-code-503">Inference request: Failed with exception “ServiceUnavailableException” &amp; error code 503.</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#model-archiver">Model-archiver</a><ul>
+<li><a class="reference internal" href="#how-can-add-model-specific-custom-dependency">How can add model  specific custom dependency?</a></li>
+<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model  specific python dependency?</a></li>
+<li><a class="reference internal" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed">I have added  requirements.txt in my mar file but the packages listed are not getting installed.</a></li>
+<li><a class="reference internal" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">Backend worker monitoring thread interrupted or backend worker process died error.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Troubleshooting guide.</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Troubleshooting.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="section" id="troubleshooting-guide">
+<h1>Troubleshooting guide.<a class="headerlink" href="#troubleshooting-guide" title="Permalink to this headline">¶</a></h1>
+<p>Refer to this section for common issues faced while deploying your Pytorch models using Torchserve and their corresponding troubleshooting steps.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#deployment-and-config-issues">Deployment and config issues</a></p></li>
+<li><p><a class="reference external" href="#snapshot-related-issues">Snapshot related issues</a></p></li>
+<li><p><a class="reference external" href="#api-relate-issues">API related issues</a></p></li>
+<li><p><a class="reference external" href="#model-archiver">Model-archiver</a></p></li>
+</ul>
+<div class="section" id="deployment-and-config-issues">
+<h2>Deployment and config issues<a class="headerlink" href="#deployment-and-config-issues" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">
+<h3>“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.<a class="headerlink" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use" title="Permalink to this headline">¶</a></h3>
+<p>Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd <code class="docutils literal notranslate"><span class="pre">ss</span> <span class="pre">-ntl</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">8080</span></code>. There are two ways to troubleshoot this issue either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 &amp; 8081.</p>
+<p>Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">configuration.md</a> for more details.</p>
+<p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/542">542</a>]</p>
+</div>
+<div class="section" id="java-lang-nosuchmethoderror-when-starting-torchserve-473">
+<h3>“java.lang.NoSuchMethodError” when starting Torchserve.[<a class="reference external" href="https://github.com/pytorch/serve/issues/473">473</a>]<a class="headerlink" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473" title="Permalink to this headline">¶</a></h3>
+<p>This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and older java versions are not supported.</p>
+<p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/473">#473</a>]</p>
+</div>
+<div class="section" id="unable-to-send-big-files-for-inference-request">
+<h3>Unable to send big files for inference request?<a class="headerlink" href="#unable-to-send-big-files-for-inference-request" title="Permalink to this headline">¶</a></h3>
+<p>The default max request size and response size is roughly 6.5 Mb. Hence any file size greater than 6.5mb cannot be uploaded.
+To resolve this update <code class="docutils literal notranslate"><span class="pre">max_request_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_response_size</span></code> in a config.properties file and start the torchserve with this config file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cat config.properties
+max_request_size=&lt;request size in bytes&gt;
+max_response_size=&lt;response size in bytes&gt;
+$ torchserve --start --model-store model_store --ts-config /path/to/config.properties
+</pre></div>
+</div>
+<p>You can also use environment variables to set these values.
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">configuration.md</a> for more details.
+Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/335">#335</a>]</p>
+</div>
+</div>
+<div class="section" id="snapshot-related-issues">
+<h2>Snapshot related issues<a class="headerlink" href="#snapshot-related-issues" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-to-disable-snapshot-feature">
+<h3>How to disable Snapshot feature?<a class="headerlink" href="#how-to-disable-snapshot-feature" title="Permalink to this headline">¶</a></h3>
+<p>By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using –ncs flag or specify config file using –ts-config path/to/config
+Relevant issues:[<a class="reference external" href="https://github.com/pytorch/serve/issues/383">#383</a>, <a class="reference external" href="https://github.com/pytorch/serve/issues/512">#512</a>]</p>
+</div>
+<div class="section" id="torchserve-stopped-after-restart-with-invalidsnapshotexception-exception">
+<h3>Torchserve stopped after restart with “InvalidSnapshotException” exception.<a class="headerlink" href="#torchserve-stopped-after-restart-with-invalidsnapshotexception-exception" title="Permalink to this headline">¶</a></h3>
+<p>Torchserve when restarted uses the last snapshot config file to restore its state of models and their number of workers. When “InvalidSnapshotException” is thrown then the model store is in an inconsistent state as compared with the snapshot. To resolve this the snapshot config files can be removed or torchserve can be started with specific config file using –ts-config path/to/config.
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot">snapshot.md</a> for more details.</p>
+</div>
+<div class="section" id="where-are-snapshot-config-files-stored">
+<h3>Where are snapshot config files stored?<a class="headerlink" href="#where-are-snapshot-config-files-stored" title="Permalink to this headline">¶</a></h3>
+<p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot">snapshot.md</a> for more details.</p>
+</div>
+<div class="section" id="how-to-change-temp-directory">
+<h3>How to change Temp Directory?<a class="headerlink" href="#how-to-change-temp-directory" title="Permalink to this headline">¶</a></h3>
+<p>You can export TEMP environment variable to the desired path. This path will be used by TorchServe to extract the model-archives content.
+Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/654">#654</a>]</p>
+</div>
+</div>
+<div class="section" id="api-related-issues">
+<h2>API related issues<a class="headerlink" href="#api-related-issues" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="register-model-failed-with-exception-conflictstatusexception-error-code-409">
+<h3>Register model: Failed with exception “ConflictStatusException” &amp; error code 409.<a class="headerlink" href="#register-model-failed-with-exception-conflictstatusexception-error-code-409" title="Permalink to this headline">¶</a></h3>
+<p>This gives a clear message that the model we are trying to register conflicts with an already existing model. To resolve this change the model version when creating a mar file or register a model with a different name.
+Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/500">#500</a>]</p>
+</div>
+<div class="section" id="register-model-failed-with-exception-downloadmodelexception-error-code-400">
+<h3>Register model: Failed with exception “DownloadModelException” &amp; error code 400.<a class="headerlink" href="#register-model-failed-with-exception-downloadmodelexception-error-code-400" title="Permalink to this headline">¶</a></h3>
+<p>Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publically.</p>
+</div>
+<div class="section" id="register-model-failed-with-exception-modelnotfoundexception-error-code-404">
+<h3>Register model: Failed with exception “ModelNotFoundException” &amp; error code 404.<a class="headerlink" href="#register-model-failed-with-exception-modelnotfoundexception-error-code-404" title="Permalink to this headline">¶</a></h3>
+<p>In this case, Torchserve was unable to locate a given mar file in the model store directory. To resolve this check whether the given mar file exists in the model store. Check the mar file name in the POST request to register the model.</p>
+</div>
+<div class="section" id="inference-request-failed-with-exception-serviceunavailableexception-error-code-503">
+<h3>Inference request: Failed with exception “ServiceUnavailableException” &amp; error code 503.<a class="headerlink" href="#inference-request-failed-with-exception-serviceunavailableexception-error-code-503" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the model is registered but there no workers spawned for the model. Use the scale-up API to increase the number of workers. You can verify the number of workers using
+<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-X</span> <span class="pre">GET&quot;http://localhost:8081/models/&lt;model_name&gt;&quot;</span> </code></p>
+</div>
+</div>
+<div class="section" id="model-archiver">
+<h2>Model-archiver<a class="headerlink" href="#model-archiver" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-can-add-model-specific-custom-dependency">
+<h3>How can add model  specific custom dependency?<a class="headerlink" href="#how-can-add-model-specific-custom-dependency" title="Permalink to this headline">¶</a></h3>
+<p>You can add your dependency files using <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag while creating a mar file. These dependency files can be of any type like zip, egg, json etc. You may have to write a custom handler to use these files as required.</p>
+<p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/566">#566</a>]</p>
+</div>
+<div class="section" id="how-can-i-resolve-model-specific-python-dependency">
+<h3>How can I resolve model  specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this headline">¶</a></h3>
+<p>You can provide a requirements.txt while creating a mar file using “–requirements-file/ -r” flag. You can refer to the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer">waveglow text-to-speech-synthesizer</a> example</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh">waveglow mar creation script</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py#L57">waveglow handler</a></p></li>
+</ul>
+<p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/566">#566</a>]
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface">Torch model archiver cli</a> for more details.</p>
+</div>
+<div class="section" id="i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed">
+<h3>I have added  requirements.txt in my mar file but the packages listed are not getting installed.<a class="headerlink" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed" title="Permalink to this headline">¶</a></h3>
+<p>By default model specific custom python packages feature is disabled, enable this by setting install_py_dep_per_model to true.
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#allow-model-specific-custom-python-packages">Allow model specific custom python packages</a> for more details.</p>
+</div>
+<div class="section" id="backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">
+<h3>Backend worker monitoring thread interrupted or backend worker process died error.<a class="headerlink" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error" title="Permalink to this headline">¶</a></h3>
+<p>This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler’s initialize function. This error is also observed when there is missing package/module.</p>
+<p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/667">#667</a>, <a class="reference external" href="https://github.com/pytorch/serve/issues/537">#537</a>]</p>
+</div>
+</div>
+</div>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, PyTorch Serve Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Troubleshooting guide.</a><ul>
+<li><a class="reference internal" href="#deployment-and-config-issues">Deployment and config issues</a><ul>
+<li><a class="reference internal" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.</a></li>
+<li><a class="reference internal" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473">“java.lang.NoSuchMethodError” when starting Torchserve.[473]</a></li>
+<li><a class="reference internal" href="#unable-to-send-big-files-for-inference-request">Unable to send big files for inference request?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#snapshot-related-issues">Snapshot related issues</a><ul>
+<li><a class="reference internal" href="#how-to-disable-snapshot-feature">How to disable Snapshot feature?</a></li>
+<li><a class="reference internal" href="#torchserve-stopped-after-restart-with-invalidsnapshotexception-exception">Torchserve stopped after restart with “InvalidSnapshotException” exception.</a></li>
+<li><a class="reference internal" href="#where-are-snapshot-config-files-stored">Where are snapshot config files stored?</a></li>
+<li><a class="reference internal" href="#how-to-change-temp-directory">How to change Temp Directory?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-related-issues">API related issues</a><ul>
+<li><a class="reference internal" href="#register-model-failed-with-exception-conflictstatusexception-error-code-409">Register model: Failed with exception “ConflictStatusException” &amp; error code 409.</a></li>
+<li><a class="reference internal" href="#register-model-failed-with-exception-downloadmodelexception-error-code-400">Register model: Failed with exception “DownloadModelException” &amp; error code 400.</a></li>
+<li><a class="reference internal" href="#register-model-failed-with-exception-modelnotfoundexception-error-code-404">Register model: Failed with exception “ModelNotFoundException” &amp; error code 404.</a></li>
+<li><a class="reference internal" href="#inference-request-failed-with-exception-serviceunavailableexception-error-code-503">Inference request: Failed with exception “ServiceUnavailableException” &amp; error code 503.</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#model-archiver">Model-archiver</a><ul>
+<li><a class="reference internal" href="#how-can-add-model-specific-custom-dependency">How can add model  specific custom dependency?</a></li>
+<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model  specific python dependency?</a></li>
+<li><a class="reference internal" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed">I have added  requirements.txt in my mar file but the packages listed are not getting installed.</a></li>
+<li><a class="reference internal" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">Backend worker monitoring thread interrupted or backend worker process died error.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/docs/stable/torchvision/">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
