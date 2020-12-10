@@ -185,7 +185,7 @@ public class WorkLoadManager {
                 gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
             }
 
-            int portNum = port.incrementAndGet();
+            int portNum = port.getAndIncrement();
             workerManagers.get(model.getModelVersionName()).scaleUp(portNum);
 
             BatchAggregator aggregator = new BatchAggregator(model);

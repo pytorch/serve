@@ -13,6 +13,7 @@ import platform
 import socket
 import sys
 from datetime import datetime
+import traceback
 
 
 from ts.arg_parser import ArgParser
@@ -93,11 +94,12 @@ class TorchModelServiceWorker(object):
             logging.error("Run server invoke")
             loggerc = logging.getLogger('c')
             loggerc.addHandler(logging.FileHandler('/tmp/loggerc'))
-            loggerc.error("Starting server .... ")
+            loggerc.error("Starting server ....  " + str(self.sock_name))
             self.run_server1()
         except:
             e = sys.exc_info()[0]
-            loggerc.error("after the listen....." + str(e))
+            traceback.print_exc()
+            loggerc.error("after the listen....." + str(e) + str(self.sock_name))
 
     def run_server1(self):
         """
