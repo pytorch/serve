@@ -8,6 +8,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts import tsutils as ts
+from ts_scripts import utils
 
 
 def run_markdown_link_checker():
@@ -64,7 +65,7 @@ def test_sanity():
          "handler": "custom"}
     ]
     ts_log_file = os.path.join("logs", "ts_console.log")
-    is_gpu_instance = ts.is_gpu_instance()
+    is_gpu_instance = utils.is_gpu_instance()
 
     os.makedirs("model_store", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
