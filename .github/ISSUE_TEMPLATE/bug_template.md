@@ -3,6 +3,7 @@ name: "\U0001F41B Bug report"
 about: Create a report to help us improve
 
 ---
+Please have a look at [FAQ's](../../docs/FAQs.md) and [Troubleshooting guide](../../docs/Troubleshooting.md), your query may be already addressed.
 
 Your issue may already be reported!
 Please search on the [issue tracker](https://github.com/pytorch/serve/issues) before creating one.
