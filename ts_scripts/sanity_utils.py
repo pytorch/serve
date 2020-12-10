@@ -91,7 +91,7 @@ def test_sanity():
         model_handler = model["handler"]
 
         # Run gRPC sanity
-        register_model_grpc_cmd = f"python {os.path.join('ts_scripts','torchserve_grpc_client.py')} register {model_name}"
+        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name}"
         status = os.system(register_model_grpc_cmd)
 
         if status != 0:
@@ -101,7 +101,7 @@ def test_sanity():
             print(f"## Successfully registered {model_name} model with torchserve")
 
         for input in model_inputs:
-            infer_model_grpc_cmd = f"python {os.path.join('ts_scripts','torchserve_grpc_client.py')} infer {model_name} {input}"
+            infer_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py infer {model_name} {input}"
             status = os.system(infer_model_grpc_cmd)
             if status != 0:
                 print(f"## Failed to run inference on {model_name} model")
@@ -109,7 +109,7 @@ def test_sanity():
             else:
                 print(f"## Successfully ran inference on {model_name} model.")
 
-        unregister_model_grpc_cmd = f"python {os.path.join('ts_scripts','torchserve_grpc_client.py')} unregister {model_name}"
+        unregister_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
         status = os.system(unregister_model_grpc_cmd)
 
         if status != 0:
