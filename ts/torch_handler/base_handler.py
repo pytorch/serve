@@ -28,6 +28,8 @@ class BaseHandler(abc.ABC):
         self.context = None
         self.manifest = None
         self.map_location = None
+        self.explain = False
+        self.target = 0
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
@@ -141,7 +143,7 @@ class BaseHandler(abc.ABC):
     def inference(self, data, *args, **kwargs):
         """
         The Inference Function is used to make a prediction call on the given input request.
-        The user needs to over-ride the inference function to customize it.
+        The user needs to override the inference function to customize it.
 
         Args:
             data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
@@ -189,10 +191,47 @@ class BaseHandler(abc.ABC):
         self.context = context
         metrics = self.context.metrics
 
-        data = self.preprocess(data)
-        data = self.inference(data)
-        data = self.postprocess(data)
+        data_preprocess = self.preprocess(data)
+
+        if not self._is_explain():
+            output = self.inference(data_preprocess)
+            output = self.postprocess(output)
+        else :
+            output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
-        return data
+        return output
+
+    def explain_handle(self, data_preprocess, raw_data):
+        """Captum explanations handler
+
+        Args:
+            data_preprocess (Torch Tensor): Preprocessed data to be used for captum
+            raw_data (list): The unprocessed data to get target from the request
+
+        Returns:
+            dict : A dictionary response with the explanations response.
+        """
+        output_explain = None
+        inputs = None
+        target = 0
+
+        logger.info("Calculating Explanations")
+        row = raw_data[0]
+        if isinstance(row, dict):
+            logger.info("Getting data and target")
+            inputs = row.get("data") or row.get("body")
+            target = row.get("target")
+            if not target:
+                target = 0
+
+        output_explain = self.get_insights(data_preprocess, inputs, target)
+        return output_explain
+
+    def _is_explain(self):
+        if self.context and self.context.get_request_header(0, "explain"):
+            if self.context.get_request_header(0, "explain") == "True":
+                self.explain = True
+                return True
+        return False

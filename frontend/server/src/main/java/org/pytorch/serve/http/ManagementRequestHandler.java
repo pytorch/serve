@@ -89,6 +89,15 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     throw new MethodNotAllowedException();
                 }
             }
+        } else if (isKFV1ManagementReq(segments)) {
+            String modelVersion = null;
+            String modelName = segments[3].split(":")[0];
+            HttpMethod method = req.method();
+            if (HttpMethod.GET.equals(method)) {
+                handleKF1ModelReady(ctx, modelName, modelVersion);
+            } else {
+                throw new MethodNotAllowedException();
+            }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
@@ -99,6 +108,10 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
                 || (segments.length == 5 && "set-default".equals(segments[4]))
                 || endpointMap.containsKey(segments[1]);
+    }
+
+    private boolean isKFV1ManagementReq(String[] segments) {
+        return segments.length == 4 && "v1".equals(segments[1]) && "models".equals(segments[2]);
     }
 
     private void handleListModels(ChannelHandlerContext ctx, QueryStringDecoder decoder) {
@@ -181,6 +194,27 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
 
+        return resp;
+    }
+
+    private void handleKF1ModelReady(
+            ChannelHandlerContext ctx, String modelName, String modelVersion)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        ModelManager modelManager = ModelManager.getInstance();
+        Model model = modelManager.getModel(modelName, modelVersion);
+        if (model == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        KFV1ModelReadyResponse resp = createKFV1ModelReadyResponse(modelManager, modelName, model);
+        NettyUtils.sendJsonResponse(ctx, resp);
+    }
+
+    private KFV1ModelReadyResponse createKFV1ModelReadyResponse(
+            ModelManager modelManager, String modelName, Model model) {
+        KFV1ModelReadyResponse resp = new KFV1ModelReadyResponse();
+        List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
+        resp.setName(modelName);
+        resp.setReady(!workers.isEmpty());
         return resp;
     }
 
