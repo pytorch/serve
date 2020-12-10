@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Inference API &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe gRPC API &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -213,14 +213,8 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Inference API</a><ul>
-<li><a class="reference internal" href="#api-description">API Description</a></li>
-<li><a class="reference internal" href="#health-check-api">Health check API</a></li>
-<li><a class="reference internal" href="#predictions-api">Predictions API</a><ul>
-<li><a class="reference internal" href="#curl-example">curl Example</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id1">curl Example</a></li>
+<li><a class="reference internal" href="#">TorchServe gRPC API</a><ul>
+<li><a class="reference internal" href="#python-client-example-for-grpc-apis">Python client example for gRPC APIs</a></li>
 </ul>
 </li>
 </ul>
@@ -263,13 +257,13 @@
       </li>
 
         
-      <li>Inference API</li>
+      <li>TorchServe gRPC API</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/inference_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/grpc_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -295,80 +289,76 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="inference-api">
-<h1>Inference API<a class="headerlink" href="#inference-api" title="Permalink to this headline">¶</a></h1>
-<p>Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
-<p>The TorchServe server supports the following APIs:</p>
+  <div class="section" id="torchserve-grpc-api">
+<h1>TorchServe gRPC API<a class="headerlink" href="#torchserve-grpc-api" title="Permalink to this headline">¶</a></h1>
+<p>TorchServe also supports <a class="reference external" href="../frontend/server/src/main/resources/proto">gRPC APIs</a> for both inference and management calls.</p>
+<p>TorchServe provides following gRPCs apis</p>
 <ul class="simple">
-<li><p><a class="reference external" href="#api-description">API Description</a> - Gets a list of available APIs and options</p></li>
-<li><p><a class="reference external" href="#health-check-api">Health check API</a> - Gets the health status of the running server</p></li>
-<li><p><a class="reference external" href="#predictions-api">Predictions API</a> - Gets predictions from the served model</p></li>
+<li><p><a class="reference external" href="../frontend/server/src/main/resources/proto/inference.proto">Inference API</a></p>
+<ul>
+<li><p><strong>Ping</strong> : Gets the health status of the running server</p></li>
+<li><p><strong>Predictions</strong> : Gets predictions from the served model</p></li>
 </ul>
-<div class="section" id="api-description">
-<h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
-<p>To view a full list of inference APIs, you can use following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X OPTIONS http://localhost:8080
-</pre></div>
-</div>
-<p>The out is OpenAPI 3.0.1 json format. You can use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for detail.</p>
+</li>
+<li><p><a class="reference external" href="../frontend/server/src/main/resources/proto/management.proto">Management API</a></p>
+<ul>
+<li><p><strong>RegisterModel</strong> : Serve a model/model-version on TorchServe</p></li>
+<li><p><strong>UnregisterModel</strong> : Free up system resources by unregistering specific version of a model from TorchServe</p></li>
+<li><p><strong>ScaleWorker</strong> : Dynamically adjust the number of workers for any version of a model to better serve different inference request loads.</p></li>
+<li><p><strong>ListModels</strong> : Query default versions of current registered models</p></li>
+<li><p><strong>DescribeModel</strong> : Get detail runtime status of default version of a model</p></li>
+<li><p><strong>SetDefault</strong> : Set any registered version of a model as default version</p></li>
+</ul>
+</li>
+</ul>
+<p>By default, TorchServe listens on port 9090 for the gRPC Inference API and 9091 for the gRPC Management API.
+To configure gRPC APIs on different ports refer <a class="reference internal" href="configuration.html"><span class="doc">configuration documentation</span></a></p>
+<div class="section" id="python-client-example-for-grpc-apis">
+<h2>Python client example for gRPC APIs<a class="headerlink" href="#python-client-example-for-grpc-apis" title="Permalink to this headline">¶</a></h2>
+<p>Run following commands to Register, run inference and unregister, densenet161 model from <a class="reference internal" href="model_zoo.html"><span class="doc">TorchServe model zoo</span></a> using <a class="reference external" href="../scripts/torchserve_grpc_client.py">gRPC python client</a>.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../frontend/server/src/test/resources/inference_open_api.json">Inference API description output</a></p></li>
+<li><p><a class="reference external" href="../README.md#install-torchserve">Install TorchServe</a></p></li>
+<li><p>Clone serve repo to run this example</p></li>
 </ul>
-</div>
-<div class="section" id="health-check-api">
-<h2>Health check API<a class="headerlink" href="#health-check-api" title="Permalink to this headline">¶</a></h2>
-<p>This API follows the <a class="reference external" href="../frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Ping</a> gRPC API. It returns the status of a model in the ModelServer.</p>
-<p>TorchServe supports a <code class="docutils literal notranslate"><span class="pre">ping</span></code> API that you can call to check the health status of a running TorchServe server:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/ping
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone
+<span class="nb">cd</span> serve
 </pre></div>
 </div>
-<p>If the server is running, the response is:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;health&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy!&quot;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="predictions-api">
-<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
-<p>This API follows the <a class="reference external" href="../frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Predictions</a> gRPC API. It returns the status of a model in the ModelServer.</p>
-<p>To get predictions from the default version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}</span></code>:</p>
 <ul class="simple">
-<li><p>POST /predictions/{model_name}</p></li>
+<li><p>Install gRPC python dependencies</p></li>
 </ul>
-<div class="section" id="curl-example">
-<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
-
-curl http://localhost:8080/predictions/resnet-18 -T kitten_small.jpg
-
-or:
-
-curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -U grpcio protobuf grpcio-tools
 </pre></div>
 </div>
-<p>To get predictions from a specific version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}/{version}</span></code>:</p>
 <ul class="simple">
-<li><p>POST /predictions/{model_name}/{version}</p></li>
+<li><p>Start torchServe</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="id1">
-<h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
-
-curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
-
-or:
-
-curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir model_store
+torchserve --start 
 </pre></div>
 </div>
-<p>The result is JSON that tells you that the image is most likely a tabby cat. The highest prediction was:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;n02123045 tabby, tabby cat&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;probability&quot;</span><span class="p">:</span> <span class="mf">0.42514491081237793</span>
-<span class="p">}</span>
+<ul class="simple">
+<li><p>Generate python gRPC client stub using the proto files</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m grpc_tools.protoc --proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/ --python_out<span class="o">=</span>scripts --grpc_python_out<span class="o">=</span>scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Register densenet161 model</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/torchserve_grpc_client.py register densenet161
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Run inference using</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Unregister densenet161 model</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/torchserve_grpc_client.py unregister densenet161
 </pre></div>
 </div>
 </div>
@@ -408,14 +398,8 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Inference API</a><ul>
-<li><a class="reference internal" href="#api-description">API Description</a></li>
-<li><a class="reference internal" href="#health-check-api">Health check API</a></li>
-<li><a class="reference internal" href="#predictions-api">Predictions API</a><ul>
-<li><a class="reference internal" href="#curl-example">curl Example</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id1">curl Example</a></li>
+<li><a class="reference internal" href="#">TorchServe gRPC API</a><ul>
+<li><a class="reference internal" href="#python-client-example-for-grpc-apis">Python client example for gRPC APIs</a></li>
 </ul>
 </li>
 </ul>

@@ -220,6 +220,7 @@
 <li><a class="reference internal" href="#customize-jvm-options">Customize JVM options</a></li>
 <li><a class="reference internal" href="#load-models-at-startup">Load models at startup</a></li>
 <li><a class="reference internal" href="#configure-torchserve-listening-address-and-port">Configure TorchServe listening address and port</a></li>
+<li><a class="reference internal" href="#configure-torchserve-grpc-listening-ports">Configure TorchServe gRPC listening ports</a></li>
 <li><a class="reference internal" href="#enable-ssl">Enable SSL</a><ul>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
@@ -230,6 +231,7 @@
 <li><a class="reference internal" href="#restrict-backend-worker-to-access-environment-variables">Restrict backend worker to access environment variables</a></li>
 <li><a class="reference internal" href="#limit-gpu-usage">Limit GPU usage</a></li>
 <li><a class="reference internal" href="#enable-metrics-api">Enable metrics api</a></li>
+<li><a class="reference internal" href="#id1">Enable metrics api</a></li>
 <li><a class="reference internal" href="#other-properties">Other properties</a></li>
 </ul>
 </li>
@@ -407,6 +409,22 @@ To run predictions on models on a specific IP address, specify the IP address an
 </pre></div>
 </div>
 </div>
+<div class="section" id="configure-torchserve-grpc-listening-ports">
+<h3>Configure TorchServe gRPC listening ports<a class="headerlink" href="#configure-torchserve-grpc-listening-ports" title="Permalink to this headline">¶</a></h3>
+<p>The inference gRPC API is listening on port 9090 and the management gRPC API is listening on port 9091 by default.</p>
+<p>To configure different ports use following poroperties</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_port</span></code>: Inference gRPC API binding port. Default: 9090</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_port</span></code>: management gRPC API binding port. Default: 9091</p></li>
+</ul>
+<p>Here are a couple of examples:</p>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">grpc_inference_port</span><span class="o">=</span><span class="s">8888</span>
+</pre></div>
+</div>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">grpc_management_port</span><span class="o">=</span><span class="s">9999</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="enable-ssl">
 <h3>Enable SSL<a class="headerlink" href="#enable-ssl" title="Permalink to this headline">¶</a></h3>
 <p>To enable HTTPs, you can change <code class="docutils literal notranslate"><span class="pre">inference_address</span></code>, <code class="docutils literal notranslate"><span class="pre">management_address</span></code> or <code class="docutils literal notranslate"><span class="pre">metrics_address</span></code> protocol from http to https. For example: <code class="docutils literal notranslate"><span class="pre">inference_address=https://127.0.0.1</span></code>.
@@ -510,6 +528,14 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus'</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">in</span> <span class="pre">conjunction</span> <span class="pre">with</span> </code>enable_meterics_api` option above.</p></li>
 </ul>
 </div>
+<div class="section" id="id1">
+<h3>Enable metrics api<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>
+This is used in conjunction with <code class="docutils literal notranslate"><span class="pre">enable_meterics_api</span></code> option above.</p></li>
+</ul>
+</div>
 <div class="section" id="other-properties">
 <h3>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
 <p>Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.</p>
@@ -592,6 +618,7 @@ eg : To allow base URLs “https://s3.amazonaws.com/” and “https://torchserv
 <li><a class="reference internal" href="#customize-jvm-options">Customize JVM options</a></li>
 <li><a class="reference internal" href="#load-models-at-startup">Load models at startup</a></li>
 <li><a class="reference internal" href="#configure-torchserve-listening-address-and-port">Configure TorchServe listening address and port</a></li>
+<li><a class="reference internal" href="#configure-torchserve-grpc-listening-ports">Configure TorchServe gRPC listening ports</a></li>
 <li><a class="reference internal" href="#enable-ssl">Enable SSL</a><ul>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
@@ -602,6 +629,7 @@ eg : To allow base URLs “https://s3.amazonaws.com/” and “https://torchserv
 <li><a class="reference internal" href="#restrict-backend-worker-to-access-environment-variables">Restrict backend worker to access environment variables</a></li>
 <li><a class="reference internal" href="#limit-gpu-usage">Limit GPU usage</a></li>
 <li><a class="reference internal" href="#enable-metrics-api">Enable metrics api</a></li>
+<li><a class="reference internal" href="#id1">Enable metrics api</a></li>
 <li><a class="reference internal" href="#other-properties">Other properties</a></li>
 </ul>
 </li>
