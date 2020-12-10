@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.ModelException;
@@ -19,6 +20,9 @@ import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.wlm.Model;
+import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.WorkerThread;
 
 /**
  * A class handling inbound HTTP requests to the management API.
