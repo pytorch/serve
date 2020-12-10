@@ -96,11 +96,14 @@ public class WorkLoadManager {
             if (minWorker == 0) {
                 workerManagerThread = workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
-                for(WorkerThread thread: threads){
-                    workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
+
+                if(workerManagerThread != null){
+                    for(WorkerThread thread: threads){
+                        workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
+                    }
+                    workerManagerThread.shutdown();
+                    workerManagerThread.getLifeCycle().exit();
                 }
-                workerManagerThread.shutdown();
-                workerManagerThread.getLifeCycle().exit();
 
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
