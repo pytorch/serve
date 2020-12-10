@@ -20,7 +20,7 @@ Depending on your use case, you will be able to deploy torchserve in production 
 
 
 ### What's difference between Torchserve and a python web app using web frameworks like Flask, Django?
-Torchserve's main purpose is to serve models via http REST APIs , Torchserve is not a Flask app and it uses netty engine for serving http requests.
+Torchserve's main purpose is to serve models via http REST APIs, Torchserve is not a Flask app and it uses netty engine for serving http requests.
 
 Relevant issues: [[581](https://github.com/pytorch/serve/issues/581),[569](https://github.com/pytorch/serve/issues/569)]
 
@@ -71,7 +71,7 @@ Torchserve has a utility [script]([https://github.com/pytorch/serve/blob/master/
 
 All these docker images can be created using `build_image.sh` with appropriate options.
 
-Run `./build_image.sh --help'` for all availble options.
+Run `./build_image.sh --help` for all availble options.
 
 Refer [Create Torchserve docker image from source](https://github.com/pytorch/serve/tree/master/docker#create-torchserve-docker-image-from-source) for more details.
 

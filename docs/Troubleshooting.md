@@ -9,15 +9,14 @@ Refer to this section for common issues faced while deploying your Pytorch model
 
 ### Deployment and config issues
 #### "Failed to bind to address: http://127.0.0.1:8080", port 8080/8081 already in use.
-Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd `ss -ntl | grep 8080`.  There are two ways to troubleshoot this issue
-either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 & 8081.
+Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd `ss -ntl | grep 8080`. There are two ways to troubleshoot this issue either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 & 8081.
 
-Refer  [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
+Refer [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
 
-Relevant issues:  [[542](https://github.com/pytorch/serve/issues/542)]
+Relevant issues: [[542](https://github.com/pytorch/serve/issues/542)]
 
 #### "java.lang.NoSuchMethodError" when starting Torchserve.[[473](https://github.com/pytorch/serve/issues/473)]
-This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and java versions before it is not supported.
+This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and older java versions are not supported.
 
 Relevant issues: [[#473](https://github.com/pytorch/serve/issues/473)]
 
@@ -31,12 +30,12 @@ max_response_size=<response size in bytes>
 $ torchserve --start --model-store model_store --ts-config /path/to/config.properties
 ```
 You can also use environment variables to set these values.
-Refer  [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
+Refer [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
 Relevant issues: [[#335](https://github.com/pytorch/serve/issues/335)]
 
 ###  Snapshot related issues
 #### How to disable Snapshot feature?
-By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using --ncs flag or  specify config file using --ts-config path/to/config 
+By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using --ncs flag or specify config file using --ts-config path/to/config 
 Relevant issues:[[#383](https://github.com/pytorch/serve/issues/383), [#512](https://github.com/pytorch/serve/issues/512)]
 
 #### Torchserve stopped after restart with "InvalidSnapshotException" exception.
@@ -46,7 +45,7 @@ When "InvalidSnapshotException" is thrown then the model store is in an inconsis
 
 To resolve this the snapshot config files can be removed or torchserve can be started with specific config file using --ts-config path/to/config.
 
-Refer  [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.md) for more details.
+Refer [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.md) for more details.
 
 
 ####  Where are snapshot config files stored?
