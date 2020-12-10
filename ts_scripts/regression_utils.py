@@ -46,7 +46,8 @@ def run_pytest():
     print("## Started regression pytests")
     os.chdir(os.path.join(REPO_ROOT, "test", "pytest"))
     cmd = "python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/" \
-          " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto"
+          " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto" \
+          " ../../frontend/server/src/main/resources/proto/management.proto"
     status = os.system(cmd)
     if status != 0:
         print("Could not generate gRPC client stubs")
