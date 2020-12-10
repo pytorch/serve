@@ -8,6 +8,7 @@ import io
 import base64
 import torch
 from PIL import Image
+from captum.attr import IntegratedGradients
 from .base_handler import BaseHandler
 
 
@@ -15,6 +16,11 @@ class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
+    def initialize(self, context):
+        super().initialize(context)
+        self.ig = IntegratedGradients(self.model)
+        self.initialized = True
+
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
 
@@ -45,3 +51,8 @@ class VisionHandler(BaseHandler, ABC):
             images.append(image)
 
         return torch.stack(images)
+
+    def get_insights(self, tensor_data, _, target=0):
+        print("input shape", tensor_data.shape)
+        return self.ig.attribute(tensor_data, target=target, n_steps=15).tolist()
+        
