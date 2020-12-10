@@ -17,42 +17,45 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 ## Contents of this Document
 
 * [Install TorchServe](#install-torchserve)
-* [Install TorchServe on windows subsystem for linux](docs/torchserve_on_wsl.md)
+* [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
+* [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
 ## Install TorchServe
 
-1. Install Java 11
+1. Install dependencies
 
-    For Ubuntu
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-   
-   For Mac
-    ```bash
-    brew tap AdoptOpenJDK/openjdk
-    brew cask install adoptopenjdk11
-    ```
+Note: For Conda, Python 3.8 is required to run Torchserve.
 
-2. Install python pre-requisite packages
-
- - For CPU or GPU-Cuda 10.2
+#### For Debian Based Systems/ MacOS
+ - For CPU or latest supported CUDA version (10.2) for Torch 1.6
 
     ```bash
-    pip install -U -r requirements.txt
+    python ./ts_scripts/install_dependencies.py
     ```
+
  - For GPU with Cuda 10.1
 
-    ```bash
-    pip install -U -r requirements_gpu.txt -f https://download.pytorch.org/whl/torch_stable.html
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu101
    ```
+
+ - For GPU with Cuda 9.2
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu92
+   ```
+
+#### For Windows
+    Refer the documentation [here](docs/torchserve_on_win_native.md).
+
 
 3. Install torchserve and torch-model-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
+
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
@@ -61,16 +64,14 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     ```
     pip install torchserve torch-model-archiver
     ```
-   
-   **Note:** For Conda, Python 3.8 is required to run Torchserve
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
-If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+If you plan to develop with TorchServe and change some source code, you must install it from source code.
+Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
-Please deactivate any conda env that you might be within.
 Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
@@ -78,8 +79,12 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 #### For Debian Based Systems/ MacOS
 
 ```
-./scripts/install_from_src
+python ./ts_scripts/install_dependencies.py --environment=dev
+python ./ts_scripts/install_from_src.py
 ```
+
+#### For Windows
+    Refer the documentation [here].(docs/torchserve_on_win_native.md)
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
@@ -135,7 +140,29 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 ### Get predictions from a model
 
-To test the model server, send a request to the server's `predictions` API.
+To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](docs/inference_api.md) and [management](docs/management_api.md) api's through both [gRPC](docs/grpc_api.md) and [HTTP/REST](docs/grpc_api.md).
+
+#### Using GRPC APIs through python client
+
+ - Install grpc python dependencies :
+ 
+```bash
+pip install -U grpcio protobuf grpcio-tools
+```
+
+ - Generate inference client using proto files
+
+```bash
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+```
+
+ - Run inference using a sample client [gRPC python client](scripts/torchserve_grpc_client.py)
+
+```bash
+python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+```
+
+#### Using REST APIs
 
 Complete the following steps:
 

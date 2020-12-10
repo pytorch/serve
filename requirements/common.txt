@@ -3,3 +3,6 @@ psutil
 wheel
 requests
 sentencepiece
+pillow
+captum
+packaging

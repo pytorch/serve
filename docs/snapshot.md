@@ -30,9 +30,6 @@ This prevents to server from storing config snapshot files.
 
 The snapshots are by default in `{LOG_LOCATION}\config` directory, where `{LOG_LOCATION}` is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in  `.\log\config` directory 
 
-**Note** : Models passed in --models parameter while starting TorchServe are ignored if restoring from a snapshot.
-
-# Changing snapshot storage
-
-Torchserve snapshots are saved/serialized to local file system (FS). You can change snapshot serializer by using a plugin.
-Refer [DDBEndPoint](../plugins/docs/ddb_endpoint.md) plugin for details.
+**Note** : 
+1. Models passed in --models parameter while starting TorchServe are ignored if restoring from a snapshot.
+2. For windows, if shutdown snapshot file is not generated then you can use last snapshot file.
