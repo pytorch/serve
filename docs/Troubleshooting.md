@@ -39,45 +39,31 @@ By default, the snapshot feature is enabled. To disable snapshot feature start t
 Relevant issues:[[#383](https://github.com/pytorch/serve/issues/383), [#512](https://github.com/pytorch/serve/issues/512)]
 
 #### Torchserve stopped after restart with "InvalidSnapshotException" exception.
-Torchserve when restarted uses the last snapshot config file to restore its state of models and their number of workers.
-
-When "InvalidSnapshotException" is thrown then the model store is in an inconsistent state as compared with the snapshot.
-
-To resolve this the snapshot config files can be removed or torchserve can be started with specific config file using --ts-config path/to/config.
-
+Torchserve when restarted uses the last snapshot config file to restore its state of models and their number of workers. When "InvalidSnapshotException" is thrown then the model store is in an inconsistent state as compared with the snapshot. To resolve this the snapshot config files can be removed or torchserve can be started with specific config file using --ts-config path/to/config.
 Refer [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.md) for more details.
-
 
 ####  Where are snapshot config files stored?
 The snapshots are by default in `{LOG_LOCATION}\config` directory, where `{LOG_LOCATION}` is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in `.\log\config` directory
-
-Refer  [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.md) for more details.
+Refer [snapshot.md](https://github.com/pytorch/serve/blob/master/docs/snapshot.md) for more details.
 
 #### How to change Temp Directory?
 You can export TEMP environment variable to the desired path. This path will be used by TorchServe to extract the model-archives content.
-
 Relevant issues: [[#654](https://github.com/pytorch/serve/issues/654)]
 
 ###  API related issues
 
 #### Register model: Failed with exception "ConflictStatusException" & error code 409.
-This gives a clear message that the model we are trying to register conflicts with an already existing model.
-To resolve this change the model version when creating a mar file or register a model with a different name.
-
+This gives a clear message that the model we are trying to register conflicts with an already existing model. To resolve this change the model version when creating a mar file or register a model with a different name.
 Relevant issues: [[#500](https://github.com/pytorch/serve/issues/500)]
 
 #### Register model: Failed with exception "DownloadModelException" & error code 400.
-Torchserve was unable to download the mar file in this case.
-To resolve this check whether the given URL is accessible publically.
+Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publically.
 
 #### Register model: Failed with exception "ModelNotFoundException" & error code 404.
-In this case, Torchserve was unable to locate a given mar file in the model store directory.
-To resolve this check whether the given mar file exists in the model store.
-Check the mar file name in the POST request to register the model.
+In this case, Torchserve was unable to locate a given mar file in the model store directory. To resolve this check whether the given mar file exists in the model store. Check the mar file name in the POST request to register the model.
 
 #### Inference request: Failed with exception "ServiceUnavailableException" & error code 503.
-In this case, the model is registered but there no workers spawned for the model. Use the scale-up API to increase the number of workers.
-You can verify the number of workers using
+In this case, the model is registered but there no workers spawned for the model. Use the scale-up API to increase the number of workers. You can verify the number of workers using
 `curl -X GET"http://localhost:8081/models/<model_name>"
 `
 ### Model-archiver
@@ -88,25 +74,20 @@ You can add your dependency files using `--extra-files` flag while creating a ma
 Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 
 #### How can I resolve model  specific python dependency?
-You can provide a requirements.txt while creating a mar file using "--requirements-file/ -r" flag.
-
-You can refer to the [waveglow text-to-speech-synthesizer](https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer) example
+You can provide a requirements.txt while creating a mar file using "--requirements-file/ -r" flag. You can refer to the [waveglow text-to-speech-synthesizer](https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer) example
 
 -   [waveglow mar creation script](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh)
 -   [waveglow handler](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py#L57)
 
 Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
-
 Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
 
 #### I have added  requirements.txt in my mar file but the packages listed are not getting installed.
-By default model specific custom python packages feature is disabled, enable this by setting install_py_dep_per_model
-to true.
+By default model specific custom python packages feature is disabled, enable this by setting install_py_dep_per_model to true.
 Refer [Allow model specific custom python packages](https://github.com/pytorch/serve/blob/master/docs/configuration.md#allow-model-specific-custom-python-packages) for more details.
 
 
 #### Backend worker monitoring thread interrupted or backend worker process died error.
-This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function.
-This error is also observed when there is missing package/module.
+This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function. This error is also observed when there is missing package/module.
 
 Relevant issues: [[#667](https://github.com/pytorch/serve/issues/667), [#537](https://github.com/pytorch/serve/issues/537)]

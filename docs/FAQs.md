@@ -27,12 +27,6 @@ Relevant issues: [[581](https://github.com/pytorch/serve/issues/581),[569](https
 ### Are there any sample Models available?
 Various models are provided in Torchserve out of the box. Checkout out Torchserve [Model Zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md) for list of all available models. You can also check out the [examples](https://github.com/pytorch/serve/tree/master/examples) folder.
 
-### Does Torchserve has Windows Support?
-Currently, Torchserve supports Windows only via WSL(Windows Subsystem for Linux). The native Windows support will be added in upcoming releases.
-
-### Can I do streaming service with Torchserve like streaming speech recognition?
-Torchserve currently supports only inference through HTTP 1.0 - Request / Response style.
-
 ### Does Torchserve support other models based on programming languages other than python?
 No, As of now only python based models are supported.
 
@@ -73,7 +67,7 @@ All these docker images can be created using `build_image.sh` with appropriate o
 
 Run `./build_image.sh --help` for all availble options.
 
-Refer [Create Torchserve docker image from source](https://github.com/pytorch/serve/tree/master/docker#create-torchserve-docker-image-from-source) for more details.
+Refer [Create Torchserve docker image from source](../docker/README.md#create-torchserve-docker-image-from-source) for more details.
 
 ### How to build a Torchserve image for a specific branch or commit id?
 To create a Docker image for a specific branch, use the following command:
