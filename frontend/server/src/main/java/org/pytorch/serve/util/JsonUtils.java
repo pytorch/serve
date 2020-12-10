@@ -10,6 +10,14 @@ public final class JsonUtils {
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                     .setPrettyPrinting()
                     .create();
+
+    public static final Gson GSON_PRETTY_EXPOSED =
+            new GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .setPrettyPrinting()
+                    .create();
+
     public static final Gson GSON = new GsonBuilder().create();
 
     private JsonUtils() {}
