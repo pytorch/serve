@@ -186,6 +186,49 @@ The response is as below :
 }
 ```
 
+ * Step - 13 : Hit the Curl Request to make an explanation as below:
+
+
+```bash
+curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" http://<instance>.<region>amazonaws.com/v1/models/mnist:explain -d @./input.json
+```
+
+The JSON Input content is as below :
+
+```bash
+{
+  "instances": [
+    {
+      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC",
+      "target": 0
+    }
+  ]
+}
+```
+
+The response is as below :
+```bash
+{
+  "explanations": [
+    [
+      [
+        [
+          0.004570948731989492,
+          0.006216969640322402,
+          0.008197565423679522,
+          0.009563574612830427,
+          0.008999274832810742,
+          0.009673474804303854,
+          0.007599905146155397,
+          ------,
+	  ------
+
+        ]
+      ]
+    ]
+  ]
+}
+```
 For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md). .
 
 ### Troubleshooting guide for KFServing :
