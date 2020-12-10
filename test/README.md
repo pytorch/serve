@@ -10,7 +10,7 @@ This folder contains nightly regression tests execututed against TorchServe mast
 
 Latest Test Logs : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/latest/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/latest/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/latest/test_exec.log)
 
-Test Logs By Date - Update Date in URL : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log)
+Test Logs By Date - **Update Date in URL PATH of these links** : [CPU](https://torchserve-regression-test.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-05-20/tmp/test_exec.log) / [GPU](https://torchserve-regression-test-gpu.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log) / [Windows](https://torchserve-regression-test-win.s3.amazonaws.com/public/TS-NIGHTLY-REGRESSION-2020-10-06/tmp/test_exec.log)
 
 
 ### Running the test manually.
