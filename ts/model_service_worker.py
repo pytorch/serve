@@ -138,7 +138,7 @@ class TorchModelServiceWorker(object):
         logger1.error("Waiting for connection with socket timeout... " + str(self.sock.gettimeout()))
         while True:
             try:
-                logger1.error("listenning to socket ....." + str(datetime.now()))
+                logger1.error("listening to socket ....." + str(datetime.now()))
                 self.sock.listen(1)
                 (cl_socket, _) = self.sock.accept()
                 # workaround error(35, 'Resource temporarily unavailable') on OSX
