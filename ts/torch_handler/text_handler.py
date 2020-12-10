@@ -9,7 +9,9 @@ import string
 import unicodedata
 from abc import ABC
 import torch
+import torch.nn.functional as F
 from torchtext.data.utils import get_tokenizer
+from captum.attr import LayerIntegratedGradients
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
 
@@ -33,9 +35,14 @@ class TextHandler(BaseHandler, ABC):
         super().__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer("basic_english")
+        self.input_text = None
+        self.lig = None
         self.initialized = None
 
     def initialize(self, context):
+        """
+        Loads the model and Initializes the necessary artifacts
+        """
         super().initialize(context)
         self.initialized = False
         source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
@@ -44,6 +51,8 @@ class TextHandler(BaseHandler, ABC):
             self.source_vocab = torch.load(source_vocab)
         else:
             self.source_vocab = torch.load(self.get_source_vocab_path(context))
+        #Captum initialization
+        self.lig = LayerIntegratedGradients(self.model, self.model.embedding)
         self.initialized = True
 
     def get_source_vocab_path(self, ctx):
@@ -109,3 +118,21 @@ class TextHandler(BaseHandler, ABC):
 
     def _tokenize(self, text):
         return self.tokenizer(text)
+
+    def get_word_token(self, input_tokens):
+        """
+        Constructs word tokens from text
+        """
+        # Remove unicode space character from BPE Tokeniser
+        tokens = [token.replace("Ġ", "") for token in input_tokens]
+        return tokens
+
+    def summarize_attributions(self, attributions):
+        """
+        Summarises the attribution across multiple runs
+        """
+        attributions = F.softmax(attributions)
+        attributions_sum = attributions.sum(dim=-1)
+        logger.info("attributions sum shape %d", attributions_sum.shape)
+        attributions = attributions / torch.norm(attributions_sum)
+        return attributions

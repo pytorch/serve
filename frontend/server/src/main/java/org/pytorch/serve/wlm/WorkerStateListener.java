@@ -1,20 +1,19 @@
 package org.pytorch.serve.wlm;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorkerStateListener {
 
-    private CompletableFuture<HttpResponseStatus> future;
+    private CompletableFuture<Integer> future;
     private AtomicInteger count;
 
-    public WorkerStateListener(CompletableFuture<HttpResponseStatus> future, int count) {
+    public WorkerStateListener(CompletableFuture<Integer> future, int count) {
         this.future = future;
         this.count = new AtomicInteger(count);
     }
 
-    public void notifyChangeState(String modelName, WorkerState state, HttpResponseStatus status) {
+    public void notifyChangeState(String modelName, WorkerState state, Integer status) {
         // Update success and fail counts
         if (state == WorkerState.WORKER_MODEL_LOADED) {
             if (count.decrementAndGet() == 0) {

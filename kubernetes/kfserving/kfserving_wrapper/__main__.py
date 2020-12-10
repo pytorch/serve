@@ -5,7 +5,6 @@ import kfserving
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
 
-
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
 DEFAULT_MODEL_NAME = "model"

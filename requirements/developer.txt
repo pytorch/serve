@@ -1,10 +1,13 @@
 -r common.txt
 mock
 pytest
-pylint
+pylint==2.6.0
 pytest-mock
 pytest-cov
 nvgpu
-transformers==2.10.0
 numpy
+grpcio
+protobuf
+grpcio-tools
+transformers==2.10.0
 pygit2
