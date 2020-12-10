@@ -205,6 +205,7 @@ def get_cmake_version():
 
 
 def get_nvidia_driver_version():
+    smi = get_nvidia_smi()
     if get_platform() == 'darwin':
         cmd = 'kextstat | grep -i cuda'
         return run_and_parse_first_match(cmd, r'com[.]nvidia[.]CUDA [(](.*?)[)]')
@@ -213,6 +214,7 @@ def get_nvidia_driver_version():
 
 
 def get_nvidia_gpu_info():
+    smi = get_nvidia_smi()
     if get_platform() == 'darwin':
         if TORCH_AVAILABLE and torch.cuda.is_available():
             return torch.cuda.get_device_name(None)
@@ -411,8 +413,6 @@ def main(branch_name):
 
 
 if __name__ == '__main__':
-    global smi
-    smi = get_nvidia_smi()
     if len(sys.argv) > 1:
         torchserve_branch = sys.argv[1]
     else:
