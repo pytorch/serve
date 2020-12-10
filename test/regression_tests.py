@@ -1,6 +1,7 @@
 import sys
 import os
 from pygit2 import Repository
+from datetime import datetime
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -11,6 +12,8 @@ from ts_scripts.regression_utils import test_regression
 from ts_scripts.api_utils import test_api
 from ts_scripts import print_env_info  as build_hdr_printer
 from ts_scripts.utils import check_python_version
+
+print("Test execution started at {}".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S")))
 
 check_python_version()
 
