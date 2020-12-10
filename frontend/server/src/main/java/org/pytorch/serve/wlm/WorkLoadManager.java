@@ -94,8 +94,14 @@ public class WorkLoadManager {
             WorkerManagerThread workerManagerThread;
             List<WorkerThread> threads;
             if (minWorker == 0) {
-                workerManagers.remove(model.getModelVersionName());
+                workerManagerThread = workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
+                for(WorkerThread thread: threads){
+                    workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
+                }
+                workerManagerThread.shutdown();
+                workerManagerThread.getLifeCycle().exit();
+
                 if (threads == null) {
                     future.complete(HttpResponseStatus.OK);
                     if (!isStartup && !isCleanUp) {
@@ -127,11 +133,6 @@ public class WorkLoadManager {
                         WorkerThread thread = threads.remove(i);
                         workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
                         thread.shutdown();
-                    }
-                    if(threads.size() == 0){
-                        workerManagerThread.getLifeCycle().exit();
-                        workerManagerThread.shutdown();
-                        workerManagers.remove(workerManagerThread);
                     }
                 }
                 
