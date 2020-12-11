@@ -47,7 +47,7 @@ TS_CONFIG_FILE_HTTPS_KF = os.path.join("resources", "config_kf.properties")
 POSTMAN_INFERENCE_DATA_FILE_KF = os.path.join("postman", "kf_inference_data.json")
 POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE_KF = os.path.join("postman", "increased_timeout_inference.json")
 
-POSTMAN_COLLECTION_INFERENCE_KF = os.path.join("postman", "kf_inference_api_test_collection.json")
+POSTMAN_COLLECTION_INFERENCE_KF = os.path.join("postman", "kf_api_test_collection.json")
 
 POSTMAN_COLLECTION_HTTPS_KF = os.path.join("postman", "kf_https_test_collection.json")
 
@@ -88,7 +88,7 @@ def trigger_inference_tests():
 
 def trigger_explanation_tests():
     """ Return exit code of newman execution of inference collection """
-
+    
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_EXPLANATION} -d {POSTMAN_EXPLANATION_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
@@ -137,6 +137,7 @@ def trigger_management_tests_kf():
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR_KF)
     cleanup_model_store()
+    os.remove("config.properties")
     return EXIT_CODE
 
 def trigger_inference_tests_kf():
@@ -151,6 +152,7 @@ def trigger_inference_tests_kf():
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR_KF)
     cleanup_model_store()
+    os.remove("config.properties")
     return EXIT_CODE
 
 

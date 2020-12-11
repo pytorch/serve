@@ -5,8 +5,8 @@ import test_utils
 import numpy as np
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-snapshot_file_kf = os.path.join(REPO_ROOT,"test/resources/config_kf.properties")
-snapshot_file_tf = os.path.join(REPO_ROOT,"test/resources/config_ts.properties")
+snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
+snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
 
 def getAPIS(snapshot_file):
     MANAGEMENT_API = "http://127.0.0.1:8081"

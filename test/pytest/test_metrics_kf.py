@@ -12,7 +12,7 @@ import test_utils
 
 NUM_STARTUP_CFG = 0
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-snapshot_file = os.path.join(REPO_ROOT,"test/resources/config_kf.properties")
+snapshot_file = os.path.join(REPO_ROOT,"test/config_kf.properties")
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
