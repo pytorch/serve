@@ -3,10 +3,10 @@ import click
 import time
 
 
-def get_boto_client(service_name):
+def get_boto_client(service_name, region_name):
     client = boto3.client(
         service_name,
-        region_name='us-east-1',
+        region_name=region_name,
     )
     return client
 
@@ -20,7 +20,7 @@ def get_boto_resource(service_name):
 
 
 def start_benchmark(model_name, model_mode, batch_size, branch, ami, security_group, subnet_id, bucket_name,
-                    iam_role, instance_type='cpu'):
+                    iam_role, region_name, instance_type='cpu'):
     benchmark_config_path = f"preset_configs/{model_name}/{instance_type}/{model_mode}_batch_{batch_size}.json"
 
     report_key = f"{model_name}/{instance_type}/{model_mode}_batch_{batch_size}/ab_report.csv"
@@ -43,7 +43,7 @@ sudo shutdown -h now
 '''
 
     print("Starting {} EC2 instance".format(instance_type))
-    ec2_client = get_boto_client('ec2')
+    ec2_client = get_boto_client('ec2', region_name)
     instances = ec2_client.run_instances(
         BlockDeviceMappings=[
             {
@@ -126,9 +126,9 @@ def get_instance_meta(ec2_instance_id):
 @click.option('--iam_role', '-iam', required=True, help='IAM role with access to the s3 bucket')
 @click.option('--region_name', '-r', default='us-east-1', help='Region name to spin up the EC2 instance. Default us-east-1')
 def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ami, subnet_id,
-               security_group_id, bucket_name, iam_role):
+               security_group_id, bucket_name, iam_role, region_name):
     ec2_instance_id = start_benchmark(model_name, model_mode, batch_size, branch, ami, security_group_id,
-                                      subnet_id, bucket_name, iam_role, instance_type)
+                                      subnet_id, bucket_name, iam_role, region_name, instance_type)
     #public_ip_address = get_instance_meta(ec2_instance_id)
 
 
