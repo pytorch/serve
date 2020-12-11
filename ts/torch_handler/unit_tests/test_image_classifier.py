@@ -34,3 +34,12 @@ def test_handle(model_setup):
     results = handler.handle(test_data, context)
     assert(len(results) == 2)
     assert('tiger_cat' in results[0])
+
+def test_handle_explain(model_setup):
+    context, image_bytes = model_setup
+    context.explain = True
+    handler = test_initialize(model_setup)
+    test_data = [{'data': image_bytes, 'target': 0}] * 2
+    results = handler.handle(test_data, context)
+    assert(len(results) == 2)
+    assert(results[0])

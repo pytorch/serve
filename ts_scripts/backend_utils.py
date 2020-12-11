@@ -25,7 +25,3 @@ def test_torchserve():
         sys.exit("## TorchServe Linting Failed !")
     if py_test_exit_code != 0:
         sys.exit("## TorchServe Pytests Failed !")
-
-
-if __name__ == "__main__":
-    test_torchserve()

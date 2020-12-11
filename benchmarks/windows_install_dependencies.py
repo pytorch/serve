@@ -1,6 +1,6 @@
 import sys
-sys.path.append("../scripts")
-from scripts.shell_utils import download_save, unzip, rm_file, rm_dir
+sys.path.append("../ts_scripts")
+from ts_scripts.shell_utils import download_save, unzip, rm_file, rm_dir
 import os
 import subprocess
 import locale

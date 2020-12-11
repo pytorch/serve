@@ -1,5 +1,8 @@
 package org.pytorch.serve;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -31,6 +34,8 @@ import org.apache.commons.cli.ParseException;
 import org.pytorch.serve.archive.ModelArchive;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.grpcimpl.GRPCInterceptor;
+import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -53,6 +58,8 @@ public class ModelServer {
     private Logger logger = LoggerFactory.getLogger(ModelServer.class);
 
     private ServerGroups serverGroups;
+    private Server inferencegRPCServer;
+    private Server managementgRPCServer;
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
@@ -104,7 +111,10 @@ public class ModelServer {
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         try {
-            List<ChannelFuture> channelFutures = start();
+            List<ChannelFuture> channelFutures = startRESTserver();
+
+            startGRPCServers();
+
             // Create and schedule metrics manager
             MetricManager.scheduleMetrics(configManager);
             System.out.println("Model server started."); // NOPMD
@@ -305,7 +315,7 @@ public class ModelServer {
      * @throws InterruptedException if interrupted
      * @throws InvalidSnapshotException
      */
-    public List<ChannelFuture> start()
+    public List<ChannelFuture> startRESTserver()
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
         stopped.set(false);
@@ -363,6 +373,30 @@ public class ModelServer {
         return futures;
     }
 
+    public void startGRPCServers() throws IOException {
+        inferencegRPCServer = startGRPCServer(ConnectorType.INFERENCE_CONNECTOR);
+        managementgRPCServer = startGRPCServer(ConnectorType.MANAGEMENT_CONNECTOR);
+    }
+
+    private Server startGRPCServer(ConnectorType connectorType) throws IOException {
+
+        ServerBuilder<?> s =
+                ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                        .addService(
+                                ServerInterceptors.intercept(
+                                        GRPCServiceFactory.getgRPCService(connectorType),
+                                        new GRPCInterceptor()));
+
+        if (configManager.isGRPCSSLEnabled()) {
+            s.useTransportSecurity(
+                    new File(configManager.getCertificateFile()),
+                    new File(configManager.getPrivateKeyFile()));
+        }
+        Server server = s.build();
+        server.start();
+        return server;
+    }
+
     private boolean validEndpoint(Annotation a, EndpointTypes type) {
         return a instanceof Endpoint
                 && !((Endpoint) a).urlPattern().isEmpty()
@@ -386,6 +420,16 @@ public class ModelServer {
 
     public boolean isRunning() {
         return !stopped.get();
+    }
+
+    private void stopgRPCServer(Server server) {
+        if (server != null) {
+            try {
+                server.shutdown().awaitTermination();
+            } catch (InterruptedException e) {
+                e.printStackTrace(); // NOPMD
+            }
+        }
     }
 
     private void exitModelStore() throws ModelNotFoundException {
@@ -420,6 +464,10 @@ public class ModelServer {
         }
 
         stopped.set(true);
+
+        stopgRPCServer(inferencegRPCServer);
+        stopgRPCServer(managementgRPCServer);
+
         for (ChannelFuture future : futures) {
             try {
                 future.channel().close().sync();

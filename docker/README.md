@@ -2,7 +2,6 @@
 
 * [Prerequisites](#prerequisites)
 * [Create TorchServe docker image](#create-torchserve-docker-image)
-* [Create TorchServe docker image from source](#create-torchserve-docker-image-from-source)
 * [Create torch-model-archiver from container](#create-torch-model-archiver-from-container)
 * [Running TorchServe docker image in production](#running-torchserve-in-a-production-docker-environment)
 
@@ -26,23 +25,131 @@ git clone https://github.com/pytorch/serve.git
 
 # Create TorchServe docker image
 
-For creating CPU based image :
+Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
+
+| Parameter | Desciption |
+|------|------|
+|-h, --help|Show script help|
+|-b, --branch_name|Specify a branch name to use. Default: master |
+|-g, --gpu|Build image with GPU based ubuntu base image|
+|-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
+|-t, --tag|Tag name for image. If not specified, script uses torchserv default tag names.|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`. Default `cu102`|
+
+**PRODUCTION ENVIRONMENT IMAGES**
+
+Creates a docker image with publicly available `torchserve` and `torch-model-archiver` binaries installed.
+
+ - For creating CPU based image :
 
 ```bash
-DOCKER_BUILDKIT=1 docker build --file Dockerfile -t torchserve:latest .
+./build_image.sh
 ```
 
-For creating GPU based image with the latest CUDA version PyTorch supports (ex. CUDA 10.2 as of Oct 2020):
+ - For creating GPU based image (Default cuda 10.2):
 
 ```bash
-DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
+./build_image.sh -g
 ```
 
-For creating GPU based image with older CUDA versions (ex. CUDA 10.1), make sure that the `--build-arg CUDA_VERSION=<version>` is specified. The version is in the format "cuda92", "cuda101":
+ - For creating GPU based image with cuda version 10.1:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 --build-arg CUDA_VERSION=cu101 -t torchserve:latest .
+./build_image.sh -g -cv cu101
 ```
+
+ - For creating GPU based image with cuda version 9.2:
+
+```bash
+./build_image.sh -g -cv cu92
+```
+
+ - For creating image with a custom tag:
+
+```bash
+./build_image.sh -t torchserve:1.0
+```
+
+**DEVELOPER ENVIRONMENT IMAGES**
+
+Creates a docker image with `torchserve` and `torch-model-archiver` installed from source.
+
+- For creating CPU based image :
+
+```bash
+./build_image.sh -bt dev
+```
+
+- For creating CPU based image with a different branch:
+
+```bash
+./build_image.sh -bt dev -b my_branch
+```
+
+- For creating GPU based image (Default cuda 10.2):
+
+```bash
+./build_image.sh -bt dev -g
+```
+
+- For creating GPU based image with a different branch:
+
+```bash
+./build_image.sh -bt dev -g -b my_branch
+```
+
+ - For creating GPU based image with cuda version 10.1:
+
+```bash
+./build_image.sh -bt dev -g -cv cu101
+```
+
+ - For creating GPU based image with cuda version 9.2:
+
+```bash
+./build_image.sh -bt dev -g -cv cu92
+```
+
+ - For creating image with a custom tag:
+
+```bash
+./build_image.sh -bt dev -t torchserve-dev:1.0
+```
+
+**CODEBUILD ENVIRONMENT IMAGES**
+
+Creates a docker image for codebuild environment
+
+- For creating CPU based image :
+
+```bash
+./build_image.sh -bt codebuild
+```
+
+- For creating GPU based image (Default cuda 10.2):
+
+```bash
+./build_image.sh -bt codebuild -g
+```
+
+ - For creating GPU based image with cuda version 10.1:
+
+```bash
+./build_image.sh -bt codebuild -g -cv cu101
+```
+
+ - For creating GPU based image with cuda version 9.2:
+
+```bash
+./build_image.sh -bt codebuild -g -cv cu92
+```
+
+ - For creating image with a custom tag:
+
+```bash
+./build_image.sh -bt codebuild -t torchserve-codebuild:1.0
+```
+
 
 ## Start a container with a TorchServe image
 
@@ -89,80 +196,6 @@ The TorchServe's inference and management APIs can be accessed on localhost over
 ```bash
 curl http://localhost:8080/ping
 ```
-
-# Create TorchServe docker image from source
-
-The following are examples on how to use the `build_image.sh` script to build Docker images from source to support CPU or GPU inference.
-
-To build the TorchServe image for a CPU device using the `master` branch, use the following command:
-
-```bash
-./build_image.sh
-```
-
-Alternatively, you can use following direct command, (assuming you have followed steps in [Clone serve source](#first-things-first))-
-
-For cpu -
-
-```
-DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t torchserve:dev .
-```
-
-For gpu -
-
-```
-DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t torchserve:dev --build-arg MACHINE_TYPE=gpu --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 .
-```
-
-To create a Docker image for a specific branch, use the following command:
-
-```bash
-./build_image.sh -b <branch_name>
-```
-
-To create a Docker image for a specific branch and specific tag, use the following command:
-
-```bash
-./build_image.sh -b <branch_name> -t <tagname:latest>
-```
-
-To create a Docker image for a GPU device, use the following command:
-
-```bash
-./build_image.sh --gpu
-```
-
-To create a Docker image for a GPU device with a specific branch, use following command:
-
-```bash
-./build_image.sh -b <branch_name> --gpu
-```
-
-To create a Docker image for a GPU device with Cuda 10.1, use following command:
-
-```bash
-./build_image.sh --gpu --cudaversion cuda101
-```
-
-To run your TorchServe Docker image and start TorchServe inside the container with a pre-registered `resnet-18` image classification model, use the following command:
-
-```bash
-./start.sh
-```
-
-For GPU run the following command:
-
-```bash
-./start.sh --gpu
-```
-
-For GPU with specific GPU device ids run the following command:
-
-```bash
-./start.sh --gpu_devices 1,2,3
-```
-
-Alternatively, you can use direct commands describe in [Start a container with a TorchServe image](#start-a-container-with-a-torchserve-image) above for cpu and gpu by changing image name
 
 # Create torch-model-archiver from container
 

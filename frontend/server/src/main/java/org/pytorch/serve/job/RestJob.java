@@ -1,4 +1,4 @@
-package org.pytorch.serve.wlm;
+package org.pytorch.serve.job;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -20,7 +20,7 @@ import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Job {
+public class RestJob extends Job {
 
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
     private static final org.apache.log4j.Logger loggerTsMetrics =
@@ -28,63 +28,24 @@ public class Job {
 
     private ChannelHandlerContext ctx;
 
-    private String modelName;
-    private String modelVersion;
-    private WorkerCommands cmd; // Else its data msg or inf requests
-    private RequestInput input;
-    private long begin;
-    private long scheduled;
-
-    public Job(
+    public RestJob(
             ChannelHandlerContext ctx,
             String modelName,
             String version,
             WorkerCommands cmd,
             RequestInput input) {
+        super(modelName, version, cmd, input);
         this.ctx = ctx;
-        this.modelName = modelName;
-        this.cmd = cmd;
-        this.input = input;
-        this.modelVersion = version;
-        begin = System.nanoTime();
-        scheduled = begin;
     }
 
-    public String getJobId() {
-        return input.getRequestId();
-    }
-
-    public String getModelName() {
-        return modelName;
-    }
-
-    public String getModelVersion() {
-        return modelVersion;
-    }
-
-    public WorkerCommands getCmd() {
-        return cmd;
-    }
-
-    public boolean isControlCmd() {
-        return !WorkerCommands.PREDICT.equals(cmd);
-    }
-
-    public RequestInput getPayload() {
-        return input;
-    }
-
-    public void setScheduled() {
-        scheduled = System.nanoTime();
-    }
-
+    @Override
     public void response(
             byte[] body,
             CharSequence contentType,
             int statusCode,
             String statusPhrase,
             Map<String, String> responseHeaders) {
-        long backendResponseTime = System.nanoTime() - scheduled;
+        long backendResponseTime = System.nanoTime() - getBegin();
         HttpResponseStatus status =
                 (statusPhrase == null)
                         ? HttpResponseStatus.valueOf(statusCode)
@@ -108,17 +69,18 @@ public class Job {
          * by external clients.
          */
         if (ctx != null) {
-            logMetric(InbuiltMetricsRegistry.QUEUETIME, scheduled - begin);
+            logMetric(InbuiltMetricsRegistry.QUEUETIME, getScheduled() - getBegin());
             logMetric(InbuiltMetricsRegistry.BACKENDRESPONSETIME, backendResponseTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
         }
         logger.debug(
                 "Waiting time ns: {}, Backend time ns: {}",
-                scheduled - begin,
-                System.nanoTime() - scheduled);
+                getScheduled() - getBegin(),
+                System.nanoTime() - getScheduled());
     }
 
-    public void sendError(HttpResponseStatus status, String error) {
+    @Override
+    public void sendError(int status, String error) {
         /*
          * We can load the models based on the configuration file.Since this Job is
          * not driven by the external connections, we could have a empty context for
@@ -126,13 +88,16 @@ public class Job {
          * by external clients.
          */
         if (ctx != null) {
-            NettyUtils.sendError(ctx, status, new InternalServerException(error));
+            // Mapping HTTPURLConnection's HTTP_ENTITY_TOO_LARGE to Netty's INSUFFICIENT_STORAGE
+            status = (status == 413) ? 507 : status;
+            NettyUtils.sendError(
+                    ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
         }
 
         logger.debug(
                 "Waiting time ns: {}, Inference time ns: {}",
-                scheduled - begin,
-                System.nanoTime() - begin);
+                getScheduled() - getBegin(),
+                System.nanoTime() - getBegin());
     }
 
     private void logMetric(String metricName, long metricValue) {
@@ -141,8 +106,8 @@ public class Job {
 
         Dimension[] dimensions = {
             new Dimension(DimensionRegistry.LEVEL, DimensionRegistry.LevelRegistry.MODEL),
-            new Dimension(DimensionRegistry.MODELNAME, modelName),
-            new Dimension(DimensionRegistry.MODELVERSION, modelVersion)
+            new Dimension(DimensionRegistry.MODELNAME, getModelName()),
+            new Dimension(DimensionRegistry.MODELVERSION, getModelVersion())
         };
 
         loggerTsMetrics.info(
