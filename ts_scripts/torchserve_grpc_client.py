@@ -35,7 +35,7 @@ def infer(stub, model_name, model_input):
 def register(stub, model_name):
     params = {
         'url': "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name),
-        'initial_workers': 4,
+        'initial_workers': 1,
         'synchronous': True,
         'model_name': model_name
     }
