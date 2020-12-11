@@ -45,6 +45,8 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
  
    NOTE ensure that you have restarted system after install above Visual C++ components
+ - Ensure that 'nvidia-smi.exe' is available in `Path` environment variable. Usually, it should be available under `<your_install_drive>\Program Files\NVIDIA Corporation\NVSMI`
+   e.g. C:\Program Files\NVIDIA Corporation\NVSMI, add this path to `Path` env variable
  - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
  - `git clone https://github.com/pytorch/serve.git`
  - `pip install click`

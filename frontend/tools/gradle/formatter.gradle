@@ -45,7 +45,7 @@ class FormatterPlugin implements Plugin<Project> {
                 Project rootProject = project.getRootProject()
                 for (item in project.sourceSets) {
                     for (File file : item.getAllSource()) {
-                        if (!file.getName().endsWith(".java") || file.getAbsolutePath().contains("/grpc/")) {
+                        if (!file.getName().endsWith(".java") || file.getAbsolutePath().contains("/grpc/") || file.getAbsolutePath().contains("\\grpc\\")) {
                             continue
                         }
 
