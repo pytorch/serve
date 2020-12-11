@@ -16,14 +16,14 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Contents of this Document
 
-* [Install TorchServe](#install-torchserve)
+* [Install TorchServe](#install-torchserve-and-torch-model-archiver)
 * [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
 * [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
-## Install TorchServe
+## Install TorchServe and torch-model-archiver
 
 1. Install dependencies
 
@@ -97,7 +97,7 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 ## Serve a model
 
-This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-torchserve-and-torch-model-archiver).
 
 To run this example, clone the TorchServe repository:
 
@@ -163,7 +163,7 @@ pip install -U grpcio protobuf grpcio-tools
 python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
- - Run inference using a sample client [gRPC python client](scripts/torchserve_grpc_client.py)
+ - Run inference using a sample client [gRPC python client](ts_scripts/torchserve_grpc_client.py)
 
 ```bash
 python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
