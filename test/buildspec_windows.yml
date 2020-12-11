@@ -5,8 +5,13 @@ version: 0.2
 phases:
   install:
     commands:
-      - python ts_scripts/install_dependencies.py --cuda=cu101
+      - python ts_scripts\install_dependencies.py --cuda=cu101 --environment=dev
 
   build:
     commands:
-      - python test/regression_tests.py
+      - powershell "python test\regression_tests.py | tee test_exec.log"
+
+artifacts:
+  files:
+    - test_exec.log
+  name: TS-NIGHTLY-REGRESSION-$(Get-Date -Format "yyyy-MM-dd")

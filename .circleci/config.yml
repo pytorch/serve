@@ -34,7 +34,7 @@ commands:
     steps:
       - run:
           name: Install build and test dependencies for torchserve
-          command: "python ts_scripts/install_dependencies.py"
+          command: "python ts_scripts/install_dependencies.py --environment dev"
 
   attach-torchserve-workspace:
     description: "Attach the torchserve directory which was saved into workspace"
