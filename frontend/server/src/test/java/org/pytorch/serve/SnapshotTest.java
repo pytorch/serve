@@ -63,7 +63,7 @@ public class SnapshotTest {
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
         configManager.setIniitialWorkerPort(9500);
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
     }
 
     @AfterClass
@@ -264,7 +264,7 @@ public class SnapshotTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
             channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
@@ -289,7 +289,7 @@ public class SnapshotTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
             channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
