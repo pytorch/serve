@@ -115,7 +115,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve-kfserving.s3-us-west-2.amazonaws.com/ts_kf_models/mnist.mar&model_name=mnist&initial_workers=1&synchronous=true",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar&model_name=mnist&initial_workers=1&synchronous=true",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -127,7 +127,7 @@
 					"query": [
 						{
 							"key": "url",
-							"value": "https://torchserve-kfserving.s3-us-west-2.amazonaws.com/ts_kf_models/mnist.mar"
+							"value": "https://torchserve.pytorch.org/mar_files/mnist.mar"
 						},
 						{
 							"key": "model_name",

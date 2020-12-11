@@ -1,6 +1,6 @@
 [
 {
-    "url":"https://torchserve-kfserving.s3-us-west-2.amazonaws.com/ts_kf_models/mnist.mar ",
+    "url":"https://torchserve.pytorch.org/mar_files/mnist.mar",
     "model_name":"mnist",
     "worker":1,
     "synchronous":"true",

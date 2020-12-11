@@ -16,7 +16,7 @@ snapshot_file = os.path.join(REPO_ROOT,"test/config_kf.properties")
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    response = requests.get("https://torchserve-kfserving.s3-us-west-2.amazonaws.com/ts_kf_models/mnist.mar", allow_redirects=True)
+    response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
     open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
 
 
