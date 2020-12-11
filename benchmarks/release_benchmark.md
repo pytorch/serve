@@ -84,6 +84,7 @@ Refer the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/c
 |ami||AWS ami id to use while creating EC2 instance|ami-079d181e97ab77906|
 |bucket_name||s3 bucket name for uploading the results||
 |iam_role||IAM role with access to the s3 bucket||
+|region_name||Region name to spin up the EC2 instance.|us-east-1|
 
 ### Benchmark reports
 The CSV report are generated at provided s3 location.

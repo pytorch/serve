@@ -124,6 +124,7 @@ def get_instance_meta(ec2_instance_id):
 @click.option('--security_group_id', '-sg', required=True, help='Security Group ID to use for EC2 instance')
 @click.option('--bucket_name', '-bn', required=True, help='s3 bucket name for uploading the results')
 @click.option('--iam_role', '-iam', required=True, help='IAM role with access to the s3 bucket')
+@click.option('--region_name', '-r', default='us-east-1', help='Region name to spin up the EC2 instance. Default us-east-1')
 def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ami, subnet_id,
                security_group_id, bucket_name, iam_role):
     ec2_instance_id = start_benchmark(model_name, model_mode, batch_size, branch, ami, security_group_id,
