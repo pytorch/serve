@@ -15,6 +15,8 @@ For BERT and Text Classifier models, to generate a .mar file refer to the ".mar 
 DOCKER_BUILDKIT=1 docker build --no-cache --file Dockerfile_kf.dev -t <docker image name> .
 ```
 
+***Note:** To avoid out-of-memory errors building the Docker image and running inference, it is recommended to allocate at least 4GB of memory to your Docker container. Your memory needs may vary depending on the size of your model(s) and data.*
+
 The KFServing wrapper will be started along with Torchserve inside the image. Refer [KFServing Wrapper](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/kfserving_wrapper/README.md) to understand how it works.
 
 * Step - 3 : Push the docker image to the docker registry that you can access from. 
