@@ -67,7 +67,7 @@
     "type": "scale",
     "test": "Scale Invalid Mnist Handler Model with Min Workers - Synchronous",
     "METHOD": "PUT",
-    "path": "models/mnist?min_worker=4&synchronous=true",
+    "path": "models/mnist?min_worker=1&synchronous=true",
     "status_code": 500,
     "grpc_status_code": 13
   },
@@ -125,28 +125,28 @@
     "type": "scale",
     "test": "Scale Min Workers - Asynchronous",
     "METHOD": "PUT",
-    "path": "models/squeezenet1_1?min_worker=3",
+    "path": "models/squeezenet1_1?min_worker=1",
     "status_code": 202
   },
   {
     "type": "scale",
     "test": "Scale Min Workers - Synchronous",
     "METHOD": "PUT",
-    "path": "models/squeezenet1_1?min_worker=4&synchronous=true",
+    "path": "models/squeezenet1_1?min_worker=1&synchronous=true",
     "status_code": 200
   },
   {
     "type": "scale",
     "test": "Scale Min Workers for a Version",
     "METHOD": "PUT",
-    "path": "models/squeezenet1_1/1.0?min_worker=5&synchronous=true",
+    "path": "models/squeezenet1_1/1.0?min_worker=1&synchronous=true",
     "status_code": 200
   },
   {
     "type": "scale",
     "test": "Scale Min Workers for a Valid model but Invalid Version",
     "METHOD": "PUT",
-    "path": "models/squeezenet1_1/0.0?min_worker=5&synchronous=true",
+    "path": "models/squeezenet1_1/0.0?min_worker=1&synchronous=true",
     "status_code": 404,
     "grpc_status_code": 5
   },
@@ -154,7 +154,7 @@
     "type": "scale",
     "test": "Scale Min Workers with GPU",
     "METHOD": "PUT",
-    "path": "models/squeezenet1_1?min_worker=6&number_gpu=1",
+    "path": "models/squeezenet1_1?min_worker=1&number_gpu=1",
     "status_code": 202
   },
   {
@@ -339,13 +339,13 @@
     "type": "scale",
     "test": "Scale up Workers -  Synchronous",
     "METHOD": "PUT",
-    "path": "models/resnet-18?min_worker=5&max_worker=5&synchronous=true"
+    "path": "models/resnet-18?min_worker=1&max_worker=1&synchronous=true"
   },
   {
     "type": "scale",
     "test": "Scale up Workers - Asynchronous",
     "METHOD": "PUT",
-    "path": "models/resnet-18?min_worker=6&max_worker=6&synchronous=false",
+    "path": "models/resnet-18?min_worker=1&max_worker=1&synchronous=false",
     "status_code": 202
   },
   {
@@ -404,7 +404,7 @@
     "type": "scale",
     "test": "Scale Workers - Valid \"min_worker\" value, Invalid \"synchronous\"",
     "METHOD": "PUT",
-    "path": "models/resnet-18?min_worker=2&synchronous=Nan",
+    "path": "models/resnet-18?min_worker=1&synchronous=Nan",
     "status_code": 202
   },
   {
@@ -425,7 +425,7 @@
     "type": "scale",
     "test": "Update Worker for an invalid/non-existent model",
     "METHOD": "PUT",
-    "path": "models/resnet181?min_worker=3",
+    "path": "models/resnet181?min_worker=1",
     "status_code": 404,
     "grpc_status_code": 5
   },
@@ -433,7 +433,7 @@
     "type": "scale",
     "test": "Update Worker with Invalid Worker Count",
     "METHOD": "PUT",
-    "path": "models/resnet-18?min_worker=10&max_worker=9",
+    "path": "models/resnet-18?min_worker=2&max_worker=1",
     "status_code": 400,
     "grpc_status_code": 3
   },
@@ -441,7 +441,7 @@
     "type": "scale",
     "test": "Update Worker with Positive Worker Count",
     "METHOD": "PUT",
-    "path": "models/resnet-18?min_worker=4",
+    "path": "models/resnet-18?min_worker=1",
     "status_code": 202
   },
   {
