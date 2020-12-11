@@ -56,7 +56,6 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-
         if (checkAllowedUrl(allowedUrls, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);

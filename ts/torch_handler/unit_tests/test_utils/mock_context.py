@@ -15,7 +15,7 @@ class MockContext():
                  model_dir='ts/torch_handler/unit_tests/models/tmp',
                  model_file='model.py',
                  gpu_id='0',
-                 model_name = "mnist"):
+                 model_name="mnist"):
         self.manifest = {
             'model': {
                 'serializedFile': model_pt_file,
@@ -32,4 +32,11 @@ class MockContext():
         if torch.cuda.is_available() and gpu_id:
             self.system_properties['gpu_id'] = gpu_id
 
+        self.explain = False
         self.metrics = MetricsStore(uuid.uuid4(), model_name)
+
+    def get_request_header(self, idx, exp):
+        if idx and exp:
+            if self.explain:
+                return True
+        return False

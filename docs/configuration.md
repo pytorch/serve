@@ -97,6 +97,24 @@ inference_address=https://0.0.0.0:8443
 inference_address=https://172.16.1.10:8080
 ```
 
+### Configure TorchServe gRPC listening ports 
+The inference gRPC API is listening on port 9090 and the management gRPC API is listening on port 9091 by default.
+
+To configure different ports use following poroperties
+
+* `grpc_inference_port`: Inference gRPC API binding port. Default: 9090
+* `grpc_management_port`: management gRPC API binding port. Default: 9091
+
+Here are a couple of examples:
+
+```properties
+grpc_inference_port=8888
+```
+
+```properties
+grpc_management_port=9999
+```
+
 ### Enable SSL
 
 To enable HTTPs, you can change `inference_address`, `management_address` or `metrics_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
@@ -200,6 +218,12 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
 * `metrics_format` : Use this to specify metric report format. At present, the only supported and default value for this is `prometheus`. This is used in conjunction with `enable_meterics_api` option above.
 
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
+		     This is used in conjunction with `enable_meterics_api` option above.
+
+
 ### Other properties
 
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
@@ -215,12 +239,13 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `initial_worker_port` : This is the initial port number for auto assigning port to worker process.
 * `model_store` : Path of model store directory.
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
-eg : To allow base URLs "https://s3.amazonaws.com/" and "https://torchserve.pytorch.org/" use following regex string
+eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use following regex string
 ```
 allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*
 ```

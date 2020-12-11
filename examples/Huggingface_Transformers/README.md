@@ -134,6 +134,22 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
 
+
+
+For captum Explanations on the Torchserve side, use the below curl request:
+```bash
+curl -X POST http://127.0.0.1:8080/explanations/my_tc -T ./Seq_classification_artifacts/sample_text.txt
+```
+
+In order to run Captum Explanations with the request input in a json file, follow the below steps:
+
+In the config.properties, specify `service_envelope=body` and make the curl request as below:
+```bash
+curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_ts.json http://127.0.0.1:8080/explanations/bert_explain
+```
+
+When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
+
 ### Registering the Model on TorchServe and Running batch Inference
 
 The following uses .mar file created from  model packaging using pretrained for save_mode to register the model for batch inference on sequence classification, by setting the batch_size when registering the model.
@@ -149,3 +165,37 @@ curl -X POST "localhost:8081/models?model_name=BERT_seq_Classification&url=BERTS
 Now to run the batch inference follwoing command can be used:
 
 `curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt&`
+
+--- 
+**NOTE** Batches is not currently implemented for explanations 
+---
+
+### Captum Explanations
+
+The explain is called with the following request api http://127.0.0.1:8080/explanations/bert_explain
+#### The handler changes:
+
+1. The handlers should initialize.
+```python
+self.lig = LayerIntegratedGradients(captum_sequence_forward, self.model.bert.embeddings) 
+```
+in the initialize function for the captum to work.
+
+2. The Base handler handle uses the explain_handle method to perform captum insights based on whether user wants predictions or explanations. These methods can be overriden to make your changes in the handler.
+
+3. The get_insights method in the handler is called by the explain_handle method to calculate insights using captum.
+
+4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
+
+Functions for captum like construct_input_ref, captum_sequence_forward, summarize_attributions, get_word_token should be implemented.
+
+### Implementation Approach for captum batches
+Batches is not currently implemented for explanations 
+The batch inputs, target and preprocessed inputs can be stored in a list in the explain handle function and directly passed to the get_insights function of the handler.
+
+As captum makes many predictions for each sample, there may be a timeout for the response when batching is implemented. 
+
+### Captum Explanations for Visual Insights
+
+The [Captum Explanations for Visual Insights Notebook](../../captum/Captum_visualization_for_bert.ipynb) gives an insight into how the captum explanations can be used to visually represent the attributions and word importances. The pre-requisite is to have the prediction response ready. In this example, the prediction response from the BERT Seq Classification is used. 
+
