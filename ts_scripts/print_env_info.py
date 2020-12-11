@@ -58,7 +58,7 @@ def get_nvidia_smi():
     # Note: nvidia-smi is currently available only on Windows and Linux
     smi = 'nvidia-smi'
     if get_platform() == 'win32':
-	smi = 'nvidia-smi.exe'
+        smi = 'nvidia-smi.exe'
     return smi
 
 def run(command):
