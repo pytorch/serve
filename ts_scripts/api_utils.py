@@ -26,6 +26,7 @@ TS_CONFIG_FILE_HTTPS = os.path.join("resources", "config.properties")
 POSTMAN_ENV_FILE = os.path.join("postman", "environment.json")
 POSTMAN_INFERENCE_DATA_FILE = os.path.join("postman", "inference_data.json")
 POSTMAN_EXPLANATION_DATA_FILE = os.path.join("postman", "explanation_data.json")
+POSTMAN_MANAGEMENT_DATA_FILE = os.path.join("postman", "management_data.json")
 POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE = os.path.join("postman", "increased_timeout_inference.json")
 
 #only one management collection for both kfserving and torchserve
@@ -69,7 +70,7 @@ def move_logs(log_file, artifact_dir):
 def trigger_management_tests():
     """ Return exit code of newman execution of management collection """
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE} --verbose")
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR)
     cleanup_model_store()
@@ -133,7 +134,7 @@ def trigger_management_tests_kf():
     config_file.close()
 
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, config_file="config.properties", log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR_KF}/{REPORT_FILE} --verbose")
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR_KF}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR_KF)
     cleanup_model_store()

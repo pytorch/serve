@@ -200,7 +200,7 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=5&max_worker=5&synchronous=true",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=1&max_worker=1&synchronous=true",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -213,11 +213,11 @@
 					"query": [
 						{
 							"key": "min_worker",
-							"value": "5"
+							"value": "1"
 						},
 						{
 							"key": "max_worker",
-							"value": "5"
+							"value": "1"
 						},
 						{
 							"key": "synchronous",
@@ -248,7 +248,7 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=6&max_worker=6&synchronous=false",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=1&max_worker=1&synchronous=false",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -261,11 +261,11 @@
 					"query": [
 						{
 							"key": "min_worker",
-							"value": "6"
+							"value": "1"
 						},
 						{
 							"key": "max_worker",
-							"value": "6"
+							"value": "1"
 						},
 						{
 							"key": "synchronous",

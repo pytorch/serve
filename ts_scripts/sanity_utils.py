@@ -8,6 +8,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts import tsutils as ts
+from ts_scripts.tsutils import generate_grpc_client_stubs
 from ts_scripts import utils
 
 
@@ -38,6 +39,11 @@ def validate_model_on_gpu():
 
 
 def test_sanity():
+    generate_grpc_client_stubs()
+
+    import pathlib
+    pathlib.Path(__file__).parent.absolute()
+
     print("## Started sanity tests")
 
     resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
@@ -84,6 +90,35 @@ def test_sanity():
         model_inputs = model["inputs"]
         model_handler = model["handler"]
 
+        # Run gRPC sanity
+        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name}"
+        status = os.system(register_model_grpc_cmd)
+
+        if status != 0:
+            print("## Failed to register model with torchserve")
+            sys.exit(1)
+        else:
+            print(f"## Successfully registered {model_name} model with torchserve")
+
+        for input in model_inputs:
+            infer_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py infer {model_name} {input}"
+            status = os.system(infer_model_grpc_cmd)
+            if status != 0:
+                print(f"## Failed to run inference on {model_name} model")
+                sys.exit(1)
+            else:
+                print(f"## Successfully ran inference on {model_name} model.")
+
+        unregister_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
+        status = os.system(unregister_model_grpc_cmd)
+
+        if status != 0:
+            print(f"## Failed to unregister {model_name}")
+            sys.exit(1)
+        else:
+            print(f"## Successfully unregistered {model_name}")
+
+        # Run REST sanity
         response = ts.register_model(model_name)
         if response and response.status_code == 200:
             print(f"## Successfully registered {model_name} model with torchserve")
@@ -139,6 +174,6 @@ def test_sanity():
     if not stopped:
         sys.exit(1)
 
-    #links_ok = run_markdown_link_checker()
-    #if not links_ok:
-    #    sys.exit("## Markdown Link Checker Failed !")
+    links_ok = run_markdown_link_checker()
+    if not links_ok:
+       sys.exit("## Markdown Link Checker Failed !")
