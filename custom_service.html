@@ -324,7 +324,7 @@ the model when you use the model archiver. TorchServe executes this code when it
 <p>Following is applicable to all types of custom handlers</p>
 <ul class="simple">
 <li><p><strong>data</strong> - The input data from the incoming request</p></li>
-<li><p><strong>context</strong> - Is the TorchServe <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a>. You can use following information for customizaton
+<li><p><strong>context</strong> - Is the TorchServe <a class="reference external" href="../ts/context.py">context</a>. You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.</p></li>
 </ul>
 <div class="section" id="start-with-basehandler">
@@ -594,12 +594,12 @@ The user should define their get_insights method for custom handler to get Captu
 <h3>Extend default handlers<a class="headerlink" href="#extend-default-handlers" title="Permalink to this headline">¶</a></h3>
 <p>TorchServe has following default handlers.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../ts/torch_handlers/image_classifier.py">image_classifier</a></p></li>
-<li><p><a class="reference external" href="../ts/torch_handlers/image_segmenter.py">image_segmenter</a></p></li>
-<li><p><a class="reference external" href="../ts/torch_handlers/object_detector.py">object_detector</a></p></li>
-<li><p><a class="reference external" href="../ts/torch_handlers/text_classifier.py">text_classifier</a></p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/image_classifier.py">image_classifier</a></p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/image_segmenter.py">image_segmenter</a></p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/object_detector.py">object_detector</a></p></li>
+<li><p><a class="reference external" href="../ts/torch_handler/text_classifier.py">text_classifier</a></p></li>
 </ul>
-<p>If required above handlers can be extended to create custom handler. Also, you can extend abstract <a class="reference external" href="../ts/torch_handlers/base_handler.py">base_handler</a>.</p>
+<p>If required above handlers can be extended to create custom handler. Also, you can extend abstract <a class="reference external" href="../ts/torch_handler/base_handler.py">base_handler</a>.</p>
 <p>To import the default handler in a python script use the following import statement.</p>
 <p><code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">ts.torch_handler.&lt;default_handler_name&gt;</span> <span class="pre">import</span> <span class="pre">&lt;DefaultHandlerClass&gt;</span></code></p>
 <p>Following is an example of custom handler extending default image_classifier handler.</p>
@@ -620,7 +620,8 @@ The user should define their get_insights method for custom handler to get Captu
 <p>For more details refer following examples :</p>
 <ul class="simple">
 <li><p><a class="reference external" href="../examples/image_classifier/mnist/mnist_handler.py">mnist digit classifier handler</a></p></li>
-<li><p><a class="reference external" href="../examples/image_classifier/resnet_152_batch/resnet152_handler.py">resnet-152-batch_image classifier handler</a></p></li>
+<li><p><a class="reference external" href="../examples/Huggingface_Transformers/Transformer_handler_generalized.py">Huggingface transformer generalized handler</a></p></li>
+<li><p><a class="reference external" href="../examples/text_to_speech_synthesizer/waveglow_handler.py">Waveglow text to speech synthesizer</a></p></li>
 </ul>
 </div>
 </div>
@@ -629,7 +630,7 @@ The user should define their get_insights method for custom handler to get Captu
 <h1>Creating a model archive with an entry point<a class="headerlink" href="#creating-a-model-archive-with-an-entry-point" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe identifies the entry point to the custom service from a manifest file.
 When you create the model archive, specify the location of the entry point by using the <code class="docutils literal notranslate"><span class="pre">--handler</span></code> option.</p>
-<p>The <a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README">model-archiver</a> tool enables you to create a model archive that TorchServe can serve.</p>
+<p>The <a class="reference external" href="../model-archiver/README">model-archiver</a> tool enables you to create a model archive that TorchServe can serve.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torch-model-archiver --model-name &lt;model-name&gt; --version &lt;model_version_number&gt; --handler model_handler<span class="o">[</span>:&lt;entry_point_function_name&gt;<span class="o">]</span> <span class="o">[</span>--model-file &lt;path_to_model_architecture_file&gt;<span class="o">]</span> --serialized-file &lt;path_to_state_dict_file&gt; <span class="o">[</span>--extra-files &lt;comma_seperarted_additional_files&gt;<span class="o">]</span> <span class="o">[</span>--export-path &lt;output-dir&gt; --model-path &lt;model_dir&gt;<span class="o">]</span> <span class="o">[</span>--runtime python3<span class="o">]</span>
 </pre></div>
 </div>
