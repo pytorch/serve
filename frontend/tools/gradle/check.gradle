@@ -12,6 +12,8 @@ tasks.withType(Pmd){
     }
 }
 
+pmdMain { exclude '**/grpc/**' }
+
 apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = '7.1.2'
@@ -24,6 +26,7 @@ checkstyleMain {
     classpath += configurations.compileClasspath
 }
 tasks.withType(Checkstyle) {
+    exclude '**/grpc/**'
     reports {
         xml.enabled false
         html.enabled true

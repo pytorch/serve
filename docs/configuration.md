@@ -97,6 +97,24 @@ inference_address=https://0.0.0.0:8443
 inference_address=https://172.16.1.10:8080
 ```
 
+### Configure TorchServe gRPC listening ports 
+The inference gRPC API is listening on port 9090 and the management gRPC API is listening on port 9091 by default.
+
+To configure different ports use following poroperties
+
+* `grpc_inference_port`: Inference gRPC API binding port. Default: 9090
+* `grpc_management_port`: management gRPC API binding port. Default: 9091
+
+Here are a couple of examples:
+
+```properties
+grpc_inference_port=8888
+```
+
+```properties
+grpc_management_port=9999
+```
+
 ### Enable SSL
 
 To enable HTTPs, you can change `inference_address`, `management_address` or `metrics_address` protocol from http to https. For example: `inference_address=https://127.0.0.1`.
@@ -200,6 +218,12 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
 * `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
 		     This is used in conjunction with `enable_meterics_api` option above.
+
+### Enable metrics api
+* `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
+		     This is used in conjunction with `enable_meterics_api` option above.
+
 
 ### Other properties
 

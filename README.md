@@ -140,7 +140,29 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 ### Get predictions from a model
 
-To test the model server, send a request to the server's `predictions` API.
+To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](docs/inference_api.md) and [management](docs/management_api.md) api's through both [gRPC](docs/grpc_api.md) and [HTTP/REST](docs/grpc_api.md).
+
+#### Using GRPC APIs through python client
+
+ - Install grpc python dependencies :
+ 
+```bash
+pip install -U grpcio protobuf grpcio-tools
+```
+
+ - Generate inference client using proto files
+
+```bash
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+```
+
+ - Run inference using a sample client [gRPC python client](scripts/torchserve_grpc_client.py)
+
+```bash
+python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+```
+
+#### Using REST APIs
 
 Complete the following steps:
 
