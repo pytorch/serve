@@ -66,25 +66,27 @@ The [script](run_release_benchmark.py) aims to automate the benchmarking activit
 
 ### Configure AWS access key & secrete key
 
-Refer the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) to setup the AWS credentials required for accessing AWS EC2 service.
+Refer the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) to set up the AWS credentials required for accessing AWS EC2 service.
 
 ## Run benchmark
 
 ## Benchmark parameters
 
-|Parameter|Required|Descripted|Default|
+|Parameter|Required|Description|Default|
 |---|---|---|---|
 |subnet_id|:heavy_check_mark:|Id of the subnet to be used while creating EC2 instance||
-|security_group_id|:heavy_check_mark:|Id of the securtiy group to be used while creating EC2 instance||
+|security_group_id|:heavy_check_mark:|Id of the security group to be used while creating EC2 instance||
 |model_name||Name of the model to run benchmark on. Possible values - vgg11/fastrcnn/bert|vgg11|
 |model_mode||Mode of the model. Possible values: scripted/eager|eager|
 |batch_size||Batch size of the model.|1|
 |instance_type||EC2 instance type to be used. Possible values : cpu/gpu|cpu|
 |branch||Branch name which needs to be benchmarked|master|
 |ami||AWS ami id to use while creating EC2 instance|ami-079d181e97ab77906|
+|bucket_name||s3 bucket name for uploading the results||
+|iam_role||IAM role with access to the s3 bucket||
 
 ### Benchmark reports
-The CSV report are generated at provide s3 location.
+The CSV report are generated at provided s3 location.
 
 ### Sample output CSV
 | Benchmark | Model | Concurrency | Requests | TS failed requests | TS throughput | TS latency P50 | TS latency P90| TS latency P90 | TS latency mean | TS error rate | Model_p50 | Model_p90 | Model_p99 |

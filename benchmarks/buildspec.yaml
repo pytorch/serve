@@ -1,0 +1,15 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install sudo -y
+      - pip install -U pip setuptools
+      - pip install -U -r benchmarks/release_benchmark-requirements.txt
+
+  build:
+    commands:
+      - python benchmarks/run_release_benchmark.py -s $SUBNET_ID  -sg $SECURITY_GROUP_ID -bn $BUCKET_NAME -iam $IAM_ROLE -bs $BATCH_SIZE -mn $MODEL_NAME -mm $MODEL_MODEl -b $BRANCH -i $INSTANCE_TYPE

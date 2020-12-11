@@ -1,4 +1,3 @@
-awscli
 boto3
 Click
 click-config-file
