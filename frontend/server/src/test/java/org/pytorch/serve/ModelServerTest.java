@@ -1864,7 +1864,6 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
-        testModelMetrics(modelName, version);
     }
 
     private void testExplanations(String modelName, String expectedOutput, String version)
@@ -1888,7 +1887,6 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
-        testModelMetrics(modelName, version);
     }
 
     private void testKFV1Predictions(String modelName, String expectedOutput, String version)
@@ -1909,7 +1907,6 @@ public class ModelServerTest {
 
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getResult(), expectedOutput);
-        testModelMetrics(modelName, version);
     }
 
     private void testKFV1Explanations(String modelName, String expectedOutput, String version)

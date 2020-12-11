@@ -18,7 +18,6 @@ import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.job.GRPCJob;
 import org.pytorch.serve.job.Job;
-import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -70,7 +69,6 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                     new InputParameter(entry.getKey(), entry.getValue().toByteArray()));
         }
 
-        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
         Job job =
                 new GRPCJob(
                         responseObserver,
