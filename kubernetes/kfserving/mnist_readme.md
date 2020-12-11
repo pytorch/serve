@@ -53,7 +53,7 @@ The Prediction response is as below :
 ### The curl request for Explanation is as below:
 
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
 ```
 
 The Explanation response is as below :

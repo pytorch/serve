@@ -54,7 +54,7 @@ The Prediction response is as below :
 ### The curl request for explanations is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
+curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
 ```
 
 The Explanation response is as below :
