@@ -6,7 +6,7 @@
    ```
 
    ##### Windows:
-   ```powershell
+   ```pwsh
    python .\ts_scripts\install_dependencies.py --environment=dev
    ```
    > For GPU with Cuda 10.1, make sure add the `--cuda cu101` arg to the above command
@@ -18,7 +18,7 @@
    python binaries/build.py
    ```
    ##### Windows:
-   ```powershell
+   ```pwsh
    python .\binaries\build.py
    ```
 
@@ -48,7 +48,7 @@
    ```
 
    ##### Windows:
-   ```powershell
+   ```pwsh
    python .\binaries\install.py
    ```
 2. Alternatively, you can manually install binaries
@@ -60,7 +60,7 @@
       ```
 
       ##### Windows:
-      ```powershell
+      ```pwsh
       pip install .\dist\<torchserve_wheel>
       pip install .\model-archiver\dist\<torch_model_archiver_wheel>
       ```
@@ -71,6 +71,6 @@
      ```
     
      ##### Windows:
-     ```powershell
+     ```pwsh
       conda install --channel <Path to serve root folder>\binaries\conda\output -y torchserve torch-model-archiver
      ```
