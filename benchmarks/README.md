@@ -12,7 +12,7 @@ We currently support benchmarking with JMeter & Apache Bench. One can also profi
 
 ## Installation
 
-It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
+It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../README.md) for setup.
 
 ### Ubuntu
 
@@ -44,7 +44,7 @@ python3 windows_install_dependencies.py "C:\\Program Files"
 
 ## Models
 
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). We currently support the following:
+The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](../docs/model_zoo.md). We currently support the following:
 - [resnet: ResNet-18 (Default)](https://torchserve.pytorch.org/mar_files/resnet-18.mar)
 - [squeezenet: SqueezeNet V1.1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar)
 
@@ -63,7 +63,7 @@ We also support compound benchmarks:
 
 #### Using pre-build docker image
 
-* You can specify, docker image using --docker option. You must create docker by following steps given [here](https://github.com/pytorch/serve/tree/master/docker).
+* You can specify, docker image using --docker option. You must create docker by following steps given [here](../docker/README.md).
 
 ```bash
 cd serve/benchmarks
@@ -81,7 +81,7 @@ NOTE - '--docker' and '--ts' are mutually exclusive options
 
 #### Using local TorchServe instance:
 
-* Install TorchServe using the [install guide](../README.md#install-torchserve)
+* Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
 * Start TorchServe using following command :
 
 ```bash
@@ -172,7 +172,7 @@ Refer [adding a new jmeter](add_jmeter_test.md) test plan for torchserve.
 
 ## Installation
 
-It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
+It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../README.md) for setup.
 
 ### pip dependencies
 
@@ -301,7 +301,7 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 
     Using local TorchServe instance:
 
-    * Install TorchServe using the [install guide](../README.md#install-torchserve)
+    * Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
     
     By using external docker container for TorchServe:
 

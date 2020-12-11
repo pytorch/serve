@@ -11,7 +11,7 @@ torchserve --start --model-store model_store --models densenet161=densenet161.ma
 curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
 ```
 
-#### TorchScript example using alexnet image classifier:
+#### TorchScript example using densenet161 image classifier:
 
 * Save the Densenet161 model in as an executable script module or a traced script:
 

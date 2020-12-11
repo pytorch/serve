@@ -18,7 +18,7 @@ Provide a custom script to:
 
 Following is applicable to all types of custom handlers
 * **data** - The input data from the incoming request
-* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
+* **context** - Is the TorchServe [context](../ts/context.py). You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.
 
 ### Start with BaseHandler!
@@ -340,7 +340,7 @@ For more details refer following examples :
 TorchServe identifies the entry point to the custom service from a manifest file.
 When you create the model archive, specify the location of the entry point by using the `--handler` option.
 
-The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables you to create a model archive that TorchServe can serve.
+The [model-archiver](../model-archiver/README.md) tool enables you to create a model archive that TorchServe can serve.
 
 ```bash
 torch-model-archiver --model-name <model-name> --version <model_version_number> --handler model_handler[:<entry_point_function_name>] [--model-file <path_to_model_architecture_file>] --serialized-file <path_to_state_dict_file> [--extra-files <comma_seperarted_additional_files>] [--export-path <output-dir> --model-path <model_dir>] [--runtime python3]

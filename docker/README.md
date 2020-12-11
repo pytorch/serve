@@ -10,7 +10,7 @@
 * docker - Refer to the [official docker installation guide](https://docs.docker.com/install/)
 * git    - Refer to the [official git set-up guide](https://help.github.com/en/github/getting-started-with-github/set-up-git)
 * For base Ubuntu with GPU, install following nvidia container toolkit and driver-
-  * [Nvidia container toolkit](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster)
+  * [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#installing-on-ubuntu-and-debian)
   * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
   
 * NOTE - Dockerfiles have not been tested on windows native platform.
