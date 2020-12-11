@@ -254,8 +254,9 @@ def extract_metrics():
             if pattern.search(line):
                 all_lines.append(line.split("|")[0].split(':')[3].strip())
 
-        click.secho(f"\nWriting extracted {v} metrics to {k} ", fg='green')
-        with open(f'{TMP_DIR}/benchmark/{k}', 'w') as outf:
+        out_fname = f'{TMP_DIR}/benchmark/{k}'
+        click.secho(f"\nWriting extracted {v} metrics to {out_fname} ", fg='green')
+        with open(out_fname, 'w') as outf:
             all_lines = map(lambda x: x + '\n', all_lines)
             outf.writelines(all_lines)
 
@@ -326,7 +327,7 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f'/tmp/benchmark/{m}', header=None)
+        df = pd.read_csv(f'{TMP_DIR}/benchmark/{m}', header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
