@@ -198,16 +198,15 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
-* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
-		     This is used in conjunction with `enable_meterics_api` option above.
+* `metrics_format` : Use this to specify metric report format. At present, the only supported and default value for this is `prometheus`. This is used in conjunction with `enable_meterics_api` option above.
 
 ### Other properties
 
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
 * `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
-* `number_of_netty_threads`: Number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
-* `netty_client_threads`: Number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
+* `number_of_netty_threads`: Number of frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: 0.
+* `netty_client_threads`: Number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: 0.
 * `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
 * `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
 * `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
