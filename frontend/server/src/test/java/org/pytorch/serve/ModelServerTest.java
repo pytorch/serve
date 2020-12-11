@@ -79,7 +79,7 @@ public class ModelServerTest {
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
 
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
         String version = configManager.getProperty("version", null);
         try (InputStream is = new FileInputStream("src/test/resources/inference_open_api.json")) {
             listInferenceApisResult =

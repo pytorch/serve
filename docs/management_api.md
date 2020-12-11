@@ -15,6 +15,8 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 
 ## Register a model
 
+This API follows the [ManagementAPIsService.RegisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API.
+
 `POST /models`
 
 * `url` - Model archive download url. Supports the following locations:
@@ -73,6 +75,9 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 ```
 
 ## Scale workers
+
+This API follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+
 
 `PUT /models/{model_name}`
 
@@ -138,6 +143,8 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 ```
 
 ## Describe model
+
+This API follows the [ManagementAPIsService.DescribeModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models/{model_name}`
 
@@ -251,6 +258,8 @@ curl http://localhost:8081/models/noop/all
 
 ## Unregister a model
 
+This API follows the [ManagementAPIsService.UnregisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+
 `DELETE /models/{model_name}/{version}`
 
 Use the Unregister Model API to free up system resources by unregistering specific version of a model from TorchServe:
@@ -264,6 +273,7 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 ```
 
 ## List models
+This API follows the [ManagementAPIsService.ListModels](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models`
 
@@ -319,6 +329,8 @@ Example outputs of the Inference and Management APIs:
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
 
 ## Set Default Version
+
+This API follows the [ManagementAPIsService.SetDefault](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `PUT /models/{model_name}/{version}/set-default`
 

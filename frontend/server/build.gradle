@@ -8,6 +8,7 @@ dependencies {
     testImplementation "org.testng:testng:${testng_version}"
 }
 
+apply from: file("${project.rootProject.projectDir}/tools/gradle/proto.gradle")
 apply from: file("${project.rootProject.projectDir}/tools/gradle/launcher.gradle")
 
 jar {
