@@ -21,9 +21,9 @@ To configure gRPC APIs on different ports refer [configuration documentation](co
 
 ## Python client example for gRPC APIs
 
-Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../scripts/torchserve_grpc_client.py).
+Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../ts_scripts/torchserve_grpc_client.py).
 
- - [Install TorchServe](../README.md#install-torchserve)
+ - [Install TorchServe](../README.md#install-torchserve-and-torch-model-archiver)
 
  - Clone serve repo to run this example
  
