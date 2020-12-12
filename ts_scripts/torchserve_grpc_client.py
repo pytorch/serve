@@ -7,13 +7,13 @@ import sys
 
 
 def get_inference_stub():
-    channel = grpc.insecure_channel('localhost:9090')
+    channel = grpc.insecure_channel('localhost:7070')
     stub = inference_pb2_grpc.InferenceAPIsServiceStub(channel)
     return stub
 
 
 def get_management_stub():
-    channel = grpc.insecure_channel('localhost:9091')
+    channel = grpc.insecure_channel('localhost:7071')
     stub = management_pb2_grpc.ManagementAPIsServiceStub(channel)
     return stub
 
