@@ -411,11 +411,11 @@ To run predictions on models on a specific IP address, specify the IP address an
 </div>
 <div class="section" id="configure-torchserve-grpc-listening-ports">
 <h3>Configure TorchServe gRPC listening ports<a class="headerlink" href="#configure-torchserve-grpc-listening-ports" title="Permalink to this headline">¶</a></h3>
-<p>The inference gRPC API is listening on port 9090 and the management gRPC API is listening on port 9091 by default.</p>
-<p>To configure different ports use following poroperties</p>
+<p>The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.</p>
+<p>To configure different ports use following properties</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_port</span></code>: Inference gRPC API binding port. Default: 9090</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_port</span></code>: management gRPC API binding port. Default: 9091</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_port</span></code>: Inference gRPC API binding port. Default: 7070</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_port</span></code>: management gRPC API binding port. Default: 7071</p></li>
 </ul>
 <p>Here are a couple of examples:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">grpc_inference_port</span><span class="o">=</span><span class="s">8888</span>
