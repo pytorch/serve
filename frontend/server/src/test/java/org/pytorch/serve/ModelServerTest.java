@@ -387,7 +387,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testNoopPrediction"})
     public void testLoadModelWithNakedDirModelArchive() throws InterruptedException {
         String operatingSystem = System.getProperty("os.name").toLowerCase();
-        if (operatingSystem.contains("win")) {
+        if (!operatingSystem.contains("win")) {
             Channel channel = TestUtils.getManagementChannel(configManager);
             testUnregisterModel("noop", null);
             TestUtils.setResult(null);
