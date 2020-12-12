@@ -50,7 +50,7 @@ class VisionHandler(BaseHandler, ABC):
 
             images.append(image)
 
-        return torch.stack(images)
+        return torch.stack(images).to(self.device)
 
     def get_insights(self, tensor_data, _, target=0):
         print("input shape", tensor_data.shape)
