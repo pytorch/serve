@@ -29,12 +29,19 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 Note: For Conda, Python 3.8 is required to run Torchserve.
 
+
 #### For Debian Based Systems/ MacOS
- - For CPU or latest supported CUDA version (10.2) for Torch 1.6
+ - For CPU or latest supported CUDA version (11.0) for Torch 1.7.1
 
     ```bash
     python ./ts_scripts/install_dependencies.py
     ```
+
+ - For GPU with Cuda 10.2
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu102
+   ```
 
  - For GPU with Cuda 10.1
 
