@@ -33,7 +33,7 @@ class Common():
             else:
                 os.system(f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt")
         else:
-            os.system(f"pip install -U -r requirements/torch.txt")
+            os.system(f"pip install -U -r requirements/torch_{platform.system().lower()}.txt")
 
     def install_python_packages(self, cuda_version, requirements_file_path):
         if os.system("conda") == 0:
