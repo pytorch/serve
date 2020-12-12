@@ -50,7 +50,7 @@ Note: For Conda, Python 3.8 is required to run Torchserve.
 
 #### For Windows
 
-    Refer the documentation [here](docs/torchserve_on_win_native.md).
+Refer the documentation [here](docs/torchserve_on_win_native.md).
 
 
 3. Install torchserve and torch-model-archiver
@@ -86,7 +86,7 @@ python ./ts_scripts/install_from_src.py
 
 #### For Windows
 
-    Refer the documentation [here](docs/torchserve_on_win_native.md)
+Refer the documentation [here](docs/torchserve_on_win_native.md)
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
