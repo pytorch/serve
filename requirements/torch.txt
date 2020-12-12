@@ -1,4 +1,17 @@
-torch==1.7.1
-torchvision==0.8.2
-torchtext==0.8.1
-torchaudio==0.7.2
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.7.1+cpu; sys_platform == 'linux'
+torchvision==0.8.2+cpu; sys_platform == 'linux'
+torchtext==0.8.1; sys_platform == 'linux'
+torchaudio==0.7.2; sys_platform == 'linux'
+
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.7.1+cpu; sys_platform == 'win32'
+torchvision==0.8.2+cpu; sys_platform == 'win32'
+torchtext==0.8.1; sys_platform == 'win32'
+torchaudio==0.7.2; sys_platform == 'win32'
+
+
+torch==1.7.1+cpu; sys_platform == 'darwin'
+torchvision==0.8.2+cpu; sys_platform == 'darwin'
+torchtext==0.8.1; sys_platform == 'darwin'
+torchaudio==0.7.2; sys_platform == 'darwin'

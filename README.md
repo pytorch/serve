@@ -31,11 +31,17 @@ Note: For Conda, Python 3.8 is required to run Torchserve.
 
 
 #### For Debian Based Systems/ MacOS
- - For CPU or latest supported CUDA version (11.0) for Torch 1.7.1
+ - For CPU
 
     ```bash
     python ./ts_scripts/install_dependencies.py
     ```
+   
+ - For GPU with Cuda 11.0
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu110
+   ```
 
  - For GPU with Cuda 10.2
 
@@ -90,6 +96,8 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
+
+Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu110`, `cu102`, `cu101`, `cu92`
 
 #### For Windows
 

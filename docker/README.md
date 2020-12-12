@@ -46,10 +46,10 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - For creating GPU based image (Default cuda 10.2):
+ - For creating GPU based image with cuda version 11.0:
 
 ```bash
-./build_image.sh -g
+./build_image.sh -g -cv cu110
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -86,16 +86,17 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -b my_branch
 ```
 
-- For creating GPU based image (Default cuda 10.2):
+
+- For creating GPU based image with cuda version 10.2:
 
 ```bash
-./build_image.sh -bt dev -g
+./build_image.sh -bt dev -g -cv cu110
 ```
 
-- For creating GPU based image with a different branch:
+- For creating GPU based image with cuda version 10.2:
 
 ```bash
-./build_image.sh -bt dev -g -b my_branch
+./build_image.sh -bt dev -g -cv cu102
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -108,6 +109,12 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 
 ```bash
 ./build_image.sh -bt dev -g -cv cu92
+```
+
+- For creating GPU based image with a different branch:
+
+```bash
+./build_image.sh -bt dev -g -cv cu110 -b my_branch
 ```
 
  - For creating image with a custom tag:
@@ -126,10 +133,10 @@ Creates a docker image for codebuild environment
 ./build_image.sh -bt codebuild
 ```
 
-- For creating GPU based image (Default cuda 10.2):
+- For creating GPU based image with cuda version 11.0:
 
 ```bash
-./build_image.sh -bt codebuild -g
+./build_image.sh -bt codebuild -g -cv cu110
 ```
 
  - For creating GPU based image with cuda version 10.1:

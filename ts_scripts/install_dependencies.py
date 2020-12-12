@@ -23,8 +23,8 @@ class Common():
         pass
 
     def install_torch_packages(self, cuda_version):
-        if cuda_version and cuda_version != "latest":
-            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
+        if cuda_version:
+            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt")
         else:
             os.system(f"pip install -U -r requirements/torch.txt")
 
@@ -39,7 +39,6 @@ class Common():
         # developer.txt also installs packages from common.txt
         os.system("pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package
-
 
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
@@ -98,7 +97,6 @@ class Darwin(Common):
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
-
     def install_torch_packages(self, cuda_version=''):
         os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
 
@@ -124,7 +122,7 @@ def install_dependencies(cuda_version=None):
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102',  'latest'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu110'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 
