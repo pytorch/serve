@@ -174,6 +174,6 @@ def test_sanity():
     if not stopped:
         sys.exit(1)
 
-    #links_ok = run_markdown_link_checker()
-    #if not links_ok:
-    #    sys.exit("## Markdown Link Checker Failed !")
+    links_ok = run_markdown_link_checker()
+    if not links_ok:
+       print("##WARNING : Broken links in docs.")
