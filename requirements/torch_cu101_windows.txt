@@ -1,8 +1,3 @@
-torch==1.7.1; sys_platform == 'linux'
-torchvision==0.8.2; sys_platform == 'linux'
-torchtext==0.8.1; sys_platform == 'linux'
-torchaudio==0.7.2; sys_platform == 'linux'
-
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.7.1; sys_platform == 'win32'
 torchvision==0.8.2; sys_platform == 'win32'

@@ -24,7 +24,14 @@ class Common():
 
     def install_torch_packages(self, cuda_version):
         if cuda_version:
-            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt")
+            if platform.system() == "Darwin":
+                print("CUDA not supported on MacOS. Refer https://pytorch.org/ for installing from source.")
+                sys.exit(1)
+            elif cuda_version == "cu92" and platform.system() == "Windows":
+                print("CUDA 9.2 not supported on Windows. Refer https://pytorch.org/ for installing from source.")
+                sys.exit(1)
+            else:
+                os.system(f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt")
         else:
             os.system(f"pip install -U -r requirements/torch.txt")
 
@@ -67,12 +74,6 @@ class Windows(Common):
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
-
-    def install_torch_packages(self, cuda_version):
-        if cuda_version and cuda_version != "latest":
-            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
-        else:
-            os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
 
     def install_java(self):
         pass
