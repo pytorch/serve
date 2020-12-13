@@ -9,6 +9,31 @@ The .mar file creation command is as below:
 ```bash
 torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --handler text_classifier --extra-files "serve/examples/text_classification/index_to_name.json,serve/examples/text_classification/source_vocab.pt"
 ```
+
+## Starting Torchserve
+To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
+
+* create a config.properties file and specify the details as shown:
+```
+service_envelope=kfserving
+```
+The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+
+* start Torchserve by invoking the below command:
+```
+torchserve --start --model-store model_store --ncs --models my_tc=my_text_classifier.mar
+
+```
+
+## Model Register for KFServing:
+
+Hit the below curl request to register the model
+
+```
+curl -X POST "localhost:8081/models?model_name=my_tc&url=my_text_classifier.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+```
+Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
+
 ## Request and Response
 
 ### The curl request is as below for predict:
@@ -89,7 +114,7 @@ The response is as below:
 
 ## KFServing changes to the handler files
 
-* 1)  When you write a handler, always expect a plain Python list containing data ready to go into `preprocess`.
+*  When you write a handler, always expect a plain Python list containing data ready to go into `preprocess`.
 
         The text classifier request difference between the regular torchserve and kfserving is as below
 
@@ -117,6 +142,11 @@ The response is as below:
 
         
 
-* 2)  The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in 		  the regular torchserve.
+*   The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in 		  the regular torchserve.
 
 	  So  in the preprocess method of [text_classifier.py](https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py) KFServing doesn't require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
+
+
+
+NOTE :
+The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
