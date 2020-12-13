@@ -16,14 +16,14 @@ TorchServe provides following gRPCs apis
   - **DescribeModel** : Get detail runtime status of default version of a model
   - **SetDefault** : Set any registered version of a model as default version
 
-By default, TorchServe listens on port 9090 for the gRPC Inference API and 9091 for the gRPC Management API.
+By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API.
 To configure gRPC APIs on different ports refer [configuration documentation](configuration.md)
 
 ## Python client example for gRPC APIs
 
-Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../scripts/torchserve_grpc_client.py).
+Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../ts_scripts/torchserve_grpc_client.py).
 
- - [Install TorchServe](../README.md#install-torchserve)
+ - [Install TorchServe](../README.md#install-torchserve-and-torch-model-archiver)
 
  - Clone serve repo to run this example
  
