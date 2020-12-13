@@ -5,7 +5,8 @@ pylint==2.6.0
 pytest-mock
 pytest-cov
 nvgpu
-numpy
+numpy; sys_platform != 'win32'
+numpy==1.19.3; sys_platform == 'win32'
 grpcio
 protobuf
 grpcio-tools

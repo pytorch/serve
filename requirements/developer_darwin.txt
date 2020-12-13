@@ -1,1 +1,0 @@
--r developer_linux.txt

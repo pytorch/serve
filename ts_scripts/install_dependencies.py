@@ -109,8 +109,7 @@ def install_dependencies(cuda_version=None):
 
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else
-                                                "developer_{}.txt".format(platform.system().lower()))
+    requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
     system.install_python_packages(cuda_version, requirements_file_path)
 
     if args.environment == "dev":
