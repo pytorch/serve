@@ -27,49 +27,48 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 1. Install dependencies
 
-Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python 3.8 is required to run Torchserve.
 
+    #### For Debian Based Systems/ MacOS
+    
+     - For CPU
 
-#### For Debian Based Systems/ MacOS
- - For CPU
+        ```bash
+        python ./ts_scripts/install_dependencies.py
+        ```
 
-    ```bash
-    python ./ts_scripts/install_dependencies.py
-    ```
-   
- - For GPU with Cuda 11.0
+     - For GPU with Cuda 11.0
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu110
-   ```
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu110
+       ```
 
- - For GPU with Cuda 10.2
+     - For GPU with Cuda 10.2
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu102
-   ```
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       ```
 
- - For GPU with Cuda 10.1
+     - For GPU with Cuda 10.1
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu101
-   ```
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu101
+       ```
 
- - For GPU with Cuda 9.2
+     - For GPU with Cuda 9.2
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu92
-   ```
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu92
+       ```
 
-#### For Windows
+    #### For Windows
 
-Refer to the documentation [here](docs/torchserve_on_win_native.md).
+    Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
+2. Install torchserve and torch-model-archiver
 
-3. Install torchserve and torch-model-archiver
-
-    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
-
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
+    Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
