@@ -6,7 +6,7 @@
   "exec_env": "docker",
   "batch_size": 2,
   "batch_delay": 50,
-  "image": "torchserve:gpu",
+  "image": "pytorch/torchserve:gpu",
   "content_type": "application/text",
   "workers": 4,
   "backend_profiling": "True",

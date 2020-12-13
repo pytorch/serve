@@ -6,7 +6,7 @@
   "exec_env": "docker",
   "batch_size": 1,
   "batch_delay": 50,
-  "image": "torchserve:cpu",
+  "image": "pytorch/torchserve:cpu",
   "content_type": "application/text",
   "workers": 4,
   "backend_profiling": "True"

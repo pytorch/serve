@@ -59,6 +59,7 @@ sudo shutdown -h now
         InstanceType='c4.4xlarge' if instance_type == "cpu" else "p3.8xlarge",
         MaxCount=1,
         MinCount=1,
+        KeyName="torchserve",
         SecurityGroupIds=[
             security_group,
         ],
