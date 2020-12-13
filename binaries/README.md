@@ -71,6 +71,4 @@
      ```
     
      ##### Windows:
-     ```pwsh
-      conda install --channel <Path to serve root folder>\binaries\conda\output -y torchserve torch-model-archiver
-     ```
+     Conda install is currently not supported. Please use pip install command instead.
