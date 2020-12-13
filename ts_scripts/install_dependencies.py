@@ -98,9 +98,6 @@ class Darwin(Common):
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
-    def install_torch_packages(self, cuda_version=''):
-        os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
-
 
 def install_dependencies(cuda_version=None):
     os_map = {
@@ -112,7 +109,8 @@ def install_dependencies(cuda_version=None):
 
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
+    requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else
+                                                "developer_{}.txt".format(platform.system().lower()))
     system.install_python_packages(cuda_version, requirements_file_path)
 
     if args.environment == "dev":
