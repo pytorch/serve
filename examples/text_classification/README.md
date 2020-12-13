@@ -67,7 +67,7 @@ in the initialize function for the captum to work.
 
 4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
 
----
-**NOTE**
+
+NOTE:
 The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
----
+
