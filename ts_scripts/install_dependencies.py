@@ -98,9 +98,6 @@ class Darwin(Common):
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
-    def install_torch_packages(self, cuda_version=''):
-        os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
-
 
 def install_dependencies(cuda_version=None):
     os_map = {
