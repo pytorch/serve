@@ -1,0 +1,13 @@
+{
+  "url": "https://torchserve.s3.amazonaws.com/mar_files/vgg11_scripted.mar",
+  "requests": 10000,
+  "concurrency": 100,
+  "input": "../examples/image_classifier/kitten.jpg",
+  "exec_env": "docker",
+  "batch_size": 8,
+  "batch_delay": 50,
+  "image": "pytorch/torchserve:gpu",
+  "workers": 4,
+  "backend_profiling": "True",
+  "gpus": 4
+}

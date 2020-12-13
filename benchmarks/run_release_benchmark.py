@@ -113,7 +113,7 @@ def get_instance_meta(ec2_instance_id):
 @click.command()
 @click.option('--branch', '-b', default='master', help='Branch on which benchmark is to be executed. Default master')
 @click.option('--instance_type', '-i', default='cpu', help='CPU/GPU instance type. Default CPU.')
-@click.option('--model_name', '-mn', default='vgg11', type=click.Choice(['vgg11', 'fastrcnn', 'bert']),
+@click.option('--model_name', '-mn', default='vgg11', type=click.Choice(['vgg11', 'fastrcnn', 'bert', 'vgg11_10_conc']),
               help='vgg11/fastrcnn/bert. Default vgg11')
 @click.option('--model_mode', '-mm', default='eager', type=click.Choice(['eager', 'scripted']),
               help='eager/scripted. Default eager.')
