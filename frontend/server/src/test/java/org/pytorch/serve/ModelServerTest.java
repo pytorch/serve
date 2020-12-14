@@ -1590,7 +1590,7 @@ public class ModelServerTest {
     public void testUnregisterModelTimeout()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        setConfiguration("unregister_model_timeout", "0.0000000000001");
+        setConfiguration("unregister_model_timeout", "0");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
         setConfiguration("unregister_model_timeout", "120");
