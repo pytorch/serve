@@ -9,5 +9,4 @@ numpy
 grpcio
 protobuf
 grpcio-tools
-transformers==2.10.0
 pygit2
