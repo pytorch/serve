@@ -1016,7 +1016,7 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
-        // TestUtils.unregisterModel(channel, "memory_error",null, true);
+        TestUtils.unregisterModel(channel, "memory_error", null, true);
         channel.close().sync();
     }
 
@@ -1593,6 +1593,7 @@ public class ModelServerTest {
         setConfiguration("unregister_model_timeout", "0");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
+        setConfiguration("unregister_model_timeout", "120000000000");
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.REQUEST_TIMEOUT.code());
@@ -1601,7 +1602,6 @@ public class ModelServerTest {
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
-        setConfiguration("unregister_model_timeout", "120");
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
 

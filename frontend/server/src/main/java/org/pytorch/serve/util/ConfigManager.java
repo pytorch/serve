@@ -187,6 +187,13 @@ public final class ConfigManager {
             prop.setProperty(PYTHON_EXECUTABLE, pythonExecutable);
         }
 
+        String unregisterTimeout = prop.getProperty(TS_UNREGISTER_MODEL_TIMEOUT);
+        if (unregisterTimeout != null) {
+            prop.setProperty(
+                    TS_UNREGISTER_MODEL_TIMEOUT,
+                    String.valueOf(Long.parseLong(unregisterTimeout) * Math.pow(10, 9)));
+        }
+
         try {
             InetAddress ip = InetAddress.getLocalHost();
             hostName = ip.getHostName();
@@ -627,8 +634,8 @@ public final class ConfigManager {
         return Integer.parseInt(prop.getProperty(TS_DEFAULT_RESPONSE_TIMEOUT, "120"));
     }
 
-    public int getUnregisterModelTimeout() {
-        return Integer.parseInt(prop.getProperty(TS_UNREGISTER_MODEL_TIMEOUT, "120"));
+    public long getUnregisterModelTimeout() {
+        return Long.parseLong(prop.getProperty(TS_UNREGISTER_MODEL_TIMEOUT, "120000000000"));
     }
 
     private File findTsHome() {

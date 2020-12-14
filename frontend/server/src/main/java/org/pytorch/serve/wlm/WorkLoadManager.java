@@ -129,7 +129,7 @@ public class WorkLoadManager {
                             workerDestroyed =
                                     workerKillProcess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
-                                            TimeUnit.SECONDS);
+                                            TimeUnit.NANOSECONDS);
                         } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerThread interrupted during waitFor, possible async resource cleanup.");
