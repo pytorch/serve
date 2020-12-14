@@ -118,11 +118,11 @@ nvidia-device-plugin-daemonset-qccgn   1/1     Running   0          144m
 
 ```bash
 wget https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
-wget https://torchserve.pytorch.org/mar_files/mnist.mar
+wget https://torchserve.pytorch.org/mar_files/mnist_v2.mar
 
 kubectl exec --tty pod/model-store-pod -- mkdir /mnt/azure/model-store/
 kubectl cp squeezenet1_1.mar model-store-pod:/mnt/azure/model-store/squeezenet1_1.mar
-kubectl cp mnist.mar model-store-pod:/mnt/azure/model-store/mnist.mar
+kubectl cp mnist_v2.mar model-store-pod:/mnt/azure/model-store/mnist_v2.mar
 
 kubectl exec --tty pod/model-store-pod -- mkdir /mnt/azure/config/
 kubectl cp config.properties model-store-pod:/mnt/azure/config/config.properties
@@ -140,7 +140,7 @@ Your output should look similar to
 /mnt/azure/config/config.properties
 /mnt/azure/lost+found
 /mnt/azure/model-store
-/mnt/azure/model-store/mnist.mar
+/mnt/azure/model-store/mnist_v2.mar
 /mnt/azure/model-store/squeezenet1_1.mar
 ```
 
@@ -207,7 +207,7 @@ Your output should look similar to
   "models": [
     {
       "modelName": "mnist",
-      "modelUrl": "mnist.mar"
+      "modelUrl": "mnist_v2.mar"
     },
     {
       "modelName": "squeezenet1_1",
@@ -228,7 +228,7 @@ Your output should look similar to
   {
     "modelName": "mnist",
     "modelVersion": "1.0",
-    "modelUrl": "mnist.mar",
+    "modelUrl": "mnist_v2.mar",
     "runtime": "python",
     "minWorkers": 5,
     "maxWorkers": 5,
