@@ -38,7 +38,7 @@ public class ConfigManagerTest {
 
     @SuppressWarnings("unchecked")
     private void modifyEnv(String key, String val) throws ReflectiveOperationException {
-        if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
             Field f = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
             f.setAccessible(true);
