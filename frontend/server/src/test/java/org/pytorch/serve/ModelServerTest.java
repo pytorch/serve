@@ -922,15 +922,15 @@ public class ModelServerTest {
         File curDirFile = new File(curDir);
         String parent = curDirFile.getParent();
 
-        String source = configManager.getModelStore() + "/mnist.mar";
-        String destination = parent + "/modelarchive/mnist1.mar";
+        String source = configManager.getModelStore() + "/noop.mar";
+        String destination = parent + "/modelarchive/noop_from_file.mar";
         File sourceFile = new File(source);
         File destinationFile = new File(destination);
         String fileUrl = "";
         FileUtils.copyFile(sourceFile, destinationFile);
-        fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
-        testLoadModel(fileUrl, "mnist1", "1.0");
-        Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
+        fileUrl = "file:///" + destination;
+        testLoadModel(fileUrl, "noop_from_file", "1.11");
+        Assert.assertTrue(new File(configManager.getModelStore(), "noop_from_file.mar").exists());
         FileUtils.deleteQuietly(destinationFile);
     }
 
@@ -938,8 +938,8 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testLoadModelFromFileURI"})
     public void testUnregisterFileURIModel() throws InterruptedException {
-        testUnregisterModel("mnist1", null);
-        Assert.assertFalse(new File(configManager.getModelStore(), "mnist1.mar").exists());
+        testUnregisterModel("noop_from_file", null);
+        Assert.assertFalse(new File(configManager.getModelStore(), "noop_from_file.mar").exists());
     }
 
     @Test(
@@ -1638,132 +1638,6 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelFailure"})
-    public void testLoadMNISTEagerModel() throws InterruptedException {
-        testLoadModelWithInitialWorkers("mnist.mar", "mnist", "1.0");
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testLoadMNISTEagerModel"})
-    public void testPredictionMNISTEagerModel() throws InterruptedException {
-        testPredictions("mnist", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testPredictionMNISTEagerModel"})
-    public void testExplanationMNISTEagerModel() throws InterruptedException {
-        testExplanations("mnist", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testExplanationMNISTEagerModel"})
-    public void testKFV1PredictionMNISTEagerModel() throws InterruptedException {
-        testKFV1Predictions("mnist", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testKFV1PredictionMNISTEagerModel"})
-    public void testKFV1ExplanationMNISTEagerModel() throws InterruptedException {
-        testKFV1Explanations("mnist", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testKFV1ExplanationMNISTEagerModel"})
-    public void testUnregistedMNISTEagerModel() throws InterruptedException {
-        testUnregisterModel("mnist", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregistedMNISTEagerModel"})
-    public void testLoadMNISTScriptedModel() throws InterruptedException {
-        testLoadModelWithInitialWorkers("mnist_scripted.mar", "mnist_scripted", "1.0");
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testLoadMNISTScriptedModel"})
-    public void testPredictionMNISTScriptedModel() throws InterruptedException {
-        testPredictions("mnist_scripted", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testPredictionMNISTScriptedModel"})
-    public void testExplanationMNISTScriptedModel() throws InterruptedException {
-        testExplanations("mnist_scripted", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testExplanationMNISTScriptedModel"})
-    public void testKFV1PredictionMNISTScriptedModel() throws InterruptedException {
-        testKFV1Predictions("mnist_scripted", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testKFV1PredictionMNISTScriptedModel"})
-    public void testKFV1ExplanationMNISTScriptedModel() throws InterruptedException {
-        testKFV1Explanations("mnist_scripted", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testKFV1ExplanationMNISTScriptedModel"})
-    public void testUnregistedMNISTScriptedModel() throws InterruptedException {
-        testUnregisterModel("mnist_scripted", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregistedMNISTScriptedModel"})
-    public void testLoadMNISTTracedModel() throws InterruptedException {
-        testLoadModelWithInitialWorkers("mnist_traced.mar", "mnist_traced", "1.0");
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testLoadMNISTTracedModel"})
-    public void testPredictionMNISTTracedModel() throws InterruptedException {
-        testPredictions("mnist_traced", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testPredictionMNISTTracedModel"})
-    public void testExplanationMNISTTracedModel() throws InterruptedException {
-        testExplanations("mnist_traced", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testExplanationMNISTTracedModel"})
-    public void testKFV1PredictionMNISTTracedModel() throws InterruptedException {
-        testKFV1Predictions("mnist_traced", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testKFV1PredictionMNISTTracedModel"})
-    public void testKFV1ExplanationMNISTTracedModel() throws InterruptedException {
-        testKFV1Explanations("mnist_traced", "0", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testKFV1ExplanationMNISTTracedModel"})
-    public void testUnregistedMNISTTracedModel() throws InterruptedException {
-        testUnregisterModel("mnist_traced", null);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregistedMNISTTracedModel"})
     public void testSetInvalidDefaultVersion() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
