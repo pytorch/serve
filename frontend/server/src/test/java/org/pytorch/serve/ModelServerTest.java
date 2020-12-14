@@ -1599,7 +1599,6 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getMessage(), "Timed out while cleaning resources: noop_v1.0");
 
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        setConfiguration("unregister_model_timeout", "120");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
