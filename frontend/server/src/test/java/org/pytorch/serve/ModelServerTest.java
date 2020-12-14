@@ -1601,6 +1601,7 @@ public class ModelServerTest {
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
+        setConfiguration("unregister_model_timeout", "120");
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
 
