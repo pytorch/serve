@@ -238,14 +238,14 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadNoopModel"})
+            dependsOnMethods = {"testSyncScaleNoopModel"})
     public void testSyncScaleNoopModelWithVersion() throws InterruptedException {
         testSyncScaleModel("noop_v1.0", "1.11");
     }
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testSyncScaleNoopModel"})
+            dependsOnMethods = {"testSyncScaleNoopModelWithVersion"})
     public void testListModels() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
@@ -916,7 +916,9 @@ public class ModelServerTest {
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
-    @Test(alwaysRun = true)
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromURL"})
     public void testLoadModelFromFileURI() throws InterruptedException, IOException {
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
@@ -944,7 +946,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromFileURI"})
+            dependsOnMethods = {"testUnregisterFileURIModel"})
     public void testModelWithInvalidFileURI() throws InterruptedException, IOException {
         String invalidFileUrl = "file:///InvalidUrl";
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -960,7 +962,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromURL"})
+            dependsOnMethods = {"testModelWithInvalidFileURI"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
@@ -1251,7 +1253,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testPredictionsModelNotFound"})
+            dependsOnMethods = {"testPredictionsModelVersionNotFound"})
     public void testInvalidManagementUri() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1344,7 +1346,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testDescribeModelNotFound"})
+            dependsOnMethods = {"testDescribeModelVersionNotFound"})
     public void testRegisterModelMissingUrl() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1556,7 +1558,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testScaleModelNotFound"})
+            dependsOnMethods = {"testScaleModelVersionNotFound"})
     public void testUnregisterModelNotFound() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1586,7 +1588,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelNotFound"})
+            dependsOnMethods = {"testUnregisterModelVersionNotFound"})
     public void testUnregisterModelTimeout()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
