@@ -249,7 +249,7 @@
       ├── config
       │   └── config.properties
       └── model-store
-          ├── mnist.mar
+          ├── mnist_v2.mar
           └── squeezenet1_1.mar
 
   **Create EFS Volume for the EKS Cluster**
@@ -495,7 +495,7 @@
   number_of_netty_threads=32
   job_queue_size=1000
   model_store=/home/model-server/shared/model-store
-  model_snapshot={"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
+  model_snapshot={"name":"startup.cfg","modelCount":2,"models":{"squeezenet1_1":{"1.0":{"defaultVersion":true,"marName":"squeezenet1_1.mar","minWorkers":3,"maxWorkers":3,"batchSize":1,"maxBatchDelay":100,"responseTimeout":120}},"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist_v2.mar","minWorkers":5,"maxWorkers":5,"batchSize":1,"maxBatchDelay":200,"responseTimeout":60}}}}
   ```
 
   
@@ -506,11 +506,11 @@
 
   ```bash
   wget https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar
-  wget https://torchserve.s3.amazonaws.com/mar_files/mnist.mar
+  wget https://torchserve.s3.amazonaws.com/mar_files/mnist_v2.mar
   
   kubectl exec --tty pod/model-store-pod -- mkdir /pv/model-store/
   kubectl cp squeezenet1_1.mar model-store-pod:/pv/model-store/squeezenet1_1.mar
-  kubectl cp mnist.mar model-store-pod:/pv/model-store/mnist.mar
+  kubectl cp mnist_v2.mar model-store-pod:/pv/model-store/mnist_v2.mar
   
   
   kubectl exec --tty pod/model-store-pod -- mkdir /pv/config/
@@ -530,7 +530,7 @@
   /pv/config/config.properties
   /pv/model-store
   /pv/model-store/squeezenet1_1.mar
-  /pv/model-store/mnist.mar
+  /pv/model-store/mnist_v2.mar
   ```
 
   
@@ -645,7 +645,7 @@
     "models": [
       {
         "modelName": "mnist",
-        "modelUrl": "mnist.mar"
+        "modelUrl": "mnist_v2.mar"
       },
       {
         "modelName": "squeezenet1_1",
