@@ -64,7 +64,6 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
         pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
 RUN pip install --no-cache-dir torchtext torchserve torch-model-archiver
-RUN pip install --no-cache-dir transformers captum
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
