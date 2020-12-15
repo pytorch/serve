@@ -5,7 +5,7 @@ RUN apt-get update \
 && apt-get install -y --no-install-recommends git
 
 COPY . .
-RUN pip install --upgrade pip 
+RUN pip install --upgrade pip==20.3
 RUN git clone -b ${BRANCH_NAME_KF} https://github.com/kubeflow/kfserving.git
 RUN pip install -e ./kfserving/python/kfserving 
 RUN pip install -e .
