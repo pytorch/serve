@@ -10,5 +10,5 @@
   "content_type": "application/text",
   "workers": 4,
   "backend_profiling": "True",
-  "gpus": 4
+  "gpus": 1
 }
