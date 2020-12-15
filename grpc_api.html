@@ -340,25 +340,25 @@ torchserve --start
 <ul class="simple">
 <li><p>Generate python gRPC client stub using the proto files</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m grpc_tools.protoc --proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/ --python_out<span class="o">=</span>scripts --grpc_python_out<span class="o">=</span>scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m grpc_tools.protoc --proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/ --python_out<span class="o">=</span>ts_scripts --grpc_python_out<span class="o">=</span>ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Register densenet161 model</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/torchserve_grpc_client.py register densenet161
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py register densenet161
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Run inference using</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Unregister densenet161 model</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/torchserve_grpc_client.py unregister densenet161
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py unregister densenet161
 </pre></div>
 </div>
 </div>
