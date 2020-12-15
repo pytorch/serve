@@ -48,6 +48,7 @@
    ```
 
    ##### Windows:
+   Note: If you have conda installed please do a manual install using Pip as shown below in option 2.
    ```pwsh
    python .\binaries\install.py
    ```
