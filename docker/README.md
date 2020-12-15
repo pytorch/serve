@@ -153,20 +153,20 @@ Creates a docker image for codebuild environment
 
 ## Start a container with a TorchServe image
 
-The following examples will start the container with 8080/81 port exposed to outer-world/localhost.
+The following examples will start the container with 8080/81/82 and 7070/71 port exposed to outer-world/localhost.
 
 #### Start CPU container
 
 For the latest version, you can use the `latest` tag:
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest
 ```
 
 For specific versions you can pass in the specific tag to use (ex: pytorch/torchserve:0.1.1-cpu):
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071  pytorch/torchserve:0.1.1-cpu
 ```
 
 #### Start GPU container
@@ -174,19 +174,19 @@ docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
 For GPU latest image with gpu devices 1 and 2:
 
 ```bash
-docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
 ```
 
 For specific versions you can pass in the specific tag to use (ex: 0.1.1-cuda10.1-cudnn7-runtime):
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
 ```
 
 For the latest version, you can use the `latest-gpu` tag:
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 torchserve:gpu-latest
 ```
 
 #### Accessing TorchServe APIs inside container
@@ -250,7 +250,8 @@ You may want to consider the following aspects / docker options when deploying t
   The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/), [here](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
 * Exposing specific ports / volumes between the host & docker env.
 
-    *  ```-p8080:8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    *  ```-p8080:8080 -p8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 ``` 
+       TorchServe uses default ports 8080 / 8081 / 8082 for REST based inference, management & metrics APIs and 7070 / 7071 for gRPC APIs. You may want to expose these ports to the host for HTTP & gRPC Requests between Docker & Host.
     * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
 For example,
@@ -261,5 +262,8 @@ docker run --rm --shm-size=1g \
         --ulimit stack=67108864 \
         -p8080:8080 \
         -p8081:8081 \
+        -p8082:8082 \
+        -p7070:7070 \
+        -p7071:7071 \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
 ```
