@@ -1,6 +1,6 @@
 future
 psutil
-wheel
+wheel==0.36.1
 requests
 sentencepiece
 pillow
