@@ -28,7 +28,7 @@ def infer(stub, model_name, model_input):
 
     try:
         prediction = response.prediction.decode('utf-8')
-        return prediction
+        print(prediction)
     except grpc.RpcError as e:
         exit(1)
 
