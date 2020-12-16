@@ -96,7 +96,7 @@ public class ModelArchiveTest {
         File destinationFile = new File(destination);
         FileUtils.copyFile(sourceFile, destinationFile);
 
-        String fileUrl = "file://" + parent + "/archive/mnist1.mar";
+        String fileUrl = "file:///" + parent + "/archive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
 
         File modelLocation = new File(modelStore + "/mnist1.mar");
