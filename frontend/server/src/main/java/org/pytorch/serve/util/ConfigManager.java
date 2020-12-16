@@ -1,5 +1,7 @@
 package org.pytorch.serve.util;
 
+import io.netty.util.NettyRuntime;
+import io.netty.util.internal.SystemPropertyUtil;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -539,6 +541,10 @@ public final class ConfigManager {
 
     public String dumpConfigurations() {
         Runtime runtime = Runtime.getRuntime();
+
+        // When Netty Threads are set to 0, this value is used by default
+        int DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
+                "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
         return "\nTorchserve version: "
                 + prop.getProperty(VERSION)
                 + "\nTS Home: "
@@ -572,9 +578,9 @@ public final class ConfigManager {
                 + "\nMetrics dir: "
                 + getCanonicalPath(System.getProperty("METRICS_LOCATION"))
                 + "\nNetty threads: "
-                + getNettyThreads()
+                + (getNettyThreads() == 0 ? DEFAULT_EVENT_LOOP_THREADS : getNettyThreads())
                 + "\nNetty client threads: "
-                + getNettyClientThreads()
+                + (getNettyClientThreads() == 0 ? DEFAULT_EVENT_LOOP_THREADS : getNettyClientThreads())
                 + "\nDefault workers per model: "
                 + getDefaultWorkers()
                 + "\nBlacklist Regex: "
