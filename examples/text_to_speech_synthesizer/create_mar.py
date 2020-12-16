@@ -1,7 +1,7 @@
 import tempfile
 import sys
-sys.path.append('../../scripts')
-from scripts.shell_utils import rm_dir, rm_file, download_save
+sys.path.append('../../ts_scripts')
+from ts_scripts.shell_utils import rm_dir, rm_file, download_save
 import os
 import shutil
 import subprocess

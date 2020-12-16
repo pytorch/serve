@@ -26,35 +26,37 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Install TorchServe
 
-1. Install Java 11
+1. Install dependencies
 
-    For Ubuntu
-    ```bash
-    sudo apt-get install openjdk-11-jdk
-    ```
-   
-   For Mac
-    ```bash
-    brew tap AdoptOpenJDK/openjdk
-    brew cask install adoptopenjdk11
-    ```
+Note: For Conda, Python 3.8 is required to run Torchserve.
 
-2. Install python pre-requisite packages
-
- - For CPU or GPU-Cuda 10.2
+#### For Debian Based Systems/ MacOS
+ - For CPU or latest supported CUDA version (10.2) for Torch 1.6
 
     ```bash
-    pip install -U -r requirements.txt
+    python ./ts_scripts/install_dependencies.py
     ```
+
  - For GPU with Cuda 10.1
 
-    ```bash
-    pip install -U -r requirements_cu101.txt -f https://download.pytorch.org/whl/torch_stable.html
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu101
    ```
+
+ - For GPU with Cuda 9.2
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu92
+   ```
+
+#### For Windows
+    Refer the documentation [here](docs/torchserve_on_win_native.md).
+
 
 3. Install torchserve and torch-model-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
+
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
@@ -63,16 +65,14 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
     ```
     pip install torchserve torch-model-archiver
     ```
-   
-   **Note:** For Conda, Python 3.8 is required to run Torchserve
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 ### Install TorchServe for development
 
-If you plan to develop with TorchServe and change some of the source code, you must install it from source code.
+If you plan to develop with TorchServe and change some source code, you must install it from source code.
+Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
-Please deactivate any conda env that you might be within.
 Run the following script from the top of the source directory.
 
 NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
@@ -80,8 +80,12 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 #### For Debian Based Systems/ MacOS
 
 ```
+python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
+
+#### For Windows
+    Refer the documentation [here].(docs/torchserve_on_win_native.md)
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 

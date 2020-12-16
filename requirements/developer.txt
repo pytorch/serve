@@ -1,7 +1,7 @@
 -r common.txt
 mock
 pytest
-pylint
+pylint==2.6.0
 pytest-mock
 pytest-cov
 nvgpu

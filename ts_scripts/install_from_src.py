@@ -8,13 +8,14 @@ import shutil
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts import tsutils as ts
-from ts_scripts import install_dependencies as idep
+from ts_scripts import print_env_info as build_hdr_printer
+from ts_scripts.utils import check_python_version
+from ts_scripts.utils import is_conda_env
 
 
 def clean_slate(): 
     print("## Uninstall existing torchserve and model archiver")
-    if ts.is_conda_env():
+    if is_conda_env():
         cmd = "conda uninstall -y torchserve torch-model-archiver"
     else:
         cmd = "pip uninstall -y torchserve torch-model-archiver"
@@ -57,5 +58,8 @@ def install_from_src():
 
 
 if __name__ == '__main__':
-    idep.install_dependencies()
+    check_python_version()
+    from pygit2 import Repository
+    git_branch = Repository('.').head.shorthand
+    build_hdr_printer.main(git_branch)
     install_from_src()

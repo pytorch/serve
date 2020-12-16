@@ -1,5 +1,4 @@
 import os
-import sys
 import platform
 import time
 import requests
@@ -10,14 +9,6 @@ torchserve_command = {
     "Darwin": "torchserve",
     "Linux": "torchserve"
 }
-
-
-def is_gpu_instance():
-    return True if os.system("nvidia-smi") == 0 else False
-
-
-def is_conda_env():
-    return True if os.system("conda") == 0 else False
 
 
 def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):

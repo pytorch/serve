@@ -5,7 +5,9 @@ version: 0.2
 phases:
   install:
     commands:
-      - python ts_scripts/install_dependencies.py --cuda=cu101
+      - apt-get update
+      - apt-get install sudo -y
+      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
 
   build:
     commands:

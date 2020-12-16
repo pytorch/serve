@@ -33,7 +33,7 @@ from setuptools import setup, find_packages, Command
 
 import ts
 
-pkgs = find_packages()
+pkgs = find_packages(exclude=["ts_scripts", "test"])
 
 build_frontend_command = {"Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
                           "Darwin": "frontend/gradlew -p frontend clean assemble",

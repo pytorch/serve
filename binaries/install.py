@@ -6,11 +6,11 @@ import glob
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts import tsutils
+from ts_scripts.utils import is_conda_env
 
 
 def install():
-    if tsutils.is_conda_env():
+    if is_conda_env():
         print("## Using conda to install torchserve and torch-model-archiver")
         channel_dir = os.path.abspath(os.path.join(REPO_ROOT, "binaries", "conda", "output"))
         conda_cmd = f"conda install --channel {channel_dir} -y torchserve torch-model-archiver"
