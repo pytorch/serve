@@ -23,6 +23,7 @@ import org.pytorch.serve.http.RequestTimeoutException;
 import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
+import org.pytorch.serve.http.messages.KFV1ModelReadyResponse;
 import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;

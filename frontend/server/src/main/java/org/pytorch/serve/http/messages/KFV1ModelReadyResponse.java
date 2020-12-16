@@ -1,4 +1,4 @@
-package org.pytorch.serve.http;
+package org.pytorch.serve.http.messages;
 
 public class KFV1ModelReadyResponse {
 
