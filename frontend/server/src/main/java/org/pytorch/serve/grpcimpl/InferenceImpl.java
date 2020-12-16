@@ -52,18 +52,13 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         String modelName = request.getModelName();
         String modelVersion = request.getModelVersion();
 
-        if (modelName == null || ("").equals(modelName)) {
+        if (modelName == null || "".equals(modelName)) {
             BadRequestException e = new BadRequestException("Parameter model_name is required.");
-            responseObserver.onError(
-                    Status.INTERNAL
-                            .withDescription(e.getMessage())
-                            .augmentDescription("BadRequestException.()")
-                            .withCause(e)
-                            .asRuntimeException());
+            sendErrorResponse(responseObserver, Status.INTERNAL, e, "BadRequestException.()");
             return;
         }
 
-        if (modelVersion == null || ("").equals(modelVersion)) {
+        if (modelVersion == null || "".equals(modelVersion)) {
             modelVersion = null;
         }
 
@@ -87,31 +82,26 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         try {
             if (!ModelManager.getInstance().addJob(job)) {
                 String responseMessage =
-                        "Model \""
-                                + modelName
-                                + "\" Version "
-                                + modelVersion
-                                + " has no worker to serve inference request. Please use scale workers API to add workers.";
-
-                if (modelVersion == null) {
-                    responseMessage =
-                            "Model \""
-                                    + modelName
-                                    + "\" has no worker to serve inference request. Please use scale workers API to add workers.";
-                }
+                        ApiUtils.getInferenceErrorResponseMessage(modelName, modelVersion);
                 InternalServerException e = new InternalServerException(responseMessage);
-                responseObserver.onError(
-                        Status.INTERNAL
-                                .withDescription(e.getMessage())
-                                .augmentDescription("InternalServerException.()")
-                                .asRuntimeException());
+                sendErrorResponse(
+                        responseObserver, Status.INTERNAL, e, "InternalServerException.()");
             }
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-            responseObserver.onError(
-                    Status.INTERNAL
-                            .withDescription(e.getMessage())
-                            .augmentDescription(e.getClass().getCanonicalName())
-                            .asRuntimeException());
+            sendErrorResponse(responseObserver, Status.INTERNAL, e, null);
         }
+    }
+
+    private void sendErrorResponse(
+            StreamObserver<PredictionResponse> responseObserver,
+            Status status,
+            Exception e,
+            String description) {
+        responseObserver.onError(
+                status.withDescription(e.getMessage())
+                        .augmentDescription(
+                                description == null ? e.getClass().getCanonicalName() : description)
+                        .withCause(e)
+                        .asRuntimeException());
     }
 }

@@ -4,10 +4,11 @@ import time
 import glob
 import os
 import requests
+import tempfile
 
+ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 
-ROOT_DIR = "/workspace/"
-MODEL_STORE = ROOT_DIR + "model_store/"
+MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
 
@@ -70,7 +71,7 @@ def unregister_model(model_name):
 
 
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
-    model_store = model_store if (model_store != None) else "/workspace/model_store/"
-    if model_mar != None:
-        for f in glob.glob(model_store + "/" + model_mar + "*"):
+    model_store = model_store if (model_store is not None) else f"{ROOT_DIR}/model_store/"
+    if model_mar is not None:
+        for f in glob.glob(path.join(model_store, model_mar + "*")):
             os.remove(f)

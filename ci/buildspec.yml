@@ -6,10 +6,10 @@ phases:
   install:
     commands:
       - apt-get update
-      - apt-get install -y curl gnupg2
-      - pip install pip -U
+      - apt-get install sudo -y
+      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
 
   build:
     commands:
-      - ./torchserve_sanity.sh cuda101
+      - python torchserve_sanity.py
       - cd serving-sdk/ && mvn clean install -q && cd ../

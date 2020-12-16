@@ -343,4 +343,17 @@ public final class ApiUtils {
 
         return resp;
     }
+
+    @SuppressWarnings("PMD")
+    public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
+        String responseMessage = "Model \"" + modelName;
+
+        if (modelVersion == null) {
+            responseMessage += "\" Version " + modelVersion;
+        }
+
+        responseMessage +=
+                "\" has no worker to serve inference request. Please use scale workers API to add workers.";
+        return responseMessage;
+    }
 }

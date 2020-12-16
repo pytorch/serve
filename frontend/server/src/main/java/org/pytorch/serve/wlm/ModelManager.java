@@ -152,6 +152,8 @@ public final class ModelManager {
             archive.getManifest().getModel().setHandler(configManager.getTsDefaultServiceHandler());
         }
 
+        archive.getManifest().getModel().setEnvelope(configManager.getTsServiceEnvelope());
+
         archive.validate();
 
         return archive;
@@ -219,6 +221,10 @@ public final class ModelManager {
     }
 
     public int unregisterModel(String modelName, String versionId) {
+        return unregisterModel(modelName, versionId, false);
+    }
+
+    public int unregisterModel(String modelName, String versionId, boolean isCleanUp) {
         ModelVersionedRefs vmodel = modelsNameMap.get(modelName);
         if (vmodel == null) {
             logger.warn("Model not found: " + modelName);
@@ -236,7 +242,7 @@ public final class ModelManager {
             model = vmodel.removeVersionModel(versionId);
             model.setMinWorkers(0);
             model.setMaxWorkers(0);
-            CompletableFuture<Integer> futureStatus = wlm.modelChanged(model, false);
+            CompletableFuture<Integer> futureStatus = wlm.modelChanged(model, false, isCleanUp);
             httpResponseStatus = futureStatus.get();
 
             // Only continue cleaning if resource cleaning succeeded
@@ -256,7 +262,9 @@ public final class ModelManager {
                 modelsNameMap.remove(modelName);
             }
 
-            ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
+            if (!isCleanUp) {
+                ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
+            }
         } catch (ModelVersionNotFoundException e) {
             logger.warn("Model {} version {} not found.", modelName, versionId);
             httpResponseStatus = HttpURLConnection.HTTP_BAD_REQUEST;
@@ -286,11 +294,21 @@ public final class ModelManager {
             throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
         return updateModel(
-                modelName, versionId, model.getMinWorkers(), model.getMaxWorkers(), isStartup);
+                modelName,
+                versionId,
+                model.getMinWorkers(),
+                model.getMaxWorkers(),
+                isStartup,
+                false);
     }
 
     public CompletableFuture<Integer> updateModel(
-            String modelName, String versionId, int minWorkers, int maxWorkers, boolean isStartup)
+            String modelName,
+            String versionId,
+            int minWorkers,
+            int maxWorkers,
+            boolean isStartup,
+            boolean isCleanUp)
             throws ModelVersionNotFoundException {
         Model model = getVersionModel(modelName, versionId);
 
@@ -302,7 +320,7 @@ public final class ModelManager {
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
 
-        return wlm.modelChanged(model, isStartup);
+        return wlm.modelChanged(model, isStartup, isCleanUp);
     }
 
     private Model getVersionModel(String modelName, String versionId) {
@@ -317,7 +335,7 @@ public final class ModelManager {
     public CompletableFuture<Integer> updateModel(
             String modelName, String versionId, int minWorkers, int maxWorkers)
             throws ModelVersionNotFoundException {
-        return updateModel(modelName, versionId, minWorkers, maxWorkers, false);
+        return updateModel(modelName, versionId, minWorkers, maxWorkers, false, false);
     }
 
     public Map<String, Model> getDefaultModels() {

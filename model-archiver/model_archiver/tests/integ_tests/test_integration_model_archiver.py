@@ -1,8 +1,11 @@
+import platform
+import time
 from datetime import datetime
 import errno
 import json
 import os
 import shutil
+import tempfile
 import subprocess
 import model_archiver
 
@@ -123,6 +126,7 @@ def validate(test):
 def build_cmd(test):
     args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format',
             'version', 'export-path', 'runtime']
+
     cmd = ["torch-model-archiver"]
 
     for arg in args:
@@ -136,10 +140,15 @@ def test_model_archiver():
     with open("model_archiver/tests/integ_tests/configuration.json", "r") as f:
         tests = json.loads(f.read())
         for test in tests:
+            # tar.gz format problem on windows hence ignore
+            if platform.system() == "Windows" and test['archive-format'] == 'tgz':
+                continue
             try:
+                test["export-path"] = os.path.join(tempfile.gettempdir(), test["export-path"])
                 delete_file_path(test.get("export-path"))
                 create_file_path(test.get("export-path"))
                 test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
+                test["model-name"] = test["model-name"] + '_' + str(int(time.time()*1000.0))
                 cmd = build_cmd(test)
                 if test.get("force"):
                     cmd += " -f"

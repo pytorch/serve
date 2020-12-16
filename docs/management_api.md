@@ -15,7 +15,7 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 
 ## Register a model
 
-This API closely follows the [ManagementAPIsService.RegisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API.
+This API follows the [ManagementAPIsService.RegisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API.
 
 `POST /models`
 
@@ -32,7 +32,7 @@ This API closely follows the [ManagementAPIsService.RegisterModel](../frontend/s
 * response_timeout - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
 
 ```bash
-curl -X POST "http://localhost:8081/models?url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 
 {
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
@@ -45,7 +45,7 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 The asynchronous call returns with HTTP code 202 before trying to create workers.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
@@ -61,7 +61,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=fals
 The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
@@ -76,7 +76,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 
 ## Scale workers
 
-This API closely follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 
 `PUT /models/{model_name}`
@@ -144,7 +144,7 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 
 ## Describe model
 
-This API closely follows the [ManagementAPIsService.DescribeModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.DescribeModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models/{model_name}`
 
@@ -258,7 +258,7 @@ curl http://localhost:8081/models/noop/all
 
 ## Unregister a model
 
-This API closely follows the [ManagementAPIsService.UnregisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.UnregisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `DELETE /models/{model_name}/{version}`
 
@@ -273,7 +273,7 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 ```
 
 ## List models
-This API closely follows the [ManagementAPIsService.ListModels](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.ListModels](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models`
 
@@ -330,7 +330,7 @@ Example outputs of the Inference and Management APIs:
 
 ## Set Default Version
 
-This API closely follows the [ManagementAPIsService.SetDefault](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.SetDefault](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `PUT /models/{model_name}/{version}/set-default`
 

@@ -221,7 +221,7 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
-* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
+* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
 		     This is used in conjunction with `enable_meterics_api` option above.
 
 
@@ -240,6 +240,7 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
 the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+* `initial_worker_port` : This is the initial port number for auto assigning port to worker process.
 * `model_store` : Path of model store directory.
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500

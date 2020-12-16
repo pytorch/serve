@@ -34,3 +34,33 @@ Run the commands given in following steps from the parent directory of the root 
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
+For captum Explanations on the Torchserve side, use the below curl request:
+```bash
+curl http://127.0.0.1:8080/explanations/mnist -T examples/image_classifier/mnist/test_data/0.png
+```
+
+In order to run Captum Explanations with the request input in a json file, follow the below steps:
+
+In the config.properties, specify `service_envelope=body` and make the curl request as below:
+```bash
+curl -H "Content-Type: application/json" --data @examples/image_classifier/mnist/mnist_ts.json http://127.0.0.1:8080/explanations/mnist_explain
+```
+When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
+
+### Captum Explanations
+
+The explain is called with the following request api http://127.0.0.1:8080/explanations/mnist_explain
+
+#### The handler changes:
+
+1. The handlers should initialize.
+```python
+self.ig = IntegratedGradients(self.model)
+```
+in the initialize function for the captum to work.(It is initialized in the base class-vision_handler)
+
+2. The Base handler handle uses the explain_handle method to perform captum insights based on whether user wants predictions or explanations. These methods can be overriden to make your changes in the handler.
+
+3. The get_insights method in the handler is called by the explain_handle method to calculate insights using captum.
+
+4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
