@@ -1,10 +1,11 @@
 package org.pytorch.serve.util;
 
-import io.netty.util.NettyRuntime;
-import io.netty.util.internal.SystemPropertyUtil;
+
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.NettyRuntime;
+import io.netty.util.internal.SystemPropertyUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -543,7 +544,7 @@ public final class ConfigManager {
         Runtime runtime = Runtime.getRuntime();
 
         // When Netty Threads are set to 0, this value is used by default
-        int DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
+        int defaultEventLoopThreads = Math.max(1, SystemPropertyUtil.getInt(
                 "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
         return "\nTorchserve version: "
                 + prop.getProperty(VERSION)
@@ -578,9 +579,9 @@ public final class ConfigManager {
                 + "\nMetrics dir: "
                 + getCanonicalPath(System.getProperty("METRICS_LOCATION"))
                 + "\nNetty threads: "
-                + (getNettyThreads() == 0 ? String.valueOf(DEFAULT_EVENT_LOOP_THREADS) : getNettyThreads())
+                + (getNettyThreads() == 0 ? defaultEventLoopThreads : getNettyThreads())
                 + "\nNetty client threads: "
-                + (getNettyClientThreads() == 0 ? String.valueOf(DEFAULT_EVENT_LOOP_THREADS) : getNettyClientThreads())
+                + (getNettyClientThreads() == 0 ? defaultEventLoopThreads : getNettyClientThreads())
                 + "\nDefault workers per model: "
                 + getDefaultWorkers()
                 + "\nBlacklist Regex: "
