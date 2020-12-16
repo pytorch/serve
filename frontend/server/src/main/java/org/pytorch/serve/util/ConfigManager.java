@@ -578,9 +578,9 @@ public final class ConfigManager {
                 + "\nMetrics dir: "
                 + getCanonicalPath(System.getProperty("METRICS_LOCATION"))
                 + "\nNetty threads: "
-                + (getNettyThreads() == 0 ? DEFAULT_EVENT_LOOP_THREADS : getNettyThreads())
+                + (getNettyThreads() == 0 ? String.valueOf(DEFAULT_EVENT_LOOP_THREADS) : getNettyThreads())
                 + "\nNetty client threads: "
-                + (getNettyClientThreads() == 0 ? DEFAULT_EVENT_LOOP_THREADS : getNettyClientThreads())
+                + (getNettyClientThreads() == 0 ? String.valueOf(DEFAULT_EVENT_LOOP_THREADS) : getNettyClientThreads())
                 + "\nDefault workers per model: "
                 + getDefaultWorkers()
                 + "\nBlacklist Regex: "
