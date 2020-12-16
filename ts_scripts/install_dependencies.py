@@ -35,7 +35,7 @@ class Common():
             os.system("conda install -y conda-build")
 
         self.install_torch_packages(cuda_version)
-        os.system("pip install -U pip==20.3 setuptools")
+        os.system("pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system("pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package

@@ -42,7 +42,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
 #ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-RUN pip install -U pip==20.3 setuptools
+RUN pip install -U pip setuptools
 
 # Build Dev Image
 FROM compile-image AS dev-image
@@ -56,6 +56,8 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git checkout ${BRANCH_NAME} \
     && python ts_scripts/install_dependencies.py --environment=dev --cuda $CUDA_VERSION \
     && python ts_scripts/install_from_src.py \
+    && pip install captum \
+    && pip install transformers\
     && pip install . \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
