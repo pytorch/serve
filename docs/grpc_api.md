@@ -48,23 +48,23 @@ torchserve --start
  - Generate python gRPC client stub using the proto files
  
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Register densenet161 model
  
 ```bash
-python scripts/torchserve_grpc_client.py register densenet161
+python ts_scripts/torchserve_grpc_client.py register densenet161
 ```
 
  - Run inference using 
  
 ```bash
-python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
 
  - Unregister densenet161 model
 
 ```bash
-python scripts/torchserve_grpc_client.py unregister densenet161
+python ts_scripts/torchserve_grpc_client.py unregister densenet161
 ```
