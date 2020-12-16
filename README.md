@@ -161,6 +161,7 @@ pip install -U grpcio protobuf grpcio-tools
 
  - Generate inference client using proto files
 
+```bash
 python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
