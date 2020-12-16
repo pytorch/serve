@@ -1,6 +1,5 @@
 package org.pytorch.serve.util;
 
-
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -544,8 +543,12 @@ public final class ConfigManager {
         Runtime runtime = Runtime.getRuntime();
 
         // When Netty Threads are set to 0, this value is used by default
-        int defaultEventLoopThreads = Math.max(1, SystemPropertyUtil.getInt(
-                "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+        int defaultEventLoopThreads =
+                Math.max(
+                        1,
+                        SystemPropertyUtil.getInt(
+                                "io.netty.eventLoopThreads",
+                                NettyRuntime.availableProcessors() * 2));
         return "\nTorchserve version: "
                 + prop.getProperty(VERSION)
                 + "\nTS Home: "
