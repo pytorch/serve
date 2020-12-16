@@ -1,10 +1,20 @@
 
 
 import json
+import platform
+
 import pytest
 from collections import namedtuple
 from workflow_archiver.workflow_packaging_utils import WorkflowExportUtils
 from workflow_archiver.workflow_archiver_error import WorkflowArchiverError
+
+
+# noinspection PyClassHasNoInit
+def _validate_war(patches):
+    if platform.system() == "Windows":
+        patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-workflow.m=war")
+    else:
+        patches.path_exists.assert_called_once_with('/Users/dummyUser/some-workflow.war')
 
 
 # noinspection PyClassHasNoInit
@@ -25,22 +35,21 @@ class TestExportWorkflowUtils:
         def test_export_file_is_none(self, patches):
             patches.path_exists.return_value = False
             ret_val = WorkflowExportUtils.check_war_already_exists('some-workflow', None, False)
-
-            patches.path_exists.assert_called_once_with("/Users/dummyUser/some-workflow.war")
+            _validate_war(patches)
             assert ret_val == "/Users/dummyUser"
 
         def test_export_file_is_not_none(self, patches):
             patches.path_exists.return_value = False
             WorkflowExportUtils.check_war_already_exists('some-workflow', '/Users/dummyUser/', False)
 
-            patches.path_exists.assert_called_once_with('/Users/dummyUser/some-workflow.war')
+            _validate_war(patches)
 
         def test_export_file_already_exists_with_override(self, patches):
             patches.path_exists.return_value = True
 
             WorkflowExportUtils.check_war_already_exists('some-workflow', None, True)
 
-            patches.path_exists.assert_called_once_with('/Users/dummyUser/some-workflow.war')
+            _validate_war(patches)
 
         def test_export_file_already_exists_with_override_false(self, patches):
             patches.path_exists.return_value = True
@@ -48,7 +57,7 @@ class TestExportWorkflowUtils:
             with pytest.raises(WorkflowArchiverError):
                 WorkflowExportUtils.check_war_already_exists('some-workflow', None, False)
 
-            patches.path_exists.assert_called_once_with('/Users/dummyUser/some-workflow.war')
+            _validate_war(patches)
 
     # noinspection PyClassHasNoInit
     class TestCustomWorkflowTypes:
