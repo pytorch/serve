@@ -1,55 +1,73 @@
 # Predict on a InferenceService using PyTorch Server and Transformer
 
-Most of the model servers expect tensors as input data, so a pre-processing step is needed before making the prediction call if the user is sending in raw input format. Transformer is a service we orchestrated from InferenceService spec for user implemented pre/post processing code. In the [pytorch](../README.md) example we call the prediction endpoint with tensor inputs, and in this example we add additional pre-processing step to allow the user send raw image data.
+Most of the model servers expect tensors as input data, so a pre-processing step is needed before making the prediction call if the user is sending in raw input format. Transformer is a service for users to implement pre/post processing code before making the prediction call. In this example we add additional pre-processing step to allow the user send raw image data and convert it into json array.
 
-## Setup
-1. Your ~/.kube/config should point to a cluster with [KFServing installed](https://github.com/kubeflow/kfserving/#install-kfserving).
-2. Your cluster's Istio Ingress gateway must be [network accessible](https://istio.io/latest/docs/tasks/traffic-management/ingress/ingress-control/).
 
 ##  Build Transformer image
 
 ### Extend KFModel and implement pre/post processing functions
 ```python
-import kfserving
-from typing import List, Dict
-from PIL import Image
-import torchvision.transforms as transforms
-import logging
-import io
-import numpy as np
-import base64
+EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
-logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
-
-transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
+image_processing = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
 
 def image_transform(instance):
-    byte_array = base64.b64decode(instance['image_bytes']['b64'])
+    byte_array = base64.b64decode(instance["data"])
     image = Image.open(io.BytesIO(byte_array))
-    a = np.asarray(image)
-    im = Image.fromarray(a)
-    res = transform(im)
-    logging.info(res)
-    return res.tolist()
+    instance["data"] = image_processing(image).tolist()
+    logging.info(instance)
+    return instance
 
 
 class ImageTransformer(kfserving.KFModel):
+
     def __init__(self, name: str, predictor_host: str):
         super().__init__(name)
         self.predictor_host = predictor_host
+        self.explainer_host = predictor_host
+        logging.info("MODEL NAME %s", name)
+        logging.info("PREDICTOR URL %s", self.predictor_host)
+        logging.info("EXPLAINER URL %s", self.explainer_host)
+        self.timeout = 100
 
     def preprocess(self, inputs: Dict) -> Dict:
+
         return {'instances': [image_transform(instance) for instance in inputs['instances']]}
 
     def postprocess(self, inputs: List) -> List:
         return inputs
 ```
+## Steps to run Image Transformer in local environment
+### Install the Image Transformer and KFServing Repo
 
-### Build Transformer docker image
-This step can be part of your CI/CD pipeline to continuously build the transformer image version. 
-```shell
-docker build -t gcr.io/kubeflow-ci/kfserving/image-transformer:latest -f transformer.Dockerfile .
+* Clone the KFServing Git Repository
+```bash
+git clone -b master https://github.com/kubeflow/kfserving.git
 ```
+
+* Install KFServing as below:
+```bash
+pip install -e ./kfserving/python/kfserving
+``` 
+
+* Install Image Transformer with the below command
+```bash
+pip install -e ./serve/kubernetes/kfserving/image_transformer/
+```
+
+* Run the Image Transformer with the below command
+```bash
+python3 -m image_transformer --predictor_host 0.0.0.0:8080
+```
+The transformer will hit the predictor host after pre-processing.
+
+## Build Transformer docker image
+This step can be used to continuously build the transformer image version. 
+```shell
+docker build -t <image_name>:<tag> -f transformer.Dockerfile .
+```
+
+

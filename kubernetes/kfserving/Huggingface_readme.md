@@ -14,17 +14,23 @@ This produces all the required files for packaging using a huggingface transform
 The .mar file creation command is as below:
 
 ```
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file serve/examples/Huggingface_Transformers/Transformer_model/pytorch_model.bin --handler serve/examples/Huggingface_Transformers/Transformer_model/Transformer_handler_generalized.py --source-vocab serve/examples/Huggingface_Transformers/Transformer_model/vocab.txt --extra-files "Transformer_model/config.json,serve/examples/Huggingface_Transformers/Transformer_model/setup_config.json,serve/examples/Huggingface_Transformers/Transformer_model/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file serve/examples/Huggingface_Transformers/Transformer_model/pytorch_model.bin --handler serve/examples/Huggingface_Transformers/Transformer_model/Transformer_handler_generalized.py --extra-files "serve/examples/Huggingface_Transformers/Transformer_model/vocab.txt,serve/examples/Huggingface_Transformers/Transformer_model/config.json,serve/examples/Huggingface_Transformers/Transformer_model/setup_config.json,serve/examples/Huggingface_Transformers/Transformer_model/index_to_name.json"
 ```
 
-## Starting Torchserve
+## Starting Torchserve for KFServing Predictor
 To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
 ```
+inference_address=http://127.0.0.0:8085
+management_address=http://127.0.0.0:8081
+number_of_netty_threads=4
 service_envelope=kfserving
+job_queue_size=10
+model_store=model-store
+
 ```
-The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+The Service Envelope field should be set as kfserving and it is mandatory.
 
 * start Torchserve by invoking the below command:
 ```
@@ -37,13 +43,15 @@ torchserve --start --model-store model_store --ncs --models bert=BERTSeqClassifi
 Hit the below curl request to register the model
 
 ```
-curl -X POST "localhost:8081/models?model_name=bert&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+  curl -X POST "localhost:8081/models?model_name=bert&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
 
 ## Request and Response
 
 ### The curl request for inference is as below:
+
+When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:predict
 ```
@@ -58,6 +66,8 @@ The Prediction response is as below :
 }
 ```
 ### The curl request for explanations is as below:
+
+Torchserve supports KFServing Captum Explanations for Eager Models of Transformers only.
 
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
@@ -98,6 +108,20 @@ The Explanation response is as below :
         "[SEP]"
       ],
       "delta": -0.0010374430790551711
+    }
+  ]
+}
+```
+
+KFServing supports Static batching by adding new examples in the instances key of the request:
+```bash
+{
+  "instances": [
+    {
+      "data": "Bloomberg has reported on the economy"
+    },
+    {
+      "data": "Bloomberg has reported on the economy"
     }
   ]
 }
@@ -157,3 +181,21 @@ The response is as below:
 * The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in the regular torchserve.
 
     So in the preprocess method of [Transformer_handler_generalized.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py), KFServing doesn't require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
+
+
+ ### Code Changes between KFServing and Torchserve
+
+  The code changes for KFServing are done in the Custom Handler for BERT in the preprocess function. The changes are done in the [Line# 121 to 122 of Transformer Handler Generalized file](https://github.com/pytorch/serve/blob/f3a6d7658fd68729a26eddcefa9243e3b79b5d18/examples/Huggingface_Transformers/Transformer_handler_generalized.py#L121). The details of which are illustrated below:
+
+  ```
+
+  def preprocess():
+      ----
+      ----
+      #Line 121 - 122 of Transformer Handler Generalized file
+      if isinstance(input_text, (bytes, bytearray)):
+          input_text = input_text.decode('utf-8')
+
+      ----
+      ----
+  ```

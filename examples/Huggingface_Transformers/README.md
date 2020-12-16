@@ -173,6 +173,9 @@ Now to run the batch inference follwoing command can be used:
 ### Captum Explanations
 
 The explain is called with the following request api http://127.0.0.1:8080/explanations/bert_explain
+
+Torchserve supports Captum Explanations for Eager models of Transformer models only.
+
 #### The handler changes:
 
 1. The handlers should initialize.
@@ -199,3 +202,24 @@ As captum makes many predictions for each sample, there may be a timeout for the
 
 The [Captum Explanations for Visual Insights Notebook](../../captum/Captum_visualization_for_bert.ipynb) gives an insight into how the captum explanations can be used to visually represent the attributions and word importances. The pre-requisite is to have the prediction response ready. In this example, the prediction response from the BERT Seq Classification is used. 
 
+
+ ### Code Changes between KFServing and Torchserve
+
+  The code changes for KFServing are done in the Custom Handler for BERT in the preprocess function. The changes are done in the [Line# 121 to 122 of Transformer Handler Generalized file](https://github.com/pytorch/serve/blob/f3a6d7658fd68729a26eddcefa9243e3b79b5d18/examples/Huggingface_Transformers/Transformer_handler_generalized.py#L121). The details of which are illustrated below:
+
+  ```
+
+  def preprocess():
+      ----
+      ----
+      #Line 121 - 122 of Transformer Handler Generalized file
+      if isinstance(input_text, (bytes, bytearray)):
+          input_text = input_text.decode('utf-8')
+
+      ----
+      ----
+  ```
+
+  Refer the [BERT Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) to run it locally.
+
+  Refer the [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.

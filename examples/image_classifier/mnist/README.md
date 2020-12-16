@@ -51,6 +51,8 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 The explain is called with the following request api http://127.0.0.1:8080/explanations/mnist_explain
 
+Torchserve supports Captum Explanations for Eager models of mnist only.
+
 #### The handler changes:
 
 1. The handlers should initialize.
@@ -64,3 +66,25 @@ in the initialize function for the captum to work.(It is initialized in the base
 3. The get_insights method in the handler is called by the explain_handle method to calculate insights using captum.
 
 4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
+
+
+### Code Changes between KFServing and Torchserve
+
+The code changes for KFServing are done in the preprocess function of the vision handler for MNIST. The changes are done in the [Line# 39 - 41 of Vision Handler](https://github.com/pytorch/serve/blob/82d1122e4201a2f404b566207691d39e1450a3a0/ts/torch_handler/vision_handler.py#L39). The details of which are illustrated below:
+
+```
+
+def preprocess():
+    ----
+    ----
+    #Line 39 - 41 of Vision Handler
+    if isinstance(image, str):
+        # if the image is a string of bytesarray.
+        image = base64.b64decode(image)
+
+    ----
+    ----
+```
+Refer the [MNIST Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md) to run it locally.
+
+Refer the [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.

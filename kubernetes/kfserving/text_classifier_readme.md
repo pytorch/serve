@@ -2,7 +2,16 @@
 
 In this document, the .mar file creation, request & response on the KFServing side and the KFServing changes to the handler files for Text Classification model using Torchserve's default text handler.
 
+
 ## .mar file creation
+
+Before the mar file creation process, the user needs to create the source_vocab.pt file and the model.pt file
+Navigate to serve/examples/text_classification and run the below command inside that directory path
+
+```bash
+./run_script.sh
+```
+This creates the model.pt and source_vocab.pt file
 
 The .mar file creation command is as below:
 
@@ -10,14 +19,19 @@ The .mar file creation command is as below:
 torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file serve/examples/text_classification/model.py --serialized-file serve/examples/text_classification/model.pt --handler text_classifier --extra-files "serve/examples/text_classification/index_to_name.json,serve/examples/text_classification/source_vocab.pt"
 ```
 
-## Starting Torchserve
+## Starting Torchserve for KFServing Predictor
 To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
 ```
+inference_address=http://127.0.0.0:8085
+management_address=http://127.0.0.0:8081
+number_of_netty_threads=4
 service_envelope=kfserving
+job_queue_size=10
+model_store=model-store
 ```
-The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+The Service Envelope field should be set as kfserving and it is mandatory.
 
 * start Torchserve by invoking the below command:
 ```
@@ -37,6 +51,7 @@ Please note that the batch size, the initial worker and synchronous values can b
 ## Request and Response
 
 ### The curl request is as below for predict:
+When the curl request is made, ensure that the request is made inisde of the serve folder.
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/text_classifier.json http://127.0.0.1:8085/v1/models/my_tc:predict
@@ -59,6 +74,8 @@ The Prediction response is as below :
 ```
 
 ### The curl request is as below for explain:
+
+Torchserve supports KFServing Captum Explanations for Eager models of Text Classification only.
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/text_classifier.json http://127.0.0.1:8085/v1/models/my_tc:explain
@@ -95,6 +112,20 @@ The Explanation response is as below :
 }
 ```
 
+KFServing supports Static batching by adding new examples in the instances key of the request:
+
+```bash
+{
+  "instances": [
+    {
+      "data": "Bloomberg has reported on the economy"
+    },
+    {
+      "data": "Bloomberg has reported on the economy"
+    }
+  ]
+}
+```
 ### The curl request for the Server Health check 
 
 Server Health check API returns the model's state for inference
@@ -118,7 +149,7 @@ The response is as below:
 
         The text classifier request difference between the regular torchserve and kfserving is as below
 
-    ### Regular torchserve request:
+  ### Regular torchserve request:
 	```
 	[
 		{
@@ -144,9 +175,27 @@ The response is as below:
 
 *   The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in 		  the regular torchserve.
 
-	  So  in the preprocess method of [text_classifier.py](https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py) KFServing doesn't require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
+	  So  in the preprocess method of [text_classifier.py](https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py) KFServing doesnt require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
 
 
 
 NOTE :
 The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
+
+
+### Code Changes between KFServing and Torchserve
+
+The code changes for KFServing are done in the preprocess function of the Text Classifier file for Text Classification.The changes are done in the [Line #48 - #49 of Text Classifier](https://github.com/pytorch/serve/blob/f3a6d7658fd68729a26eddcefa9243e3b79b5d18/ts/torch_handler/text_classifier.py#L48). The details of which are illustrated below:
+
+```
+
+def preprocess():
+    ----
+    ----
+    #Line 48 - 49 of Text Classifier
+    if isinstance(text, (bytes, bytearray)):
+            text = text.decode('utf-8')
+
+    ----
+    ----
+```
