@@ -291,9 +291,9 @@ public final class ConfigManager {
     public int getGRPCPort(ConnectorType connectorType) {
         String port;
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
-            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "9091");
+            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "7071");
         } else {
-            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "9090");
+            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
         }
         return Integer.parseInt(port);
     }

@@ -50,7 +50,6 @@ public final class ApiUtils {
         }
 
         Map<String, Model> models = ModelManager.getInstance().getDefaultModels(true);
-
         List<String> keys = new ArrayList<>(models.keySet());
         Collections.sort(keys);
         ListModelsResponse list = new ListModelsResponse();

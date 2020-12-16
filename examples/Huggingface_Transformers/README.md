@@ -197,5 +197,5 @@ As captum makes many predictions for each sample, there may be a timeout for the
 
 ### Captum Explanations for Visual Insights
 
-The [Captum Explanations for Visual Insights Notebook](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Captum_visualization_for_bert.ipynb) gives an insight into how the captum explanations can be used to visually represent the attributions and word importances. The pre-requisite is to have the prediction response ready. In this example, the prediction response from the BERT Seq Classification is used. 
+The [Captum Explanations for Visual Insights Notebook](../../captum/Captum_visualization_for_bert.ipynb) gives an insight into how the captum explanations can be used to visually represent the attributions and word importances. The pre-requisite is to have the prediction response ready. In this example, the prediction response from the BERT Seq Classification is used. 
 
