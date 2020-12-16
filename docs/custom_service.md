@@ -18,7 +18,7 @@ Provide a custom script to:
 
 Following is applicable to all types of custom handlers
 * **data** - The input data from the incoming request
-* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
+* **context** - Is the TorchServe [context](../ts/context.py). You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.
 
 ### Start with BaseHandler!
@@ -302,12 +302,12 @@ The above ModelHandler class should have the following methods with captum funct
 #### Extend default handlers
 
 TorchServe has following default handlers.
-- [image_classifier](../ts/torch_handlers/image_classifier.py)
-- [image_segmenter](../ts/torch_handlers/image_segmenter.py)
-- [object_detector](../ts/torch_handlers/object_detector.py)
-- [text_classifier](../ts/torch_handlers/text_classifier.py)
+- [image_classifier](../ts/torch_handler/image_classifier.py)
+- [image_segmenter](../ts/torch_handler/image_segmenter.py)
+- [object_detector](../ts/torch_handler/object_detector.py)
+- [text_classifier](../ts/torch_handler/text_classifier.py)
 
-If required above handlers can be extended to create custom handler. Also, you can extend abstract [base_handler](../ts/torch_handlers/base_handler.py).
+If required above handlers can be extended to create custom handler. Also, you can extend abstract [base_handler](../ts/torch_handler/base_handler.py).
 
 To import the default handler in a python script use the following import statement.
 
@@ -332,14 +332,15 @@ class CustomImageClassifier(ImageClassifier):
 ```
 For more details refer following examples :
 - [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py)
-- [resnet-152-batch_image classifier handler](../examples/image_classifier/resnet_152_batch/resnet152_handler.py)
+- [Huggingface transformer generalized handler](../examples/Huggingface_Transformers/Transformer_handler_generalized.py)
+- [Waveglow text to speech synthesizer](../examples/text_to_speech_synthesizer/waveglow_handler.py)
 
 ## Creating a model archive with an entry point
 
 TorchServe identifies the entry point to the custom service from a manifest file.
 When you create the model archive, specify the location of the entry point by using the `--handler` option.
 
-The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables you to create a model archive that TorchServe can serve.
+The [model-archiver](../model-archiver/README.md) tool enables you to create a model archive that TorchServe can serve.
 
 ```bash
 torch-model-archiver --model-name <model-name> --version <model_version_number> --handler model_handler[:<entry_point_function_name>] [--model-file <path_to_model_architecture_file>] --serialized-file <path_to_state_dict_file> [--extra-files <comma_seperarted_additional_files>] [--export-path <output-dir> --model-path <model_dir>] [--runtime python3]

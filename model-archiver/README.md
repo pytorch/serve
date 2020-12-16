@@ -11,6 +11,7 @@
     * [Serialized File](#serialized-file)
     * [handler](#handler)
 * [Quick Start: Creating a Model Archive](#creating-a-model-archive)
+* [Model specific custom python requirements](#model-specific-custom-python-requirements)
 
 ## Overview
 
@@ -109,7 +110,7 @@ optional arguments:
                         name in the path specified by --export-path will
                         overwritten
   -v, --version         Model's version.
-  -r, -requirements-file
+  -r, --requirements-file
                         Path to requirements.txt file containing a list of model specific python
                         packages to be installed by TorchServe for seamless model serving.
 ```
@@ -148,6 +149,7 @@ e.g. if your custom handler custom_image_classifier.py is in /home/serve/example
 `--handler /home/serve/examples/custom_image_classifier` or if it has my_entry_point module level function then `--handler /home/serve/examples/custom_image_classifier:my_entry_point_func`
 
 For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
+
 ## Creating a Model Archive
 
 **1. Download the torch model archiver source**
@@ -172,3 +174,15 @@ torch-model-archiver --model-name densenet_161 --version 1.0 --model-file model.
 ```
 
 This will package all the model artifacts files and output `densenet_161.mar` in the current working directory. This `.mar` file is all you need to run TorchServe, serving inference requests for a simple image recognition API. Go back to the [Serve a Model tutorial](../README.md#serve-a-model) and try to run this model archive that you just created!
+
+
+### Model specific custom python requirements
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup. 
+Supply a [python requirements](https://pip.pypa.io/en/stable/user_guide/#requirements-files) file containing the list of required python packages to be installed by `TorchServe` for seamless model serving using `--requirements-file` parameter while creating the model-archiver.
+
+Example:
+```bash
+torch-model-archiver --model-name densenet_161 --version 1.0 --model-file model.py --serialized-file model.pt --handler image_classifier --requirements-file <path_to_custom_requiremnets_file>
+```
+
+**Note**: This feature is by-default disabled in TorchServe and needs to be enabled through configuration. For more details refer [TorchServe's configuration documentation](../docs/configuration.md#allow-model-specific-custom-python-packages)

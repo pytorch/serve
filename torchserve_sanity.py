@@ -22,8 +22,8 @@ def torchserve_sanity():
 
         # Test Model archiver pylint, pytest, IT
         test_modelarchiver()
-
-        # Test Model archiver pylint, pytest, IT
+        
+        # Test Workflow archiver pylint, pytest, IT
         test_workflow_archiver()
 
         # Run Sanity Tests
