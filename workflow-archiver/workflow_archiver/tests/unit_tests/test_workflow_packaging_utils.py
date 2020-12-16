@@ -27,9 +27,7 @@ class TestExportWorkflowUtils:
         def patches(self, mocker):
             Patches = namedtuple('Patches', ['getcwd', 'path_exists'])
             patches = Patches(mocker.patch('os.getcwd'), mocker.patch('os.path.exists'))
-
             patches.getcwd.return_value = '/Users/dummyUser'
-
             return patches
 
         def test_export_file_is_none(self, patches):
@@ -41,22 +39,17 @@ class TestExportWorkflowUtils:
         def test_export_file_is_not_none(self, patches):
             patches.path_exists.return_value = False
             WorkflowExportUtils.check_war_already_exists('some-workflow', '/Users/dummyUser/', False)
-
-            _validate_war(patches)
+            patches.path_exists.assert_called_once_with('/Users/dummyUser/some-workflow.war')
 
         def test_export_file_already_exists_with_override(self, patches):
             patches.path_exists.return_value = True
-
             WorkflowExportUtils.check_war_already_exists('some-workflow', None, True)
-
             _validate_war(patches)
 
         def test_export_file_already_exists_with_override_false(self, patches):
             patches.path_exists.return_value = True
-
             with pytest.raises(WorkflowArchiverError):
                 WorkflowExportUtils.check_war_already_exists('some-workflow', None, False)
-
             _validate_war(patches)
 
     # noinspection PyClassHasNoInit
