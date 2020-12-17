@@ -15,9 +15,7 @@ bytes_array = image_64_encode.decode('utf-8')
 request = {
   "instances":[
     {
-      "data":{
-      "b64": bytes_array
-      }
+      "data": bytes_array
     }
   ]
 }
