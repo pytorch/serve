@@ -3,10 +3,15 @@ buildscript {
     spotbugsVersion = '4.0.2'
     toolVersion = '4.0.2'
   }
+  dependencies {
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
+  }
 }
 
 plugins {
-  id 'com.github.spotbugs' version '4.0.2' apply false
+    id 'com.google.protobuf' version '0.8.13' apply false
+    id 'idea'
+    id 'com.github.spotbugs' version '4.0.2' apply false
 }
 
 allprojects {
@@ -25,6 +30,7 @@ allprojects {
     }
 }
 
+
 def javaProjects() {
     return subprojects.findAll();
 }
@@ -36,6 +42,9 @@ configure(javaProjects()) {
 
     defaultTasks 'jar'
 
+	apply from: file("${rootProject.projectDir}/tools/gradle/formatter.gradle")
+	apply from: file("${rootProject.projectDir}/tools/gradle/check.gradle")
+	apply from: file("${rootProject.projectDir}/tools/gradle/spotbugs.gradle")
 
     test {
         useTestNG() {
@@ -47,9 +56,25 @@ configure(javaProjects()) {
             events "passed", "skipped", "failed", "standardOut", "standardError"
         }
     }
+    test.finalizedBy(project.tasks.jacocoTestReport)
 
     compileJava {
         options.compilerArgs << "-Xlint:all,-options,-static" << "-Werror"
     }
 
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    minimum = 0.70
+                }
+            }
+            afterEvaluate {
+                classDirectories.setFrom(files(classDirectories.files.collect {
+                    fileTree(dir: "${rootProject.projectDir}/server/src/main/java",
+                            exclude: ['org/pytorch/serve/grpc**/**'])
+                }))
+            }
+        }
+    }
 }

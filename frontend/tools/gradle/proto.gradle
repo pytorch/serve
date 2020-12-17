@@ -1,0 +1,39 @@
+dependencies {
+    implementation "io.grpc:grpc-netty-shaded:${grpc_version}"
+    implementation "io.grpc:grpc-protobuf:${grpc_version}"
+    implementation "io.grpc:grpc-stub:${grpc_version}"
+    implementation "io.grpc:protoc-gen-grpc-java:${grpc_version}"
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
+}
+
+apply plugin: 'com.google.protobuf'
+
+sourceSets {
+    main {
+        proto {
+            srcDirs 'src/main/resources/proto'
+        }
+    }
+}
+
+protobuf {
+    generatedFilesBaseDir = "${rootProject.projectDir}/server/src"
+
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protoc_version}"
+    }
+
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpc_version}"
+        }
+    }
+
+    generateProtoTasks {
+        all()*.plugins {
+          grpc {
+            outputSubDir "java"
+          }
+        }
+    }
+ }

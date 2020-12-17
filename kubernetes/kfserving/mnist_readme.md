@@ -9,9 +9,33 @@ The .mar file creation command is as below:
 torch-model-archiver --model-name mnist --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
 ```
 
+## Starting Torchserve
+To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
+
+* create a config.properties file and specify the details as shown:
+```
+service_envelope=kfserving
+```
+The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+
+* start Torchserve by invoking the below command:
+```
+torchserve --start --model-store model_store --ncs --models mnist=mnist.mar
+
+```
+
+## Model Register for KFServing:
+
+Hit the below curl request to register the model
+
+```
+curl -X POST "localhost:8081/models?model_name=mnist&url=mnist.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+```
+Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
+
 ## Request and Response
 
-The curl request is as below:
+### The curl request for Inference is as below:
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
@@ -21,18 +45,64 @@ The Prediction response is as below :
 
 ```bash
 {
-	"predictions" : [
+  "predictions": [
+    2
+  ]
+}
+```
+### The curl request for Explanation is as below:
 
-						2
-					]
+```bash
+ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
+```
+
+The Explanation response is as below :
+
+```bash
+{
+  "explanations": [
+    [
+      [
+        [
+          0.004570948731989492,
+          0.006216969640322402,
+          0.008197565423679522,
+          0.009563574612830427,
+          0.008999274832810742,
+          0.009673474804303854,
+          0.007599905146155397,
+          ------,
+	  ------
+
+        ]
+      ]
+    ]
+  ]
 }
 ```
 
+### The curl request for the Server Health check 
 
-## KFServing changes to the handler files 
+Server Health check API returns the model's state for inference
+
+```bash
+curl -X GET "http://127.0.0.1:8081/v1/models/mnist"
+```
+
+The response is as below:
+
+```bash
+{
+  "name": "mnist",
+  "ready": true
+}
+```
+
+## The KFServing Changes in the handler files
+
 
 * 1)  When you write a handler, always expect a plain Python list containing data ready to go into `preprocess`.
-The bert request difference between the regular torchserve and kfserving is as below:
+The bert request difference between the regular torchserve and kfserving is as below
 
 	### Regular torchserve request
 
@@ -44,17 +114,17 @@ The bert request difference between the regular torchserve and kfserving is as b
 
 			}
 
-	  ]	
+	]	
 	```
 
 	### KFServing Request:
 	```bash
 	{
-		"instances":[
-						{
-						"data" : "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-						}
-					]
+	"instances": [
+		{
+			"data": "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
+		}
+	]
 	}
 	```
 

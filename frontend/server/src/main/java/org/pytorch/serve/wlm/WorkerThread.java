@@ -9,11 +9,11 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -22,11 +22,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
-import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
@@ -172,7 +173,7 @@ public class WorkerThread implements Runnable {
         thread.setName(getWorkerName());
         currentThread.set(thread);
         BaseModelRequest req = null;
-        HttpResponseStatus status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
 
         try {
             connect();
@@ -201,6 +202,17 @@ public class WorkerThread implements Runnable {
                     case PREDICT:
                         model.resetFailedInfReqs();
                         break;
+                    case LOAD:
+                        if (reply.getCode() == 200) {
+                            setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
+                            backoffIdx = 0;
+                        } else {
+                            setState(WorkerState.WORKER_ERROR, reply.getCode());
+                            status = reply.getCode();
+                        }
+                        break;
+                    case UNLOAD:
+                    case STATS:
                     default:
                         break;
                 }
@@ -228,7 +240,7 @@ public class WorkerThread implements Runnable {
             logger.error("Backend worker error", e);
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
-            status = HttpResponseStatus.INSUFFICIENT_STORAGE;
+            status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
         } finally {
@@ -240,7 +252,7 @@ public class WorkerThread implements Runnable {
             Integer exitValue = lifeCycle.getExitValue();
 
             if (exitValue != null && exitValue == 137) {
-                status = HttpResponseStatus.INSUFFICIENT_STORAGE;
+                status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
             }
 
             if (req != null) {
@@ -271,7 +283,7 @@ public class WorkerThread implements Runnable {
 
         String modelName = model.getModelName();
         String modelVersion = model.getVersion();
-        setState(WorkerState.WORKER_STARTED, HttpResponseStatus.OK);
+        setState(WorkerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
         final CountDownLatch latch = new CountDownLatch(1);
 
         final int responseBufferSize = configManager.getMaxResponseSize();
@@ -305,6 +317,37 @@ public class WorkerThread implements Runnable {
                                             thread.interrupt();
                                         }
                                     });
+
+            backendChannel
+                    .newSucceededFuture()
+                    .addListener(
+                            (ChannelFutureListener)
+                                    future -> {
+                                        // TODO:
+                                        // use gpu, batch size in load model command
+                                        RequestInput input =
+                                                new RequestInput(UUID.randomUUID().toString());
+                                        if (gpuId >= 0) {
+                                            input.addParameter(
+                                                    new InputParameter(
+                                                            "gpu", String.valueOf(gpuId)));
+                                        }
+
+                                        Job job =
+                                                new RestJob(
+                                                        null,
+                                                        modelName,
+                                                        modelVersion,
+                                                        WorkerCommands.LOAD,
+                                                        input);
+                                        model.addJob(workerId, job);
+                                        latch.countDown();
+                                    });
+
+            if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
+                throw new WorkerInitializationException(
+                        "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
+            }
             running.set(true);
         } catch (Throwable t) {
             // https://github.com/netty/netty/issues/2597
@@ -333,7 +376,7 @@ public class WorkerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
-        setState(WorkerState.WORKER_SCALED_DOWN, HttpResponseStatus.OK);
+        setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         if (backendChannel != null) {
             backendChannel.close();
         }
@@ -342,7 +385,7 @@ public class WorkerThread implements Runnable {
         if (thread != null) {
             thread.interrupt();
             aggregator.sendError(
-                    null, "Worker scaled down.", HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                    null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
         }
@@ -353,7 +396,7 @@ public class WorkerThread implements Runnable {
         return "W-" + port + '-' + modelName;
     }
 
-    public void setState(WorkerState newState, HttpResponseStatus status) {
+    public void setState(WorkerState newState, int status) {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
@@ -401,7 +444,12 @@ public class WorkerThread implements Runnable {
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             logger.error("Unknown exception", cause);
             if (cause instanceof OutOfMemoryError) {
-                NettyUtils.sendError(ctx, HttpResponseStatus.INSUFFICIENT_STORAGE, cause);
+                ModelWorkerResponse msg = new ModelWorkerResponse();
+                msg.setCode(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
+                msg.setMessage(cause.getMessage());
+                if (!replies.offer(msg)) {
+                    throw new IllegalStateException("Reply queue is full.");
+                }
             }
             ctx.close();
         }
