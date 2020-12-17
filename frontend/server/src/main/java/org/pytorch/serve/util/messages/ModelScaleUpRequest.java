@@ -10,8 +10,13 @@ public class ModelScaleUpRequest extends BaseModelRequest {
     private String port;
     private String fifoPath;
 
-
-    public ModelScaleUpRequest(Model model, String sockType, String sockName, String host, String port, String fifoPath) {
+    public ModelScaleUpRequest(
+            Model model,
+            String sockType,
+            String sockName,
+            String host,
+            String port,
+            String fifoPath) {
         super(WorkerCommands.SCALE_UP, model.getModelName());
         this.port = port;
         this.sockType = sockType;
@@ -27,6 +32,7 @@ public class ModelScaleUpRequest extends BaseModelRequest {
     public String getSockName() {
         return this.sockName;
     }
+
     public String getHost() {
         return this.host;
     }
@@ -38,5 +44,4 @@ public class ModelScaleUpRequest extends BaseModelRequest {
     public String getFifoPath() {
         return this.fifoPath;
     }
-
 }

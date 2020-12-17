@@ -67,14 +67,12 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
 
             ModelScaleUpRequest request = (ModelScaleUpRequest) msg;
 
-
             byte[] buf = request.getSockType().getBytes(StandardCharsets.UTF_8);
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
-
             String sockName = request.getSockName();
-            if (sockName != null){
+            if (sockName != null) {
                 buf = sockName.getBytes(StandardCharsets.UTF_8);
             } else {
                 buf = new byte[0];
@@ -82,9 +80,8 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
-
             String host = request.getHost();
-            if (host != null){
+            if (host != null) {
                 buf = host.getBytes(StandardCharsets.UTF_8);
             } else {
                 buf = new byte[0];
@@ -92,9 +89,8 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
-
             String port = request.getPort();
-            if (port != null){
+            if (port != null) {
                 buf = port.getBytes(StandardCharsets.UTF_8);
             } else {
                 buf = new byte[0];

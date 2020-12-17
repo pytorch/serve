@@ -177,7 +177,7 @@ public class WorkerThread implements Runnable {
 
         try {
             connect();
-            setState(WorkerState.WORKER_MODEL_LOADED, HttpResponseStatus.OK);
+            setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
@@ -203,13 +203,6 @@ public class WorkerThread implements Runnable {
                         model.resetFailedInfReqs();
                         break;
                     case LOAD:
-                        if (reply.getCode() == 200) {
-                            setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
-                            backoffIdx = 0;
-                        } else {
-                            setState(WorkerState.WORKER_ERROR, reply.getCode());
-                            status = reply.getCode();
-                        }
                         break;
                     case UNLOAD:
                     case STATS:

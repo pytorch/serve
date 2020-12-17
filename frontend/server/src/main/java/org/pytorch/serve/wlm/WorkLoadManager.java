@@ -1,12 +1,7 @@
 package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
-<<<<<<< HEAD
-import io.netty.handler.codec.http.HttpResponseStatus;
-=======
-import java.io.IOException;
 import java.net.HttpURLConnection;
->>>>>>> master
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,8 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WorkLoadManager {
 
@@ -33,8 +26,6 @@ public class WorkLoadManager {
     private EventLoopGroup backendGroup;
     private AtomicInteger port;
     private AtomicInteger gpuCounter;
-
-    private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
 
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
@@ -102,8 +93,8 @@ public class WorkLoadManager {
                 workerManagerThread = workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
 
-                if(workerManagerThread != null){
-                    for(WorkerThread thread: threads){
+                if (workerManagerThread != null) {
+                    for (WorkerThread thread : threads) {
                         workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
                     }
                     workerManagerThread.shutdown();
@@ -125,58 +116,25 @@ public class WorkLoadManager {
 
             int currentWorkers = threads.size();
             if (currentWorkers < minWorker) {
-                if(currentWorkers == 0 ) {
-                    workerManagerThread = workerManagers
-                            .computeIfAbsent(
+                if (currentWorkers == 0) {
+                    workerManagerThread =
+                            workerManagers.computeIfAbsent(
                                     model.getModelVersionName(),
                                     k -> addWorkerManagerThread(model, future));
                 }
                 addThreads(threads, model, minWorker - currentWorkers, future);
             } else {
-<<<<<<< HEAD
 
                 workerManagerThread = workerManagers.get(model.getModelVersionName());
 
-                if(workerManagerThread != null){
+                if (workerManagerThread != null) {
                     for (int i = currentWorkers - 1; i >= maxWorker; --i) {
                         WorkerThread thread = threads.remove(i);
                         workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
                         thread.shutdown();
-=======
-                for (int i = currentWorkers - 1; i >= maxWorker; --i) {
-                    WorkerThread thread = threads.remove(i);
-                    WorkerLifeCycle lifecycle = thread.getLifeCycle();
-                    thread.shutdown();
-
-                    Process workerProcess = lifecycle.getProcess();
-
-                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
-                    // -> This may nullify process object per destroyForcibly doc.
-                    if (workerProcess != null && workerProcess.isAlive()) {
-                        boolean workerDestroyed = false;
-                        try {
-                            String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());
-                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
-                            workerDestroyed =
-                                    workerKillProcess.waitFor(
-                                            configManager.getUnregisterModelTimeout(),
-                                            TimeUnit.SECONDS);
-                        } catch (InterruptedException | IOException e) {
-                            logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                            return future;
-                        }
-                        if (!workerDestroyed) {
-                            logger.warn(
-                                    "WorkerThread timed out while cleaning, please resend request.");
-                            future.complete(HttpURLConnection.HTTP_CLIENT_TIMEOUT);
-                            return future;
-                        }
->>>>>>> master
                     }
                 }
-                
+
                 if (!isStartup && !isCleanUp) {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;
@@ -191,8 +149,7 @@ public class WorkLoadManager {
     }
 
     private WorkerManagerThread addWorkerManagerThread(
-            Model model,
-            CompletableFuture<HttpResponseStatus> future) {
+            Model model, CompletableFuture<Integer> future) {
 
         WorkerManagerStateListener listener = new WorkerManagerStateListener(future, 1);
         BatchAggregator aggregator = new BatchAggregator(model);

@@ -39,7 +39,8 @@ public class WorkerManagerLifeCycle {
         return process;
     }
 
-    public void startWorkerManager(int port) throws WorkerInitializationException, InterruptedException {
+    public void startWorkerManager(int port)
+            throws WorkerInitializationException, InterruptedException {
 
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
@@ -146,7 +147,8 @@ public class WorkerManagerLifeCycle {
         private static final org.apache.log4j.Logger loggerModelMetrics =
                 org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
-        public ReaderThread(String name, InputStream is, boolean error, WorkerManagerLifeCycle lifeCycle) {
+        public ReaderThread(
+                String name, InputStream is, boolean error, WorkerManagerLifeCycle lifeCycle) {
             super(name + (error ? "-stderr" : "-stdout"));
             this.is = is;
             this.error = error;

@@ -11,6 +11,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,6 +19,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
@@ -77,7 +80,6 @@ public class WorkerManagerThread implements Runnable {
         return state;
     }
 
-
     public WorkerManagerLifeCycle getLifeCycle() {
         return lifeCycle;
     }
@@ -117,7 +119,7 @@ public class WorkerManagerThread implements Runnable {
         thread.setName(getWorkerName());
         currentThread.set(thread);
         BaseModelRequest req = null;
-        HttpResponseStatus status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+        int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
 
         try {
             connect();
@@ -125,7 +127,7 @@ public class WorkerManagerThread implements Runnable {
             while (isRunning()) {
                 req = aggregator.getCtrlRequest(workerId, state);
 
-                if(req == null) {
+                if (req == null) {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
@@ -154,35 +156,35 @@ public class WorkerManagerThread implements Runnable {
                 switch (req.getCommand()) {
                     case LOAD:
                         if (reply.getCode() == 200) {
-                            setState(WorkerManagerState.WORKER_MODEL_LOADED, HttpResponseStatus.OK);
+                            setState(
+                                    WorkerManagerState.WORKER_MODEL_LOADED,
+                                    HttpURLConnection.HTTP_OK);
                             backoffIdx = 0;
                         } else {
-                            setState(
-                                    WorkerManagerState.WORKER_ERROR,
-                                    HttpResponseStatus.valueOf(reply.getCode()));
-                            status = HttpResponseStatus.valueOf(reply.getCode());
+                            setState(WorkerManagerState.WORKER_ERROR, reply.getCode());
+                            status = reply.getCode();
                         }
                         break;
                     case SCALE_UP:
                         if (reply.getCode() == 200) {
-                            setState(WorkerManagerState.WORKER_MODEL_LOADED, HttpResponseStatus.OK);
-                            backoffIdx = 0;
-                        } else {
                             setState(
                                     WorkerManagerState.WORKER_MODEL_LOADED,
-                                    HttpResponseStatus.valueOf(reply.getCode()));
-                            status = HttpResponseStatus.valueOf(reply.getCode());
+                                    HttpURLConnection.HTTP_OK);
+                            backoffIdx = 0;
+                        } else {
+                            setState(WorkerManagerState.WORKER_MODEL_LOADED, reply.getCode());
+                            status = reply.getCode();
                         }
                         break;
                     case SCALE_DOWN:
                         if (reply.getCode() == 200) {
-                            setState(WorkerManagerState.WORKER_SCALED_DOWN, HttpResponseStatus.OK);
+                            setState(
+                                    WorkerManagerState.WORKER_SCALED_DOWN,
+                                    HttpURLConnection.HTTP_OK);
                             backoffIdx = 0;
                         } else {
-                            setState(
-                                    WorkerManagerState.WORKER_ERROR,
-                                    HttpResponseStatus.valueOf(reply.getCode()));
-                            status = HttpResponseStatus.valueOf(reply.getCode());
+                            setState(WorkerManagerState.WORKER_ERROR, reply.getCode());
+                            status = reply.getCode();
                         }
                         break;
                     default:
@@ -201,7 +203,8 @@ public class WorkerManagerThread implements Runnable {
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
-            if (state == WorkerManagerState.WORKER_SCALED_DOWN || state == WorkerManagerState.WORKER_STOPPED) {
+            if (state == WorkerManagerState.WORKER_SCALED_DOWN
+                    || state == WorkerManagerState.WORKER_STOPPED) {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
                 logger.debug(
@@ -212,7 +215,7 @@ public class WorkerManagerThread implements Runnable {
             logger.error("Backend worker error", e);
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
-            status = HttpResponseStatus.INSUFFICIENT_STORAGE;
+            status = HttpURLConnection.HTTP_INTERNAL_ERROR;
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
         } finally {
@@ -224,7 +227,7 @@ public class WorkerManagerThread implements Runnable {
             Integer exitValue = lifeCycle.getExitValue();
 
             if (exitValue != null && exitValue == 137) {
-                status = HttpResponseStatus.INSUFFICIENT_STORAGE;
+                status = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
 
             if (req != null) {
@@ -246,28 +249,26 @@ public class WorkerManagerThread implements Runnable {
 
     public void scaleUp(int port) {
 
-        RequestInput input =
-                new RequestInput(UUID.randomUUID().toString());
+        RequestInput input = new RequestInput(UUID.randomUUID().toString());
 
         Connector connector = new Connector(port);
 
-        input.addParameter(new InputParameter("sock_type",
-                connector.getSocketType()));
+        input.addParameter(new InputParameter("sock_type", connector.getSocketType()));
 
-        if(connector.isUds()){
-            input.addParameter(new InputParameter("sock_name",
-                    connector.getSocketPath()));
+        if (connector.isUds()) {
+            input.addParameter(new InputParameter("sock_name", connector.getSocketPath()));
         } else {
-            input.addParameter(new InputParameter("port",
-                    String.valueOf(connector.getSocketPath())));
+            input.addParameter(
+                    new InputParameter("port", String.valueOf(connector.getSocketPath())));
         }
 
-        input.addParameter(new InputParameter("fifo_path",
-                SharedNamedPipeUtils.getSharedNamedPipePath(String.valueOf(port))));
-
+        input.addParameter(
+                new InputParameter(
+                        "fifo_path",
+                        SharedNamedPipeUtils.getSharedNamedPipePath(String.valueOf(port))));
 
         Job job =
-                new Job(
+                new RestJob(
                         null,
                         model.getModelName(),
                         model.getVersion(),
@@ -276,18 +277,16 @@ public class WorkerManagerThread implements Runnable {
         model.addJob(workerId, job);
     }
 
-
     public void scaleDown(int port) {
 
-        RequestInput input =
-                new RequestInput(UUID.randomUUID().toString());
+        RequestInput input = new RequestInput(UUID.randomUUID().toString());
 
         Connector connector = new Connector(port);
 
         input.addParameter(new InputParameter("port", String.valueOf(connector.getSocketPath())));
 
         Job job =
-                new Job(
+                new RestJob(
                         null,
                         model.getModelName(),
                         model.getVersion(),
@@ -307,7 +306,7 @@ public class WorkerManagerThread implements Runnable {
 
         String modelName = model.getModelName();
         String modelVersion = model.getVersion();
-        setState(WorkerManagerState.WORKER_STARTED, HttpResponseStatus.OK);
+        setState(WorkerManagerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
         final CountDownLatch latch = new CountDownLatch(1);
 
         final int responseBufferSize = configManager.getMaxResponseSize();
@@ -361,7 +360,7 @@ public class WorkerManagerThread implements Runnable {
                                         }
 
                                         Job job =
-                                                new Job(
+                                                new RestJob(
                                                         null,
                                                         modelName,
                                                         modelVersion,
@@ -370,7 +369,6 @@ public class WorkerManagerThread implements Runnable {
                                         model.addFirst(workerId, job);
                                         latch.countDown();
                                     });
-
 
             if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
                 throw new WorkerInitializationException(
@@ -400,7 +398,7 @@ public class WorkerManagerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
-        setState(WorkerManagerState.WORKER_SCALED_DOWN, HttpResponseStatus.OK);
+        setState(WorkerManagerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         if (backendChannel != null) {
             backendChannel.close();
         }
@@ -409,7 +407,7 @@ public class WorkerManagerThread implements Runnable {
         if (thread != null) {
             thread.interrupt();
             aggregator.sendError(
-                    null, "Worker scaled down.", HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                    null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
         }
@@ -420,7 +418,7 @@ public class WorkerManagerThread implements Runnable {
         return "W-" + port + '-' + modelName;
     }
 
-    public void setState(WorkerManagerState newState, HttpResponseStatus status) {
+    public void setState(WorkerManagerState newState, int status) {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);

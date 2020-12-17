@@ -1,7 +1,6 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
-
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
@@ -176,7 +175,8 @@ public class Model {
         jobsDb.get(DEFAULT_DATA_QUEUE).addFirst(job);
     }
 
-    public void pollBatch(String threadId, long waitTime, Map<String, Job> jobsRepo, boolean ctrlJobsOnly)
+    public void pollBatch(
+            String threadId, long waitTime, Map<String, Job> jobsRepo, boolean ctrlJobsOnly)
             throws InterruptedException {
         if (jobsRepo == null || threadId == null || threadId.isEmpty()) {
             throw new IllegalArgumentException("Invalid input given provided");

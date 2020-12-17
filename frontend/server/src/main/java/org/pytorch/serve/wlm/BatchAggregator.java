@@ -12,7 +12,6 @@ import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,19 +34,21 @@ public class BatchAggregator {
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
         model.pollBatch(
-                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs, false);
+                threadName,
+                (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
+                jobs,
+                false);
 
         for (Job j : jobs.values()) {
             if (j.isControlCmd()) {
-                    throw new IllegalStateException(
-                            "Received control when expecting inference commands.");
-                }
-                j.setScheduled();
-                req.addRequest(j.getPayload());
+                throw new IllegalStateException(
+                        "Received control when expecting inference commands.");
+            }
+            j.setScheduled();
+            req.addRequest(j.getPayload());
         }
         return req;
     }
-
 
     public BaseModelRequest getCtrlRequest(String threadName, WorkerManagerState state)
             throws InterruptedException {
@@ -56,7 +57,10 @@ public class BatchAggregator {
         BaseModelRequest req = null;
 
         model.pollBatch(
-                threadName, (state == WorkerManagerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs, true);
+                threadName,
+                (state == WorkerManagerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
+                jobs,
+                true);
 
         for (Job j : jobs.values()) {
             if (j.isControlCmd()) {
@@ -66,7 +70,6 @@ public class BatchAggregator {
                                     + "Control messages should be processed/retrieved one at a time.");
                 }
                 RequestInput input = j.getPayload();
-
 
                 if (j.getCmd() == WorkerCommands.LOAD) {
 
@@ -84,7 +87,6 @@ public class BatchAggregator {
                     String host = input.getStringParameter("host");
                     String port = input.getStringParameter("port");
                     String fifoPath = input.getStringParameter("fifo_path");
-
 
                     req = new ModelScaleUpRequest(model, sockType, sockName, host, port, fifoPath);
 

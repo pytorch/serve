@@ -6,8 +6,7 @@ import java.nio.file.Files;
 
 public final class SharedNamedPipeUtils {
 
-    private SharedNamedPipeUtils() {
-    }
+    private SharedNamedPipeUtils() {}
 
     public static String getSharedNamedPipePath(String port) {
         return System.getProperty("java.io.tmpdir") + "worker_" + port;
