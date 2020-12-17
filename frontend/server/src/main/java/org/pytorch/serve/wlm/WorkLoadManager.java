@@ -1,6 +1,7 @@
 package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,9 +12,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.OSUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkLoadManager {
 
@@ -26,6 +31,8 @@ public class WorkLoadManager {
     private EventLoopGroup backendGroup;
     private AtomicInteger port;
     private AtomicInteger gpuCounter;
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
 
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
@@ -99,6 +106,31 @@ public class WorkLoadManager {
                     }
                     workerManagerThread.shutdown();
                     workerManagerThread.getLifeCycle().exit();
+
+                    Process workerManagerProcess = workerManagerThread.getLifeCycle().getProcess();
+                    if (workerManagerProcess != null && workerManagerProcess.isAlive()) {
+                        boolean workerManagerDestroyed = false;
+                        try {
+                            String cmd =
+                                    String.format(OSUtils.getKillCmd(), workerManagerProcess.pid());
+                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
+                            workerManagerDestroyed =
+                                    workerKillProcess.waitFor(
+                                            configManager.getUnregisterModelTimeout(),
+                                            TimeUnit.SECONDS);
+                        } catch (InterruptedException | IOException e) {
+                            logger.warn(
+                                    "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");
+                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                            return future;
+                        }
+                        if (!workerManagerDestroyed) {
+                            logger.warn(
+                                    "WorkerManagerThread timed out while cleaning, please resend request.");
+                            future.complete(HttpURLConnection.HTTP_CLIENT_TIMEOUT);
+                            return future;
+                        }
+                    }
                 }
 
                 if (threads == null) {
