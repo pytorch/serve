@@ -408,7 +408,7 @@ Metrics are collected by default at:</p>
 MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
 </pre></div>
 </div>
-<p>To enable metric logging in JSON format, modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a>. For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
+<p>To enable metric logging in JSON format, modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a>. For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
 <p>To enable JSON formatting for metrics, change the following line in <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code>:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.appender.ts_metrics.layout</span> <span class="o">=</span> <span class="s">org.pytorch.serve.util.logging.JSONLayout</span>
 </pre></div>

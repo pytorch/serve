@@ -329,7 +329,7 @@
 <div class="section" id="failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">
 <h3>“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.<a class="headerlink" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use" title="Permalink to this headline">¶</a></h3>
 <p>Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd <code class="docutils literal notranslate"><span class="pre">ss</span> <span class="pre">-ntl</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">8080</span></code>. There are two ways to troubleshoot this issue either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 &amp; 8081.</p>
-<p>Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">configuration.md</a> for more details.</p>
+<p>Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md">configuration.md</a> for more details.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/542">542</a>]</p>
 </div>
 <div class="section" id="java-lang-nosuchmethoderror-when-starting-torchserve-473">
@@ -348,7 +348,7 @@ $ torchserve --start --model-store model_store --ts-config /path/to/config.prope
 </pre></div>
 </div>
 <p>You can also use environment variables to set these values.
-Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">configuration.md</a> for more details.
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md">configuration.md</a> for more details.
 Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/335">#335</a>]</p>
 </div>
 </div>
@@ -362,12 +362,12 @@ Relevant issues:[<a class="reference external" href="https://github.com/pytorch/
 <div class="section" id="torchserve-stopped-after-restart-with-invalidsnapshotexception-exception">
 <h3>Torchserve stopped after restart with “InvalidSnapshotException” exception.<a class="headerlink" href="#torchserve-stopped-after-restart-with-invalidsnapshotexception-exception" title="Permalink to this headline">¶</a></h3>
 <p>Torchserve when restarted uses the last snapshot config file to restore its state of models and their number of workers. When “InvalidSnapshotException” is thrown then the model store is in an inconsistent state as compared with the snapshot. To resolve this the snapshot config files can be removed or torchserve can be started with specific config file using –ts-config path/to/config.
-Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot">snapshot.md</a> for more details.</p>
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot.md">snapshot.md</a> for more details.</p>
 </div>
 <div class="section" id="where-are-snapshot-config-files-stored">
 <h3>Where are snapshot config files stored?<a class="headerlink" href="#where-are-snapshot-config-files-stored" title="Permalink to this headline">¶</a></h3>
 <p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory
-Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot">snapshot.md</a> for more details.</p>
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot.md">snapshot.md</a> for more details.</p>
 </div>
 <div class="section" id="how-to-change-temp-directory">
 <h3>How to change Temp Directory?<a class="headerlink" href="#how-to-change-temp-directory" title="Permalink to this headline">¶</a></h3>

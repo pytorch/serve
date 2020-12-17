@@ -411,7 +411,7 @@ This should help you in moving your development environment model to production/
 </div>
 <div class="section" id="serve-readymade-models-on-torchserve-model-zoo">
 <h3>Serve readymade models on torchserve model zoo<a class="headerlink" href="#serve-readymade-models-on-torchserve-model-zoo" title="Permalink to this headline">¶</a></h3>
-<p>This use case demostrates deployment of <a class="reference external" href="https://pytorch.org/hub/">torch hub</a> based <code class="docutils literal notranslate"><span class="pre">vision</span></code> models (classifier, object detector, segmenter) available on <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_zoo">torchserve model zoo</a>.
+<p>This use case demostrates deployment of <a class="reference external" href="https://pytorch.org/hub/">torch hub</a> based <code class="docutils literal notranslate"><span class="pre">vision</span></code> models (classifier, object detector, segmenter) available on <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_zoo.md">torchserve model zoo</a>.
 Use these steps to deploy <strong>publically hosted</strong> models as well.</p>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul class="simple">
@@ -540,7 +540,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 </ul>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>
-<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">&lt;your_custom_handler_py_file&gt;</a></p></li>
+<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service.md">&lt;your_custom_handler_py_file&gt;</a></p></li>
 <li><p>Create MAR file for <a class="reference external" href="../examples#creating-mar-file-for-torchscript-mode-model">torch scripted model</a></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">version</span> <span class="mf">1.0</span>  <span class="o">--</span><span class="n">serialized</span><span class="o">-</span><span class="n">file</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;.</span><span class="n">pt</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">files</span> <span class="o">./</span><span class="n">index_to_name</span><span class="o">.</span><span class="n">json</span> <span class="o">--</span><span class="n">handler</span> <span class="o">&lt;**</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your_custom_handler_py_file</span><span class="o">**&gt;</span>
 <span class="n">mkdir</span> <span class="n">model</span><span class="o">-</span><span class="n">store</span>
@@ -585,7 +585,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 </ul>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>
-<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">&lt;your_custom_handler_py_file&gt;</a> which uses third party python package such as <a class="reference external" href="https://github.com/pytorch/fairseq">fairseq</a> for pretrained NMT models</p></li>
+<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service.md">&lt;your_custom_handler_py_file&gt;</a> which uses third party python package such as <a class="reference external" href="https://github.com/pytorch/fairseq">fairseq</a> for pretrained NMT models</p></li>
 <li><p>Create a requirements.txt file with an entry for <code class="docutils literal notranslate"><span class="pre">fairseq</span></code> python package name in it</p></li>
 <li><p>Create MAR file for <a class="reference external" href="../examples#creating-mar-file-for-torchscript-mode-model">torch scripted model</a> with requirements.txt</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">version</span> <span class="mf">1.0</span>  <span class="o">--</span><span class="n">serialized</span><span class="o">-</span><span class="n">file</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;.</span><span class="n">pt</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">files</span> <span class="o">./</span><span class="n">index_to_name</span><span class="o">.</span><span class="n">json</span> <span class="o">--</span><span class="n">handler</span> <span class="o">&lt;**</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your_custom_handler_py_file</span><span class="o">**&gt;</span> <span class="o">--</span><span class="n">requirements</span><span class="o">-</span><span class="n">file</span> <span class="o">&lt;</span><span class="n">your_requirements_txt</span><span class="o">&gt;</span>
@@ -656,7 +656,7 @@ OR
 </ul>
 <p><strong>Examples and References</strong></p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api">Model management APIs</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api.md">Model management APIs</a></p></li>
 </ul>
 </div>
 </div>
