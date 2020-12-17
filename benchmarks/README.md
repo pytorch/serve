@@ -223,7 +223,7 @@ This command will run Torchserve inside a docker container with 4 GPUs and perfo
 ### Run benchmark using a config file
 The config parameters can be provided using cmd line args and a config json file as well.
 This command will use all the configuration parameters given in config.json file.
-`python benchmark-ab.py --config config.json`
+`python benchmark-ab.py --config config.json`. The other parameters like config.properties, inference_model_url can also be added in the config.json.
 
 ### Sample config file
 ```json
@@ -282,6 +282,12 @@ python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar 
 
 ```
 python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:explain --input ../kubernetes/kfserving/kf_request_json/mnist.json
+```
+
+* TORCHSERVE SERVING PREDICTIONS WITH DOCKER
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png --exec_env docker 
 ```
 
 ### Test plans

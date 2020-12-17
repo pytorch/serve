@@ -208,7 +208,7 @@ def docker_torchserve_start():
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
     inference_port = urlparse(execution_params['inference_url']).port
     management_port = urlparse(execution_params['management_url']).port
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p inference_port:inference_port -p management_port:management_port " \
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p {inference_port}:{inference_port} -p {management_port}:{management_port} " \
                      f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
                          f"--ts-config /tmp/benchmark/conf/{execution_params['config_properties_name']} > /tmp/benchmark/logs/model_metrics.log\""
