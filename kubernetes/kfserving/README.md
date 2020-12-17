@@ -174,7 +174,7 @@ python img2bytearray.py filename
 
 The JSON Input content is as below :
 
-```bash
+```json
 {
   "instances": [
     {
@@ -185,7 +185,7 @@ The JSON Input content is as below :
 ```
 
 The response is as below :
-```bash
+```json
 {
   "predictions": [
     2
@@ -202,7 +202,7 @@ curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" h
 
 The JSON Input content is as below :
 
-```bash
+```json
 {
   "instances": [
     {
@@ -215,7 +215,7 @@ The JSON Input content is as below :
 ```
 
 The response is as below :
-```bash
+```json
 {
   "explanations": [
     [
@@ -229,7 +229,7 @@ The response is as below :
           0.009673474804303854,
           0.007599905146155397,
           ------,
-	  ------
+	        ------
 
         ]
       ]
@@ -238,9 +238,11 @@ The response is as below :
 }
 ```
 
-KFServing supports Static batching by adding new examples in the instances key of the request:
+KFServing supports Static batching by adding new examples in the instances key of the request json.
+But the batch size should still be set at 1, when we register the model. 
 
-```bash
+
+```json
 {
   "instances": [
     {
@@ -254,6 +256,7 @@ KFServing supports Static batching by adding new examples in the instances key o
   ]
 }
 ```
+
 
 For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
 

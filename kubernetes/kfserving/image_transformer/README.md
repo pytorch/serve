@@ -53,6 +53,46 @@ git clone -b master https://github.com/kubeflow/kfserving.git
 pip install -e ./kfserving/python/kfserving
 ``` 
 
+* Run the Install Dependencies script
+```bash
+python ./ts_scripts/install_dependencies.py --environment=dev
+```
+
+* Run the Install from Source command
+```bash
+python ./ts_scripts/install_from_src.py
+```
+
+* Create a directory to place the config.properties in the folder structure below:
+```bash
+sudo  mkdir -p /mnt/models/config/
+```
+
+* Move the model to /mnt/models/model-store
+
+* Move the config.properties to /mnt/models/config/.
+
+The config.properties file is as below:
+
+```bash
+inference_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8081
+metrics_address=http://0.0.0.0:8082
+enable_metrics_api=true
+metrics_format=prometheus
+NUM_WORKERS=1
+number_of_netty_threads=4
+job_queue_size=10
+service_envelope=kfserving
+model_store=/mnt/models/model-store
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
+```
+
+* Create a directory to place the .mar file in the folder structure below
+```bash
+sudo  mkdir -p /mnt/models/model-store
+```
+
 * Install Image Transformer with the below command
 ```bash
 pip install -e ./serve/kubernetes/kfserving/image_transformer/
@@ -60,9 +100,28 @@ pip install -e ./serve/kubernetes/kfserving/image_transformer/
 
 * Run the Image Transformer with the below command
 ```bash
-python3 -m image_transformer --predictor_host 0.0.0.0:8080
+python3 -m image_transformer --predictor_host 0.0.0.0:8085
 ```
 The transformer will hit the predictor host after pre-processing.
+The predictor host is the inference url of torchserve.
+
+* Start torchserve using config.properties in /mnt/models/config/
+```
+torchserve --start --ts-config /mnt/models/config/config.properties
+```
+
+Please note that Model runs at port 8085,Image transformer runs at port 8080.
+The request first comes to the image transformer at port 8080 and in turn requests the torchserve at port 8085. So our request should be made at port 8080.
+
+* The curl request for inference is as below:
+```
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
+```
+
+output:
+```json
+{"predictions": [2]}
+```
 
 ## Build Transformer docker image
 This step can be used to continuously build the transformer image version. 

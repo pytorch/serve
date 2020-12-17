@@ -88,58 +88,34 @@ Output:
 [I 201211 18:29:29 kfserver:98] Will fork 1 workers
 ```
 
-* Step 11: Run the Image Transformer, please note that - this needs to be done for MNIST Model only.
-Modify port to http_port to 8084 in line 72 of serve/kubernetes/kfserving/image_transformer/image_transformer/__main__.py
 
-* Step 12: Install the Image Transformer
-```bash
-pip install -e ./serve/kubernetes/kfserving/image_transformer/
-```
-
-* Step 13: Start the Image Transformer
-```bash
-python3 -m image_transformer --predictor_host 0.0.0.0:8080
-```
-Predictor_host is 0.0.0.0:8080 as image_transformer contacts the kfserving_wrapper running at 8080.
-The output is as below :
-```bash
-Wrapper : Model names ['mnist']
-[I 201211 18:53:08 image_transformer:72] MODEL NAME mnist
-[I 201211 18:53:08 image_transformer:73] PREDICTOR URL 0.0.0.0:8080
-[I 201211 18:53:08 image_transformer:74] EXPLAINER URL 0.0.0.0:8080
-[I 201211 18:53:08 transformer_model_repository:25] ImageTSModelRepo is initialized
-[I 201211 18:53:08 kfserver:115] Registering model: mnist
-[I 201211 18:53:08 kfserver:96] Listening on port 8084
-[I 201211 18:53:08 kfserver:98] Will fork 1 workers
-```
-
-* Step 14: Start torchserve using config.properties in /mnt/models/config/
+* Step 11: Start torchserve using config.properties in /mnt/models/config/
 ```bash
 torchserve --start --ts-config /mnt/models/config/config.properties
 ```
-Please note that Model runs at 8085,KFserving at 8080 and Image transformer at 8084
-The request first comes to the image transformer at 8084 then to the KFserving wrapper at 8080 and it in turn requests the torchserve at 8085. So our request should be made at 8084.
+Please note that Model runs at 8085,KFserving at 8080.The request first comes to the KFServing Wrapper at 8080 in turn requests the torchserve at 8085. So our request should be made at 8080.
 
 
-* Step 15: The curl request for inference is as below:
+* Step 12: The curl request for inference is as below:
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8084/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
 ```
 Output:
-```
+```json
 {"predictions": [2]}
 ```
 
-* Step 16: The curl request for explain is as below:
+* Step 13: The curl request for explain is as below:
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8084/v1/models/mnist:explain
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:explain
 ```
 Output:
-```
+```json
 {"explanations": [[[[0.004570948726580721,
              ...
              ...
             ]]]]
+}
 ```
 
 Outputs in KFServing after the request:
@@ -175,23 +151,22 @@ service_envelope=kfserving
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"bert":{"1.0":{"defaultVersion":true,"marName":"bert.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
-* Step 3: Don’t run image transformer, (ie) Don’t follow the steps 11 - 13 of the previous section
 
-* Step 4: Start the KFServer as below:
+* Step 3: Start the KFServer as below:
 ```
 python3 serve/kubernetes/kfserving/kfserving_wrapper/__main__.py 
 ```
-* Step 5: Start TorchServe:
+* Step 4: Start TorchServe:
 ```
 torchserve --start --ts-config /mnt/models/config/config.properties
 ```
 
-* Step 6: The curl request for inference is as below:
+* Step 5: The curl request for inference is as below:
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://0.0.0.0:8080/v1/models/bert:predict
 ```
 
-* Step 7: The curl request for Explain is as below:
+* Step 6: The curl request for Explain is as below:
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://0.0.0.0:8080/v1/models/bert:explain
 ```

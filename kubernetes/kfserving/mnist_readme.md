@@ -21,7 +21,7 @@ service_envelope=kfserving
 job_queue_size=10
 model_store=model-store
 ```
-The Service Envelope field should be set as kfserving and it is mandatory.
+The service_envelope=kfserving setting is needed when deploying models on KFServing
 
 * start Torchserve by invoking the below command:
 ```
@@ -50,7 +50,7 @@ The default Inference Port for Torchserve is 8080, while for KFServing it is 808
 
 The Prediction response is as below :
 
-```bash
+```json
 {
   "predictions": [
     2
@@ -61,7 +61,7 @@ The Prediction response is as below :
 
 ### The curl request for Explanation is as below:
 
-Torchserve supports KFServing Captum Explanations for Eager models of mnist only.
+Torchserve supports KFServing Captum Explanations for Eager Models only.
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
@@ -69,7 +69,7 @@ Torchserve supports KFServing Captum Explanations for Eager models of mnist only
 
 The Explanation response is as below :
 
-```bash
+```json
 {
   "explanations": [
     [
@@ -92,9 +92,11 @@ The Explanation response is as below :
 }
 ```
 
-KFServing supports Static batching by adding new examples in the instances key of the request:
+KFServing supports Static batching by adding new examples in the instances key of the request json
+But the batch size should still be set at 1, when we register the model. 
 
-```bash
+
+```json
 {
   "instances": [
     {
@@ -119,7 +121,7 @@ curl -X GET "http://127.0.0.1:8081/v1/models/mnist"
 
 The response is as below:
 
-```bash
+```json
 {
   "name": "mnist",
   "ready": true
@@ -134,7 +136,7 @@ The mnist request difference between the regular torchserve and kfserving is as 
 
 	### Regular torchserve request
 
-	```bash
+	```json
 	[
 			{
 
@@ -147,7 +149,7 @@ The mnist request difference between the regular torchserve and kfserving is as 
 
 	### KFServing Request:
 
-	```bash
+	```json
 	{
 	"instances": [
 		{
@@ -161,21 +163,3 @@ The mnist request difference between the regular torchserve and kfserving is as 
 
 
 * 2) Torchserve handles the input request for Image Classification tasks in the format of BytesArray. On the KFServing side, the predictor does not take the request as bytesarray (Image Transformer Functionality in KFServing converts the BytesArray into a JSON array) for details refer the Image Transformer section(step 5 and step 10) in the [End to End Transformer](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md). The code change is done to handle both BytesArray and JSON array Input Requests as a part of the pre-process method of [vision_handler.py](https://github.com/pytorch/serve/blob/master/ts/torch_handler/vision_handler.py).
-
-### Code Changes between KFServing and Torchserve
-
-The code changes for KFServing are done in the preprocess function of the vision handler for MNIST. The changes are done in the [Line# 39 - 41 of Vision Handler](https://github.com/pytorch/serve/blob/82d1122e4201a2f404b566207691d39e1450a3a0/ts/torch_handler/vision_handler.py#L39). The details of which are illustrated below:
-
-```
-
-def preprocess():
-    ----
-    ----
-    #Line 39 - 41 of Vision Handler
-    if isinstance(image, str):
-        # if the image is a string of bytesarray.
-        image = base64.b64decode(image)
-
-    ----
-    ----
-```

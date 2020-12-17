@@ -5,7 +5,7 @@ In this document, the .mar file creation, request & response on the KFServing si
 
 ## .mar file creation
 
-Download_Transformer_models.py":
+Download_Transformer_models.py:
 
 `python serve/examples/Huggingface_Transformers/Download_Transformer_models.py`
 
@@ -30,7 +30,7 @@ job_queue_size=10
 model_store=model-store
 
 ```
-The Service Envelope field should be set as kfserving and it is mandatory.
+The service_envelope=kfserving setting is needed when deploying models on KFServing
 
 * start Torchserve by invoking the below command:
 ```
@@ -58,7 +58,7 @@ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request
 
 The Prediction response is as below :
 
-```
+```json
 {
   "predictions": [
     "Accepted"
@@ -67,7 +67,7 @@ The Prediction response is as below :
 ```
 ### The curl request for explanations is as below:
 
-Torchserve supports KFServing Captum Explanations for Eager Models of Transformers only.
+Torchserve supports KFServing Captum Explanations for Eager Models only.
 
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
@@ -75,7 +75,7 @@ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request
 
 The Explanation response is as below :
 
-```bash
+```json
 {
   "explanations": [
     {
@@ -113,8 +113,10 @@ The Explanation response is as below :
 }
 ```
 
-KFServing supports Static batching by adding new examples in the instances key of the request:
-```bash
+KFServing supports Static batching by adding new examples in the instances key of the request json
+But the batch size should still be set at 1, when we register the model. 
+
+```json
 {
   "instances": [
     {
@@ -126,6 +128,8 @@ KFServing supports Static batching by adding new examples in the instances key o
   ]
 }
 ```
+
+
 ### The curl request for the Server Health check 
 
 Server Health check API returns the model's state for inference
@@ -138,7 +142,7 @@ curl -X GET "http://127.0.0.1:8081/v1/models/bert"
 
 The response is as below:
 
-```bash
+```json
 {
   "name": "bert",
   "ready": true
@@ -154,7 +158,7 @@ The response is as below:
     The bert request difference between the regular torchserve and kfserving is as below
 
     ### Regular torchserve request:
-    ```
+    ```json
     [
       {
         "data": "The recent climate change across world is impacting negatively"
@@ -163,7 +167,7 @@ The response is as below:
     ```
 
     ### KFServing Request:
-    ```
+    ```json
     {
       "instances": [
         {
@@ -181,21 +185,4 @@ The response is as below:
 * The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in the regular torchserve.
 
     So in the preprocess method of [Transformer_handler_generalized.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py), KFServing doesn't require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
-
-
- ### Code Changes between KFServing and Torchserve
-
-  The code changes for KFServing are done in the Custom Handler for BERT in the preprocess function. The changes are done in the [Line# 121 to 122 of Transformer Handler Generalized file](https://github.com/pytorch/serve/blob/f3a6d7658fd68729a26eddcefa9243e3b79b5d18/examples/Huggingface_Transformers/Transformer_handler_generalized.py#L121). The details of which are illustrated below:
-
-  ```
-
-  def preprocess():
-      ----
-      ----
-      #Line 121 - 122 of Transformer Handler Generalized file
-      if isinstance(input_text, (bytes, bytearray)):
-          input_text = input_text.decode('utf-8')
-
-      ----
-      ----
-  ```
+    

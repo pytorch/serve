@@ -31,7 +31,7 @@ service_envelope=kfserving
 job_queue_size=10
 model_store=model-store
 ```
-The Service Envelope field should be set as kfserving and it is mandatory.
+The service_envelope=kfserving setting is needed when deploying models on KFServing
 
 * start Torchserve by invoking the below command:
 ```
@@ -60,7 +60,7 @@ When the curl request is made, ensure that the request is made inisde of the ser
 
 The Prediction response is as below :
 
-```bash
+```json
 {
 	"predictions" : [
 	   {
@@ -75,7 +75,7 @@ The Prediction response is as below :
 
 ### The curl request is as below for explain:
 
-Torchserve supports KFServing Captum Explanations for Eager models of Text Classification only.
+Torchserve supports KFServing Captum Explanations for Eager Models only.
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/text_classifier.json http://127.0.0.1:8085/v1/models/my_tc:explain
@@ -84,7 +84,7 @@ Torchserve supports KFServing Captum Explanations for Eager models of Text Class
 
 The Explanation response is as below :
 
-```bash
+```json
 {
   "explanations": [
     {
@@ -96,7 +96,7 @@ The Explanation response is as below :
           0.00014836451651210265,
           6.149280398342056e-05,
           -------,
-	  -------
+	        -------
         ]
       ],
       "words": [
@@ -112,9 +112,11 @@ The Explanation response is as below :
 }
 ```
 
-KFServing supports Static batching by adding new examples in the instances key of the request:
+KFServing supports Static batching by adding new examples in the instances key of the request json.
+But the batch size should still be set at 1, when we register the model. 
 
-```bash
+
+```json
 {
   "instances": [
     {
@@ -126,6 +128,7 @@ KFServing supports Static batching by adding new examples in the instances key o
   ]
 }
 ```
+
 ### The curl request for the Server Health check 
 
 Server Health check API returns the model's state for inference
@@ -136,7 +139,7 @@ curl -X GET "http://127.0.0.1:8081/v1/models/my_tc"
 
 The response is as below:
 
-```bash
+```json
 {
   "name": "my_tc",
   "ready": true
@@ -150,7 +153,7 @@ The response is as below:
         The text classifier request difference between the regular torchserve and kfserving is as below
 
   ### Regular torchserve request:
-	```
+	```json
 	[
 		{
 			"data" : "The recent climate change across world is impacting negatively"
@@ -159,7 +162,7 @@ The response is as below:
 	```
 
 	###	KFServing Request:
-	```
+	```json
 	{
 	"instances": [
 		{
@@ -181,21 +184,3 @@ The response is as below:
 
 NOTE :
 The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
-
-
-### Code Changes between KFServing and Torchserve
-
-The code changes for KFServing are done in the preprocess function of the Text Classifier file for Text Classification.The changes are done in the [Line #48 - #49 of Text Classifier](https://github.com/pytorch/serve/blob/f3a6d7658fd68729a26eddcefa9243e3b79b5d18/ts/torch_handler/text_classifier.py#L48). The details of which are illustrated below:
-
-```
-
-def preprocess():
-    ----
-    ----
-    #Line 48 - 49 of Text Classifier
-    if isinstance(text, (bytes, bytearray)):
-            text = text.decode('utf-8')
-
-    ----
-    ----
-```
