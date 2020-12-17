@@ -12,3 +12,4 @@ dist/
 plugins/endpoints/src/main/main.iml
 serving-sdk/src/main/main1.iml
 serving-sdk/src/test/test2.iml
+frontend/server/src/main/java/org/pytorch/serve/grpc/
