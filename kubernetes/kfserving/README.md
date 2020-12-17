@@ -14,26 +14,14 @@ Please follow the below steps to deploy Torchserve in Kubeflow Cluster as kfpred
 
 * Step - 1 : Create the .mar file for mnist by invoking the below command :
 
-Run the below command outside the serve folder
+Run the below command inside the serve folder
 ```bash
-torch-model-archiver --model-name mnist_kf --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
+torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
 For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation). 
 
 
-* Step - 2 : Create a docker image for the Torchserve Repo. The dockerfile is located in serve/kubernetes/kfserving/kf_predictor_docker as Dockerfile_kf.dev. Use the below command to create the docker image :
-
-```bash
-DOCKER_BUILDKIT=1 docker build --no-cache --file Dockerfile_kf.dev -t <docker image name> .
-```
-
-***Note:** To avoid out-of-memory errors building the Docker image and running inference, it is recommended to allocate at least 4GB of memory to your Docker container. Your memory needs may vary depending on the size of your model(s) and data.*
-
-The KFServing wrapper will be started along with Torchserve inside the image. Refer [KFServing Wrapper](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/kfserving_wrapper/README.md) to understand how it works.
-
-* Step - 3 : Push the docker image to the docker registry that you can access from. 
-
-* Step - 4 : Create a config.properties file and place the contents like below:
+* Step - 2 : Create a config.properties file and place the contents like below:
 
 ```bash
  inference_address=http://0.0.0.0:8085
@@ -46,7 +34,6 @@ The KFServing wrapper will be started along with Torchserve inside the image. Re
 ```
 
 
-
 Please note that, the port for inference address should be set at 8085 since KFServing by default makes use of 8080 for its inference service.
 
 When we make an Inference Request,  in Torchserve it makes use of port 8080, whereas on the KFServing side it makes use of port 8085.
@@ -54,35 +41,59 @@ When we make an Inference Request,  in Torchserve it makes use of port 8080, whe
 Ensure that the KFServing envelope is specified in the config file as shown above. The path of the model store should be mentioned as /mnt/models/model-store because KFServing mounts the model store from that path.
 
 
-
 The below sequence of steps need to be executed in the Kubeflow cluster.
 
-* Step - 5 : Create PVC and PV pods in KFServing
+* Step - 3 : Create PV, PVC and PV pods in KFServing
 
- You need to create a local storage PVC and PV pod. You can see below the examples of the pvc.yaml and pv_pod.yaml
+ You need to Create a volume in EC2 for EBS storage PV, PVC and PV pod. You can see below the examples of the pv.yaml, pvc.yaml and pv_pod.yaml.
+
+pv.yaml:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: model-pv-volume
+  labels:
+    type: "amazonEBS"
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+      - ReadWriteOnce
+  awsElasticBlockStore:
+    volumeID: {volume-id} #vol-074ea8934f7080df5
+    fsType: ext4
+```
+
+```bash
+kubectl apply -f pv.yaml -n kfserving-test
+```
 
 pvc.yaml:
 
-```bash
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
- name: model-store-claim
- labels:
-   type: local
+  name: model-pv-claim
+  labels:
+    type: "amazonEBS"
 spec:
- resources:
-   requests:
-     storage: 700Mi
- accessModes:
-   - ReadWriteOnce
- hostPath:
-   path: "/mnt/data"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+```bash
+kubectl apply -f pvc.yaml -n kfserving-test
 ```
 
 pv_pod.yaml:
 
-```bash
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -91,7 +102,7 @@ spec:
  volumes:
    - name: model-store
      persistentVolumeClaim:
-       claimName: model-store-claim
+       claimName: model-pv-claim
  containers:
    - name: model-store
      image: ubuntu
@@ -102,42 +113,38 @@ spec:
          name: model-store
 ```
 
+```bash
+kubectl apply -f pv_pod.yaml -n kfserving-test
+```
 
-* Step - 6 : Copy the Model Files and Config Properties.
+
+* Step - 4 : Copy the Model Files and Config Properties.
  
 First, create the model store and the config directory using the below command :
 ```bash
-kubectl exec -t model-store-pod -c model-store -- mkdir /pv/model-store/
-kubectl exec -t model-store-pod -c model-store -- mkdir /pv/config/
+kubectl exec -t model-store-pod -c model-store -n kfserving-test -- mkdir /pv/model-store/
+kubectl exec -t model-store-pod -c model-store -n kfserving-test -- mkdir /pv/config/
 ```
 
 Now, copy the .mar file that we created in the previous step and the config.properties with the commands below:
 
 ```bash
-kubectl cp mnist.mar model-store-pod:/pv/model-store/mnist.mar -c model-store
-kubectl cp config.properties model-store-pod:/pv/config/config.properties -c model-store
+kubectl cp mnist.mar model-store-pod:/pv/model-store/mnist.mar -c model-store -n kfserving-test 
+kubectl cp config.properties model-store-pod:/pv/config/config.properties -c model-store -n kfserving-test 
 ```
 
-* Step - 7 : Create the Inference Service
-
-For the Image Classification task alone Image Transformer needs to be specified in the inference service yaml file. 
+* Step - 5 : Create the Inference Service
 
 CPU Deployment : For deployment in CPU the sample yaml file is shown as below 
 
 ts-sample.yaml 
-```bash
+
+```yaml
 apiVersion: "serving.kubeflow.org/v1beta1"
 kind: "InferenceService"
 metadata:
   name: "torch-pred"
 spec:
-  transformer:
-    containers:
-      - image: <transformer_docker_image>
-        name: transformer-container
-        env:
-          - name: STORAGE_URI
-            value: "pvc://model-pv-claim"
   predictor:
     pytorch:
       storageUri: "pvc://model-pv-claim"
@@ -148,11 +155,12 @@ To deploy the Torchserve Inference Service in CPU use the below command :
 ```bash
 kubectl apply -f ts-sample.yaml -n kfserving-test
 ```
-* Step - 8 : Check if the Inference Service is up and running : 
+
+* Step - 6 : Check if the Inference Service is up and running : 
 
 Use the below command for the check 
 ```bash
-kubectl get inferenceservices torch-pred -n kfserving-test
+kubectl get inferenceservice torch-pred -n kfserving-test
 ```
 
 This shows the service is ready for inference:
@@ -161,15 +169,13 @@ NAME         URL                                            READY   AGE
 torch-pred   http://torch-pred.kfserving-test.example.com   True    39m
 ```
 
-* Step - 9 : Hit the Curl Request to make a prediction as below :
+* Step - 7 : Hit the Curl Request to make a prediction as below :
 
-```bash
-curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
-```
+Navigate to serve/kubernetes/kfserving/
 
 The image file can be converted into string of bytes array by running  
 ``` 
-python img2bytearray.py filename
+python img2bytearray.py <imagefile>
 ```
 
 The JSON Input content is as below :
@@ -184,7 +190,16 @@ The JSON Input content is as below :
 }
 ```
 
+```bash
+DEPLOYMENT_NAME=torch-pred
+SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
+ -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
+
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
+```
+
 The response is as below :
+
 ```json
 {
   "predictions": [
@@ -193,11 +208,11 @@ The response is as below :
 }
 ```
 
- * Step - 10 : Hit the Curl Request to make an explanation as below:
+ * Step - 8 : Hit the Curl Request to make an explanation as below:
 
 
 ```bash
-curl -v -H "Host: torch-pred.kfserving-test.<instance>.<region>.amazonaws.com" http://<instance>.<region>amazonaws.com/v1/models/mnist:explain -d @./input.json
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:explain -d @./input.json
 ```
 
 The JSON Input content is as below :
@@ -229,8 +244,7 @@ The response is as below :
           0.009673474804303854,
           0.007599905146155397,
           ------,
-	        ------
-
+          ------
         ]
       ]
     ]
@@ -240,7 +254,6 @@ The response is as below :
 
 KFServing supports Static batching by adding new examples in the instances key of the request json.
 But the batch size should still be set at 1, when we register the model. 
-
 
 ```json
 {
@@ -256,7 +269,6 @@ But the batch size should still be set at 1, when we register the model.
   ]
 }
 ```
-
 
 For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
 
@@ -277,7 +289,7 @@ kubectl describe pod <pod-name> -n kfserving-test
 3. Getting pod logs to track errors :
 
 ```bash
-kubectl log torchserve-custom -c kfserving-container -n kfserving-test
+kubectl log torch-pred -c kfserving-container -n kfserving-test
 ```
 
 4. To get the Ingress Host and Port use the following two commands :
@@ -290,7 +302,6 @@ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -
 5. To get the service host by running the following command:
 
 ```bash
-MODEL_NAME=torch-pred
-SERVICE_HOSTNAME=$(kubectl get route ${MODEL_NAME}-predictor-default
+DEPLOYMENT_NAME=_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 ```
