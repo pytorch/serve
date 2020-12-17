@@ -9,6 +9,30 @@ The .mar file creation command is as below:
 torch-model-archiver --model-name mnist --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
 ```
 
+## Starting Torchserve
+To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
+
+* create a config.properties file and specify the details as shown:
+```
+service_envelope=kfserving
+```
+The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+
+* start Torchserve by invoking the below command:
+```
+torchserve --start --model-store model_store --ncs --models mnist=mnist.mar
+
+```
+
+## Model Register for KFServing:
+
+Hit the below curl request to register the model
+
+```
+curl -X POST "localhost:8081/models?model_name=mnist&url=mnist.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+```
+Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
+
 ## Request and Response
 
 ### The curl request for Inference is as below:
@@ -21,16 +45,15 @@ The Prediction response is as below :
 
 ```bash
 {
-	"predictions" : [
-
-	2
-		]
+  "predictions": [
+    2
+  ]
 }
 ```
 ### The curl request for Explanation is as below:
 
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
 ```
 
 The Explanation response is as below :
@@ -91,7 +114,7 @@ The bert request difference between the regular torchserve and kfserving is as b
 
 			}
 
-	  ]	
+	]	
 	```
 
 	### KFServing Request:

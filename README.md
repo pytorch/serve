@@ -29,12 +29,19 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 Note: For Conda, Python 3.8 is required to run Torchserve.
 
+
 #### For Debian Based Systems/ MacOS
- - For CPU or latest supported CUDA version (10.2) for Torch 1.6
+ - For CPU or latest supported CUDA version (11.0) for Torch 1.7.1
 
     ```bash
     python ./ts_scripts/install_dependencies.py
     ```
+
+ - For GPU with Cuda 10.2
+
+   ```bash
+   python ./ts_scripts/install_dependencies.py --cuda=cu102
+   ```
 
  - For GPU with Cuda 10.1
 
@@ -49,7 +56,8 @@ Note: For Conda, Python 3.8 is required to run Torchserve.
    ```
 
 #### For Windows
-    Refer the documentation [here](docs/torchserve_on_win_native.md).
+
+Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 
 3. Install torchserve and torch-model-archiver
@@ -84,7 +92,8 @@ python ./ts_scripts/install_from_src.py
 ```
 
 #### For Windows
-    Refer the documentation [here].(docs/torchserve_on_win_native.md)
+
+Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
@@ -153,13 +162,13 @@ pip install -U grpcio protobuf grpcio-tools
  - Generate inference client using proto files
 
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Run inference using a sample client [gRPC python client](ts_scripts/torchserve_grpc_client.py)
 
 ```bash
-python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
 
 #### Using REST APIs
@@ -227,7 +236,7 @@ ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 
 
 ## Quick Start with Docker
-Refer [torchserve docker](docker/README.md) for details.
+Refer to [torchserve docker](docker/README.md) for details.
 
 ## Learn More
 

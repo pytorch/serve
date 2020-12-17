@@ -1,6 +1,6 @@
 package:
   name: torchserve
-  version: "{{ environ.get('TORCH_MODEL_ARCHIVER_VERSION') }}"
+  version: "{{ environ.get('TORCHSERVE_VERSION') }}"
 
 requirements:
   build:
