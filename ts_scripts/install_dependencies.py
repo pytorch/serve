@@ -74,7 +74,7 @@ class Windows(Common):
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
-
+    
     def install_java(self):
         pass
 
