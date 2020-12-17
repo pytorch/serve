@@ -1,0 +1,13 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+ name: model-store-claim
+ annotations:
+    volume.beta.kubernetes.io/storage-class: aws-efs
+spec:
+ storageClassName: aws-efs
+ accessModes:
+   - ReadWriteMany
+ resources:
+   requests:
+     storage: 1Gi
