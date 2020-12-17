@@ -9,4 +9,4 @@ nodeGroups:
     instanceType: "p3.8xlarge"
     # below key is optional
     ssh:
-      publicKeyName: 'dummy-key-pair' 
+      publicKeyName: 'dummy-key-pair'
