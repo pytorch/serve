@@ -404,6 +404,8 @@ def get_pretty_env_info(branch_name):
 
 
 def main(branch_name):
+    global torchserve_branch
+    torchserve_branch = branch_name
     output = get_pretty_env_info(branch_name)
     print(output)
 
