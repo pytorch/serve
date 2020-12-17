@@ -16,14 +16,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import org.pytorch.serve.job.Job;
-import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
@@ -31,10 +28,7 @@ import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
-import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
-import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -310,37 +304,6 @@ public class WorkerThread implements Runnable {
                                             thread.interrupt();
                                         }
                                     });
-
-            backendChannel
-                    .newSucceededFuture()
-                    .addListener(
-                            (ChannelFutureListener)
-                                    future -> {
-                                        // TODO:
-                                        // use gpu, batch size in load model command
-                                        RequestInput input =
-                                                new RequestInput(UUID.randomUUID().toString());
-                                        if (gpuId >= 0) {
-                                            input.addParameter(
-                                                    new InputParameter(
-                                                            "gpu", String.valueOf(gpuId)));
-                                        }
-
-                                        Job job =
-                                                new RestJob(
-                                                        null,
-                                                        modelName,
-                                                        modelVersion,
-                                                        WorkerCommands.LOAD,
-                                                        input);
-                                        model.addJob(workerId, job);
-                                        latch.countDown();
-                                    });
-
-            if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
-                throw new WorkerInitializationException(
-                        "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
-            }
             running.set(true);
         } catch (Throwable t) {
             // https://github.com/netty/netty/issues/2597
