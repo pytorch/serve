@@ -55,7 +55,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, request_id=None):
         """
         Load TorchServe 1.0 model from file.
 
@@ -65,11 +65,11 @@ class TsModelLoader(ModelLoader):
         :param gpu_id:
         :param batch_size:
         :param envelope:
+        :param request_id:
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        # TODO: Request ID is not given. UUID is a temp UUID.
-        metrics = MetricsStore(uuid.uuid4(), model_name)
+        metrics = MetricsStore(request_id or uuid.uuid4(), model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
