@@ -173,6 +173,9 @@ Now to run the batch inference follwoing command can be used:
 ### Captum Explanations
 
 The explain is called with the following request api http://127.0.0.1:8080/explanations/bert_explain
+
+Torchserve supports Captum Explanations for Eager models only.
+
 #### The handler changes:
 
 1. The handlers should initialize.
@@ -199,3 +202,7 @@ As captum makes many predictions for each sample, there may be a timeout for the
 
 The [Captum Explanations for Visual Insights Notebook](../../captum/Captum_visualization_for_bert.ipynb) gives an insight into how the captum explanations can be used to visually represent the attributions and word importances. The pre-requisite is to have the prediction response ready. In this example, the prediction response from the BERT Seq Classification is used. 
 
+### Running KFServing 
+Refer the [BERT Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) to run it locally.
+
+Refer the [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.

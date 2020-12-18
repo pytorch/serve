@@ -5,7 +5,7 @@ In this document, the .mar file creation, request & response on the KFServing si
 
 ## .mar file creation
 
-Download_Transformer_models.py":
+Download_Transformer_models.py:
 
 `python serve/examples/Huggingface_Transformers/Download_Transformer_models.py`
 
@@ -14,17 +14,23 @@ This produces all the required files for packaging using a huggingface transform
 The .mar file creation command is as below:
 
 ```
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file serve/examples/Huggingface_Transformers/Transformer_model/pytorch_model.bin --handler serve/examples/Huggingface_Transformers/Transformer_model/Transformer_handler_generalized.py --source-vocab serve/examples/Huggingface_Transformers/Transformer_model/vocab.txt --extra-files "Transformer_model/config.json,serve/examples/Huggingface_Transformers/Transformer_model/setup_config.json,serve/examples/Huggingface_Transformers/Transformer_model/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file serve/examples/Huggingface_Transformers/Transformer_model/pytorch_model.bin --handler serve/examples/Huggingface_Transformers/Transformer_model/Transformer_handler_generalized.py --extra-files "serve/examples/Huggingface_Transformers/Transformer_model/vocab.txt,serve/examples/Huggingface_Transformers/Transformer_model/config.json,serve/examples/Huggingface_Transformers/Transformer_model/setup_config.json,serve/examples/Huggingface_Transformers/Transformer_model/index_to_name.json"
 ```
 
-## Starting Torchserve
+## Starting Torchserve for KFServing Predictor
 To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
 ```
+inference_address=http://127.0.0.0:8085
+management_address=http://127.0.0.0:8081
+number_of_netty_threads=4
 service_envelope=kfserving
+job_queue_size=10
+model_store=model-store
+
 ```
-The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+The service_envelope=kfserving setting is needed when deploying models on KFServing
 
 * start Torchserve by invoking the below command:
 ```
@@ -37,20 +43,22 @@ torchserve --start --model-store model_store --ncs --models bert=BERTSeqClassifi
 Hit the below curl request to register the model
 
 ```
-curl -X POST "localhost:8081/models?model_name=bert&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+  curl -X POST "localhost:8081/models?model_name=bert&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
 
 ## Request and Response
 
 ### The curl request for inference is as below:
+
+When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:predict
 ```
 
 The Prediction response is as below :
 
-```
+```json
 {
   "predictions": [
     "Accepted"
@@ -59,13 +67,15 @@ The Prediction response is as below :
 ```
 ### The curl request for explanations is as below:
 
+Torchserve supports KFServing Captum Explanations for Eager Models only.
+
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
 ```
 
 The Explanation response is as below :
 
-```bash
+```json
 {
   "explanations": [
     {
@@ -102,6 +112,24 @@ The Explanation response is as below :
   ]
 }
 ```
+
+KFServing supports Static batching by adding new examples in the instances key of the request json
+But the batch size should still be set at 1, when we register the model. 
+
+```json
+{
+  "instances": [
+    {
+      "data": "Bloomberg has reported on the economy"
+    },
+    {
+      "data": "Bloomberg has reported on the economy"
+    }
+  ]
+}
+```
+
+
 ### The curl request for the Server Health check 
 
 Server Health check API returns the model's state for inference
@@ -114,7 +142,7 @@ curl -X GET "http://127.0.0.1:8081/v1/models/bert"
 
 The response is as below:
 
-```bash
+```json
 {
   "name": "bert",
   "ready": true
@@ -130,7 +158,7 @@ The response is as below:
     The bert request difference between the regular torchserve and kfserving is as below
 
     ### Regular torchserve request:
-    ```
+    ```json
     [
       {
         "data": "The recent climate change across world is impacting negatively"
@@ -139,7 +167,7 @@ The response is as below:
     ```
 
     ### KFServing Request:
-    ```
+    ```json
     {
       "instances": [
         {
@@ -157,3 +185,4 @@ The response is as below:
 * The Request data for kfserving  is a batches of dicts as opposed to batches of bytes array(text file) in the regular torchserve.
 
     So in the preprocess method of [Transformer_handler_generalized.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py), KFServing doesn't require the data to be utf-8 decoded for text inputs, hence the code was modified to ensure that Torchserve Input Requests which are sent as text file are only utf-8 decoded and not for the KFServing Input Requests.
+    
