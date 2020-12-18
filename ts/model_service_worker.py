@@ -64,6 +64,7 @@ class TorchModelServiceWorker(object):
             "gpu" : None if CPU else gpu_id, int
             "handler" : service handler entry point if provided, string
             "envelope" : name of wrapper/unwrapper of request data if provided, string
+            "requestId" : Request id passed from frontend, string
             "batchSize" : batch size, int
         }
 
@@ -76,8 +77,7 @@ class TorchModelServiceWorker(object):
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
             envelope = load_model_request["envelope"].decode("utf-8") if "envelope" in load_model_request else None
             envelope = envelope if envelope is not None and len(envelope) > 0 else None
-            request_id = load_model_request["requestId"].decode("utf-8") if "requestId" in load_model_request else None
-            request_id = request_id if request_id is not None and len(request_id) > 0 else None
+            request_id = load_model_request.get("requestId", b"").decode("utf-8") or None
 
             batch_size = None
             if "batchSize" in load_model_request:
