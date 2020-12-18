@@ -34,7 +34,7 @@ class ModelLoader(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, request_id=None):
         """
         Load model from file.
 
@@ -44,6 +44,7 @@ class ModelLoader(object):
         :param gpu_id:
         :param batch_size:
         :param envelope:
+        :param request_id:
         :return: Model
         """
         # pylint: disable=unnecessary-pass
