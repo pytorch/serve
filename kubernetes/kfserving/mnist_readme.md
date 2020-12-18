@@ -9,14 +9,19 @@ The .mar file creation command is as below:
 torch-model-archiver --model-name mnist --version 1.0 --model-file serve/examples/image_classifier/mnist/mnist.py --serialized-file serve/examples/image_classifier/mnist/mnist_cnn.pt --handler  serve/examples/image_classifier/mnist/mnist_handler.py
 ```
 
-## Starting Torchserve
+## Starting Torchserve 
 To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
 ```
+inference_address=http://127.0.0.0:8085
+management_address=http://127.0.0.0:8081
+number_of_netty_threads=4
 service_envelope=kfserving
+job_queue_size=10
+model_store=model-store
 ```
-The Service Envelope field is mandatory for Torchserve to process the KFServing Input Request Format.
+The service_envelope=kfserving setting is needed when deploying models on KFServing
 
 * start Torchserve by invoking the below command:
 ```
@@ -37,20 +42,26 @@ Please note that the batch size, the initial worker and synchronous values can b
 
 ### The curl request for Inference is as below:
 
+When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
 ```
+The default Inference Port for Torchserve is 8080, while for KFServing it is 8085
 
 The Prediction response is as below :
 
-```bash
+```json
 {
   "predictions": [
     2
   ]
 }
 ```
+
+
 ### The curl request for Explanation is as below:
+
+Torchserve supports KFServing Captum Explanations for Eager Models only.
 
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
@@ -58,7 +69,7 @@ The Prediction response is as below :
 
 The Explanation response is as below :
 
-```bash
+```json
 {
   "explanations": [
     [
@@ -81,6 +92,25 @@ The Explanation response is as below :
 }
 ```
 
+KFServing supports Static batching by adding new examples in the instances key of the request json
+But the batch size should still be set at 1, when we register the model. 
+
+
+```json
+{
+  "instances": [
+    {
+      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC",
+      "target": 0
+    },
+    {
+      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC",
+      "target": 0
+    },
+  ]
+}
+```
+
 ### The curl request for the Server Health check 
 
 Server Health check API returns the model's state for inference
@@ -91,7 +121,7 @@ curl -X GET "http://127.0.0.1:8081/v1/models/mnist"
 
 The response is as below:
 
-```bash
+```json
 {
   "name": "mnist",
   "ready": true
@@ -102,11 +132,11 @@ The response is as below:
 
 
 * 1)  When you write a handler, always expect a plain Python list containing data ready to go into `preprocess`.
-The bert request difference between the regular torchserve and kfserving is as below
+The mnist request difference between the regular torchserve and kfserving is as below
 
 	### Regular torchserve request
 
-	```bash
+	```json
 	[
 			{
 
@@ -118,7 +148,8 @@ The bert request difference between the regular torchserve and kfserving is as b
 	```
 
 	### KFServing Request:
-	```bash
+
+	```json
 	{
 	"instances": [
 		{
