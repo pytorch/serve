@@ -195,6 +195,9 @@ def _retrieve_load_msg(conn):
     length = _retrieve_int(conn)
     msg["envelope"] = _retrieve_buffer(conn, length)
 
+    length = _retrieve_int(conn)
+    msg["requestId"] = _retrieve_buffer(conn, length)
+
     return msg
 
 

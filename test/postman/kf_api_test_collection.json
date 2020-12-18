@@ -1,0 +1,334 @@
+{
+	"info": {
+		"_postman_id": "5907c3b5-eb27-47f6-b9ee-ee1bd6b8d4d7",
+		"name": "kf_api_test_collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Model Zoo - Register Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3774b4ed-fbae-42e6-a266-679523ae6176",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models?url={{url}}&model_name={{model_name}}&initial_workers={{worker}}&synchronous={{synchronous}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "{{url}}"
+						},
+						{
+							"key": "model_name",
+							"value": "{{model_name}}"
+						},
+						{
+							"key": "initial_workers",
+							"value": "{{worker}}"
+						},
+						{
+							"key": "synchronous",
+							"value": "{{synchronous}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Inference Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "76a39ebf-5656-4ae6-b6f7-2b1359264ccd",
+						"exec": [
+							"var type_response = pm.iterationData.get(\"content-type\");",
+							"validators = {",
+							"    image_classification: validate_image_classification,",
+							"    default_json: validate_default",
+							"};",
+							"",
+							"pm.test(\"Successful POST request\", function() {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"if (type_response === \"text/plain\") {",
+							"    pm.test(\"Test expected TEXT response\", function() {",
+							"        pm.response.to.have.body(pm.iterationData.get(\"expected\"));",
+							"    });",
+							"",
+							"} else if (type_response === \"application/json\") {",
+							"    if (pm.iterationData.has(\"validator\")) {",
+							"        var validator = pm.iterationData.get(\"validator\");       ",
+							"    } else {",
+							"        var  validator = \"default_json\";",
+							"    }",
+							"    pm.test(\"Test expected JSON response\", function() {",
+							"        var actual_obj = pm.response.json();",
+							"        var expected_obj = pm.iterationData.get(\"expected\");",
+							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
+							"    });",
+							"",
+							"}",
+							"",
+							"function get_tolerance_value(expected_val) {",
+							"    var tolerance_percent = pm.iterationData.get(\"tolerance\");",
+							"    return (expected_val * tolerance_percent) / 100;",
+							"}",
+							"",
+							"function validate_image_classification(actual_obj, expected_obj) {",
+							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
+							"        return false;",
+							"    }",
+							"",
+							"    ",
+							"    if (!_.isEqual(_.keys(expected_obj).sort(), _.keys(actual_obj).sort())) {",
+							"        return false;",
+							"    }",
+							"",
+							"",
+							"    for (const key in (expected_obj)) {",
+							"        expected_val = expected_obj[key]",
+							"        actual_val = actual_obj[key]",
+							"        ",
+							"        tolerance_value = get_tolerance_value(expected_val);",
+							"        if (!(Math.abs(expected_val - actual_val) < tolerance_value)) {",
+							"            return false;",
+							"        }",
+							"    }",
+							"    return true;",
+							"}",
+							"",
+							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
+							"-Notes-",
+							"The order of keys within an object may change.",
+							"If the output is array of objects then the objects compared are positional and cannot change order.",
+							"*/",
+							"function validate_default(actual_obj, expected_obj) {",
+							"    return _.isEqual(actual_obj, expected_obj);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "{{file}}"
+					},
+					"options": {
+						"file": {}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/v1/models/{{model_name}}:predict",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"v1",
+						"models",
+						"{{model_name}}:predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Explanations Model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d7ab7b43-e34c-4075-b0a9-848d418dd26c",
+						"exec": [
+							"var type_response = pm.iterationData.get(\"content-type\");",
+							"validators = {",
+							"    image_classification: validate_image_classification,",
+							"    default_json: validate_default",
+							"};",
+							"",
+							"pm.test(\"Successful POST request\", function() {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"if (type_response === \"text/plain\") {",
+							"    pm.test(\"Test expected TEXT response\", function() {",
+							"        pm.response.to.have.body(pm.iterationData.get(\"expected_explain\"));",
+							"    });",
+							"",
+							"} else if (type_response === \"application/json\") {",
+							"    if (pm.iterationData.has(\"validator\")) {",
+							"        var validator = pm.iterationData.get(\"validator\");       ",
+							"    } else {",
+							"        var  validator = \"default_json\";",
+							"    }",
+							"    pm.test(\"Test expected JSON response\", function() {",
+							"        var actual_obj = pm.response.json();",
+							"        var expected_obj = pm.iterationData.get(\"expected_explain\");",
+							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
+							"    });",
+							"",
+							"}",
+							"",
+							"function validate_image_classification(actual_obj, expected_obj) {",
+							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
+							"        return false;",
+							"    }",
+							"    return true;",
+							"}",
+							"",
+							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
+							"-Notes-",
+							"The order of keys within an object may change.",
+							"If the output is array of objects then the objects compared are positional and cannot change order.",
+							"*/",
+							"function validate_default(actual_obj, expected_obj) {",
+							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
+							"        return false;",
+							"    }",
+							"    return true;",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "{{file}}"
+					},
+					"options": {
+						"file": {}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{pred-port}}/v1/models/{{model_name}}:explain",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{pred-port}}",
+					"path": [
+						"v1",
+						"models",
+						"{{model_name}}:explain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Unregister model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dcf8e785-1470-40ec-94c9-4c322a4b47d2",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/models/{{model_name}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"models",
+						"{{model_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Model Zoo - Model Metrics",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6bb26bdb-6069-48fa-b270-9ba694ad1f35",
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    let pattern = new RegExp('ts_inference_latency_microseconds{uuid=\"[\\\\w]{8}(-[\\\\w]{4}){3}-[\\\\w]{12}\",model_name=\"'+pm.variables.get(\"model_name\"));",
+							"    pm.expect(pm.response.text()).to.match(pattern);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/metrics",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"metrics"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

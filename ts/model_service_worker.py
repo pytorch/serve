@@ -76,6 +76,8 @@ class TorchModelServiceWorker(object):
             handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
             envelope = load_model_request["envelope"].decode("utf-8") if "envelope" in load_model_request else None
             envelope = envelope if envelope is not None and len(envelope) > 0 else None
+            request_id = load_model_request["requestId"].decode("utf-8") if "requestId" in load_model_request else None
+            request_id = request_id if request_id is not None and len(request_id) > 0 else None
 
             batch_size = None
             if "batchSize" in load_model_request:
@@ -86,7 +88,7 @@ class TorchModelServiceWorker(object):
                 gpu = int(load_model_request["gpu"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope)
+            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope, request_id)
 
             logging.debug("Model %s loaded.", model_name)
 

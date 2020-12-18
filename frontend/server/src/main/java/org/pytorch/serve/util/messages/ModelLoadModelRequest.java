@@ -8,6 +8,7 @@ public class ModelLoadModelRequest extends BaseModelRequest {
      * ModelLoadModelRequest is a interface between frontend and backend to notify the backend to
      * load a particular model.
      */
+    private String requestId;
     private String modelPath;
 
     private String handler;
@@ -15,13 +16,18 @@ public class ModelLoadModelRequest extends BaseModelRequest {
     private int batchSize;
     private int gpuId;
 
-    public ModelLoadModelRequest(Model model, int gpuId) {
+    public ModelLoadModelRequest(String requestId, Model model, int gpuId) {
         super(WorkerCommands.LOAD, model.getModelName());
+        this.requestId = requestId;
         this.gpuId = gpuId;
         modelPath = model.getModelDir().getAbsolutePath();
         handler = model.getModelArchive().getManifest().getModel().getHandler();
         envelope = model.getModelArchive().getManifest().getModel().getEnvelope();
         batchSize = model.getBatchSize();
+    }
+
+    public String getRequestId() {
+        return requestId;
     }
 
     public String getModelPath() {
