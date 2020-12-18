@@ -1411,7 +1411,7 @@ public class ModelServerTest {
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1,
                         HttpMethod.POST,
-                        "/models?url=noop.mar&model_name=noop_v1.0&runtime=python&synchronous=false");
+                        "/models?url=noop.mar&model_name=noop_v1.0&runtime=python&min_worker=2&synchronous=true");
         channel.writeAndFlush(req);
         TestUtils.getLatch().await();
 
