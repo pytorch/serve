@@ -1,0 +1,12 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: "kubeflow"
+  region: "us-west-2"
+nodeGroups:
+  - name: node-group-1
+    desiredCapacity: 2
+    instanceType: "p3.8xlarge"
+    # below key is optional
+    ssh:
+      publicKeyName: 'dummy-key-pair'
