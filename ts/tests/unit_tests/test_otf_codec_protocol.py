@@ -34,7 +34,7 @@ class TestOtfCodecHandler:
     def test_retrieve_msg_load_gpu(self, socket_patches):
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler", "gpu": 1,
-                    "envelope": b"envelope"}
+                    "envelope": b"envelope", "requestId": b"requestId"}
 
         socket_patches.socket.recv.side_effect = [
             b"L",
@@ -43,7 +43,8 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x01",
             b"\x00\x00\x00\x07", b"handler",
             b"\x00\x00\x00\x01",
-            b"\x00\x00\x00\x08", b"envelope"
+            b"\x00\x00\x00\x08", b"envelope",
+            b"\x00\x00\x00\x09", b"requestId"
         ]
         cmd, ret = codec.retrieve_msg(socket_patches.socket)
 
@@ -53,7 +54,7 @@ class TestOtfCodecHandler:
     def test_retrieve_msg_load_no_gpu(self, socket_patches):
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler",
-                    "envelope": b"envelope"}
+                    "envelope": b"envelope", "requestId": b"requestId"}
 
         socket_patches.socket.recv.side_effect = [
             b"L",
@@ -62,7 +63,8 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x01",
             b"\x00\x00\x00\x07", b"handler",
             b"\xFF\xFF\xFF\xFF",
-            b"\x00\x00\x00\x08", b"envelope"
+            b"\x00\x00\x00\x08", b"envelope",
+            b"\x00\x00\x00\x09", b"requestId"
         ]
         cmd, ret = codec.retrieve_msg(socket_patches.socket)
 

@@ -9,6 +9,7 @@ public class ModelLoadModelRequest extends BaseModelRequest {
      * load a particular model.
      */
     private String requestId;
+
     private String modelPath;
 
     private String handler;
