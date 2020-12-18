@@ -117,7 +117,7 @@ public class WorkerLifeCycle {
 
     public void setSuccess(boolean success) {
         this.success = success;
-        if(success){
+        if (success) {
             latch.countDown();
         }
     }
