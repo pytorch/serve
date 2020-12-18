@@ -199,10 +199,9 @@ public class WorkerLifeCycle {
                         readWriteFileAccess.close();
                     } catch (IOException e) {
                         logger.error("Error while reading file - " + file.getName() + e);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         logger.error("Caught generic exception - " + e);
-                    }
-                    finally {
+                    } finally {
                         logger.info("Stopped Scanner - {}", getName());
                         lifeCycle.setSuccess(false);
                     }
