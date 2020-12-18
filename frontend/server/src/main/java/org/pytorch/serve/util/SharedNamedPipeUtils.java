@@ -9,7 +9,7 @@ public final class SharedNamedPipeUtils {
     private SharedNamedPipeUtils() {}
 
     public static String getSharedNamedPipePath(String port) {
-        return System.getProperty("java.io.tmpdir") + "worker_" + port;
+        return System.getProperty("java.io.tmpdir") + "/worker_" + port;
     }
 
     public static String getSharedNamedPipeStdOut(String port) {
