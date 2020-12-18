@@ -136,6 +136,9 @@ class TorchModelServiceWorkerManager(object):
                 with open(fifo_path + ".out", 'r') as f:
                     if("Torch worker started." in f.read()):
                         break
+                with open(fifo_path + ".err", 'r') as f:
+                    if("Torch worker started." in f.read()):
+                        break
                 retry = retry - 1
 
             if(retry == 0):
