@@ -44,7 +44,7 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x07", b"handler",
             b"\x00\x00\x00\x01",
             b"\x00\x00\x00\x08", b"envelope",
-            b"\x00\x00\x00\x09", b"5fc1d297-0588-4203-a3d1-1320e01f665c"
+            b"\x00\x00\x00\x24", b"5fc1d297-0588-4203-a3d1-1320e01f665c"
         ]
         cmd, ret = codec.retrieve_msg(socket_patches.socket)
 
@@ -64,7 +64,7 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x07", b"handler",
             b"\xFF\xFF\xFF\xFF",
             b"\x00\x00\x00\x08", b"envelope",
-            b"\x00\x00\x00\x09", b"5fc1d297-0588-4203-a3d1-1320e01f665c"
+            b"\x00\x00\x00\x24", b"5fc1d297-0588-4203-a3d1-1320e01f665c"
         ]
         cmd, ret = codec.retrieve_msg(socket_patches.socket)
 
