@@ -7,7 +7,6 @@ import importlib
 import json
 import logging
 import os
-import uuid
 from abc import ABCMeta, abstractmethod
 
 from builtins import str
@@ -34,7 +33,7 @@ class ModelLoader(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, request_id=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, request_id, envelope=None):
         """
         Load model from file.
 
@@ -43,8 +42,8 @@ class ModelLoader(object):
         :param handler:
         :param gpu_id:
         :param batch_size:
-        :param envelope:
         :param request_id:
+        :param envelope:
         :return: Model
         """
         # pylint: disable=unnecessary-pass
@@ -56,7 +55,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, request_id=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, request_id, envelope=None):
         """
         Load TorchServe 1.0 model from file.
 
@@ -65,12 +64,12 @@ class TsModelLoader(ModelLoader):
         :param handler:
         :param gpu_id:
         :param batch_size:
-        :param envelope:
         :param request_id:
+        :param envelope:
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        metrics = MetricsStore(uuid.UUID(request_id) or uuid.uuid4(), model_name)
+        metrics = MetricsStore(request_id, model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):

@@ -88,7 +88,7 @@ class TorchModelServiceWorker(object):
                 gpu = int(load_model_request["gpu"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope, request_id)
+            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, request_id, envelope)
 
             logging.debug("Model %s loaded.", model_name)
 
