@@ -27,6 +27,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     fakeroot \
     ca-certificates \
     dpkg-dev \
+    sudo \
     g++ \
     git \
     python3-dev \
@@ -52,7 +53,12 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git clone https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
-    && ./scripts/install_from_src $CUDA_VERSION \
+    && if [ "$MACHINE_TYPE" = "gpu" ]; then \
+          python ts_scripts/install_dependencies.py --environment=dev --cuda $CUDA_VERSION; \
+       else \
+          python ts_scripts/install_dependencies.py --environment=dev; \
+       fi \
+    && python ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
@@ -61,7 +67,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && cp docker/config.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
-EXPOSE 8080 8081 8082
+EXPOSE 8080 8081 8082 7070 7071
 USER model-server
 WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp

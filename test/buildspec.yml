@@ -5,8 +5,15 @@ version: 0.2
 phases:
   install:
     commands:
-      - python ts_scripts/install_dependencies.py --cuda=cu101
+      - apt-get update
+      - apt-get install sudo -y
+      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
 
   build:
     commands:
-      - python test/regression_tests.py
+      - python test/regression_tests.py 2>&1 | tee /tmp/test_exec.log
+
+artifacts:
+  files:
+    - /tmp/test_exec.log
+  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 

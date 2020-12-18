@@ -49,7 +49,6 @@ def generate_model_archive():
     :return:
     """
 
-
     logging.basicConfig(format='%(levelname)s - %(message)s')
     args = ArgParser.export_model_args_parser().parse_args()
     manifest = ModelExportUtils.generate_manifest_json(args)
