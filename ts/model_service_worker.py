@@ -121,6 +121,12 @@ class TorchModelServiceWorker(object):
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
+
+        if(self.service is None):
+            model_loader = ModelLoaderFactory.get_model_loader()
+            self.service = model_loader.load(*self.model_loader_args)
+
+
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
@@ -129,11 +135,6 @@ class TorchModelServiceWorker(object):
         logger1.error("[PID]%d", os.getpid())
         logger1.error("Torch worker started.")
         logger1.error("Python runtime: %s", platform.python_version())
-
-
-        if(self.service is None):
-            model_loader = ModelLoaderFactory.get_model_loader()
-            self.service = model_loader.load(*self.model_loader_args)
 
         logger1.error("Waiting for connection with socket timeout... " + str(self.sock.gettimeout()))
         while True:
