@@ -99,14 +99,14 @@ To use Transformer handler for question answering, the sample_text.txt should be
 Once, setup_config.json,  sample_text.txt and index_to_name.json are set properly, we can go ahead and package the model and start serving it. The artifacts realted to each operation mode (such as sample_text.txt, index_to_name.json) can be place in their respective folder. The current setting in "setup_config.json" is based on "bert-base-uncased" off the shelf, for sequence classification and Torchscript as save_mode. To fine-tune BERT, RoBERTa or other models, for question ansewering you can refer to [squad example](https://huggingface.co/transformers/examples.html#squad) from huggingface. Model packaging using pretrained for save_mode can be done as follows:
 
 ```
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json" -r requirements.txt
 
 ```
 
 In case of using Torchscript the packaging step would look like the following:
 
 ```
-torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Seq_classification_artifacts/index_to_name.json" -r requirements.txt
 
 ```
 
@@ -121,6 +121,15 @@ torch-model-archiver --model-name BERTSeqClassification_Torchscript --version 1.
 
 As a reminder, if model checkpoints are saved in pytorch_model.bin ("saved_mode" should be set to "pretrained" in the setup_config.json) you need to pass it instead of traced_model.pt. 
 
+### Installing dependent packages
+
+Dependent packages will be installed by TorchServe automatically, when `install_py_dep_per_model` key is set to true in `config.properties`
+
+Add this line to `config.properties`
+
+`install_py_dep_per_model=true`
+
+
 ### Registering the Model on TorchServe and Running Inference
 
 To register the model on TorchServe using the above model archive file, we run the following commands:
@@ -130,6 +139,12 @@ mkdir model_store
 mv BERTSeqClassification_Torchscript.mar model_store/
 torchserve --start --model-store model_store --models my_tc=BERTSeqClassification_Torchscript.mar
 
+```
+
+To start the TorchServe with user specific configurations
+
+```
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification_Torchscript.mar --ts-config config.properties
 ```
 
 - To run the inference using our registered model, open a new terminal and run: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ./Seq_classification_artifacts/sample_text.txt`
