@@ -70,7 +70,7 @@ class TsModelLoader(ModelLoader):
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        metrics = MetricsStore(request_id or uuid.uuid4(), model_name)
+        metrics = MetricsStore(uuid.UUID(request_id) or uuid.uuid4(), model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -79,9 +79,9 @@ class TsModelLoader(ModelLoader):
 
         function_name = None
         try:
-            module, function_name = self._load_handler_file(handler)
+            module, function_name, module_name = self._load_handler_file(handler)
         except ImportError:
-            module = self._load_default_handler(handler)
+            module, module_name = self._load_default_handler(handler)
 
         if module is None:
             raise ValueError("Unable to load module {}, make sure it is added to python path".format(module_name))
@@ -114,12 +114,12 @@ class TsModelLoader(ModelLoader):
             module_name = module_name[:-3]
         module_name = module_name.split("/")[-1]
         module = importlib.import_module(module_name)
-        return module, function_name
+        return module, function_name, module_name
 
     def _load_default_handler(self, handler):
         module_name = ".{0}".format(handler)
         module = importlib.import_module(module_name, 'ts.torch_handler')
-        return module
+        return module, module_name
 
     def _load_default_envelope(self, envelope):
         module_name = ".{0}".format(envelope)
