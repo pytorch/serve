@@ -111,8 +111,8 @@ The result is a json that gives you the explanations for the input image
           0.008999274832810742,
           0.009673474804303854,
           0.007599905146155397,
-          ------,
-	        ------
+          ,
+	        ,
 
         ]
       ]
