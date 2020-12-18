@@ -56,6 +56,7 @@ public class WorkerLifeCycle {
 
         try {
             latch = new CountDownLatch(1);
+            success = false;
 
             synchronized (this) {
                 String threadName =
@@ -116,7 +117,9 @@ public class WorkerLifeCycle {
 
     public void setSuccess(boolean success) {
         this.success = success;
-        latch.countDown();
+        if(success){
+            latch.countDown();
+        }
     }
 
     public synchronized int getPid() {
