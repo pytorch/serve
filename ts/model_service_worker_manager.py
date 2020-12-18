@@ -13,7 +13,7 @@ import platform
 import socket
 import sys
 import tempfile
-
+import traceback
 import torch.multiprocessing as mp
 from multiprocessing import Process
 
@@ -143,6 +143,7 @@ class TorchModelServiceWorkerManager(object):
             return "scaled up", 200
         except:
             e = sys.exc_info()[0]
+            traceback.print_exc()
             logging.info("Scale up error" + str(e))
             return "scale up failed", 500
 
