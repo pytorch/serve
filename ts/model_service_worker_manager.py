@@ -128,6 +128,18 @@ class TorchModelServiceWorkerManager(object):
             p.start()
             worker_id = sock_name if sock_name else port
             self.workers[worker_id] = { "worker" : p, "fifo" : fifo_path }
+
+            retry = 10
+            while (retry > 0):
+                time.sleep(1)
+                with open(fifo_path + ".out", 'r') as f:
+                    if("Torch worker started." in f.read()):
+                        break
+                retry = retry - 1
+
+            if(retry == 0):
+                raise Exception("Worker not spawned")
+
             return "scaled up", 200
         except:
             e = sys.exc_info()[0]
