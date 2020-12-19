@@ -110,8 +110,13 @@ class TorchModelServiceWorker(object):
             if BENCHMARK:
                 pr.enable()
             if cmd == b'I':
+                if BENCHMARK:
+                    pr.enable()
                 resp = service.predict(msg)
                 cl_socket.sendall(resp)
+                if BENCHMARK:
+                    pr.disable()
+                    pr.dump_stats('/tmp/tsPythonProfile.prof')
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
@@ -180,9 +185,9 @@ if __name__ == "__main__":
 
         worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
         worker.run_server()
-        if BENCHMARK:
-            pr.disable()
-            pr.dump_stats('/tmp/tsPythonProfile.prof')
+        #if BENCHMARK:
+        #    pr.disable()
+        #    pr.dump_stats('/tmp/tsPythonProfile.prof')
 
     except socket.timeout:
         logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
