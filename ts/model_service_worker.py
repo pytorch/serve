@@ -103,12 +103,12 @@ class TorchModelServiceWorker(object):
         """
         service = None
         while True:
-        #    if BENCHMARK:
-        #        pr.disable()
-        #        pr.dump_stats('/tmp/tsPythonProfile.prof')
+            if BENCHMARK:
+                pr.disable()
+                pr.dump_stats('/tmp/tsPythonProfile.prof')
             cmd, msg = retrieve_msg(cl_socket)
-        #    if BENCHMARK:
-        #        pr.enable()
+            if BENCHMARK:
+                pr.enable()
             if cmd == b'I':
                 resp = service.predict(msg)
                 cl_socket.sendall(resp)
