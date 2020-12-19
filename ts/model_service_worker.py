@@ -107,15 +107,8 @@ class TorchModelServiceWorker(object):
             #    pr.disable()
             #    pr.dump_stats('/tmp/tsPythonProfile.prof')
             cmd, msg = retrieve_msg(cl_socket)
-            #if BENCHMARK:
-            #    pr.enable()
             if cmd == b'I':
-            #    if BENCHMARK:
-            #        pr.enable()
                 resp = service.predict(msg)
-            #    if BENCHMARK:
-            #        pr.disable()
-            #        pr.dump_stats('/tmp/tsPythonProfile.prof')
                 cl_socket.sendall(resp)
             elif cmd == b'L':
                 service, result, code = self.load_model(msg)
