@@ -175,7 +175,7 @@ if __name__ == "__main__":
         if BENCHMARK:
             import cProfile
             pr = cProfile.Profile()
-            pr.disable()
+            pr.enable()
             #pr.dump_stats('/tmp/tsPythonProfile.prof')
 
         worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
