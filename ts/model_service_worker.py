@@ -175,14 +175,14 @@ if __name__ == "__main__":
         if BENCHMARK:
             import cProfile
             pr = cProfile.Profile()
-            pr.enable()
+            #pr.enable()
             #pr.dump_stats('/tmp/tsPythonProfile.prof')
 
         worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
         worker.run_server()
         if BENCHMARK:
             pr.disable()
-        #    pr.dump_stats('/tmp/tsPythonProfile.prof')
+            pr.dump_stats('/tmp/tsPythonProfile.prof')
 
     except socket.timeout:
         logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
