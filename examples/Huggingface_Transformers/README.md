@@ -129,6 +129,7 @@ Add this line to `config.properties`
 
 `install_py_dep_per_model=true`
 
+Note: These packages needs to be installed manully, if `install_py_dep_per_model` is not set to `true`.
 
 ### Registering the Model on TorchServe and Running Inference
 
