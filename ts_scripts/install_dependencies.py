@@ -8,13 +8,11 @@ from pathlib import Path
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts.utils import check_python_version, is_gpu_instance
+from ts_scripts.utils import check_python_version
 
 
 class Common():
     def __init__(self):
-        # Assumption is nvidia-smi is installed on systems with gpu
-        self.is_gpu_instance = is_gpu_instance()
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
         self.sudo_cmd = 'sudo '
 
@@ -25,7 +23,9 @@ class Common():
         pass
 
     def install_torch_packages(self, cuda_version):
-        if cuda_version and cuda_version != "latest":
+        if cuda_version is None:
+            os.system(f"pip install -U -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
+        elif cuda_version and cuda_version != "latest":
             os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
         else:
             os.system(f"pip install -U -r requirements/torch.txt")
@@ -72,7 +72,9 @@ class Windows(Common):
         self.sudo_cmd = ''
 
     def install_torch_packages(self, cuda_version):
-        if self.is_gpu_instance and cuda_version:
+        if cuda_version is None:
+            os.system(f"pip install -U -r requirements/torch_cpu.txt -f {self.torch_stable_url}")
+        elif cuda_version and cuda_version != "latest":
             os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
         else:
             os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
@@ -126,7 +128,7 @@ def install_dependencies(cuda_version=None):
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'latest'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102',  'latest'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 

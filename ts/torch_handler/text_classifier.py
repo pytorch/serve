@@ -113,7 +113,7 @@ class TextClassifier(TextHandler):
         token_reference = TokenReferenceBase()
         logger.info("input_text shape %s", len(text_tensor.shape))
         logger.info("get_insights target %s", target)
-        offsets = torch.tensor([0])
+        offsets = torch.tensor([0]).to(self.device)
 
         all_tokens = self.get_word_token(all_tokens)
         logger.info("text_tensor tokenized shape %s", text_tensor.shape)
