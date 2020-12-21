@@ -26,8 +26,20 @@ def start_benchmark(model_name, model_mode, batch_size, branch, ami, security_gr
     report_key = f"{model_name}/{instance_type}/{model_mode}_batch_{batch_size}/ab_report.csv"
 
     user_data = f'''#!/bin/bash -xe
+set -eou pipefail
+
+cleanup()
+{{
+aws s3api put-object --bucket {bucket_name} --key exec_log.log --body /var/log/user-data.log
+sudo shutdown -h now
+}}
+
 cd ~
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+pip3 install -U awscli
+sudo apt-get install -y apache2-utils
+
+trap 'cleanup;exit 1' SIGINT SIGTERM EXIT
 git clone https://github.com/pytorch/serve.git
 cd serve
 git checkout {branch}
@@ -35,11 +47,8 @@ cd docker
 ./build_image.sh {"--gpu" if instance_type == "gpu" else ""} --branch_name {branch} --buildtype dev --tag pytorch/torchserve:{instance_type}
 cd ../benchmarks
 pip3 install -U -r requirements-ab.txt
-pip3 install -U awscli
-sudo apt-get install -y apache2-utils
 python3 benchmark-ab.py --config {benchmark_config_path}
 aws s3api put-object --bucket {bucket_name} --key {report_key} --body /tmp/benchmark/ab_report.csv
-sudo shutdown -h now
 '''
 
     print("Starting {} EC2 instance".format(instance_type))
@@ -130,8 +139,6 @@ def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ami, s
                security_group_id, bucket_name, iam_role, region_name):
     ec2_instance_id = start_benchmark(model_name, model_mode, batch_size, branch, ami, security_group_id,
                                       subnet_id, bucket_name, iam_role, region_name, instance_type)
-    #public_ip_address = get_instance_meta(ec2_instance_id)
-
 
 if __name__ == '__main__':
     auto_bench()
