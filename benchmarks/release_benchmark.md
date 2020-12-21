@@ -74,8 +74,6 @@ Refer the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/c
 
 |Parameter|Required|Description|Default|
 |---|---|---|---|
-|subnet_id|:heavy_check_mark:|Id of the subnet to be used while creating EC2 instance||
-|security_group_id|:heavy_check_mark:|Id of the security group to be used while creating EC2 instance||
 |model_name||Name of the model to run benchmark on. Possible values - vgg11/fastrcnn/bert|vgg11|
 |model_mode||Mode of the model. Possible values: scripted/eager|eager|
 |batch_size||Batch size of the model.|1|

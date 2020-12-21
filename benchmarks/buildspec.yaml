@@ -12,4 +12,4 @@ phases:
 
   build:
     commands:
-      - python benchmarks/run_release_benchmark.py -s $SUBNET_ID  -sg $SECURITY_GROUP_ID -bn $BUCKET_NAME -iam $IAM_ROLE -bs $BATCH_SIZE -mn $MODEL_NAME -mm $MODEL_MODE -b $BRANCH -i $INSTANCE_TYPE
+      - python benchmarks/run_release_benchmark.py -bn $BUCKET_NAME -iam $IAM_ROLE -bs $BATCH_SIZE -mn $MODEL_NAME -mm $MODEL_MODE -b $BRANCH -i $INSTANCE_TYPE -i -r $REGION_NAME

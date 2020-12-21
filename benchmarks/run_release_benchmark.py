@@ -1,6 +1,5 @@
 import boto3
 import click
-import time
 
 
 def get_boto_client(service_name, region_name):
@@ -19,18 +18,18 @@ def get_boto_resource(service_name):
     return client
 
 
-def start_benchmark(model_name, model_mode, batch_size, branch, ami, security_group, subnet_id, bucket_name,
-                    iam_role, region_name, instance_type='cpu'):
+def start_benchmark(model_name, model_mode, batch_size, branch, ami, bucket_name, iam_role, region_name,
+                    instance_type='cpu'):
     benchmark_config_path = f"preset_configs/{model_name}/{instance_type}/{model_mode}_batch_{batch_size}.json"
 
-    report_key = f"{model_name}/{instance_type}/{model_mode}_batch_{batch_size}/ab_report.csv"
+    s3_path = f"{model_name}/{instance_type}/{model_mode}_batch_{batch_size}"
 
     user_data = f'''#!/bin/bash -xe
 set -eou pipefail
 
 cleanup()
 {{
-aws s3api put-object --bucket {bucket_name} --key exec_log.log --body /var/log/user-data.log
+aws s3api put-object --bucket {bucket_name} --key {s3_path}/exec_log.log --body /var/log/user-data.log
 sudo shutdown -h now
 }}
 
@@ -48,7 +47,7 @@ cd docker
 cd ../benchmarks
 pip3 install -U -r requirements-ab.txt
 python3 benchmark-ab.py --config {benchmark_config_path}
-aws s3api put-object --bucket {bucket_name} --key {report_key} --body /tmp/benchmark/ab_report.csv
+aws s3api put-object --bucket {bucket_name} --key {s3_path}/ab_report.csv --body /tmp/benchmark/ab_report.csv
 '''
 
     print("Starting {} EC2 instance".format(instance_type))
@@ -69,10 +68,6 @@ aws s3api put-object --bucket {bucket_name} --key {report_key} --body /tmp/bench
         MaxCount=1,
         MinCount=1,
         # KeyName="torchserve", ## For Debugging change the value to your own key name.
-        SecurityGroupIds=[
-            security_group,
-        ],
-        SubnetId=subnet_id,
         InstanceInitiatedShutdownBehavior='terminate',
         IamInstanceProfile={
             'Name': iam_role
@@ -82,42 +77,6 @@ aws s3api put-object --bucket {bucket_name} --key {report_key} --body /tmp/bench
 
     print("Started {} EC2 instance".format(instance_type))
     return instances['Instances'][0]['InstanceId']
-
-
-def get_instance_meta(ec2_instance_id):
-    ec2_client = get_boto_client('ec2')
-    instance_status = ec2_client.describe_instance_status(
-        InstanceIds=[
-            ec2_instance_id
-        ],
-    )
-
-    print('EC2 instance initializing... Checking status')
-    while len(instance_status['InstanceStatuses']) == 0:
-        time.sleep(2)
-        instance_status = ec2_client.describe_instance_status(
-            InstanceIds=[
-                ec2_instance_id
-            ],
-        )
-
-    while (not (instance_status['InstanceStatuses'][0]['InstanceStatus']['Status'] == 'ok'
-                and instance_status['InstanceStatuses'][0]['SystemStatus']['Status'] == 'ok')):
-        print("Instance not ready retrying in 15 seconds")
-        time.sleep(10)
-        instance_status = ec2_client.describe_instance_status(
-            InstanceIds=[
-                ec2_instance_id
-            ],
-        )
-
-    instance_meta = ec2_client.describe_instances(
-        InstanceIds=[
-            ec2_instance_id
-        ],
-    )
-    print("Public IP address is : {}".format(instance_meta['Reservations'][0]['Instances'][0]['PublicIpAddress']))
-    return instance_meta['Reservations'][0]['Instances'][0]['PublicIpAddress']
 
 
 @click.command()
@@ -130,15 +89,14 @@ def get_instance_meta(ec2_instance_id):
 @click.option('--batch_size', '-bs', default='1', type=click.Choice(['1', '2', '4', '8']), help='1/2/4/8. Default 1.')
 @click.option('--ami', '-a', default='ami-02e86b825fe559330',
               help='AMI to use for EC2 instance. Default ami-02e86b825fe559330')
-@click.option('--subnet_id', '-s', required=True, help='Subnet ID to use for EC2 instance')
-@click.option('--security_group_id', '-sg', required=True, help='Security Group ID to use for EC2 instance')
 @click.option('--bucket_name', '-bn', required=True, help='s3 bucket name for uploading the results')
 @click.option('--iam_role', '-iam', required=True, help='IAM role with access to the s3 bucket')
 @click.option('--region_name', '-r', default='us-east-1', help='Region name to spin up the EC2 instance. Default us-east-1')
-def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ami, subnet_id,
-               security_group_id, bucket_name, iam_role, region_name):
-    ec2_instance_id = start_benchmark(model_name, model_mode, batch_size, branch, ami, security_group_id,
-                                      subnet_id, bucket_name, iam_role, region_name, instance_type)
+def auto_bench(branch, instance_type, model_name, model_mode, batch_size, ami, bucket_name, iam_role, region_name):
+    ec2_instance_id = start_benchmark(model_name, model_mode, batch_size, branch, ami, bucket_name, iam_role,
+                                      region_name, instance_type)
+    print(ec2_instance_id)
+
 
 if __name__ == '__main__':
     auto_bench()
