@@ -92,14 +92,10 @@ class TorchModelServiceWorker(object):
     def run_server(self):
         try:
             logging.error("Run server invoke")
-            #loggerc = logging.getLogger('c')
-            #loggerc.addHandler(logging.FileHandler('/tmp/loggerc'))
-            #loggerc.error("Starting server ....  " + str(self.sock_name))
             self.run_server1()
         except:
             e = sys.exc_info()[0]
             traceback.print_exc()
-            #loggerc.error("after the listen....." + str(e) + str(self.sock_name))
 
     def run_server1(self):
         """
