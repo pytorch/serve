@@ -111,10 +111,10 @@ class TorchModelServiceWorker(object):
                 resp = service.predict(msg)
                 cl_socket.sendall(resp)
             elif cmd == b'L':
+                service, result, code = self.load_model(msg)
                 if BENCHMARK:
                     pr.disable()
                     pr.dump_stats('/tmp/tsPythonProfile.prof')
-                service, result, code = self.load_model(msg)
                 resp = bytearray()
                 resp += create_load_model_response(code, result)
                 cl_socket.sendall(resp)
@@ -176,7 +176,7 @@ if __name__ == "__main__":
         if BENCHMARK:
             import cProfile
             pr = cProfile.Profile()
-            #pr.enable()
+            pr.enable()
             #pr.dump_stats('/tmp/tsPythonProfile.prof')
 
         worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
