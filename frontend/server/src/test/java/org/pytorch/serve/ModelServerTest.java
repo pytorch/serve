@@ -1584,6 +1584,7 @@ public class ModelServerTest {
                 resp.getMessage(), "Model version: 1.3.1 does not exist for model: noopversioned");
     }
 
+    /*
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelNotFound"},
@@ -1605,10 +1606,11 @@ public class ModelServerTest {
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
+    */
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelTimeout"})
+            dependsOnMethods = {"testUnregisterModelNotFound"})
     public void testScaleModelFailure() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
