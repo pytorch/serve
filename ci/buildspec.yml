@@ -14,6 +14,8 @@ phases:
       - python torchserve_sanity.py
       - cd serving-sdk/ && mvn clean install -q && cd ../
 
-  artifacts:
-    files:
-      - logs/ts_console.log
+artifacts:
+  files:
+    - logs/ts_console.log
+  name: build_logs 
+
