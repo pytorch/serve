@@ -100,12 +100,22 @@ public class DagExecutor {
                     for (String newNodeName : childNodes) {
 
                         if (topoSortedList == null) {
-                            List<InputParameter> params = new ArrayList<>();
-                            RequestInput newInput = new RequestInput(UUID.randomUUID().toString());
                             byte[] response = (byte[]) output.getData();
-                            params.add(new InputParameter("body", response));
-                            newInput.setParameters(params);
-                            newInput.setHeaders(input.getHeaders());
+
+                            RequestInput newInput = this.inputRequestMap.get(newNodeName);
+                            if (newInput == null) {
+                                List<InputParameter> params = new ArrayList<>();
+                                newInput = new RequestInput(UUID.randomUUID().toString());
+                                if(inDegreeMap.get(newNodeName) ==1 ){
+                                    params.add(new InputParameter("body", response));
+                                }else{
+                                    params.add(new InputParameter(nodeName, response));
+                                }
+                                newInput.setParameters(params);
+                                newInput.setHeaders(input.getHeaders());
+                            } else {
+                                newInput.addParameter(new InputParameter(nodeName, response));
+                            }
                             this.inputRequestMap.put(newNodeName, newInput);
                         }
 
