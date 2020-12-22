@@ -16,4 +16,4 @@ phases:
 
   artifacts:
     files:
-      - /logs/ts_console.log
+      - logs/ts_console.log
