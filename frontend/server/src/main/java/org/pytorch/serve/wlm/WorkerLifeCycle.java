@@ -27,8 +27,9 @@ public class WorkerLifeCycle {
     private ReaderThread outReader;
     private int port;
 
-    private static final int STD_OUT_POLL_INTERVAL = 1000;
-    private static final int STD_OUT_POLL_ATTEMPTS = 10;
+    private static final int[] BACK_OFF = {
+            0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+    };
 
     public WorkerLifeCycle(ConfigManager configManager, Model model, int port) {
         this.configManager = configManager;
@@ -38,14 +39,15 @@ public class WorkerLifeCycle {
     }
 
     public static void awaitFileCreate(String path) throws WorkerInitializationException {
-        int retry = STD_OUT_POLL_ATTEMPTS;
+        int retry = 0;
         while (!(new File(path).exists())) {
-            if (--retry <= 0) {
+            if (retry < BACK_OFF.length) {
                 throw new WorkerInitializationException(
                         "Worker std out file was not created in time");
             }
             try {
-                Thread.sleep(STD_OUT_POLL_INTERVAL);
+                Thread.sleep(BACK_OFF[retry] * 1000);
+                retry++;
             } catch (InterruptedException e) {
                 logger.info("Waiting to startup");
             }
