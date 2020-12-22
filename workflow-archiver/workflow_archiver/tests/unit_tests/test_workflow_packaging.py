@@ -24,7 +24,7 @@ class TestWorkflowPackaging:
     export_path = '/Users/dummyUser/'
 
     args = Namespace(workflow_name=workflow_name, handler=handler, spec_file=spec_file, export_path=export_path,
-                     force=False, convert=False)
+                     force=False, convert=False, extra_files=None)
 
     @pytest.fixture()
     def patches(self, mocker):
