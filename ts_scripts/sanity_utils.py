@@ -71,6 +71,7 @@ def test_sanity():
          "handler": "custom"}
     ]
     ts_log_file = os.path.join("logs", "ts_console.log")
+    ts_log_file = None
     is_gpu_instance = utils.is_gpu_instance()
 
     os.makedirs("model_store", exist_ok=True)
