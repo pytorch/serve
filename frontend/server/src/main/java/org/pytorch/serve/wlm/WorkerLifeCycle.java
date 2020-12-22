@@ -41,16 +41,18 @@ public class WorkerLifeCycle {
     public static void awaitFileCreate(String path) throws WorkerInitializationException {
         int retry = 0;
         while (!(new File(path).exists())) {
-            if (retry < BACK_OFF.length) {
+            if (retry >= BACK_OFF.length) {
                 throw new WorkerInitializationException(
                         "Worker std out file was not created in time");
+            } else {
+                try {
+                    Thread.sleep(BACK_OFF[retry] * 1000);
+                    retry++;
+                } catch (InterruptedException e) {
+                    logger.info("Waiting to startup");
+                }
             }
-            try {
-                Thread.sleep(BACK_OFF[retry] * 1000);
-                retry++;
-            } catch (InterruptedException e) {
-                logger.info("Waiting to startup");
-            }
+
         }
     }
 
