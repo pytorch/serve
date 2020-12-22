@@ -100,6 +100,7 @@ def test_sanity():
         else:
             print(f"## Successfully registered {model_name} model with torchserve")
 
+        '''
         for input in model_inputs:
             infer_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py infer {model_name} {input}"
             status = os.system(infer_model_grpc_cmd)
@@ -108,6 +109,7 @@ def test_sanity():
                 sys.exit(1)
             else:
                 print(f"## Successfully ran inference on {model_name} model.")
+        '''
 
         unregister_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
         status = os.system(unregister_model_grpc_cmd)
