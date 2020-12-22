@@ -97,7 +97,7 @@ inference_address=https://0.0.0.0:8443
 inference_address=https://172.16.1.10:8080
 ```
 
-### Configure TorchServe gRPC listening ports 
+### Configure TorchServe gRPC listening ports
 The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.
 
 To configure different ports use following properties

@@ -1,4 +1,5 @@
 from ts_scripts.modelarchiver_utils import test_modelarchiver
+from ts_scripts.workflow_archiver_utils import test_workflow_archiver
 from ts_scripts.backend_utils import test_torchserve
 from ts_scripts.install_from_src import install_from_src
 from ts_scripts.sanity_utils import test_sanity
@@ -21,6 +22,9 @@ def torchserve_sanity():
 
         # Test Model archiver pylint, pytest, IT
         test_modelarchiver()
+        
+        # Test Workflow archiver pylint, pytest, IT
+        test_workflow_archiver()
 
         # Run Sanity Tests
         test_sanity()

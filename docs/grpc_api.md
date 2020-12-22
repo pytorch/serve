@@ -15,7 +15,7 @@ TorchServe provides following gRPCs apis
   - **ListModels** : Query default versions of current registered models
   - **DescribeModel** : Get detail runtime status of default version of a model
   - **SetDefault** : Set any registered version of a model as default version
-  
+
 By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API.
 To configure gRPC APIs on different ports refer [configuration documentation](configuration.md)
 
