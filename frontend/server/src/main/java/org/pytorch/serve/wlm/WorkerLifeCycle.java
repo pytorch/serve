@@ -27,9 +27,7 @@ public class WorkerLifeCycle {
     private ReaderThread outReader;
     private int port;
 
-    private static final int[] BACK_OFF = {
-            0, 1, 1, 2, 3, 5, 8, 13, 21, 34
-    };
+    private static final int[] BACK_OFF = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34};
 
     public WorkerLifeCycle(ConfigManager configManager, Model model, int port) {
         this.configManager = configManager;
@@ -52,7 +50,6 @@ public class WorkerLifeCycle {
                     logger.info("Waiting to startup");
                 }
             }
-
         }
     }
 
