@@ -1,4 +1,1 @@
-torch
 transformers
-torchtext
-captum
