@@ -1586,7 +1586,8 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testUnregisterModelNotFound"})
+            dependsOnMethods = {"testUnregisterModelNotFound"},
+            enabled = false)
     public void testUnregisterModelTimeout()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
