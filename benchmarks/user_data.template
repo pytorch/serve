@@ -1,0 +1,24 @@
+#!/bin/bash -xe
+set -eou pipefail
+
+cleanup()
+{
+aws s3api put-object --bucket {{bucket_name}} --key {{s3_path}}/exec_log.log --body /var/log/user-data.log
+sudo shutdown -h now
+}
+
+cd ~
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+pip3 install -U awscli
+sudo apt-get install -y apache2-utils
+
+trap 'cleanup;exit 1' SIGINT SIGTERM EXIT
+git clone https://github.com/pytorch/serve.git
+cd serve
+git checkout {{branch}}
+cd docker
+./build_image.sh {{gpu_arg}} --branch_name {{branch}} --buildtype dev --tag pytorch/torchserve:{{instance_type}}
+cd ../benchmarks
+pip3 install -U -r requirements-ab.txt
+python3 benchmark-ab.py --config {{benchmark_config_path}}
+aws s3api put-object --bucket {{bucket_name}} --key {{s3_path}}/ab_report.csv --body /tmp/benchmark/ab_report.csv

@@ -1,5 +1,6 @@
 import boto3
 import click
+from jinja2 import Template
 
 
 def get_boto_client(service_name, region_name):
@@ -24,31 +25,15 @@ def start_benchmark(model_name, model_mode, batch_size, branch, ami, bucket_name
 
     s3_path = f"{model_name}/{instance_type}/{model_mode}_batch_{batch_size}"
 
-    user_data = f'''#!/bin/bash -xe
-set -eou pipefail
-
-cleanup()
-{{
-aws s3api put-object --bucket {bucket_name} --key {s3_path}/exec_log.log --body /var/log/user-data.log
-sudo shutdown -h now
-}}
-
-cd ~
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-pip3 install -U awscli
-sudo apt-get install -y apache2-utils
-
-trap 'cleanup;exit 1' SIGINT SIGTERM EXIT
-git clone https://github.com/pytorch/serve.git
-cd serve
-git checkout {branch}
-cd docker
-./build_image.sh {"--gpu" if instance_type == "gpu" else ""} --branch_name {branch} --buildtype dev --tag pytorch/torchserve:{instance_type}
-cd ../benchmarks
-pip3 install -U -r requirements-ab.txt
-python3 benchmark-ab.py --config {benchmark_config_path}
-aws s3api put-object --bucket {bucket_name} --key {s3_path}/ab_report.csv --body /tmp/benchmark/ab_report.csv
-'''
+    with open('user_data.template', 'r') as f:
+        user_data = Template(f.read()).render(
+            bucket_name=bucket_name,
+            s3_path=s3_path,
+            branch=branch,
+            gpu_arg="--gpu" if instance_type == "gpu" else "",
+            instance_type=instance_type,
+            benchmark_config_path=benchmark_config_path,
+        )
 
     print("Starting {} EC2 instance".format(instance_type))
     ec2_client = get_boto_client('ec2', region_name)
@@ -67,7 +52,12 @@ aws s3api put-object --bucket {bucket_name} --key {s3_path}/ab_report.csv --body
         InstanceType='c4.4xlarge' if instance_type == "cpu" else "p3.8xlarge",
         MaxCount=1,
         MinCount=1,
-        # KeyName="torchserve", ## For Debugging change the value to your own key name.
+        # For Debugging. Change the value to your own key name, subnet id and security group id.
+        # KeyName="torchserve",
+        # SecurityGroupIds=[
+        #     'security_group_id',
+        # ],
+        # SubnetId='subnet_id',
         InstanceInitiatedShutdownBehavior='terminate',
         IamInstanceProfile={
             'Name': iam_role
