@@ -916,7 +916,9 @@ public class ModelServerTest {
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
-    @Test(alwaysRun = true)
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromURL"})
     public void testLoadModelFromFileURI() throws InterruptedException, IOException {
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
@@ -944,7 +946,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromFileURI"})
+            dependsOnMethods = {"testUnregisterFileURIModel"})
     public void testModelWithInvalidFileURI() throws InterruptedException, IOException {
         String invalidFileUrl = "file:///InvalidUrl";
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -953,14 +955,12 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.registerModel(channel, invalidFileUrl, "invalid_file_url", true, false);
         TestUtils.getLatch().await();
-        System.out.println("HTTP Status: " + TestUtils.getHttpStatus());
-        System.out.println("Expected output : " + HttpResponseStatus.BAD_REQUEST);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
     }
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromURL"})
+            dependsOnMethods = {"testModelWithInvalidFileURI"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
@@ -968,7 +968,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromURL"})
+            dependsOnMethods = {"testUnregisterURLModel"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
