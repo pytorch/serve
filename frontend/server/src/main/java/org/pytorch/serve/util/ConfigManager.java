@@ -733,11 +733,11 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public int getIniitialWorkerPort() {
+    public int getInitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
     }
 
-    public void setIniitialWorkerPort(int initialPort) {
+    public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 

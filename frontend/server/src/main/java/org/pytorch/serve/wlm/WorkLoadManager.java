@@ -36,7 +36,7 @@ public class WorkLoadManager {
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
-        this.port = new AtomicInteger(configManager.getIniitialWorkerPort());
+        this.port = new AtomicInteger(configManager.getInitialWorkerPort());
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();

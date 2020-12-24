@@ -48,7 +48,7 @@ public class WorkflowTest {
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-        configManager.setIniitialWorkerPort(10000);
+        configManager.setInitialWorkerPort(10000);
         server = new ModelServer(configManager);
         server.startRESTserver();
     }
