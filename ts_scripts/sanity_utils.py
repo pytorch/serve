@@ -202,7 +202,7 @@ def test_workflow_sanity():
 
     os.chdir(current_path)
 
-    started = ts.start_torchserve(ncs=False, log_file=ts_log_file)
+    started = ts.start_torchserve(ncs=True, log_file=ts_log_file)
     if not started:
         sys.exit(1)
 
