@@ -106,9 +106,9 @@ public class DagExecutor {
                             if (newInput == null) {
                                 List<InputParameter> params = new ArrayList<>();
                                 newInput = new RequestInput(UUID.randomUUID().toString());
-                                if(inDegreeMap.get(newNodeName) ==1 ){
+                                if (inDegreeMap.get(newNodeName) == 1) {
                                     params.add(new InputParameter("body", response));
-                                }else{
+                                } else {
                                     params.add(new InputParameter(nodeName, response));
                                 }
                                 newInput.setParameters(params);
