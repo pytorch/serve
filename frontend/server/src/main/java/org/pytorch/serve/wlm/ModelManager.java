@@ -120,17 +120,10 @@ public final class ModelManager {
             manifest.getModel().setVersion("1.0");
             manifest.getModel().setModelVersion("1.0");
             manifest.getModel().setModelName(modelName);
-            manifest.getModel().setHandler(handler);
+            manifest.getModel().setHandler(new File(handler).getName());
 
-            int index = handler.lastIndexOf(':');
-            String handlerFile = handler.substring(0, index);
-            File f = new File(handlerFile);
-            logger.debug(
-                    "Workflow function {} handler : {}, handler file: {}",
-                    modelName,
-                    handler,
-                    handlerFile);
-            archive = new ModelArchive(manifest, url, f.getAbsoluteFile().getParentFile(), true);
+            File f = new File(handler.substring(0, handler.lastIndexOf(':')));
+            archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         } else {
             archive = createModelArchive(modelName, url, handler, runtime, defaultModelName);
         }
