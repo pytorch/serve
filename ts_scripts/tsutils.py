@@ -88,3 +88,29 @@ def generate_grpc_client_stubs():
     if status != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
+
+
+def register_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
+    print(f"## Registering {workflow_name} workflow")
+    model_zoo_url = "https://torchserve.s3.amazonaws.com"
+    params = (
+        ("url", f"{workflow_name}.war"),
+    )
+    url = f"{protocol}://{host}:{port}/workflows"
+    response = requests.post(url, params=params, verify=False)
+    return response
+
+
+def unregister_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
+    print(f"## Unregistering {workflow_name} workflow")
+    url = f"{protocol}://{host}:{port}/workflows/{workflow_name}"
+    response = requests.delete(url, verify=False)
+    return response
+
+
+def workflow_prediction(workflow_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
+    print(f"## Running inference on {workflow_name} workflow")
+    url = f"{protocol}://{host}:{port}/wfpredict/{workflow_name}"
+    files = {"data": (file_name, open(file_name, "rb"))}
+    response = requests.post(url, files=files, timeout=timeout)
+    return response
