@@ -3,6 +3,8 @@ import sys
 import nvgpu
 import glob
 import platform
+import shutil
+import requests
 
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -185,21 +187,24 @@ def test_workflow_sanity():
     os.chdir(f"examples/Workflows/densenet_image_classifier_pipeline/")
 
     # create model archive
-    os.system("wget https://download.pytorch.org/models/densenet161-8d451a50.pth -O"
-              " densenet_model/densenet161-8d451a50.pth")
 
-    os.system(f"{ts.torch_model_archiver_command[platform.system()]} --model-name densenet_wf --version 1.0 --model-file densenet_model/model.py"
-              " --serialized-file densenet_model/densenet161-8d451a50.pth --handler densenet_model/densenet_handler.py")
+    response = requests.get("https://download.pytorch.org/models/densenet161-8d451a50.pth", allow_redirects=True)
+    open("densenet_model/densenet161-8d451a50.pth", 'wb').write(response.content)
 
-    os.system(f"mv densenet_wf.mar {current_path}/model_store/")
+    os.system(f"{ts.torch_model_archiver_command[platform.system()]} --model-name densenet_wf --version 1.0 "
+              f"--model-file densenet_model/model.py --serialized-file densenet_model/densenet161-8d451a50.pth"
+              f" --handler densenet_model/densenet_handler.py")
 
-    os.system("rm densenet_model/densenet161-8d451a50.pth")
+    shutil.move("densenet_wf.mar", f"{current_path}/model_store/")
+
+    os.remove("densenet_model/densenet161-8d451a50.pth")
 
     # create workflow archive
-    os.system(f"{ts.torch_workflow_archiver_command[platform.system()]} --workflow-name densenet --spec-file densenet_workflow.yaml"
-              " --handler densenet_workflow_handler.py --extra-files index_to_name.json")
+    os.system(f"{ts.torch_workflow_archiver_command[platform.system()]} --workflow-name densenet"
+              f" --spec-file densenet_workflow.yaml --handler densenet_workflow_handler.py"
+              f" --extra-files index_to_name.json")
 
-    os.system(f"mv densenet.war {current_path}/model_store/")
+    shutil.move("densenet.war", f"{current_path}/model_store/")
 
     os.chdir(current_path)
 
