@@ -2,6 +2,7 @@ import os
 import sys
 import nvgpu
 import glob
+import platform
 
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -187,7 +188,7 @@ def test_workflow_sanity():
     os.system("wget https://download.pytorch.org/models/densenet161-8d451a50.pth -O"
               " densenet_model/densenet161-8d451a50.pth")
 
-    os.system("torch-model-archiver --model-name densenet_wf --version 1.0 --model-file densenet_model/model.py"
+    os.system(f"{ts.torch_model_archiver_command[platform.system()]} --model-name densenet_wf --version 1.0 --model-file densenet_model/model.py"
               " --serialized-file densenet_model/densenet161-8d451a50.pth --handler densenet_model/densenet_handler.py")
 
     os.system(f"mv densenet_wf.mar {current_path}/model_store/")
@@ -195,7 +196,7 @@ def test_workflow_sanity():
     os.system("rm densenet_model/densenet161-8d451a50.pth")
 
     # create workflow archive
-    os.system("torch-workflow-archiver --workflow-name densenet --spec-file densenet_workflow.yaml"
+    os.system(f"{ts.torch_workflow_archiver_command[platform.system()]} --workflow-name densenet --spec-file densenet_workflow.yaml"
               " --handler densenet_workflow_handler.py --extra-files index_to_name.json")
 
     os.system(f"mv densenet.war {current_path}/model_store/")

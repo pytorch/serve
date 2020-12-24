@@ -11,6 +11,19 @@ torchserve_command = {
     "Linux": "torchserve"
 }
 
+torch_model_archiver_command = {
+        "Windows": "torch-model-archiver.exe",
+        "Darwin": "torch-model-archiver",
+        "Linux": "torch-model-archiver"
+    }
+
+
+torch_workflow_archiver_command = {
+        "Windows": "torch-workflow-archiver.exe",
+        "Darwin": "torch-workflow-archiver",
+        "Linux": "torch-workflow-archiver"
+    }
+
 
 def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):
     print("## Starting TorchServe")
