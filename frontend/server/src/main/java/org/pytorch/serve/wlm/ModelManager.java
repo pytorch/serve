@@ -121,7 +121,10 @@ public final class ModelManager {
             manifest.getModel().setModelVersion("1.0");
             manifest.getModel().setModelName(modelName);
             manifest.getModel().setHandler(handler);
-            File f = new File(handler.split(":")[0]);
+
+            int index = handler.lastIndexOf(":");
+            String handlerFile = handler.substring(0, index);
+            File f = new File(handlerFile);
             archive = new ModelArchive(manifest, url, f.getAbsoluteFile().getParentFile(), true);
         } else {
             archive = createModelArchive(modelName, url, handler, runtime, defaultModelName);
