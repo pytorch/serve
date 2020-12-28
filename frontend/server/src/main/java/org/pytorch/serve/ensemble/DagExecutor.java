@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
+import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -76,7 +77,8 @@ public class DagExecutor {
                 try {
                     outputs.add(executorCompletionService.take().get());
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace(); // NOPMD
+                    String[] error = e.getMessage().split(":");
+                    throw new InternalServerException(error[error.length - 1]); // NOPMD
                 }
             } else {
                 for (String name : readyToExecute) {
@@ -121,24 +123,29 @@ public class DagExecutor {
         return leafOutputs;
     }
 
-    public NodeOutput invokeModel(
-            String nodeName, WorkflowModel workflowModel, RequestInput input) {
+    private NodeOutput invokeModel(String nodeName, WorkflowModel workflowModel, RequestInput input)
+            throws ModelNotFoundException, ModelVersionNotFoundException, ExecutionException,
+                    InterruptedException {
         try {
             CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
 
             RestJob job = ApiUtils.addRESTInferenceJob(null, workflowModel.getName(), null, input);
             job.setResponsePromise(respFuture);
-            try {
-                byte[] resp = respFuture.get();
-                return new NodeOutput(nodeName, resp);
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Failed to execute workflow Node.");
-                logger.error(e.getMessage());
-            }
-        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            byte[] resp = respFuture.get();
+            return new NodeOutput(nodeName, resp);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Failed to execute workflow Node.");
+            logger.error(nodeName + " : " + e.getMessage());
+            String[] error = e.getMessage().split(":");
+            throw new InternalServerException(nodeName + " - " + error[error.length - 1]); // NOPMD
+        } catch (ModelNotFoundException e) {
             logger.error("Model not found.");
             logger.error(e.getMessage());
+            throw e;
+        } catch (ModelVersionNotFoundException e) {
+            logger.error("Model version not found.");
+            logger.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 }

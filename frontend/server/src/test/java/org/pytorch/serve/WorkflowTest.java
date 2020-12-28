@@ -138,6 +138,34 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterWorkflow"})
+    public void testLoadWorkflowFromFileURI() throws InterruptedException, IOException {
+        String curDir = System.getProperty("user.dir");
+        File curDirFile = new File(curDir);
+        String parent = curDirFile.getParent();
+
+        String source = configManager.getWorkflowStore() + "/smtest.war";
+        String destination = parent + "/archive/smtest1.war";
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination);
+        String fileUrl = "";
+        FileUtils.copyFile(sourceFile, destinationFile);
+        fileUrl = "file:///" + destination;
+        testLoadWorkflow(fileUrl, "smtest1");
+        Assert.assertTrue(new File(configManager.getWorkflowStore(), "smtest1.war").exists());
+        FileUtils.deleteQuietly(destinationFile);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadWorkflowFromFileURI"})
+    public void testUnregisterFileURIWorkflow() throws InterruptedException {
+        testUnregisterWorkflow("smtest1");
+        Assert.assertFalse(new File(configManager.getWorkflowStore(), "smtest1.war").exists());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterFileURIWorkflow"})
     public void testRegisterWorkflowMissingUrl() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -325,24 +353,77 @@ public class WorkflowTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflowNotFound"})
     public void testPredictionWorkflowNotFound() throws InterruptedException {
-        Channel channel = TestUtils.getInferenceChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        String requestURL = "/wfpredict/" + "fake";
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
-        HttpUtil.setContentLength(req, req.content().readableBytes());
-        req.headers()
-                .set(
-                        HttpHeaderNames.CONTENT_TYPE,
-                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        channel.writeAndFlush(req);
+        Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
 
-        TestUtils.getLatch().await();
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/wfpredict/InvalidModel");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
-        Assert.assertEquals(resp.getMessage(), "Workflow not found: fake");
+        Assert.assertEquals(resp.getMessage(), "Workflow not found: InvalidModel");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionWorkflowNotFound"})
+    public void testWorkflowWithInvalidFileURI() throws InterruptedException, IOException {
+        String invalidFileUrl = "file:///InvalidUrl";
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setHttpStatus(null);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerWorkflow(channel, invalidFileUrl, "invalid_file_url", false);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testWorkflowWithInvalidFileURI"})
+    public void testPredictionMemoryError() throws InterruptedException {
+        // Load the model
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+
+        TestUtils.registerWorkflow(channel, "prediction-memory-error.war", "pred-err", false);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        channel.close().sync();
+
+        // Test for prediction
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/wfpredict/pred-err");
+        req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
+
+        channel.writeAndFlush(req);
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getMessage(), "pred-err__pred-err -  Out of resources");
+        channel.close().sync();
+
+        // Unload the workflow
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setHttpStatus(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        Assert.assertNotNull(channel);
+
+        TestUtils.unregisterWorkflow(channel, "pred-err", true);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
 
     private void testLoadWorkflow(String url, String workflowName) throws InterruptedException {
@@ -356,5 +437,16 @@ public class WorkflowTest {
         Assert.assertEquals(
                 resp.getStatus(),
                 "Workflow " + workflowName + " has been registered and scaled successfully.");
+    }
+
+    private void testUnregisterWorkflow(String workflowName) throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.unregisterWorkflow(channel, workflowName, false);
+        TestUtils.getLatch().await();
+
+        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(resp.getStatus(), "Workflow \"" + workflowName + "\" unregistered");
     }
 }

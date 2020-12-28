@@ -109,7 +109,7 @@ public class RestJob extends Job {
             NettyUtils.sendError(
                     ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
         } else if (responsePromise != null) {
-            responsePromise.complete(error.getBytes());
+            responsePromise.completeExceptionally(new InternalServerException(error));
         }
 
         logger.debug(

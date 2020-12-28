@@ -392,8 +392,12 @@ public final class WorkflowManager {
                             inferenceExecutorService)
                     .exceptionally(
                             ex -> {
+                                String[] error = ex.getMessage().split(":");
                                 NettyUtils.sendError(
-                                        ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, ex);
+                                        ctx,
+                                        HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                        new InternalServerException(
+                                                error[error.length - 1].strip()));
                                 return null;
                             });
         } else {
