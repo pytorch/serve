@@ -202,6 +202,149 @@ public class WorkflowTest {
         TestUtils.unregisterWorkflow(channel, "smtest", false);
     }
 
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowConflict"})
+    public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/workflows?url=http%3A%2F%2Flocalhost%3Aaaaa");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(
+                resp.getMessage(), "Failed to download archive from: http://localhost:aaaa");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowMalformedUrl"})
+    public void testRegisterWorkflowConnectionFailed() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/workflows?url=http%3A%2F%2Flocalhost%3A18888%2Ffake.war&synchronous=false");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Failed to download archive from: http://localhost:18888/fake.war");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowConnectionFailed"})
+    public void testRegisterWorkflowHttpError() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/workflows?url=https%3A%2F%2Flocalhost%3A8443%2Ffake.war&synchronous=false");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Failed to download archive from: https://localhost:8443/fake.war");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowHttpError"})
+    public void testRegisterWorkflowInvalidPath() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/workflows?url=..%2Ffake.war&synchronous=false");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(resp.getMessage(), "Relative path is not allowed in url: ../fake.war");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowInvalidPath"})
+    public void testUnregisterWorkflowNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.unregisterWorkflow(channel, "fake", true);
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(resp.getMessage(), "Workflow not found: fake");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterWorkflowNotFound"})
+    public void testDescribeWorkflowNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.describeWorkflow(channel, "fake");
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(resp.getMessage(), "Workflow not found: fake");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeWorkflowNotFound"})
+    public void testPredictionWorkflowNotFound() throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/wfpredict/" + "fake";
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(resp.getMessage(), "Workflow not found: fake");
+    }
+
     private void testLoadWorkflow(String url, String workflowName) throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);

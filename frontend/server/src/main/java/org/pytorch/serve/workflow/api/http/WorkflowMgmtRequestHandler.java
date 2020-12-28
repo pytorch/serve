@@ -115,9 +115,13 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
         NettyUtils.sendJsonResponse(ctx, list);
     }
 
-    private void handleDescribeWorkflow(ChannelHandlerContext ctx, String workflowName) {
+    private void handleDescribeWorkflow(ChannelHandlerContext ctx, String workflowName)
+            throws WorkflowNotFoundException {
         ArrayList<DescribeWorkflowResponse> resp = new ArrayList<>();
         WorkFlow workFlow = WorkflowManager.getInstance().getWorkflow(workflowName);
+        if (workFlow == null) {
+            throw new WorkflowNotFoundException("Workflow not found: " + workflowName);
+        }
         resp.add(createWorkflowResponse(workflowName, workFlow));
         NettyUtils.sendJsonResponse(ctx, resp);
     }
