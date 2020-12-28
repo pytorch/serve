@@ -63,7 +63,7 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
     else \
         pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
-RUN pip install --no-cache-dir torchtext torchserve torch-model-archiver
+RUN pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
@@ -81,23 +81,22 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 
-COPY --from=compile-image /home/venv /home/venv
-
-ENV PATH="/home/venv/bin:$PATH"
-
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
+
+COPY --chown=model-server --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
 
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
-    && chown -R model-server /home/model-server \
-    && chown -R model-server /home/venv
+    && chown -R model-server /home/model-server
 
 COPY config.properties /home/model-server/config.properties
 RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
-EXPOSE 8080 8081 8082
+EXPOSE 8080 8081 8082 7070 7071
 
 USER model-server
 WORKDIR /home/model-server

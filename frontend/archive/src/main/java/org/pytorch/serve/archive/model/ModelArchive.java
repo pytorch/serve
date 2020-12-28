@@ -54,15 +54,15 @@ public class ModelArchive {
             throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
 
-        if (!modelLocation.exists()) {
-            throw new ModelNotFoundException("Model not found in model store: " + url);
-        }
-
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
                 File unzipDir = ZipUtils.unzip(is, null, "models");
                 return load(url, unzipDir, true);
             }
+        }
+
+        if (new File(url).isDirectory()) {
+            return load(url, new File(url), false);
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);

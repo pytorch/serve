@@ -12,13 +12,13 @@ the model when you use the model archiver. TorchServe executes this code when it
 
 Provide a custom script to:
 * Initialize the model instance
-* Pre-process input data before it is sent to the model for inference
-* Customize how the model is invoked for inference
+* Pre-process input data before it is sent to the model for inference or captum explanations
+* Customize how the model is invoked for inference or explanations
 * Post-process output from the model before sending the response to the user
 
 Following is applicable to all types of custom handlers
 * **data** - The input data from the incoming request
-* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
+* **context** - Is the TorchServe [context](../ts/context.py). You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.
 
 ### Start with BaseHandler!
@@ -135,7 +135,7 @@ class ModelHandler(object):
 
 ### Advanced custom handlers
 
-#### Writing a custom handler from scratch
+#### Writing a custom handler from scratch for Prediction and Explanations Request
 
 *You should generally derive from BaseHandler and ONLY override methods whose behavior needs to change!* As you can see in the examples, most of the time you only need to override `preprocess` or `postprocess`
 
@@ -160,6 +160,8 @@ class ModelHandler(BaseHandler):
     def __init__(self):
         self._context = None
         self.initialized = False
+        self.explain = False
+        self.target = 0
 
     def initialize(self, context):
         """
@@ -221,15 +223,91 @@ class ModelHandler(BaseHandler):
 
 Refer [waveglow_handler](../examples/text_to_speech_synthesizer/waveglow_handler.py) for more details.
 
+#### Captum explanations for custom handler
+
+Torchserve returns the captum explanations for Image Classification, Text Classification and BERT models. It is achieved by placing the below request:
+ `POST /explanations/{model_name}`
+
+The explanations are written as a part of the explain_handle method of base handler. The base handler invokes this explain_handle_method. The arguments that are passed to the explain handle methods are the pre-processed data and the raw data. It invokes the get insights function of the custom handler that returns the captum attributions. The user should write his own get_insights functionality to get the explanations 
+
+For serving a custom handler the captum algorithm should be initialized in the intialize functions of the handler 
+
+The user can override the explain_handle function in the custom handler.
+The user should define their get_insights method for custom handler to get Captum Attributions. 
+
+The above ModelHandler class should have the following methods with captum functionality.
+
+```python
+
+    def initialize(self, context):
+        """
+        Load the model and its artifacts
+        """
+        .....
+        self.lig = LayerIntegratedGradients(
+                captum_sequence_forward, self.model.bert.embeddings
+            )
+
+    def handle(self, data, context):
+        """
+        Invoke by TorchServe for prediction/explanation request.
+        Do pre-processing of data, prediction using model and postprocessing of prediction/explanations output
+        :param data: Input data for prediction/explanation
+        :param context: Initial context contains model server system properties.
+        :return: prediction/ explanations output
+        """
+        model_input = self.preprocess(data)
+        if not self._is_explain():
+                model_output = self.inference(model_input)
+                model_output = self.postprocess(model_output)
+            else :
+                model_output = self.explain_handle(model_input, data)
+            return model_output
+    
+    # Present in the base_handler, so override only when neccessary
+    def explain_handle(self, data_preprocess, raw_data):
+        """Captum explanations handler
+
+        Args:
+            data_preprocess (Torch Tensor): Preprocessed data to be used for captum
+            raw_data (list): The unprocessed data to get target from the request
+
+        Returns:
+            dict : A dictionary response with the explanations response.
+        """
+        output_explain = None
+        inputs = None
+        target = 0
+
+        logger.info("Calculating Explanations")
+        row = raw_data[0]
+        if isinstance(row, dict):
+            logger.info("Getting data and target")
+            inputs = row.get("data") or row.get("body")
+            target = row.get("target")
+            if not target:
+                target = 0
+
+        output_explain = self.get_insights(data_preprocess, inputs, target)
+        return output_explain
+
+    def get_insights(self,**kwargs):
+        """
+        Functionality to get the explanations.
+        Called from the explain_handle method 
+        """
+        pass
+```
+
 #### Extend default handlers
 
 TorchServe has following default handlers.
-- [image_classifier](../ts/torch_handlers/image_classifier.py)
-- [image_segmenter](../ts/torch_handlers/image_segmenter.py)
-- [object_detector](../ts/torch_handlers/object_detector.py)
-- [text_classifier](../ts/torch_handlers/text_classifier.py)
+- [image_classifier](../ts/torch_handler/image_classifier.py)
+- [image_segmenter](../ts/torch_handler/image_segmenter.py)
+- [object_detector](../ts/torch_handler/object_detector.py)
+- [text_classifier](../ts/torch_handler/text_classifier.py)
 
-If required above handlers can be extended to create custom handler. Also, you can extend abstract [base_handler](../ts/torch_handlers/base_handler.py).
+If required above handlers can be extended to create custom handler. Also, you can extend abstract [base_handler](../ts/torch_handler/base_handler.py).
 
 To import the default handler in a python script use the following import statement.
 
@@ -254,14 +332,15 @@ class CustomImageClassifier(ImageClassifier):
 ```
 For more details refer following examples :
 - [mnist digit classifier handler](../examples/image_classifier/mnist/mnist_handler.py)
-- [resnet-152-batch_image classifier handler](../examples/image_classifier/resnet_152_batch/resnet152_handler.py)
+- [Huggingface transformer generalized handler](../examples/Huggingface_Transformers/Transformer_handler_generalized.py)
+- [Waveglow text to speech synthesizer](../examples/text_to_speech_synthesizer/waveglow_handler.py)
 
 ## Creating a model archive with an entry point
 
 TorchServe identifies the entry point to the custom service from a manifest file.
 When you create the model archive, specify the location of the entry point by using the `--handler` option.
 
-The [model-archiver](https://github.com/pytorch/serve/blob/master/model-archiver/README.md) tool enables you to create a model archive that TorchServe can serve.
+The [model-archiver](../model-archiver/README.md) tool enables you to create a model archive that TorchServe can serve.
 
 ```bash
 torch-model-archiver --model-name <model-name> --version <model_version_number> --handler model_handler[:<entry_point_function_name>] [--model-file <path_to_model_architecture_file>] --serialized-file <path_to_state_dict_file> [--extra-files <comma_seperarted_additional_files>] [--export-path <output-dir> --model-path <model_dir>] [--runtime python3]

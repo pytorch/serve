@@ -291,9 +291,9 @@ public final class ConfigManager {
     public int getGRPCPort(ConnectorType connectorType) {
         String port;
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
-            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "9091");
+            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "7071");
         } else {
-            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "9090");
+            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
         }
         return Integer.parseInt(port);
     }
@@ -733,11 +733,11 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public int getIniitialWorkerPort() {
+    public int getInitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
     }
 
-    public void setIniitialWorkerPort(int initialPort) {
+    public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 

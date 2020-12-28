@@ -46,8 +46,6 @@ import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
-import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
-import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
@@ -319,6 +317,27 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testNoopVersionedPrediction"})
+    public void testNoopVersionedExplanation() throws InterruptedException {
+        testExplanations("noopversioned", "OK", "1.11");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopVersionedExplanation"})
+    public void testNoopVersionedKFV1Prediction() throws InterruptedException {
+        testKFV1Predictions("noopversioned", "OK", "1.11");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopVersionedKFV1Prediction"})
+    public void testNoopVersionedKFV1Explanation() throws InterruptedException {
+        testKFV1Explanations("noopversioned", "OK", "1.11");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopVersionedKFV1Prediction"})
     public void testSetDefaultVersionNoop() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
@@ -366,6 +385,59 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testNoopPrediction"})
+    public void testLoadModelWithNakedDirModelArchive() throws InterruptedException {
+        String operatingSystem = System.getProperty("os.name").toLowerCase();
+        if (!operatingSystem.contains("win")) {
+            Channel channel = TestUtils.getManagementChannel(configManager);
+            testUnregisterModel("noop", null);
+            TestUtils.setResult(null);
+            TestUtils.setLatch(new CountDownLatch(1));
+            DefaultFullHttpRequest req =
+                    new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models");
+            req.headers().add("Content-Type", "application/json");
+            req.content()
+                    .writeCharSequence(
+                            "{'url':'"
+                                    + configManager.getModelStore()
+                                    + "/noop_no_archive/noop/"
+                                    + "', 'model_name':'noop', 'initial_workers':'1', 'synchronous':'true'}",
+                            CharsetUtil.UTF_8);
+            HttpUtil.setContentLength(req, req.content().readableBytes());
+            channel.writeAndFlush(req);
+            TestUtils.getLatch().await();
+
+            StatusResponse resp =
+                    JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+            Assert.assertEquals(
+                    resp.getStatus(),
+                    "Model \"noop\" Version: 1.11 registered with 1 initial workers");
+        }
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelWithNakedDirModelArchive"})
+    public void testNoopExplanation() throws InterruptedException {
+        testExplanations("noop", "OK", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopExplanation"})
+    public void testNoopKFV1Prediction() throws InterruptedException {
+        testKFV1Predictions("noop", "OK", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopKFV1Prediction"})
+    public void testNoopKFV1Explanation() throws InterruptedException {
+        testKFV1Explanations("noop", "OK", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopKFV1Explanation"})
     public void testPredictionsBinary() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -419,6 +491,27 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testNoopWithHandlerNamePrediction"})
+    public void testNoopWithHandlerNameExplanation() throws InterruptedException {
+        testExplanations("noop_handlername", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithHandlerNameExplanation"})
+    public void testNoopWithHandlerNameKFV1Prediction() throws InterruptedException {
+        testKFV1Predictions("noop_handlername", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithHandlerNameKFV1Prediction"})
+    public void testNoopWithHandlerNameKFV1Explanation() throws InterruptedException {
+        testKFV1Explanations("noop_handlername", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithHandlerNameKFV1Explanation"})
     public void testLoadModelWithEntryPntFuncName() throws InterruptedException {
         testLoadModelWithInitialWorkers("noop_entrypntfunc.mar", "noop_entrypntfunc", "1.0");
     }
@@ -433,6 +526,27 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testNoopWithEntryPntFuncPrediction"})
+    public void testNoopWithEntryPntFuncExplanation() throws InterruptedException {
+        testExplanations("noop_entrypntfunc", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithEntryPntFuncExplanation"})
+    public void testNoopWithEntryPntFuncKFV1Prediction() throws InterruptedException {
+        testKFV1Predictions("noop_entrypntfunc", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithEntryPntFuncKFV1Prediction"})
+    public void testNoopWithEntryPntFuncKFV1Explanation() throws InterruptedException {
+        testKFV1Explanations("noop_entrypntfunc", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithEntryPntFuncKFV1Explanation"})
     public void testInvocationsJson() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -802,7 +916,9 @@ public class ModelServerTest {
         Assert.assertTrue(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
     }
 
-    @Test(alwaysRun = true)
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelFromURL"})
     public void testLoadModelFromFileURI() throws InterruptedException, IOException {
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
@@ -814,7 +930,7 @@ public class ModelServerTest {
         File destinationFile = new File(destination);
         String fileUrl = "";
         FileUtils.copyFile(sourceFile, destinationFile);
-        fileUrl = "file://" + parent + "/archive/mnist1.mar";
+        fileUrl = "file:///" + parent + "/archive/mnist1.mar";
         testLoadModel(fileUrl, "mnist1", "1.0");
         Assert.assertTrue(new File(configManager.getModelStore(), "mnist1.mar").exists());
         FileUtils.deleteQuietly(destinationFile);
@@ -830,7 +946,7 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromFileURI"})
+            dependsOnMethods = {"testUnregisterFileURIModel"})
     public void testModelWithInvalidFileURI() throws InterruptedException, IOException {
         String invalidFileUrl = "file:///InvalidUrl";
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -839,14 +955,12 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.registerModel(channel, invalidFileUrl, "invalid_file_url", true, false);
         TestUtils.getLatch().await();
-        System.out.println("HTTP Status: " + TestUtils.getHttpStatus());
-        System.out.println("Expected output : " + HttpResponseStatus.BAD_REQUEST);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
     }
 
     @Test(
             alwaysRun = true,
-            dependsOnMethods = {"testLoadModelFromURL"})
+            dependsOnMethods = {"testModelWithInvalidFileURI"})
     public void testUnregisterURLModel() throws InterruptedException {
         testUnregisterModel("squeezenet", null);
         Assert.assertFalse(new File(configManager.getModelStore(), "squeezenet1_1.mar").exists());
@@ -855,79 +969,6 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterURLModel"})
-    public void testRegisterWorkflow() throws InterruptedException {
-        testLoadWorkflow("smtest.war", "smtest");
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testRegisterWorkflow"})
-    public void testListWorkflow() throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.listWorkflow(channel);
-        TestUtils.getLatch().await();
-
-        ListWorkflowResponse resp =
-                JsonUtils.GSON.fromJson(TestUtils.getResult(), ListWorkflowResponse.class);
-        Assert.assertEquals(resp.getWorkflows().size(), 1);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testListWorkflow"})
-    public void testDescribeWorkflow() throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeWorkflow(channel, "smtest");
-        TestUtils.getLatch().await();
-
-        DescribeWorkflowResponse[] resp =
-                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeWorkflowResponse[].class);
-        Assert.assertEquals(resp.length, 1);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testDescribeWorkflow"})
-    public void testWorkflowPrediction() throws InterruptedException {
-        Channel channel = TestUtils.getInferenceChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        String requestURL = "/wfpredict/" + "smtest";
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
-        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
-        HttpUtil.setContentLength(req, req.content().readableBytes());
-        req.headers()
-                .set(
-                        HttpHeaderNames.CONTENT_TYPE,
-                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        channel.writeAndFlush(req);
-
-        TestUtils.getLatch().await();
-        Assert.assertEquals(TestUtils.getResult(), "0");
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testWorkflowPrediction"})
-    public void testUnregisterWorkflow() throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.unregisterWorkflow(channel, "smtest", false);
-        TestUtils.getLatch().await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(resp.getStatus(), "Workflow \"smtest\" unregistered");
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testUnregisterWorkflow"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         setConfiguration("install_py_dep_per_model", "true");
@@ -1356,7 +1397,6 @@ public class ModelServerTest {
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
 
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
-        Assert.assertEquals(resp.getMessage(), "Model not found in model store: InvalidUrl");
     }
 
     @Test(
@@ -1613,6 +1653,27 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMNISTEagerModel"})
+    public void testExplanationMNISTEagerModel() throws InterruptedException {
+        testExplanations("mnist", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testExplanationMNISTEagerModel"})
+    public void testKFV1PredictionMNISTEagerModel() throws InterruptedException {
+        testKFV1Predictions("mnist", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1PredictionMNISTEagerModel"})
+    public void testKFV1ExplanationMNISTEagerModel() throws InterruptedException {
+        testKFV1Explanations("mnist", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1ExplanationMNISTEagerModel"})
     public void testUnregistedMNISTEagerModel() throws InterruptedException {
         testUnregisterModel("mnist", null);
     }
@@ -1634,6 +1695,27 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMNISTScriptedModel"})
+    public void testExplanationMNISTScriptedModel() throws InterruptedException {
+        testExplanations("mnist_scripted", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testExplanationMNISTScriptedModel"})
+    public void testKFV1PredictionMNISTScriptedModel() throws InterruptedException {
+        testKFV1Predictions("mnist_scripted", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1PredictionMNISTScriptedModel"})
+    public void testKFV1ExplanationMNISTScriptedModel() throws InterruptedException {
+        testKFV1Explanations("mnist_scripted", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1ExplanationMNISTScriptedModel"})
     public void testUnregistedMNISTScriptedModel() throws InterruptedException {
         testUnregisterModel("mnist_scripted", null);
     }
@@ -1655,6 +1737,27 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMNISTTracedModel"})
+    public void testExplanationMNISTTracedModel() throws InterruptedException {
+        testExplanations("mnist_traced", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testExplanationMNISTTracedModel"})
+    public void testKFV1PredictionMNISTTracedModel() throws InterruptedException {
+        testKFV1Predictions("mnist_traced", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1PredictionMNISTTracedModel"})
+    public void testKFV1ExplanationMNISTTracedModel() throws InterruptedException {
+        testKFV1Explanations("mnist_traced", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1ExplanationMNISTTracedModel"})
     public void testUnregistedMNISTTracedModel() throws InterruptedException {
         testUnregisterModel("mnist_traced", null);
     }
@@ -1780,19 +1883,6 @@ public class ModelServerTest {
                         + " registered with 1 initial workers");
     }
 
-    private void testLoadWorkflow(String url, String workflowName) throws InterruptedException {
-        Channel channel = TestUtils.getManagementChannel(configManager);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.registerWorkflow(channel, url, workflowName, false);
-        TestUtils.getLatch().await();
-
-        StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(
-                resp.getStatus(),
-                "Workflow " + workflowName + " has been registered and scaled successfully.");
-    }
-
     private void testPredictions(String modelName, String expectedOutput, String version)
             throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
@@ -1802,6 +1892,72 @@ public class ModelServerTest {
         if (version != null) {
             requestURL += "/" + version;
         }
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
+
+    private void testExplanations(String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/explanations/" + modelName;
+        if (version != null) {
+            requestURL += "/" + version;
+        }
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
+
+    private void testKFV1Predictions(String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/v1/models/" + modelName + ":predict";
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
+
+    private void testKFV1Explanations(String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/v1/models/" + modelName + ":explain";
         DefaultFullHttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
         req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);

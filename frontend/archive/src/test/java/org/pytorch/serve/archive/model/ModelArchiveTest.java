@@ -96,7 +96,7 @@ public class ModelArchiveTest {
         File destinationFile = new File(destination);
         FileUtils.copyFile(sourceFile, destinationFile);
 
-        String fileUrl = "file://" + parent + "/archive/mnist1.mar";
+        String fileUrl = "file:///" + parent + "/archive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
 
         File modelLocation = new File(modelStore + "/mnist1.mar");
@@ -176,7 +176,7 @@ public class ModelArchiveTest {
 
     @Test(
             expectedExceptions = ModelNotFoundException.class,
-            expectedExceptionsMessageRegExp = "Model not found in model store: noop1\\.mar")
+            expectedExceptionsMessageRegExp = "Model not found at: noop1.mar")
     public void testMarFileNotexist() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop1.mar");

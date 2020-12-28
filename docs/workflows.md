@@ -91,10 +91,10 @@ A handler file (python) is supplied in the workflow archive (.war) and consists 
 Eg.
 ```
 
-def preprocss(data):
+def preprocss(data, context):
     pass
 
-def postprocess(data):
+def postprocess(data, xontext):
     pass
 
 ```

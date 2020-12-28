@@ -16,14 +16,14 @@ TorchServe provides following gRPCs apis
   - **DescribeModel** : Get detail runtime status of default version of a model
   - **SetDefault** : Set any registered version of a model as default version
 
-By default, TorchServe listens on port 9090 for the gRPC Inference API and 9091 for the gRPC Management API.
+By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API.
 To configure gRPC APIs on different ports refer [configuration documentation](configuration.md)
 
 ## Python client example for gRPC APIs
 
-Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../scripts/torchserve_grpc_client.py).
+Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](../ts_scripts/torchserve_grpc_client.py).
 
- - [Install TorchServe](../README.md#install-torchserve)
+ - [Install TorchServe](../README.md#install-torchserve-and-torch-model-archiver)
 
  - Clone serve repo to run this example
  
@@ -48,23 +48,23 @@ torchserve --start
  - Generate python gRPC client stub using the proto files
  
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Register densenet161 model
  
 ```bash
-python scripts/torchserve_grpc_client.py register densenet161
+python ts_scripts/torchserve_grpc_client.py register densenet161
 ```
 
  - Run inference using 
  
 ```bash
-python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
 
  - Unregister densenet161 model
 
 ```bash
-python scripts/torchserve_grpc_client.py unregister densenet161
+python ts_scripts/torchserve_grpc_client.py unregister densenet161
 ```

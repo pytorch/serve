@@ -1,6 +1,6 @@
 import os
-import sys
 import platform
+import sys
 import time
 import requests
 
@@ -11,13 +11,18 @@ torchserve_command = {
     "Linux": "torchserve"
 }
 
+torch_model_archiver_command = {
+        "Windows": "torch-model-archiver.exe",
+        "Darwin": "torch-model-archiver",
+        "Linux": "torch-model-archiver"
+    }
 
-def is_gpu_instance():
-    return True if os.system("nvidia-smi") == 0 else False
 
-
-def is_conda_env():
-    return True if os.system("conda") == 0 else False
+torch_workflow_archiver_command = {
+        "Windows": "torch-workflow-archiver.exe",
+        "Darwin": "torch-workflow-archiver",
+        "Linux": "torch-workflow-archiver"
+    }
 
 
 def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):
@@ -96,3 +101,28 @@ def generate_grpc_client_stubs():
     if status != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
+
+
+def register_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
+    print(f"## Registering {workflow_name} workflow")
+    params = (
+        ("url", f"{workflow_name}.war"),
+    )
+    url = f"{protocol}://{host}:{port}/workflows"
+    response = requests.post(url, params=params, verify=False)
+    return response
+
+
+def unregister_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
+    print(f"## Unregistering {workflow_name} workflow")
+    url = f"{protocol}://{host}:{port}/workflows/{workflow_name}"
+    response = requests.delete(url, verify=False)
+    return response
+
+
+def workflow_prediction(workflow_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
+    print(f"## Running inference on {workflow_name} workflow")
+    url = f"{protocol}://{host}:{port}/wfpredict/{workflow_name}"
+    files = {"data": (file_name, open(file_name, "rb"))}
+    response = requests.post(url, files=files, timeout=timeout)
+    return response

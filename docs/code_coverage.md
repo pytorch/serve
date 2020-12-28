@@ -1,9 +1,9 @@
 ## To check branch stability run the sanity suite as follows
  - Install dependencies (if not already installed)
    ```bash
-   python scripts/install_dependencies.py
+   python ts_scripts/install_dependencies.py --environment=dev
    ```
-   > For GPU with Cuda 10.1, make sure add the `cu101` argument to the above command
+   > For GPU with Cuda 10.1, make sure add the `cuda=cu101` argument to the above command
  - Execute sanity suite
    ```bash
    python ./torchserve_sanity.py
@@ -58,3 +58,33 @@ python -m pytest --cov-report html:htmlcov_it --cov=model_archiver/ model_archiv
 The reports are generated at following path : `model-archiver/htmlcov_it/`
 
 **Note**: All the above commands needs to be excuted from serve home
+
+## To run the markdown link check run following command
+
+### Install markdown link checker dependencies
+Run following commands to install node and [`markdown-link-check`](https://github.com/tcort/markdown-link-check/) npm package.
+
+* Install node
+
+For Linux :
+```
+sudo apt-get -y install nodejs-dev
+sudo apt-get -y install npm
+```
+
+For Mac :
+```
+brew install node
+brew install npm
+```
+
+* Install markdown
+
+```
+sudo npm install -g n
+sudo npm install -g markdown-link-check
+```
+Execute this command to run markdown link checks locally. It will check broken links in all files with ".md" extension in current directory recursively.
+```
+for i in **/*.md; do markdown-link-check $i --config link_check_config.json; done;
+```

@@ -18,7 +18,7 @@
 1. Setup Ubuntu Environment
 
 ```bash
-wget -O - https://raw.githubusercontent.com/pytorch/serve/master/scripts/setup_wsl_ubuntu | bash
+wget -O - https://raw.githubusercontent.com/pytorch/serve/master/ts_scripts/setup_wsl_ubuntu | bash
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
@@ -45,7 +45,7 @@ pip install torchserve torch-model-archiver
 git clone https://github.com/pytorch/serve.git
 cd serve
 
-./scripts/setup_wsl_ubuntu
+./ts_scripts/setup_wsl_ubuntu
 export PATH=$HOME/.local/bin:$PATH
 python ./ts_scripts/install_from_src.py
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
