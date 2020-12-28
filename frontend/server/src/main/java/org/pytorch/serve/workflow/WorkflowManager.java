@@ -36,6 +36,8 @@ import org.pytorch.serve.ensemble.Node;
 import org.pytorch.serve.ensemble.NodeOutput;
 import org.pytorch.serve.ensemble.WorkFlow;
 import org.pytorch.serve.ensemble.WorkflowModel;
+import org.pytorch.serve.http.BadRequestException;
+import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
@@ -88,8 +90,15 @@ public final class WorkflowManager {
     }
 
     public StatusResponse registerWorkflow(
-            String workflowName, String url, int responseTimeout, boolean synchronous) {
+            String workflowName, String url, int responseTimeout, boolean synchronous)
+            throws WorkflowException {
+
+        if (url == null) {
+            throw new BadRequestException("Parameter url is required.");
+        }
+
         StatusResponse status = new StatusResponse();
+
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         CompletionService<ModelRegistrationResult> executorCompletionService =
                 new ExecutorCompletionService<>(executorService);
@@ -99,6 +108,13 @@ public final class WorkflowManager {
         try {
             WorkflowArchive archive = createWorkflowArchive(workflowName, url);
             WorkFlow workflow = createWorkflow(archive);
+
+            if (workflowMap.get(workflow.getWorkflowArchive().getWorkflowName()) != null) {
+                throw new ConflictStatusException(
+                        "Workflow "
+                                + workflow.getWorkflowArchive().getWorkflowName()
+                                + " is already registered.");
+            }
 
             Map<String, Node> nodes = workflow.getDag().getNodes();
 
@@ -171,13 +187,13 @@ public final class WorkflowManager {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Failed to download workflow archive file");
             status.setE(e);
-        } catch (WorkflowException | InvalidDAGException e) {
+        } catch (InvalidDAGException e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
             status.setStatus("Invalid workflow specification");
             status.setE(e);
-        } catch (Exception e) {
-            status.setHttpResponseCode(HttpURLConnection.HTTP_BAD_REQUEST);
-            status.setStatus("Failed to register workflow");
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+            status.setStatus("Failed to register workflow.");
             status.setE(e);
         } finally {
             executorService.shutdown();

@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
@@ -15,10 +17,12 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
+import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
 import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
@@ -129,6 +133,73 @@ public class WorkflowTest {
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), "Workflow \"smtest\" unregistered");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterWorkflow"})
+    public void testRegisterWorkflowMissingUrl() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/workflows");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.BAD_REQUEST.code());
+        Assert.assertEquals(resp.getMessage(), "Parameter url is required.");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowMissingUrl"})
+    public void testRegisterWorkflowNotFound() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/workflows?url=InvalidUrl");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
+        Assert.assertEquals(resp.getMessage(), "Workflow not found in workflow store: InvalidUrl");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testRegisterWorkflowNotFound"})
+    public void testRegisterWorkflowConflict() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/workflows?url=smtest.war&workflow_name=smtest");
+        channel.writeAndFlush(req);
+        TestUtils.getLatch().await();
+
+        req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/workflows?url=smtest.war&workflow_name=smtest");
+        channel.writeAndFlush(req);
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.CONFLICT.code());
+        Assert.assertEquals(resp.getMessage(), "Workflow smtest is already registered.");
+        TestUtils.unregisterWorkflow(channel, "smtest", false);
     }
 
     private void testLoadWorkflow(String url, String workflowName) throws InterruptedException {

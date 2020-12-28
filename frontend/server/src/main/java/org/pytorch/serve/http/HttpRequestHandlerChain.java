@@ -12,6 +12,7 @@ import java.util.Map;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.ModelServerEndpointException;
 import org.pytorch.serve.servingsdk.impl.ModelServerContext;
@@ -43,7 +44,8 @@ public abstract class HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelNotFoundException, ModelException, DownloadArchiveException;
+            throws ModelNotFoundException, ModelException, DownloadArchiveException,
+                    WorkflowException;
 
     private void run(
             ModelServerEndpoint endpoint,

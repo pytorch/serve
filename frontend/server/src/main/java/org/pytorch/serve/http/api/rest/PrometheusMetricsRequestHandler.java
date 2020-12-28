@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException, DownloadArchiveException {
+            throws ModelException, DownloadArchiveException, WorkflowException {
         if (segments.length >= 2 && "metrics".equals(segments[1])) {
             ByteBuf resBuf = Unpooled.directBuffer();
             List<String> params =

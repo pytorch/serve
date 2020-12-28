@@ -9,6 +9,7 @@ import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.workflow.WorkflowNotFoundException;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             handlerChain.handleRequest(ctx, req, decoder, segments);
         } catch (ResourceNotFoundException
                 | ModelNotFoundException
-                | ModelVersionNotFoundException e) {
+                | ModelVersionNotFoundException
+                | WorkflowNotFoundException e) {
             logger.trace("", e);
             NettyUtils.sendError(ctx, HttpResponseStatus.NOT_FOUND, e);
         } catch (BadRequestException | ModelException | DownloadArchiveException e) {
