@@ -107,7 +107,7 @@ public class WorkFlow {
             } else {
                 wfm = models.get(modelName);
             }
-            Node fromNode = new Node(modelName, wfm);
+            Node fromNode = new Node(nodeName, wfm);
             dag.addNode(fromNode);
 
             @SuppressWarnings("unchecked")
@@ -132,7 +132,7 @@ public class WorkFlow {
                 } else {
                     toWfm = models.get(toModelName);
                 }
-                Node toNode = new Node(toModelName, toWfm);
+                Node toNode = new Node(toNodeName, toWfm);
                 dag.addNode(toNode);
                 dag.addEdge(fromNode, toNode);
             }
