@@ -385,6 +385,41 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testWorkflowWithInvalidFileURI"})
+    public void testWorkflowWithCustomPythonDependencyModel()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "true");
+        testLoadWorkflow("custom_python_dep.war", "custom_python_dep");
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "false");
+        TestUtils.unregisterWorkflow(channel, "custom_python_dep", false);
+        channel.close().sync();
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testWorkflowWithCustomPythonDependencyModel"})
+    public void testWorkflowWithInvalidCustomPythonDependencyModel()
+            throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "true");
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.registerWorkflow(
+                channel, "custom_invalid_python_dep.war", "custom_invalid_python_dep", false);
+        TestUtils.getLatch().await();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Workflow custom_invalid_python_dep has failed to register. Failures: [Workflow Node custom_invalid_python_dep__custom_invalid_python_dep failed to register. Details: Custom pip package installation failed for custom_invalid_python_dep__custom_invalid_python_dep]");
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "false");
+        channel.close().sync();
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testWorkflowWithInvalidCustomPythonDependencyModel"})
     public void testPredictionMemoryError() throws InterruptedException {
         // Load the model
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -424,6 +459,26 @@ public class WorkflowTest {
         TestUtils.unregisterWorkflow(channel, "pred-err", true);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionMemoryError"})
+    public void testLoadingMemoryError() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+
+        TestUtils.registerWorkflow(channel, "loading-memory-error.war", "memory_error", false);
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(
+                resp.getMessage(),
+                "Workflow memory_error has failed to register. Failures: [Failed to start workers for model memory_error__loading-memory-error version: 1.0]");
+        channel.close().sync();
     }
 
     private void testLoadWorkflow(String url, String workflowName) throws InterruptedException {

@@ -22,13 +22,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -705,7 +703,7 @@ public class ModelServerTest {
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
         Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
-        setConfiguration("decode_input_request", "true");
+        TestUtils.setConfiguration(configManager, "decode_input_request", "true");
         loadTests(mgmtChannel, "noop-v1.0-config-tests.mar", "noop-config");
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -731,7 +729,7 @@ public class ModelServerTest {
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
         Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
-        setConfiguration("decode_input_request", "false");
+        TestUtils.setConfiguration(configManager, "decode_input_request", "false");
         loadTests(mgmtChannel, "noop-v1.0-config-tests.mar", "noop-config");
 
         TestUtils.setResult(null);
@@ -835,7 +833,7 @@ public class ModelServerTest {
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
         Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
-        setConfiguration("decode_input_request", "false");
+        TestUtils.setConfiguration(configManager, "decode_input_request", "false");
         loadTests(mgmtChannel, "respheader-test.mar", "respheader");
 
         TestUtils.setResult(null);
@@ -865,7 +863,7 @@ public class ModelServerTest {
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
         Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
-        setConfiguration("default_service_handler", "service:handle");
+        TestUtils.setConfiguration(configManager, "default_service_handler", "service:handle");
         loadTests(mgmtChannel, "noop-no-manifest.mar", "nomanifest");
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -890,7 +888,7 @@ public class ModelServerTest {
     public void testModelRegisterWithDefaultWorkers()
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
-        setConfiguration("default_workers_per_model", "1");
+        TestUtils.setConfiguration(configManager, "default_workers_per_model", "1");
         loadTests(mgmtChannel, "noop.mar", "noop_default_model_workers");
 
         TestUtils.setResult(null);
@@ -904,7 +902,7 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
         Assert.assertEquals(resp[0].getMinWorkers(), 1);
         unloadTests(mgmtChannel, "noop_default_model_workers");
-        setConfiguration("default_workers_per_model", "0");
+        TestUtils.setConfiguration(configManager, "default_workers_per_model", "0");
     }
 
     @Test(
@@ -971,9 +969,9 @@ public class ModelServerTest {
             dependsOnMethods = {"testUnregisterURLModel"})
     public void testModelWithCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
-        setConfiguration("install_py_dep_per_model", "true");
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "true");
         testLoadModelWithInitialWorkers("custom_python_dep.mar", "custom_python_dep", "1.0");
-        setConfiguration("install_py_dep_per_model", "false");
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "false");
     }
 
     @Test(
@@ -981,7 +979,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelWithCustomPythonDependency"})
     public void testModelWithInvalidCustomPythonDependency()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
-        setConfiguration("install_py_dep_per_model", "true");
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "true");
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -999,7 +997,7 @@ public class ModelServerTest {
         Assert.assertEquals(
                 resp.getMessage(),
                 "Custom pip package installation failed for custom_invalid_python_dep");
-        setConfiguration("install_py_dep_per_model", "false");
+        TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "false");
         channel.close().sync();
     }
 
@@ -1016,8 +1014,9 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
-        // TestUtils.unregisterModel(channel, "memory_error",null, true);
         channel.close().sync();
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.unregisterModel(channel, "memory_error", null, true);
     }
 
     @Test(
@@ -1590,7 +1589,7 @@ public class ModelServerTest {
     public void testUnregisterModelTimeout()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        setConfiguration("unregister_model_timeout", "0");
+        TestUtils.setConfiguration(configManager, "unregister_model_timeout", "0");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
 
@@ -1599,7 +1598,7 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getMessage(), "Timed out while cleaning resources: noop_v1.0");
 
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        setConfiguration("unregister_model_timeout", "120");
+        TestUtils.setConfiguration(configManager, "unregister_model_timeout", "120");
 
         TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
@@ -2014,13 +2013,5 @@ public class ModelServerTest {
         TestUtils.getLatch().await();
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(resp.getStatus(), expected);
-    }
-
-    private void setConfiguration(String key, String val)
-            throws NoSuchFieldException, IllegalAccessException {
-        Field f = configManager.getClass().getDeclaredField("prop");
-        f.setAccessible(true);
-        Properties p = (Properties) f.get(configManager);
-        p.setProperty(key, val);
     }
 }

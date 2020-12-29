@@ -23,8 +23,10 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
@@ -387,6 +389,14 @@ public final class TestUtils {
         modelVersion = modelVersion == null ? "default" : modelVersion;
         return Pattern.compile(
                 String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
+    }
+
+    public static void setConfiguration(ConfigManager configManager, String key, String val)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field f = configManager.getClass().getDeclaredField("prop");
+        f.setAccessible(true);
+        Properties p = (Properties) f.get(configManager);
+        p.setProperty(key, val);
     }
 
     @ChannelHandler.Sharable
