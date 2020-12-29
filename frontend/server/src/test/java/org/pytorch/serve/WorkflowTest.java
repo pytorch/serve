@@ -412,7 +412,7 @@ public class WorkflowTest {
 
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
-        Assert.assertEquals(resp.getMessage(), "pred-err__pred-err -  Out of resources");
+        Assert.assertEquals(resp.getMessage(), "pred-err -  Out of resources");
         channel.close().sync();
 
         // Unload the workflow
