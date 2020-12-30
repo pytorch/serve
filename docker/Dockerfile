@@ -81,18 +81,17 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 
-COPY --from=compile-image /home/venv /home/venv
-
-ENV PATH="/home/venv/bin:$PATH"
-
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
+
+COPY --chown=model-server --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
 
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
-    && chown -R model-server /home/model-server \
-    && chown -R model-server /home/venv
+    && chown -R model-server /home/model-server
 
 COPY config.properties /home/model-server/config.properties
 RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
