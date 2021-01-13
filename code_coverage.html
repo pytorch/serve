@@ -298,12 +298,20 @@
   <div class="section" id="to-check-branch-stability-run-the-sanity-suite-as-follows">
 <h1>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this headline">¶</a></h1>
 <ul>
-<li><p>Install dependencies (if not already installed)</p>
+<li><p>Install dependencies (if not already installed)
+For CPU:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/install_dependencies.py --environment<span class="o">=</span>dev
 </pre></div>
 </div>
+<p>For GPU</p>
+<ul class="simple">
+<li><p>Install dependencies (if not already installed)</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/install_dependencies.py --environment<span class="o">=</span>dev --cuda<span class="o">=</span>cu110
+</pre></div>
+</div>
 <blockquote>
-<div><p>For GPU with Cuda 10.1, make sure add the <code class="docutils literal notranslate"><span class="pre">cuda=cu101</span></code> argument to the above command</p>
+<div><p>Supported cuda versions as cu110, cu102, cu101, cu92</p>
 </div></blockquote>
 </li>
 <li><p>Execute sanity suite</p>

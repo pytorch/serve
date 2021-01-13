@@ -1,9 +1,17 @@
 ## To check branch stability run the sanity suite as follows
  - Install dependencies (if not already installed)
+   For CPU:
    ```bash
    python ts_scripts/install_dependencies.py --environment=dev
    ```
-   > For GPU with Cuda 10.1, make sure add the `cuda=cu101` argument to the above command
+   
+   For GPU
+    - Install dependencies (if not already installed)
+   ```bash
+   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu110
+   ```
+   > Supported cuda versions as cu110, cu102, cu101, cu92
+   
  - Execute sanity suite
    ```bash
    python ./torchserve_sanity.py
