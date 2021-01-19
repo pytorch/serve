@@ -63,9 +63,6 @@ def test_sanity():
          "handler": "image_segmenter"},
         {"name": "roberta_qa_no_torchscript",
          "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"},
-        {"name": "bert_token_classification_no_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
-         "handler": "custom"},
         {"name": "bert_seqc_without_torchscript",
          "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
          "handler": "custom"}
