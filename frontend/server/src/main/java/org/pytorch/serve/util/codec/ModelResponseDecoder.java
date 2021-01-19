@@ -53,6 +53,9 @@ public class ModelResponseDecoder extends ByteToMessageDecoder {
                 prediction.setContentType(CodecUtils.readString(in, len));
 
                 // Set per request response code
+                if (in.readableBytes() < 4) {
+                    return;
+                }
                 int httpStatusCode = in.readInt();
                 prediction.setStatusCode(httpStatusCode);
 
