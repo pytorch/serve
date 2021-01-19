@@ -176,4 +176,4 @@ def test_sanity():
 
     links_ok = run_markdown_link_checker()
     if not links_ok:
-       print("##WARNING : Broken links in docs.")
+       print("##WARNING : Broken links in docs")
