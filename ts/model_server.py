@@ -1,6 +1,7 @@
 """
 File to define the entry point to Model Server
 """
+# pylint: skip-file
 
 import os
 import re

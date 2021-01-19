@@ -6,6 +6,7 @@ Communication message format: binary encoding
 """
 
 # pylint: disable=redefined-builtin
+# pylint: skip-file
 
 import logging
 import os
