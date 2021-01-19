@@ -27,43 +27,48 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 1. Install dependencies
 
-Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python 3.8 is required to run Torchserve.
 
+    #### For Debian Based Systems/ MacOS
+    
+     - For CPU
 
-#### For Debian Based Systems/ MacOS
- - For CPU or latest supported CUDA version (11.0) for Torch 1.7.1
+        ```bash
+        python ./ts_scripts/install_dependencies.py
+        ```
 
-    ```bash
-    python ./ts_scripts/install_dependencies.py
-    ```
+     - For GPU with Cuda 11.0
 
- - For GPU with Cuda 10.2
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu110
+       ```
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu102
-   ```
+     - For GPU with Cuda 10.2
 
- - For GPU with Cuda 10.1
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       ```
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu101
-   ```
+     - For GPU with Cuda 10.1
 
- - For GPU with Cuda 9.2
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu101
+       ```
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu92
-   ```
+     - For GPU with Cuda 9.2
 
-#### For Windows
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu92
+       ```
 
-Refer to the documentation [here](docs/torchserve_on_win_native.md).
+    #### For Windows
 
+    Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
-3. Install torchserve and torch-model-archiver
+2. Install torchserve and torch-model-archiver
 
-    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
-
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
+    Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
@@ -90,6 +95,8 @@ NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` in
 python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
+
+Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu110`, `cu102`, `cu101`, `cu92`
 
 #### For Windows
 
