@@ -68,7 +68,13 @@ In the setup_config.json :
 
 *max_length* : maximum length for the  input sequences to the models, this will be used in preprocessing of the hanlder. Also, if you choose to use Torchscript as the serialized model  for packaging your model this length should be equal to the length that has been used during the tracing of the model using torch.jit.trace.
 
-Once, setup_config.json has been set properly, the next step is to run " Download_Transformer_models.py":
+`transformers` package has to be installed before running the script. The package can be installed using pip command. This step can be ignored if the `transformers` package is already installed. 
+
+For Example:
+
+`pip install transformers==2.10`
+
+The next step is to run " Download_Transformer_models.py":
 
 `python Download_Transformer_models.py`
 
@@ -156,6 +162,8 @@ For captum Explanations on the Torchserve side, use the below curl request:
 ```bash
 curl -X POST http://127.0.0.1:8080/explanations/my_tc -T ./Seq_classification_artifacts/sample_text.txt
 ```
+
+Note: The captum explanations are not applicable for torchscripted models
 
 In order to run Captum Explanations with the request input in a json file, follow the below steps:
 
