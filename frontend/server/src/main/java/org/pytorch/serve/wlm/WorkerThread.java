@@ -44,7 +44,6 @@ public class WorkerThread implements Runnable {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
 
-    private static final long WORKER_TIMEOUT = 2L;
     private static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
 
@@ -149,7 +148,7 @@ public class WorkerThread implements Runnable {
         this.gpuId = gpuId;
         this.listener = listener;
         startTime = System.currentTimeMillis();
-        lifeCycle = new WorkerLifeCycle(configManager, model, port);
+        lifeCycle = new WorkerLifeCycle(model, port);
         replies = new ArrayBlockingQueue<>(1);
         workerLoadTime =
                 new Metric(
@@ -268,8 +267,6 @@ public class WorkerThread implements Runnable {
             lifeCycle.startWorker(port);
         }
 
-        String modelName = model.getModelName();
-        String modelVersion = model.getVersion();
         setState(WorkerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
         final CountDownLatch latch = new CountDownLatch(1);
 

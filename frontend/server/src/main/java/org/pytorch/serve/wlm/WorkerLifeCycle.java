@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.SharedNamedPipeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,22 +16,18 @@ public class WorkerLifeCycle {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
 
-    private ConfigManager configManager;
     private Model model;
     private int pid = -1;
     private CountDownLatch latch;
     private boolean success;
-    private Connector connector;
     private ReaderThread errReader;
     private ReaderThread outReader;
     private int port;
 
     private static final int[] BACK_OFF = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34};
 
-    public WorkerLifeCycle(ConfigManager configManager, Model model, int port) {
-        this.configManager = configManager;
+    public WorkerLifeCycle(Model model, int port) {
         this.model = model;
-        this.connector = new Connector(port);
         this.port = port;
     }
 
@@ -133,10 +128,6 @@ public class WorkerLifeCycle {
 
     public synchronized void setPid(int pid) {
         this.pid = pid;
-    }
-
-    private synchronized void setPort(int port) {
-        connector = new Connector(port);
     }
 
     private static final class ReaderThread extends Thread {
