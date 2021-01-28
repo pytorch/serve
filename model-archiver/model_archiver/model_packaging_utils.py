@@ -23,12 +23,13 @@ archiving_options = {
     "default": ".mar"
 }
 
+
 model_handlers = {
         'text_classifier': 'text',
         'image_classifier': 'vision',
         'object_detector': 'vision',
         'image_segmenter': 'vision'
-    }
+        }
 
 MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'

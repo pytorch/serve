@@ -1,0 +1,100 @@
+# syntax = docker/dockerfile:experimental
+#
+# Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
+# 
+# NOTE: To build this you will need a docker version > 18.06 with
+#       experimental enabled and DOCKER_BUILDKIT=1
+#
+#       If you do not use buildkit you are not going to have a good time
+#
+#       For reference: 
+#           https://docs.docker.com/develop/develop-images/build_enhancements
+
+ARG BASE_IMAGE=ubuntu:18.04
+ARG BUILD_TYPE=dev
+FROM ${BASE_IMAGE} AS compile-image
+
+ARG BASE_IMAGE
+ARG BRANCH_NAME=master
+ARG MACHINE_TYPE=cpu
+ARG BRANCH_NAME_KF=master
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    fakeroot \
+    ca-certificates \
+    dpkg-dev \
+    g++ \
+    git \
+    python3-dev \
+    build-essential \
+    openjdk-11-jdk \
+    curl \
+    vim \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp \
+    && curl -O https://bootstrap.pypa.io/get-pip.py \
+    && python3 get-pip.py
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
+    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+
+#ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+RUN pip install -U pip setuptools
+
+# Build Dev Image
+FROM compile-image AS dev-image
+ARG MACHINE_TYPE=cpu
+ARG CUDA_VERSION
+RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
+    && git clone -b ${BRANCH_NAME_KF} https://github.com/kubeflow/kfserving.git \
+    && pip install -e ./kfserving/python/kfserving \
+    && git clone https://github.com/pytorch/serve.git \
+    && cd serve \
+    && git checkout ${BRANCH_NAME} \
+    && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
+    && python ts_scripts/install_from_src.py \
+    && pip install captum \
+    && pip install transformers\
+    && pip install . \
+    && useradd -m model-server \
+    && mkdir -p /home/model-server/tmp \
+    && cp kubernetes/kfserving/kf_predictor_docker/dockerd-entrypoint_kf.sh /usr/local/bin/dockerd-entrypoint_kf.sh \
+    && chmod +x /usr/local/bin/dockerd-entrypoint_kf.sh \
+    && chown -R model-server /home/model-server \
+    && cp -R kubernetes/kfserving/kfserving_wrapper /home/model-server/kfserving_wrapper \
+    && cp kubernetes/kfserving/kf_predictor_docker/config_kf.properties /home/model-server/config.properties \
+    && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
+
+EXPOSE 8080 8081 8082
+USER model-server
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint_kf.sh"]
+
+# Build CodeBuild Image
+FROM compile-image AS codebuild-image
+ENV JAVA_VERSION=11 \
+  JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
+  JDK_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
+  JRE_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
+  ANT_VERSION=1.10.3 \
+  MAVEN_HOME="/opt/maven" \
+  MAVEN_VERSION=3.5.4 \
+  MAVEN_CONFIG="/root/.m2" \
+  MAVEN_DOWNLOAD_SHA1="22cac91b3557586bb1eba326f2f7727543ff15e3"
+
+# Install Maven
+RUN set -ex \
+  && mkdir -p $MAVEN_HOME \
+  && curl -LSso /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz https://apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz \
+  && echo "$MAVEN_DOWNLOAD_SHA1 /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz" | sha1sum -c - \
+  && tar xzvf /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz -C $MAVEN_HOME --strip-components=1 \
+  && update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 10000 \
+  && mkdir -p $MAVEN_CONFIG
+
+FROM ${BUILD_TYPE}-image AS final-image
+ARG BUILD_TYPE
+RUN echo "${BUILD_TYPE} image creation completed"

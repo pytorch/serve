@@ -1,6 +1,6 @@
 import os
-import sys
 import platform
+import sys
 import time
 import requests
 
@@ -10,14 +10,6 @@ torchserve_command = {
     "Darwin": "torchserve",
     "Linux": "torchserve"
 }
-
-
-def is_gpu_instance():
-    return True if os.system("nvidia-smi") == 0 else False
-
-
-def is_conda_env():
-    return True if os.system("conda") == 0 else False
 
 
 def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):
@@ -85,3 +77,14 @@ def unregister_model(model_name, protocol="http", host="localhost", port="8081")
     url = f"{protocol}://{host}:{port}/models/{model_name}"
     response = requests.delete(url, verify=False)
     return response
+
+
+def generate_grpc_client_stubs():
+    print("## Started generating gRPC clinet stubs")
+    cmd = "python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts " \
+          "--grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto " \
+          "frontend/server/src/main/resources/proto/management.proto"
+    status = os.system(cmd)
+    if status != 0:
+        print("Could not generate gRPC client stubs")
+        sys.exit(1)

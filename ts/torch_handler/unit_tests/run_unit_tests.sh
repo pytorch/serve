@@ -19,6 +19,16 @@ test_image_classifier () {
   rm -rf $TEST_DIR/models/tmp
 }
 
+test_mnist_classifier () {
+  mkdir -p $TEST_DIR/models/tmp
+
+  cp -r examples/image_classifier/mnist/* $TEST_DIR/models/tmp
+  python -m pytest $TEST_DIR/test_mnist_kf.py
+  rm -rf $TEST_DIR/models/tmp
+}
+
+
+
 test_image_segmenter () {
   mkdir -p $TEST_DIR/models/tmp
   wget -nc -q -O \
@@ -39,6 +49,15 @@ test_base_handler () {
   rm -rf $TEST_DIR/models/tmp
 }
 
+test_envelope () {
+  mkdir -p $TEST_DIR/models/tmp
+  python $TEST_DIR/models/base_model.py
+  mv base_model.pt $TEST_DIR/models/tmp/model.pt
+  cp $TEST_DIR/models/base_model.py $TEST_DIR/models/tmp/model.py
+  python -m pytest $TEST_DIR/test_envelopes.py
+  rm -rf $TEST_DIR/models/tmp
+}
+
 test_object_detector () {
   mkdir -p $TEST_DIR/models/tmp
   wget -nc -q -O \
@@ -50,6 +69,8 @@ test_object_detector () {
 }
 
 test_base_handler
+test_envelope
 test_image_classifier
 test_image_segmenter
 test_object_detector
+test_mnist_classifier

@@ -9,10 +9,18 @@ If you are interested in contributing to TorchServe, your contributions will fal
     - Pick an issue and comment on the task that you want to work on this feature.
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
         - Install dependencies (if not already installed)
+          For CPU
+          
           ```bash
-          python scripts/install_dependencies.py 
+          python ts_scripts/install_dependencies.py --environment=dev
           ```
-          > For GPU with Cuda 10.1, make sure add the `cu101` arg to the above command
+          
+         For GPU
+           ```bash
+           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu110
+           ```
+            > Supported cuda versions as cu110, cu102, cu101, cu92
+       
         - Execute sanity suite
           ```bash
           python ./torchserve_sanity.py
