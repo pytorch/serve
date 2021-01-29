@@ -12,7 +12,8 @@
 * [Logging](logging.md) - How to configure logging
 * [Metrics](metrics.md) - How to configure metrics
 * [Batch inference with TorchServe](batch_inference_with_ts.md) - How to create and serve a model with batch inference in TorchServe
-* [Model Snapshots](snapshot.md) - Describes how to use snapshot feature for resiliency due to a planned or unplanned service stop
+* [Workflows](workflows.md) - Describes how to create and serve a workflow in TorchServe
+
 
 ## Advanced Features
 
