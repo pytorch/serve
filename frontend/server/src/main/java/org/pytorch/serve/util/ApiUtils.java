@@ -1,5 +1,6 @@
 package org.pytorch.serve.util;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -12,20 +13,25 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import org.apache.commons.io.FilenameUtils;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.BadRequestException;
-import org.pytorch.serve.http.DescribeModelResponse;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.InvalidModelVersionException;
-import org.pytorch.serve.http.ListModelsResponse;
 import org.pytorch.serve.http.RequestTimeoutException;
+import org.pytorch.serve.http.ServiceUnavailableException;
 import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.http.messages.DescribeModelResponse;
+import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.snapshot.SnapshotManager;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.ModelVersionedRefs;
@@ -43,9 +49,7 @@ public final class ApiUtils {
             pageToken = 0;
         }
 
-        ModelManager modelManager = ModelManager.getInstance();
-        Map<String, Model> models = modelManager.getDefaultModels();
-
+        Map<String, Model> models = ModelManager.getInstance().getDefaultModels(true);
         List<String> keys = new ArrayList<>(models.keySet());
         Collections.sort(keys);
         ListModelsResponse list = new ListModelsResponse();
@@ -103,7 +107,7 @@ public final class ApiUtils {
 
     public static StatusResponse registerModel(RegisterModelRequest registerModelRequest)
             throws ModelException, InternalServerException, ExecutionException,
-                    InterruptedException {
+                    InterruptedException, DownloadArchiveException {
         String modelUrl = registerModelRequest.getModelUrl();
         if (modelUrl == null) {
             throw new BadRequestException("Parameter url is required.");
@@ -129,6 +133,33 @@ public final class ApiUtils {
             }
         }
 
+        return handleRegister(
+                modelUrl,
+                modelName,
+                runtimeType,
+                handler,
+                batchSize,
+                maxBatchDelay,
+                responseTimeout,
+                initialWorkers,
+                registerModelRequest.getSynchronous(),
+                false);
+    }
+
+    public static StatusResponse handleRegister(
+            String modelUrl,
+            String modelName,
+            Manifest.RuntimeType runtimeType,
+            String handler,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            int initialWorkers,
+            boolean isSync,
+            boolean isWorkflowModel)
+            throws ModelException, ExecutionException, InterruptedException,
+                    DownloadArchiveException {
+
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;
         try {
@@ -141,7 +172,9 @@ public final class ApiUtils {
                             batchSize,
                             maxBatchDelay,
                             responseTimeout,
-                            null);
+                            null,
+                            false,
+                            isWorkflowModel);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);
@@ -157,7 +190,9 @@ public final class ApiUtils {
                             + "\" Version: "
                             + archive.getModelVersion()
                             + " registered with 0 initial workers. Use scale workers API to add workers for the model.";
-            SnapshotManager.getInstance().saveSnapshot();
+            if (!isWorkflowModel) {
+                SnapshotManager.getInstance().saveSnapshot();
+            }
             return new StatusResponse(msg, HttpURLConnection.HTTP_OK);
         }
 
@@ -166,7 +201,7 @@ public final class ApiUtils {
                 archive.getModelVersion(),
                 initialWorkers,
                 initialWorkers,
-                registerModelRequest.getSynchronous(),
+                isSync,
                 true,
                 f -> {
                     modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
@@ -242,9 +277,13 @@ public final class ApiUtils {
                                         }
                                     } else {
                                         statusResponse.setHttpResponseCode(v);
-                                        statusResponse.setE(
-                                                new InternalServerException(
-                                                        "Failed to start workers"));
+                                        String msg =
+                                                "Failed to start workers for model "
+                                                        + modelName
+                                                        + " version: "
+                                                        + modelVersion;
+                                        statusResponse.setStatus(msg);
+                                        statusResponse.setE(new InternalServerException(msg));
                                         if (onError != null) {
                                             onError.apply(null);
                                         }
@@ -342,6 +381,17 @@ public final class ApiUtils {
         }
 
         return resp;
+    }
+
+    public static RestJob addRESTInferenceJob(
+            ChannelHandlerContext ctx, String modelName, String version, RequestInput input)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
+        if (!ModelManager.getInstance().addJob(job)) {
+            String responseMessage = getInferenceErrorResponseMessage(modelName, version);
+            throw new ServiceUnavailableException(responseMessage);
+        }
+        return job;
     }
 
     @SuppressWarnings("PMD")
