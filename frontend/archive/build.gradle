@@ -1,0 +1,9 @@
+dependencies {
+    api "commons-io:commons-io:2.6"
+    api "org.slf4j:slf4j-api:${slf4j_api_version}"
+    api "org.slf4j:slf4j-log4j12:${slf4j_log4j12_version}"
+    api "com.google.code.gson:gson:${gson_version}"
+
+    testImplementation "commons-cli:commons-cli:${commons_cli_version}"
+    testImplementation "org.testng:testng:${testng_version}"
+}
