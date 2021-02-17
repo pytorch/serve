@@ -19,7 +19,7 @@
 ARG BASE_IMAGE=ubuntu:18.04
 
 FROM ${BASE_IMAGE} AS compile-image
-ARG BASE_IMAGE=ubuntu:18.04
+
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -63,7 +63,7 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
     else \
         pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
-RUN pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
+RUN pip install --no-cache-dir setuptools captum torchtext torchserve torch-model-archiver
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
