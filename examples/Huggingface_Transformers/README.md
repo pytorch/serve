@@ -68,6 +68,10 @@ In the setup_config.json :
 
 *max_length* : maximum length for the  input sequences to the models, this will be used in preprocessing of the hanlder. Also, if you choose to use Torchscript as the serialized model  for packaging your model this length should be equal to the length that has been used during the tracing of the model using torch.jit.trace.
 
+*captum_explanation* : True if user choose to have captum explanation False if not. 
+
+*embedding_name* : The name of embedding layer in the chosen model, this could be "bert" for "bert-base-uncased", "roberta" for "roberta-base" or "roberta" for "xlm-roberta-large".
+
 Once, setup_config.json has been set properly, the next step is to run " Download_Transformer_models.py":
 
 `python Download_Transformer_models.py`
@@ -93,6 +97,8 @@ To use Transformer handler for question answering, the sample_text.txt should be
 `{"question" :"Who was Jim Henson?", "context": "Jim Henson was a nice puppet"}`
 
 "question" represents the question to be asked from the source text named as "context" here. It is recommended that based on the task in hand, modify the preprocessing step in the handler to read the context from a pickled file or any other format that is applicable. Follwoing this change  then you can simply  change the format of this query as well.
+
+In case of using Captum Expalantions the request needs to include the target (the class/label that we need the visualization) as well. In case of Token classification, target will be a tuple (token_index,class/label). Examples of these request can be found in artifact folder related to each application, such as sample_text_captum_input.txt in  token_classification_artifacts.
 
 ### Creating a torch Model Archive
 
