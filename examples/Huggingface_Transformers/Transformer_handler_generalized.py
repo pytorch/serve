@@ -12,6 +12,7 @@ from transformers import (
 )
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -98,9 +99,14 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 logger.warning("Missing the index_to_name.json file.")
 
             # ------------------------------- Captum initialization ----------------------------#
-        self.lig = LayerIntegratedGradients(
-            captum_sequence_forward, self.model.bert.embeddings
-        )
+        if self.setup_config["captum_explanation"]:
+            embedding_layer = getattr(self.model,self.setup_config["embedding_name"])
+            embeddings = embedding_layer.embeddings
+            self.lig = LayerIntegratedGradients(
+                captum_sequence_forward, embeddings
+            )
+        else:
+            logger.warning("Captum Explanation is not chosen and will not be available")
         self.initialized = True
 
     def preprocess(self, requests):
@@ -120,7 +126,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 input_text = data.get("body")
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode('utf-8')
-
+            if self.setup_config["captum_explanation"] and not self.setup_config["mode"] == "question_answering":
+                input_text_target = ast.literal_eval(input_text)
+                input_text = input_text_target["text"]
             max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
             # preprocessing text for sequence_classification and token_classification.
@@ -177,7 +185,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         elif self.setup_config["mode"] == "question_answering":
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
-            answer_start_scores, answer_end_scores = self.model(input_batch)
+            outputs = self.model(input_batch)
+            answer_start_scores = outputs.start_logits
+            answer_end_scores = outputs.end_logits
             print("This the output size for answer start scores from the question answering model", answer_start_scores.size())
             print("This the output for answer start scores from the question answering model", answer_start_scores)
             print("This the output size for answer end scores from the question answering model", answer_end_scores.size())
@@ -236,27 +246,59 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """
         if isinstance(text, (bytes, bytearray)):
             text = text.decode('utf-8')
+        text_target = ast.literal_eval(text)
+        if not self.setup_config["mode"]=="question_answering":
+            text = text_target["text"]
+        self.target = text_target["target"]
+        
         input_ids, ref_input_ids, attention_mask = construct_input_ref(
-            text, self.tokenizer, self.device
+            text, self.tokenizer, self.device,self.setup_config["mode"] 
         )
         all_tokens = get_word_token(input_ids, self.tokenizer)
-        attributions, delta = self.lig.attribute(
-            inputs=input_ids,
-            baselines=ref_input_ids,
-            target=self.target,
-            additional_forward_args=(attention_mask, 0, self.model),
-            return_convergence_delta=True,
-        )
-
-        attributions_sum = summarize_attributions(attributions)
         response = {}
-        response["importances"] = attributions_sum.tolist()
         response["words"] = all_tokens
-        response["delta"] = delta[0].tolist()
+        if self.setup_config["mode"] == "sequence_classification" or self.setup_config["mode"] == "token_classification":
+            
+            attributions, delta = self.lig.attribute(
+                inputs=input_ids,
+                baselines=ref_input_ids,
+                target=self.target,
+                additional_forward_args=(attention_mask, 0, self.model),
+                return_convergence_delta=True,
+            )
+
+            attributions_sum = summarize_attributions(attributions)
+            response["importances"] = attributions_sum.tolist()
+            response["delta"] = delta[0].tolist()
+        
+        elif self.setup_config["mode"] == "question_answering":
+            attributions_start, delta_start = self.lig.attribute(
+                inputs=input_ids,
+                baselines=ref_input_ids,
+                target=self.target,
+                additional_forward_args=( attention_mask, 0, self.model),
+                return_convergence_delta=True,
+            )
+            attributions_end, delta_end = self.lig.attribute(
+                inputs=input_ids,
+                baselines=ref_input_ids,
+                target=self.target,
+                additional_forward_args=(attention_mask, 1, self.model),
+                return_convergence_delta=True,
+            )
+            attributions_sum_start = summarize_attributions(attributions_start)
+            attributions_sum_end = summarize_attributions(attributions_end)
+            response["importances_answer_start"] = attributions_sum_start.tolist()
+            response["importances_answer_end"] = attributions_sum_end.tolist()
+            response["delta_start"] = delta_start[0].tolist()
+            response["delta_end"] = delta_end[0].tolist()
+            
+            
+        
         return [response]
 
 
-def construct_input_ref(text, tokenizer, device):
+def construct_input_ref(text, tokenizer, device, mode):
     """For a given text, this function creates token id, reference id and
     attention mask based on encode which is faster for captum insights
 
@@ -271,6 +313,12 @@ def construct_input_ref(text, tokenizer, device):
         attention mask() :  The attention mask is a binary tensor indicating the position
          of the padded indices so that the model does not attend to them.
     """
+    if mode == "question_answering":
+        question_context = ast.literal_eval(text)
+        question = question_context["question"]
+        context = question_context["context"]
+        text_ids = tokenizer.encode(question,context, add_special_tokens=False)
+       
     text_ids = tokenizer.encode(text, add_special_tokens=False)
     # construct input token ids
     logger.info("text_ids %s", text_ids)
@@ -293,15 +341,13 @@ def construct_input_ref(text, tokenizer, device):
 
 def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
     """This function is used to get the predictions from the model and this function 
-    can be used independent of the type of the BERT Task. In case of a QnA, there is no
-    need to create two models. one model with different positions can be used.
+    can be used independent of the type of the BERT Task. 
 
     Args:
         inputs (list): Input for Predictions
         attention_mask (list, optional): The attention mask is a binary tensor indicating the position
          of the padded indices so that the model does not attend to them, it defaults to None.
-        position (int, optional): Position depends on the BERT Task. If it is a QnA, 
-        then positon is set to 1. Defaults to 0.
+        position (int, optional): Position depends on the BERT Task. 
         model ([type], optional): Name of the model, it defaults to None.
 
     Returns:
