@@ -3,6 +3,7 @@ package org.pytorch.serve;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -392,7 +393,8 @@ public class ModelServer {
     private Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
         ServerBuilder<?> s =
-                ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                NettyServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                        .maxInboundMessageSize(configManager.getMaxRequestSize())
                         .addService(
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),
