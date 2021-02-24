@@ -382,15 +382,15 @@ public class ModelServer {
     private Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
         ServerBuilder<?> s =
-                NettyServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                NettyServerBuilder.maxInboundMessageSize(configManager.getMaxRequestSize())
+                        .forPort(configManager.getGRPCPort(connectorType))
                         .addService(
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),
                                         new GRPCInterceptor()));
 
         if (configManager.isGRPCSSLEnabled()) {
-            s.maxInboundMessageSize(configManager.getMaxRequestSize())
-                    .useTransportSecurity(
+            s.useTransportSecurity(
                     new File(configManager.getCertificateFile()),
                     new File(configManager.getPrivateKeyFile()));
         }
