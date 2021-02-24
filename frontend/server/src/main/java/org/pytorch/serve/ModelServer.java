@@ -388,7 +388,8 @@ public class ModelServer {
                                         new GRPCInterceptor()));
 
         if (configManager.isGRPCSSLEnabled()) {
-            s.useTransportSecurity(
+            s.maxInboundMessageSize(configManager.getMaxRequestSize())
+                    .useTransportSecurity(
                     new File(configManager.getCertificateFile()),
                     new File(configManager.getPrivateKeyFile()));
         }
