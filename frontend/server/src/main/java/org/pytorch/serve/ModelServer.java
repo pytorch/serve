@@ -382,8 +382,7 @@ public class ModelServer {
     private Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
         ServerBuilder<?> s =
-                NettyServerBuilder
-                        .forPort(configManager.getGRPCPort(connectorType))
+                NettyServerBuilder.forPort(configManager.getGRPCPort(connectorType))
                         .maxInboundMessageSize(configManager.getMaxRequestSize())
                         .addService(
                                 ServerInterceptors.intercept(
