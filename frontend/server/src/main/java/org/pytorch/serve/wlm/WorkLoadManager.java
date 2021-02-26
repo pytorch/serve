@@ -97,12 +97,31 @@ public class WorkLoadManager {
             WorkerManagerThread workerManagerThread;
             List<WorkerThread> threads;
             if (minWorker == 0) {
+
+                logger.info("Min Worker is 0 - DHANAK");
                 workerManagerThread = workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
 
                 if (workerManagerThread != null) {
+
+                    logger.info("Min Worker is not null - DHANAK");
+
                     for (WorkerThread thread : threads) {
                         workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
+                        try {
+                            String cmd =
+                                    String.format(
+                                            OSUtils.getKillCmd(thread.getLifeCycle().getPid()));
+                            Process workerkillprocess = Runtime.getRuntime().exec(cmd, null, null);
+                            workerkillprocess.waitFor(
+                                    configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
+                            logger.info("Worker Terminated - DHANAK " + cmd);
+                        } catch (InterruptedException | IOException e) {
+                            logger.warn(
+                                    "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");
+                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                            return future;
+                        }
                     }
                     workerManagerThread.shutdown();
                     workerManagerThread.getLifeCycle().exit();
@@ -112,12 +131,15 @@ public class WorkLoadManager {
                         boolean workerManagerDestroyed = false;
                         try {
                             String cmd =
-                                    String.format(OSUtils.getKillCmd(), workerManagerProcess.pid());
-                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
+                                    String.format(OSUtils.getKillCmd(workerManagerProcess.pid()));
+                            Process workerkillprocess = Runtime.getRuntime().exec(cmd, null, null);
                             workerManagerDestroyed =
-                                    workerKillProcess.waitFor(
+                                    workerkillprocess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
                                             TimeUnit.SECONDS);
+
+                            logger.info("WorkerMgr Terminated - DHANAK " + cmd);
+
                         } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");

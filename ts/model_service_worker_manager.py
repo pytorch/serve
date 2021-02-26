@@ -156,13 +156,14 @@ class TorchModelServiceWorkerManager(object):
     def scale_down(self, scale_down_request):
         try:
             port = scale_down_request["port"].decode("utf-8")
-            self.workers[port]["worker"].kill()
+            worker = self.workers[port]["worker"]
+            worker.terminate()
+            worker.close()
             def delete_fifo(file_name):
                 os.remove(file_name) if os.path.exists(file_name) else None
                 open(file_name, "w")
-
-            #delete_fifo(fifo_path + ".out")
-            #delete_fifo(fifo_path + ".err")
+            delete_fifo(fifo_path + ".out")
+            delete_fifo(fifo_path + ".err")
             return "scaled down", 200
         except:
             e = sys.exc_info()[0]
