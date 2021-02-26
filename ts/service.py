@@ -14,8 +14,8 @@ from ts.metrics.metrics_store import MetricsStore
 from ts.protocol.otf_message_handler import create_predict_response
 
 PREDICTION_METRIC = 'PredictionTime'
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger('STDIO')
+logger.setLevel(logging.INFO)
 
 class Service(object):
     """

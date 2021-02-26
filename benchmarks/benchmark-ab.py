@@ -147,6 +147,7 @@ def register_model():
     resp = requests.post(url, params=data)
     if not resp.status_code == 200:
         failure_exit(f"Failed to register model.\n{resp.text}")
+    time.sleep(120)
     click.secho(resp.text)
 
 

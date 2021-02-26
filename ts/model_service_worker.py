@@ -28,6 +28,8 @@ DEBUG = False
 BENCHMARK = os.getenv('TS_BENCHMARK')
 BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
 
+logger = logging.getLogger('STDIO')
+logger.setLevel(logging.INFO)
 
 class TorchModelServiceWorker(object):
     """
@@ -55,7 +57,7 @@ class TorchModelServiceWorker(object):
         else:
             raise ValueError("Incomplete data provided")
 
-        logging.info("Will listen on port: %s", s_name)
+        logger.info("Will listen on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
         self.port_num = port_num
@@ -92,7 +94,7 @@ class TorchModelServiceWorker(object):
 
     def run_server(self):
         try:
-            logging.error("Run server invoke")
+            logger.info("Run server invoke")
             self.run_server1()
         except:
             e = sys.exc_info()[0]
@@ -103,11 +105,7 @@ class TorchModelServiceWorker(object):
         Run the backend worker process and listen on a socket
         :return:
         """
-
-        logger1 = logging.getLogger('1')
-        #logger1.addHandler(logging.FileHandler('/tmp/logger1'))
-        logger1.addHandler(logging.FileHandler(self.fifo_path+".out"))
-        logger1.error("testing logger ....." + self.fifo_path+".out")
+        logger.addHandler(logging.FileHandler(self.fifo_path+".out"))
 
         logging.basicConfig(format="%(message)s", filename=self.fifo_path+".out", filemode="a+", level=logging.INFO)
 
@@ -124,28 +122,18 @@ class TorchModelServiceWorker(object):
             self.service = model_loader.load(*self.model_loader_args)
 
 
-        logging.info("[PID]%d", os.getpid())
-        logging.info("Torch worker started.")
-        logging.info("Python runtime: %s", platform.python_version())
+        logger.info("[PID]%d", os.getpid())
+        logger.info("Torch worker started.")
+        logger.info("Python runtime: %s", platform.python_version())
 
-
-        logger1.error("[PID]%d", os.getpid())
-        logger1.error("Torch worker started.")
-        logger1.error("Python runtime: %s", platform.python_version())
-
-        logger1.error("Waiting for connection with socket timeout... " + str(self.sock.gettimeout()))
         while True:
             try:
-                logger1.error("listening to socket ....." + str(datetime.now()))
                 self.sock.listen(1)
                 (cl_socket, _) = self.sock.accept()
-                # workaround error(35, 'Resource temporarily unavailable') on OSX
-                logger1.error("after the listen.....")
+                # workaround info(35, 'Resource temporarily unavailable') on OSX
                 cl_socket.setblocking(True)
-
-                logging.info("Connection accepted: %s.", cl_socket.getsockname())
+                logger.info("Connection accepted: %s.", cl_socket.getsockname())
                 self.handle_connection(cl_socket)
             except socket.timeout:
-                logger1.error("socket time out ....." + str(datetime.now()))
-                logging.info("Connection timedout")
+                logger.info("Connection timedout")
                 pass
