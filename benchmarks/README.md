@@ -12,7 +12,7 @@ We currently support benchmarking with JMeter & Apache Bench. One can also profi
 
 ## Installation
 
-It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
+It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../README.md) for setup.
 
 ### Ubuntu
 
@@ -35,9 +35,16 @@ The benchmarking script requires the following to run:
 - jmeter installed through homebrew or linuxbrew with the plugin manager and the following plugins: jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
 - nvidia-docker
 
+### Windows
+
+For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
+```bash
+python3 windows_install_dependencies.py "C:\\Program Files"
+```
+
 ## Models
 
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). We currently support the following:
+The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](../docs/model_zoo.md). We currently support the following:
 - [resnet: ResNet-18 (Default)](https://torchserve.pytorch.org/mar_files/resnet-18.mar)
 - [squeezenet: SqueezeNet V1.1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar)
 
@@ -56,7 +63,7 @@ We also support compound benchmarks:
 
 #### Using pre-build docker image
 
-* You can specify, docker image using --docker option. You must create docker by following steps given [here](https://github.com/pytorch/serve/tree/master/docker).
+* You can specify, docker image using --docker option. You must create docker by following steps given [here](../docker/README.md).
 
 ```bash
 cd serve/benchmarks
@@ -74,7 +81,7 @@ NOTE - '--docker' and '--ts' are mutually exclusive options
 
 #### Using local TorchServe instance:
 
-* Install TorchServe using the [install guide](../README.md#install-torchserve)
+* Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
 * Start TorchServe using following command :
 
 ```bash
@@ -159,13 +166,13 @@ Using ```https``` instead of ```http``` as the choice of protocol might not work
 The full list of options can be found by running with the -h or --help flags.
 
 ## Adding test plans
-Refer [adding a new jmeter](NewTestPlan.md) test plan for torchserve.
+Refer [adding a new jmeter](add_jmeter_test.md) test plan for torchserve.
 
 # Benchmarking with Apache Bench
 
 ## Installation
 
-It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](https://github.com/pytorch/serve/blob/master/README.md) for setup.
+It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../README.md) for setup.
 
 ### pip dependencies
 
@@ -183,6 +190,12 @@ apt-get install apache2-utils
 
 Apache Bench is installed in Mac by default. You can test by running ```ab -h```
 
+* Windows
+    - Download apache binaries from [Apache Lounge](https://www.apachelounge.com/download/)
+    - Extract and place the contents at some location eg: `C:\Program Files\`
+    - Add this path `C:\Program Files\Apache24\bin`to the environment variable PATH.
+    NOTE - You may need to  install Visual C++ Redistributable for Visual Studio 2015-2019.
+
 ## Benchmark
 ### Run benchmark
 This command will run the AB benchmark with default parameters. It will start a Torchserve instance locally, register Resnet-18 model, and run 100 inference requests with a concurrency of 10.
@@ -191,7 +204,7 @@ Refer [parameters section](#benchmark-parameters) for more details on configurab
 `python benchmark-ab.py`
 
 ### Run benchmark with a test plan
-The benchmark comes with pre-configured test plans which can be used directly to set parameters. Refer available [test plans](#test-plans ) for more details.
+The benchmark comes with pre-configured test plans which can be used directly to set parameters. Refer available [test plans](#test-plans) for more details.
 `python benchmark-ab.py <test plan>`
 
 ### Run benchmark with a customized test plan
@@ -210,7 +223,7 @@ This command will run Torchserve inside a docker container with 4 GPUs and perfo
 ### Run benchmark using a config file
 The config parameters can be provided using cmd line args and a config json file as well.
 This command will use all the configuration parameters given in config.json file.
-`python benchmark-ab.py --config config.json`
+`python benchmark-ab.py --config config.json`. The other parameters like config.properties, inference_model_url can also be added in the config.json.
 
 ### Sample config file
 ```json
@@ -225,7 +238,7 @@ This command will use all the configuration parameters given in config.json file
 ```
 ### Benchmark parameters
 The following parameters can be used to run the AB benchmark suite.
-- url: Input model URL. Default: "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
+- url: Input model URL. Default: `https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar`
 - device: Execution device type. Default: cpu
 - exec_env: Execution environment. Default: docker
 - concurrency: Concurrency of requests. Default: 10
@@ -240,7 +253,42 @@ The following parameters can be used to run the AB benchmark suite.
 - ts: Use Already running Torchserve instance. Default: False
 - gpus: Number of gpus to run docker container with. By default it runs the docker container on CPU.
 - backend_profiling: Enable backend profiling using CProfile. Default: False
+- config_properties: Path to config.properties file. Default: config.properties in the benchmark directory
+- inference_model_url: Inference function url - can be either for predictions or explanations. Default: predictions/benchmark.
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
+
+
+### Examples
+
+* TORCHSERVE SERVING PREDICTIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
+```
+
+* TORCHSERVE SERVING EXPLANATIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url explanations/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
+```
+
+* KUBEFLOW SERVING PREDICTIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:predict --input ../kubernetes/kfserving/kf_request_json/mnist.json
+```
+
+* KUBEFLOW SERVING EXPLANATIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:explain --input ../kubernetes/kfserving/kf_request_json/mnist.json
+```
+
+* TORCHSERVE SERVING PREDICTIONS WITH DOCKER
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png --exec_env docker 
+```
 
 ### Test plans
 Benchmark supports pre-defined, pre-configured params that can be selected based on the use case.
@@ -262,7 +310,7 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample output CSV
 | Benchmark | Model | Concurrency | Requests | TS failed requests | TS throughput | TS latency P50 | TS latency P90| TS latency P90 | TS latency mean | TS error rate | Model_p50 | Model_p90 | Model_p99 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---| ---|
-| AB | https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
+| AB | [squeezenet1_1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar) | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
 
 ### Sample latency graph
 ![](predict_latency.png)
@@ -288,7 +336,7 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 
     Using local TorchServe instance:
 
-    * Install TorchServe using the [install guide](../README.md#install-torchserve)
+    * Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
     
     By using external docker container for TorchServe:
 

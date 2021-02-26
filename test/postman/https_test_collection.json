@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "790ef28c-bbc8-4efb-bcd0-524ade07a76b",
+		"_postman_id": "ef0d3b23-7caa-4884-a497-d0bff12f49dc",
 		"name": "https_test_collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3135f351-cba7-4ee0-807f-548bc7932764",
+						"id": "5e3567ef-1c6a-4605-a3fc-c21e5eecf221",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -41,7 +41,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "89e5daa2-96e1-4529-8b91-42aeb6737de4",
+						"id": "baaab4ba-f535-41f6-af3c-7e44c4d67d4a",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -55,12 +55,12 @@
 				"method": "OPTIONS",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-pred-port}}",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
 					],
-					"port": "{{sec-pred-port}}"
+					"port": "{{sec-mgmt-port}}"
 				}
 			},
 			"response": []
@@ -71,7 +71,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "0aa1325d-be34-4128-840e-e1d26cae31f5",
+						"id": "535fa589-b9c7-4eb5-b9fd-fc091745ccb3",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -101,7 +101,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "8a5f09a5-e865-48df-8a11-408a9617f0be",
+						"id": "d35a533c-7c1c-424e-90a2-19a3d9ebed41",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -152,7 +152,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "71125cfd-c23c-419f-9569-ddf7f1a096fb",
+						"id": "c6fb4511-d81e-46c3-96e6-1fef5967a11f",
 						"exec": [
 							"pm.test(\"Successful GET request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -186,7 +186,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2766e4bc-52a5-46ef-a278-17b494a0c4a2",
+						"id": "de628a4c-2152-4bf2-ac29-edf67fe9451e",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
@@ -200,7 +200,7 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=5&max_worker=5&synchronous=true",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=1&max_worker=1&synchronous=true",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -213,11 +213,11 @@
 					"query": [
 						{
 							"key": "min_worker",
-							"value": "5"
+							"value": "1"
 						},
 						{
 							"key": "max_worker",
-							"value": "5"
+							"value": "1"
 						},
 						{
 							"key": "synchronous",
@@ -234,7 +234,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b0385011-ca5d-4219-b4f9-ef3abdbd0db2",
+						"id": "03211daa-9424-412b-84ec-1098c98e76ea",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -248,7 +248,7 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=6&max_worker=6&synchronous=false",
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=1&max_worker=1&synchronous=false",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
@@ -261,11 +261,11 @@
 					"query": [
 						{
 							"key": "min_worker",
-							"value": "6"
+							"value": "1"
 						},
 						{
 							"key": "max_worker",
-							"value": "6"
+							"value": "1"
 						},
 						{
 							"key": "synchronous",
@@ -282,7 +282,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a1680278-9358-4aef-a4ca-796734632caa",
+						"id": "8c3e00aa-ae0e-494f-bdbd-fbc0242eba81",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -332,7 +332,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f308ae60-65a8-4de7-8c3a-55eac70ba319",
+						"id": "54c95cd7-1973-472b-8262-e4644b3fb07a",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",

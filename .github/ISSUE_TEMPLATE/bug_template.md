@@ -3,6 +3,7 @@ name: "\U0001F41B Bug report"
 about: Create a report to help us improve
 
 ---
+Please have a look at [FAQ's](../../docs/FAQs.md) and [Troubleshooting guide](../../docs/Troubleshooting.md), your query may be already addressed.
 
 Your issue may already be reported!
 Please search on the [issue tracker](https://github.com/pytorch/serve/issues) before creating one.
@@ -11,6 +12,7 @@ Please search on the [issue tracker](https://github.com/pytorch/serve/issues) be
 <!--- How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
 * torchserve version:
+* torch-model-archiver version:
 * torch version:
 * torchvision version [if any]:
 * torchtext version [if any]:

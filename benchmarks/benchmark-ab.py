@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 import re
 import shutil
 import time
@@ -12,6 +11,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import requests
+import tempfile
+import os
+from urllib.parse import urlparse
 
 default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.mar",
                      'gpus': '',
@@ -25,12 +27,14 @@ default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.
                      'content_type': 'application/jpg',
                      'image': '',
                      'docker_runtime': '',
-                     'backend_profiling': False
+                     'backend_profiling': False,
+                     'config_properties': 'config.properties',
+                     'inference_model_url': 'predictions/benchmark'
                      }
-
+TMP_DIR = tempfile.gettempdir()
 execution_params = default_ab_params.copy()
-result_file = "/tmp/benchmark/result.txt"
-metric_log = "/tmp/benchmark/logs/model_metrics.log"
+result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
+metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
 
 
 def json_provider(file_path, cmd_name):
@@ -58,10 +62,15 @@ def json_provider(file_path, cmd_name):
 @click.option('--docker_runtime', '-dr', default='', help='Specify required docker runtime')
 @click.option('--backend_profiling', '-bp', default=False,
               help='Enable backend profiling using CProfile. Default False')
+@click.option('--config_properties', '-cp', default='config.properties',
+              help='config.properties path, Default config.properties')
+@click.option('--inference_model_url', '-imu', default='predictions/benchmark',
+              help='Inference function url - can be either for predictions or explanations. Default predictions/benchmark')
+
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
-              content_type, image, docker_runtime, backend_profiling):
+              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url):
     input_params = {'url': url,
                     'gpus': gpus,
                     'exec_env': exec_env,
@@ -74,7 +83,9 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
                     'content_type': content_type,
                     'image': image,
                     'docker_runtime': docker_runtime,
-                    'backend_profiling': backend_profiling
+                    'backend_profiling': backend_profiling,
+                    'config_properties': config_properties,
+                    'inference_model_url': inference_model_url
                     }
 
     # set ab params
@@ -103,14 +114,14 @@ def check_torchserve_health():
     click.secho("*Testing system health...", fg='green')
     while retry < attempts:
         try:
-            resp = requests.get("http://localhost:8080/ping")
+            resp = requests.get(execution_params['inference_url'] + "/ping")
             if resp.status_code == 200:
                 click.secho(resp.text)
                 return True
         except Exception as e:
             retry += 1
             time.sleep(3)
-    failure_exit("Could not connect to Tochserve instance at http://localhost:8080/.")
+    failure_exit("Could not connect to Tochserve instance at " + execution_params['inference_url'])
 
 
 def run_benchmark():
@@ -118,8 +129,9 @@ def run_benchmark():
 
     click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
     click.secho("*Executing inference performance test...", fg='green')
-    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p /tmp/benchmark/input -T " \
-             f"{execution_params['content_type']} http://127.0.0.1:8080/predictions/benchmark > {result_file}"
+    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
+             f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
+    
     execute(ab_cmd, wait=True)
 
     unregister_model()
@@ -128,7 +140,7 @@ def run_benchmark():
 
 def register_model():
     click.secho("*Registering model...", fg='green')
-    url = "http://localhost:8081/models"
+    url = execution_params['management_url'] + "/models"
     data = {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
             'batch_size': execution_params['batch_size'], 'initial_workers': execution_params['workers'],
             'synchronous': 'true'}
@@ -140,7 +152,7 @@ def register_model():
 
 def unregister_model():
     click.secho("*Unregistering model ...", fg='green')
-    resp = requests.delete("http://localhost:8081/models/benchmark")
+    resp = requests.delete(execution_params['management_url'] + "/models/benchmark")
     if not resp.status_code == 200:
         failure_exit(f"Failed to unregister model. \n {resp.text}")
     click.secho(resp.text)
@@ -165,8 +177,8 @@ def local_torserve_start():
     click.secho("*Setting up model store...", fg='green')
     prepare_local_dependency()
     click.secho("*Starting local Torchserve instance...", fg='green')
-    execute("torchserve --start --model-store /tmp/model_store "
-            "--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log")
+    execute(f"torchserve --start --model-store {TMP_DIR}/model_store "
+            f"--ts-config {TMP_DIR}/benchmark/conf/{execution_params['config_properties_name']} > {TMP_DIR}/benchmark/logs/model_metrics.log")
     time.sleep(3)
 
 
@@ -194,17 +206,19 @@ def docker_torchserve_start():
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
-    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p 8080:8080 -p 8081:8081 " \
-                     f"-v /tmp:/tmp {enable_gpu} -itd {docker_image} " \
+    inference_port = urlparse(execution_params['inference_url']).port
+    management_port = urlparse(execution_params['management_url']).port
+    docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p {inference_port}:{inference_port} -p {management_port}:{management_port} " \
+                     f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
-                     f"--ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log\""
+                         f"--ts-config /tmp/benchmark/conf/{execution_params['config_properties_name']} > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
     time.sleep(5)
 
 
 def prepare_local_dependency():
-    shutil.rmtree('/tmp/model_store/', ignore_errors=True)
-    os.makedirs("/tmp/model_store/", exist_ok=True)
+    shutil.rmtree(os.path.join(TMP_DIR, 'model_store/'), ignore_errors=True)
+    os.makedirs(os.path.join(TMP_DIR, "model_store/"), exist_ok=True)
     prepare_common_dependency()
 
 
@@ -214,19 +228,40 @@ def prepare_docker_dependency():
 
 def prepare_common_dependency():
     input = execution_params['input']
-    shutil.rmtree("/tmp/benchmark", ignore_errors=True)
-    os.makedirs("/tmp/benchmark/conf", exist_ok=True)
-    os.makedirs("/tmp/benchmark/logs", exist_ok=True)
-    shutil.copy('config.properties', '/tmp/benchmark/conf/')
-    shutil.copyfile(input, '/tmp/benchmark/input')
+    shutil.rmtree(os.path.join(TMP_DIR, "benchmark"), ignore_errors=True)
+    os.makedirs(os.path.join(TMP_DIR, "benchmark/conf"), exist_ok=True)
+    os.makedirs(os.path.join(TMP_DIR, "benchmark/logs"), exist_ok=True)
+
+    shutil.copy(execution_params['config_properties'], os.path.join(TMP_DIR, 'benchmark/conf/'))
+    shutil.copyfile(input, os.path.join(TMP_DIR, 'benchmark/input'))
+
+
+
+def getAPIS():
+    MANAGEMENT_API = "http://127.0.0.1:8081"
+    INFERENCE_API = "http://127.0.0.1:8080"
+    
+    with open(execution_params['config_properties'], "r") as fp:
+        lines = fp.readlines()
+    for line in lines:
+        line = line.strip()
+        if "management_address" in line:
+            MANAGEMENT_API = line.split("=")[1]
+        if "inference_address" in line:
+            INFERENCE_API = line.split("=")[1]
+    
+    execution_params['inference_url'] = INFERENCE_API
+    execution_params['management_url'] = MANAGEMENT_API
+    execution_params['config_properties_name'] = execution_params['config_properties'].strip().split("/")[-1]
 
 
 def update_exec_params(input_param):
     for k, v in input_param.items():
         if default_ab_params[k] != input_param[k]:
             execution_params[k] = input_param[k]
+    getAPIS()
 
-
+            
 def generate_report():
     click.secho("\n\nGenerating Reports...", fg='green')
     extract_metrics()
@@ -253,8 +288,9 @@ def extract_metrics():
             if pattern.search(line):
                 all_lines.append(line.split("|")[0].split(':')[3].strip())
 
-        click.secho(f"\nWriting extracted {v} metrics to {k} ", fg='green')
-        with open(f'/tmp/benchmark/{k}', 'w') as outf:
+        out_fname = f'{TMP_DIR}/benchmark/{k}'
+        click.secho(f"\nWriting extracted {v} metrics to {out_fname} ", fg='green')
+        with open(out_fname, 'w') as outf:
             all_lines = map(lambda x: x + '\n', all_lines)
             outf.writelines(all_lines)
 
@@ -266,7 +302,7 @@ def generate_csv_output():
     line90 = int(batched_requests * 9 / 10)
     line99 = int(batched_requests * 99 / 100)
     artifacts = {}
-    with open('/tmp/benchmark/result.txt') as f:
+    with open(f'{TMP_DIR}/benchmark/result.txt') as f:
         data = f.readlines()
     artifacts['Benchmark'] = "AB"
     artifacts['Model'] = execution_params['url']
@@ -280,17 +316,18 @@ def generate_csv_output():
     artifacts['TS latency mean'] = extract_entity(data, 'Time per request:.*mean\)', -3)
     artifacts['TS error rate'] = int(artifacts['TS failed requests']) / execution_params['requests'] * 100
 
-    with open('/tmp/benchmark/predict.txt') as f:
+    with open(os.path.join(TMP_DIR, 'benchmark/predict.txt')) as f:
         lines = f.readlines()
+        lines.sort(key=float)
         artifacts['Model_p50'] = lines[line50].strip()
         artifacts['Model_p90'] = lines[line90].strip()
         artifacts['Model_p99'] = lines[line99].strip()
 
     for m in metrics:
-        df = pd.read_csv(f"/tmp/benchmark/{m}", header=None, names=['data'])
+        df = pd.read_csv(f"{TMP_DIR}/benchmark/{m}", header=None, names=['data'])
         artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
 
-    with open('/tmp/benchmark/ab_report.csv', 'w') as csv_file:
+    with open(os.path.join(TMP_DIR, 'benchmark/ab_report.csv'), 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
         csvwriter.writerow(artifacts.keys())
         csvwriter.writerow(artifacts.values())
@@ -307,7 +344,7 @@ def extract_entity(data, pattern, index, delim=" "):
 
 def generate_latency_graph():
     click.secho("*Preparing graphs...", fg='green')
-    df = pd.read_csv('/tmp/benchmark/predict.txt', header=None, names=['latency'])
+    df = pd.read_csv(os.path.join(TMP_DIR, 'benchmark/predict.txt'), header=None, names=['latency'])
     iteration = df.index
     latency = df.latency
     a4_dims = (11.7, 8.27)
@@ -316,7 +353,7 @@ def generate_latency_graph():
     plt.ylabel('Prediction time')
     plt.title('Prediction latency')
     plt.bar(iteration, latency)
-    plt.savefig("/tmp/benchmark/predict_latency.png")
+    plt.savefig(f"{TMP_DIR}/benchmark/predict_latency.png")
 
 
 def generate_profile_graph():
@@ -324,7 +361,7 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f'/tmp/benchmark/{m}', header=None)
+        df = pd.read_csv(f'{TMP_DIR}/benchmark/{m}', header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
@@ -390,6 +427,7 @@ def stop_torchserve():
 # Test plans (soak, vgg11_1000r_10c,  vgg11_10000r_100c,...)
 def soak():
     execution_params['requests'] = 100000
+
     execution_params['concurrency'] = 10
 
 

@@ -56,7 +56,6 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-
         if (checkAllowedUrl(allowedUrls, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(marFileName);
@@ -73,15 +72,15 @@ public class ModelArchive {
             throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
 
-        if (!modelLocation.exists()) {
-            throw new ModelNotFoundException("Model not found in model store: " + url);
-        }
-
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
                 File unzipDir = unzip(is, null);
                 return load(url, unzipDir, true);
             }
+        }
+
+        if (new File(url).isDirectory()) {
+            return load(url, new File(url), false);
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
