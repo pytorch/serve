@@ -198,9 +198,7 @@ class TorchModelServiceWorkerManager(object):
                     raise RuntimeError("{} - {}".format(code, result))
             elif cmd == b'U':
                 logging.info("Received Scale Up Request")
-                logging.info("Workers before scale up" + str(self.workers))
                 result, code = self.scale_up(msg, service, service_args)
-                logging.info("Workers after scale up" + str(self.workers))
                 resp = bytearray()
                 resp += create_scale_model_response(code, result)
                 cl_socket.send(resp)

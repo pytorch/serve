@@ -131,11 +131,13 @@ def run_benchmark():
     click.secho("*Executing inference performance test...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
+
+    print(ab_cmd)
     
     execute(ab_cmd, wait=True)
 
-    unregister_model()
-    stop_torchserve()
+    #unregister_model()
+    #stop_torchserve()
 
 
 def register_model():
