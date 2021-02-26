@@ -13,3 +13,8 @@ phases:
     commands:
       - python torchserve_sanity.py
       - cd serving-sdk/ && mvn clean install -q && cd ../
+
+artifacts:
+  files:
+    - logs/ts_console.log
+  name: TS-BUILD-$(date +%Y-%m-%d-%H-%M)
