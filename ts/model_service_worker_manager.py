@@ -157,8 +157,7 @@ class TorchModelServiceWorkerManager(object):
         try:
             port = scale_down_request["port"].decode("utf-8")
             worker = self.workers[port]["worker"]
-            worker.terminate()
-            worker.close()
+            worker.kill()
             def delete_fifo(file_name):
                 os.remove(file_name) if os.path.exists(file_name) else None
                 open(file_name, "w")
