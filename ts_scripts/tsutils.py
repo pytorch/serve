@@ -64,7 +64,7 @@ def register_model(model_name, protocol="http", host="localhost", port="8081"):
     return response
 
 
-def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
+def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=240):
     print(f"## Running inference on {model_name} model")
     url = f"{protocol}://{host}:{port}/predictions/{model_name}"
     files = {"data": (file_name, open(file_name, "rb"))}
