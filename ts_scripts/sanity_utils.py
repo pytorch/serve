@@ -149,7 +149,7 @@ def test_sanity():
         print(f"## {model_handler} handler is stable.")
 
         if(is_gpu_instance):
-            gpu_procs = str(nvsmi.get_gpu_processes())
+            gpu_procs = str(nvgpu.gpu_info())
             print(f"## Residual GPU Processes : {gpu_procs}")
 
     stopped = ts.stop_torchserve()
