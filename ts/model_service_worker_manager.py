@@ -159,11 +159,9 @@ class TorchModelServiceWorkerManager(object):
             worker = self.workers[port]["worker"]
             fifo_path = self.workers[port]["fifo"]
             worker.terminate()
-            def delete_fifo(file_name):
-                os.remove(file_name) if os.path.exists(file_name) else None
-                open(file_name, "w")
-            delete_fifo(fifo_path + ".out")
-            delete_fifo(fifo_path + ".err")
+            #def delete_fifo(file_name):
+            #    os.remove(file_name) if os.path.exists(file_name) else None
+            #    open(file_name, "w")
             return "scaled down", 200
         except:
             e = sys.exc_info()[0]
