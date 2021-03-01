@@ -231,14 +231,14 @@
         "file":"../examples/image_segmenter/persons.jpg"
     },
     {
-        "url":"https://www.dropbox.com/s/2otj6ssf69bnb33/deeplabv3_resnet_101.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101.mar",
         "model_name":"deeplabv3_resnet_101",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_segmenter/persons.jpg"
     },
     {
-        "url":"https://www.dropbox.com/s/dik25o64dh4gklg/deeplabv3_resnet_101_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_scripted.mar",
         "model_name":"deeplabv3_resnet_101_scripted",
         "worker":1,
         "synchronous":"true",
