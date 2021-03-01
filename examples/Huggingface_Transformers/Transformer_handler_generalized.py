@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import ast
+import glob
 import torch
 from transformers import (
     AutoModelForSequenceClassification,
@@ -70,7 +71,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning("Missing the checkpoint or state_dict.")
 
-        if not os.path.isfile(os.path.join(model_dir, "vocab.*")):
+        if not [f for f in glob.glob(os.path.join(model_dir, "vocab.*")) if os.path.isfile(os.path.join(model_dir, f))]: 
             self.tokenizer = AutoTokenizer.from_pretrained(
                 self.setup_config["model_name"],
                 do_lower_case=self.setup_config["do_lower_case"],
