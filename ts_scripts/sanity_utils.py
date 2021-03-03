@@ -48,6 +48,15 @@ def test_sanity():
 
     resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
                       "handler": "image_classifier"}
+
+    bert_token_classification_no_torchscript_model = {"name": "bert_token_classification_no_torchscript",
+         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
+         "handler": "custom"}
+
+    bert_seqc_without_torchscript_model = {"name": "bert_seqc_without_torchscript",
+         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
+         "handler": "custom"}
+ 
     models_to_validate = [
         {"name": "fastrcnn", "inputs": ["examples/object_detector/persons.jpg"], "handler": "object_detector"},
         {"name": "fcn_resnet_101",
@@ -62,14 +71,12 @@ def test_sanity():
         {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/fcn/persons.jpg"],
          "handler": "image_segmenter"},
         {"name": "roberta_qa_no_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"},
-        {"name": "bert_token_classification_no_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
-         "handler": "custom"},
-        {"name": "bert_seqc_without_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
-         "handler": "custom"}
+         "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"}
     ]
+
+    if(not sys.platform.startswith('win')):
+        models_to_validate.extend((bert_token_classification_no_torchscript_model, bert_seqc_without_torchscript_model))
+
     ts_log_file = os.path.join("logs", "ts_console.log")
     is_gpu_instance = utils.is_gpu_instance()
 
