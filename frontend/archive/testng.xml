@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+  
+<suite name="ModelArchiverSuite" verbose="1" >
+  <test name="TorchServe">
+    <classes>
+      <class name="org.pytorch.serve.archive.CoverageTest"/>
+      <class name="org.pytorch.serve.archive.model.ModelArchiveTest"/>
+      <class name="org.pytorch.serve.archive.workflow.WorkFlowArchiveTest"/>
+    </classes>
+  </test>
+</suite>

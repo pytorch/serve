@@ -20,6 +20,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
 * [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
+* [Serve a Workflow](docs/workflows.md)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 

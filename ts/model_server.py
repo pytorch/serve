@@ -127,6 +127,17 @@ def start():
             print("Missing mandatory parameter --model-store")
             sys.exit(1)
 
+        if args.workflow_store:
+            if not os.path.isdir(args.workflow_store):
+                print("--workflow-store directory not found: {}".format(args.workflow_store))
+                sys.exit(1)
+
+            cmd.append("-w")
+            cmd.append(args.workflow_store)
+        else:
+            cmd.append("-w")
+            cmd.append(args.model_store)
+
         if args.no_config_snapshots:
             cmd.append("-ncs")
 

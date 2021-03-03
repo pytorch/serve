@@ -4,7 +4,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.util.ArrayList;
 import java.util.List;
-import org.pytorch.serve.archive.Manifest;
+import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;

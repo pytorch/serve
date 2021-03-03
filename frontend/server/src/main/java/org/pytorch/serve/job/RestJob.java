@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.metrics.Dimension;
@@ -27,6 +28,7 @@ public class RestJob extends Job {
     private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     private ChannelHandlerContext ctx;
+    private CompletableFuture<byte[]> responsePromise;
 
     public RestJob(
             ChannelHandlerContext ctx,
@@ -72,7 +74,10 @@ public class RestJob extends Job {
             MetricAggregator.handleInferenceMetric(
                     getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
             NettyUtils.sendHttpResponse(ctx, resp, true);
+        } else if (responsePromise != null) {
+            responsePromise.complete(body);
         }
+
         logger.debug(
                 "Waiting time ns: {}, Backend time ns: {}",
                 getScheduled() - getBegin(),
@@ -103,11 +108,21 @@ public class RestJob extends Job {
             status = (status == 413) ? 507 : status;
             NettyUtils.sendError(
                     ctx, HttpResponseStatus.valueOf(status), new InternalServerException(error));
+        } else if (responsePromise != null) {
+            responsePromise.completeExceptionally(new InternalServerException(error));
         }
 
         logger.debug(
                 "Waiting time ns: {}, Inference time ns: {}",
                 getScheduled() - getBegin(),
                 System.nanoTime() - getBegin());
+    }
+
+    public CompletableFuture<byte[]> getResponsePromise() {
+        return responsePromise;
+    }
+
+    public void setResponsePromise(CompletableFuture<byte[]> responsePromise) {
+        this.responsePromise = responsePromise;
     }
 }

@@ -97,7 +97,7 @@ inference_address=https://0.0.0.0:8443
 inference_address=https://172.16.1.10:8080
 ```
 
-### Configure TorchServe gRPC listening ports 
+### Configure TorchServe gRPC listening ports
 The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.
 
 To configure different ports use following properties
@@ -247,6 +247,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
 eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use following regex string
+* `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 ```
 allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*
 ```
