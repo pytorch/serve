@@ -279,7 +279,7 @@ public final class TestUtils {
     }
 
     public static Channel connect(ConnectorType connectorType, ConfigManager configManager) {
-        return connect(connectorType, configManager, 120);
+        return connect(connectorType, configManager, 240);
     }
 
     public static Channel connect(
