@@ -9,6 +9,10 @@ public enum WorkerCommands {
     LOAD("load"),
     @SerializedName("unload")
     UNLOAD("unload"),
+    @SerializedName("scale_up")
+    SCALE_UP("scale_up"),
+    @SerializedName("scale_down")
+    SCALE_DOWN("scale_down"),
     @SerializedName("stats")
     STATS("stats");
 

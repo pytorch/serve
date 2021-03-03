@@ -17,6 +17,8 @@ int_size = 4
 END_OF_LIST = -1
 LOAD_MSG = b'L'
 PREDICT_MSG = b'I'
+SCALE_UP_MSG = b'U'
+SCALE_DOWN_MSG = b'D'
 RESPONSE = 3
 
 
@@ -32,6 +34,10 @@ def retrieve_msg(conn):
         msg = _retrieve_load_msg(conn)
     elif cmd == PREDICT_MSG:
         msg = _retrieve_inference_msg(conn)
+    elif cmd == SCALE_UP_MSG:
+        msg = _retrieve_scale_up_msg(conn)
+    elif cmd == SCALE_DOWN_MSG:
+        msg = _retrieve_scale_down_msg(conn)
     else:
         raise ValueError("Invalid command: {}".format(cmd))
 
@@ -154,18 +160,35 @@ def create_load_model_response(code, message):
     return msg
 
 
-def _retrieve_buffer(conn, length):
-    data = bytearray()
+def create_scale_model_response(code, message):
+    """
+    Create load model response.
 
+    :param code:
+    :param message:
+    :return:
+    """
+    msg = bytearray()
+    msg += struct.pack('!i', code)
+
+    buf = message.encode("utf-8")
+    msg += struct.pack('!i', len(buf))
+    msg += buf
+    msg += struct.pack('!i', -1)  # no predictions
+
+    return msg
+
+
+def _retrieve_buffer(conn, length):
+
+    data = bytearray()
     while length > 0:
         pkt = conn.recv(length)
         if len(pkt) == 0:
             logging.info("Frontend disconnected.")
             sys.exit(0)
-
         data += pkt
         length -= len(pkt)
-
     return data
 
 
@@ -202,6 +225,58 @@ def _retrieve_load_msg(conn):
 
     length = _retrieve_int(conn)
     msg["envelope"] = _retrieve_buffer(conn, length)
+
+    return msg
+
+
+def _retrieve_scale_up_msg(conn):
+    """
+    MSG Frame Format:
+
+    | cmd value |
+    | str sock_name |
+    | str sock_type |
+    | str host |
+    | str port |
+    | str fifo_path |
+
+    :param conn:
+    :return:
+    """
+    msg = dict()
+
+    length = _retrieve_int(conn)
+    msg["sock_type"] = _retrieve_buffer(conn, length)
+
+    length = _retrieve_int(conn)
+    msg["sock_name"] = _retrieve_buffer(conn, length)
+
+    length = _retrieve_int(conn)
+    msg["host"] = _retrieve_buffer(conn, length)
+
+    length = _retrieve_int(conn)
+    msg["port"] = _retrieve_buffer(conn, length)
+
+    length = _retrieve_int(conn)
+    msg["fifo_path"] = _retrieve_buffer(conn, length)
+
+    return msg
+
+
+def _retrieve_scale_down_msg(conn):
+    """
+    MSG Frame Format:
+
+    | cmd value |
+    | str port |
+
+    :param conn:
+    :return:
+    """
+    msg = dict()
+
+    length = _retrieve_int(conn)
+    msg["port"] = _retrieve_buffer(conn, length)
 
     return msg
 

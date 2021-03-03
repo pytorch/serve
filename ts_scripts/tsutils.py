@@ -73,11 +73,11 @@ def register_model(model_name, protocol="http", host="localhost", port="8081"):
         ("synchronous", "true"),
     )
     url = f"{protocol}://{host}:{port}/models"
-    response = requests.post(url, params=params, verify=False)
+    response = requests.post(url, params=params, verify=False, timeout=120)
     return response
 
 
-def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
+def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=240):
     print(f"## Running inference on {model_name} model")
     url = f"{protocol}://{host}:{port}/predictions/{model_name}"
     files = {"data": (file_name, open(file_name, "rb"))}
@@ -88,7 +88,7 @@ def run_inference(model_name, file_name, protocol="http", host="localhost", port
 def unregister_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Unregistering {model_name} model")
     url = f"{protocol}://{host}:{port}/models/{model_name}"
-    response = requests.delete(url, verify=False)
+    response = requests.delete(url, verify=False, timeout=120)
     return response
 
 

@@ -25,6 +25,7 @@ public class WorkLoadManager {
     private ExecutorService threadPool;
 
     private ConcurrentHashMap<ModelVersionName, List<WorkerThread>> workers;
+    private ConcurrentHashMap<ModelVersionName, WorkerManagerThread> workerManagers;
 
     private ConfigManager configManager;
     private EventLoopGroup backendGroup;
@@ -40,6 +41,7 @@ public class WorkLoadManager {
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
+        workerManagers = new ConcurrentHashMap<>();
     }
 
     public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {
@@ -92,9 +94,67 @@ public class WorkLoadManager {
             CompletableFuture<Integer> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
+            WorkerManagerThread workerManagerThread;
             List<WorkerThread> threads;
             if (minWorker == 0) {
+
+                logger.info("Min Worker is 0 - DHANAK");
+                workerManagerThread = workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
+
+                if (workerManagerThread != null) {
+
+                    logger.info("Min Worker is not null - DHANAK");
+
+                    for (WorkerThread thread : threads) {
+                        workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
+                        try {
+                            String cmd =
+                                    String.format(
+                                            OSUtils.getKillCmd(thread.getLifeCycle().getPid()));
+                            Process workerkillprocess = Runtime.getRuntime().exec(cmd, null, null);
+                            workerkillprocess.waitFor(
+                                    configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
+                            logger.info("Worker Terminated - DHANAK " + cmd);
+                        } catch (InterruptedException | IOException e) {
+                            logger.warn(
+                                    "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");
+                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                            return future;
+                        }
+                    }
+                    workerManagerThread.shutdown();
+                    workerManagerThread.getLifeCycle().exit();
+
+                    Process workerManagerProcess = workerManagerThread.getLifeCycle().getProcess();
+                    if (workerManagerProcess != null && workerManagerProcess.isAlive()) {
+                        boolean workerManagerDestroyed = false;
+                        try {
+                            String cmd =
+                                    String.format(OSUtils.getKillCmd(workerManagerProcess.pid()));
+                            Process workerkillprocess = Runtime.getRuntime().exec(cmd, null, null);
+                            workerManagerDestroyed =
+                                    workerkillprocess.waitFor(
+                                            configManager.getUnregisterModelTimeout(),
+                                            TimeUnit.SECONDS);
+
+                            logger.info("WorkerMgr Terminated - DHANAK " + cmd);
+
+                        } catch (InterruptedException | IOException e) {
+                            logger.warn(
+                                    "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");
+                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                            return future;
+                        }
+                        if (!workerManagerDestroyed) {
+                            logger.warn(
+                                    "WorkerManagerThread timed out while cleaning, please resend request.");
+                            future.complete(HttpURLConnection.HTTP_CLIENT_TIMEOUT);
+                            return future;
+                        }
+                    }
+                }
+
                 if (threads == null) {
                     future.complete(HttpURLConnection.HTTP_OK);
                     if (!isStartup && !isCleanUp && !model.isWorkflowModel()) {
@@ -110,38 +170,22 @@ public class WorkLoadManager {
 
             int currentWorkers = threads.size();
             if (currentWorkers < minWorker) {
+                if (currentWorkers == 0) {
+                    workerManagerThread =
+                            workerManagers.computeIfAbsent(
+                                    model.getModelVersionName(),
+                                    k -> addWorkerManagerThread(model, future));
+                }
                 addThreads(threads, model, minWorker - currentWorkers, future);
             } else {
-                for (int i = currentWorkers - 1; i >= maxWorker; --i) {
-                    WorkerThread thread = threads.remove(i);
-                    WorkerLifeCycle lifecycle = thread.getLifeCycle();
-                    thread.shutdown();
 
-                    Process workerProcess = lifecycle.getProcess();
+                workerManagerThread = workerManagers.get(model.getModelVersionName());
 
-                    // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
-                    // -> This may nullify process object per destroyForcibly doc.
-                    if (workerProcess != null && workerProcess.isAlive()) {
-                        boolean workerDestroyed = false;
-                        try {
-                            String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());
-                            Process workerKillProcess = Runtime.getRuntime().exec(cmd, null, null);
-                            workerDestroyed =
-                                    workerKillProcess.waitFor(
-                                            configManager.getUnregisterModelTimeout(),
-                                            TimeUnit.SECONDS);
-                        } catch (InterruptedException | IOException e) {
-                            logger.warn(
-                                    "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                            return future;
-                        }
-                        if (!workerDestroyed) {
-                            logger.warn(
-                                    "WorkerThread timed out while cleaning, please resend request.");
-                            future.complete(HttpURLConnection.HTTP_CLIENT_TIMEOUT);
-                            return future;
-                        }
+                if (workerManagerThread != null) {
+                    for (int i = currentWorkers - 1; i >= maxWorker; --i) {
+                        WorkerThread thread = threads.remove(i);
+                        workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
+                        thread.shutdown();
                     }
                 }
                 if (!isStartup && !isCleanUp && !model.isWorkflowModel()) {
@@ -157,6 +201,24 @@ public class WorkLoadManager {
         }
     }
 
+    private WorkerManagerThread addWorkerManagerThread(
+            Model model, CompletableFuture<Integer> future) {
+
+        WorkerManagerStateListener listener = new WorkerManagerStateListener(future, 1);
+        BatchAggregator aggregator = new BatchAggregator(model);
+
+        WorkerManagerThread thread =
+                new WorkerManagerThread(
+                        configManager,
+                        backendGroup,
+                        configManager.isDebug() ? port.get() : port.getAndIncrement(),
+                        model,
+                        aggregator,
+                        listener);
+        threadPool.submit(thread);
+        return thread;
+    }
+
     private void addThreads(
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
@@ -168,12 +230,15 @@ public class WorkLoadManager {
                 gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
             }
 
+            int portNum = port.getAndIncrement();
+            workerManagers.get(model.getModelVersionName()).scaleUp(portNum);
+
             BatchAggregator aggregator = new BatchAggregator(model);
             WorkerThread thread =
                     new WorkerThread(
                             configManager,
                             backendGroup,
-                            configManager.isDebug() ? port.get() : port.getAndIncrement(),
+                            portNum,
                             gpuId,
                             model,
                             aggregator,

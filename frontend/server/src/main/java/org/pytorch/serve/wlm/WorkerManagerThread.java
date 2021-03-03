@@ -9,32 +9,37 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import java.io.BufferedReader;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.SharedNamedPipeUtils;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
+import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WorkerThread implements Runnable {
+public class WorkerManagerThread implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerManagerThread.class);
     private static final org.apache.log4j.Logger loggerTsMetrics =
             org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
@@ -44,6 +49,7 @@ public class WorkerThread implements Runnable {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
 
+    private static final long WORKER_TIMEOUT = 2L;
     private static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
 
@@ -58,87 +64,34 @@ public class WorkerThread implements Runnable {
     private int backoffIdx;
 
     private BatchAggregator aggregator;
-    private WorkerStateListener listener;
+    private WorkerManagerStateListener listener;
     private ArrayBlockingQueue<ModelWorkerResponse> replies;
-    private int gpuId;
     private long memory;
     private long startTime;
     private AtomicReference<Thread> currentThread = new AtomicReference<>();
     private String workerId;
+    private int gpuId;
 
-    private WorkerState state;
+    private WorkerManagerState state;
 
-    private WorkerLifeCycle lifeCycle;
+    private WorkerManagerLifeCycle lifeCycle;
 
-    public WorkerState getState() {
+    public WorkerManagerState getState() {
         return state;
     }
 
-    public String getGpuUsage() {
-        Process process;
-        StringBuffer gpuUsage = new StringBuffer();
-        if (gpuId >= 0) {
-            try {
-                // TODO : add a generic code to capture gpu details for different devices instead of
-                // just NVIDIA
-                process =
-                        Runtime.getRuntime()
-                                .exec(
-                                        "nvidia-smi -i "
-                                                + gpuId
-                                                + " --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
-                process.waitFor();
-                int exitCode = process.exitValue();
-                if (exitCode != 0) {
-                    gpuUsage.append("failed to obtained gpu usage");
-                    InputStream error = process.getErrorStream();
-                    for (int i = 0; i < error.available(); i++) {
-                        logger.error("" + error.read());
-                    }
-                    return gpuUsage.toString();
-                }
-                InputStream stdout = process.getInputStream();
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
-                String line;
-                String[] headers = new String[3];
-                Boolean firstLine = true;
-                while ((line = reader.readLine()) != null) {
-                    if (firstLine) {
-                        headers = line.split(",");
-                        firstLine = false;
-                    } else {
-                        String[] values = line.split(",");
-                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
-                        for (int i = 0; i < headers.length; i++) {
-                            sb.append(headers[i] + "::" + values[i].strip());
-                        }
-                        gpuUsage.append(sb.toString());
-                    }
-                }
-            } catch (Exception e) {
-                gpuUsage.append("failed to obtained gpu usage");
-                logger.error("Exception Raised : " + e.toString());
-            }
-        } else {
-            gpuUsage.append("N/A");
-        }
-
-        return gpuUsage.toString();
-    }
-
-    public WorkerLifeCycle getLifeCycle() {
+    public WorkerManagerLifeCycle getLifeCycle() {
         return lifeCycle;
     }
 
-    public WorkerThread(
+    public WorkerManagerThread(
             ConfigManager configManager,
             EventLoopGroup backendEventGroup,
             int port,
-            int gpuId,
             Model model,
             BatchAggregator aggregator,
-            WorkerStateListener listener) {
+            WorkerManagerStateListener listener) {
+
         this.workerId = String.valueOf(port); // Unique across all workers.
         this.configManager = configManager;
         this.backendEventGroup = backendEventGroup;
@@ -148,7 +101,7 @@ public class WorkerThread implements Runnable {
         this.gpuId = gpuId;
         this.listener = listener;
         startTime = System.currentTimeMillis();
-        lifeCycle = new WorkerLifeCycle(model, port);
+        lifeCycle = new WorkerManagerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(1);
         workerLoadTime =
                 new Metric(
@@ -170,9 +123,18 @@ public class WorkerThread implements Runnable {
 
         try {
             connect();
-            setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
+
             while (isRunning()) {
-                req = aggregator.getRequest(workerId, state);
+                req = aggregator.getCtrlRequest(workerId, state);
+
+                if (req == null) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        logger.info("Waiting to ctrl requests ..");
+                    }
+                    continue;
+                }
 
                 long wtStartTime = System.currentTimeMillis();
                 backendChannel.writeAndFlush(req).sync();
@@ -192,13 +154,39 @@ public class WorkerThread implements Runnable {
                             "Backend worker did not respond in given time");
                 }
                 switch (req.getCommand()) {
-                    case PREDICT:
-                        model.resetFailedInfReqs();
-                        break;
                     case LOAD:
+                        if (reply.getCode() == 200) {
+                            setState(
+                                    WorkerManagerState.WORKER_MODEL_LOADED,
+                                    HttpURLConnection.HTTP_OK);
+                            backoffIdx = 0;
+                        } else {
+                            setState(WorkerManagerState.WORKER_ERROR, reply.getCode());
+                            status = reply.getCode();
+                        }
                         break;
-                    case UNLOAD:
-                    case STATS:
+                    case SCALE_UP:
+                        if (reply.getCode() == 200) {
+                            setState(
+                                    WorkerManagerState.WORKER_MODEL_LOADED,
+                                    HttpURLConnection.HTTP_OK);
+                            backoffIdx = 0;
+                        } else {
+                            setState(WorkerManagerState.WORKER_MODEL_LOADED, reply.getCode());
+                            status = reply.getCode();
+                        }
+                        break;
+                    case SCALE_DOWN:
+                        if (reply.getCode() == 200) {
+                            setState(
+                                    WorkerManagerState.WORKER_SCALED_DOWN,
+                                    HttpURLConnection.HTTP_OK);
+                            backoffIdx = 0;
+                        } else {
+                            setState(WorkerManagerState.WORKER_ERROR, reply.getCode());
+                            status = reply.getCode();
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -215,7 +203,8 @@ public class WorkerThread implements Runnable {
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
-            if (state == WorkerState.WORKER_SCALED_DOWN || state == WorkerState.WORKER_STOPPED) {
+            if (state == WorkerManagerState.WORKER_SCALED_DOWN
+                    || state == WorkerManagerState.WORKER_STOPPED) {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
                 logger.debug(
@@ -226,7 +215,7 @@ public class WorkerThread implements Runnable {
             logger.error("Backend worker error", e);
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
-            status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
+            status = HttpURLConnection.HTTP_INTERNAL_ERROR;
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
         } finally {
@@ -238,13 +227,13 @@ public class WorkerThread implements Runnable {
             Integer exitValue = lifeCycle.getExitValue();
 
             if (exitValue != null && exitValue == 137) {
-                status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
+                status = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
 
             if (req != null) {
                 aggregator.sendError(req, "Worker died.", status);
             }
-            setState(WorkerState.WORKER_STOPPED, status);
+            setState(WorkerManagerState.WORKER_STOPPED, status);
             lifeCycle.exit();
             retry();
         }
@@ -258,16 +247,66 @@ public class WorkerThread implements Runnable {
         return memory;
     }
 
+    public void scaleUp(int port) {
+
+        RequestInput input = new RequestInput(UUID.randomUUID().toString());
+
+        Connector connector = new Connector(port);
+
+        input.addParameter(new InputParameter("sock_type", connector.getSocketType()));
+
+        if (connector.isUds()) {
+            input.addParameter(new InputParameter("sock_name", connector.getSocketPath()));
+        } else {
+            input.addParameter(
+                    new InputParameter("port", String.valueOf(connector.getSocketPath())));
+        }
+
+        input.addParameter(
+                new InputParameter(
+                        "fifo_path",
+                        SharedNamedPipeUtils.getSharedNamedPipePath(String.valueOf(port))));
+
+        Job job =
+                new RestJob(
+                        null,
+                        model.getModelName(),
+                        model.getVersion(),
+                        WorkerCommands.SCALE_UP,
+                        input);
+        model.addJob(workerId, job);
+    }
+
+    public void scaleDown(int port) {
+
+        RequestInput input = new RequestInput(UUID.randomUUID().toString());
+
+        Connector connector = new Connector(port);
+
+        input.addParameter(new InputParameter("port", String.valueOf(connector.getSocketPath())));
+
+        Job job =
+                new RestJob(
+                        null,
+                        model.getModelName(),
+                        model.getVersion(),
+                        WorkerCommands.SCALE_DOWN,
+                        input);
+        model.addJob(workerId, job);
+    }
+
     public void setMemory(long memory) {
         this.memory = memory;
     }
 
     private void connect() throws WorkerInitializationException, InterruptedException {
         if (!configManager.isDebug()) {
-            lifeCycle.startWorker(port);
+            lifeCycle.startWorkerManager(port);
         }
 
-        setState(WorkerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
+        String modelName = model.getModelName();
+        String modelVersion = model.getVersion();
+        setState(WorkerManagerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
         final CountDownLatch latch = new CountDownLatch(1);
 
         final int responseBufferSize = configManager.getMaxResponseSize();
@@ -296,11 +335,45 @@ public class WorkerThread implements Runnable {
                             (ChannelFutureListener)
                                     future -> {
                                         latch.countDown();
+                                        logger.info(
+                                                "{} Worker disconnected. {}", getWorkerId(), state);
                                         Thread thread = currentThread.getAndSet(null);
                                         if (thread != null) {
                                             thread.interrupt();
                                         }
                                     });
+
+            backendChannel
+                    .newSucceededFuture()
+                    .addListener(
+                            (ChannelFutureListener)
+                                    future -> {
+                                        // TODO:
+                                        // use gpu, batch size in load model command
+                                        RequestInput input =
+                                                new RequestInput(UUID.randomUUID().toString());
+
+                                        if (gpuId >= 0) {
+                                            input.addParameter(
+                                                    new InputParameter(
+                                                            "gpu", String.valueOf(gpuId)));
+                                        }
+
+                                        Job job =
+                                                new RestJob(
+                                                        null,
+                                                        modelName,
+                                                        modelVersion,
+                                                        WorkerCommands.LOAD,
+                                                        input);
+                                        model.addFirst(workerId, job);
+                                        latch.countDown();
+                                    });
+
+            if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
+                throw new WorkerInitializationException(
+                        "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
+            }
             running.set(true);
         } catch (Throwable t) {
             // https://github.com/netty/netty/issues/2597
@@ -315,10 +388,6 @@ public class WorkerThread implements Runnable {
         return running.get();
     }
 
-    public int getGpuId() {
-        return gpuId;
-    }
-
     public long getStartTime() {
         return startTime;
     }
@@ -329,7 +398,7 @@ public class WorkerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
-        setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
+        setState(WorkerManagerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         if (backendChannel != null) {
             backendChannel.close();
         }
@@ -349,16 +418,16 @@ public class WorkerThread implements Runnable {
         return "W-" + port + '-' + modelName;
     }
 
-    public void setState(WorkerState newState, int status) {
+    public void setState(WorkerManagerState newState, int status) {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
         long timeTaken = System.currentTimeMillis() - startTime;
-        if (state != WorkerState.WORKER_SCALED_DOWN) {
+        if (state != WorkerManagerState.WORKER_SCALED_DOWN) {
             // Don't update the state if it was terminated on purpose.. Scaling in..
             this.state = newState;
         }
-        if (state == WorkerState.WORKER_MODEL_LOADED) {
+        if (state == WorkerManagerState.WORKER_MODEL_LOADED) {
             workerLoadTime.setValue(String.valueOf(timeTaken));
             workerLoadTime.setTimestamp(
                     String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
@@ -367,7 +436,7 @@ public class WorkerThread implements Runnable {
     }
 
     public void retry() {
-        if (state == WorkerState.WORKER_SCALED_DOWN) {
+        if (state == WorkerManagerState.WORKER_SCALED_DOWN) {
             logger.debug("Worker terminated due to scale-down call.");
             return;
         }
@@ -397,12 +466,7 @@ public class WorkerThread implements Runnable {
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             logger.error("Unknown exception", cause);
             if (cause instanceof OutOfMemoryError) {
-                ModelWorkerResponse msg = new ModelWorkerResponse();
-                msg.setCode(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
-                msg.setMessage(cause.getMessage());
-                if (!replies.offer(msg)) {
-                    throw new IllegalStateException("Reply queue is full.");
-                }
+                NettyUtils.sendError(ctx, HttpResponseStatus.INSUFFICIENT_STORAGE, cause);
             }
             ctx.close();
         }

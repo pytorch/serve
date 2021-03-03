@@ -62,6 +62,11 @@ public class Model {
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
     }
 
+    public Map<String, LinkedBlockingDeque<Job>> getJobsDB() {
+        // TODO : Do you need this ?
+        return jobsDb;
+    }
+
     public JsonObject getModelState(boolean isDefaultVersion) {
 
         JsonObject modelInfo = new JsonObject();
@@ -157,6 +162,15 @@ public class Model {
         blockingDeque.offer(job);
     }
 
+    public void addFirst(String threadId, Job job) {
+        LinkedBlockingDeque<Job> blockingDeque = jobsDb.get(threadId);
+        if (blockingDeque == null) {
+            blockingDeque = new LinkedBlockingDeque<>();
+            jobsDb.put(threadId, blockingDeque);
+        }
+        jobsDb.get(threadId).addFirst(job);
+    }
+
     public void removeJobQueue(String threadId) {
         if (!threadId.equals(DEFAULT_DATA_QUEUE)) {
             jobsDb.remove(threadId);
@@ -171,7 +185,8 @@ public class Model {
         jobsDb.get(DEFAULT_DATA_QUEUE).addFirst(job);
     }
 
-    public void pollBatch(String threadId, long waitTime, Map<String, Job> jobsRepo)
+    public void pollBatch(
+            String threadId, long waitTime, Map<String, Job> jobsRepo, boolean ctrlJobsOnly)
             throws InterruptedException {
         if (jobsRepo == null || threadId == null || threadId.isEmpty()) {
             throw new IllegalArgumentException("Invalid input given provided");
@@ -189,6 +204,10 @@ public class Model {
                 jobsRepo.put(j.getJobId(), j);
                 return;
             }
+        }
+
+        if (ctrlJobsOnly) {
+            return;
         }
 
         try {

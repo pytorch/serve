@@ -9,3 +9,9 @@ dist/
 .github/actions/
 .github/.DS_Store
 .DS_Store
+plugins/endpoints/src/main/main.iml
+serving-sdk/src/main/main1.iml
+serving-sdk/src/test/test2.iml
+frontend/server/src/main/java/org/pytorch/serve/grpc/
+model-archiver/result_units/
+result_units/

@@ -40,7 +40,7 @@ def torchserve_sanity():
 def cleanup():
     ts.stop_torchserve()
     rm_dir('model_store')
-    rm_dir('logs')
+    #rm_dir('logs')
 
     # clean up residual from model-archiver IT suite.
     rm_dir('model-archiver/model_archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it')
