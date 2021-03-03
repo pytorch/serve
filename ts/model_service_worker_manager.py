@@ -95,7 +95,9 @@ class TorchModelServiceWorkerManager(object):
             service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
 
             model_service, model_service_args = None, None
-            is_eager = 'modelFile' in service.context.manifest['model']
+            is_eager = False
+            if service.context.manifest:
+                is_eager = 'modelFile' in service.context.manifest['model']
             if(is_eager):
                 logging.info("Loading Eager Model")
                 model_service, model_service_args = service, None
