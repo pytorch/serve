@@ -4,6 +4,7 @@ import logging
 import os
 import ast
 import torch
+import transformers
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -15,8 +16,7 @@ from captum.attr import LayerIntegratedGradients
 import re
 
 logger = logging.getLogger(__name__)
-
-
+print('Transformers version',transformers.__version__)
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
@@ -185,9 +185,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         elif self.setup_config["mode"] == "question_answering":
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
-            outputs = self.model(input_batch)
-            answer_start_scores = outputs.start_logits
-            answer_end_scores = outputs.end_logits
+            if self.setup_config["save_mode"]=="pretrained":
+                outputs = self.model(input_batch)
+                answer_start_scores = outputs.start_logits
+                answer_end_scores = outputs.end_logits
+            else:
+                answer_start_scores, answer_end_scores = self.model(input_batch)
             print("This the output size for answer start scores from the question answering model", answer_start_scores.size())
             print("This the output for answer start scores from the question answering model", answer_start_scores)
             print("This the output size for answer end scores from the question answering model", answer_end_scores.size())
@@ -249,7 +252,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         text_target = ast.literal_eval(text)
         if not self.setup_config["mode"]=="question_answering":
             text = text_target["text"]
-        self.target = text_target["target"]
+#         self.target = text_target["target"]
         
         input_ids, ref_input_ids, attention_mask = construct_input_ref(
             text, self.tokenizer, self.device,self.setup_config["mode"] 
