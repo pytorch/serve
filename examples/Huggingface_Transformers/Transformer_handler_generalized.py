@@ -13,7 +13,6 @@ from transformers import (
 )
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
-import re
 
 logger = logging.getLogger(__name__)
 print('Transformers version',transformers.__version__)
