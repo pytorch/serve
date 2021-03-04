@@ -250,9 +250,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         if isinstance(text, (bytes, bytearray)):
             text = text.decode('utf-8')
         text_target = ast.literal_eval(text)
+        
         if not self.setup_config["mode"]=="question_answering":
             text = text_target["text"]
-#         self.target = text_target["target"]
+        self.target = text_target["target"]
         
         input_ids, ref_input_ids, attention_mask = construct_input_ref(
             text, self.tokenizer, self.device,self.setup_config["mode"] 
