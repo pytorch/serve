@@ -68,7 +68,7 @@ In the setup_config.json :
 
 *max_length* : maximum length for the  input sequences to the models, this will be used in preprocessing of the hanlder. Also, if you choose to use Torchscript as the serialized model  for packaging your model this length should be equal to the length that has been used during the tracing of the model using torch.jit.trace.
 
-*captum_explanation* : True if user choose to have captum explanation False if not. 
+*captum_explanation* : True if user choose to have captum explanation False if not. Make sure it is set to Flase, if "torchscript" is selected as "save_mode", as explanation are not supported for torchscipted models. 
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be "bert" for "bert-base-uncased", "roberta" for "roberta-base" or "roberta" for "xlm-roberta-large".
 
