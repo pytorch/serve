@@ -27,7 +27,7 @@ def socket_patches(mocker):
 class TestOtfCodecHandler:
 
     def test_retrieve_msg_unknown(self, socket_patches):
-        socket_patches.socket.recv.side_effect = [b"U", b"\x00\x00\x00\x03"]
+        socket_patches.socket.recv.side_effect = [b"O", b"\x00\x00\x00\x03"]
         with pytest.raises(ValueError, match=r"Invalid command: .*"):
             codec.retrieve_msg(socket_patches.socket)
 

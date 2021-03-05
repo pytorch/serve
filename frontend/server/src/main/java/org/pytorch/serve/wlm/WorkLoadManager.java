@@ -98,14 +98,10 @@ public class WorkLoadManager {
             List<WorkerThread> threads;
             if (minWorker == 0) {
 
-                logger.info("Min Worker is 0 - DHANAK");
                 workerManagerThread = workerManagers.remove(model.getModelVersionName());
                 threads = workers.remove(model.getModelVersionName());
 
                 if (workerManagerThread != null) {
-
-                    logger.info("Min Worker is not null - DHANAK");
-
                     for (WorkerThread thread : threads) {
                         workerManagerThread.scaleDown(thread.getLifeCycle().getPort());
                         try {
@@ -115,7 +111,6 @@ public class WorkLoadManager {
                             Process workerkillprocess = Runtime.getRuntime().exec(cmd, null, null);
                             workerkillprocess.waitFor(
                                     configManager.getUnregisterModelTimeout(), TimeUnit.SECONDS);
-                            logger.info("Worker Terminated - DHANAK " + cmd);
                         } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");
@@ -137,9 +132,6 @@ public class WorkLoadManager {
                                     workerkillprocess.waitFor(
                                             configManager.getUnregisterModelTimeout(),
                                             TimeUnit.SECONDS);
-
-                            logger.info("WorkerMgr Terminated - DHANAK " + cmd);
-
                         } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerManagerThread interrupted during waitFor, possible async resource cleanup.");
