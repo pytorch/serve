@@ -161,9 +161,6 @@ class TorchModelServiceWorkerManager(object):
             worker = self.workers[port]["worker"]
             fifo_path = self.workers[port]["fifo"]
             worker.terminate()
-            #def delete_fifo(file_name):
-            #    os.remove(file_name) if os.path.exists(file_name) else None
-            #    open(file_name, "w")
             return "scaled down", 200
         except:
             e = sys.exc_info()[0]
@@ -208,9 +205,7 @@ class TorchModelServiceWorkerManager(object):
                     raise RuntimeError("{} - {}".format(code, result))
             elif cmd == b'D':
                  logging.info("Received Scale Down Request" + str(msg))
-                 logging.info("Workers before scale down" + str(self.workers))
                  result, code = self.scale_down(msg)
-                 logging.info("Workers after scale down" + str(self.workers))
                  resp = bytearray()
                  code, result = 200, 'DONE'
                  resp += create_scale_model_response(code, result)

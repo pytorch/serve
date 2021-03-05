@@ -136,6 +136,10 @@ public class WorkerManagerThread implements Runnable {
                     continue;
                 }
 
+                if (this.state == WorkerManagerState.WORKER_ERROR) {
+                    throw new WorkerInitializationException("Worker in unexppected error state");
+                }
+
                 long wtStartTime = System.currentTimeMillis();
                 backendChannel.writeAndFlush(req).sync();
 
