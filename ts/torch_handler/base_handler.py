@@ -54,10 +54,8 @@ class BaseHandler(abc.ABC):
 
         model_dir = properties.get("model_dir")
         serialized_file = self.manifest["model"]["serializedFile"]
-        model_pt_path = os.path.join(model_dir, serialized_file)
-
-        if not os.path.isfile(model_pt_path):
-            raise RuntimeError("Missing the model.pt file")
+        if serialized_file:
+            model_pt_path = os.path.join(model_dir, serialized_file)
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
@@ -67,6 +65,9 @@ class BaseHandler(abc.ABC):
             self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
         else:
             logger.debug("Loading torchscript model")
+            if not os.path.isfile(model_pt_path):
+                raise RuntimeError("Missing the model.pt file")
+
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.to(self.device)
@@ -122,9 +123,10 @@ class BaseHandler(abc.ABC):
             )
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path, map_location=self.map_location)
         model = model_class()
-        model.load_state_dict(state_dict)
+        if model_pt_path:
+            state_dict = torch.load(model_pt_path, map_location=self.map_location)
+            model.load_state_dict(state_dict)
         return model
 
     def preprocess(self, data):
