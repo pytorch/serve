@@ -31,6 +31,39 @@ class TestOtfCodecHandler:
         with pytest.raises(ValueError, match=r"Invalid command: .*"):
             codec.retrieve_msg(socket_patches.socket)
 
+    def test_retrieve_scale_up_msg(self, socket_patches):
+        expected = {"sock_type": b"sock_type", "sock_name": b"sock_name",
+                    "host": b"host", "port": b"port", "fifo_path": b"fifo_path" }
+
+        socket_patches.socket.recv.side_effect = [
+            b"U",
+            b"\x00\x00\x00\x09", b"sock_type",
+            b"\x00\x00\x00\x09", b"sock_name",
+            b"\x00\x00\x00\x04", b"host",
+            b"\x00\x00\x00\x04", b"port",
+            b"\x00\x00\x00\x09", b"fifo_path"
+        ]
+        cmd, ret = codec.retrieve_msg(socket_patches.socket)
+
+        assert cmd == b"U"
+        assert ret == expected
+
+
+    def test_retrieve_scale_down_msg(self, socket_patches):
+        expected = {"port": b"port"}
+
+        socket_patches.socket.recv.side_effect = [
+            b"D",
+            b"\x00\x00\x00\x04", b"port"
+        ]
+        cmd, ret = codec.retrieve_msg(socket_patches.socket)
+
+        assert cmd == b"D"
+        assert ret == expected
+
+
+
+
     def test_retrieve_msg_load_gpu(self, socket_patches):
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler", "gpu": 1,
@@ -49,6 +82,10 @@ class TestOtfCodecHandler:
 
         assert cmd == b"L"
         assert ret == expected
+
+ 
+
+
 
     def test_retrieve_msg_load_no_gpu(self, socket_patches):
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
