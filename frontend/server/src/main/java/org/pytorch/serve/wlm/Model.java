@@ -1,4 +1,6 @@
-package org.pytorch.serve.wlm;
+
+
+
 
 import com.google.gson.JsonObject;
 import java.io.File;
@@ -61,7 +63,6 @@ public class Model {
     }
 
     public Map<String, LinkedBlockingDeque<Job>> getJobsDB() {
-        // TODO : Do you need this ?
         return jobsDb;
     }
 

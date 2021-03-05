@@ -136,6 +136,10 @@ public class WorkerManagerThread implements Runnable {
                     continue;
                 }
 
+		if (this.state == WorkerManagerState.WORKER_ERROR) {
+                    throw new WorkerInitializationException();
+		}
+
                 long wtStartTime = System.currentTimeMillis();
                 backendChannel.writeAndFlush(req).sync();
 
