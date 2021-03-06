@@ -12,6 +12,7 @@ class Model(object):
                  extensions=None, requirements_file=None):
 
         self.model_name = model_name
+        self.serialized_file = None
         if serialized_file:
             self.serialized_file = serialized_file.split("/")[-1]
         self.model_file = model_file
