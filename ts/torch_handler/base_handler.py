@@ -53,8 +53,9 @@ class BaseHandler(abc.ABC):
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        serialized_file = self.manifest["model"]["serializedFile"]
-        if serialized_file:
+        model_pt_path = None
+        if "serializedFile" in self.manifest["model"]:
+            serialized_file = self.manifest["model"]["serializedFile"]
             model_pt_path = os.path.join(model_dir, serialized_file)
 
         # model def file
