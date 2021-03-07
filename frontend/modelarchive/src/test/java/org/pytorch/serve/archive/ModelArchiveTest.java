@@ -80,7 +80,7 @@ public class ModelArchiveTest {
     }
 
     @Test
-    public void testLocalFile() throws ModelException, IOException, InterruptedException {
+    public void testFileUrl() throws ModelException, IOException, InterruptedException {
         String modelStore = "src/test/resources/models";
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
@@ -94,6 +94,30 @@ public class ModelArchiveTest {
         FileUtils.copyFile(sourceFile, destinationFile);
 
         String fileUrl = "file:///" + parent + "/modelarchive/mnist1.mar";
+        ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
+
+        File modelLocation = new File(modelStore + "/mnist1.mar");
+        Assert.assertTrue(modelLocation.exists());
+        ModelArchive.removeModel(modelStore, fileUrl);
+        Assert.assertTrue(!new File(modelStore, "mnist1").exists());
+        FileUtils.deleteQuietly(destinationFile);
+    }
+
+    @Test
+    public void testLocalFile() throws ModelException, IOException, InterruptedException {
+        String modelStore = "src/test/resources/models";
+        String curDir = System.getProperty("user.dir");
+        File curDirFile = new File(curDir);
+        String parent = curDirFile.getParent();
+
+        // Setup: This test needs mar file in local path. Copying mnist.mar from model folder.
+        String source = modelStore + "/mnist.mar";
+        String destination = parent + "/modelarchive/mnist1.mar";
+        File sourceFile = new File(source);
+        File destinationFile = new File(destination);
+        FileUtils.copyFile(sourceFile, destinationFile);
+
+        String fileUrl = parent + "/modelarchive/mnist1.mar";
         ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
 
         File modelLocation = new File(modelStore + "/mnist1.mar");
@@ -173,7 +197,7 @@ public class ModelArchiveTest {
 
     @Test(
             expectedExceptions = ModelNotFoundException.class,
-            expectedExceptionsMessageRegExp = "Model not found at: noop1.mar")
+            expectedExceptionsMessageRegExp = "Url does not match allowed URLs: noop1.mar")
     public void testMarFileNotexist() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop1.mar");
