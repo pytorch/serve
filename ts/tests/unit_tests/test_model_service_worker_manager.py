@@ -10,9 +10,9 @@ from collections import namedtuple
 
 import mock
 import pytest
-from mock import Mock
+from mock import Mock, MagicMock
 
-from ts.model_service_worker import TorchModelServiceWorker
+from ts.model_service_worker_manager import TorchModelServiceWorkerManager
 from ts.service import Service
 
 
@@ -35,9 +35,9 @@ def socket_patches(mocker):
 @pytest.fixture()
 def model_service_worker(socket_patches):
     if not sys.platform.startswith("win"):
-        model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None, fifo_path="fifo")
+        model_service_worker = TorchModelServiceWorkerManager('unix', 'my-socket', None, None)
     else:
-        model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, port_num=9999)
+        model_service_worker = TorchModelServiceWorkerManager('tcp', 'my-socket', None, port_num=9999)
     model_service_worker.sock = socket_patches.socket
     model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
     return model_service_worker
@@ -50,7 +50,7 @@ class TestInit:
 
     def test_missing_socket_name(self):
         with pytest.raises(ValueError, match="Incomplete data provided.*"):
-            TorchModelServiceWorker()
+            TorchModelServiceWorkerManager()
 
     def test_socket_in_use(self, mocker):
         remove = mocker.patch('os.remove')
@@ -59,7 +59,7 @@ class TestInit:
         path_exists.return_value = True
 
         with pytest.raises(Exception, match=r".*socket already in use: sampleSocketName.*"):
-            TorchModelServiceWorker('unix', self.socket_name)
+            TorchModelServiceWorkerManager('unix', self.socket_name)
 
     @pytest.fixture()
     def patches(self, mocker):
@@ -71,7 +71,7 @@ class TestInit:
         return patches
 
     def test_success(self, patches):
-        TorchModelServiceWorker('unix', self.socket_name)
+        TorchModelServiceWorkerManager('unix', self.socket_name)
         patches.remove.assert_called_once_with(self.socket_name)
         patches.socket.assert_called_once_with(socket.AF_UNIX, socket.SOCK_STREAM)
 
@@ -89,10 +89,19 @@ class TestRunServer:
         socket_patches.socket.bind.assert_called()
         socket_patches.socket.listen.assert_not_called()
 
+    def test_with_timeout(self, socket_patches, model_service_worker):
+        exception = socket.timeout("Some Exception")
+        socket_patches.socket.accept.side_effect = exception
+
+        with pytest.raises(socket.timeout):
+            model_service_worker.run_server()
+        socket_patches.socket.listen.assert_called()
+        socket_patches.socket.accept.assert_called()
+
     def test_with_run_server_debug(self, socket_patches, model_service_worker, mocker):
         exception = Exception("Some Exception")
         socket_patches.socket.accept.side_effect = exception
-        mocker.patch('ts.model_service_worker.DEBUG', True)
+        mocker.patch('ts.model_service_worker_manager.DEBUG', True)
         model_service_worker.handle_connection = Mock()
 
         with pytest.raises(Exception):
@@ -111,22 +120,63 @@ class TestRunServer:
 
 
 # noinspection PyClassHasNoInit
+class TestLoadModel:
+    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+
+    @pytest.fixture()
+    def patches(self, mocker):
+        Patches = namedtuple('Patches', ['loader'])
+        patches = Patches(mocker.patch('ts.model_service_worker_manager.ModelLoaderFactory'))
+        return patches
+
+    def test_load_model(self, patches, model_service_worker):
+        patches.loader.get_model_loader.return_value = MagicMock()
+        patches.loader.get_model_loader.return_value.__getitem__.return_value = False
+        model_service_worker.load_model(self.data)
+        patches.loader.get_model_loader.assert_called()
+
+    # noinspection PyUnusedLocal
+    @pytest.mark.parametrize('batch_size', [(None, None), ('1', 1)])
+    @pytest.mark.parametrize('gpu', [(None, None), ('2', 2)])
+    def test_optional_args(self, patches, model_service_worker, batch_size, gpu):
+        data = self.data.copy()
+        if batch_size[0]:
+            data['batchSize'] = batch_size[0]
+        if gpu[0]:
+            data['gpu'] = gpu[0]
+            model_service_worker.load_model(data)
+
+
+# noinspection PyClassHasNoInit
 class TestHandleConnection:
     data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
 
     @pytest.fixture()
     def patches(self, mocker):
-        Patches = namedtuple("Patches", ["retrieve_msg"])
+        Patches = namedtuple("Patches", ["retrieve_msg", "mp", "emit_metrics", \
+                "create_scale_model_response", "create_load_model_response"])
         patches = Patches(
-            mocker.patch("ts.model_service_worker.retrieve_msg")
+            mocker.patch("ts.model_service_worker_manager.retrieve_msg"),
+            mocker.patch('ts.model_service_worker_manager.mp'),
+            mocker.patch('ts.model_service_worker_manager.emit_metrics'),
+            mocker.patch('ts.model_service_worker_manager.create_scale_model_response'),
+            mocker.patch('ts.model_service_worker_manager.create_load_model_response')
         )
         return patches
 
     def test_handle_connection(self, patches, model_service_worker):
-        patches.retrieve_msg.return_value = [(b"I", ""), (b"M", "")]
+        patches.retrieve_msg.side_effect = [(b"L",""), (b"U", ""), (b"D",""), (b"M","")]
+        model_service_worker.load_model = Mock()
+        model_service_worker.scale_up = Mock()
+        model_service_worker.scale_down = Mock()
         service = Mock()
-        service.context = None
-        service._entry_point = Mock()
+        service.context.manifest = Mock()
+        patches.mp.set_start_method = Mock()
+        model_service_worker.load_model.return_value = (service, "", "", 200)
+        model_service_worker.scale_up.return_value = ("", 200)
+        model_service_worker.scale_down.return_value = ("", 200)
         cl_socket = Mock()
+
         with pytest.raises(ValueError, match=r"Received unknown command.*"):
             model_service_worker.handle_connection(cl_socket)
+

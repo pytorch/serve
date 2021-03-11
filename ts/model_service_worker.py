@@ -91,22 +91,12 @@ class TorchModelServiceWorker(object):
                 emit_metrics(self.service.context.metrics.store)
 
 
-
     def run_server(self):
-        try:
-            logger.info("Run server invoke")
-            self.run_server1()
-        except:
-            e = sys.exc_info()[0]
-            traceback.print_exc()
-
-    def run_server1(self):
         """
         Run the backend worker process and listen on a socket
         :return:
         """
         logger.addHandler(logging.FileHandler(self.fifo_path+".out"))
-
         logging.basicConfig(format="%(message)s", filename=self.fifo_path+".out", filemode="a+", level=logging.INFO)
 
         self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
@@ -120,7 +110,6 @@ class TorchModelServiceWorker(object):
         if(self.service is None):
             model_loader = ModelLoaderFactory.get_model_loader()
             self.service = model_loader.load(*self.model_loader_args)
-
 
         logger.info("[PID]%d", os.getpid())
         logger.info("Torch worker started.")
