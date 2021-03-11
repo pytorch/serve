@@ -15,7 +15,7 @@ from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
 
 logger = logging.getLogger(__name__)
-print('Transformers version',transformers.__version__)
+logger.info("Transformers version %s",transformers.__version__)
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
@@ -96,16 +96,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                     self.mapping = json.load(f)
             else:
                 logger.warning("Missing the index_to_name.json file.")
-
-            # ------------------------------- Captum initialization ----------------------------#
-        if self.setup_config["captum_explanation"]:
-            embedding_layer = getattr(self.model,self.setup_config["embedding_name"])
-            embeddings = embedding_layer.embeddings
-            self.lig = LayerIntegratedGradients(
-                captum_sequence_forward, embeddings
-            )
-        else:
-            logger.warning("Captum Explanation is not chosen and will not be available")
         self.initialized = True
 
     def preprocess(self, requests):
@@ -235,8 +225,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         return inference_output
 
     def get_insights(self, input_batch, text, target):
-        """This function calls the layer integrated gradient to get word importance
-        of the input text
+        """This function initialize and calls the layer integrated gradient to get word importance
+        of the input text if captum explanation has been selected through setup_config
 
         Args:
             input_batch (int): Batches of tokens IDs of text
@@ -246,6 +236,16 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             (list): Returns a list of importances and words.
         """
+        
+        if self.setup_config["captum_explanation"]:
+            embedding_layer = getattr(self.model,self.setup_config["embedding_name"])
+            embeddings = embedding_layer.embeddings
+            self.lig = LayerIntegratedGradients(
+                captum_sequence_forward, embeddings
+            )
+        else:
+            logger.warning("Captum Explanation is not chosen and will not be available")
+        
         if isinstance(text, (bytes, bytearray)):
             text = text.decode('utf-8')
         text_target = ast.literal_eval(text)
