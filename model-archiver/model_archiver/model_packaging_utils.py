@@ -3,6 +3,7 @@
 """
 Helper utils for Model Export tool
 """
+# pylint: disable=R1702
 
 import logging
 import os
