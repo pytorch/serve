@@ -6,13 +6,12 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.ssl.OptionalSslHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
+import java.util.List;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class ExtendedSSLHandler extends OptionalSslHandler {
     private static final Logger logger = LoggerFactory.getLogger(ExtendedSSLHandler.class);
