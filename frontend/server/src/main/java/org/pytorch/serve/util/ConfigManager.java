@@ -739,7 +739,8 @@ public final class ConfigManager {
             default:
                 break;
         }
-        //String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        // String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS,
+        // "http://127.0.0.1:8080");
         Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(address);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid binding address: " + address);
