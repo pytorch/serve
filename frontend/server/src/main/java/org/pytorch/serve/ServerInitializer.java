@@ -49,7 +49,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
 
         int maxRequestSize = ConfigManager.getInstance().getMaxRequestSize();
         if (sslCtx != null) {
-            pipeline.addLast("ssl", new ExtendedSSLHandler(sslCtx));
+            pipeline.addLast("ssl", new ExtendedSSLHandler(sslCtx, connectorType));
         }
         pipeline.addLast("http", new HttpServerCodec());
         pipeline.addLast("aggregator", new HttpObjectAggregator(maxRequestSize));
