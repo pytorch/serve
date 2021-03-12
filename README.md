@@ -16,46 +16,59 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ## Contents of this Document
 
-* [Install TorchServe](#install-torchserve)
+* [Install TorchServe](#install-torchserve-and-torch-model-archiver)
 * [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
 * [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
-## Install TorchServe
+## Install TorchServe and torch-model-archiver
 
 1. Install dependencies
 
-Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python 3.8 is required to run Torchserve.
 
-#### For Debian Based Systems/ MacOS
- - For CPU or latest supported CUDA version (10.2) for Torch 1.6
+    #### For Debian Based Systems/ MacOS
+    
+     - For CPU
 
-    ```bash
-    python ./ts_scripts/install_dependencies.py
-    ```
+        ```bash
+        python ./ts_scripts/install_dependencies.py
+        ```
 
- - For GPU with Cuda 10.1
+     - For GPU with Cuda 11.0
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu101
-   ```
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu110
+       ```
 
- - For GPU with Cuda 9.2
+     - For GPU with Cuda 10.2
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu92
-   ```
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       ```
 
-#### For Windows
-    Refer the documentation [here](docs/torchserve_on_win_native.md).
+     - For GPU with Cuda 10.1
 
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu101
+       ```
 
-3. Install torchserve and torch-model-archiver
+     - For GPU with Cuda 9.2
 
-    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu92
+       ```
 
+    #### For Windows
+
+    Refer to the documentation [here](docs/torchserve_on_win_native.md).
+
+2. Install torchserve and torch-model-archiver
+
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
+    Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
@@ -83,14 +96,17 @@ python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
 
+Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu110`, `cu102`, `cu101`, `cu92`
+
 #### For Windows
-    Refer the documentation [here].(docs/torchserve_on_win_native.md)
+
+Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
 ## Serve a model
 
-This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-with-pip).
+This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already [installed TorchServe and the model archiver](#install-torchserve-and-torch-model-archiver).
 
 To run this example, clone the TorchServe repository:
 
@@ -153,13 +169,13 @@ pip install -U grpcio protobuf grpcio-tools
  - Generate inference client using proto files
 
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
- - Run inference using a sample client [gRPC python client](scripts/torchserve_grpc_client.py)
+ - Run inference using a sample client [gRPC python client](ts_scripts/torchserve_grpc_client.py)
 
 ```bash
-python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
 
 #### Using REST APIs
@@ -227,7 +243,7 @@ ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 
 
 ## Quick Start with Docker
-Refer [torchserve docker](docker/README.md) for details.
+Refer to [torchserve docker](docker/README.md) for details.
 
 ## Learn More
 

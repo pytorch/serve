@@ -28,9 +28,9 @@ install_java_deps()
 
 install_torch_deps()
 {
-  if [ is_gpu_instance ] && [ "$1" == "cuda101" ];
+  if is_gpu_instance && [ ! -z "$1" ];
   then
-	  pip install -U -r requirements_cu101.txt -f https://download.pytorch.org/whl/torch_stable.html
+	  pip install -U -r requirements_$1.txt -f https://download.pytorch.org/whl/torch_stable.html
 	else
 	  pip install -U -r requirements.txt
 	fi
@@ -43,7 +43,7 @@ install_pytest_suite_deps()
 
 install_bert_dependencies()
 {
-  pip install transformers
+  pip install transformers==3.5.1
 }
 
 build_frontend() {
@@ -223,17 +223,27 @@ clean_up_build_residuals()
   rm -rf ts/utils/__pycache__/
 }
 
-is_gpu_instance()
-{
-  [ -x "$(command -v nvidia-smi)" ]
+is_gpu_instance(){
+  if command -v nvidia-smi;
+  then
+    nvidia-smi | grep 'NVIDIA-SMI has failed'
+    if [ $? == 0 ];
+    then
+      return 1
+    else
+      return 0
+    fi
+
+  else
+    return 1
+  fi
 }
 
 run_markdown_link_checker(){
   STATUS=0
-  shopt -s globstar
   set +e
-  for i in **/*.md; do # Whitespace-safe and recursive
-        markdown-link-check $i --config link_check_config.json
+  for i in $(find . -name \*.md); do # Whitespace-safe and recursive
+        markdown-link-check $i --config link_check_config.json -q
         if [ $?  -ne  0 ] ; then
           echo Broken links in $i
           STATUS=1

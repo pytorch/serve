@@ -21,7 +21,7 @@
     - Edit system or user profile environment variable `PATH` value and append path `<your-openjdk11-path>\bin` to it
  - Install nodejs
     - Download [nodejs](https://nodejs.org/dist/v14.15.1/node-v14.15.1-x64.msi)
-    - Post installation make sure nodejs is present in PATH environment variable.
+    - Post installation make sure nodejs and npm node modules binaries are present in PATH environment variable.
     - You may have to re-start windows if your 'Anaconda Powershell Prompt' (APP) is not able to detect npm or nodejs commands 
     
 ## Install from binaries
@@ -37,7 +37,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - For PyPi package (N/A at present)
     - `pip install torchserve torch-model-archiver`
  - Start torchserve `torchserve.exe --start --model-store <path-to-model-store>`
- - For next steps refer [Serving a model](https://github.com/pytorch/serve#serve-a-model)
+ - For next steps refer [Serving a model](../README.md#serve-a-model)
     
 ## Install from source
 
