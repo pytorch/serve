@@ -114,7 +114,7 @@ The Explanation response is as below :
 ```
 
 KFServing supports Static batching by adding new examples in the instances key of the request json
-But the batch size should still be set at 1, when we register the model. 
+But the batch size should still be set at 1, when we register the model. Explain doesn't support batching.
 
 ```json
 {
