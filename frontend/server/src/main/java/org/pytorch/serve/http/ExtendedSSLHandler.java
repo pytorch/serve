@@ -40,8 +40,8 @@ public class ExtendedSSLHandler extends OptionalSslHandler {
             logger.error("Recieved HTTP request!");
             NettyUtils.sendJsonResponse(
                     context,
-                    new StatusResponse("This TorchServe instance only accepts HTTPS requests"),
-                    HttpResponseStatus.FORBIDDEN);
+                    new StatusResponse("This TorchServe instance only accepts HTTPS requests",
+                            HttpResponseStatus.FORBIDDEN.code()));
         }
     }
 }
