@@ -15,10 +15,9 @@ import org.slf4j.LoggerFactory;
 
 public class ExtendedSSLHandler extends OptionalSslHandler {
     private static final Logger logger = LoggerFactory.getLogger(ExtendedSSLHandler.class);
-    /**
-     * the length of the ssl record header (in bytes)
-     */
+    /** the length of the ssl record header (in bytes) */
     private static final int SSL_RECORD_HEADER_LENGTH = 5;
+
     private ConnectorType connectorType;
 
     public ExtendedSSLHandler(SslContext sslContext, ConnectorType connectorType) {
@@ -39,7 +38,8 @@ public class ExtendedSSLHandler extends OptionalSslHandler {
             logger.error("Recieved HTTP request!");
             NettyUtils.sendJsonResponse(
                     context,
-                    new StatusResponse("This TorchServe instance only accepts HTTPS requests",
+                    new StatusResponse(
+                            "This TorchServe instance only accepts HTTPS requests",
                             HttpResponseStatus.FORBIDDEN.code()));
         }
     }
