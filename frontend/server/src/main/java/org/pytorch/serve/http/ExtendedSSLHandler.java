@@ -8,6 +8,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import java.util.List;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,11 @@ public class ExtendedSSLHandler extends OptionalSslHandler {
     private static final Logger logger = LoggerFactory.getLogger(ExtendedSSLHandler.class);
     /** the length of the ssl record header (in bytes) */
     private static final int SSL_RECORD_HEADER_LENGTH = 5;
+    private ConnectorType connectorType;
 
-    public ExtendedSSLHandler(SslContext sslContext) {
+    public ExtendedSSLHandler(SslContext sslContext, ConnectorType connectorType) {
         super(sslContext);
+        this.connectorType = connectorType;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class ExtendedSSLHandler extends OptionalSslHandler {
             return;
         }
         ConfigManager configMgr = ConfigManager.getInstance();
-        if (SslHandler.isEncrypted(in) || !configMgr.isSSLEnabled()) {
+        if (SslHandler.isEncrypted(in) || !configMgr.isSSLEnabled(connectorType)) {
             super.decode(context, in, out);
         } else {
             logger.error("Recieved HTTP request!");

@@ -702,11 +702,22 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public boolean isSSLEnabled() {
-        String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
-        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(inferenceAddress);
+    public boolean isSSLEnabled(ConnectorType connectorType) {
+        String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                address = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                address = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                break;
+        }
+        //String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(address);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("Invalid binding address: " + inferenceAddress);
+            throw new IllegalArgumentException("Invalid binding address: " + address);
         }
 
         String protocol = matcher.group(2);
