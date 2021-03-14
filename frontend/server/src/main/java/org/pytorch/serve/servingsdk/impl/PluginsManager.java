@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.pytorch.serve.http.InvalidPluginException;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.servingsdk.annotations.Endpoint;
+import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
-import software.amazon.ai.mms.servingsdk.annotations.Endpoint;
-import software.amazon.ai.mms.servingsdk.annotations.helpers.EndpointTypes;
 
 public final class PluginsManager {
 
@@ -26,6 +27,7 @@ public final class PluginsManager {
     }
 
     public void initialize() {
+        logger.info("Initializing plugins manager...");
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
     }
@@ -34,6 +36,17 @@ public final class PluginsManager {
         return a instanceof Endpoint
                 && !((Endpoint) a).urlPattern().isEmpty()
                 && ((Endpoint) a).endpointType().equals(type);
+    }
+
+    public SnapshotSerializer getSnapShotSerializer() {
+        logger.info(" Loading snapshot serializer plugin...");
+        ServiceLoader<SnapshotSerializer> loader = ServiceLoader.load(SnapshotSerializer.class);
+        if (loader.findFirst().isPresent()) {
+            SnapshotSerializer snapShotSerializer = loader.findFirst().get();
+            logger.info("Snapshot serializer plugin has been loaded successfully");
+            return snapShotSerializer;
+        }
+        return null;
     }
 
     private HashMap<String, ModelServerEndpoint> getEndpoints(EndpointTypes type)

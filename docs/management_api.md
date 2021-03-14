@@ -15,6 +15,8 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 
 ## Register a model
 
+This API follows the [ManagementAPIsService.RegisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API.
+
 `POST /models`
 
 * `url` - Model archive download url. Supports the following locations:
@@ -30,10 +32,10 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 * response_timeout - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
 
 ```bash
-curl -X POST "http://localhost:8081/models?url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 
 {
-  "status": "Model \"squeezenet_v1.1\" registered"
+  "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
 
@@ -43,36 +45,39 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 The asynchronous call returns with HTTP code 202 before trying to create workers.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=false&url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
-< x-request-id: 29cde8a4-898e-48df-afef-f1a827a3cbc2
-< content-length: 33
+< x-request-id: 4dc54158-c6de-42aa-b5dd-ebcb5f721043
+< content-length: 47
 < connection: keep-alive
-<
+< 
 {
-  "status": "Worker updated"
+  "status": "Processing worker updates..."
 }
 ```
 
 The synchronous call returns with HTTP code 200 after all workers have been adjusted.
 
 ```bash
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/squeezenet_v1.1.mar"
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: ecd2e502-382f-4c3b-b425-519fbf6d3b85
+< content-length: 89
 < connection: keep-alive
-<
+< 
 {
-  "status": "Worker scaled"
+  "status": "Model \"squeezenet1_1\" Version: 1.0 registered with 1 initial workers"
 }
 ```
 
 ## Scale workers
+
+This API follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+
 
 `PUT /models/{model_name}`
 
@@ -93,12 +98,12 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3"
 
 < HTTP/1.1 202 Accepted
 < content-type: application/json
-< x-request-id: 74b65aab-dea8-470c-bb7a-5a186c7ddee6
-< content-length: 33
+< x-request-id: 42adc58e-6956-4198-ad07-db6c620c4c1e
+< content-length: 47
 < connection: keep-alive
-<
+< 
 {
-  "status": "Worker updated"
+  "status": "Processing worker updates..."
 }
 ```
 
@@ -109,12 +114,12 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: b72b1ea0-81c6-4cce-92c4-530d3cfe5d4a
+< content-length: 63
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Workers scaled to 3 for model: noop"
 }
 ```
 
@@ -128,16 +133,18 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 
 < HTTP/1.1 200 OK
 < content-type: application/json
-< x-request-id: c4b2804e-42b1-4d6f-9e8f-1e8901fc2c6c
-< content-length: 32
+< x-request-id: 3997ccd4-ae44-4570-b249-e361b08d3d47
+< content-length: 77
 < connection: keep-alive
 < 
 {
-  "status": "Worker scaled"
+  "status": "Workers scaled to 3 for model: noop, version: 2.0"
 }
 ```
 
 ## Describe model
+
+This API follows the [ManagementAPIsService.DescribeModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models/{model_name}`
 
@@ -251,6 +258,8 @@ curl http://localhost:8081/models/noop/all
 
 ## Unregister a model
 
+This API follows the [ManagementAPIsService.UnregisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+
 `DELETE /models/{model_name}/{version}`
 
 Use the Unregister Model API to free up system resources by unregistering specific version of a model from TorchServe:
@@ -264,6 +273,7 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 ```
 
 ## List models
+This API follows the [ManagementAPIsService.ListModels](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models`
 
@@ -319,6 +329,8 @@ Example outputs of the Inference and Management APIs:
 * [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
 
 ## Set Default Version
+
+This API follows the [ManagementAPIsService.SetDefault](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `PUT /models/{model_name}/{version}/set-default`
 

@@ -1,0 +1,329 @@
+version: 2.1
+
+
+executors:
+  # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY under 'Project Settings > Environment Variables' in CircleCI
+  ubuntu18-pythn36-cpu-docker:
+    docker:
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pythn36-cpu
+  ubuntu18-conda38-cpu-docker:
+    docker:
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-conda38-cpu
+  ubuntu18-pyenv37-cpu-docker:
+    docker:
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-pyenv37-cpu
+  ubuntu18-venv36-cpu-docker:
+    docker:
+      - image: 630887156731.dkr.ecr.us-east-1.amazonaws.com/torchserve-build:ubuntu18-venv36-cpu
+  # Refer Windows Orb source code - https://circleci.com/orbs/registry/orb/circleci/windows?version=2.4.0
+  windows-srvr-2019-cpu:
+    machine:
+      image: windows-server-2019-vs2019:stable
+      shell: powershell.exe -ExecutionPolicy Bypass
+      resource_class: windows.medium
+  windows-srvr-2019-gpu:
+    machine:
+      image: windows-server-2019-nvidia:stable
+      shell: powershell.exe -ExecutionPolicy Bypass
+      resource_class: windows.gpu.nvidia.medium
+
+
+commands:
+  install-dependencies:
+    description: "Install build and test dependencies for torchserve"
+    steps:
+      - run:
+          name: Install build and test dependencies for torchserve
+          command: "python ts_scripts/install_dependencies.py --environment dev"
+
+  attach-torchserve-workspace:
+    description: "Attach the torchserve directory which was saved into workspace"
+    steps:
+      - attach_workspace:
+          at: .
+
+  install-torchserve:
+    description: "Install torchserve from a wheel"
+    steps:
+      - run:
+          name: Install torchserve
+          command: python binaries/install.py
+
+  exeucute-api-tests:
+    description: "Execute API tests from a collection"
+    parameters:
+      collection:
+        type: enum
+        enum: [management, inference, increased_timeout_inference, https]
+        default: management
+    steps:
+      - run:
+          name: Start torchserve, Execute << parameters.collection >> API Tests, Stop torchserve
+          command: python ts_scripts/api_utils.py << parameters.collection >>
+          when: always
+
+
+jobs:
+  build:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - install-dependencies
+      - run:
+          name: Build torchserve and torch model archiver
+          command: python binaries/build.py
+      - store_artifacts:
+          name: Store torchserve wheel
+          path: dist/
+          destination: dist
+      - store_artifacts:
+          name: Store torchserve model archiver wheel
+          path: model-archiver/dist
+          destination: dist
+      - store_artifacts:
+          name: Store torchserve and model archiver conda builds
+          path: binaries/conda/output/noarch
+          destination: dist/conda
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  frontend-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - run:
+          name: Execute frontend gradle tests
+          command: python ts_scripts/frontend_utils.py
+      - store_artifacts:
+          name: Store frontend gradle test results
+          path: frontend/server/build/reports/tests/test
+
+  torchserve-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - run:
+          name: Execute python lint and unit tests
+          command: python ts_scripts/torchserve_install_utils.py
+      - store_artifacts:
+          name: Store python Test results
+          path: result_units
+          destination: units
+
+  sanity-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - install-torchserve
+      - run:
+          name: Execute sanity tests
+          command: python ts_scripts/sanity_utils.py
+      - store_artifacts:
+          name: Store TS logs from sanity tests
+          path: logs/
+
+  api-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - install-torchserve
+      - exeucute-api-tests:
+          collection: management
+      - exeucute-api-tests:
+          collection: inference
+      - exeucute-api-tests:
+          collection: increased_timeout_inference
+      - exeucute-api-tests:
+          collection: https
+      - store_artifacts:
+          name: Store server logs and test results
+          path: test/artifacts/
+
+  regression-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - install-torchserve
+      - run:
+          name: Execute regression suite
+          command: python ts_scripts/regression_utils.py
+      - store_artifacts:
+          name: Store server logs from regression tests
+          path: test/pytest/logs/
+
+  benchmark:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - install-torchserve
+      - run:
+          name: Start torchserve, Execute benchmark tests, Stop torchserve
+          command: .circleci/scripts/linux_test_benchmark.sh
+          no_output_timeout: 90m
+      - store_artifacts:
+          name: Store server logs from benchmark tests
+          path: logs/
+      - store_artifacts:
+          name: Store Benchmark Latency resnet-18 results
+          path: /tmp/TSBenchmark
+      - store_artifacts:
+          name: Store Apache Benchmark soak results
+          path: /tmp/benchmark
+
+  performance-regression:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - install-torchserve
+      - run:
+          name: Start TS, Execute performance regression testcases, Stop TS
+          command: .circleci/scripts/linux_test_perf_regression.sh
+      - store_artifacts:
+          name: Store server logs
+          path: test/performance/logs/
+      - store_artifacts:
+          name: Store artifacts from performance regression run
+          path: test/performance/run_artifacts/
+      - store_test_results:
+          name: Store performance regression test results for CircleCI
+          path: test/performance/run_artifacts/report/
+
+  modelarchiver-tests:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach-torchserve-workspace
+      - install-dependencies
+      - install-torchserve
+      - run:
+          name: Execute python lint, unit and integration tests
+          command: python ts_scripts/modelarchiver_utils.py
+      - store_artifacts:
+          name: Store unit tests results from model archiver tests
+          path: model-archiver/result_units
+          destination: units
+
+
+workflows:
+  version: 2
+
+  sanity:
+    jobs:
+      - &build
+        build:
+          name: build-<< matrix.executor >>
+          matrix: &matrix
+            parameters:
+              executor:
+                - ubuntu18-pythn36-cpu-docker
+                - ubuntu18-conda38-cpu-docker
+                - ubuntu18-pyenv37-cpu-docker
+                - ubuntu18-venv36-cpu-docker
+                - windows-srvr-2019-cpu
+                - windows-srvr-2019-gpu
+      - &modelarchiver-tests
+        modelarchiver-tests:
+          name: modelarchiver-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &frontend-tests
+        frontend-tests:
+          name: frontend-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &torchserve-tests
+        torchserve-tests:
+          name: torchserve-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - &sanity-tests
+        sanity-tests:
+          name: sanity-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+
+  regression:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - *build
+      - *modelarchiver-tests
+      - *frontend-tests
+      - *torchserve-tests
+      - *sanity-tests
+      - api-tests:
+          name: api-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+      - regression-tests:
+          name: regression-tests-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+
+  performance:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - *build
+      - benchmark:
+          name: benchmark-<< matrix.executor >>
+          requires:
+            - build-<< matrix.executor >>
+          matrix: *matrix
+# Uncomment once performance regression PR is merged - https://github.com/pytorch/serve/pull/510
+#      - performance-regression:
+#          name: performance-regression-<< matrix.executor >>
+#          requires:
+#            - build-<< matrix.executor >>
+#          matrix: *matrix

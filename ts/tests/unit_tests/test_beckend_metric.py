@@ -6,8 +6,6 @@ from ts.metrics.dimension import Dimension
 from ts.metrics.metrics_store import MetricsStore
 from ts.service import emit_metrics
 
-logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
-
 
 def get_model_key(name, unit, req_id, model_name):
     dimensions = list()
@@ -30,6 +28,7 @@ def test_metrics(caplog):
     Also checks global metric service methods
     """
     # Create a batch of request ids
+    caplog.set_level(logging.INFO)
     request_ids = {0: 'abcd', 1: "xyz", 2: "qwerty", 3: "hjshfj"}
     all_req_ids = ','.join(request_ids.values())
     model_name = "dummy model"

@@ -1,0 +1,365 @@
+{
+	"info": {
+		"_postman_id": "ef0d3b23-7caa-4884-a497-d0bff12f49dc",
+		"name": "https_test_collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "HTTPS Inference API  Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5e3567ef-1c6a-4605-a3fc-c21e5eecf221",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-pred-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-pred-port}}"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Management API Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "baaab4ba-f535-41f6-af3c-7e44c4d67d4a",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Metrics API Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "535fa589-b9c7-4eb5-b9fd-fc091745ccb3",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-metric-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-metric-port}}"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Register Model - SqueezeNet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d35a533c-7c1c-424e-90a2-19a3d9ebed41",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1&initial_workers=1&synchronous=true",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
+						},
+						{
+							"key": "model_name",
+							"value": "squeezenet1_1"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Get SqueezeNet Model Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c6fb4511-d81e-46c3-96e6-1fef5967a11f",
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Scale up Workers -  Synchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "de628a4c-2152-4bf2-ac29-edf67fe9451e",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=1&max_worker=1&synchronous=true",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "1"
+						},
+						{
+							"key": "max_worker",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Scale up Workers - Asynchronous",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "03211daa-9424-412b-84ec-1098c98e76ea",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1?min_worker=1&max_worker=1&synchronous=false",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "1"
+						},
+						{
+							"key": "max_worker",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS - Inference - SqueezeNet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8c3e00aa-ae0e-494f-bdbd-fbc0242eba81",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../examples/image_classifier/kitten.jpg"
+					},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-pred-port}}/predictions/squeezenet1_1",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-pred-port}}",
+					"path": [
+						"predictions",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS UnRegister Model SqueezeNet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "54c95cd7-1973-472b-8262-e4644b3fb07a",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/squeezenet1_1",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"squeezenet1_1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

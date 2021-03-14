@@ -1,9 +1,11 @@
 package org.pytorch.serve.openapi;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.prometheus.client.exporter.common.TextFormat;
 import java.util.ArrayList;
 import java.util.List;
 import org.pytorch.serve.archive.Manifest;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.wlm.Model;
@@ -18,30 +20,39 @@ public final class OpenApiUtils {
         info.setTitle("TorchServe APIs");
         info.setDescription(
                 "TorchServe is a flexible and easy to use tool for serving deep learning models");
-        info.setVersion("1.0.0");
+        ConfigManager config = ConfigManager.getInstance();
+        info.setVersion(config.getProperty("version", null));
         openApi.setInfo(info);
 
-        if (ConnectorType.BOTH.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {
+        if (ConnectorType.ALL.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {
             listInferenceApis(openApi);
         }
-        if (ConnectorType.BOTH.equals(type) || ConnectorType.MANAGEMENT_CONNECTOR.equals(type)) {
+        if (ConnectorType.ALL.equals(type) || ConnectorType.MANAGEMENT_CONNECTOR.equals(type)) {
             listManagementApis(openApi);
         }
+        openApi.addPath("/metrics", getMetricsPath());
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
-
+    /**
+     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from
+     * kfserving v1 predictor
+     */
     private static void listInferenceApis(OpenApi openApi) {
-        openApi.addPath("/", getApiDescriptionPath(false));
+        openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
         openApi.addPath("/ping", getPingPath());
-        openApi.addPath("/predictions/{model_name}[/{model_version}]", getPredictionsPath());
-        openApi.addPath("/api-description", getApiDescriptionPath(true));
+        openApi.addPath("/v1/models/{model_name}:predict", getPredictionsPath(false));
+        openApi.addPath("/predictions/{model_name}", getPredictionsPath(false));
+        openApi.addPath("/predictions/{model_name}/{model_version}", getPredictionsPath(true));
+        openApi.addPath("/api-description", getApiDescriptionPath("api-description", true));
     }
 
     private static void listManagementApis(OpenApi openApi) {
-        openApi.addPath("/", getApiDescriptionPath(false));
+        openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
         openApi.addPath("/models", getModelsPath());
-        openApi.addPath("/models/{model_name}[/{model_version}]", getModelManagerPath());
+        openApi.addPath("/models/{model_name}", getModelManagerPath(false));
+        openApi.addPath("/models/{model_name}/{model_version}", getModelManagerPath(true));
         openApi.addPath("/models/{model_name}/{model_version}/set-default", getSetDefaultPath());
+        openApi.addPath("/api-description", getApiDescriptionPath("api-description", true));
     }
 
     public static String getModelApi(Model model) {
@@ -53,18 +64,19 @@ public final class OpenApiUtils {
         openApi.setInfo(info);
 
         openApi.addPath("/prediction/" + modelName, getModelPath(modelName));
+        openApi.addPath("/v1/models/{model_name}:predict", getModelPath(modelName));
 
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
 
-    private static Path getApiDescriptionPath(boolean legacy) {
+    private static Path getApiDescriptionPath(String operationID, boolean legacy) {
         Schema schema = new Schema("object");
         schema.addProperty("openapi", new Schema("string"), true);
         schema.addProperty("info", new Schema("object"), true);
         schema.addProperty("paths", new Schema("object"), true);
         MediaType mediaType = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
 
-        Operation operation = new Operation("apiDescription");
+        Operation operation = new Operation(operationID, "Get openapi description.");
         operation.addResponse(new Response("200", "A openapi 3.0.1 descriptor", mediaType));
         operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
 
@@ -84,7 +96,7 @@ public final class OpenApiUtils {
                 "status", new Schema("string", "Overall status of the TorchServe."), true);
         MediaType mediaType = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
 
-        Operation operation = new Operation("ping");
+        Operation operation = new Operation("ping", "Get TorchServe status.");
         operation.addResponse(new Response("200", "TorchServe status", mediaType));
         operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
 
@@ -93,20 +105,28 @@ public final class OpenApiUtils {
         return path;
     }
 
-    private static Path getPredictionsPath() {
-        Operation post =
-                new Operation(
-                        "predictions",
-                        "Predictions entry point for each model."
-                                + " Use OPTIONS method to get detailed model API input and output description.");
+    private static Path getPredictionsPath(boolean version) {
+        String operationDescription;
+        String operationId;
+        if (version) {
+            operationDescription =
+                    "Predictions entry point to get inference using specific model version.";
+            operationId = "version_predictions";
+        } else {
+            operationDescription =
+                    "Predictions entry point to get inference using default model version.";
+            operationId = "predictions";
+        }
+        Operation post = new Operation(operationId, operationDescription);
         post.addParameter(new PathParameter("model_name", "Name of model."));
-
+        if (version) {
+            post.addParameter(new PathParameter("model_version", "Name of model version."));
+        }
         Schema schema = new Schema("string");
         schema.setFormat("binary");
         MediaType mediaType = new MediaType("*/*", schema);
         RequestBody requestBody = new RequestBody();
-        requestBody.setDescription(
-                "Input data format is defined by each model. Use OPTIONS method to get details for model input format.");
+        requestBody.setDescription("Input data format is defined by each model.");
         requestBody.setRequired(true);
         requestBody.addContent(mediaType);
 
@@ -117,28 +137,16 @@ public final class OpenApiUtils {
         mediaType = new MediaType("*/*", schema);
 
         Response resp =
-                new Response(
-                        "200",
-                        "Output data format is defined by each model. Use OPTIONS method to get details for model output and output format.",
-                        mediaType);
+                new Response("200", "Output data format is defined by each model.", mediaType);
         post.addResponse(resp);
 
         MediaType error = getErrorResponse();
-        post.addResponse(new Response("404", "Model not found", error));
+        post.addResponse(new Response("404", "Model not found or Model Version not found", error));
         post.addResponse(new Response("500", "Internal Server Error", error));
         post.addResponse(new Response("503", "No worker is available to serve request", error));
 
-        Operation options =
-                new Operation("predictionsApi", "Display details of per model input and output.");
-        options.addParameter(new PathParameter("model_name", "Name of model."));
-
-        mediaType = new MediaType("application/json", new Schema("object"));
-        options.addResponse(new Response("200", "OK", mediaType));
-        post.addResponse(new Response("500", "Internal Server Error", error));
-
         Path path = new Path();
         path.setPost(post);
-        path.setOptions(options);
         return path;
     }
 
@@ -155,11 +163,11 @@ public final class OpenApiUtils {
         return path;
     }
 
-    private static Path getModelManagerPath() {
+    private static Path getModelManagerPath(boolean version) {
         Path path = new Path();
-        path.setGet(getDescribeModelOperation());
-        path.setPut(getScaleOperation());
-        path.setDelete(getUnRegisterOperation());
+        path.setGet(getDescribeModelOperation(version));
+        path.setPut(getScaleOperation(version));
+        path.setDelete(getUnRegisterOperation(version));
         return path;
     }
 
@@ -178,7 +186,8 @@ public final class OpenApiUtils {
 
         operation.addResponse(
                 new Response("200", "Default vesion succsesfully updated for model", status));
-        operation.addResponse(new Response("404", "Model not found", error));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
@@ -203,9 +212,6 @@ public final class OpenApiUtils {
                         "The token to retrieve the next set of results. TorchServe provides the"
                                 + " token when the response from a previous call has more results than the"
                                 + " maximum page size."));
-        operation.addParameter(
-                new QueryParameter(
-                        "model_name_pattern", "A model name filter to list only matching models."));
 
         Schema schema = new Schema("object");
         schema.addProperty(
@@ -235,7 +241,7 @@ public final class OpenApiUtils {
 
         operation.addParameter(
                 new QueryParameter(
-                        "model_url",
+                        "url",
                         "string",
                         null,
                         true,
@@ -304,15 +310,27 @@ public final class OpenApiUtils {
         return operation;
     }
 
-    private static Operation getUnRegisterOperation() {
-        Operation operation =
-                new Operation(
-                        "unregisterModel",
-                        "Unregister the specified version of a model from TorchServe. If no version is specified, TorchServe tries to unregister the default version of the model and unregisters it if it is the only version available. This is an asynchronous call by default. Caller can call listModels to confirm if all the works has be terminated.");
+    private static Operation getUnRegisterOperation(boolean version) {
+        String operationDescription;
+        String operationId;
+        if (version) {
+            operationDescription =
+                    "Unregister the specified version of a model from TorchServe. "
+                            + "This is an asynchronous call by default. Caller can call listModels to confirm model is unregistered";
+            operationId = "version_unregisterModel";
+        } else {
+            operationDescription =
+                    "Unregister the default version of a model from TorchServe if it is the only version available."
+                            + "This is a asynchronous call by default. Caller can call listModels to confirm model is unregistered";
+            operationId = "unregisterModel";
+        }
+        Operation operation = new Operation(operationId, operationDescription);
 
         operation.addParameter(new PathParameter("model_name", "Name of model to unregister."));
-        operation.addParameter(
-                new PathParameter("model_version", "Version of model to unregister."));
+        if (version) {
+            operation.addParameter(
+                    new PathParameter("model_version", "Version of model to unregister."));
+        }
         operation.addParameter(
                 new QueryParameter(
                         "synchronous",
@@ -333,22 +351,35 @@ public final class OpenApiUtils {
 
         operation.addResponse(new Response("200", "Model unregistered", status));
         operation.addResponse(new Response("202", "Accepted", status));
-        operation.addResponse(new Response("404", "Model not found", error));
-        operation.addResponse(new Response("400", "Model version not found", error));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("408", "Request Timeout Error", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
     }
 
-    private static Operation getDescribeModelOperation() {
-        Operation operation =
-                new Operation(
-                        "describeModel",
-                        "Provides detailed information about the specified version of a model. If no version is specified, returns the details of default version. If \"all\" is specified as version, returns the details about all the versions of the model.");
+    private static Operation getDescribeModelOperation(boolean version) {
+        String operationDescription;
+        String operationId;
+        if (version) {
+            operationDescription =
+                    "Provides detailed information about the specified version of a model."
+                            + "If \"all\" is specified as version, returns the details about all the versions of the model.";
+            operationId = "version_describeModel";
+        } else {
+            operationDescription =
+                    "Provides detailed information about the default version of a model.";
+            operationId = "describeModel";
+        }
+
+        Operation operation = new Operation(operationId, operationDescription);
 
         operation.addParameter(new PathParameter("model_name", "Name of model to describe."));
-        operation.addParameter(new PathParameter("model_version", "Version of model to describe."));
+        if (version) {
+            operation.addParameter(
+                    new PathParameter("model_version", "Version of model to describe."));
+        }
         Schema schema = new Schema("object");
         schema.addProperty("modelName", new Schema("string", "Name of the model."), true);
         schema.addProperty("modelVersion", new Schema("string", "Version of the model."), true);
@@ -396,20 +427,37 @@ public final class OpenApiUtils {
         schema.addProperty("metrics", metrics, true);
 
         MediaType mediaType = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
+        MediaType error = getErrorResponse();
 
         operation.addResponse(new Response("200", "OK", mediaType));
-        operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
+        operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
     }
 
-    private static Operation getScaleOperation() {
-        Operation operation =
-                new Operation(
-                        "setAutoScale",
-                        "Configure number of workers for a specified version of a model. If no version is specified, this applies to the default version of the model. This is a asynchronous call by default. Caller need to call describeModel check if the model workers has been changed.");
-        operation.addParameter(new PathParameter("model_name", "Name of model to describe."));
-        operation.addParameter(new PathParameter("model_version", "Version of model to describe."));
+    private static Operation getScaleOperation(boolean version) {
+        String operationDescription;
+        String operationId;
+        if (version) {
+            operationDescription =
+                    "Configure number of workers for a specified version of a model. "
+                            + "This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
+            operationId = "version_setAutoScale";
+        } else {
+            operationDescription =
+                    "Configure number of workers for a default version of a model."
+                            + "This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
+            operationId = "setAutoScale";
+        }
+
+        Operation operation = new Operation(operationId, operationDescription);
+        operation.addParameter(new PathParameter("model_name", "Name of model to scale workers."));
+        if (version) {
+            operation.addParameter(
+                    new PathParameter("model_version", "Version of model to scale workers."));
+        }
         operation.addParameter(
                 new QueryParameter(
                         "min_worker", "integer", "1", "Minimum number of worker processes."));
@@ -441,7 +489,8 @@ public final class OpenApiUtils {
         operation.addResponse(new Response("202", "Accepted", status));
         operation.addResponse(new Response("210", "Partial Success", status));
         operation.addResponse(new Response("400", "Bad request", error));
-        operation.addResponse(new Response("404", "Model not found", error));
+        operation.addResponse(
+                new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
 
         return operation;
@@ -455,6 +504,26 @@ public final class OpenApiUtils {
 
         Path path = new Path();
         path.setPost(operation);
+        return path;
+    }
+
+    private static Path getMetricsPath() {
+        Schema schema = new Schema("object");
+        schema.addProperty(
+                "# HELP", new Schema("string", "Help text for TorchServe metric."), true);
+        schema.addProperty("# TYPE", new Schema("string", "Type of TorchServe metric."), true);
+        schema.addProperty("metric", new Schema("string", "TorchServe application metric."), true);
+        MediaType mediaType = new MediaType(TextFormat.CONTENT_TYPE_004, schema);
+
+        Operation operation =
+                new Operation(
+                        "metrics", "Get TorchServe application metrics in prometheus format.");
+        operation.addParameter(new QueryParameter("name[]", "Names of metrics to filter"));
+        operation.addResponse(new Response("200", "TorchServe application metrics", mediaType));
+        operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
+
+        Path path = new Path();
+        path.setGet(operation);
         return path;
     }
 

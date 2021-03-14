@@ -1,0 +1,19 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install sudo -y
+      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
+
+  build:
+    commands:
+      - python test/regression_tests.py 2>&1 | tee /tmp/test_exec.log
+
+artifacts:
+  files:
+    - /tmp/test_exec.log
+  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 

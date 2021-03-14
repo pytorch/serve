@@ -4,17 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import org.pytorch.serve.archive.Manifest;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +26,8 @@ public class WorkerLifeCycle {
     private CountDownLatch latch;
     private boolean success;
     private Connector connector;
+    private ReaderThread errReader;
+    private ReaderThread outReader;
 
     public WorkerLifeCycle(ConfigManager configManager, Model model) {
         this.configManager = configManager;
@@ -37,45 +36,6 @@ public class WorkerLifeCycle {
 
     public Process getProcess() {
         return process;
-    }
-
-    private String[] getEnvString(String cwd, String modelPath, String handler) {
-        ArrayList<String> envList = new ArrayList<>();
-        Pattern blackList = configManager.getBlacklistPattern();
-        StringBuilder pythonPath = new StringBuilder();
-
-        if (handler != null && handler.contains(":")) {
-            String handlerFile = handler;
-            handlerFile = handler.split(":")[0];
-            if (handlerFile.contains("/")) {
-                handlerFile = handlerFile.substring(0, handlerFile.lastIndexOf('/'));
-            }
-
-            pythonPath.append(handlerFile).append(File.pathSeparatorChar);
-        }
-
-        HashMap<String, String> environment = new HashMap<>(System.getenv());
-        environment.putAll(configManager.getBackendConfiguration());
-
-        if (System.getenv("PYTHONPATH") != null) {
-            pythonPath.append(System.getenv("PYTHONPATH")).append(File.pathSeparatorChar);
-        }
-
-        pythonPath.append(modelPath);
-
-        if (!cwd.contains("site-packages") && !cwd.contains("dist-packages")) {
-            pythonPath.append(File.pathSeparatorChar).append(cwd);
-        }
-
-        environment.put("PYTHONPATH", pythonPath.toString());
-
-        for (Map.Entry<String, String> entry : environment.entrySet()) {
-            if (!blackList.matcher(entry.getKey()).matches()) {
-                envList.add(entry.getKey() + '=' + entry.getValue());
-            }
-        }
-
-        return envList.toArray(new String[0]); // NOPMD
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
@@ -89,12 +49,7 @@ public class WorkerLifeCycle {
         }
 
         String[] args = new String[6];
-        Manifest.RuntimeType runtime = model.getModelArchive().getManifest().getRuntime();
-        if (runtime == Manifest.RuntimeType.PYTHON) {
-            args[0] = configManager.getPythonExecutable();
-        } else {
-            args[0] = runtime.getValue();
-        }
+        args[0] = EnvironmentUtils.getPythonRunTime(model);
         args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
         args[2] = "--sock-type";
         args[3] = connector.getSocketType();
@@ -102,7 +57,7 @@ public class WorkerLifeCycle {
         args[5] = connector.getSocketPath();
 
         String[] envp =
-                getEnvString(
+                EnvironmentUtils.getEnvString(
                         workingDir.getAbsolutePath(),
                         modelPath.getAbsolutePath(),
                         model.getModelArchive().getManifest().getModel().getHandler());
@@ -115,8 +70,10 @@ public class WorkerLifeCycle {
 
                 String threadName =
                         "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
-                new ReaderThread(threadName, process.getErrorStream(), true, this).start();
-                new ReaderThread(threadName, process.getInputStream(), false, this).start();
+                errReader = new ReaderThread(threadName, process.getErrorStream(), true, this);
+                outReader = new ReaderThread(threadName, process.getInputStream(), false, this);
+                errReader.start();
+                outReader.start();
             }
 
             if (latch.await(2, TimeUnit.MINUTES)) {
@@ -135,10 +92,22 @@ public class WorkerLifeCycle {
         }
     }
 
+    public synchronized void terminateIOStreams() {
+        if (errReader != null) {
+            logger.warn("terminateIOStreams() threadName={}", errReader.getName());
+            errReader.terminate();
+        }
+        if (outReader != null) {
+            logger.warn("terminateIOStreams() threadName={}", outReader.getName());
+            outReader.terminate();
+        }
+    }
+
     public synchronized void exit() {
         if (process != null) {
             process.destroyForcibly();
             connector.clean();
+            terminateIOStreams();
         }
     }
 
@@ -171,6 +140,7 @@ public class WorkerLifeCycle {
         private InputStream is;
         private boolean error;
         private WorkerLifeCycle lifeCycle;
+        private AtomicBoolean isRunning = new AtomicBoolean(true);
         private static final org.apache.log4j.Logger loggerModelMetrics =
                 org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
@@ -181,10 +151,14 @@ public class WorkerLifeCycle {
             this.lifeCycle = lifeCycle;
         }
 
+        public void terminate() {
+            isRunning.set(false);
+        }
+
         @Override
         public void run() {
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
-                while (scanner.hasNext()) {
+                while (isRunning.get() && scanner.hasNext()) {
                     String result = scanner.nextLine();
                     if (result == null) {
                         break;
@@ -205,8 +179,16 @@ public class WorkerLifeCycle {
                         logger.info(result);
                     }
                 }
+            } catch (Exception e) {
+                logger.error("Couldn't create scanner - {}", getName(), e);
             } finally {
+                logger.info("Stopped Scanner - {}", getName());
                 lifeCycle.setSuccess(false);
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    logger.error("Failed to close stream for thread {}", this.getName(), e);
+                }
             }
         }
     }

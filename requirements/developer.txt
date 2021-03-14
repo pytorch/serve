@@ -1,0 +1,13 @@
+-r common.txt
+mock
+pytest
+pylint==2.6.0
+pytest-mock
+pytest-cov
+nvgpu; sys_platform != 'win32'
+nvgpu==0.8.0; sys_platform == 'win32'
+grpcio
+protobuf
+grpcio-tools
+transformers==2.10.0
+pygit2

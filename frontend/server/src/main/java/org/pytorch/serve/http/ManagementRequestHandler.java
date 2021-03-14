@@ -8,29 +8,21 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import org.apache.commons.io.FilenameUtils;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
+import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.ModelException;
 import org.pytorch.serve.archive.ModelNotFoundException;
 import org.pytorch.serve.archive.ModelVersionNotFoundException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
-import org.pytorch.serve.snapshot.SnapshotManager;
-import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.servingsdk.ModelServerEndpoint;
+import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerThread;
-import software.amazon.ai.mms.servingsdk.ModelServerEndpoint;
 
 /**
  * A class handling inbound HTTP requests to the management API.
@@ -89,6 +81,15 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     throw new MethodNotAllowedException();
                 }
             }
+        } else if (isKFV1ManagementReq(segments)) {
+            String modelVersion = null;
+            String modelName = segments[3].split(":")[0];
+            HttpMethod method = req.method();
+            if (HttpMethod.GET.equals(method)) {
+                handleKF1ModelReady(ctx, modelName, modelVersion);
+            } else {
+                throw new MethodNotAllowedException();
+            }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
@@ -101,88 +102,46 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 || endpointMap.containsKey(segments[1]);
     }
 
+    private boolean isKFV1ManagementReq(String[] segments) {
+        return segments.length == 4 && "v1".equals(segments[1]) && "models".equals(segments[2]);
+    }
+
     private void handleListModels(ChannelHandlerContext ctx, QueryStringDecoder decoder) {
         int limit = NettyUtils.getIntParameter(decoder, "limit", 100);
         int pageToken = NettyUtils.getIntParameter(decoder, "next_page_token", 0);
-        if (limit > 100 || limit < 0) {
-            limit = 100;
-        }
-        if (pageToken < 0) {
-            pageToken = 0;
-        }
 
-        ModelManager modelManager = ModelManager.getInstance();
-        Map<String, Model> models = modelManager.getDefaultModels();
-
-        List<String> keys = new ArrayList<>(models.keySet());
-        Collections.sort(keys);
-        ListModelsResponse list = new ListModelsResponse();
-
-        int last = pageToken + limit;
-        if (last > keys.size()) {
-            last = keys.size();
-        } else {
-            list.setNextPageToken(String.valueOf(last));
-        }
-
-        for (int i = pageToken; i < last; ++i) {
-            String modelName = keys.get(i);
-            Model model = models.get(modelName);
-            list.addModel(modelName, model.getModelUrl());
-        }
+        ListModelsResponse list = ApiUtils.getModelList(limit, pageToken);
 
         NettyUtils.sendJsonResponse(ctx, list);
     }
 
     private void handleDescribeModel(
             ChannelHandlerContext ctx, String modelName, String modelVersion)
-            throws ModelNotFoundException {
-        ModelManager modelManager = ModelManager.getInstance();
-        ArrayList<DescribeModelResponse> resp = new ArrayList<DescribeModelResponse>();
+            throws ModelNotFoundException, ModelVersionNotFoundException {
 
-        if ("all".equals(modelVersion)) {
-            for (Map.Entry<String, Model> m : modelManager.getAllModelVersions(modelName)) {
-                resp.add(createModelResponse(modelManager, modelName, m.getValue()));
-            }
-        } else {
-            Model model = modelManager.getModel(modelName, modelVersion);
-            if (model == null) {
-                throw new ModelNotFoundException("Model not found: " + modelName);
-            }
-            resp.add(createModelResponse(modelManager, modelName, model));
-        }
-
+        ArrayList<DescribeModelResponse> resp =
+                ApiUtils.getModelDescription(modelName, modelVersion);
         NettyUtils.sendJsonResponse(ctx, resp);
     }
 
-    private DescribeModelResponse createModelResponse(
+    private void handleKF1ModelReady(
+            ChannelHandlerContext ctx, String modelName, String modelVersion)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        ModelManager modelManager = ModelManager.getInstance();
+        Model model = modelManager.getModel(modelName, modelVersion);
+        if (model == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        KFV1ModelReadyResponse resp = createKFV1ModelReadyResponse(modelManager, modelName, model);
+        NettyUtils.sendJsonResponse(ctx, resp);
+    }
+
+    private KFV1ModelReadyResponse createKFV1ModelReadyResponse(
             ModelManager modelManager, String modelName, Model model) {
-        DescribeModelResponse resp = new DescribeModelResponse();
-        resp.setModelName(modelName);
-        resp.setModelUrl(model.getModelUrl());
-        resp.setBatchSize(model.getBatchSize());
-        resp.setMaxBatchDelay(model.getMaxBatchDelay());
-        resp.setMaxWorkers(model.getMaxWorkers());
-        resp.setMinWorkers(model.getMinWorkers());
-        resp.setLoadedAtStartup(modelManager.getStartupModels().contains(modelName));
-        Manifest manifest = model.getModelArchive().getManifest();
-        Manifest.Engine engine = manifest.getEngine();
-        if (engine != null) {
-            resp.setEngine(engine.getEngineName());
-        }
-        resp.setModelVersion(manifest.getModel().getModelVersion());
-        resp.setRuntime(manifest.getRuntime().getValue());
-
+        KFV1ModelReadyResponse resp = new KFV1ModelReadyResponse();
         List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
-        for (WorkerThread worker : workers) {
-            String workerId = worker.getWorkerId();
-            long startTime = worker.getStartTime();
-            boolean isRunning = worker.isRunning();
-            int gpuId = worker.getGpuId();
-            long memory = worker.getMemory();
-            resp.addWorker(workerId, startTime, isRunning, gpuId, memory);
-        }
-
+        resp.setName(modelName);
+        resp.setReady(!workers.isEmpty());
         return resp;
     }
 
@@ -190,97 +149,31 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req)
             throws ModelException {
         RegisterModelRequest registerModelRequest = parseRequest(req, decoder);
-        String modelUrl = registerModelRequest.getModelUrl();
-        if (modelUrl == null) {
-            throw new BadRequestException("Parameter url is required.");
-        }
-
-        String modelName = registerModelRequest.getModelName();
-        String runtime = registerModelRequest.getRuntime();
-        String handler = registerModelRequest.getHandler();
-        int batchSize = registerModelRequest.getBatchSize();
-        int maxBatchDelay = registerModelRequest.getMaxBatchDelay();
-        int initialWorkers = registerModelRequest.getInitialWorkers();
-        boolean synchronous = registerModelRequest.getSynchronous();
-        int responseTimeout = registerModelRequest.getResponseTimeout();
-        if (responseTimeout == -1) {
-            responseTimeout = ConfigManager.getInstance().getDefaultResponseTimeout();
-        }
-        Manifest.RuntimeType runtimeType = null;
-        if (runtime != null) {
-            try {
-                runtimeType = Manifest.RuntimeType.fromValue(runtime);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException(e);
-            }
-        }
-
-        ModelManager modelManager = ModelManager.getInstance();
-        final ModelArchive archive;
+        StatusResponse statusResponse;
         try {
-
-            archive =
-                    modelManager.registerModel(
-                            modelUrl,
-                            modelName,
-                            runtimeType,
-                            handler,
-                            batchSize,
-                            maxBatchDelay,
-                            responseTimeout,
-                            null);
-        } catch (FileAlreadyExistsException e) {
-            throw new InternalServerException(
-                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
-        } catch (IOException e) {
-            throw new InternalServerException("Failed to save model: " + modelUrl, e);
+            statusResponse = ApiUtils.registerModel(registerModelRequest);
+        } catch (ExecutionException | InterruptedException | InternalServerException e) {
+            String message;
+            if (e instanceof InternalServerException) {
+                message = e.getMessage();
+            } else {
+                message = "Error while creating workers";
+            }
+            statusResponse = new StatusResponse();
+            statusResponse.setE(e);
+            statusResponse.setStatus(message);
+            statusResponse.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         }
-
-        modelName = archive.getModelName();
-
-        final String msg = "Model \"" + modelName + "\" registered";
-        if (initialWorkers <= 0) {
-            SnapshotManager.getInstance().saveSnapshot();
-            NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
-            return;
-        }
-
-        updateModelWorkers(
-                ctx,
-                modelName,
-                archive.getModelVersion(),
-                initialWorkers,
-                initialWorkers,
-                synchronous,
-                f -> {
-                    modelManager.unregisterModel(archive.getModelName(), archive.getModelVersion());
-                    return null;
-                });
+        sendResponse(ctx, statusResponse);
     }
 
     private void handleUnregisterModel(
             ChannelHandlerContext ctx, String modelName, String modelVersion)
             throws ModelNotFoundException, InternalServerException, RequestTimeoutException,
                     ModelVersionNotFoundException {
-        ModelManager modelManager = ModelManager.getInstance();
-        HttpResponseStatus httpResponseStatus =
-                modelManager.unregisterModel(modelName, modelVersion);
-        if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
-        } else if (httpResponseStatus == HttpResponseStatus.BAD_REQUEST) {
-            throw new ModelVersionNotFoundException(
-                    String.format(
-                            "Model version: %s not found for model: %s", modelVersion, modelName));
-        } else if (httpResponseStatus == HttpResponseStatus.INTERNAL_SERVER_ERROR) {
-            throw new InternalServerException("Interrupted while cleaning resources: " + modelName);
-        } else if (httpResponseStatus == HttpResponseStatus.REQUEST_TIMEOUT) {
-            throw new RequestTimeoutException("Timed out while cleaning resources: " + modelName);
-        } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
-            throw new InternalServerException(
-                    "Cannot remove default version for model " + modelName);
-        }
+        ApiUtils.unregisterModel(modelName, modelVersion);
         String msg = "Model \"" + modelName + "\" unregistered";
-        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg, HttpResponseStatus.OK.code()));
     }
 
     private void handleScaleModel(
@@ -288,74 +181,34 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String modelName,
             String modelVersion)
-            throws ModelNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
-        if (maxWorkers < minWorkers) {
-            throw new BadRequestException("max_worker cannot be less than min_worker.");
+        if (modelVersion == null) {
+            modelVersion = NettyUtils.getParameter(decoder, "model_version", null);
         }
+
         boolean synchronous =
                 Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", null));
 
-        ModelManager modelManager = ModelManager.getInstance();
-        if (!modelManager.getDefaultModels().containsKey(modelName)) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
+        StatusResponse statusResponse;
+        try {
+            statusResponse =
+                    ApiUtils.updateModelWorkers(
+                            modelName,
+                            modelVersion,
+                            minWorkers,
+                            maxWorkers,
+                            synchronous,
+                            false,
+                            null);
+        } catch (ExecutionException | InterruptedException e) {
+            statusResponse = new StatusResponse();
+            statusResponse.setE(e);
+            statusResponse.setStatus("Error while creating workers");
+            statusResponse.setHttpResponseCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         }
-        updateModelWorkers(ctx, modelName, modelVersion, minWorkers, maxWorkers, synchronous, null);
-    }
-
-    private void updateModelWorkers(
-            final ChannelHandlerContext ctx,
-            final String modelName,
-            final String modelVersion,
-            int minWorkers,
-            int maxWorkers,
-            boolean synchronous,
-            final Function<Void, Void> onError) {
-
-        ModelManager modelManager = ModelManager.getInstance();
-        CompletableFuture<HttpResponseStatus> future =
-                modelManager.updateModel(modelName, modelVersion, minWorkers, maxWorkers);
-        if (!synchronous) {
-            NettyUtils.sendJsonResponse(
-                    ctx,
-                    new StatusResponse("Processing worker updates..."),
-                    HttpResponseStatus.ACCEPTED);
-            return;
-        }
-        future.thenApply(
-                        v -> {
-                            boolean status =
-                                    modelManager.scaleRequestStatus(modelName, modelVersion);
-                            if (HttpResponseStatus.OK.equals(v)) {
-                                if (status) {
-                                    NettyUtils.sendJsonResponse(
-                                            ctx, new StatusResponse("Workers scaled"), v);
-                                } else {
-                                    NettyUtils.sendJsonResponse(
-                                            ctx,
-                                            new StatusResponse("Workers scaling in progress..."),
-                                            new HttpResponseStatus(210, "Partial Success"));
-                                }
-                            } else {
-                                NettyUtils.sendError(
-                                        ctx,
-                                        v,
-                                        new InternalServerException("Failed to start workers"));
-                                if (onError != null) {
-                                    onError.apply(null);
-                                }
-                            }
-                            return v;
-                        })
-                .exceptionally(
-                        (e) -> {
-                            if (onError != null) {
-                                onError.apply(null);
-                            }
-                            NettyUtils.sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, e);
-                            return null;
-                        });
+        sendResponse(ctx, statusResponse);
     }
 
     private RegisterModelRequest parseRequest(FullHttpRequest req, QueryStringDecoder decoder) {
@@ -372,24 +225,29 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void setDefaultModelVersion(
-            ChannelHandlerContext ctx, String modelName, String newModelVersion)
-            throws ModelNotFoundException, InternalServerException, RequestTimeoutException {
-        ModelManager modelManager = ModelManager.getInstance();
-        HttpResponseStatus httpResponseStatus =
-                modelManager.setDefaultVersion(modelName, newModelVersion);
-        if (httpResponseStatus == HttpResponseStatus.NOT_FOUND) {
-            throw new ModelNotFoundException("Model not found: " + modelName);
-        } else if (httpResponseStatus == HttpResponseStatus.FORBIDDEN) {
-            throw new InvalidModelVersionException(
-                    "Model version " + newModelVersion + " does not exist for model " + modelName);
+            ChannelHandlerContext ctx, String modelName, String newModelVersion) {
+        try {
+            String msg = ApiUtils.setDefault(modelName, newModelVersion);
+            NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg, HttpResponseStatus.OK.code()));
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            NettyUtils.sendError(ctx, HttpResponseStatus.NOT_FOUND, e);
         }
-        String msg =
-                "Default vesion succsesfully updated for model \""
-                        + modelName
-                        + "\" to \""
-                        + newModelVersion
-                        + "\"";
-        SnapshotManager.getInstance().saveSnapshot();
-        NettyUtils.sendJsonResponse(ctx, new StatusResponse(msg));
+    }
+
+    private void sendResponse(ChannelHandlerContext ctx, StatusResponse statusResponse) {
+        if (statusResponse != null) {
+            if (statusResponse.getHttpResponseCode() >= 200
+                    && statusResponse.getHttpResponseCode() < 300) {
+                NettyUtils.sendJsonResponse(ctx, statusResponse);
+            } else {
+                // Re-map HTTPURLConnections HTTP_ENTITY_TOO_LARGE to Netty's INSUFFICIENT_STORAGE
+                int httpResponseStatus = statusResponse.getHttpResponseCode();
+                NettyUtils.sendError(
+                        ctx,
+                        HttpResponseStatus.valueOf(
+                                httpResponseStatus == 413 ? 507 : httpResponseStatus),
+                        statusResponse.getE());
+            }
+        }
     }
 }

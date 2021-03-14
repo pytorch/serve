@@ -41,7 +41,7 @@ public class Connector {
     private String bindIp;
     private int port;
     private boolean ssl;
-    private boolean management;
+    private ConnectorType connectorType;
 
     public Connector(int port) {
         this(port, useNativeIo && (Epoll.isAvailable() || KQueue.isAvailable()));
@@ -65,16 +65,16 @@ public class Connector {
             String bindIp,
             String socketPath,
             boolean ssl,
-            boolean management) {
+            ConnectorType connectorType) {
         this.port = port;
         this.uds = uds;
         this.bindIp = bindIp;
         this.socketPath = socketPath;
         this.ssl = ssl;
-        this.management = management;
+        this.connectorType = connectorType;
     }
 
-    public static Connector parse(String binding, boolean management) {
+    public static Connector parse(String binding, ConnectorType connectorType) {
         Matcher matcher = ADDRESS_PATTERN.matcher(binding);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid binding address: " + binding);
@@ -87,7 +87,7 @@ public class Connector {
                         "unix domain socket requires use_native_io set to true.");
             }
             String path = matcher.group(7);
-            return new Connector(-1, true, "", path, false, management);
+            return new Connector(-1, true, "", path, false, ConnectorType.MANAGEMENT_CONNECTOR);
         }
 
         String protocol = matcher.group(2);
@@ -97,18 +97,23 @@ public class Connector {
         boolean ssl = "https".equalsIgnoreCase(protocol);
         int port;
         if (listeningPort == null) {
-            if (management) {
-                port = ssl ? 8444 : 8081;
-            } else {
-                port = ssl ? 443 : 80;
+            switch (connectorType) {
+                case MANAGEMENT_CONNECTOR:
+                    port = ssl ? 8444 : 8081;
+                    break;
+                case METRICS_CONNECTOR:
+                    port = ssl ? 8445 : 8082;
+                    break;
+                default:
+                    port = ssl ? 443 : 80;
             }
         } else {
             port = Integer.parseInt(listeningPort);
         }
-        if (port >= Short.MAX_VALUE) {
+        if (port >= Short.MAX_VALUE * 2 + 1) {
             throw new IllegalArgumentException("Invalid port number: " + binding);
         }
-        return new Connector(port, false, host, String.valueOf(port), ssl, management);
+        return new Connector(port, false, host, String.valueOf(port), ssl, connectorType);
     }
 
     public String getSocketType() {
@@ -128,7 +133,7 @@ public class Connector {
     }
 
     public boolean isManagement() {
-        return management;
+        return connectorType.equals(ConnectorType.MANAGEMENT_CONNECTOR);
     }
 
     public SocketAddress getSocketAddress() {
@@ -136,7 +141,14 @@ public class Connector {
     }
 
     public String getPurpose() {
-        return management ? "Management" : "Inference";
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                return "Management";
+            case METRICS_CONNECTOR:
+                return "Metrics";
+            default:
+                return "Inference";
+        }
     }
 
     public static EventLoopGroup newEventLoopGroup(int threads) {
