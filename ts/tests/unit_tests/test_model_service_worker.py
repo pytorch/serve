@@ -37,7 +37,7 @@ def model_service_worker(socket_patches):
     if not sys.platform.startswith("win"):
         model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None, fifo_path="fifo")
     else:
-        model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, port_num=9999)
+        model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, port_num=9999, fifo_path="fifo")
     model_service_worker.sock = socket_patches.socket
     model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
     return model_service_worker
