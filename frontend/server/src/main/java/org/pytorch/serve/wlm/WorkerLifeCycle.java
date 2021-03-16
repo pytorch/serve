@@ -142,7 +142,7 @@ public class WorkerLifeCycle {
         private WorkerLifeCycle lifeCycle;
         private AtomicBoolean isRunning = new AtomicBoolean(true);
         private static final Logger loggerModelMetrics =
-            LoggerFactory.getLogger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
+            LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
         private static final Logger loggerModelOutput =
                 LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);
 
