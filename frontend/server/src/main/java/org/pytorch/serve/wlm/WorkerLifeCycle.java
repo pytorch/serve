@@ -166,7 +166,12 @@ public class WorkerLifeCycle {
                         break;
                     }
                     if (result.startsWith("[METRICS]")) {
-                        loggerModelMetrics.info(Metric.parse(result.substring(9)));
+                        Metric parsedMetric = Metric.parse(result.substring("[METRICS]".length()));
+                        if (parsedMetric != null) {
+                            loggerModelMetrics.info(parsedMetric.toString());
+                        } else {
+                            logger.error("Failed to parse metrics line: \"{}\".", result);
+                        }
                         continue;
                     }
 
