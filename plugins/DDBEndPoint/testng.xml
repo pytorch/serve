@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<suite name="DDBEndPointSuite" verbose="1" >
+    <test name="DDBEndPoint">
+        <classes>
+            <class name="org.pytorch.serve.plugins.ddb.snapshot.DDBSnapshotSerializerTest"/>
+        </classes>
+    </test>
+</suite>
