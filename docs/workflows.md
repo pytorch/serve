@@ -19,6 +19,8 @@ models:
     max-workers: 4
     batch-size: 3
     max-batch-delay : 5000
+    retry-attempts : 3
+    timeout-ms : 5000
     m1:
        url : model1.mar #local or public URI
        min-workers: 1   #override the global params
@@ -63,6 +65,8 @@ User can define following workflow model properties:
 | max-workers | Number of maximum workers launched for every workflow model | 1 |
 | batch-size | Batch size used for every workflow model | 1 |
 | max-batch-delay | Maximum batch delay time TorchServe waits for every workflow model to receive `batch_size` number of requests.| 50 ms |
+| retry-attempts | Retry attempts for a specific workflow node incase of a failure | 1 |
+| timeout-ms | Timeout in MilliSeconds for a given node | 10000 |
 
 These properties can be defined as a global value for every model and can be over-ridden at every model level in workflow specification. Refer the above example for more details.
 

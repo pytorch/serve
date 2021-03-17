@@ -1,0 +1,26 @@
+[
+  {
+    "type": "register",
+    "test": "RegisterWorkflow",
+    "METHOD": "POST",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&model_name=squeezenet1_1"
+  },
+  {
+    "type": "describe",
+    "test": "ListWorkflow",
+    "METHOD": "GET",
+    "path": "models"
+  },
+  {
+    "type": "describe",
+    "test": "DescribeWorkflow",
+    "METHOD": "GET",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnregisterWorkflow",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1"
+  }
+]  

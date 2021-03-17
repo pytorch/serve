@@ -8,6 +8,8 @@ public class WorkflowModel {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int timeOutMs;
+    private int retryAttempts;
     private String handler;
 
     public WorkflowModel(
@@ -17,6 +19,8 @@ public class WorkflowModel {
             int maxWorkers,
             int batchSize,
             int maxBatchDelay,
+            int retryAttempts,
+            int timeOutMs,
             String handler) {
         this.name = name;
         this.url = url;
@@ -24,6 +28,8 @@ public class WorkflowModel {
         this.maxWorkers = maxWorkers;
         this.batchSize = batchSize;
         this.maxBatchDelay = maxBatchDelay;
+        this.retryAttempts = retryAttempts;
+        this.timeOutMs = timeOutMs;
         this.handler = handler;
     }
 
@@ -73,6 +79,22 @@ public class WorkflowModel {
 
     public void setMaxBatchDelay(int maxBatchDelay) {
         this.maxBatchDelay = maxBatchDelay;
+    }
+
+    public int getRetryAttempts() {
+        return retryAttempts;
+    }
+
+    public void setRetryAttempts(int retryAttempts) {
+        this.retryAttempts = retryAttempts;
+    }
+
+    public int getTimeOutMs() {
+        return timeOutMs;
+    }
+
+    public void setTimeOutMs(int timeOutMs) {
+        this.timeOutMs = timeOutMs;
     }
 
     public String getHandler() {

@@ -6,13 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.InternalServerException;
@@ -71,12 +66,19 @@ public class DagExecutor {
                                     invokeModel(
                                             name,
                                             this.dag.getNodes().get(name).getWorkflowModel(),
-                                            inputRequestMap.get(name)));
+                                            inputRequestMap.get(name),
+                                            0));
                 }
 
                 try {
-                    outputs.add(executorCompletionService.take().get());
+                    Future<NodeOutput> op = executorCompletionService.take();
+                    if(op == null){
+                        throw new ExecutionException(new RuntimeException("WorkflowNode result empty"));
+                    } else {
+                        outputs.add(op.get());
+                    }
                 } catch (InterruptedException | ExecutionException e) {
+                    logger.error(e.getMessage());
                     String[] error = e.getMessage().split(":");
                     throw new InternalServerException(error[error.length - 1]); // NOPMD
                 }
@@ -133,21 +135,26 @@ public class DagExecutor {
         return leafOutputs;
     }
 
-    private NodeOutput invokeModel(String nodeName, WorkflowModel workflowModel, RequestInput input)
+    private NodeOutput invokeModel(String nodeName, WorkflowModel workflowModel, RequestInput input, int retryAttempt)
             throws ModelNotFoundException, ModelVersionNotFoundException, ExecutionException,
                     InterruptedException {
         try {
-            CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
 
+            logger.error(String.format("Invoking -  %s for attempt %d", nodeName, retryAttempt));
+            CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
             RestJob job = ApiUtils.addRESTInferenceJob(null, workflowModel.getName(), null, input);
             job.setResponsePromise(respFuture);
-            byte[] resp = respFuture.get();
+            byte[] resp = respFuture.get(workflowModel.getTimeOutMs(), TimeUnit.MILLISECONDS);
             return new NodeOutput(nodeName, resp);
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Failed to execute workflow Node.");
-            logger.error(nodeName + " : " + e.getMessage());
-            String[] error = e.getMessage().split(":");
-            throw new InternalServerException(nodeName + " - " + error[error.length - 1]); // NOPMD
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error(e.getMessage());
+            if(retryAttempt < workflowModel.getRetryAttempts()){
+                logger.error(String.format("Timed out while executing %s for attempt %d", nodeName, retryAttempt));
+                return invokeModel(nodeName, workflowModel, input, ++retryAttempt);
+            } else {
+                logger.error(nodeName + " : " + e.getMessage());
+                throw new InternalServerException(String.format("Failed to execute workflow Node after %d attempts : Error executing %s", retryAttempt, nodeName)); // NOPMD
+            }
         } catch (ModelNotFoundException e) {
             logger.error("Model not found.");
             logger.error(e.getMessage());

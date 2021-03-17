@@ -28,13 +28,11 @@ image_processing = transforms.Compose(
 def pre_processing(data, context):
     if data:
         images = []
-
         for row in data:
             image = row.get("data") or row.get("body")
             image = Image.open(io.BytesIO(image))
             image = image_processing(image)
             images.append(image)
-
         return images
 
 
