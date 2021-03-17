@@ -24,6 +24,8 @@ public class WorkFlow {
     private int maxWorkers = 1;
     private int batchSize = 1;
     private int maxBatchDelay = 50;
+    private int timeOutMs = 10000;
+    private int retryAttempts = 1;
 
     private Dag dag = new Dag();
 
@@ -65,6 +67,12 @@ public class WorkFlow {
                 case "max-batch-delay":
                     maxBatchDelay = (int) entry.getValue();
                     break;
+                case "retry-attempts":
+                    retryAttempts = (int) entry.getValue();
+                    break;
+                case "timeout-ms":
+                    timeOutMs = (int) entry.getValue();
+                    break;
                 default:
                     // entry.getValue().getClass() check object type.
                     // assuming Map containing model info
@@ -81,6 +89,8 @@ public class WorkFlow {
                                     (int) model.getOrDefault("max-workers", maxWorkers),
                                     (int) model.getOrDefault("batch-size", batchSize),
                                     (int) model.getOrDefault("max-batch-delay", maxBatchDelay),
+                                    (int) model.getOrDefault("retry-attempts", retryAttempts),
+                                    (int) model.getOrDefault("timeout-ms", timeOutMs),
                                     null);
 
                     models.put(modelName, wfm);
@@ -103,6 +113,8 @@ public class WorkFlow {
                                 1,
                                 1,
                                 0,
+                                1,
+                                2000,
                                 handlerFile.getPath() + ":" + nodeName);
             } else {
                 wfm = models.get(modelName);
@@ -128,6 +140,8 @@ public class WorkFlow {
                                     1,
                                     1,
                                     0,
+                                    1,
+                                    2000,
                                     handlerFile.getPath() + ":" + toNodeName);
                 } else {
                     toWfm = models.get(toModelName);
