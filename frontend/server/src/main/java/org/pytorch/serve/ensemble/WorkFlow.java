@@ -113,8 +113,8 @@ public class WorkFlow {
                                 1,
                                 1,
                                 0,
-                                1,
-                                2000,
+                                retryAttempts,
+                                timeOutMs,
                                 handlerFile.getPath() + ":" + nodeName);
             } else {
                 wfm = models.get(modelName);
@@ -140,8 +140,8 @@ public class WorkFlow {
                                     1,
                                     1,
                                     0,
-                                    1,
-                                    2000,
+                                    retryAttempts,
+                                    timeOutMs,
                                     handlerFile.getPath() + ":" + toNodeName);
                 } else {
                     toWfm = models.get(toModelName);
