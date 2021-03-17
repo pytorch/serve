@@ -53,6 +53,8 @@ The explain is called with the following request api http://127.0.0.1:8080/expla
 
 Torchserve supports Captum Explanations for Eager models only.
 
+Captum/Explain doesn't support batching.
+
 #### The handler changes:
 
 1. The handlers should initialize.

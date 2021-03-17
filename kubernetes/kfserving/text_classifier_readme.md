@@ -95,8 +95,8 @@ The Explanation response is as below :
           4.193646962600815e-06,
           0.00014836451651210265,
           6.149280398342056e-05,
-          -------,
-	        -------
+          ,
+          ,
         ]
       ],
       "words": [
@@ -113,7 +113,8 @@ The Explanation response is as below :
 ```
 
 KFServing supports Static batching by adding new examples in the instances key of the request json.
-But the batch size should still be set at 1, when we register the model. 
+But the batch size should still be set at 1, when we register the model. Explain doesn't support batching.
+
 
 
 ```json
