@@ -114,7 +114,7 @@ def get_pip_packages(package_name=None):
         elif package_name == "torch":
             grep_cmd = 'grep "' + package_name + '"'
         else:
-            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|future\|wheel\|requests\|sentencepiece\|pillow\|captum\|nvgpu\|pygit2"'
+            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|future\|wheel\|requests\|sentencepiece\|pillow\|captum\|nvgpu\|pygit2\|torch"'
         return run_and_read_all(pip + ' list --format=freeze | ' + grep_cmd)
 
     out = run_with_pip('pip3')
@@ -281,9 +281,13 @@ def populate_torchserve_env(torch_pkg):
             torchserve_env["torchtext"] = pkg
         if pkg.split("==")[0] == "torchvision":
             torchserve_env["torchvision"] = pkg
-
-    torchserve_env["torchserve"] = "torchserve==" + get_torchserve_version()
-    torchserve_env["torch_model_archiver"] = "torch-model-archiver==" + get_torch_model_archiver()
+        if pkg.split("==")[0] == "torchserve" and len(torchserve_branch) == 0:
+            torchserve_env["torchserve"] = pkg
+        if pkg.split("==")[0] == "torch-model-archiver" and len(torchserve_branch) == 0:
+            torchserve_env["torch_model_archiver"] = pkg 
+    if len(torchserve_branch) > 0: 
+        torchserve_env["torchserve"] = "torchserve==" + get_torchserve_version()
+        torchserve_env["torch_model_archiver"] = "torch-model-archiver==" + get_torch_model_archiver()
 
 
 def populate_python_env(pip_version, pip_list_output):
@@ -400,6 +404,8 @@ def get_pretty_env_info(branch_name):
 
 
 def main(branch_name):
+    global torchserve_branch
+    torchserve_branch = branch_name
     output = get_pretty_env_info(branch_name)
     print(output)
 
@@ -408,5 +414,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         torchserve_branch = sys.argv[1]
     else:
-        torchserve_branch = ""
+        torchserve_branch = "" 
     main(torchserve_branch)
