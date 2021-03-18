@@ -34,7 +34,7 @@ class ArgParser(object):
                                         'specified, else it will be saved under the export path')
 
         parser_export.add_argument('--serialized-file',
-                                   required=True,
+                                   required=False,
                                    type=str,
                                    default=None,
                                    help='Path to .pt or .pth file containing state_dict in case of eager mode\n'
