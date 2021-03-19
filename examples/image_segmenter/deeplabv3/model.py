@@ -1,12 +1,13 @@
-from torchvision.models.segmentation.fcn import FCN
+from torchvision.models.segmentation.deeplabv3 import DeepLabV3
 from torchvision.models import resnet
 from intermediate_layer_getter import IntermediateLayerGetter
+from deeplabv3 import DeepLabHead
 from fcn import FCNHead
 
 
-class FCNImageSegmenter(FCN):
+class DeepLabV3ImageSegmenter(DeepLabV3):
     """
-    NN definition for fcn_resnet101 i.e. FCN with resnet 101 as backend
+    NN definition for deeplabv3_resnet101 i.e. DeepLabV3 with resnet 101 as backend
     """
 
     def __init__(self, num_classes=21, **kwargs):
@@ -19,6 +20,6 @@ class FCNImageSegmenter(FCN):
         inplanes = 1024
         aux_classifier = FCNHead(inplanes, num_classes)
         inplanes = 2048
-        classifier = FCNHead(inplanes, num_classes)
+        classifier = DeepLabHead(inplanes, num_classes)
 
-        super(FCNImageSegmenter, self).__init__(backbone, classifier, aux_classifier)
+        super(DeepLabV3ImageSegmenter, self).__init__(backbone, classifier, aux_classifier)
