@@ -23,11 +23,14 @@ torch_workflow_archiver_command = {
         "Linux": "torch-workflow-archiver"
     }
 
-def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):
+
+def start_torchserve(ncs=False, model_store="model_store", workflow_store="", models="", config_file="", log_file="", wait_for=10):
     print("## Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
         cmd += f" --models={models}"
+    if workflow_store:
+        cmd += f" --workflow-store={workflow_store}"
     if ncs:
         cmd += " --ncs"
     if config_file:
