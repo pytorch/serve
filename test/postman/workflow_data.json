@@ -45,6 +45,12 @@
     "status_code" : 404
   },
   {
+    "type": "prediction",
+    "test": "WorkflowPrediction",
+    "METHOD": "POST",
+    "path": "models/squeezenet1_1"
+  },
+  {
     "type": "unregister",
     "test": "Unregister Workflow - Invalid Workflow",
     "METHOD": "DELETE",
