@@ -31,7 +31,7 @@ def start_torchserve(ncs=False, model_store="model_store", workflow_store="", mo
     if models:
         cmd += f" --models={models}"
     if workflow_store:
-        cmd += f" --workflow_store={workflow_store}"
+        cmd += f" --workflow-store={workflow_store}"
     if ncs:
         cmd += " --ncs"
     if config_file:
