@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "management request",
+			"name": "workflow management request",
 			"event": [
 				{
 					"listen": "test",
