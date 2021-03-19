@@ -3,7 +3,7 @@ import platform
 import sys
 import time
 import requests
-
+import nvgpu
 
 torchserve_command = {
     "Windows": "torchserve.exe",
@@ -87,6 +87,17 @@ def run_inference(model_name, file_name, protocol="http", host="localhost", port
     return response
 
 
+def scale_up_model(model_name, protocol="http", host="localhost", port="8081", workers=1, timeout=120):
+    print(f"## Scaling Up {model_name} model with {workers} workers")
+    url = f"{protocol}://{host}:{port}/models/{model_name}"
+    params = (
+        ("min_worker", workers),
+        ("synchronous", "true"),
+    )
+    response = requests.put(url, params=params, verify=False, timeout=timeout)
+    return response
+
+
 def unregister_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Unregistering {model_name} model")
     url = f"{protocol}://{host}:{port}/models/{model_name}"
@@ -128,3 +139,9 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
     files = {"data": (file_name, open(file_name, "rb"))}
     response = requests.post(url, files=files, timeout=timeout)
     return response
+
+def get_gpu_usage(device_id):
+    usage = nvgpu.gpu_info()[device_id]
+    total, free, used = usage['mem_total'], usage['mem_total'] - usage['mem_used'], usage['mem_used']
+    print("GPU Usage of {device_id} : Total - {total} | Used - {used} | Free - {free}")
+    return total, free, used

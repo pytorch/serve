@@ -91,18 +91,18 @@ class TorchModelServiceWorkerManager(object):
             if "gpu" in load_model_request:
                 gpu = int(load_model_request["gpu"])
 
-            model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size)
-
             model_service, model_service_args = None, None
             is_eager = False
+            model_loader = ModelLoaderFactory.get_model_loader()
+            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, init_service=False)
             if service.context.manifest:
                 is_eager = 'modelFile' in service.context.manifest['model']
             if(is_eager):
                 logging.info("Loading Eager Model")
+                service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, init_service=True)
                 model_service, model_service_args = service, None
             else:
-                logging.info("Loading Scripted Model")
+                logging.info("Delegating Initializing scripted Model Load to Child Process")
                 model_service, model_service_args =  None, (model_name, model_dir, handler, gpu, batch_size)
             return model_service, model_service_args, "loaded model {}".format(model_name), 200
 
