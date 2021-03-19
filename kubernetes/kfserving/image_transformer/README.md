@@ -110,12 +110,12 @@ The predictor host is the inference url of torchserve.
 torchserve --start --ts-config /mnt/models/config/config.properties
 ```
 
-Please note that Model runs at port 8085,Image transformer runs at port 8080.
-The request first comes to the image transformer at port 8080 and in turn requests the torchserve at port 8085. So our request should be made at port 8080.
+Please note that Model runs at port 8080,Image transformer runs at port 8085.
+The request first comes to the image transformer at port 8085 and in turn requests the torchserve at port 8080. So our request should be made at port 8085.
 
 * The curl request for inference is as below:
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8085/v1/models/mnist:predict
 ```
 
 output:
