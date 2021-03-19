@@ -18,7 +18,7 @@
         "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/timeout-retry-test.war",
         "workflow_name":"densenet",
         "file":"../examples/image_classifier/kitten.jpg",
-        "content-type":"application/json",
+	"status_code": 500,
         "validator":"image_classification",
         "expected":{
             "tiger_cat":0.4693359136581421,
