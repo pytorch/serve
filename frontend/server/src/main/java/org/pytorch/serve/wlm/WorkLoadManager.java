@@ -38,7 +38,7 @@ public class WorkLoadManager {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
         this.port = new AtomicInteger(configManager.getInitialWorkerPort());
-        this.gpuCounter = new AtomicInteger(0);
+        this.gpuCounter = new AtomicInteger(-1);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
         workerManagers = new ConcurrentHashMap<>();
@@ -198,12 +198,18 @@ public class WorkLoadManager {
 
         WorkerManagerStateListener listener = new WorkerManagerStateListener(future, 1);
         BatchAggregator aggregator = new BatchAggregator(model);
+    int maxGpu = configManager.getNumberOfGpu();
+        int gpuId = -1;
+        if (maxGpu > 0) {
+            gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
+        }
 
         WorkerManagerThread thread =
                 new WorkerManagerThread(
                         configManager,
                         backendGroup,
                         configManager.isDebug() ? port.get() : port.getAndIncrement(),
+    		        gpuId,
                         model,
                         aggregator,
                         listener);
@@ -214,13 +220,7 @@ public class WorkLoadManager {
     private void addThreads(
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
-        int maxGpu = configManager.getNumberOfGpu();
         for (int i = 0; i < count; ++i) {
-            int gpuId = -1;
-
-            if (maxGpu > 0) {
-                gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
-            }
 
             int portNum = port.getAndIncrement();
             workerManagers.get(model.getModelVersionName()).scaleUp(portNum);
@@ -231,7 +231,7 @@ public class WorkLoadManager {
                             configManager,
                             backendGroup,
                             portNum,
-                            gpuId,
+    		            workerManagers.get(model.getModelVersionName()).getGpuId(),
                             model,
                             aggregator,
                             listener);

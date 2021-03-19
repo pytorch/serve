@@ -55,7 +55,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, init_service=True):
         """
         Load TorchServe 1.0 model from file.
 
@@ -107,7 +107,8 @@ class TsModelLoader(ModelLoader):
 
         service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size)
         service.context.metrics = metrics
-        initialize_fn(service.context)
+        if(init_service):
+            initialize_fn(service.context)
 
         return service
 
