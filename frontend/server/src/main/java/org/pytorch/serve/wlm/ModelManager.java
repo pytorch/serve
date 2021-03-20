@@ -133,7 +133,12 @@ public final class ModelManager {
             throws ModelException, IOException {
         ModelArchive archive =
                 ModelArchive.downloadModel(
-                        configManager.getAllowedUrls(), configManager.getModelStore(), url);
+                        configManager.getAllowedUrls(),
+                        configManager.getModelStore(),
+                        url,
+                        configManager.getS3RegionName(),
+                        configManager.getAWSAccessKey(),
+                        configManager.getAWSSecretKey());
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
