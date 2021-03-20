@@ -7,6 +7,7 @@ MODELS=("fastrcnn" "fcn_resnet_101" "deeplabv3_resnet_101" "my_text_classifier_v
 MODEL_INPUTS=("examples/object_detector/persons.jpg,docs/images/blank_image.jpg" "examples/image_segmenter/persons.jpg" "examples/image_segmenter/persons.jpg"
  "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg" "examples/text_classification/sample_text.txt" "examples/image_classifier/kitten.jpg"
  "examples/image_segmenter/persons.jpg" "examples/image_segmenter/persons.jpg" "examples/Huggingface_Transformers/QA_artifacts/sample_text.txt" 
+
  "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt" "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt")
 HANDLERS=("object_detector" "image_segmenter" "image_segmenter" "text_classification" "image_classifier" "text_classification" "image_classifier" "image_segmenter" "image_segmenter" "custom" "custom" "custom")
 
