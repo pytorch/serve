@@ -9,3 +9,5 @@
 
 rootProject.name = 'plugins'
 include 'endpoints'
+include 'DDBEndPoint'
+
