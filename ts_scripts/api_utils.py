@@ -68,8 +68,8 @@ def cleanup_model_store():
 
 def move_logs(log_file, artifact_dir):
     logs_dir = os.path.join("logs")
-    os.rename(log_file, os.path.join(logs_dir, log_file))    # mv file logs/
-    os.rename(logs_dir, os.path.join(artifact_dir, logs_dir)) # mv logs/ dir
+    shutil.move(log_file, os.path.join(logs_dir, log_file)) # mv file logs/
+    shutil.move(logs_dir, os.path.join(artifact_dir, logs_dir)) # mv logs/ dir
 
 
 def trigger_management_tests():
