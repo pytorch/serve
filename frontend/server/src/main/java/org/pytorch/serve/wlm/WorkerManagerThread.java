@@ -88,6 +88,7 @@ public class WorkerManagerThread implements Runnable {
             ConfigManager configManager,
             EventLoopGroup backendEventGroup,
             int port,
+	    int gpuId,
             Model model,
             BatchAggregator aggregator,
             WorkerManagerStateListener listener) {
@@ -110,6 +111,10 @@ public class WorkerManagerThread implements Runnable {
                         "ms",
                         ConfigManager.getInstance().getHostName(),
                         new Dimension("Level", "Host"));
+    }
+
+    public int getGpuId() {
+        return gpuId;
     }
 
     @Override
