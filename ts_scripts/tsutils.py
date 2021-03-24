@@ -143,5 +143,5 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
 def get_gpu_usage(device_id):
     usage = nvgpu.gpu_info()[device_id]
     total, free, used = usage['mem_total'], usage['mem_total'] - usage['mem_used'], usage['mem_used']
-    print("GPU Usage of {device_id} : Total - {total} | Used - {used} | Free - {free}")
+    print(f"GPU Usage of {device_id} : Total - {total} | Used - {used} | Free - {free}")
     return total, free, used
