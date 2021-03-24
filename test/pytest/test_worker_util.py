@@ -5,7 +5,7 @@ import shutil
 def test_worker_utilization():
 
   # To help discover local modules
-  REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+  REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
   sys.path.append(REPO_ROOT)
   import ts_scripts.tsutils as ts
 
@@ -17,19 +17,22 @@ def test_worker_utilization():
   if(n_workers):
     n_workers = int(n_workers)
   else:
-    # Default for CICD Env
-    n_workers = 15
+    # Default for CICD Env - Total / Free / Used @ 9 Workers for BERT (16160, 2333, 13827)
+    n_workers = 10
 
   with open(ts_config, "w") as f:
     f.write("number_of_gpu=1")
 
-  shutil.rmtree(model_store)
+  if os.path.isdir(model_store):
+    shutil.rmtree(model_store)
   os.makedirs(model_store)
 
-  ts.start_torchserve(model_store=model_store, snapshot_file=ts_config, no_config_snapshots=True)
+  ts.start_torchserve(model_store=model_store, config_file=ts_config, ncs=True)
+  print(ts.get_gpu_usage(device_id=0))
   ts.register_model(model_name=model_name)
-  ts.get_gpu_usage(device_id=0)
-  ts.scale_up_model(model_name, workers=5)
-  ts.get_gpu_usage(device_id=0)
+  print(ts.get_gpu_usage(device_id=0))
+  for i in range(2, n_workers, 2):
+      ts.scale_up_model(model_name, workers=i)
+      print(ts.get_gpu_usage(device_id=0))
   ts.stop_torchserve()
-  ts.get_gpu_usage(device_id=0)
+  print(ts.get_gpu_usage(device_id=0))

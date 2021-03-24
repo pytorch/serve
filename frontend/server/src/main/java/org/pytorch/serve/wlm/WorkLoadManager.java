@@ -38,7 +38,7 @@ public class WorkLoadManager {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
         this.port = new AtomicInteger(configManager.getInitialWorkerPort());
-        this.gpuCounter = new AtomicInteger(0);
+        this.gpuCounter = new AtomicInteger(-1);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
         workerManagers = new ConcurrentHashMap<>();
@@ -198,7 +198,7 @@ public class WorkLoadManager {
 
         WorkerManagerStateListener listener = new WorkerManagerStateListener(future, 1);
         BatchAggregator aggregator = new BatchAggregator(model);
-	int maxGpu = configManager.getNumberOfGpu();
+    int maxGpu = configManager.getNumberOfGpu();
         int gpuId = -1;
         if (maxGpu > 0) {
             gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
@@ -209,7 +209,7 @@ public class WorkLoadManager {
                         configManager,
                         backendGroup,
                         configManager.isDebug() ? port.get() : port.getAndIncrement(),
-			gpuId,
+    		        gpuId,
                         model,
                         aggregator,
                         listener);
@@ -231,7 +231,7 @@ public class WorkLoadManager {
                             configManager,
                             backendGroup,
                             portNum,
-			    workerManagers.get(model.getModelVersionName()).getGpuId(),
+    		            workerManagers.get(model.getModelVersionName()).getGpuId(),
                             model,
                             aggregator,
                             listener);
