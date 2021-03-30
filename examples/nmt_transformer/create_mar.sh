@@ -100,7 +100,7 @@ else
     echo
     echo "creating mar file ...."
     torch-model-archiver -f --model-name TransformerDe2En --version 1.0 --serialized-file wmt19.de-en.joined-dict.single_model/model.pt --export-path model_store --handler model_handler_generalized.py --extra-files wmt19.de-en.joined-dict.single_model/dict.de.txt,wmt19.de-en.joined-dict.single_model/dict.en.txt,wmt19.de-en.joined-dict.single_model/bpecodes,fairseq-build/$file_name,setup_config.json -r requirements.txt
-   echo "========> mar file creation completed successfully...."
+    echo "========> mar file creation completed successfully...."
 
     echo "removing unwanted files ..."
     rm -rf fairseq

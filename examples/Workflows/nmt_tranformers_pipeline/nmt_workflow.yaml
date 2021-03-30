@@ -1,8 +1,8 @@
 models:
     min-workers: 1
     max-workers: 1
-    batch-size: 1
-    max-batch-delay: 50
+    batch-size: 4
+    max-batch-delay: 100
 
     nmt_en_de:
       url: TransformerEn2De.mar
