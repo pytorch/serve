@@ -4,8 +4,14 @@ import logging
 import os
 import ast
 import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForTokenClassification
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    AutoModelForQuestionAnswering,
+    AutoModelForTokenClassification,
+)
 from ts.torch_handler.base_handler import BaseHandler
+from captum.attr import LayerIntegratedGradients
 
 logger = logging.getLogger(__name__)
 
@@ -14,24 +20,37 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
+
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.initialized = False
 
     def initialize(self, ctx):
+        """In this initialize function, the BERT model is loaded and
+        the Layer Integrated Gradients Algorithmfor Captum Explanations
+        is initialized here.
+
+        Args:
+            ctx (context): It is a JSON Object containing information
+            pertaining to the model artefacts parameters.
+        """
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        serialized_file = self.manifest['model']['serializedFile']
+        serialized_file = self.manifest["model"]["serializedFile"]
         model_pt_path = os.path.join(model_dir, serialized_file)
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda:" + str(properties.get("gpu_id"))
+            if torch.cuda.is_available()
+            else "cpu"
+        )
         # read configs for the mode, model_name, etc. from setup_config.json
         setup_config_path = os.path.join(model_dir, "setup_config.json")
         if os.path.isfile(setup_config_path):
             with open(setup_config_path) as setup_config_file:
                 self.setup_config = json.load(setup_config_file)
         else:
-            logger.warning('Missing the setup_config.json file.')
+            logger.warning("Missing the setup_config.json file.")
 
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
@@ -39,25 +58,34 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             self.model = torch.jit.load(model_pt_path)
         elif self.setup_config["save_mode"] == "pretrained":
             if self.setup_config["mode"] == "sequence_classification":
-                self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+                self.model = AutoModelForSequenceClassification.from_pretrained(
+                    model_dir
+                )
             elif self.setup_config["mode"] == "question_answering":
                 self.model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
             elif self.setup_config["mode"] == "token_classification":
                 self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
             else:
-                logger.warning('Missing the operation mode.')
+                logger.warning("Missing the operation mode.")
         else:
-            logger.warning('Missing the checkpoint or state_dict.')
+            logger.warning("Missing the checkpoint or state_dict.")
 
         if not os.path.isfile(os.path.join(model_dir, "vocab.*")):
-            self.tokenizer = AutoTokenizer.from_pretrained(self.setup_config["model_name"], do_lower_case=self.setup_config["do_lower_case"])
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.setup_config["model_name"],
+                do_lower_case=self.setup_config["do_lower_case"],
+            )
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_dir, do_lower_case=self.setup_config["do_lower_case"])
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                model_dir, do_lower_case=self.setup_config["do_lower_case"]
+            )
 
         self.model.to(self.device)
         self.model.eval()
 
-        logger.debug('Transformer model from path {0} loaded successfully'.format(model_dir))
+        logger.info(
+            "Transformer model from path %s loaded successfully", model_dir
+        )
 
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
@@ -67,12 +95,23 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 with open(mapping_file_path) as f:
                     self.mapping = json.load(f)
             else:
-                logger.warning('Missing the index_to_name.json file.')
+                logger.warning("Missing the index_to_name.json file.")
 
+            # ------------------------------- Captum initialization ----------------------------#
+        self.lig = LayerIntegratedGradients(
+            captum_sequence_forward, self.model.bert.embeddings
+        )
         self.initialized = True
 
     def preprocess(self, requests):
-        """ Basic text preprocessing, based on the user's chocie of application mode.
+        """Basic text preprocessing, based on the user's chocie of application mode.
+
+        Args:
+            requests (str): The Input data in the form of text is passed on to the preprocess
+            function.
+
+        Returns:
+            list : The preprocess function returns a list of Tensor for the size of the word tokens.
         """
         input_batch = None
         for idx, data in enumerate(requests):
@@ -111,7 +150,14 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         return input_batch
 
     def inference(self, input_batch):
-        """ Predict the class (or classes) of the received text using the serialized transformers checkpoint.
+        """Predict the class (or classes) of the received text using the
+        serialized transformers checkpoint.
+
+        Args:
+            input_batch (list): List of Text Tensors from the pre-process function is passed here
+
+        Returns:
+            list : It returns a list of the predicted value for the input text
         """
 
         inferences = []
@@ -175,3 +221,126 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             (list): Returns a list of the Predictions and Explanations.
         """
         return inference_output
+
+    def get_insights(self, input_batch, text, target):
+        """This function calls the layer integrated gradient to get word importance
+        of the input text
+
+        Args:
+            input_batch (int): Batches of tokens IDs of text
+            text (str): The Text specified in the input request
+            target (int): The Target can be set to any acceptable label under the user's discretion.
+
+        Returns:
+            (list): Returns a list of importances and words.
+        """
+        if isinstance(text, (bytes, bytearray)):
+            text = text.decode('utf-8')
+        input_ids, ref_input_ids, attention_mask = construct_input_ref(
+            text, self.tokenizer, self.device
+        )
+        all_tokens = get_word_token(input_ids, self.tokenizer)
+        attributions, delta = self.lig.attribute(
+            inputs=input_ids,
+            baselines=ref_input_ids,
+            target=self.target,
+            additional_forward_args=(attention_mask, 0, self.model),
+            return_convergence_delta=True,
+        )
+
+        attributions_sum = summarize_attributions(attributions)
+        response = {}
+        response["importances"] = attributions_sum.tolist()
+        response["words"] = all_tokens
+        response["delta"] = delta[0].tolist()
+        return [response]
+
+
+def construct_input_ref(text, tokenizer, device):
+    """For a given text, this function creates token id, reference id and
+    attention mask based on encode which is faster for captum insights
+
+    Args:
+        text (str): The text specified in the input request
+        tokenizer (AutoTokenizer Class Object): To word tokenize the input text
+        device (cpu or gpu): Type of the Environment the server runs on.
+
+    Returns:
+        input_id(Tensor): It attributes to the tensor of the input tokenized words
+        ref_input_ids(Tensor): Ref Input IDs are used as baseline for the attributions
+        attention mask() :  The attention mask is a binary tensor indicating the position
+         of the padded indices so that the model does not attend to them.
+    """
+    text_ids = tokenizer.encode(text, add_special_tokens=False)
+    # construct input token ids
+    logger.info("text_ids %s", text_ids)
+    logger.info("[tokenizer.cls_token_id] %s", [tokenizer.cls_token_id])
+    input_ids = [tokenizer.cls_token_id] + text_ids + [tokenizer.sep_token_id]
+    logger.info("input_ids %s", input_ids)
+
+    input_ids = torch.tensor([input_ids], device=device)
+    # construct reference token ids
+    ref_input_ids = (
+        [tokenizer.cls_token_id]
+        + [tokenizer.pad_token_id] * len(text_ids)
+        + [tokenizer.sep_token_id]
+    )
+    ref_input_ids = torch.tensor([ref_input_ids], device=device)
+    # construct attention mask
+    attention_mask = torch.ones_like(input_ids)
+    return input_ids, ref_input_ids, attention_mask
+
+
+def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
+    """This function is used to get the predictions from the model and this function 
+    can be used independent of the type of the BERT Task. In case of a QnA, there is no
+    need to create two models. one model with different positions can be used.
+
+    Args:
+        inputs (list): Input for Predictions
+        attention_mask (list, optional): The attention mask is a binary tensor indicating the position
+         of the padded indices so that the model does not attend to them, it defaults to None.
+        position (int, optional): Position depends on the BERT Task. If it is a QnA, 
+        then positon is set to 1. Defaults to 0.
+        model ([type], optional): Name of the model, it defaults to None.
+
+    Returns:
+        list: Prediction Outcome
+    """
+    model.eval()
+    model.zero_grad()
+    pred = model(inputs, attention_mask=attention_mask)
+    pred = pred[position]
+    return pred
+
+
+def summarize_attributions(attributions):
+    """Summarises the attribution across multiple runs
+
+    Args:
+        attributions ([list): attributions from the Layer Integrated Gradients
+
+    Returns:
+        list : Returns the attributions after normalizing them. 
+    """
+    attributions = attributions.sum(dim=-1).squeeze(0)
+    attributions = attributions / torch.norm(attributions)
+    return attributions
+
+
+def get_word_token(input_ids, tokenizer):
+    """constructs word tokens from token id using the BERT's
+    Auto Tokenizer
+
+    Args:
+        input_ids (list): Input IDs from construct_input_ref method
+        tokenizer (class): The Auto Tokenizer Pre-Trained model object
+
+    Returns:
+        (list): Returns the word tokens
+    """
+    indices = input_ids[0].detach().tolist()
+    tokens = tokenizer.convert_ids_to_tokens(indices)
+    # Remove unicode space character from BPE Tokeniser
+    tokens = [token.replace("Ġ", "") for token in tokens]
+    return tokens

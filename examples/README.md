@@ -1,11 +1,13 @@
 # Contents of this Document
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
-* [Serving torchvision image classification models in TorchServe](#examples-torchvision-image-classification-models-in-torchserve)
-* [Serving custom model with custom service handler](#example-to-serve-a-custom-model-with-custom-service-handler)
-* [Serving text classification model](#example-to-serve-text-classification-model)
-* [Serving object detection model](#example-to-serve-object-detection-model)
-* [Serving image segmentation model](#example-to-serve-image-segmentation-model)
+* [Serving torchvision image classification models](#serving-image-classification-models)
+* [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
+* [Serving text classification model](#serving-text-classification-model)
+* [Serving object detection model](#serving-object-detection-model)
+* [Serving image segmentation model](#serving-image-segmentation-model)
+* [Serving huggingface transformers model](#serving-huggingface-transformers)
+* [Serving waveglow text to speech synthesizer model](#serving-wavegolw-text-to-speech-synthesizer)
 
 # TorchServe Examples
 
@@ -43,38 +45,44 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
     torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
     ```  
 
-## Example torchvision image classification models in TorchServe (Eager mode)
+## Serving image classification models
 The following example demonstrates how to create image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
 
-* [Image classification models](image_classifier/)
+* [Image classification models](image_classifier)
 
-## Example to serve a Custom Model with Custom Service Handler (Eager mode)
+## Serving custom model with custom service handler
 
 The following example demonstrates how to create and serve a custom NN model with custom handler archives in TorchServe :
 
 * [Digit recognition with MNIST](image_classifier/mnist)
 
-## Example to serve Text classification model (Eager mode)
+## Serving text classification model
 
 The following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TorchServe :
 
 * [Text classification example](text_classification)
 
-## Example to serve Object Detection model (Eager mode)
+## Serving object detection model
 
 The following example demonstrates how to create and serve a pretrained fast-rcnn NN model with default object_detector handler provided by TorchServe :
 
 * [Object detection example](object_detector)
 
-## Example to serve Image Segmentation model (Eager mode)
+## Serving image segmentation model
 
 The following example demonstrates how to create and serve a pretrained fcn NN model with default image_segmenter handler provided by TorchServe :
 
 * [Image segmentation example](image_segmenter)
 
 
-## Example to serve Huggingface Transformers (Torchscripted)
+## Serving Huggingface Transformers
 
 The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
 
 * [Hugging Face Transformers](Huggingface_Transformers)
+
+## Serving Wavegolw text to speech synthesizer
+
+The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
+
+* [Waveglow text to speech synthesizer](text_to_speech_synthesizer)

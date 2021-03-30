@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
@@ -47,12 +48,16 @@ public final class SnapshotManager {
             return;
         }
 
-        Map<String, Model> defModels = modelManager.getDefaultModels();
+        Map<String, Model> defModels = modelManager.getDefaultModels(true);
         Map<String, Map<String, JsonObject>> modelNameMap = new HashMap<>();
 
         try {
             int modelCount = 0;
             for (Map.Entry<String, Model> m : defModels.entrySet()) {
+
+                if (m.getValue().isWorkflowModel()) {
+                    continue;
+                }
 
                 Set<Entry<String, Model>> versionModels =
                         modelManager.getAllModelVersions(m.getKey());
@@ -105,10 +110,8 @@ public final class SnapshotManager {
     }
 
     public void restore(String modelSnapshot) throws InvalidSnapshotException, IOException {
-        Snapshot snapshot = null;
-
         logger.info("Started restoring models from snapshot {}", modelSnapshot);
-        snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
+        Snapshot snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
         // Validate snapshot
         validate(snapshot);
         // Init. models
@@ -135,7 +138,7 @@ public final class SnapshotManager {
 
         } catch (IOException e) {
             logger.error("Error while retrieving snapshot details. Details: {}", e.getMessage());
-        } catch (ModelException | InterruptedException e) {
+        } catch (ModelException | InterruptedException | DownloadArchiveException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
     }

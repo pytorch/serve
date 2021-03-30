@@ -21,7 +21,7 @@
     - Edit system or user profile environment variable `PATH` value and append path `<your-openjdk11-path>\bin` to it
  - Install nodejs
     - Download [nodejs](https://nodejs.org/dist/v14.15.1/node-v14.15.1-x64.msi)
-    - Post installation make sure nodejs is present in PATH environment variable.
+    - Post installation make sure nodejs and npm node modules binaries are present in PATH environment variable.
     - You may have to re-start windows if your 'Anaconda Powershell Prompt' (APP) is not able to detect npm or nodejs commands 
     
 ## Install from binaries
@@ -37,7 +37,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - For PyPi package (N/A at present)
     - `pip install torchserve torch-model-archiver`
  - Start torchserve `torchserve.exe --start --model-store <path-to-model-store>`
- - For next steps refer [Serving a model](https://github.com/pytorch/serve#serve-a-model)
+ - For next steps refer [Serving a model](../README.md#serve-a-model)
     
 ## Install from source
 
@@ -45,13 +45,22 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
  
    NOTE ensure that you have restarted system after install above Visual C++ components
+ - Ensure that 'nvidia-smi.exe' is available in `Path` environment variable. Usually, it should be available under `<your_install_drive>\Program Files\NVIDIA Corporation\NVSMI`
+   e.g. C:\Program Files\NVIDIA Corporation\NVSMI, add this path to `Path` env variable
  - Start 'Anaconda Powershell Prompt' (APP) as Admin User i.e. By right click on APP and run following commands
  - `git clone https://github.com/pytorch/serve.git`
  - `pip install click`
- - `cd serve`
- - `python .\ts_scripts\install_dependencies.py`
- - `python .\ts_scripts\install_from_src.py`
- - Refer [Install torchserve for development](https://github.com/pytorch/serve#install-torchserve-for-development)
+ - `cd serve`  
+ 
+    #### For production usage, use commands below:
+    - `python .\ts_scripts\install_dependencies.py --environment=prod`
+    - `python .\ts_scripts\install_from_src.py`  
+ 
+    #### For development purposes, use commands below: 
+    If you plan to develop with TorchServe and change some source code, commands below will help.
+    The install_dependencies script installs few extra dependencies which are needed for development and testing.
+    - `python .\ts_scripts\install_dependencies.py --environment=dev`
+    - `python .\ts_scripts\install_from_src.py`  
 
 ## Troubleshooting
  - If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in `frontend/server/src/test/resources/config.properties`,

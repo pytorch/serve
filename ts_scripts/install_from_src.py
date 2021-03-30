@@ -16,9 +16,9 @@ from ts_scripts.utils import is_conda_env
 def clean_slate(): 
     print("## Uninstall existing torchserve and model archiver")
     if is_conda_env():
-        cmd = "conda uninstall -y torchserve torch-model-archiver"
+        cmd = "conda uninstall -y torchserve torch-model-archiver workflow-model-archiver"
     else:
-        cmd = "pip uninstall -y torchserve torch-model-archiver"
+        cmd = "pip uninstall -y torchserve torch-model-archiver workflow-model-archiver"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     os.system(cmd)
     time.sleep(5)
@@ -38,6 +38,13 @@ def install_torch_model_archiver():
     os.system(cmd)
 
 
+def install_torch_workflow_archiver():
+    print("## Install torch-workflow-archiver from source")
+    cmd = "pip install workflow-archiver/."
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+    os.system(cmd)
+
+
 def clean_up_build_residuals():
     print("## Cleaning build residuals (__pycache__)")
     try:
@@ -53,6 +60,7 @@ def clean_up_build_residuals():
 def install_from_src():
     clean_slate()
     install_torch_model_archiver()
+    install_torch_workflow_archiver()
     install_torchserve()    
     clean_up_build_residuals()
 

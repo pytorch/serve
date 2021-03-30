@@ -1,0 +1,13 @@
+models:
+    #global model params
+    min-workers: 1
+    max-workers: 1
+    batch-size: 1
+    max-batch-delay : 50
+
+    densenet:
+      url : densenet_wf.mar
+ 
+dag: #can have only one start node
+  pre_processing : [densenet]
+  densenet : [post_processing]

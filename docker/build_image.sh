@@ -17,7 +17,7 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
-          echo "-bt, --buildtype specify to created image for codebuild"
+          echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
           exit 0
@@ -36,7 +36,8 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
+          BASE_IMAGE="nvidia/cuda:11.0-cudnn7-runtime-ubuntu18.04"
+          CUDA_VERSION="cu110"
           shift
           ;;
         -bt|--buildtype)
@@ -52,12 +53,17 @@ do
           ;;
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ $CUDA_VERSION == "cu102"  ]; then
-            CUDA_VERSION=""
+          if [ $CUDA_VERSION == "cu110" ];
+          then
+            BASE_IMAGE="nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04"
+          elif [ $CUDA_VERSION == "cu102" ];
+          then
+            BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu101" ]
           then
             BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
-          elif [ $CUDA_VERSION == "cu92"  ]; then
+          elif [ $CUDA_VERSION == "cu92" ];
+          then
             BASE_IMAGE="nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04"
           else
             echo "CUDA version not supported"
@@ -68,11 +74,6 @@ do
           ;;
     esac
 done
-
-if [ "${CUDA_VERSION}" == "" ] && [ "${BUILD_TYPE}" != "production" ]
-then
-  CUDA_VERSION="latest"
-fi
 
 if [ "${BUILD_TYPE}" == "dev" ] && ! $CUSTOM_TAG ;
 then

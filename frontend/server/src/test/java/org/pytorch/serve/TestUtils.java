@@ -23,8 +23,10 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
@@ -136,6 +138,20 @@ public final class TestUtils {
         }
     }
 
+    public static void unregisterWorkflow(Channel channel, String workflowName, boolean syncChannel)
+            throws InterruptedException {
+        String requestURL = "/workflows/" + workflowName;
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
     public static void registerModel(
             Channel channel,
             String url,
@@ -147,6 +163,21 @@ public final class TestUtils {
         if (withInitialWorkers) {
             requestURL += "&initial_workers=1&synchronous=true";
         }
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
+    public static void registerWorkflow(
+            Channel channel, String url, String workflowName, boolean syncChannel)
+            throws InterruptedException {
+        String requestURL = "/workflows?url=" + url + "&workflow_name=" + workflowName;
 
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
@@ -207,10 +238,27 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
+    public static void describeWorkflow(Channel channel, String workflowName) {
+        String requestURL = "/workflows/" + workflowName;
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
+        channel.writeAndFlush(req);
+    }
+
     public static void listModels(Channel channel) {
         HttpRequest req =
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1, HttpMethod.GET, "/models?limit=200&nextPageToken=X");
+        channel.writeAndFlush(req);
+    }
+
+    public static void listWorkflow(Channel channel) {
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.GET,
+                        "/workflows?limit=200&nextPageToken=X");
         channel.writeAndFlush(req);
     }
 
@@ -341,6 +389,14 @@ public final class TestUtils {
         modelVersion = modelVersion == null ? "default" : modelVersion;
         return Pattern.compile(
                 String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
+    }
+
+    public static void setConfiguration(ConfigManager configManager, String key, String val)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field f = configManager.getClass().getDeclaredField("prop");
+        f.setAccessible(true);
+        Properties p = (Properties) f.get(configManager);
+        p.setProperty(key, val);
     }
 
     @ChannelHandler.Sharable

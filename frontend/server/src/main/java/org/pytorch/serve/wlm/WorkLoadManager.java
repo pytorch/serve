@@ -1,8 +1,8 @@
 package org.pytorch.serve.wlm;
 
 import io.netty.channel.EventLoopGroup;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class WorkLoadManager {
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
-        this.port = new AtomicInteger(configManager.getIniitialWorkerPort());
+        this.port = new AtomicInteger(configManager.getInitialWorkerPort());
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
@@ -85,19 +85,19 @@ public class WorkLoadManager {
         return numWorking;
     }
 
-    public CompletableFuture<HttpResponseStatus> modelChanged(
+    public CompletableFuture<Integer> modelChanged(
             Model model, boolean isStartup, boolean isCleanUp) {
         synchronized (model.getModelVersionName()) {
             boolean isSnapshotSaved = false;
-            CompletableFuture<HttpResponseStatus> future = new CompletableFuture<>();
+            CompletableFuture<Integer> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
             List<WorkerThread> threads;
             if (minWorker == 0) {
                 threads = workers.remove(model.getModelVersionName());
                 if (threads == null) {
-                    future.complete(HttpResponseStatus.OK);
-                    if (!isStartup && !isCleanUp) {
+                    future.complete(HttpURLConnection.HTTP_OK);
+                    if (!isStartup && !isCleanUp && !model.isWorkflowModel()) {
                         SnapshotManager.getInstance().saveSnapshot();
                     }
                     return future;
@@ -133,24 +133,24 @@ public class WorkLoadManager {
                         } catch (InterruptedException | IOException e) {
                             logger.warn(
                                     "WorkerThread interrupted during waitFor, possible async resource cleanup.");
-                            future.complete(HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                            future.complete(HttpURLConnection.HTTP_INTERNAL_ERROR);
                             return future;
                         }
                         if (!workerDestroyed) {
                             logger.warn(
                                     "WorkerThread timed out while cleaning, please resend request.");
-                            future.complete(HttpResponseStatus.REQUEST_TIMEOUT);
+                            future.complete(HttpURLConnection.HTTP_CLIENT_TIMEOUT);
                             return future;
                         }
                     }
                 }
-                if (!isStartup && !isCleanUp) {
+                if (!isStartup && !isCleanUp && !model.isWorkflowModel()) {
                     SnapshotManager.getInstance().saveSnapshot();
                     isSnapshotSaved = true;
                 }
-                future.complete(HttpResponseStatus.OK);
+                future.complete(HttpURLConnection.HTTP_OK);
             }
-            if (!isStartup && !isSnapshotSaved && !isCleanUp) {
+            if (!isStartup && !isSnapshotSaved && !isCleanUp && !model.isWorkflowModel()) {
                 SnapshotManager.getInstance().saveSnapshot();
             }
             return future;
@@ -158,10 +158,7 @@ public class WorkLoadManager {
     }
 
     private void addThreads(
-            List<WorkerThread> threads,
-            Model model,
-            int count,
-            CompletableFuture<HttpResponseStatus> future) {
+            List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = configManager.getNumberOfGpu();
         for (int i = 0; i < count; ++i) {

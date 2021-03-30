@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_v3.mar",
         "model_name":"my_text_classifier",
         "worker":1,
         "synchronous":"true",
@@ -8,10 +8,10 @@
         "content-type":"application/json",
         "validator":"image_classification",
         "expected":{
-            "World":0.0021506540942937136,
-            "Sports":2.8953058972547296e-07,
-            "Business":0.9967544674873352,
-            "Sci/Tec":0.0010945842368528247
+            "World":6.338399998639943e-06,
+            "Sports":1.7732110890733566e-08,
+            "Business":0.9997542500495911,
+            "Sci/Tec":0.0002394452749285847
         },
         "tolerance":5
     },
@@ -275,7 +275,7 @@
     {
         "url":"https://torchserve.pytorch.org/mar_files/bert_token_classification_no_torchscript.mar",
         "model_name":"bert_token_classification_no_torchscript",
-        "worker":"1",
+        "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"application/json",
@@ -345,7 +345,7 @@
     {
         "url":"https://torchserve.pytorch.org/mar_files/bert_seqc_without_torchscript.mar",
         "model_name":"bert_seqc_without_torchscript",
-        "worker":"1",
+        "worker":1,
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"text/plain",
