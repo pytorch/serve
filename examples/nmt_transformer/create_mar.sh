@@ -2,17 +2,17 @@
 
 if [ $# -gt 0 ] 
 then
-    if [ $1 == "en2fr_model" ] || [ $1 == "en2de_model" ]
+    if [ $1 == "en2fr_model" ] || [ $1 == "en2de_model" ] || [ $1 == "de2en_model" ]
     then
         model_name=$1
     else
         echo "Please provide the correct model name while running the script..."
-        echo -e "The model names are : \n1. en2fr_model \n2. en2de_model"
+        echo -e "The model names are : \n1. en2fr_model \n2. en2de_model \n3. de2en_model"
         exit 0
     fi
 else
     echo "Please provide the model name while running the script..."
-    echo -e "The model names are : \n1. en2fr_model \n2. en2de_model"
+    echo -e "The model names are : \n1. en2fr_model \n2. en2de_model \n3. de2en_model"
     exit 0
 fi
 
@@ -23,8 +23,9 @@ pip install Cython
 #Check if fairseq-build directory does not exist
 if [ ! -d "fairseq-build" ] 
 then
-    git clone https://github.com/pytorch/fairseq
+    git clone --recursive https://github.com/pytorch/fairseq
     cd fairseq/
+    git checkout v0.10.0
     python setup.py sdist bdist_wheel
     cd ..
     mkdir fairseq-build
@@ -57,7 +58,7 @@ then
 
     echo
     echo "creating mar file ...."
-    torch-model-archiver --model-name TransformerEn2Fr --version 1.0 --serialized-file wmt14.en-fr.joined-dict.transformer/model.pt --export-path model_store --handler model_handler_generalized.py --extra-files wmt14.en-fr.joined-dict.transformer/dict.en.txt,wmt14.en-fr.joined-dict.transformer/dict.fr.txt,wmt14.en-fr.joined-dict.transformer/bpecodes,fairseq-build/$file_name,setup_config.json -r requirements.txt
+    torch-model-archiver -f --model-name TransformerEn2Fr --version 1.0 --serialized-file wmt14.en-fr.joined-dict.transformer/model.pt --export-path model_store --handler model_handler_generalized.py --extra-files wmt14.en-fr.joined-dict.transformer/dict.en.txt,wmt14.en-fr.joined-dict.transformer/dict.fr.txt,wmt14.en-fr.joined-dict.transformer/bpecodes,fairseq-build/$file_name,setup_config.json -r requirements.txt
     echo "========> mar file creation completed successfully...."
     echo
 
@@ -66,7 +67,8 @@ then
     rm wmt14.en-fr.joined-dict.transformer.tar.bz2
     echo "========> removing completed successfully ..."
     echo
-else
+elif [ $model_name == "en2de_model" ]
+then
     #download the En2De Translation model checkpoint file
     wget https://dl.fbaipublicfiles.com/fairseq/models/wmt19.en-de.joined-dict.single_model.tar.gz
     echo
@@ -77,13 +79,32 @@ else
 
     echo
     echo "creating mar file ...."
-    torch-model-archiver --model-name TransformerEn2De --version 1.0 --serialized-file wmt19.en-de.joined-dict.single_model/model.pt --export-path model_store --handler model_handler_generalized.py --extra-files wmt19.en-de.joined-dict.single_model/dict.en.txt,wmt19.en-de.joined-dict.single_model/dict.de.txt,wmt19.en-de.joined-dict.single_model/bpecodes,fairseq-build/$file_name,setup_config.json -r requirements.txt
+    torch-model-archiver -f --model-name TransformerEn2De --version 1.0 --serialized-file wmt19.en-de.joined-dict.single_model/model.pt --export-path model_store --handler model_handler_generalized.py --extra-files wmt19.en-de.joined-dict.single_model/dict.en.txt,wmt19.en-de.joined-dict.single_model/dict.de.txt,wmt19.en-de.joined-dict.single_model/bpecodes,fairseq-build/$file_name,setup_config.json -r requirements.txt
     echo "========> mar file creation completed successfully...."
     echo
 
     echo "removing unwanted files ..."
     rm -rf fairseq
     rm wmt19.en-de.joined-dict.single_model.tar.gz
+    echo "========> removing completed successfully ..."
+    echo
+else
+    #download the De2En Translation model checkpoint file
+    wget https://dl.fbaipublicfiles.com/fairseq/models/wmt19.de-en.joined-dict.single_model.tar.gz
+    echo
+    echo "extracting wmt19.de-en.joined-dict.single_model.tar.gz file ...."
+    tar -xvf wmt19.de-en.joined-dict.single_model.tar.gz
+    echo "========> extraction completed successfully...."
+    echo
+
+    echo
+    echo "creating mar file ...."
+    torch-model-archiver -f --model-name TransformerDe2En --version 1.0 --serialized-file wmt19.de-en.joined-dict.single_model/model.pt --export-path model_store --handler model_handler_generalized.py --extra-files wmt19.de-en.joined-dict.single_model/dict.de.txt,wmt19.de-en.joined-dict.single_model/dict.en.txt,wmt19.de-en.joined-dict.single_model/bpecodes,fairseq-build/$file_name,setup_config.json -r requirements.txt
+   echo "========> mar file creation completed successfully...."
+
+    echo "removing unwanted files ..."
+    rm -rf fairseq
+    rm wmt19.de-en.joined-dict.single_model.tar.gz
     echo "========> removing completed successfully ..."
     echo
 fi

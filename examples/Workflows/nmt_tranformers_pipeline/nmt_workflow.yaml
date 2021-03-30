@@ -1,0 +1,17 @@
+models:
+    min-workers: 1
+    max-workers: 1
+    batch-size: 1
+    max-batch-delay: 50
+
+    nmt_en_de:
+      url: TransformerEn2De.mar
+
+    nmt_de_en:
+      url: TransformerDe2En.mar
+
+dag:
+  pre_processing: [nmt_en_de]
+  nmt_en_de: [prep_intermediate_input]
+  prep_intermediate_input: [nmt_de_en]
+  nmt_de_en: [post_processing]
