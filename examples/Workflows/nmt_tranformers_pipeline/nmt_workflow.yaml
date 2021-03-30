@@ -11,7 +11,6 @@ models:
       url: TransformerDe2En.mar
 
 dag:
-  pre_processing: [nmt_en_de]
   nmt_en_de: [prep_intermediate_input]
   prep_intermediate_input: [nmt_de_en]
   nmt_de_en: [post_processing]

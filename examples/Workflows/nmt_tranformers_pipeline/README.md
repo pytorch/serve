@@ -3,7 +3,6 @@
 This example uses the existing [nmt_transformers](../../nmt_transformer) standalone example to create a workflow. We use two models, the English to German translator and the German to English translator to demonstrate stringing models together in a sequential flow.
 
 The model flow is composed of:
-- Pre-processing (Workflow function): Converts the inputs into a python list expected by the first model
 - TransformerEn2De (Workflow model): Transformer model which translates the English text to German
 - Intermediate-input-processing (Workflow function): Strips the input key from the previous model output and passing the translated text as expected to the next model
 - TransformerDe2En (Workflow model): Transformer model which translates the German text back to English
@@ -11,7 +10,7 @@ The model flow is composed of:
 
 ## Flow
 
-  Input Text -> Pre-processing -> TransformerEn2De -> Intermediate-input-processing -> TransformerDe2En -> Post-processing
+  Input Text -> TransformerEn2De -> Intermediate-input-processing -> TransformerDe2En -> Post-processing
 
 ## Commands to create the models and the workflow
 ```
@@ -41,19 +40,19 @@ torch-workflow-archiver -f --workflow-name nmt_wf --spec-file nmt_workflow.yaml 
 }
 
 # Batched input
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample.txt&
+> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample1.txt& \
+> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample2.txt& \
+> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample3.txt& \
+> curl http://127.0.0.1:8080/wfpredict/nmt_wf -T model_input/sample4.txt&
 {
-  "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
-  "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."
+  "german_translation": "Hallo Welt!!!",
+  "english_re_translation": "Hello world!!!"
 }{
-  "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
-  "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."
+  "german_translation": "Es tut mir leid, ich erinnere mich nicht an Ihren Namen. Sie sind es?",
+  "english_re_translation": "I'm sorry, I don't remember your name. Is it you?"
 }{
-  "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
-  "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."
+  "german_translation": "Mir geht es gut. Wie geht es Ihnen? Es l\u00e4uft gut, danke. Wie geht es Ihnen? Gut, danke. Und sich selbst?",
+  "english_re_translation": "How are you? It's going well, thank you. How are you? Good, thank you. And yourself?"
 }{
   "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
   "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."

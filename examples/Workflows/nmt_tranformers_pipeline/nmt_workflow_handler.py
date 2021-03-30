@@ -1,14 +1,5 @@
 import json
 
-def pre_processing(data, context):
-    if data:
-        texts = []
-        for row in data:
-            text = row.get("data") or row.get("body")
-            texts.append(text)
-        return texts
-
-
 def post_processing(data, context):
     '''
     Changes the output keys obtained from the individual model
