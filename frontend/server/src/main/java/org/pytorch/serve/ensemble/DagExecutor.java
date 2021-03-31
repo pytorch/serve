@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
-
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.InternalServerException;
@@ -72,8 +71,9 @@ public class DagExecutor {
 
                 try {
                     Future<NodeOutput> op = executorCompletionService.take();
-                    if(op == null){
-                        throw new ExecutionException(new RuntimeException("WorkflowNode result empty"));
+                    if (op == null) {
+                        throw new ExecutionException(
+                                new RuntimeException("WorkflowNode result empty"));
                     } else {
                         outputs.add(op.get());
                     }
@@ -135,7 +135,8 @@ public class DagExecutor {
         return leafOutputs;
     }
 
-    private NodeOutput invokeModel(String nodeName, WorkflowModel workflowModel, RequestInput input, int retryAttempt)
+    private NodeOutput invokeModel(
+            String nodeName, WorkflowModel workflowModel, RequestInput input, int retryAttempt)
             throws ModelNotFoundException, ModelVersionNotFoundException, ExecutionException,
                     InterruptedException {
         try {
@@ -148,12 +149,18 @@ public class DagExecutor {
             return new NodeOutput(nodeName, resp);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             logger.error(e.getMessage());
-            if(retryAttempt < workflowModel.getRetryAttempts()){
-                logger.error(String.format("Timed out while executing %s for attempt %d", nodeName, retryAttempt));
+            if (retryAttempt < workflowModel.getRetryAttempts()) {
+                logger.error(
+                        String.format(
+                                "Timed out while executing %s for attempt %d",
+                                nodeName, retryAttempt));
                 return invokeModel(nodeName, workflowModel, input, ++retryAttempt);
             } else {
                 logger.error(nodeName + " : " + e.getMessage());
-                throw new InternalServerException(String.format("Failed to execute workflow Node after %d attempts : Error executing %s", retryAttempt, nodeName)); // NOPMD
+                throw new InternalServerException(
+                        String.format(
+                                "Failed to execute workflow Node after %d attempts : Error executing %s",
+                                retryAttempt, nodeName)); // NOPMD
             }
         } catch (ModelNotFoundException e) {
             logger.error("Model not found.");

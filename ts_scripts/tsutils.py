@@ -106,8 +106,9 @@ def generate_grpc_client_stubs():
 
 def register_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {workflow_name} workflow")
+    model_zoo_url = "https://torchserve.s3.amazonaws.com"
     params = (
-        ("url", f"{workflow_name}.war"),
+        ("url", f"{model_zoo_url}/war_files/{workflow_name}.war"),
     )
     url = f"{protocol}://{host}:{port}/workflows"
     response = requests.post(url, params=params, verify=False)
