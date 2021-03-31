@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -18,22 +17,24 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import org.pytorch.serve.servingsdk.snapshot.Snapshot;
-import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
+import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FSSnapshotSerializer implements SnapshotSerializer {
 
     private Logger logger = LoggerFactory.getLogger(FSSnapshotSerializer.class);
+    private ConfigManager configManager = ConfigManager.getInstance();
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
-    public void saveSnapshot(Snapshot snapshot, final Properties prop) throws IOException {
+    public void saveSnapshot(Snapshot snapshot) throws IOException {
         File snapshotPath = new File(getSnapshotDirectory());
 
         FileUtils.forceMkdir(snapshotPath);
+
+        Properties prop = configManager.getConfiguration();
 
         File snapshotFile = new File(snapshotPath, snapshot.getName());
         if (snapshotFile.exists()) {
@@ -65,8 +66,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
         return System.getProperty("LOG_LOCATION") + "/config";
     }
 
-    @Override
-    public Properties getLastSnapshot() {
+    public static String getLastSnapshotFS() {
         String latestSnapshotPath = null;
         Path configPath = Paths.get(FSSnapshotSerializer.getSnapshotDirectory());
 
@@ -86,22 +86,7 @@ public class FSSnapshotSerializer implements SnapshotSerializer {
             }
         }
 
-        return loadProperties(latestSnapshotPath);
-    }
-
-    private Properties loadProperties(String propPath) {
-        if (propPath != null) {
-            File propFile = new File(propPath);
-            try (InputStream stream = Files.newInputStream(propFile.toPath())) {
-                Properties prop = new Properties();
-                prop.load(stream);
-                prop.put("tsConfigFile", propPath);
-                return prop;
-            } catch (IOException e) {
-                e.printStackTrace(); // NOPMD
-            }
-        }
-        return null;
+        return latestSnapshotPath;
     }
 
     private static long getSnapshotTime(String filename) {

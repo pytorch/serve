@@ -147,18 +147,7 @@ class ModelExportUtils(object):
 
                 if file_type == "extra_files":
                     for file in path.split(","):
-                        if os.path.isfile(file):
-                            shutil.copy2(file, model_path)
-                        elif os.path.isdir(file) and file != model_path:
-                            for item in os.listdir(file):
-                                src = os.path.join(file, item)
-                                dst = os.path.join(model_path, item)
-                                if os.path.isfile(src):
-                                    shutil.copy2(src, dst)
-                                elif os.path.isdir(src):
-                                    shutil.copytree(src, dst, False, None)
-                        else:
-                            raise ValueError(f"Invalid extra file given {file}")
+                        shutil.copy(file, model_path)
                 else:
                     shutil.copy(path, model_path)
 

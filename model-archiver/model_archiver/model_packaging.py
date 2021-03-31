@@ -22,6 +22,8 @@ def package_model(args, manifest):
     export_file_path = args.export_path
     requirements_file = args.requirements_file
 
+    temp_files = []
+
     try:
         ModelExportUtils.validate_inputs(model_name, export_file_path)
         # Step 1 : Check if .mar already exists with the given model name
@@ -41,6 +43,8 @@ def package_model(args, manifest):
     except ModelArchiverError as e:
         logging.error(e)
         sys.exit(1)
+    finally:
+        ModelExportUtils.clean_temp_files(temp_files)
 
 
 def generate_model_archive():

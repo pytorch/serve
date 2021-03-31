@@ -12,9 +12,7 @@ class Model(object):
                  extensions=None, requirements_file=None):
 
         self.model_name = model_name
-        self.serialized_file = None
-        if serialized_file:
-            self.serialized_file = serialized_file.split("/")[-1]
+        self.serialized_file = serialized_file.split("/")[-1]
         self.model_file = model_file
         self.model_version = model_version
         self.extensions = extensions
@@ -28,8 +26,7 @@ class Model(object):
 
         model_dict['modelName'] = self.model_name
 
-        if self.serialized_file:
-            model_dict['serializedFile'] = self.serialized_file
+        model_dict['serializedFile'] = self.serialized_file
 
         model_dict['handler'] = self.handler
 

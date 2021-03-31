@@ -1,6 +1,6 @@
 dependencies {
-    implementation "com.google.code.gson:gson:${gson_version}"
-    implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    compile "com.google.code.gson:gson:${gson_version}"
+    compile "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
 }
 
 project.ext{

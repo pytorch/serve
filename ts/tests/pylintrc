@@ -332,7 +332,7 @@ docstring-min-length=10
 [ELIF]
 
 # Maximum number of nested blocks for function / method body
-max-nested-blocks=7
+max-nested-blocks=5
 
 
 [CLASSES]

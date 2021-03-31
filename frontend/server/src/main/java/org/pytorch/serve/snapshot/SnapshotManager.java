@@ -39,7 +39,8 @@ public final class SnapshotManager {
     private SnapshotManager(ConfigManager configManager) {
         this.configManager = configManager;
         this.modelManager = ModelManager.getInstance();
-        this.snapshotSerializer = SnapshotSerializerFactory.getSerializer();
+        this.snapshotSerializer =
+                SnapshotSerializerFactory.getSerializer(configManager.getSnapshotStore());
     }
 
     private void saveSnapshot(String snapshotName) {
@@ -78,7 +79,7 @@ public final class SnapshotManager {
 
             Snapshot snapshot = new Snapshot(snapshotName, modelCount);
             snapshot.setModels(modelNameMap);
-            snapshotSerializer.saveSnapshot(snapshot, configManager.getConfiguration());
+            snapshotSerializer.saveSnapshot(snapshot);
         } catch (ModelNotFoundException e) {
             logger.error("Model not found while saving snapshot {}", snapshotName);
         } catch (IOException e) {
