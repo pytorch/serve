@@ -57,4 +57,10 @@ torch-workflow-archiver -f --workflow-name nmt_wf --spec-file nmt_workflow.yaml 
   "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
   "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."
 }
+
+# Unregister workflow
+> curl -X DELETE "http://127.0.0.1:8081/workflows/nmt_wf"
+{
+  "status": "Workflow \"nmt_wf\" unregistered"
+}
 ```
