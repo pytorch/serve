@@ -191,36 +191,13 @@ def test_workflow_sanity():
     ts_log_file = os.path.join("logs", "ts_console.log")
     os.makedirs("model_store", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
-    os.chdir(f"examples/Workflows/densenet_image_classifier_pipeline/")
 
-    # create model archive
-
-    response = requests.get("https://download.pytorch.org/models/densenet161-8d451a50.pth", allow_redirects=True)
-    open("densenet_model/densenet161-8d451a50.pth", 'wb').write(response.content)
-
-    os.system(f"{ts.torch_model_archiver_command[platform.system()]} --model-name densenet_wf --version 1.0 "
-              f"--model-file densenet_model/model.py --serialized-file densenet_model/densenet161-8d451a50.pth"
-              f" --handler densenet_model/densenet_handler.py")
-
-    shutil.move("densenet_wf.mar", f"{current_path}/model_store/")
-
-    os.remove("densenet_model/densenet161-8d451a50.pth")
-
-    # create workflow archive
-    os.system(f"{ts.torch_workflow_archiver_command[platform.system()]} --workflow-name densenet"
-              f" --spec-file densenet_workflow.yaml --handler densenet_workflow_handler.py"
-              f" --extra-files index_to_name.json")
-
-    shutil.move("densenet.war", f"{current_path}/model_store/")
-
-    os.chdir(current_path)
-
-    started = ts.start_torchserve(ncs=True, log_file=ts_log_file)
+    started = ts.start_torchserve(ncs=True, log_file=ts_log_file, model_store="model_store", workflow_store="model_store")
     if not started:
         sys.exit(1)
 
     # Register workflow
-    response = ts.register_workflow("densenet")
+    response = ts.register_workflow("densenet_wf")
     if response and response.status_code == 200:
         print(response.text)
     else:
@@ -232,7 +209,7 @@ def test_workflow_sanity():
     if response and response.status_code == 200:
         print(response.text)
     else:
-        print(f"## Failed to register workflow")
+        print(f"## Failed to run inference on workflow - {response.text}")
         sys.exit(1)
 
     response = ts.unregister_workflow("densenet")
