@@ -12,6 +12,8 @@ import java.util.Set;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
@@ -39,8 +41,7 @@ public final class SnapshotManager {
     private SnapshotManager(ConfigManager configManager) {
         this.configManager = configManager;
         this.modelManager = ModelManager.getInstance();
-        this.snapshotSerializer =
-                SnapshotSerializerFactory.getSerializer(configManager.getSnapshotStore());
+        this.snapshotSerializer = SnapshotSerializerFactory.getSerializer();
     }
 
     private void saveSnapshot(String snapshotName) {
@@ -79,7 +80,7 @@ public final class SnapshotManager {
 
             Snapshot snapshot = new Snapshot(snapshotName, modelCount);
             snapshot.setModels(modelNameMap);
-            snapshotSerializer.saveSnapshot(snapshot);
+            snapshotSerializer.saveSnapshot(snapshot, configManager.getConfiguration());
         } catch (ModelNotFoundException e) {
             logger.error("Model not found while saving snapshot {}", snapshotName);
         } catch (IOException e) {
