@@ -56,7 +56,7 @@ def test_sanity():
     bert_seqc_without_torchscript_model = {"name": "bert_seqc_without_torchscript",
          "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
          "handler": "custom"}
- 
+
     models_to_validate = [
         {"name": "fastrcnn", "inputs": ["examples/object_detector/persons.jpg"], "handler": "object_detector"},
         {"name": "fcn_resnet_101",
@@ -237,7 +237,7 @@ def test_workflow_sanity():
     if response and response.status_code == 200:
         print(response.text)
     else:
-        print(f"## Failed to register workflow")
+        print(f"## Failed to perform inference on  workflow - {response.text}")
         sys.exit(1)
 
     response = ts.unregister_workflow("densenet")
