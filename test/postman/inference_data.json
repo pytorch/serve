@@ -280,8 +280,8 @@
         "tolerance":5
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/distillbert_qa_no_torchscript.mar",
-        "model_name":"distillbert_qa_no_torchscript",
+        "url":"https://torchserve.pytorch.org/mar_files/roberta_qa_no_torchscript.mar",
+        "model_name":"roberta_qa_no_torchscript",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/Huggingface_Transformers/sample_text.txt"
