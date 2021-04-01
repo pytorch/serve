@@ -1,6 +1,7 @@
 # Workflow pipeline example using nmt transformer nlp model
 
 This example uses the existing [nmt_transformers](../../nmt_transformer) standalone example to create a workflow. We use three models, in two examples to demonstrate stringing them together in a workflow.
+To change the default batch size and batch delay the yaml file for the workflow can to be changed. This cannot currently be set via the REST API.
 
 ## Flow
 
