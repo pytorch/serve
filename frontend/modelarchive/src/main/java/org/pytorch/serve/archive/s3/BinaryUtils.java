@@ -2,26 +2,23 @@ package org.pytorch.serve.archive.s3;
 
 import java.util.Locale;
 
-/**
- * Utilities for encoding and decoding binary data to and from different forms.
- */
-public class BinaryUtils {
+/** Utilities for encoding and decoding binary data to and from different forms. */
+public final class BinaryUtils {
+    private BinaryUtils() {}
 
     /**
      * Converts byte data to a Hex-encoded string.
      *
-     * @param data
-     *            data to hex encode.
-     *
+     * @param data data to hex encode.
      * @return hex-encoded string.
      */
     public static String toHex(byte[] data) {
         StringBuilder sb = new StringBuilder(data.length * 2);
-        for (int i = 0; i < data.length; i++) {
-            String hex = Integer.toHexString(data[i]);
+        for (byte b : data) {
+            String hex = Integer.toHexString(b);
             if (hex.length() == 1) {
                 // Append leading zero.
-                sb.append("0");
+                sb.append('0');
             } else if (hex.length() == 8) {
                 // Remove ff prefix from negative numbers.
                 hex = hex.substring(6);
@@ -34,8 +31,7 @@ public class BinaryUtils {
     /**
      * Converts a Hex-encoded data string to the original byte data.
      *
-     * @param hexData
-     *            hex-encoded data to decode.
+     * @param hexData hex-encoded data to decode.
      * @return decoded data from the hex string.
      */
     public static byte[] fromHex(String hexData) {
