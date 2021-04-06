@@ -38,6 +38,11 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
+Your model might be encrypted via [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). In this case, you need specify the following variables in config.properties.
+* s3_region_name
+* aws_access_key
+* aws_secret_key
+[Here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys_retrieve.html) is the information about AWS access key and secret key.
 
 You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
