@@ -50,10 +50,17 @@ public class ModelArchive {
     public static ModelArchive downloadModel(
             List<String> allowedUrls,
             String modelStore,
+            String url)
+            throws ModelException, FileAlreadyExistsException, IOException {
+        downloadModel(allowedUrls, modelStore, url, false);
+    }
+
+    public static ModelArchive downloadModel(
+            List<String> allowedUrls,
+            String modelStore,
             String url,
             boolean s3SseKmsEnabled)
             throws ModelException, FileAlreadyExistsException, IOException {
-
         if (modelStore == null) {
             throw new ModelNotFoundException("Model store has not been configured.");
         }
