@@ -52,7 +52,7 @@ public class ModelArchive {
             String modelStore,
             String url)
             throws ModelException, FileAlreadyExistsException, IOException {
-        downloadModel(allowedUrls, modelStore, url, false);
+        return downloadModel(allowedUrls, modelStore, url, false);
     }
 
     public static ModelArchive downloadModel(
