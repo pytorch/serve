@@ -48,18 +48,10 @@ public class ModelArchive {
     }
 
     public static ModelArchive downloadModel(
-            List<String> allowedUrls, String modelStore, String url)
-            throws ModelException, FileAlreadyExistsException, IOException {
-        return downloadModel(allowedUrls, modelStore, url, "", "", "");
-    }
-
-    public static ModelArchive downloadModel(
             List<String> allowedUrls,
             String modelStore,
             String url,
-            String regionName,
-            String awsAccessKey,
-            String awsSecretKey)
+            boolean s3SseKmsEnabled)
             throws ModelException, FileAlreadyExistsException, IOException {
 
         if (modelStore == null) {
@@ -74,7 +66,7 @@ public class ModelArchive {
             }
             try {
                 HttpUtils.copyURLToFile(
-                        new URL(url), modelLocation, regionName, awsAccessKey, awsSecretKey);
+                        new URL(url), modelLocation, s3SseKmsEnabled);
             } catch (IOException e) {
                 FileUtils.deleteQuietly(modelLocation);
                 throw new DownloadModelException("Failed to download model from: " + url, e);

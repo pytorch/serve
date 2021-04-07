@@ -136,9 +136,7 @@ public final class ModelManager {
                         configManager.getAllowedUrls(),
                         configManager.getModelStore(),
                         url,
-                        configManager.getS3RegionName(),
-                        configManager.getAWSAccessKey(),
-                        configManager.getAWSSecretKey());
+                        configManager.isS3SseKmsEnabled());
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);

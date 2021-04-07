@@ -19,39 +19,41 @@ public final class HttpUtils {
     private HttpUtils() {}
 
     /** Copy model from S3 url to local model store */
-    public static void copyURLToFile(
-            URL endpointUrl,
-            File modelLocation,
-            String regionName,
-            String awsAccessKey,
-            String awsSecretKey)
-            throws IOException {
+    public static void copyURLToFile(URL endpointUrl, File modelLocation, boolean s3SseKmsEnabled) throws IOException {
         // for a simple GET, we have no body so supply the precomputed 'empty' hash
         Map<String, String> headers = null;
-        if (!regionName.isEmpty() && !awsAccessKey.isEmpty() && !awsSecretKey.isEmpty()) {
-            headers = new HashMap<>();
-            headers.put("x-amz-content-sha256", AWS4SignerBase.EMPTY_BODY_SHA256);
+        if (s3SseKmsEnabled) {
+            String awsAccessKey = System.getenv("AWS_ACCESS_KEY_ID");
+            String awsSecretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+            String regionName = System.getenv("AWS_DEFAULT_REGION");
+            if (!regionName.isEmpty() && !awsAccessKey.isEmpty() && !awsSecretKey.isEmpty()) {
+                headers = new HashMap<>();
+                headers.put("x-amz-content-sha256", AWS4SignerBase.EMPTY_BODY_SHA256);
 
-            AWS4SignerForAuthorizationHeader signer =
-                    new AWS4SignerForAuthorizationHeader(endpointUrl, "GET", "s3", regionName);
-            String authorization =
-                    signer.computeSignature(
-                            headers,
-                            null, // no query parameters
-                            AWS4SignerBase.EMPTY_BODY_SHA256,
-                            awsAccessKey,
-                            awsSecretKey);
+                AWS4SignerForAuthorizationHeader signer =
+                        new AWS4SignerForAuthorizationHeader(endpointUrl, "GET", "s3", regionName);
+                String authorization =
+                        signer.computeSignature(
+                                headers,
+                                null, // no query parameters
+                                AWS4SignerBase.EMPTY_BODY_SHA256,
+                                awsAccessKey,
+                                awsSecretKey);
 
-            // place the computed signature into a formatted 'Authorization' header
-            // and call S3
-            headers.put("Authorization", authorization);
-            HttpURLConnection connection = createHttpConnection(endpointUrl, "GET", headers);
-            try {
-                FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
+                // place the computed signature into a formatted 'Authorization' header
+                // and call S3
+                headers.put("Authorization", authorization);
+                HttpURLConnection connection = createHttpConnection(endpointUrl, "GET", headers);
+                try {
+                    FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
                 }
+            } else {
+                throw new IOException("Miss environment variables "
+                        + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
             }
         } else {
             FileUtils.copyURLToFile(endpointUrl, modelLocation);

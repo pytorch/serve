@@ -87,9 +87,6 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
-    private static final String S3_REGION_NAME = "s3_region_name";
-    private static final String AWS_ACCESS_KEY = "aws_access_key";
-    private static final String AWS_SECRET_KEY = "aws_secret_key";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -98,6 +95,7 @@ public final class ConfigManager {
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String VERSION = "version";
+    private static final Boolean S3_SSE_KMS_ENABLED = "s3_sse_kms_enabled";
 
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
@@ -729,16 +727,12 @@ public final class ConfigManager {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
-    public String getS3RegionName() {
-        return getProperty(S3_REGION_NAME, "");
+    public void setS3SseKmsEnabled(boolean s3SseKmsEnabled) {
+        prop.setProperty(S3_SSE_KMS_ENABLED, s3SseKmsEnabled);
     }
 
-    public String getAWSAccessKey() {
-        return getProperty(AWS_ACCESS_KEY, "");
-    }
-
-    public String getAWSSecretKey() {
-        return getProperty(AWS_SECRET_KEY, "");
+    public boolean isS3SseKmsEnabled() {
+        return prop.getProperty(S3_SSE_KMS_ENABLED, false);
     }
 
     public static final class Arguments {
