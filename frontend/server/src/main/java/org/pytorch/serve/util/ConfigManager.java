@@ -732,7 +732,7 @@ public final class ConfigManager {
     }
 
     public boolean isS3SseKmsEnabled() {
-        return Boolean.getBoolean(prop.getProperty(S3_SSE_KMS_ENABLED, "false"));
+        return Boolean.parseBoolean(prop.getProperty(S3_SSE_KMS_ENABLED, "false"));
     }
 
     public static final class Arguments {

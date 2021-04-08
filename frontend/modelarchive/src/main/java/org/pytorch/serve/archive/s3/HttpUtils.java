@@ -40,7 +40,7 @@ public final class HttpUtils {
                                 AWS4SignerBase.EMPTY_BODY_SHA256,
                                 awsAccessKey,
                                 awsSecretKey);
-                logger.info("awsAccessKey="+awsAccessKey+", awsSecretKey="+awsSecretKey+", regionName="+regionName);
+                
                 // place the computed signature into a formatted 'Authorization' header
                 // and call S3
                 headers.put("Authorization", authorization);
