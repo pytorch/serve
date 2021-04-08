@@ -48,18 +48,13 @@ public class ModelArchive {
     }
 
     public static ModelArchive downloadModel(
-            List<String> allowedUrls,
-            String modelStore,
-            String url)
+            List<String> allowedUrls, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
         return downloadModel(allowedUrls, modelStore, url, false);
     }
 
     public static ModelArchive downloadModel(
-            List<String> allowedUrls,
-            String modelStore,
-            String url,
-            boolean s3SseKmsEnabled)
+            List<String> allowedUrls, String modelStore, String url, boolean s3SseKmsEnabled)
             throws ModelException, FileAlreadyExistsException, IOException {
         if (modelStore == null) {
             throw new ModelNotFoundException("Model store has not been configured.");
@@ -72,8 +67,7 @@ public class ModelArchive {
                 throw new FileAlreadyExistsException(marFileName);
             }
             try {
-                HttpUtils.copyURLToFile(
-                        new URL(url), modelLocation, s3SseKmsEnabled);
+                HttpUtils.copyURLToFile(new URL(url), modelLocation, s3SseKmsEnabled);
             } catch (IOException e) {
                 FileUtils.deleteQuietly(modelLocation);
                 throw new DownloadModelException("Failed to download model from: " + url, e);

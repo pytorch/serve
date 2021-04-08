@@ -19,7 +19,8 @@ public final class HttpUtils {
     private HttpUtils() {}
 
     /** Copy model from S3 url to local model store */
-    public static void copyURLToFile(URL endpointUrl, File modelLocation, boolean s3SseKmsEnabled) throws IOException {
+    public static void copyURLToFile(URL endpointUrl, File modelLocation, boolean s3SseKmsEnabled)
+            throws IOException {
         // for a simple GET, we have no body so supply the precomputed 'empty' hash
         Map<String, String> headers = null;
         if (s3SseKmsEnabled) {
@@ -52,8 +53,9 @@ public final class HttpUtils {
                     }
                 }
             } else {
-                throw new IOException("Miss environment variables "
-                        + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
+                throw new IOException(
+                        "Miss environment variables "
+                                + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
             }
         } else {
             FileUtils.copyURLToFile(endpointUrl, modelLocation);

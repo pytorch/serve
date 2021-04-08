@@ -95,7 +95,7 @@ public final class ConfigManager {
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String VERSION = "version";
-    private static final Boolean S3_SSE_KMS_ENABLED = "s3_sse_kms_enabled";
+    private static final String S3_SSE_KMS_ENABLED = "s3_sse_kms_enabled";
 
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
@@ -728,7 +728,7 @@ public final class ConfigManager {
     }
 
     public void setS3SseKmsEnabled(boolean s3SseKmsEnabled) {
-        prop.setProperty(S3_SSE_KMS_ENABLED, s3SseKmsEnabled);
+        prop.setProperty(S3_SSE_KMS_ENABLED, String.valueOf(s3SseKmsEnabled));
     }
 
     public boolean isS3SseKmsEnabled() {
