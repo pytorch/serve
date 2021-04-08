@@ -48,6 +48,7 @@ export AWS_ACCESS_KEY_ID=$(aws configure get default.aws_access_key_id)
 export AWS_SECRET_ACCESS_KEY=$(aws configure get default.aws_secret_access_key)
 export AWS_DEFAULT_REGION=$(aws configure get default.region)
 ```
+And enable "s3_sse_kms_enabled=true" in config.properties
 
 You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
