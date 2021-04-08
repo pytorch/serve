@@ -211,30 +211,26 @@ To create mar [model archive] file for TorchServe deployment, you can use follow
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
-```
-
-1. List your container or skip this if you know cotainer name
-
-```bash
-docker ps
+docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  pytorch/torchserve:latest
 ```
 
 2. Bind and get the bash prompt of running container
 
 ```bash
-docker exec -it <container_name> /bin/bash
+docker exec -it mar /bin/bash
 ```
 
 You will be landing at /home/model-server/.
 
-3. Download the model weights if you have not done so already (they are not part of the repo)
+If you have already downloaded and archived a model then skip steps 3 and 4
+
+3. On your local machine download the model weights if you have not done so already. Your local and docker directories were shared at step 1
 
 ```bash
 curl -o /home/model-server/examples/image_classifier/densenet161-8d451a50.pth https://download.pytorch.org/models/densenet161-8d451a50.pth
 ```
 
-4. Now Execute torch-model-archiver command e.g.
+4. On your local machine execute torch-model-archiver command e.g.
 
 ```bash
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/model-server/examples/image_classifier/densenet_161/model.py --serialized-file /home/model-server/examples/image_classifier/densenet161-8d451a50.pth --export-path /home/model-server/model-store --extra-files /home/model-server/examples/image_classifier/index_to_name.json --handler image_classifier
