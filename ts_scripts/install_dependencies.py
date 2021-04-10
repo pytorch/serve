@@ -3,7 +3,7 @@ import platform
 import argparse
 import sys
 from pathlib import Path
-
+from print_env_info import run_and_parse_first_match
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
@@ -87,8 +87,15 @@ class Darwin(Common):
         super().__init__()
 
     def install_java(self):
+        out = get_brew_version()
+        if out == "N/A":
+            print("**Warning: Homebrew not installed...")
+            return
         os.system("brew tap AdoptOpenJDK/openjdk")
-        os.system("brew cask install adoptopenjdk11")
+        if out >= "2.7":
+            os.system("brew install --cask adoptopenjdk11")
+        else:
+            os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
         os.system("brew unlink node")
@@ -116,6 +123,10 @@ def install_dependencies(cuda_version=None):
         system.install_nodejs()
         system.install_node_packages()
 
+def get_brew_version():
+    """Returns `brew --version` output. """
+
+    return run_and_parse_first_match("brew --version", r'Homebrew (.*)')
 
 if __name__ == "__main__":
     check_python_version()
