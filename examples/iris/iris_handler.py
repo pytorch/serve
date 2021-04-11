@@ -1,12 +1,8 @@
-import io
 import logging
 import os
 import torch
 import torch.nn.functional as F
-
-# Command to build and run the server:
-# torch-model-archiver --model-name iris --version 1.0 --model-file examples/iris/iris.py --serialized-file examples/iris/iris.pt --export-path model_store  --handler examples/iris/iris_handler.py --force
-# torchserve --start --ncs --foreground --model-store model_store --models iris.mar
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -51,19 +47,12 @@ class IrisClassifier(object):
         return data
 
     def inference(self, data):
-        ''' Predict the class (or classes) of an image using a trained deep learning model.
+        ''' Predict the class (or classes) of an image using a trained model.
         '''
-        import json
         x = json.loads(data[0]["input"].decode('utf8'))
         output = self.model(torch.tensor(x))
-        score, predicted = torch.max(output, 1)
-        score_, predicted_ = output.topk(3)
-        score_ = score_.exp()
-        results = []
-        for s, p in zip(score_, predicted_):
-            results.append([s.tolist(), p.tolist()])
-        return [results]
-        # The result will be json-fied
+        output = output.exp()
+        return [output.tolist()]
 
     def postprocess(self, inference_output):
         return inference_output
