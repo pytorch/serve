@@ -16,7 +16,8 @@ MODEL_STORE_DIR = os.path.join("model_store")
 ### Torchserve
 ARTIFACTS_MANAGEMENT_DIR = os.path.join("artifacts", "management")
 ARTIFACTS_INFERENCE_DIR = os.path.join("artifacts", "inference")
-ARTIFACTS_WORKFLOW_DIR = os.path.join("artifacts", "workflow")
+ARTIFACTS_WORKFLOW_MANAGEMENT_DIR = os.path.join("artifacts", "workflow_management")
+ARTIFACTS_WORKFLOW_INFERENCE_DIR = os.path.join("artifacts", "workflow_inference")
 ARTIFACTS_EXPLANATION_DIR = os.path.join("artifacts", "explanation")
 ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR = os.path.join("artifacts", "increased_timeout_inference")
 ARTIFACTS_HTTPS_DIR = os.path.join("artifacts", "https")
@@ -97,7 +98,7 @@ def trigger_workflow_tests():
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, workflow_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW} -d {POSTMAN_WORKFLOW_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_WORKFLOW_DIR}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
-    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_DIR)
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_MANAGEMENT_DIR)
     cleanup_model_store()
     return EXIT_CODE
 
@@ -106,7 +107,7 @@ def trigger_workflow_inference_tests():
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, workflow_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
     EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW_INFERENCE} -d {POSTMAN_WORKFLOW_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_WORKFLOW_DIR}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
-    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_DIR)
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_INFERENCE_DIR)
     cleanup_model_store()
     return EXIT_CODE
 
@@ -208,7 +209,7 @@ def test_api(collection):
     os.chdir(TEST_DIR)
     ALL_DIRS = [MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR, ARTIFACTS_EXPLANATION_DIR,
     ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR, ARTIFACTS_HTTPS_DIR, ARTIFACTS_MANAGEMENT_DIR_KF, ARTIFACTS_INFERENCE_DIR_KF, 
-    ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR_KF, ARTIFACTS_HTTPS_DIR_KF, ARTIFACTS_WORKFLOW_DIR] 
+    ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR_KF, ARTIFACTS_HTTPS_DIR_KF, ARTIFACTS_WORKFLOW_MANAGEMENT_DIR, ARTIFACTS_WORKFLOW_INFERENCE_DIR]
 
     for DIR in ALL_DIRS:
         shutil.rmtree(DIR, True)

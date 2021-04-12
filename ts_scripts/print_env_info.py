@@ -124,7 +124,7 @@ def get_pip_packages(package_name=None):
 
 
 def get_java_version():
-    rc, out, _ = run("java --version")
+    rc, out, _ = run("java -version")
     if rc != 0:
         return "**Warning: java not installed..."
     return out
