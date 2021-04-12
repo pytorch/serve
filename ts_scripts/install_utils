@@ -17,13 +17,12 @@ install_java_deps()
 	if [ "$JAVA_VERSION" != "11" ]
   then
     if [[ "$OSTYPE" == "darwin"* ]]; then
+      brew tap AdoptOpenJDK/openjdk
       BREW_VERSION=$(brew --version  2>&1 | head -1 | cut -d' ' -f2)
       if [[ "$BREW_VERSION" > "2.6" ]]
       then
-        brew tap AdoptOpenJDK/openjdk
         brew install --cask adoptopenjdk11
       else
-        brew tap AdoptOpenJDK/openjdk
         brew cask install adoptopenjdk11
       fi
     else
