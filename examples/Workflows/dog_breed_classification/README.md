@@ -12,3 +12,6 @@ curl http://127.0.0.1:8080/predictions/dog_breed_classification -T Dog.jpg
   "Australian_terrier": 0.002052989089861512,
   "Doberman_pinscher": 0.0009731495520099998
 }
+
+
+torch-model-archiver -f --model-name cat_dog_classification --version 1.0 --model-file cat_dog_classification_arch.py --serialized-file ~/CV_WF_example/cat_dog_classification.pth --handler cat_dog_classification_handler.py --export-path model_store`

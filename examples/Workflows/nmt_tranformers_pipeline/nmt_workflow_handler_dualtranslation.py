@@ -19,8 +19,8 @@ def aggregate_func(data, context):
         en_de_result = json.loads(data[0].get("nmt_en_de"))
         en_fr_result = json.loads(data[0].get("nmt_en_fr"))
         response = {
-		"english_input": en_de_result["input"],
-		"german_translation": en_de_result["german_output"],
-		"french_translation": en_fr_result["french_output"]
+                "english_input": en_de_result["input"],
+                "german_translation": en_de_result["german_output"],
+                "french_translation": en_fr_result["french_output"]
         }
         return [response]
