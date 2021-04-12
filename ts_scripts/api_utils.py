@@ -96,7 +96,7 @@ def trigger_inference_tests():
 def trigger_workflow_tests():
     """ Return exit code of newman execution of workflow collection """
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, workflow_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW} -d {POSTMAN_WORKFLOW_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_WORKFLOW_DIR}/{REPORT_FILE} --verbose")
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW} -d {POSTMAN_WORKFLOW_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_WORKFLOW_MANAGEMENT_DIR}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_MANAGEMENT_DIR)
     cleanup_model_store()
@@ -105,7 +105,7 @@ def trigger_workflow_tests():
 def trigger_workflow_inference_tests():
     """ Return exit code of newman execution of workflow inference collection """
     ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, workflow_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW_INFERENCE} -d {POSTMAN_WORKFLOW_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_WORKFLOW_DIR}/{REPORT_FILE} --verbose")
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW_INFERENCE} -d {POSTMAN_WORKFLOW_INFERENCE_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_WORKFLOW_INFERENCE_DIR}/{REPORT_FILE} --verbose")
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_INFERENCE_DIR)
     cleanup_model_store()
