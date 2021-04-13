@@ -18,7 +18,7 @@ class CatDogClassifier(ImageClassifier):
 
     def postprocess(self, predictions):
         response = []
-        for prediction in predictions:
+        for idx, prediction in enumerate(predictions):
             prediction = prediction.argmax()
-            response.append({"output": labels[prediction], "input": self.b64_data})
+            response.append({"output": labels[prediction], "input": self.b64_data[idx]})
         return response

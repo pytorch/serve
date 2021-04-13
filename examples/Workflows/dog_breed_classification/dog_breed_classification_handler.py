@@ -12,7 +12,7 @@ class DogBreedClassifier(ImageClassifier):
                 self.is_dogs[idx] = True
                 # Wrap the input data into a format that is expected by the parent
                 # preprocessing method
-                inp_imgs.append({"body": input_data["input"][0]})
+                inp_imgs.append({"body": input_data["input"]})
         if len(inp_imgs) > 0:
             return ImageClassifier.preprocess(self, inp_imgs)
 
