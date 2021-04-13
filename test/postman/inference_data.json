@@ -231,8 +231,8 @@
         "file":"../examples/image_segmenter/persons.jpg"
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101.mar",
-        "model_name":"deeplabv3_resnet_101",
+        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_eager.mar",
+        "model_name":"deeplabv3_resnet_101_eager",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_segmenter/persons.jpg"
