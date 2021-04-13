@@ -11,6 +11,7 @@ input -> cat-dog-classification -> dog-breed-classification -> output
 
 ## Commands to create the models and the workflow
 The notebooks for training the [dog-cat classification](cat_dog_classification.ipynb) model and the [dog breed classification](dog_breed_classification.ipynb) models are provided in this example. Once the models are trained you can download the corresponding .pth files and use them to generate the mar files for serving inference requests as below.
+The [dog-cat classification](https://torchserve.pytorch.org/mar_files/cat_dog_classification.mar) and [dog breed classification](https://torchserve.pytorch.org/mar_files/dog_breed_classification.mar) mar files can also be dowloaded directly.
 
 ```
 $ cd $TORCH_SERVE_DIR/examples/dog_breed_classification
