@@ -3,20 +3,31 @@ import json
 
 class DogBreedClassifier(ImageClassifier):
     def preprocess(self, data):
-        self.is_dog = False
-        input_data = data[0].get("data") or data[0].get("body")
-        input_data = json.loads(input_data)
-        if input_data["output"]=="dog":
-            self.is_dog = True
-            # Wrap the input data into a format that is expected by the parent
-            # preprocessing method
-            return ImageClassifier.preprocess(self, [{"body": input_data["input"]}])
+        self.is_dogs = [False] * len(data)
+        inp_imgs = []
+        for idx, row in enumerate(data):
+            input_data = row.get("data") or row.get("body")
+            input_data = json.loads(input_data)
+            if input_data["output"]=="dog":
+                self.is_dogs[idx] = True
+                # Wrap the input data into a format that is expected by the parent
+                # preprocessing method
+                inp_imgs.append({"body": input_data["input"][0]})
+        if len(inp_imgs) > 0:
+            return ImageClassifier.preprocess(self, inp_imgs)
 
     def inference(self, data, *args, **kwargs):
-        if self.is_dog:
+        if data is not None:
             return ImageClassifier.inference(self, data, *args, **kwargs)
 
     def postprocess(self, data):
-       if self.is_dog:
-            return ImageClassifier.postprocess(self, data)
-       return ["Not a Dog!"]
+       response = ["It's a cat!"] * len(self.is_dogs)
+       if data is None:
+           return response
+       post_resp = ImageClassifier.postprocess(self, data)
+       idx2 = 0
+       for idx, is_dog in enumerate(self.is_dogs):
+           if is_dog:
+               response[idx] = post_resp[idx2]
+               idx2+=1
+       return response
