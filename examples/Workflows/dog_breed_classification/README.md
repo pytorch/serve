@@ -5,6 +5,8 @@ To change the default batch size and batch delay the yaml file for the workflow 
 
 ## Flow
 
+Since the input is directly fed into the first model there is no pre-processing node required in this example. The model handlers pre-processing function will transform the image to the appropriate input expected by the model.
+
 ```
 input -> cat-dog-classification -> dog-breed-classification -> output
 ```
