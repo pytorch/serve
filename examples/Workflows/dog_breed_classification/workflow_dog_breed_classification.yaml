@@ -11,5 +11,5 @@ models:
       url: dog_breed_classification.mar
 
 dag:
+  pre_processing: [cat_dog_classification, dog_breed_classification]
   cat_dog_classification: [dog_breed_classification]
-

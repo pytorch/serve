@@ -6,13 +6,13 @@ class DogBreedClassifier(ImageClassifier):
         self.is_dogs = [False] * len(data)
         inp_imgs = []
         for idx, row in enumerate(data):
-            input_data = row.get("data") or row.get("body")
-            input_data = json.loads(input_data)
-            if input_data["output"]=="dog":
+            cat_dog_response = row.get("cat_dog_classification").decode()
+            input_data = row.get("pre_processing").decode()
+            if cat_dog_response == "dog":
                 self.is_dogs[idx] = True
                 # Wrap the input data into a format that is expected by the parent
                 # preprocessing method
-                inp_imgs.append({"body": input_data["input"]})
+                inp_imgs.append({"body": input_data})
         if len(inp_imgs) > 0:
             return ImageClassifier.preprocess(self, inp_imgs)
 
