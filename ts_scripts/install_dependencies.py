@@ -89,8 +89,8 @@ class Darwin(Common):
     def install_java(self):
         out = get_brew_version()
         if out == "N/A":
-            print("**Warning: Homebrew not installed...")
-            return
+            sys.exit("**Error: Homebrew not installed...")
+
         os.system("brew tap AdoptOpenJDK/openjdk")
         if out >= "2.7":
             os.system("brew install --cask adoptopenjdk11")
