@@ -1,6 +1,6 @@
 apply plugin: 'pmd'
 pmd {
-    ignoreFailures = false
+    ignoreFailures = true
     pmdTest.enabled = false
     ruleSets = [] // workaround pmd gradle plugin bug
     ruleSetFiles = files("${rootProject.projectDir}/tools/conf/pmd.xml")
@@ -17,7 +17,7 @@ pmdMain { exclude '**/grpc/**' }
 apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = '7.1.2'
-    ignoreFailures = false
+    ignoreFailures = true
     checkstyleTest.enabled = true
     configProperties = [ "checkstyle.suppressions.file" : file("${rootProject.projectDir}/tools/conf/suppressions.xml")]
     configFile = file("${rootProject.projectDir}/tools/conf/checkstyle.xml")

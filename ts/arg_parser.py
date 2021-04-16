@@ -53,6 +53,10 @@ class ArgParser(object):
                             dest='no_config_snapshots',
                             help='Prevents to server from storing config snapshot files.',
                             action='store_true')
+        parser.add_argument('--plugins-path', '--ppath',
+                            dest='plugins_path',
+                            help='plugin jars to be included in torchserve class path',
+                            )
 
         return parser
 

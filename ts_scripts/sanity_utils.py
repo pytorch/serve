@@ -48,10 +48,19 @@ def test_sanity():
 
     resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
                       "handler": "image_classifier"}
+
+    bert_token_classification_no_torchscript_model = {"name": "bert_token_classification_no_torchscript",
+         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
+         "handler": "custom"}
+
+    bert_seqc_without_torchscript_model = {"name": "bert_seqc_without_torchscript",
+         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
+         "handler": "custom"}
+ 
     models_to_validate = [
         {"name": "fastrcnn", "inputs": ["examples/object_detector/persons.jpg"], "handler": "object_detector"},
         {"name": "fcn_resnet_101",
-         "inputs": ["docs/images/blank_image.jpg", "examples/image_segmenter/fcn/persons.jpg"],
+         "inputs": ["docs/images/blank_image.jpg", "examples/image_segmenter/persons.jpg"],
          "handler": "image_segmenter"},
         {"name": "my_text_classifier_v2", "inputs": ["examples/text_classification/sample_text.txt"],
          "handler": "text_classification"},
@@ -59,7 +68,7 @@ def test_sanity():
         {"name": "my_text_classifier_scripted_v2", "inputs": ["examples/text_classification/sample_text.txt"],
          "handler": "text_classification"},
         {"name": "alexnet_scripted", "inputs": ["examples/image_classifier/kitten.jpg"], "handler": "image_classifier"},
-        {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/fcn/persons.jpg"],
+        {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/persons.jpg"],
          "handler": "image_segmenter"},
         {"name": "roberta_qa_no_torchscript",
          "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"},
@@ -70,6 +79,10 @@ def test_sanity():
          "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
          "handler": "custom"}
     ]
+
+    if(not sys.platform.startswith('win')):
+        models_to_validate.extend((bert_token_classification_no_torchscript_model, bert_seqc_without_torchscript_model))
+
     ts_log_file = os.path.join("logs", "ts_console.log")
     is_gpu_instance = utils.is_gpu_instance()
 
@@ -184,36 +197,13 @@ def test_workflow_sanity():
     ts_log_file = os.path.join("logs", "ts_console.log")
     os.makedirs("model_store", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
-    os.chdir(f"examples/Workflows/densenet_image_classifier_pipeline/")
 
-    # create model archive
-
-    response = requests.get("https://download.pytorch.org/models/densenet161-8d451a50.pth", allow_redirects=True)
-    open("densenet_model/densenet161-8d451a50.pth", 'wb').write(response.content)
-
-    os.system(f"{ts.torch_model_archiver_command[platform.system()]} --model-name densenet_wf --version 1.0 "
-              f"--model-file densenet_model/model.py --serialized-file densenet_model/densenet161-8d451a50.pth"
-              f" --handler densenet_model/densenet_handler.py")
-
-    shutil.move("densenet_wf.mar", f"{current_path}/model_store/")
-
-    os.remove("densenet_model/densenet161-8d451a50.pth")
-
-    # create workflow archive
-    os.system(f"{ts.torch_workflow_archiver_command[platform.system()]} --workflow-name densenet"
-              f" --spec-file densenet_workflow.yaml --handler densenet_workflow_handler.py"
-              f" --extra-files index_to_name.json")
-
-    shutil.move("densenet.war", f"{current_path}/model_store/")
-
-    os.chdir(current_path)
-
-    started = ts.start_torchserve(ncs=True, log_file=ts_log_file)
+    started = ts.start_torchserve(ncs=True, log_file=ts_log_file, model_store="model_store", workflow_store="model_store")
     if not started:
         sys.exit(1)
 
     # Register workflow
-    response = ts.register_workflow("densenet")
+    response = ts.register_workflow("densenet_wf")
     if response and response.status_code == 200:
         print(response.text)
     else:
@@ -225,7 +215,7 @@ def test_workflow_sanity():
     if response and response.status_code == 200:
         print(response.text)
     else:
-        print(f"## Failed to register workflow")
+        print(f"## Failed to run inference on workflow - {response.text}")
         sys.exit(1)
 
     response = ts.unregister_workflow("densenet")

@@ -17,7 +17,6 @@ torch_model_archiver_command = {
         "Linux": "torch-model-archiver"
     }
 
-
 torch_workflow_archiver_command = {
         "Windows": "torch-workflow-archiver.exe",
         "Darwin": "torch-workflow-archiver",
@@ -25,11 +24,13 @@ torch_workflow_archiver_command = {
     }
 
 
-def start_torchserve(ncs=False, model_store="model_store", models="", config_file="", log_file="", wait_for=10):
+def start_torchserve(ncs=False, model_store="model_store", workflow_store="", models="", config_file="", log_file="", wait_for=10):
     print("## Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
         cmd += f" --models={models}"
+    if workflow_store:
+        cmd += f" --workflow-store={workflow_store}"
     if ncs:
         cmd += " --ncs"
     if config_file:
@@ -105,8 +106,9 @@ def generate_grpc_client_stubs():
 
 def register_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {workflow_name} workflow")
+    model_zoo_url = "https://torchserve.s3.amazonaws.com"
     params = (
-        ("url", f"{workflow_name}.war"),
+        ("url", f"{model_zoo_url}/war_files/{workflow_name}.war"),
     )
     url = f"{protocol}://{host}:{port}/workflows"
     response = requests.post(url, params=params, verify=False)

@@ -9,3 +9,4 @@ dist/
 .github/actions/
 .github/.DS_Store
 .DS_Store
+frontend/server/src/main/java/org/pytorch/serve/grpc/

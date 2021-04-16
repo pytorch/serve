@@ -1,0 +1,75 @@
+[
+  {
+    "type": "register",
+    "test": "Register Densenet Workflow - Happy Path",
+    "METHOD": "POST",
+    "path": "workflows?url=https://torchserve.s3.amazonaws.com/war_files/densenet_wf.war"
+  },
+  {
+    "type": "list",
+    "test": "List Workflow - Happy Path",
+    "METHOD": "GET",
+    "path": "workflows"
+  },
+  {
+    "type": "describe",
+    "test": "Describe Workflow - Happy Path",
+    "METHOD": "GET",
+    "path": "workflows/densenet"
+  },
+  {
+    "type": "register",
+    "test": "Re Register Densenet Workflow - Conflict",
+    "METHOD": "POST",
+    "path": "workflows?url=https://torchserve.s3.amazonaws.com/war_files/densenet_wf.war",
+    "status_code" : 500
+  },
+  {
+    "type": "unregister",
+    "test": "Unregister Workflow - Happy Path",
+    "METHOD": "DELETE",
+    "path": "workflows/densenet"
+  },
+  {
+    "type": "register",
+    "test": "Register Densenet Workflow - Invalid URL",
+    "METHOD": "POST",
+    "path": "workflows?url=https://torchserve.s3.amazonaws.com/war_files/does_not_exist.war",
+    "status_code" : 400
+  },
+  {
+    "type": "describe",
+    "test": "Describe Workflow - Invalid Workflow",
+    "METHOD": "GET",
+    "path": "workflows/does_not_exist",
+    "status_code" : 404
+  },
+  {
+    "type": "unregister",
+    "test": "Unregister Workflow - Invalid Workflow",
+    "METHOD": "DELETE",
+    "path": "workflows/does_not_exist",
+    "status_code" : 404
+  },
+  {
+    "type": "register",
+    "test": "Register Densenet Workflow - Malformed URL",
+    "METHOD": "POST",
+    "path": "workflows?url=malformed_url,?",
+    "status_code" : 404
+  },
+  {
+    "type": "register",
+    "test": "Register Workflow - Custom Python Dependency",
+    "METHOD": "POST",
+    "path": "workflows?url=https://torchserve.s3.amazonaws.com/war_files/custom_python_dep.war",
+    "status_code" : 500
+  },
+  {
+    "type": "register",
+    "test": "Register Workflow - Loading Memory Error",
+    "METHOD": "POST",
+    "path": "workflows?url=https://torchserve.s3.amazonaws.com/war_files/loading-memory-error.war",
+    "status_code" : 500
+  }
+]

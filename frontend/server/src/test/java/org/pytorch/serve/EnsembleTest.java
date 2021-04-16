@@ -91,12 +91,12 @@ public class EnsembleTest {
     public void testDAG() {
         Dag dag = new Dag();
 
-        Node a = new Node("a", new WorkflowModel("a", "url", 1, 1, 10, 50, null));
-        Node b = new Node("b", new WorkflowModel("b", "url", 1, 1, 10, 50, null));
-        Node c = new Node("c", new WorkflowModel("c", "url", 1, 1, 10, 50, null));
-        Node d = new Node("d", new WorkflowModel("d", "url", 1, 1, 10, 50, null));
-        Node e = new Node("e", new WorkflowModel("e", "url", 1, 1, 10, 50, null));
-        Node f = new Node("f", new WorkflowModel("f", "url", 1, 1, 10, 50, null));
+        Node a = new Node("a", new WorkflowModel("a", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node b = new Node("b", new WorkflowModel("b", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node c = new Node("c", new WorkflowModel("c", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node d = new Node("d", new WorkflowModel("d", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node e = new Node("e", new WorkflowModel("e", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node f = new Node("f", new WorkflowModel("f", "url", 1, 1, 10, 50, 1000, 5, null));
 
         dag.addNode(a);
         dag.addNode(b);
@@ -124,12 +124,12 @@ public class EnsembleTest {
     public void testInvalidDAG() {
         Dag dag = new Dag();
 
-        Node a = new Node("a", new WorkflowModel("a", "url", 1, 1, 10, 50, null));
-        Node b = new Node("b", new WorkflowModel("b", "url", 1, 1, 10, 50, null));
-        Node c = new Node("c", new WorkflowModel("c", "url", 1, 1, 10, 50, null));
-        Node d = new Node("d", new WorkflowModel("d", "url", 1, 1, 10, 50, null));
-        Node e = new Node("e", new WorkflowModel("e", "url", 1, 1, 10, 50, null));
-        Node f = new Node("f", new WorkflowModel("f", "url", 1, 1, 10, 50, null));
+        Node a = new Node("a", new WorkflowModel("a", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node b = new Node("b", new WorkflowModel("b", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node c = new Node("c", new WorkflowModel("c", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node d = new Node("d", new WorkflowModel("d", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node e = new Node("e", new WorkflowModel("e", "url", 1, 1, 10, 50, 1000, 5, null));
+        Node f = new Node("f", new WorkflowModel("f", "url", 1, 1, 10, 50, 1000, 5, null));
 
         dag.addNode(a);
         dag.addNode(b);

@@ -221,14 +221,28 @@
         "model_name":"fcn_resnet_101",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg"
+        "file":"../examples/image_segmenter/persons.jpg"
     },
     {
         "url":"https://torchserve.pytorch.org/mar_files/fcn_resnet_101_scripted.mar",
         "model_name":"fcn_resnet_101_scripted",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/object_detector/persons.jpg"
+        "file":"../examples/image_segmenter/persons.jpg"
+    },
+    {
+        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_eager.mar",
+        "model_name":"deeplabv3_resnet_101_eager",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/image_segmenter/persons.jpg"
+    },
+    {
+        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_scripted.mar",
+        "model_name":"deeplabv3_resnet_101_scripted",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/image_segmenter/persons.jpg"
     },
     {
         "url":"https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar",

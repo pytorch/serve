@@ -26,7 +26,6 @@ cd serve/docker
 # Create TorchServe docker image
 
 Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
-
 | Parameter | Desciption |
 |------|------|
 |-h, --help|Show script help|
@@ -87,7 +86,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ```
 
 
-- For creating GPU based image with cuda version 10.2:
+- For creating GPU based image with cuda version 11.0:
 
 ```bash
 ./build_image.sh -bt dev -g -cv cu110
@@ -184,7 +183,7 @@ For GPU latest image with gpu devices 1 and 2:
 docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
 ```
 
-For specific versions you can pass in the specific tag to use (ex: 0.1.1-cuda10.1-cudnn7-runtime):
+For specific versions you can pass in the specific tag to use (ex: `0.1.1-cuda10.1-cudnn7-runtime`):
 
 ```bash
 docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
@@ -193,7 +192,7 @@ docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:70
 For the latest version, you can use the `latest-gpu` tag:
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 torchserve:gpu-latest
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
 ```
 
 #### Accessing TorchServe APIs inside container

@@ -6,7 +6,7 @@ models:
     max-batch-delay : 50
 
     densenet:
-      url : densenet_wf.mar
+        url : https://torchserve.pytorch.org/mar_files/densenet161.mar
  
 dag: #can have only one start node
   pre_processing : [densenet]

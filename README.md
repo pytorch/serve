@@ -84,6 +84,7 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 ### Install TorchServe for development
 
 If you plan to develop with TorchServe and change some source code, you must install it from source code.
+
 Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
 Run the following script from the top of the source directory.

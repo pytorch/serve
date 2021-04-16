@@ -36,7 +36,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04"
+          BASE_IMAGE="nvidia/cuda:11.0-cudnn7-runtime-ubuntu18.04"
           CUDA_VERSION="cu110"
           shift
           ;;
