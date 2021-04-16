@@ -16,7 +16,7 @@ The notebooks for training the [dog-cat classification](cat_dog_classification.i
 The [dog-cat classification](https://torchserve.pytorch.org/mar_files/cat_dog_classification.mar) and [dog breed classification](https://torchserve.pytorch.org/mar_files/dog_breed_classification.mar) mar files can also be dowloaded directly.
 
 ```
-$ cd $TORCH_SERVE_DIR/examples/dog_breed_classification
+$ cd $TORCH_SERVE_DIR/examples/Workflows/dog_breed_classification
 $ mkdir model_store wf_store
 $ torch-model-archiver -f --model-name cat_dog_classification --version 1.0 --model-file cat_dog_classification_arch.py --serialized-file /<path_to_model_files>/cat_dog_classification.pth --handler cat_dog_classification_handler.py --export-path model_store
 $ torch-model-archiver -f --model-name dog_breed_classification --version 1.0 --model-file dog_breed_classification_arch.py --serialized-file /<path_to_model_files>/dog_breed_classification.pth --handler dog_breed_classification_handler.py --extra-files index_to_name.json --export-path model_store

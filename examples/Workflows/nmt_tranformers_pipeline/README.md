@@ -23,29 +23,29 @@ input -> preprocessing _/             \_ aggregate-output -> output
 
 ## Commands to create the models and the workflow
 ```
-cd $TORCH_SERVE_DIR/examples/nmt_transformer/
-./create_mar.sh de2en_model
-./create_mar.sh en2de_model
-./create_mar.sh en2fr_model
+$ cd $TORCH_SERVE_DIR/examples/nmt_transformer/
+$ ./create_mar.sh de2en_model
+$ ./create_mar.sh en2de_model
+$ ./create_mar.sh en2fr_model
 
-cd $TORCH_SERVE_DIR/examples/Workflows/nmt_tranformers_pipeline/
-mkdir model_store wf_store
-mv $TORCH_SERVE_DIR/examples/nmt_transformer/model_store/*.mar model_store/
-torch-workflow-archiver -f --workflow-name nmt_wf_dual --spec-file nmt_workflow_dualtranslation.yaml --handler nmt_workflow_handler_dualtranslation.py --export-path wf_store/
-torch-workflow-archiver -f --workflow-name nmt_wf_re --spec-file nmt_workflow_retranslation.yaml --handler nmt_workflow_handler_retranslation.py --export-path wf_store/
-> torchserve --start --model-store model_store/ --workflow-store wf_store/ --ncs --ts-config config.properties
+$ cd $TORCH_SERVE_DIR/examples/Workflows/nmt_tranformers_pipeline/
+$ mkdir model_store wf_store
+$ mv $TORCH_SERVE_DIR/examples/nmt_transformer/model_store/*.mar model_store/
+$ torch-workflow-archiver -f --workflow-name nmt_wf_dual --spec-file nmt_workflow_dualtranslation.yaml --handler nmt_workflow_handler_dualtranslation.py --export-path wf_store/
+$ torch-workflow-archiver -f --workflow-name nmt_wf_re --spec-file nmt_workflow_retranslation.yaml --handler nmt_workflow_handler_retranslation.py --export-path wf_store/
+$ torchserve --start --model-store model_store/ --workflow-store wf_store/ --ncs --ts-config config.properties
 ```
 
 ## Serve the workflow
 ### Example 1:
 ```
-> curl -X POST "http://127.0.0.1:8081/workflows?url=nmt_wf_dual.war"
+$ curl -X POST "http://127.0.0.1:8081/workflows?url=nmt_wf_dual.war"
 {
   "status": "Workflow nmt_wf_dual has been registered and scaled successfully."
 }
 
 # Single input
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample.txt
+$ curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample.txt
 {
   "english_input": "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
   "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
@@ -53,10 +53,10 @@ torch-workflow-archiver -f --workflow-name nmt_wf_re --spec-file nmt_workflow_re
 }
 
 # Batched input
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample1.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample2.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample3.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample4.txt&
+$ curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample1.txt& \
+curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample2.txt& \
+curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample3.txt& \
+curl http://127.0.0.1:8080/wfpredict/nmt_wf_dual -T model_input/sample4.txt&
 {
   "english_input": "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
   "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
@@ -76,7 +76,7 @@ torch-workflow-archiver -f --workflow-name nmt_wf_re --spec-file nmt_workflow_re
 }
 
 # Unregister workflow
-> curl -X DELETE "http://127.0.0.1:8081/workflows/nmt_wf_dual"
+$ curl -X DELETE "http://127.0.0.1:8081/workflows/nmt_wf_dual"
 {
   "status": "Workflow \"nmt_wf_dual\" unregistered"
 }
@@ -84,23 +84,23 @@ torch-workflow-archiver -f --workflow-name nmt_wf_re --spec-file nmt_workflow_re
 
 #### Example 2:
 ```
-> curl -X POST "http://127.0.0.1:8081/workflows?url=nmt_wf_re.war"
+$ curl -X POST "http://127.0.0.1:8081/workflows?url=nmt_wf_re.war"
 {
   "status": "Workflow nmt_wf_re has been registered and scaled successfully."
 }
 
 # Single input
-curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample.txt
+$ curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample.txt
 {
   "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
   "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."
 }
 
 # Batched input
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample1.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample2.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample3.txt& \
-> curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample4.txt&
+$ curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample1.txt& \
+curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample2.txt& \
+curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample3.txt& \
+curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample4.txt&
 {
   "german_translation": "Hallo Welt!!!",
   "english_re_translation": "Hello world!!!"
@@ -116,7 +116,7 @@ curl http://127.0.0.1:8080/wfpredict/nmt_wf_re -T model_input/sample.txt
 }
 
 # Unregister workflow
-> curl -X DELETE "http://127.0.0.1:8081/workflows/nmt_wf_re"
+$ curl -X DELETE "http://127.0.0.1:8081/workflows/nmt_wf_re"
 {
   "status": "Workflow \"nmt_wf_re\" unregistered"
 }

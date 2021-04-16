@@ -3,6 +3,8 @@ models:
     max-workers: 1
     batch-size: 4
     max-batch-delay: 100
+    retry-attempts: 5
+    timeout-ms: 2000
 
     cat_dog_classification:
       url: cat_dog_classification.mar
