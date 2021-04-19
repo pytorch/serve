@@ -95,7 +95,6 @@ public final class ConfigManager {
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String VERSION = "version";
-    private static final String S3_SSE_KMS_ENABLED = "s3_sse_kms_enabled";
 
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
@@ -725,14 +724,6 @@ public final class ConfigManager {
 
     public void setIniitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
-    }
-
-    public void setS3SseKmsEnabled(boolean s3SseKmsEnabled) {
-        prop.setProperty(S3_SSE_KMS_ENABLED, String.valueOf(s3SseKmsEnabled));
-    }
-
-    public boolean isS3SseKmsEnabled() {
-        return Boolean.parseBoolean(prop.getProperty(S3_SSE_KMS_ENABLED, "false"));
     }
 
     public static final class Arguments {

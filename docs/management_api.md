@@ -48,7 +48,14 @@ export AWS_ACCESS_KEY_ID=$(aws configure get default.aws_access_key_id)
 export AWS_SECRET_ACCESS_KEY=$(aws configure get default.aws_secret_access_key)
 export AWS_DEFAULT_REGION=$(aws configure get default.region)
 ```
-And enable "s3_sse_kms_enabled=true" in config.properties
+And set "s3_sse_kms=true" in HTTP request.
+```bash
+curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&s3_sse_kms=true"
+
+{
+  "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
+}
+```
 
 You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
