@@ -38,7 +38,7 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
-Your model might be encrypted via [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). In this case, you need specify the following [environment variables](https://docs.aws.amazon.com/credref/latest/refdocs/environment-variables.html).
+Your model might be encrypted via [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). In this case, you need specify the following [environment variables](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html). 
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
 * AWS_DEFAULT_REGION
