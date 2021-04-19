@@ -38,17 +38,12 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
-Your model might be encrypted via [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). In this case, you need specify the following [environment variables](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html). 
+Your model might be encrypted via [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). In this case, you need specify the following [environment variables](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html). [Here](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/signup-create-iam-user.html) is the instruction of setting up AWS credential.
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
 * AWS_DEFAULT_REGION
-```
-For example, 
-export AWS_ACCESS_KEY_ID=$(aws configure get default.aws_access_key_id)
-export AWS_SECRET_ACCESS_KEY=$(aws configure get default.aws_secret_access_key)
-export AWS_DEFAULT_REGION=$(aws configure get default.region)
-```
-And set "s3_sse_kms=true" in HTTP request.
+
+And set "s3_sse_kms=true" in HTTP request. For example:
 ```bash
 curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&s3_sse_kms=true"
 
