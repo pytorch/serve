@@ -83,7 +83,6 @@ This API follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/
 
 * `min_worker` - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
 * `max_worker` - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
-* `number_gpu` - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
 * `synchronous` - whether or not the call is synchronous. The default value is `false`.
 * `timeout` - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
 
