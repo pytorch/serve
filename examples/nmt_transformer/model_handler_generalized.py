@@ -61,7 +61,7 @@ class LanguageTranslationHandler(BaseHandler):
         logger.info("Model translated: %s", translation)
         for i in range(0, len(data)):
             output = {
-                "english_input": data[i],
+                "input": data[i],
                 self.setup_config["translated_output"]: translation[i]
             }
             inference_output.append(json.dumps(output))
