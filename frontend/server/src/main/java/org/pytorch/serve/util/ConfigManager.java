@@ -760,7 +760,7 @@ public final class ConfigManager {
         return "https".equalsIgnoreCase(protocol);
     }
 
-    public int getIniitialWorkerPort() {
+    public int getInitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
     }
 
