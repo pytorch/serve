@@ -91,7 +91,7 @@ class BaseHandler(abc.ABC):
         Returns:
             (NN Model Object) : Loads the model object.
         """
-        return torch.jit.load(model_pt_path, map_location=self.map_location)
+        return torch.jit.load(model_pt_path, map_location=self.device)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
@@ -126,7 +126,7 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.map_location)
+            state_dict = torch.load(model_pt_path, map_location=self.device)
             model.load_state_dict(state_dict)
         return model
 
