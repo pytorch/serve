@@ -105,9 +105,15 @@ public final class ConfigManager {
 
     public static final String PYTHON_EXECUTABLE = "python";
 
+    public static final Pattern ADDRESS_PATTERN =
+            Pattern.compile(
+                    "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
+                    Pattern.CASE_INSENSITIVE);
+    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private Pattern blacklistPattern;
     private Properties prop;
-    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private boolean snapshotDisabled;
 
     private static ConfigManager instance;
@@ -716,6 +722,30 @@ public final class ConfigManager {
 
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public boolean isSSLEnabled(ConnectorType connectorType) {
+        String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                address = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                address = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                break;
+        }
+        // String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS,
+        // "http://127.0.0.1:8080");
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(address);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid binding address: " + address);
+        }
+
+        String protocol = matcher.group(2);
+
+        return "https".equalsIgnoreCase(protocol);
     }
 
     public int getIniitialWorkerPort() {

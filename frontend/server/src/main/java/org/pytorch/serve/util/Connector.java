@@ -24,15 +24,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 
 public class Connector {
-
-    private static final Pattern ADDRESS_PATTERN =
-            Pattern.compile(
-                    "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
-                    Pattern.CASE_INSENSITIVE);
 
     private static boolean useNativeIo = ConfigManager.getInstance().useNativeIo();
 
@@ -75,7 +69,7 @@ public class Connector {
     }
 
     public static Connector parse(String binding, ConnectorType connectorType) {
-        Matcher matcher = ADDRESS_PATTERN.matcher(binding);
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(binding);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid binding address: " + binding);
         }
