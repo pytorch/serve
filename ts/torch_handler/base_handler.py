@@ -51,7 +51,7 @@ class BaseHandler(abc.ABC):
             else self.map_location
         )
         self.manifest = context.manifest
-
+    
         model_dir = properties.get("model_dir")
         model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
@@ -73,7 +73,6 @@ class BaseHandler(abc.ABC):
 
         self.model.to(self.device)
         self.model.eval()
-
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
         # Load class mapping for classifiers
@@ -91,7 +90,7 @@ class BaseHandler(abc.ABC):
         Returns:
             (NN Model Object) : Loads the model object.
         """
-        return torch.jit.load(model_pt_path, map_location=self.device)
+        return torch.jit.load(model_pt_path)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
@@ -126,7 +125,7 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            state_dict = torch.load(model_pt_path)
             model.load_state_dict(state_dict)
         return model
 
