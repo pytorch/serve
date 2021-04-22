@@ -70,14 +70,14 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning("Missing the checkpoint or state_dict.")
 
-        if not os.path.isfile(os.path.join(model_dir, "vocab.*")):
+        if any(fname for fname in os.listdir(model_dir) if fname.startswith("vocab.") and os.path.isfile(fname)):
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.setup_config["model_name"],
-                do_lower_case=self.setup_config["do_lower_case"],
+                model_dir, do_lower_case=self.setup_config["do_lower_case"]
             )
         else:
             self.tokenizer = AutoTokenizer.from_pretrained(
-                model_dir, do_lower_case=self.setup_config["do_lower_case"]
+                self.setup_config["model_name"],
+                do_lower_case=self.setup_config["do_lower_case"],
             )
 
         self.model.to(self.device)
