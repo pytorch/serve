@@ -51,7 +51,6 @@ class BaseHandler(abc.ABC):
             else self.map_location
         )
         self.manifest = context.manifest
-    
         model_dir = properties.get("model_dir")
         model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
