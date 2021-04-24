@@ -1,5 +1,5 @@
 #pip install torch==1.8.0+cpu torchvision==0.9.0+cpu torchaudio===0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
-#--find-links https://download.pytorch.org/whl/torch_stable.html
+--find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.8.0+cpu; sys_platform == 'win32'
 torchvision==0.9.0+cpu; sys_platform == 'win32'
 torchtext==0.9.0; sys_platform == 'win32'
