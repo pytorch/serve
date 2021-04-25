@@ -26,9 +26,6 @@ logger = logging.getLogger(__name__)
 
 import csv
 from transformers import BertTokenizer
-
-sys.path.append("/home/ubuntu/mmf")
-
 import transforms as T
 PRE_TRAINED_MODEL_NAME = 'bert-base-uncased'
 
