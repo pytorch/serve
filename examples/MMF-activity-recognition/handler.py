@@ -46,9 +46,6 @@ from mmf.datasets.mmf_dataset_builder import MMFDatasetBuilder
 from transformers import BertTokenizer
 from torch.utils.data import IterableDataset
 from mmf.utils.configuration import load_yaml
-
-sys.path.append("/home/ubuntu/mmf")
-
 from mmf.models.mmf_transformer import MMFTransformer
 import transforms as T
 import mmf_utils
@@ -88,7 +85,7 @@ class MMFDisneyHandler(BaseHandler, ABC):
         self.classes = classes
         self.labels = labels
         self.idx_to_class = classes
-        config = OmegaConf.load('/home/ubuntu/mmf/save/config.yaml')
+        config = OmegaConf.load('config.yaml')
         print("*********** config keyssss **********", config.keys())
         setup_very_basic_config()
 
@@ -97,7 +94,6 @@ class MMFDisneyHandler(BaseHandler, ABC):
         self.model.build()
         self.model.init_losses()
         state_dict = torch.load(serialized_file)
-        print("@@@@@@@@@@@@@@@@@@@@@", state_dict.keys())
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()
