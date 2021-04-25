@@ -101,6 +101,11 @@ Now, we have the trained MMF model for activity recognition, it can be served in
 
 To serve a model using Torchserve, we need to bundle the model artifacts and a handler into a .mar file which is an archive format that torchserve uses to serve our model, model_archiver package does this step. The .mar file will get extracted in a temp directory and the Path will be added to the PYTHONPATH.
 
+##### Requirements
+
+Install [Torchserve](https://github.com/pytorch/serve)
+Install [MMF](https://github.com/facebookresearch/mmf/tree/video_datasets)
+
 ##### Tochserve Custom Handler
 
 For the activity recognition MMF model, we need to provide a custom handler. The handler generally extends the [Base handler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). The [handler](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py) for MMF model, needs to load and intialize the model in the initialize method and then in the preprocess, mimics the logic in dataset processors to make a sample form the input video and its realted text ( preprocess the video and make the related tensors to video,audio and text). The inference method run the preprocessed samples through the  MMF model and send the outputs to the post process method. 
