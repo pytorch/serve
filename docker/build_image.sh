@@ -55,7 +55,7 @@ do
           CUDA_VERSION="$2"
           if [ $CUDA_VERSION == "cu110" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu102" ];
           then
             BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
