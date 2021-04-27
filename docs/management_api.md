@@ -50,8 +50,8 @@ For example: model squeezenet1_1 is [encrypted on S3 under your own private acco
 1. create an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
 2. run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 3. export AWS_DEFAULT_REGION=your_s3_bucket_region
-3. start torchserve
-4. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command.
+4. start torchserve
+5. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command.
 ```bash
 curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar&s3_sse_kms=true"
 
@@ -65,7 +65,7 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/s
 3. export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 4. export AWS_DEFAULT_REGION=your_s3_bucket_region
 5. start torchserve
-6. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command (same as EC2 example step 4).
+6. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command (same as EC2 example step 5).
 
 You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
