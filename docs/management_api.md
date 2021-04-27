@@ -46,7 +46,7 @@ If you'd like to serve an encrypted model then you need to setup [S3 SSE-KMS](ht
 And set "s3_sse_kms=true" in HTTP request. 
 
 For example: model squeezenet1_1 is [encrypted on S3 under your own private account](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). The model http url on S3 is https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar.
-- run torchserve on EC2 instance (eg. OS: ubuntu)
+- if torchserve will run on EC2 instance (eg. OS: ubuntu)
 1. create an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
 2. run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 3. export AWS_DEFAULT_REGION=your_s3_bucket_region
@@ -59,7 +59,7 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/s
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
-- run torchserve on local (eg. OS: macOS)
+- if torchserve will run on local (eg. OS: macOS)
 1. Find your AWS access key and secret key. You can [reset them](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys_retrieve.html) if you forgot the keys.
 2. export AWS_ACCESS_KEY_ID=your_aws_access_key
 3. export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
