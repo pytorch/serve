@@ -54,7 +54,7 @@ class MMFHandler(BaseHandler, ABC):
     Transformers handler class for  MMFTransformerWithVideoAudio model.
     """
     def __init__(self):
-        super(MMFDisneyHandler, self).__init__()
+        super(MMFHandler, self).__init__()
         self.initialized = False
 
     def initialize(self, ctx):
@@ -158,21 +158,21 @@ class MMFHandler(BaseHandler, ABC):
 
 
 
-_service = MMFHandler()
+# _service = MMFHandler()
 
 
-def handle(data, context):
-    try:
-        if not _service.initialized:
-            _service.initialize(context)
+# def handle(data, context):
+#     try:
+#         if not _service.initialized:
+#             _service.initialize(context)
 
-        if data is None:
-            return None
+#         if data is None:
+#             return None
 
-        data = _service.preprocess(data)
-        data = _service.inference(data)
-        data = _service.postprocess(data)
+#         data = _service.preprocess(data)
+#         data = _service.inference(data)
+#         data = _service.postprocess(data)
 
-        return data
-    except Exception as e:
-        raise e
+#         return data
+#     except Exception as e:
+#         raise e
