@@ -16,6 +16,11 @@ import tempfile
 import torchaudio
 import torchvision
 from omegaconf import OmegaConf
+import pandas as pd
+from pathlib import Path
+from functools import partial
+from tqdm import tqdm
+import csv
 
 from torchvision import transforms
 from torchvision.datasets.vision import VisionDataset
@@ -34,13 +39,6 @@ from mmf.common.sample import Sample, SampleList
 from mmf.utils.env import set_seed, setup_imports
 from mmf.utils.logger import setup_logger, setup_very_basic_config
 
-from pathlib import Path
-
-import pandas as pd
-from pathlib import Path
-from functools import partial
-from tqdm import tqdm
-import csv
 from mmf.datasets.base_dataset import BaseDataset
 from mmf.datasets.mmf_dataset_builder import MMFDatasetBuilder
 from transformers import BertTokenizer
@@ -51,7 +49,7 @@ import transforms as T
 import mmf_utils
 from mmf_utils import audio_proccessor, video_processor, text_processor, video_audio_handler
 
-class MMFDisneyHandler(BaseHandler, ABC):
+class MMFHandler(BaseHandler, ABC):
     """
     Transformers handler class for  MMFTransformerWithVideoAudio model.
     """
@@ -160,7 +158,7 @@ class MMFDisneyHandler(BaseHandler, ABC):
 
 
 
-_service = MMFDisneyHandler()
+_service = MMFHandler()
 
 
 def handle(data, context):
