@@ -119,7 +119,7 @@ To make the .mar file in the current setting we will use model_archiver as follo
 Make sure to compress configs, datasets and models folder.
 
 ```
-torch-model-archiver --model-name MMF_model --version 1.0 --serialized-file $(path to checkpoints) --handler handler.py --extra-files "charades.csv, mmf_utils.py,transforms.py"
+torch-model-archiver --model-name MMF_model --version 1.0 --serialized-file $(path to checkpoints) --handler handler.py --extra-files "charades.csv,mmf_utils.py,transforms.py,$(path to the aggreagted config file,saved in mmf/save/config.yaml)"
 ```
 
 charades.csv has been created using the [notebook](https://github.com/apsdehal/mmf_video_audio/blob/mmft_audio_video_disney/data/how_to_use_mickeynetics.ipynb) and is available here as well, which contains the labels from the dataset to be used for setting the model ouput shape and also index to class mapping. Running this will result in MMF_model.mar in the current directory.
