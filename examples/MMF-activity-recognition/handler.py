@@ -40,14 +40,12 @@ from mmf.utils.env import set_seed, setup_imports
 from mmf.utils.logger import setup_logger, setup_very_basic_config
 
 from mmf.datasets.base_dataset import BaseDataset
+from mmf.utils.build import build_encoder, build_model, build_processors
 from mmf.datasets.mmf_dataset_builder import MMFDatasetBuilder
 from transformers import BertTokenizer
 from torch.utils.data import IterableDataset
 from mmf.utils.configuration import load_yaml
 from mmf.models.mmf_transformer import MMFTransformer
-import transforms as T
-import mmf_utils
-from mmf_utils import audio_proccessor, video_processor, text_processor, video_audio_handler
 
 class MMFHandler(BaseHandler, ABC):
     """
@@ -67,7 +65,7 @@ class MMFHandler(BaseHandler, ABC):
 
         # reading the csv file which include all the labels in the dataset to make the class/index mapping
         # and matching the output of the model with num labels from dataset
-        df = pd.read_csv('./charades.csv')
+        df = pd.read_csv('./charades_action_lables.csv')
         # print(df.head(2))
         label_set = set()
         df['action_labels'] = df['action_labels'].str.replace('"','')
@@ -91,6 +89,9 @@ class MMFHandler(BaseHandler, ABC):
         self.model = MMFTransformer(config.model_config.mmf_transformer)
         self.model.build()
         self.model.init_losses()
+        self.processor = build_processors(
+            config.dataset_config["charades"].processors
+        )
         state_dict = torch.load(serialized_file)
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
@@ -112,12 +113,6 @@ class MMFHandler(BaseHandler, ABC):
             current_sample= Sample()
             current_sample.video = video_transfomred
             current_sample.audio = audio_transfomred
-            text_tensor['input_mask'] = text_tensor['attention_mask']
-            text_tensor['segment_ids'] = text_tensor['token_type_ids']
-
-            del text_tensor['attention_mask']
-            for key in text_tensor.keys():
-                text_tensor[key]= text_tensor[key].squeeze(0)
             current_sample.update(text_tensor)
             current_sample.targets = one_hot_label.to(self.device)
             current_sample.dataset_type = 'test'
@@ -130,8 +125,12 @@ class MMFHandler(BaseHandler, ABC):
             raw_label = data.get('lables')
             video_label = raw_label.decode('utf-8')
             video_label = [video_label]
-
-            video_transfomred,audio_transfomred,text_tensor = video_audio_handler(data['data'], script,self.device)
+            
+            video = io.BytesIO(data['data'])
+            video_tensor, audio_tensor,info = torchvision.io.read_video(video)
+            text_tensor = self.processor["text_processor"]({"text": script})
+            video_transfomred = self.processor["video_test_processor"](video_tensor)
+            audio_transfomred = self.processor["audio_processor"](audio_tensor)
             samples = create_sample(video_transfomred,audio_transfomred,text_tensor,video_label)
 
         return samples
