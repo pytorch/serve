@@ -6,52 +6,7 @@ Multi modality learning helps the AI solutions to get signals from different inp
 
 [MultiModal (MMF) framework](https://ai.facebook.com/blog/announcing-mmf-a-framework-for-multimodal-ai-models/)  is a modular deep learning framework for vision and language multimodal research. MMF provides  starter code for several multimodal challenges, including the Hateful Memes, VQA, TextVQA, and TextCaps challenges. You can learn more about MMF from their [website](https://mmf.readthedocs.io/en/latest/?fbclid=IwAR3P8zccSXqNt1XCCUv4Ysq0qkD515T6K9JnhUwpNcz0zzRl75FNSio9REU) a [Github](https://github.com/facebookresearch/mmf?fbclid=IwAR2OZi-8rQaxO3uwLxwvvvr9cuY8J6h0JP_g6BBM-qM7wpnNYEZEmWOQ6mc). 
 
-MMF is using [OmegaConfig](https://github.com/omry/omegaconf?fbclid=IwAR1jxgSCJUzKqnbVI46vdgPIv9psaBlkwjYAox5xtm4c4TtwTPpzaWhCL_k) for different configuration and settings, where OmegaConf is a hierarchical configuration system, which support merging configurations from multiple sources (YAML config files, dataclasses/objects and CLI arguments). 
-
-MMF has a [model zoo](https://mmf.sh/docs/notes/model_zoo) providing a number of pretrained models such as [VilBert](https://arxiv.org/abs/1908.02265)  and MMF Transformer, and a compelmenty  [Dataset zoo](https://mmf.sh/docs/notes/dataset_zoo). 
-
-MMF is multi-tasking framework which means essentialy you are able to use multiple dataasets for your training job on different tasks / models at the same time. Here is where the modularity and config system of MMF can picture a clear logic for your multi-task training job. 
-
-The diagram below shows the MMF flow for a visual question answering task. 
-
-![](/Users/hamidnazeri/Documents/Screen Shot 2021-04-09 at 4.39.55 PM.png)
-
-### Key Concepts
-
-There are some basic terminology and cocnepts that helps you to get onboarded with MMF easiser. 
-
-**Datasets** has their own config files where you can set the specifics of the dataset, all the existing dataset configs in the zoo can be found [here](https://github.com/facebookresearch/mmf/tree/master/mmf/configs/datasets). Also, one can add a new dataset where the tutorial can be found [here](https://mmf.sh/docs/tutorials/dataset) , in this example Charades dataset has been added to the MMF.
-
- Basically, MMF is dataset agnostic and each dataset would require 4 components to be added, Dataset builder, Default configuration, Dataset class, Dataset metric, details of how to create these components are explained in the tutorial. 
-
-**Models** similar to datasets they have their own config files, where you can set the specifics, including what modalities you are using, the encoders for each of the models, for example if you are using image as a modality, you can set "Resnet" as the image encoder or Bert model for your text encoder. The list of existing models and their config files in zoo can be found [here](https://github.com/facebookresearch/mmf/tree/master/mmf/configs/models). 
-
-**Registery** is playing a centeral role in MMF where all the models, tasks,  dataset and necessary information for running a workload in the MMF is registered here. The functions in the registery class can be used as decorates to register different classes, for example to [resgiter the dataset builder](https://github.com/facebookresearch/mmf/blob/master/mmf/datasets/builders/clevr/builder.py#L19) that will register your dataset with MMF. 
-
-**Configuration** as mentioned before, MMF uses OmegaConfig that provides a hierarchical configuration and for each datasets, model and experiment there is seperate config file that can be found or places under MMF/configs. Also, at any place in the MMF code base you can access the configs by registry.get('config') and all the attributes can be accessed using 'dot' notation, for example registry.get('config').training.max_updates. Also, you are able to use override the config values by setting it from command line, for example for using DataParallel in case of having multi-gpus you can just pass the training.data_parallel True at the end of your command. 
-
-**Processors** are used to keep data processing pipelines as similar as possible for different datasets and allow code reusability. You can think of the processors similar to transforms provided in torchvision, where it takes a sample from convert it to a useable form by the model.  Processors take in a dict with keys corresponding to data they need and return back a dict with processed data.  Processors are initialized as member variables of the dataset and can be used while generating samples. This helps keep processors independent of the rest of the logic by fixing the signatures they require. You can write you own processors beside the defaults exisiting in the MMF by following the guide [here](https://mmf.sh/api/lib/datasets/processors.html). 
-
-**SampleList** is a list of sample and how you pass a batch of data, models integrated with MMF receive a `SampleList` as an argument which makes the trainer unopinionated about the models as well as the datasets.
-
-### Installation
-
-You can install either from source or using python wheels, further details can be found in the  [installation guide](https://mmf.sh/docs/). It is recommneded to make a virtual enviroment for installation.
-
-Install from source:
-
-`git clone https://github.com/facebookresearch/mmf.git`
-`cd mmf`
-`pip install --editable .`
-
-Pip install:
-
-`pip install --upgrade --pre mmf`
-
-and for latest from MMF github repo :
-
-`pip install git+https://github.com/facebookresearch/mmf.git`
-
+In the following, we will showcase an example from MMF repo for activity recognition from videos and how to serve the MMF model using Torchserve. 
 
 
 ### Activity Recognition from Videos
@@ -61,8 +16,8 @@ We are going to present an example of activity recognition on Charades video dat
  There a number of steps based on the discussed concepts in previous section :
 
 1. Define a new dataset, "Charades" and resgitering the dataset builder with MMF.
-2.  Define a model for our training, which is essentially a wrapper setting the configs for MMFTransformer model.
-3. Set up configs for dataset, model, the experiment (configs for training job) and zoo(?)
+2. Define a model for our training, which is MMFTransformer model in this case.
+3. Set up configs for dataset, model, the experiment (configs for training job).
 
 In the following we discuss each of the steps in more details. 
 
