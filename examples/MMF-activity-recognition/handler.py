@@ -129,9 +129,9 @@ class MMFHandler(BaseHandler, ABC):
             video = io.BytesIO(data['data'])
             video_tensor, audio_tensor,info = torchvision.io.read_video(video)
             text_tensor = self.processor["text_processor"]({"text": script})
-            video_transfomred = self.processor["video_test_processor"](video_tensor)
-            audio_transfomred = self.processor["audio_processor"](audio_tensor)
-            samples = create_sample(video_transfomred,audio_transfomred,text_tensor,video_label)
+            video_transformed = self.processor["video_test_processor"](video_tensor)
+            audio_transformed = self.processor["audio_processor"](audio_tensor)
+            samples = create_sample(video_transformed,audio_transformed,text_tensor,video_label)
 
         return samples
 
@@ -154,24 +154,3 @@ class MMFHandler(BaseHandler, ABC):
     def postprocess(self, inference_output):
         # TODO: Add any needed post-processing of the model predictions here
         return [inference_output]
-
-
-
-# _service = MMFHandler()
-
-
-# def handle(data, context):
-#     try:
-#         if not _service.initialized:
-#             _service.initialize(context)
-
-#         if data is None:
-#             return None
-
-#         data = _service.preprocess(data)
-#         data = _service.inference(data)
-#         data = _service.postprocess(data)
-
-#         return data
-#     except Exception as e:
-#         raise e
