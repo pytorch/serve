@@ -41,7 +41,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
-import org.pytorch.serve.snapshot.SnapshotUtils;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
+import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -77,7 +78,6 @@ public final class ConfigManager {
     private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
-    private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
@@ -105,9 +105,15 @@ public final class ConfigManager {
 
     public static final String PYTHON_EXECUTABLE = "python";
 
+    public static final Pattern ADDRESS_PATTERN =
+            Pattern.compile(
+                    "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
+                    Pattern.CASE_INSENSITIVE);
+    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private Pattern blacklistPattern;
     private Properties prop;
-    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private boolean snapshotDisabled;
 
     private static ConfigManager instance;
@@ -130,40 +136,41 @@ public final class ConfigManager {
             System.setProperty("LOG_LOCATION", "logs");
         }
 
-        String snapshotStore = args.getSnapshotStore();
-        if (snapshotStore != null) {
-            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
-        }
-
-        String filePath = System.getenv("TS_CONFIG_FILE");
-        if (filePath == null) {
-            filePath = args.getTsConfigFile();
-            if (filePath == null) {
-                filePath = getLastSnapshot();
-                if (filePath == null) {
-                    filePath = System.getProperty("tsConfigFile", "config.properties");
-                }
-            }
-        }
-
-        File tsConfigFile = new File(filePath);
-        if (tsConfigFile.exists()) {
-            try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
-                prop.load(stream);
-                prop.put("tsConfigFile", filePath);
-            } catch (IOException e) {
-                throw new IllegalStateException("Unable to read configuration file", e);
-            }
-        }
-
-        resolveEnvVarVals(prop);
-
         String metricsLocation = System.getenv("METRICS_LOCATION");
         if (metricsLocation != null) {
             System.setProperty("METRICS_LOCATION", metricsLocation);
         } else if (System.getProperty("METRICS_LOCATION") == null) {
             System.setProperty("METRICS_LOCATION", "logs");
         }
+
+        String filePath = System.getenv("TS_CONFIG_FILE");
+        Properties snapshotConfig = null;
+
+        if (filePath == null) {
+            filePath = args.getTsConfigFile();
+            if (filePath == null) {
+                snapshotConfig = getLastSnapshot();
+                if (snapshotConfig == null) {
+                    filePath = System.getProperty("tsConfigFile", "config.properties");
+                } else {
+                    prop.putAll(snapshotConfig);
+                }
+            }
+        }
+
+        if (filePath != null) {
+            File tsConfigFile = new File(filePath);
+            if (tsConfigFile.exists()) {
+                try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
+                    prop.load(stream);
+                    prop.put("tsConfigFile", filePath);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Unable to read configuration file", e);
+                }
+            }
+        }
+
+        resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
         if (modelStore != null) {
@@ -393,10 +400,6 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
-    public String getSnapshotStore() {
-        return prop.getProperty(TS_SNAPSHOT_STORE, "FS");
-    }
-
     public String getModelSnapshot() {
         return prop.getProperty(MODEL_SNAPSHOT, null);
     }
@@ -516,12 +519,12 @@ public final class ConfigManager {
         }
     }
 
-    private String getLastSnapshot() {
+    private Properties getLastSnapshot() {
         if (isSnapshotDisabled()) {
             return null;
         }
-
-        return SnapshotUtils.getLastSnapshot(getSnapshotStore());
+        SnapshotSerializer serializer = SnapshotSerializerFactory.getSerializer();
+        return serializer.getLastSnapshot();
     }
 
     public String getProperty(String key, String def) {
@@ -721,6 +724,30 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
+    public boolean isSSLEnabled(ConnectorType connectorType) {
+        String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                address = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                address = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                break;
+        }
+        // String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS,
+        // "http://127.0.0.1:8080");
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(address);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid binding address: " + address);
+        }
+
+        String protocol = matcher.group(2);
+
+        return "https".equalsIgnoreCase(protocol);
+    }
+
     public int getIniitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
     }
@@ -820,11 +847,6 @@ public final class ConfigManager {
 
         public void setSnapshotDisabled(boolean snapshotDisabled) {
             this.snapshotDisabled = snapshotDisabled;
-        }
-
-        public String getSnapshotStore() {
-            // TODO : remove hard-coding and add a new cmd param for snapshot store
-            return "FS";
         }
     }
 }
