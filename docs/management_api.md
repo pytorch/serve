@@ -47,7 +47,7 @@ And set "s3_sse_kms=true" in HTTP request.
 
 For example: model squeezenet1_1 is [encrypted on S3 under your own private account](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). The model http url on S3 is https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar.
 - if torchserve will run on EC2 instance (eg. OS: ubuntu)
-1. create an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
+1. add an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
 2. run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 3. export AWS_DEFAULT_REGION=your_s3_bucket_region
 4. start torchserve
