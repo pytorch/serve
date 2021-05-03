@@ -1,0 +1,20 @@
+---
+fastrcnn:
+    eager_mode:
+        benchmark_engine: "ab"
+        url: "https://torchserve.pytorch.org/mar_files/fastrcnn.mar"
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/object_detector/persons.jpg"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: True
+        exec_env: "docker"
+        processors:
+            - "cpu"
+            - "gpus": "all"

@@ -1,0 +1,13 @@
+pytest
+pyyaml
+pytest-xdist
+boto3
+pytest-timeout
+pytest-rerunfailures
+retrying
+fabric2
+black
+gitpython
+docker
+pandas
+matplotlib
