@@ -44,14 +44,12 @@ class BaseHandler(abc.ABC):
 
         """
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
-        self.device = torch.device(
-            self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available()
-            else self.map_location
-        )
-        self.manifest = context.manifest
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        if torch.cuda.is_available():
+            torch.cuda.set_device(properties.get("gpu_id"))
 
+
+        self.manifest = context.manifest
         model_dir = properties.get("model_dir")
         model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
@@ -60,10 +58,10 @@ class BaseHandler(abc.ABC):
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
-
         if model_file:
             logger.debug("Loading eager model")
             self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model.to(self.device)
         else:
             logger.debug("Loading torchscript model")
             if not os.path.isfile(model_pt_path):
@@ -71,9 +69,7 @@ class BaseHandler(abc.ABC):
 
             self.model = self._load_torchscript_model(model_pt_path)
 
-        self.model.to(self.device)
         self.model.eval()
-
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
         # Load class mapping for classifiers
@@ -91,7 +87,7 @@ class BaseHandler(abc.ABC):
         Returns:
             (NN Model Object) : Loads the model object.
         """
-        return torch.jit.load(model_pt_path, map_location=self.map_location)
+        return torch.jit.load(model_pt_path, map_location=self.device)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
@@ -126,7 +122,7 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.map_location)
+            state_dict = torch.load(model_pt_path, map_location=self.device)
             model.load_state_dict(state_dict)
         return model
 
