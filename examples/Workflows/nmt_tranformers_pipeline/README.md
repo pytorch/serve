@@ -5,7 +5,9 @@ To change the default batch size and batch delay the yaml file for the workflow 
 
 ## Flow
 
-### Example 1: Re-translation
+### Example 1: Back-translation
+
+In the case of back translation we pass the input to an english to german translation model. The output is cleaned up by the intermediate-input-processing node and converted into a format which is expected by the german to english translation model. The post-processing node takes the final output and converts the keys of the output dictionary to be relevant to the workflow.
 
 ```
 input -> en-2-de -> intermediate-input-processing -> de-2-en -> post-processing -> output
@@ -13,12 +15,14 @@ input -> en-2-de -> intermediate-input-processing -> de-2-en -> post-processing 
 
 ### Example 2: Dual translation
 
+In the case of dual translation we use a preprocessing node as a dummy node to pass the input to both the english to french and english to german translators. The output from both the translations are converted into a single output by the aggregate-output node and returned to the user.
+
 ```
                           _ en-2-de _
                          /           \
 input -> preprocessing _/             \_ aggregate-output -> output
                         \             /
-                         \_ en-2-fe _/
+                         \_ en-2-fr _/
 ```
 
 ## Commands to create the models and the workflow

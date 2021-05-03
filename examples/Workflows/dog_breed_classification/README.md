@@ -5,6 +5,8 @@ To change the default batch size and batch delay the yaml file for the workflow 
 
 ## Flow
 
+In the flow described below, the pre_processing node base64 encodes the image and passes it to two model nodes in the flow. The encoded data is available to both these nodes for classification. The second node i.e. dog-breed-classification takes the original input from the pre_processing node along-with the response from the cat-dog-classification node to do further classification of the dog breed if required.
+
 ```
 input -> pre_processing --> cat-dog-classification -> dog-breed-classification -> output
                     \                                         /
