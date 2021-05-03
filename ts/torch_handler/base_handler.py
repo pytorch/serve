@@ -58,12 +58,10 @@ class BaseHandler(abc.ABC):
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
-
         if model_file:
             logger.debug("Loading eager model")
             self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
             self.model.to(self.device)
-            
         else:
             logger.debug("Loading torchscript model")
             if not os.path.isfile(model_pt_path):
