@@ -40,9 +40,9 @@ curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/
 * Use following commands to register Resnet18 torchscript model on TorchServe and run image prediction
 
     ```bash
-    torch-model-archiver --model-name resnet-18 --version 1.0  --serialized-file resnet-18.pt --extra-files ./examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver --model-name resnet-18 --version 1.0  --serialized-file resnet-18.pt --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     mkdir model_store
     mv resnet-18.mar model_store/
     torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
-    curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/kitten.jpg
+    curl http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
     ```
