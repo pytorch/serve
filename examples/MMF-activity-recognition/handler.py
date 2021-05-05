@@ -4,45 +4,30 @@ import logging
 import os
 import pickle
 import sys
-import tempfile
 import ast
 import torch
 from ts.torch_handler.base_handler import BaseHandler
 import io
-import PIL
-from PIL import Image
-import zipfile
-import tempfile
 import torchaudio
 import torchvision
 from omegaconf import OmegaConf
 import pandas as pd
-from pathlib import Path
-from functools import partial
-from tqdm import tqdm
 import csv
 
 from torchvision import transforms
 from torchvision.datasets.vision import VisionDataset
-
 from torchvision.io import (
     read_video_timestamps,
     read_video
 )
 logger = logging.getLogger(__name__)
 
-from transformers.modeling_bert import BertPooler, BertPredictionHeadTransform
-
-from mmf.common.registry import registry
-import torchvision.datasets.folder as tv_helpers
 from mmf.common.sample import Sample, SampleList
 from mmf.utils.env import set_seed, setup_imports
 from mmf.utils.logger import setup_logger, setup_very_basic_config
-
 from mmf.datasets.base_dataset import BaseDataset
 from mmf.utils.build import build_encoder, build_model, build_processors
 from mmf.datasets.mmf_dataset_builder import MMFDatasetBuilder
-from transformers import BertTokenizer
 from torch.utils.data import IterableDataset
 from mmf.utils.configuration import load_yaml
 from mmf.models.mmf_transformer import MMFTransformer
@@ -66,7 +51,6 @@ class MMFHandler(BaseHandler, ABC):
         # reading the csv file which include all the labels in the dataset to make the class/index mapping
         # and matching the output of the model with num labels from dataset
         df = pd.read_csv('./charades_action_lables.csv')
-        # print(df.head(2))
         label_set = set()
         df['action_labels'] = df['action_labels'].str.replace('"','')
         labels_initial = df['action_labels'].tolist()
