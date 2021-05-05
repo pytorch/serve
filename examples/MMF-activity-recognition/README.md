@@ -67,7 +67,7 @@ For the activity recognition MMF model, we need to provide a custom handler. The
 
 To intialize the MMF model in the [intialization method](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L65), there are few poinst to consider. We need to load config (Line#91) using OmegaConfing, then setup_very_basic_config (Line#93) function from mmf.utils.logger and setup_imports (Line#95) from  mmf.utils.env need to be called to setup the enviroment for loading the model. Finally to load the model (Line#96), we pass the model config to the  [MMFTransformer](https://github.com/facebookresearch/mmf/blob/video_datasets/mmf/models/mmf_transformer.py) model. 
 
-##### Getting started on Serving
+#### Getting started on Serving
 
 To make the .mar file in the current setting we will use model_archiver as follow.
 
