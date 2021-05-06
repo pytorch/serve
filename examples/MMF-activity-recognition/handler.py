@@ -68,7 +68,6 @@ class MMFHandler(BaseHandler, ABC):
         config = OmegaConf.load('config.yaml')
         print("*********** config keyssss **********", config.keys())
         setup_very_basic_config()
-
         setup_imports()
         self.model = MMFTransformer(config.model_config.mmf_transformer)
         self.model.build()
