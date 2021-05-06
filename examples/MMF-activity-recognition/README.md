@@ -45,7 +45,7 @@ wget https://mmfartifacts.s3-us-west-2.amazonaws.com/config.yaml
 torch-model-archiver --model-name MMF_activity_recognition --version 1.0 --serialized-file $(path to checkpoints) --handler handler.py --extra-files "charades_action_lables.csv,$(path to the aggreagted config file,saved in mmf/save/config.yaml)"
 ```
 
-charades_action_lables.csv has been created using the [notebook](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/Generting_Charades_action_lables.ipynb) and is available here as well, which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_activity_recognitionmar in the current directory.
+charades_action_lables.csv has been created using the "Generting_Charades_action_lables.py" script and is available for [download](https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv), which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_activity_recognitionmar in the current directory.
 
 The **next step** is to make a model_store and move the .mar file to it:
 
