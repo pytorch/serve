@@ -36,7 +36,8 @@ After training the MMF model, the final checkpoints are saved in the mmf/save/ d
  If mar file is downloaded then skip this and move to next step. The other option is to download a pretrained model, along with labels and config for this example and package the them to a mar file. 
 
 ```
-wget https://mmfartifacts.s3-us-west-2.amazonaws.com/mmf_transformer_Charades_final.pth wget https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv'
+wget https://mmfartifacts.s3-us-west-2.amazonaws.com/mmf_transformer_Charades_final.pth
+wget https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv'
 wget https://mmfartifacts.s3-us-west-2.amazonaws.com/config.yaml
 ```
 
