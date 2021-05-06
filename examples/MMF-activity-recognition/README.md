@@ -66,6 +66,8 @@ Sending inference request using
 The examples of video and info.json is avalilbe here for demonstration purposes. **Please make sure to set the corret path to the video, info.json and model name in the request.py (e.g. $(path)/video.mp4, $(path)/video.info.json).**
 
 ```
+wget https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4
+
 Python request.py
 ```
 
