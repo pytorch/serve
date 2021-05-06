@@ -6,7 +6,7 @@ Multi modality learning helps the AI solutions to get signals from different inp
 [MultiModal (MMF) framework](https://ai.facebook.com/blog/announcing-mmf-a-framework-for-multimodal-ai-models/)  is a modular deep learning framework for vision and language multimodal research. MMF provides  starter code for several multimodal challenges, including the Hateful Memes, VQA, TextVQA, and TextCaps challenges. You can learn more about MMF from their [website](https://mmf.readthedocs.io/en/latest/?fbclid=IwAR3P8zccSXqNt1XCCUv4Ysq0qkD515T6K9JnhUwpNcz0zzRl75FNSio9REU) a [Github](https://github.com/facebookresearch/mmf?fbclid=IwAR2OZi-8rQaxO3uwLxwvvvr9cuY8J6h0JP_g6BBM-qM7wpnNYEZEmWOQ6mc). 
 
 
-In the following we first, show how to serve the MMF model with Torchserve using a pretrained MMF model for acitivity recognition, then, we will discuss about the details of the custom handler and how to train your acitivity recognition model in MMF.
+In the following, we first show how to serve the MMF model with Torchserve using a pretrained MMF model for acitivity recognition, then, we will discuss about the details of the custom handler and how to train your acitivity recognition model in MMF.
 
 ### Serving Activity Recognition MMF Model with Torchserve
 
