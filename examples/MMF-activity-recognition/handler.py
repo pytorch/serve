@@ -1,4 +1,3 @@
-from abc import ABC
 import json
 import logging
 import os
@@ -32,7 +31,7 @@ from torch.utils.data import IterableDataset
 from mmf.utils.configuration import load_yaml
 from mmf.models.mmf_transformer import MMFTransformer
 
-class MMFHandler(BaseHandler, ABC):
+class MMFHandler(BaseHandler):
     """
     Transformers handler class for  MMFTransformerWithVideoAudio model.
     """
