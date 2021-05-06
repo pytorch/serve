@@ -5,10 +5,79 @@ Multi modality learning helps the AI solutions to get signals from different inp
 
 [MultiModal (MMF) framework](https://ai.facebook.com/blog/announcing-mmf-a-framework-for-multimodal-ai-models/)  is a modular deep learning framework for vision and language multimodal research. MMF provides  starter code for several multimodal challenges, including the Hateful Memes, VQA, TextVQA, and TextCaps challenges. You can learn more about MMF from their [website](https://mmf.readthedocs.io/en/latest/?fbclid=IwAR3P8zccSXqNt1XCCUv4Ysq0qkD515T6K9JnhUwpNcz0zzRl75FNSio9REU) a [Github](https://github.com/facebookresearch/mmf?fbclid=IwAR2OZi-8rQaxO3uwLxwvvvr9cuY8J6h0JP_g6BBM-qM7wpnNYEZEmWOQ6mc). 
 
-In the following, we will showcase an example from MMF repo for activity recognition from videos and how to serve the MMF model using Torchserve. 
+
+In the following we first, show how to serve the MMF model with Torchserve using a pretrained MMF model for acitivity recognition, then, we will discuss about the details of the custom handler and how to train your acitivity recognition model in MMF.
+
+### Serving Activity Recognition MMF Model with Torchserve
+
+This section, we have the trained MMF model for activity recognition, it can be served in production with [Torchserve](https://github.com/pytorch/serve). 
+
+To serve a model using Torchserve, we need to bundle the model artifacts and a handler into a mar file which is an archive format that torchserve uses to serve our model, model_archiver package does this step. The mar file will get extracted in a temp directory and the Path will be added to the PYTHONPATH.
+
+#### Requirements
+
+Install [Torchserve](https://github.com/pytorch/serve)
 
 
-### Activity Recognition from Videos
+Install [MMF](https://github.com/facebookresearch/mmf/tree/video_datasets)
+
+
+
+#### Getting started on Serving
+
+To make the mar file, we will use model_archiver as follow.
+
+After training the MMF model, the final checkpoints are saved in the mmf/save/ directory, where we need to use it as the serialized file for model-archiver. The [Charades action labels](https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv) along with the config file that covers all the setting of this experiment (can be found in mmf/save/config.yaml in case of training) are passed as extra files, they are getting used in the handler. Please make sure to change the label and config files accordingly in the handler (Lines #53, #68) if you are passing different ones.
+
+**You can simply download the mar file as follows:**
+
+`wget https://mmfartifacts.s3-us-west-2.amazonaws.com/MMF_activity_recognition.mar`
+
+ If mar file is downloaded then skip this and move to next step. The other option is to download a pretrained model, along with labels and config for this example and package the them to a mar file. 
+
+```
+wget https://mmfartifacts.s3-us-west-2.amazonaws.com/mmf_transformer_Charades_final.pth wget https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv'
+wget https://mmfartifacts.s3-us-west-2.amazonaws.com/config.yaml
+```
+
+```
+torch-model-archiver --model-name MMF_activity_recognition --version 1.0 --serialized-file $(path to checkpoints) --handler handler.py --extra-files "charades_action_lables.csv,$(path to the aggreagted config file,saved in mmf/save/config.yaml)"
+```
+
+charades_action_lables.csv has been created using the [notebook](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/Generting_Charades_action_lables.ipynb) and is available here as well, which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_activity_recognitionmar in the current directory.
+
+The **next step** is to make a model_store and move the .mar file to it:
+
+```
+mkdir model_store
+mv MMF_model.mar model_store
+```
+
+Now we can start serving our model:
+
+```
+torchserve --start --model-store model_store
+curl -X POST "localhost:8081/models?model_name=MMF_activity_recognition&url=MMF_activity_recognition.mar&batch_size=1&max_batch_delay=5000&initial_workers=1&synchronous=true"
+```
+
+Sending inference request using
+
+The examples of video and info.json is avalilbe here for demonstration purposes. **Please make sure to set the corret path to the video, info.json and model name in the request.py (e.g. $(path)/video.mp4, $(path)/video.info.json).**
+
+```
+Python request.py
+```
+
+This will write the results in response.txt in the current directory.
+
+#### Tochserve Custom Handler
+
+For the activity recognition MMF model, we need to provide a custom handler. The handler generally extends the [Base handler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). The [handler](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py) for MMF model, needs to load and intialize the model in the initialize method and then in the preprocess, mimics the logic in dataset processors to make a sample form the input video and its realted text ( preprocess the video and make the related tensors to video,audio and text). The inference method run the preprocessed samples through the  MMF model and send the outputs to the post process method. 
+
+To intialize the MMF model in the [intialization method](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L65), there are few poinst to consider. We need to load [config](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L68)  using OmegaConfing, then [setup_very_basic_config](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L70)  function from mmf.utils.logger and [setup_imports](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L71)  from  mmf.utils.env need to be called to setup the enviroment for loading the model. Finally to load the [model](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L72), we pass the model config to the  [MMFTransformer](https://github.com/facebookresearch/mmf/blob/video_datasets/mmf/models/mmf_transformer.py) model. 
+
+
+### Activity Recognition from Videos using MMF
 
 We are going to present an example of activity recognition on Charades video dataset. Basically in this example three modalities will be used to classify the activity from the video, image, audio and text. Images are extracted frames from the video, and audio is extracted from the vido and text is the captions related to frames in the video. In this case,  embedding for each of the modalities are captured and then [MMFTransformer](https://github.com/facebookresearch/mmf/blob/master/mmf/models/mmf_transformer.py) from the model zoo has been used for fusion of the embeddings. 
 
@@ -46,60 +115,4 @@ To train the activity recognition MMF model as we discussed, the [Charades datas
 mmf_run config=projects/mmf_transformer/configs/charades/direct.yaml  run_type=train_val dataset=charades model=mmf_transformer training.batch_size=4 training.num_workers=1 training.find_unused_parameters=True training.log_interval=100 training.max_updates=5000
 ```
 
-Settings for each of the training parameters can be specified from command line as well. At the end of the training, the checkpoints are saved in mmf/save directory. We will use the saved checkpoints in the next step for serving the model.
-
-### Serving Activity Recognition MMF Model with Torchserve
-
-Now, we have the trained MMF model for activity recognition, it can be served in production with [Torchserve](https://github.com/pytorch/serve). 
-
-To serve a model using Torchserve, we need to bundle the model artifacts and a handler into a .mar file which is an archive format that torchserve uses to serve our model, model_archiver package does this step. The .mar file will get extracted in a temp directory and the Path will be added to the PYTHONPATH.
-
-#### Requirements
-
-Install [Torchserve](https://github.com/pytorch/serve)
-
-
-Install [MMF](https://github.com/facebookresearch/mmf/tree/video_datasets)
-
-#### Tochserve Custom Handler
-
-For the activity recognition MMF model, we need to provide a custom handler. The handler generally extends the [Base handler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). The [handler](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py) for MMF model, needs to load and intialize the model in the initialize method and then in the preprocess, mimics the logic in dataset processors to make a sample form the input video and its realted text ( preprocess the video and make the related tensors to video,audio and text). The inference method run the preprocessed samples through the  MMF model and send the outputs to the post process method. 
-
-To intialize the MMF model in the [intialization method](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/handler.py#L65), there are few poinst to consider. We need to load config (Line#91) using OmegaConfing, then setup_very_basic_config (Line#93) function from mmf.utils.logger and setup_imports (Line#95) from  mmf.utils.env need to be called to setup the enviroment for loading the model. Finally to load the model (Line#96), we pass the model config to the  [MMFTransformer](https://github.com/facebookresearch/mmf/blob/video_datasets/mmf/models/mmf_transformer.py) model. 
-
-#### Getting started on Serving
-
-To make the .mar file in the current setting we will use model_archiver as follow.
-
-After training the MMF model, the final checkpoints are saved in the mmf/save/ directory, where we need to use it as the serialized file for model-archiver, a pretrained checkpoint can be downloaded from [here](https://mmfartifacts.s3-us-west-2.amazonaws.com/mmf_transformer_Charades_final.pth). The Charades action labels along with the config file that covers all the setting of this experiment (can be found in mmf/save/config.yaml) are passed as extra files, they are getting used in the handler. Please make sure to change the label and config files accordingly in the handler (Lines #68, #84) if you are passing different ones. A ready mar file can be found [here](https://mmfartifacts.s3-us-west-2.amazonaws.com/MMF_model.mar) as well.
-
-```
-torch-model-archiver --model-name MMF_model --version 1.0 --serialized-file $(path to checkpoints) --handler handler.py --extra-files "charades_action_lables.csv,$(path to the aggreagted config file,saved in mmf/save/config.yaml)"
-```
-
-charades_action_lables.csv has been created using the [notebook](https://github.com/pytorch/serve/blob/adding_MMF_example/examples/MMF-activity-recognition/Generting_Charades_action_lables.ipynb) and is available here as well, which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_model.mar in the current directory.
-
-The next step is to make a model_store and move the .mar file to it:
-
-```
-mkdir model_store
-mv MMF_model.mar model_store
-```
-
-Now we can start serving our model:
-
-```
-torchserve --start --model-store model_store
-curl -X POST "localhost:8081/models?model_name=MMF_model&url=MMF_model.mar&batch_size=1&max_batch_delay=5000&initial_workers=1&synchronous=true"
-```
-
-Sending inference request using
-
-The examples of video and info.json is avalilbe here for demonstration purposes. **Please make sure to set the corret path to the video and info.json in the request.py.**
-
-```
-Python request.py
-```
-
-This will write the results in response.txt in the current directory.
-
+Settings for each of the training parameters can be specified from command line as well. At the end of the training, the checkpoints are saved in mmf/save directory. We will use the saved checkpoints in the  for serving the model.
