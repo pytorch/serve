@@ -106,7 +106,7 @@ class MMFHandler(BaseHandler, ABC):
         for idx, data in enumerate(requests):
             raw_script = data.get('script')
             script = raw_script.decode('utf-8')
-            raw_label = data.get('lables')
+            raw_label = data.get('labels')
             video_label = raw_label.decode('utf-8')
             video_label = [video_label]
             
@@ -124,8 +124,8 @@ class MMFHandler(BaseHandler, ABC):
         """
         output = self.model(samples)
 
-        sigmoind_scores = torch.sigmoid(output["scores"])
-        binary_scores = torch.round(sigmoind_scores)
+        sigmoid_scores = torch.sigmoid(output["scores"])
+        binary_scores = torch.round(sigmoid_scores)
         score = binary_scores[0]
         score = score.nonzero()
 
