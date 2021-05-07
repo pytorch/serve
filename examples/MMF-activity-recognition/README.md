@@ -37,7 +37,7 @@ After training the MMF model, the final checkpoints are saved in the mmf/save/ d
 
 ```
 wget https://mmfartifacts.s3-us-west-2.amazonaws.com/mmf_transformer_Charades_final.pth
-wget https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv'
+wget https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv
 wget https://mmfartifacts.s3-us-west-2.amazonaws.com/config.yaml
 ```
 
@@ -51,7 +51,7 @@ The **next step** is to make a model_store and move the .mar file to it:
 
 ```
 mkdir model_store
-mv MMF_model.mar model_store
+mv MMF_activity_recognition.mar model_store
 ```
 
 Now we can start serving our model:
