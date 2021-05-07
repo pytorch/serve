@@ -249,4 +249,4 @@ def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
     response = ast.literal_eval(response)
     response = [n.strip() for n in response]
     assert response == ['Sitting at a table','Someone is sneezing','Watching a laptop or something on a laptop']
-    test_utils.unregister_model("MMF_activity_recognition")
+    test_utils.unregister_model("MMF_activity_recognition_v2")
