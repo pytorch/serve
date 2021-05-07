@@ -3,7 +3,7 @@ import requests
 import json
 import test_utils
 import numpy as np
-
+import ast 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
@@ -228,3 +228,25 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
 
     assert np.array(json.loads(response.content)['explanations']).shape == (1, 1, 28, 28)
     test_utils.unregister_model("mnist")
+    
+    
+def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
+  
+    test_utils.start_torchserve(snapshot_file = snapshot_file_tf)
+    test_utils.register_model('MMF_activity_recognition_v2', 'https://mmfartifacts.s3-us-west-2.amazonaws.com/MMF_activity_recognition_v2.mar')
+    os.system('wget https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4 -P ../../examples/MMF-activity-recognition')
+    input_json = "../../examples/MMF-activity-recognition/372CC.info.json"
+    with open(input_json) as jsonfile:
+        info = json.load(jsonfile)
+
+    files = {
+            'data': open('../../examples/MMF-activity-recognition/372CC.mp4','rb'),
+            'script': info['script'],
+            'labels':info['action_labels']
+            }
+    response = run_inference_using_url_with_data(TF_INFERENCE_API + '/v1/models/MMF_activity_recognition_v2:predict', pfiles=files)
+    response = response.content.decode("utf-8")
+    response = ast.literal_eval(response)
+    response = [n.strip() for n in response]
+    assert response == ['Sitting at a table','Someone is sneezing','Watching a laptop or something on a laptop']
+    test_utils.unregister_model("MMF_activity_recognition")
