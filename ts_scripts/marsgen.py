@@ -16,14 +16,14 @@ def generate_mars(mar_config):
 
     for model in models:
         serialized_file_path = None
-        if model["serialized_file_pth"]:
+        if model.get("serialized_file_remote") and model["serialized_file_remote"]:
             os.chdir(model_store_dir)
-            serialized_model_file_url = "https://download.pytorch.org/models/{}".format(model["serialized_file_pth"])
+            serialized_model_file_url = "https://download.pytorch.org/models/{}".format(model["serialized_file_remote"])
             # Download & create DenseNet Model Archive
-            urllib.request.urlretrieve(serialized_model_file_url, model["serialized_file_pth"])
-            serialized_file_path = os.path.join(model_store_dir, model["serialized_file_pth"])
-        elif model["serialized_file_pt"]:
-            serialized_file_path = model["serialized_file_pt"]
+            urllib.request.urlretrieve(serialized_model_file_url, model["serialized_file_remote"])
+            serialized_file_path = os.path.join(model_store_dir, model["serialized_file_remote"])
+        elif model.get("serialized_file_local") and model["serialized_file_local"]:
+            serialized_file_path = model["serialized_file_local"]
 
         handler = None
         if model.get("handler") and model["handler"]:
@@ -50,14 +50,20 @@ def generate_mars(mar_config):
         if model.get("export_path") and model["export_path"]:
             export_path = model["export_path"]
 
+
+
         cmd = model_archiver_command_builder(model["model_name"], model["version"], model["model_file"],
                                              serialized_file_path, handler, extra_files,
                                              runtime, archive_format, requirements_file, export_path)
         print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
         sys_exit_code = os.system(cmd)
-        os.remove(serialized_file_path)
+        if model.get("serialized_file_remote") and model["serialized_file_remote"]:
+            os.remove(serialized_file_path)
+
         if sys_exit_code != 0:
-            sys.exit("## {} creation failed !".format(model["model_name"]))
+            sys.exit("## {} creation failed !\n".format(model["model_name"]))
+        else :
+            print("## {}.mar is generated.\n".format(model["model_name"]))
 
     f.close()
 
@@ -103,7 +109,9 @@ def model_archiver_command_builder(model_name=None, version=None, model_file=Non
     return cmd
 
 if __name__ == "__main__":
-    # Rpython ts_scripts/marsgen.py
+    # cmd:
+    # python ts_scripts/marsgen.py
+    # python ts_scripts/marsgen.py --config my_mar_config.json
 
     mar_config_file_path = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
     parser = argparse.ArgumentParser(description="Generate model mar files")
