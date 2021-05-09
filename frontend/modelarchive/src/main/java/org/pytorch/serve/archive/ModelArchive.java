@@ -12,6 +12,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -49,41 +51,46 @@ public class ModelArchive {
     public static ModelArchive downloadModel(
             List<String> allowedUrls, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
-
-        if (modelStore == null) {
-            throw new ModelNotFoundException("Model store has not been configured.");
-        }
-
-        String marFileName = FilenameUtils.getName(url);
-        File modelLocation = new File(modelStore, marFileName);
-        if (checkAllowedUrl(allowedUrls, url)) {
-            if (modelLocation.exists()) {
-                throw new FileAlreadyExistsException(marFileName);
-            }
-            try {
-                FileUtils.copyURLToFile(new URL(url), modelLocation);
-            } catch (IOException e) {
-                FileUtils.deleteQuietly(modelLocation);
-                throw new DownloadModelException("Failed to download model from: " + url, e);
-            }
+        Path localModelPath = Paths.get(url);
+        if (Files.exists(localModelPath)) {
+            return loadModelFromLocal(localModelPath, url);
         }
 
         if (url.contains("..")) {
             throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
-
-        if (modelLocation.isFile()) {
-            try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
-                File unzipDir = unzip(is, null);
-                return load(url, unzipDir, true);
-            }
+        if (!checkAllowedUrl(allowedUrls, url)) {
+            throw new ModelNotFoundException("Url does not match allowed URLs: " + url);
         }
-
-        if (new File(url).isDirectory()) {
-            return load(url, new File(url), false);
+        if (modelStore == null) {
+            throw new ModelNotFoundException("Model store has not been configured.");
         }
+        String marFileName = FilenameUtils.getName(url);
+        File modelLocation = new File(modelStore, marFileName);
+        if (modelLocation.exists()) {
+            throw new FileAlreadyExistsException(marFileName);
+        }
+        try {
+            FileUtils.copyURLToFile(new URL(url), modelLocation);
+        } catch (IOException e) {
+            FileUtils.deleteQuietly(modelLocation);
+            throw new DownloadModelException("Failed to download model from: " + url, e);
+        }
+        return loadModelFromLocal(modelLocation.toPath(), url);
+    }
 
-        throw new ModelNotFoundException("Model not found at: " + url);
+    public static ModelArchive loadModelFromLocal(Path path, String url)
+            throws ModelException, FileAlreadyExistsException, IOException {
+        if (!Files.exists(path)) {
+            throw new ModelNotFoundException("Model path does not exist: " + path.toString());
+        }
+        if (Files.isDirectory(path)) {
+            return load(url, path.toFile(), false);
+        }
+        try (InputStream is = Files.newInputStream(path)) {
+            File unzipDir = unzip(is, null);
+            return load(url, unzipDir, true);
+        }
     }
 
     public static boolean checkAllowedUrl(List<String> allowedUrls, String url)
