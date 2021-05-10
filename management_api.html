@@ -340,6 +340,42 @@
 <span class="o">}</span>
 </pre></div>
 </div>
+<p>If you’d like to serve an encrypted model then you need to setup <a class="reference external" href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html">S3 SSE-KMS</a> with the following environment variables:</p>
+<ul class="simple">
+<li><p>AWS_ACCESS_KEY_ID</p></li>
+<li><p>AWS_SECRET_ACCESS_KEY</p></li>
+<li><p>AWS_DEFAULT_REGION</p></li>
+</ul>
+<p>And set “s3_sse_kms=true” in HTTP request.</p>
+<p>For example: model squeezenet1_1 is <a class="reference external" href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html">encrypted on S3 under your own private account</a>. The model http url on S3 is https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar.</p>
+<ul class="simple">
+<li><p>if torchserve will run on EC2 instance (eg. OS: ubuntu)</p></li>
+</ul>
+<ol class="simple">
+<li><p>add an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance</p></li>
+<li><p>run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY</p></li>
+<li><p>export AWS_DEFAULT_REGION=your_s3_bucket_region</p></li>
+<li><p>start torchserve</p></li>
+<li><p>Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST  <span class="s2">&quot;http://localhost:8081/models?url=https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar&amp;s3_sse_kms=true&quot;</span>
+
+<span class="o">{</span>
+  <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;Model \&quot;squeezenet_v1.1\&quot; Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model.&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>if torchserve will run on local (eg. OS: macOS)</p></li>
+</ul>
+<ol class="simple">
+<li><p>Find your AWS access key and secret key. You can <a class="reference external" href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys_retrieve.html">reset them</a> if you forgot the keys.</p></li>
+<li><p>export AWS_ACCESS_KEY_ID=your_aws_access_key</p></li>
+<li><p>export AWS_SECRET_ACCESS_KEY=your_aws_secret_key</p></li>
+<li><p>export AWS_DEFAULT_REGION=your_s3_bucket_region</p></li>
+<li><p>start torchserve</p></li>
+<li><p>Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command (same as EC2 example step 5).</p></li>
+</ol>
 <p>You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.</p>
 <p>The asynchronous call returns with HTTP code 202 before trying to create workers.</p>
