@@ -76,11 +76,15 @@ public final class WorkflowManager {
         return createWorkflowArchive(workflowName, url, false);
     }
 
-    private WorkflowArchive createWorkflowArchive(String workflowName, String url, boolean s3SseKmsEnabled)
+    private WorkflowArchive createWorkflowArchive(
+            String workflowName, String url, boolean s3SseKmsEnabled)
             throws DownloadArchiveException, IOException, WorkflowException {
         WorkflowArchive archive =
                 WorkflowArchive.downloadWorkflow(
-                        configManager.getAllowedUrls(), configManager.getWorkflowStore(), url, s3SseKmsEnabled);
+                        configManager.getAllowedUrls(),
+                        configManager.getWorkflowStore(),
+                        url,
+                        s3SseKmsEnabled);
         if (!(workflowName == null || workflowName.isEmpty())) {
             archive.getManifest().getWorkflow().setWorkflowName(workflowName);
         }
@@ -99,9 +103,12 @@ public final class WorkflowManager {
         return registerWorkflow(workflowName, url, responseTimeout, synchronous, false);
     }
 
-
     public StatusResponse registerWorkflow(
-            String workflowName, String url, int responseTimeout, boolean synchronous, boolean s3SseKms)
+            String workflowName,
+            String url,
+            int responseTimeout,
+            boolean synchronous,
+            boolean s3SseKms)
             throws WorkflowException {
 
         if (url == null) {
