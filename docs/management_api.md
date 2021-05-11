@@ -38,6 +38,34 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
+If you'd like to serve an encrypted model then you need to setup [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html) with the following environment variables:
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* AWS_DEFAULT_REGION
+
+And set "s3_sse_kms=true" in HTTP request. 
+
+For example: model squeezenet1_1 is [encrypted on S3 under your own private account](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). The model http url on S3 is https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar.
+- if torchserve will run on EC2 instance (eg. OS: ubuntu)
+1. add an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
+2. run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+3. export AWS_DEFAULT_REGION=your_s3_bucket_region
+4. start torchserve
+5. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command.
+```bash
+curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar&s3_sse_kms=true"
+
+{
+  "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
+}
+```
+- if torchserve will run on local (eg. OS: macOS)
+1. Find your AWS access key and secret key. You can [reset them](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys_retrieve.html) if you forgot the keys.
+2. export AWS_ACCESS_KEY_ID=your_aws_access_key
+3. export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+4. export AWS_DEFAULT_REGION=your_s3_bucket_region
+5. start torchserve
+6. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command (same as EC2 example step 5).
 
 You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.

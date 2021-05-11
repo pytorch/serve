@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.pytorch.serve.archive.s3.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,12 @@ public class ModelArchive {
     public static ModelArchive downloadModel(
             List<String> allowedUrls, String modelStore, String url)
             throws ModelException, FileAlreadyExistsException, IOException {
+        return downloadModel(allowedUrls, modelStore, url, false);
+    }
 
+    public static ModelArchive downloadModel(
+            List<String> allowedUrls, String modelStore, String url, boolean s3SseKmsEnabled)
+            throws ModelException, FileAlreadyExistsException, IOException {
         if (modelStore == null) {
             throw new ModelNotFoundException("Model store has not been configured.");
         }
@@ -61,7 +67,7 @@ public class ModelArchive {
                 throw new FileAlreadyExistsException(marFileName);
             }
             try {
-                FileUtils.copyURLToFile(new URL(url), modelLocation);
+                HttpUtils.copyURLToFile(new URL(url), modelLocation, s3SseKmsEnabled);
             } catch (IOException e) {
                 FileUtils.deleteQuietly(modelLocation);
                 throw new DownloadModelException("Failed to download model from: " + url, e);
