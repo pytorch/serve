@@ -127,7 +127,9 @@ public final class ModelManager {
             File f = new File(handler.substring(0, handler.lastIndexOf(':')));
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         } else {
-            archive = createModelArchive(modelName, url, handler, runtime, defaultModelName, s3SseKms);
+            archive =
+                    createModelArchive(
+                            modelName, url, handler, runtime, defaultModelName, s3SseKms);
         }
 
         Model tempModel =
