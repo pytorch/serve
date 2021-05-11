@@ -74,7 +74,7 @@ class MMFHandler(BaseHandler):
         self.processor = build_processors(
             config.dataset_config["charades"].processors
         )
-        state_dict = torch.load(serialized_file)
+        state_dict = torch.load(serialized_file, map_location=self.device)
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()
@@ -93,8 +93,12 @@ class MMFHandler(BaseHandler):
             one_hot_label[label] = 1
 
             current_sample= Sample()
-            current_sample.video = video_transfomred
-            current_sample.audio = audio_transfomred
+            current_sample.video = video_transfomred.to(self.device)
+            current_sample.audio = audio_transfomred.to(self.device)
+            text_tensor["input_ids"] =  text_tensor["input_ids"].to(self.device)
+            text_tensor["input_mask"] =  text_tensor["input_mask"].to(self.device)
+            text_tensor["segment_ids"] =  text_tensor["segment_ids"].to(self.device)
+            text_tensor["lm_label_ids"] =  text_tensor["lm_label_ids"].to(self.device)
             current_sample.update(text_tensor)
             current_sample.targets = one_hot_label.to(self.device)
             current_sample.dataset_type = 'test'
