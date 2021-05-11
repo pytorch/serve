@@ -14,10 +14,14 @@ public class RegisterWorkflowRequest {
     @SerializedName("url")
     private String workflowUrl;
 
+    @SerializedName("s3_sse_kms")
+    private boolean s3SseKms;
+
     public RegisterWorkflowRequest(QueryStringDecoder decoder) {
         workflowName = NettyUtils.getParameter(decoder, "workflow_name", null);
         responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", 120);
         workflowUrl = NettyUtils.getParameter(decoder, "url", null);
+        s3SseKms = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "s3_sse_kms", "false"));
     }
 
     public void setWorkflowName(String workflowName) {
@@ -42,5 +46,9 @@ public class RegisterWorkflowRequest {
 
     public void setWorkflowUrl(String workflowUrl) {
         this.workflowUrl = workflowUrl;
+    }
+
+    public Boolean getS3SseKms() {
+        return s3SseKms;
     }
 }

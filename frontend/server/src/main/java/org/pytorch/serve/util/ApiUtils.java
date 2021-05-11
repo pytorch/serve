@@ -120,6 +120,7 @@ public final class ApiUtils {
         int maxBatchDelay = registerModelRequest.getMaxBatchDelay();
         int initialWorkers = registerModelRequest.getInitialWorkers();
         int responseTimeout = registerModelRequest.getResponseTimeout();
+        boolean s3SseKms = registerModelRequest.getS3SseKms();
         if (responseTimeout == -1) {
             responseTimeout = ConfigManager.getInstance().getDefaultResponseTimeout();
         }
@@ -143,7 +144,8 @@ public final class ApiUtils {
                 responseTimeout,
                 initialWorkers,
                 registerModelRequest.getSynchronous(),
-                false);
+                false,
+                s3SseKms);
     }
 
     public static StatusResponse handleRegister(
@@ -156,7 +158,8 @@ public final class ApiUtils {
             int responseTimeout,
             int initialWorkers,
             boolean isSync,
-            boolean isWorkflowModel)
+            boolean isWorkflowModel,
+            boolean s3SseKms)
             throws ModelException, ExecutionException, InterruptedException,
                     DownloadArchiveException {
 
@@ -174,7 +177,8 @@ public final class ApiUtils {
                             responseTimeout,
                             null,
                             false,
-                            isWorkflowModel);
+                            isWorkflowModel,
+                            s3SseKms);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
                     "Model file already exists " + FilenameUtils.getName(modelUrl), e);

@@ -3,10 +3,10 @@
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 
 ```bash
-wget https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth
-torch-model-archiver --model-name squeezenet1_1 --version 1.0 --model-file examples/image_classifier/squeezenet/model.py --serialized-file squeezenet1_1-f364aa15.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
+wget https://download.pytorch.org/models/squeezenet1_1-b8a52dc0.pth
+torch-model-archiver --model-name squeezenet1_1 --version 1.0 --model-file examples/image_classifier/squeezenet/model.py --serialized-file squeezenet1_1-b8a52dc0.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
 mkdir model_store
-mv squeezenet1_1 model_store/
+mv squeezenet1_1.mar model_store/
 torchserve --start --model-store model_store --models squeezenet1_1=squeezenet1_1.mar
 curl http://127.0.0.1:8080/predictions/squeezenet1_1 -T examples/image_classifier/kitten.jpg
 ```

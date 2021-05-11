@@ -210,7 +210,7 @@ To create mar [model archive] file for TorchServe deployment, you can use follow
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  pytorch/torchserve:latest
 ```
 
 1. List your container or skip this if you know cotainer name
