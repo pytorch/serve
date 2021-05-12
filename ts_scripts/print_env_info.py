@@ -220,7 +220,7 @@ def get_nvidia_gpu_info():
 
 
 def get_running_cuda_version():
-    return run_and_parse_first_match('nvcc --version', r'V(.*)$')
+    return run_and_parse_first_match('nvcc --version', r'V([\d.]+)')
 
 
 def get_cudnn_version():
