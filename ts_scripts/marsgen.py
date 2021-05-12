@@ -11,61 +11,56 @@ os.makedirs(model_store_dir, exist_ok=True)
 
 def generate_mars(mar_config):
 
-    f = open(mar_config, "r")
-    models = json.loads(f.read())
+    with open(mar_config) as f:
+        models = json.loads(f.read())
 
-    for model in models:
-        serialized_file_path = None
-        if model.get("serialized_file_remote") and model["serialized_file_remote"]:
-            os.chdir(model_store_dir)
-            serialized_model_file_url = "https://download.pytorch.org/models/{}".format(model["serialized_file_remote"])
-            # Download & create DenseNet Model Archive
-            urllib.request.urlretrieve(serialized_model_file_url, model["serialized_file_remote"])
-            serialized_file_path = os.path.join(model_store_dir, model["serialized_file_remote"])
-        elif model.get("serialized_file_local") and model["serialized_file_local"]:
-            serialized_file_path = model["serialized_file_local"]
+        for model in models:
+            serialized_file_path = None
+            if model.get("serialized_file_remote") and model["serialized_file_remote"]:
+                os.chdir(model_store_dir)
+                serialized_model_file_url = "https://download.pytorch.org/models/{}".format(model["serialized_file_remote"])
+                urllib.request.urlretrieve(serialized_model_file_url, model["serialized_file_remote"])
+                serialized_file_path = os.path.join(model_store_dir, model["serialized_file_remote"])
+            elif model.get("serialized_file_local") and model["serialized_file_local"]:
+                serialized_file_path = model["serialized_file_local"]
 
-        handler = None
-        if model.get("handler") and model["handler"]:
-            handler = model["handler"]
+            handler = None
+            if model.get("handler") and model["handler"]:
+                handler = model["handler"]
 
-        extra_files = None
-        if model.get("extra_files") and model["extra_files"]:
-            extra_files = model["extra_files"]
+            extra_files = None
+            if model.get("extra_files") and model["extra_files"]:
+                extra_files = model["extra_files"]
 
-        runtime = None
-        if model.get("runtime") and model["runtime"]:
-            runtime = model["runtime"]
+            runtime = None
+            if model.get("runtime") and model["runtime"]:
+                runtime = model["runtime"]
 
-        archive_format = None
-        if model.get("archive_format") and model["archive_format"]:
-            archive_format = model["archive_format"]
+            archive_format = None
+            if model.get("archive_format") and model["archive_format"]:
+                archive_format = model["archive_format"]
 
-        requirements_file = None
-        if model.get("requirements_file") and model["requirements_file"]:
-            requirements_file = model["requirements_file"]
+            requirements_file = None
+            if model.get("requirements_file") and model["requirements_file"]:
+                requirements_file = model["requirements_file"]
 
-        os.chdir(REPO_ROOT)
-        export_path = model_store_dir
-        if model.get("export_path") and model["export_path"]:
-            export_path = model["export_path"]
+            os.chdir(REPO_ROOT)
+            export_path = model_store_dir
+            if model.get("export_path") and model["export_path"]:
+                export_path = model["export_path"]
 
+            cmd = model_archiver_command_builder(model["model_name"], model["version"], model["model_file"],
+                                                 serialized_file_path, handler, extra_files,
+                                                 runtime, archive_format, requirements_file, export_path)
+            print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+            sys_exit_code = os.system(cmd)
+            if model.get("serialized_file_remote") and model["serialized_file_remote"]:
+                os.remove(serialized_file_path)
 
-
-        cmd = model_archiver_command_builder(model["model_name"], model["version"], model["model_file"],
-                                             serialized_file_path, handler, extra_files,
-                                             runtime, archive_format, requirements_file, export_path)
-        print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-        sys_exit_code = os.system(cmd)
-        if model.get("serialized_file_remote") and model["serialized_file_remote"]:
-            os.remove(serialized_file_path)
-
-        if sys_exit_code != 0:
-            sys.exit("## {} creation failed !\n".format(model["model_name"]))
-        else :
-            print("## {}.mar is generated.\n".format(model["model_name"]))
-
-    f.close()
+            if sys_exit_code != 0:
+                sys.exit("## {} creation failed !\n".format(model["model_name"]))
+            else :
+                print("## {}.mar is generated.\n".format(model["model_name"]))
 
 def model_archiver_command_builder(model_name=None, version=None, model_file=None,
                                    serialized_file=None, handler=None, extra_files=None,
