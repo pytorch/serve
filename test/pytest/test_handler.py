@@ -233,7 +233,7 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
   
     test_utils.start_torchserve(snapshot_file = snapshot_file_tf)
-    test_utils.register_model('MMF_activity_recognition_v2', 'https://mmfartifacts.s3-us-west-2.amazonaws.com/MMF_activity_recognition_v2.mar')
+    test_utils.register_model('MMF_activity_recognition_v2', 'https://torchserve.pytorch.org/mar_files/MMF_activity_recognition_v2.mar')
     os.system('wget https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4 -P ../../examples/MMF-activity-recognition')
     input_json = "../../examples/MMF-activity-recognition/372CC.info.json"
     with open(input_json) as jsonfile:
