@@ -45,13 +45,12 @@ class MMFHandler(BaseHandler):
         model_dir = properties.get("model_dir")
         serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
-        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") else "cpu"
+        self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id")
+            if torch.cuda.is_available()
             else self.map_location
         )
-        
 
         # reading the csv file which include all the labels in the dataset to make the class/index mapping
         # and matching the output of the model with num labels from dataset
