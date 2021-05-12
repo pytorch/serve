@@ -241,6 +241,7 @@ public class ModelServer {
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName,
                                 false,
+                                false,
                                 false);
                 modelManager.updateModel(
                         archive.getModelName(),

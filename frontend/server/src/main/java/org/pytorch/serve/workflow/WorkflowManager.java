@@ -73,9 +73,18 @@ public final class WorkflowManager {
 
     private WorkflowArchive createWorkflowArchive(String workflowName, String url)
             throws DownloadArchiveException, IOException, WorkflowException {
+        return createWorkflowArchive(workflowName, url, false);
+    }
+
+    private WorkflowArchive createWorkflowArchive(
+            String workflowName, String url, boolean s3SseKmsEnabled)
+            throws DownloadArchiveException, IOException, WorkflowException {
         WorkflowArchive archive =
                 WorkflowArchive.downloadWorkflow(
-                        configManager.getAllowedUrls(), configManager.getWorkflowStore(), url);
+                        configManager.getAllowedUrls(),
+                        configManager.getWorkflowStore(),
+                        url,
+                        s3SseKmsEnabled);
         if (!(workflowName == null || workflowName.isEmpty())) {
             archive.getManifest().getWorkflow().setWorkflowName(workflowName);
         }
@@ -90,6 +99,16 @@ public final class WorkflowManager {
 
     public StatusResponse registerWorkflow(
             String workflowName, String url, int responseTimeout, boolean synchronous)
+            throws WorkflowException {
+        return registerWorkflow(workflowName, url, responseTimeout, synchronous, false);
+    }
+
+    public StatusResponse registerWorkflow(
+            String workflowName,
+            String url,
+            int responseTimeout,
+            boolean synchronous,
+            boolean s3SseKms)
             throws WorkflowException {
 
         if (url == null) {
@@ -215,7 +234,8 @@ public final class WorkflowManager {
                             responseTimeout,
                             wfm.getMaxWorkers(),
                             synchronous,
-                            true);
+                            true,
+                            false);
         } catch (Exception e) {
             status.setHttpResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             String msg;

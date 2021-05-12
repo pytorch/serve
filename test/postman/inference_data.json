@@ -151,38 +151,38 @@
         "tolerance":5
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/vgg11_v2.mar",
-        "model_name":"vgg11",
+        "url":"https://torchserve.pytorch.org/mar_files/vgg16.mar",
+        "model_name":"vgg16",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
-        "expected":{
-            "tiger_cat":0.5501413345336914,
-            "tabby":0.3231860101222992,
-            "Egyptian_cat":0.11440037935972214,
-            "lynx":0.006006305105984211,
-            "tiger":0.004394155461341143
-        },
-        "tolerance":5
+    	"expected":{
+            "tiger_cat":0.4497513771057129,
+            "tabby":0.44082531332969666,
+            "Egyptian_cat":0.05751422792673111,
+	    "tiger":0.02003367431461811,
+            "lynx":0.00982913188636303
+       	},
+    	"tolerance":5
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/vgg11_scripted.mar",
-        "model_name":"vgg11_scripted",
+        "url":"https://torchserve.pytorch.org/mar_files/vgg16_scripted.mar",
+        "model_name":"vgg16_scripted",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_classifier/kitten.jpg",
         "content-type":"application/json",
         "validator":"image_classification",
         "expected":{
-            "tiger_cat":0.5501413345336914,
-            "tabby":0.3231860101222992,
-            "Egyptian_cat":0.11440037935972214,
-            "lynx":0.006006305105984211,
-            "tiger":0.004394155461341143
+            "tiger_cat":0.4497513771057129,
+            "tabby":0.44082531332969666,
+            "Egyptian_cat":0.05751422792673111,
+            "tiger":0.02003367431461811,
+            "lynx":0.00982913188636303
         },
-        "tolerance":5
+	"tolerance":5
     },
     {
         "url":"https://torchserve.pytorch.org/mar_files/mnist_v2.mar",
@@ -238,14 +238,14 @@
         "file":"../examples/image_segmenter/persons.jpg"
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_scripted.mar",
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/deeplabv3_resnet_101_scripted.mar",
         "model_name":"deeplabv3_resnet_101_scripted",
         "worker":1,
         "synchronous":"true",
         "file":"../examples/image_segmenter/persons.jpg"
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar",
         "model_name":"resnet152",
         "worker":1,
         "synchronous":"true",
@@ -262,7 +262,7 @@
         "tolerance":5
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/resnet-152-scripted_v2.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/resnet-152-batch_scripted.mar",
         "model_name":"resnet-152-batch_scripted",
         "worker":1,
         "synchronous":"true",

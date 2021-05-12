@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.InvalidModelException;
+import org.pytorch.serve.archive.s3.HttpUtils;
 
 public final class ArchiveUtils {
 
@@ -60,7 +61,11 @@ public final class ArchiveUtils {
     }
 
     public static boolean downloadArchive(
-            List<String> allowedUrls, File location, String archiveName, String url)
+            List<String> allowedUrls,
+            File location,
+            String archiveName,
+            String url,
+            boolean s3SseKmsEnabled)
             throws FileAlreadyExistsException, FileNotFoundException, DownloadArchiveException,
                     InvalidArchiveURLException {
         if (validateURL(allowedUrls, url)) {
@@ -68,7 +73,7 @@ public final class ArchiveUtils {
                 throw new FileAlreadyExistsException(archiveName);
             }
             try {
-                FileUtils.copyURLToFile(new URL(url), location);
+                HttpUtils.copyURLToFile(new URL(url), location, s3SseKmsEnabled);
             } catch (IOException e) {
                 FileUtils.deleteQuietly(location);
                 throw new DownloadArchiveException("Failed to download archive from: " + url, e);

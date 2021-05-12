@@ -41,6 +41,13 @@ public class WorkflowArchive {
             List<String> allowedUrls, String workflowStore, String url)
             throws WorkflowException, FileAlreadyExistsException, IOException,
                     DownloadArchiveException {
+        return downloadWorkflow(allowedUrls, workflowStore, url, false);
+    }
+
+    public static WorkflowArchive downloadWorkflow(
+            List<String> allowedUrls, String workflowStore, String url, boolean s3SseKmsEnabled)
+            throws WorkflowException, FileAlreadyExistsException, IOException,
+                    DownloadArchiveException {
 
         if (workflowStore == null) {
             throw new WorkflowNotFoundException("Workflow store has not been configured.");
@@ -50,7 +57,8 @@ public class WorkflowArchive {
         File workflowLocation = new File(workflowStore, warFileName);
 
         try {
-            ArchiveUtils.downloadArchive(allowedUrls, workflowLocation, warFileName, url);
+            ArchiveUtils.downloadArchive(
+                    allowedUrls, workflowLocation, warFileName, url, s3SseKmsEnabled);
         } catch (InvalidArchiveURLException e) {
             throw new WorkflowNotFoundException(e.getMessage()); // NOPMD
         }

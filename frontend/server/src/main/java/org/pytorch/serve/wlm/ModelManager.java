@@ -74,6 +74,7 @@ public final class ModelManager {
                 configManager.getDefaultResponseTimeout(),
                 defaultModelName,
                 false,
+                false,
                 false);
     }
 
@@ -83,7 +84,7 @@ public final class ModelManager {
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
-        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
+        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName, false);
 
         Model tempModel = createModel(archive, modelInfo);
 
@@ -111,7 +112,8 @@ public final class ModelManager {
             int responseTimeout,
             String defaultModelName,
             boolean ignoreDuplicate,
-            boolean isWorkflowModel)
+            boolean isWorkflowModel,
+            boolean s3SseKms)
             throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         ModelArchive archive;
@@ -125,7 +127,9 @@ public final class ModelManager {
             File f = new File(handler.substring(0, handler.lastIndexOf(':')));
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         } else {
-            archive = createModelArchive(modelName, url, handler, runtime, defaultModelName);
+            archive =
+                    createModelArchive(
+                            modelName, url, handler, runtime, defaultModelName, s3SseKms);
         }
 
         Model tempModel =
@@ -153,11 +157,16 @@ public final class ModelManager {
             String url,
             String handler,
             Manifest.RuntimeType runtime,
-            String defaultModelName)
+            String defaultModelName,
+            boolean s3SseKms)
             throws ModelException, IOException, DownloadArchiveException {
+
         ModelArchive archive =
                 ModelArchive.downloadModel(
-                        configManager.getAllowedUrls(), configManager.getModelStore(), url);
+                        configManager.getAllowedUrls(),
+                        configManager.getModelStore(),
+                        url,
+                        s3SseKms);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
@@ -236,6 +245,7 @@ public final class ModelManager {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setModelState(modelInfo);
         model.setWorkflowModel(false);
+
         return model;
     }
 
