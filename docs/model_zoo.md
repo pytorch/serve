@@ -11,7 +11,7 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | AlexNet | Image Classification | ImageNet | 216 MB | [.mar](https://torchserve.pytorch.org/mar_files/alexnet.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
 | Densenet161 | Image Classification | ImageNet | 106 MB | [.mar](https://torchserve.pytorch.org/mar_files/densenet161.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
 | Resnet18 | Image Classification | ImageNet | 41 MB | [.mar](https://torchserve.pytorch.org/mar_files/resnet-18.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
-| VGG11 | Image Classification | ImageNet | 471 MB | [.mar](https://torchserve.pytorch.org/mar_files/vgg11_v2.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
+| VGG16 | Image Classification | ImageNet | 489 MB | [.mar](https://torchserve.pytorch.org/mar_files/vgg16.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
 | Squeezenet 1_1 | Image Classification | ImageNet | 4.4 MB | [.mar](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
 | MNIST digit classifier | Image Classification | MNIST | 4.3 MB | [.mar](https://torchserve.pytorch.org/mar_files/mnist_v2.mar) | [0.png](../examples/image_classifier/mnist/test_data/0.png) |Eager|
 | Resnet 152 |Image Classification | ImageNet | 214 MB | [.mar](https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Eager|
@@ -23,7 +23,7 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | AlexNet Scripted | Image Classification | ImageNet | 216 MB | [.mar](https://torchserve.pytorch.org/mar_files/alexnet_scripted.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
 | Densenet161 Scripted| Image Classification | ImageNet | 105 MB | [.mar](https://torchserve.pytorch.org/mar_files/densenet161_scripted.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
 | Resnet18 Scripted| Image Classification | ImageNet | 42 MB | [.mar](https://torchserve.pytorch.org/mar_files/resnet-18_scripted.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
-| VGG11 Scripted| Image Classification | ImageNet | 471 MB | [.mar](https://torchserve.pytorch.org/mar_files/vgg11_scripted.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
+| VGG16 Scripted| Image Classification | ImageNet | 489 MB | [.mar](https://torchserve.pytorch.org/mar_files/vgg16_scripted.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
 | Squeezenet 1_1 Scripted | Image Classification | ImageNet | 4.4 MB | [.mar](https://torchserve.pytorch.org/mar_files/squeezenet1_1_scripted.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
 | MNIST digit classifier Scripted | Image Classification | MNIST | 4.3 MB | [.mar](https://torchserve.pytorch.org/mar_files/mnist_scripted_v2.mar) | [0.png](../examples/image_classifier/mnist/test_data/0.png) |Torchscripted |
 | Resnet 152 Scripted |Image Classification | ImageNet | 215 MB | [.mar](https://torchserve.pytorch.org/mar_files/resnet-152-scripted_v2.mar) | [kitten.jpg](../examples/image_classifier/kitten.jpg) |Torchscripted |
