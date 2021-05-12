@@ -45,7 +45,13 @@ class MMFHandler(BaseHandler):
         model_dir = properties.get("model_dir")
         serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") else "cpu"
+        self.device = torch.device(
+            self.map_location + ":" + str(properties.get("gpu_id"))
+            if torch.cuda.is_available() and properties.get("gpu_id")
+            else self.map_location
+        )
+        
 
         # reading the csv file which include all the labels in the dataset to make the class/index mapping
         # and matching the output of the model with num labels from dataset
@@ -93,17 +99,13 @@ class MMFHandler(BaseHandler):
             one_hot_label[label] = 1
 
             current_sample= Sample()
-            current_sample.video = video_transfomred.to(self.device)
-            current_sample.audio = audio_transfomred.to(self.device)
-            text_tensor["input_ids"] =  text_tensor["input_ids"].to(self.device)
-            text_tensor["input_mask"] =  text_tensor["input_mask"].to(self.device)
-            text_tensor["segment_ids"] =  text_tensor["segment_ids"].to(self.device)
-            text_tensor["lm_label_ids"] =  text_tensor["lm_label_ids"].to(self.device)
+            current_sample.video = video_transfomred
+            current_sample.audio = audio_transfomred
             current_sample.update(text_tensor)
-            current_sample.targets = one_hot_label.to(self.device)
+            current_sample.targets = one_hot_label
             current_sample.dataset_type = 'test'
             current_sample.dataset_name = 'charades'
-            return SampleList([current_sample])
+            return SampleList([current_sample]).to(self.device)
 
         for idx, data in enumerate(requests):
             raw_script = data.get('script')
@@ -124,8 +126,12 @@ class MMFHandler(BaseHandler):
     def inference(self, samples):
         """ Predict the class (or classes) of the received text using the serialized transformers checkpoint.
         """
-        output = self.model(samples)
-
+        if torch.cuda.is_available():
+            with torch.cuda.device(samples.get_device()):
+                output = self.model(samples)
+        else:
+            output = self.model(samples)
+            
         sigmoid_scores = torch.sigmoid(output["scores"])
         binary_scores = torch.round(sigmoid_scores)
         score = binary_scores[0]
