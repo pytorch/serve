@@ -13,25 +13,24 @@ print('Transformers version',transformers.__version__)
 set_seed(1)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case,max_length,torchscript):
+def transformers_model_dowloader(mode,pretrained_model_name,num_labels,max_length,torchscript):
     print("Download model and tokenizer", pretrained_model_name)
     #loading pre-trained model and tokenizer
     if mode== "sequence_classification":
         config = AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
         model = AutoModelForSequenceClassification.from_pretrained(pretrained_model_name, config=config)
-        tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "question_answering":
         config = AutoConfig.from_pretrained(pretrained_model_name,torchscript=torchscript)
         model = AutoModelForQuestionAnswering.from_pretrained(pretrained_model_name,config=config)
-        tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
     elif mode== "token_classification":
         config= AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
         model = AutoModelForTokenClassification.from_pretrained(pretrained_model_name, config=config)
-        tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
+    
+    tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name)
 
-        # NOTE : for demonstration purposes, we do not go through the fine-tune processing here.
-        # A Fine_tunining process based on your needs can be added.
-        # An example of  Fine_tuned model has been provided in the README.
+    # NOTE : for demonstration purposes, we do not go through the fine-tune processing here.
+    # A Fine_tunining process based on your needs can be added.
+    # An example of  Fine_tuned model has been provided in the README.
 
     NEW_DIR = "./Transformer_model"
     try:
@@ -61,7 +60,6 @@ if __name__== "__main__":
     mode = settings["mode"]
     model_name = settings["model_name"]
     num_labels = int(settings["num_labels"])
-    do_lower_case = settings["do_lower_case"]
     max_length = settings["max_length"]
     save_mode = settings["save_mode"]
     if save_mode == "torchscript":
@@ -69,4 +67,4 @@ if __name__== "__main__":
     else:
         torchscript = False
 
-    transformers_model_dowloader(mode,model_name, num_labels,do_lower_case, max_length, torchscript)
+    transformers_model_dowloader(mode,model_name, num_labels, max_length, torchscript)
