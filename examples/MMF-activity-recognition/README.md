@@ -23,9 +23,11 @@ Install [MMF](https://mmf.sh/docs#install-from-source-recommended) from source o
 
 `pip install git+https://github.com/facebookresearch/mmf.git`
 
-Note if you installed using pip, then you need install Pyav :
+If you installed using pip, then you need install Pyav :
 
 `pip install av`
+
+MMF currenly is using Transformers 3.4.0, in case you have other version installed in your enviroment, this would be the best instead of installing it directly, add the MMF Github and 'av', in the requirements.txt and pass it to the model archiver using -r flag. You can read more about serving models with thrid party dependencies [here](https://github.com/pytorch/serve/blob/master/docs/use_cases.md#serve-custom-models-with-third-party-dependency).
 
 #### Getting started on Serving
 
@@ -51,7 +53,7 @@ torch-model-archiver --model-name MMF_activity_recognition --version 1.0 --seria
 
 charades_action_lables.csv has been created using the "Generting_Charades_action_lables.py" script and are available for [download](https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv), which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_activity_recognition mar in the current directory.
 
-Note as MMF uses torch.cuda.current_device() to decide if inputs are on correct device, we used device context manager in the handler. This means you won't be able to set the number_of_gpu to zero in this example, basically to serve this example on Cpu, you will need to run on a cpu instance or masking the cuda devices using export CUDA_VISIBLE_DEVICES="". 
+Note as MMF uses torch.cuda.current_device() to decide if inputs are on correct device, we used device context manager in the handler. This means you won't be able to set the number_of_gpu to zero in this example, basically to serve this example on cpu, you will need to run on a cpu instance or masking the cuda devices using export CUDA_VISIBLE_DEVICES="". 
 
 The **next step** is to make a model_store and move the .mar file to it:
 
