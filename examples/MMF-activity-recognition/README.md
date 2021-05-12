@@ -19,9 +19,13 @@ To serve a model using Torchserve, we need to bundle the model artifacts and a h
 Install [Torchserve](https://github.com/pytorch/serve)
 
 
-Install [MMF](https://github.com/facebookresearch/mmf/tree/video_datasets)
+Install [MMF](https://mmf.sh/docs#install-from-source-recommended) from source or install latest MMF version from GitHub.
 
+`pip install git+https://github.com/facebookresearch/mmf.git`
 
+Note if you installed using pip, then you need install Pyav :
+
+`pip install av`
 
 #### Getting started on Serving
 
@@ -46,6 +50,8 @@ torch-model-archiver --model-name MMF_activity_recognition --version 1.0 --seria
 ```
 
 charades_action_lables.csv has been created using the "Generting_Charades_action_lables.py" script and are available for [download](https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv), which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_activity_recognition mar in the current directory.
+
+Note as MMF uses torch.cuda.current_device() to decide if inputs are on correct device, we used device context manager in the handler. This means you won't be able to set the number_of_gpu to zero in this example, basically to serve this example on Cpu, you will need to run on a cpu instance or masking the cuda devices using export CUDA_VISIBLE_DEVICES="". 
 
 The **next step** is to make a model_store and move the .mar file to it:
 
