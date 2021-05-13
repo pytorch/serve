@@ -60,7 +60,7 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
-        os.system(f"{self.sudo_cmd}apt-get install -y openjdk-16-jdk-headless")
+        os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
         python_path = Path(sys.executable).resolve()
@@ -93,9 +93,9 @@ class Darwin(Common):
 
         os.system("brew tap AdoptOpenJDK/openjdk")
         if out >= "2.7":
-            os.system("brew install --cask adoptopenjdk16")
+            os.system("brew install --cask adoptopenjdk11")
         else:
-            os.system("brew cask install adoptopenjdk16")
+            os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
         os.system("brew unlink node")
