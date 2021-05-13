@@ -105,7 +105,6 @@ def postprocess(data, xontext):
 
 # Known issues
 
- * **Only pipeline/sequential workflows are supported.**
  * **Each workflow dag node (model/function) will receive input as bytes**
  * **Workflow scale/updates is not supported through APIs. User will need to unregister the workflow and re-register with the required changes**
  * **Each workflow dag node (model/function) will receive input as bytes**
