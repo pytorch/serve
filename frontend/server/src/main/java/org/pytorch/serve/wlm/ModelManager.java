@@ -70,7 +70,8 @@ public final class ModelManager {
                 1,
                 100,
                 configManager.getDefaultResponseTimeout(),
-                defaultModelName);
+                defaultModelName,
+                false);
     }
 
     public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
@@ -79,7 +80,7 @@ public final class ModelManager {
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
-        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
+        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName, false);
 
         Model tempModel = createModel(archive, modelInfo);
 
@@ -107,9 +108,32 @@ public final class ModelManager {
             int responseTimeout,
             String defaultModelName)
             throws ModelException, IOException, InterruptedException {
+        return registerModel(
+                url,
+                modelName,
+                runtime,
+                handler,
+                batchSize,
+                maxBatchDelay,
+                responseTimeout,
+                defaultModelName,
+                false);
+    }
+
+    public ModelArchive registerModel(
+            String url,
+            String modelName,
+            Manifest.RuntimeType runtime,
+            String handler,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            String defaultModelName,
+            boolean s3SseKms)
+            throws ModelException, IOException, InterruptedException {
 
         ModelArchive archive =
-                createModelArchive(modelName, url, handler, runtime, defaultModelName);
+                createModelArchive(modelName, url, handler, runtime, defaultModelName, s3SseKms);
 
         Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
 
@@ -129,11 +153,15 @@ public final class ModelManager {
             String url,
             String handler,
             Manifest.RuntimeType runtime,
-            String defaultModelName)
+            String defaultModelName,
+            boolean s3SseKms)
             throws ModelException, IOException {
         ModelArchive archive =
                 ModelArchive.downloadModel(
-                        configManager.getAllowedUrls(), configManager.getModelStore(), url);
+                        configManager.getAllowedUrls(),
+                        configManager.getModelStore(),
+                        url,
+                        s3SseKms);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
@@ -206,6 +234,7 @@ public final class ModelManager {
     private Model createModel(ModelArchive archive, JsonObject modelInfo) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setModelState(modelInfo);
+
         return model;
     }
 
