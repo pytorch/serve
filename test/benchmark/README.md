@@ -17,7 +17,7 @@ Check out a sample vgg11 model config at the path: `tests/suite/vgg11.yaml`
 -- S3_BUCKET_BENCHMARK_ARTIFACTS :all temporary benchmarking artifacts including server logs will be stored in this bucket: <br>
 -- DEFAULT_DOCKER_DEV_ECR_REPO :docker image used for benchmarking will be pushed to this repo <br>
 
-The following steps assume that the current working directory is serve/. 
+*The following steps assume that the current working directory is serve/.*
 
 1. Create or use any python virtual environment
 ```

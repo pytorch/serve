@@ -164,4 +164,4 @@ def generate_comprehensive_report(s3_bucket_uri):
 
 
 if __name__ == "__main__":
-    generate_comprehensive_report("s3://nikhilsk-model-serving/benchmark_artifacts/ts-benchmark-run-5328734b-e71c-4685-82aa-d833e6574c2b")
+    generate_comprehensive_report("s3_bucket_uri")
