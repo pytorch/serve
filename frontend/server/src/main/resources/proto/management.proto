@@ -51,6 +51,9 @@ message RegisterModelRequest {
 
     // Model archive download url, support local file or HTTP(s) protocol.
     string url = 9; //required
+
+    // Decides whether S3 SSE KMS enabled or not, default: false.
+    bool s3_sse_kms = 10; //optional
 }
 
 message ScaleWorkerRequest {
