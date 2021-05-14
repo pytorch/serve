@@ -48,10 +48,10 @@ wget https://mmfartifacts.s3-us-west-2.amazonaws.com/config.yaml
 ```
 
 ```
-torch-model-archiver --model-name MMF_activity_recognition --version 1.0 --serialized-file $(path to checkpoints) --handler handler.py --extra-files "charades_action_lables.csv,$(path to the aggregated config file,saved in mmf/save/config.yaml)"
+torch-model-archiver --model-name MMF_activity_recognition --version 1.0 --serialized-file mmf_transformer_Charades_final.pth  --handler handler.py --extra-files "charades_action_lables.csv,config.yaml"
 ```
 
-charades_action_lables.csv has been created using the "Generting_Charades_action_lables.py" script and are available for [download](https://mmfartifacts.s3-us-west-2.amazonaws.com/charades_action_lables.csv), which contains the labels from the dataset to be used for mapping predictions to labels. Running this will result in MMF_activity_recognition mar in the current directory.
+Running the above commands will result in MMF_activity_recognition mar in the current directory.
 
 Note as MMF uses torch.cuda.current_device() to decide if inputs are on correct device, we used device context manager in the handler. This means you won't be able to set the number_of_gpu to zero in this example, basically to serve this example on cpu, you will need to run on a cpu instance or masking the cuda devices using export CUDA_VISIBLE_DEVICES="". 
 
