@@ -17,7 +17,7 @@ from invoke.context import Context
 
 DEFAULT_REGION = "us-west-2"
 IAM_INSTANCE_PROFILE = "EC2Admin"
-S3_BUCKET_BENCHMARK_ARTIFACTS = "s3://nikhilsk-model-serving/benchmark_artifacts"
+S3_BUCKET_BENCHMARK_ARTIFACTS = "s3://torchserve-model-serving/benchmark_artifacts"
 
 DEFAULT_DOCKER_DEV_ECR_REPO = "torchserve-benchmark"
 DEFAULT_DOCKER_DEV_ECR_TAG = "dev-image"
