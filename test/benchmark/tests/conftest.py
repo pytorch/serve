@@ -167,7 +167,7 @@ def ec2_instance(
     def delete_ssh_keypair():
         ec2_utils.destroy_ssh_keypair(ec2_client, key_filename)
 
-    # request.addfinalizer(delete_ssh_keypair)
+    request.addfinalizer(delete_ssh_keypair)
 
     params = {
         "KeyName": ec2_key_name,
@@ -196,7 +196,7 @@ def ec2_instance(
     def terminate_ec2_instance():
         ec2_client.terminate_instances(InstanceIds=[instance_id])
 
-    # request.addfinalizer(terminate_ec2_instance)
+    request.addfinalizer(terminate_ec2_instance)
 
     ec2_utils.check_instance_state(instance_id, state="running", region=region)
     ec2_utils.check_system_state(instance_id, system_status="ok", instance_status="ok", region=region)
@@ -232,18 +232,6 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
 
     request.addfinalizer(delete_s3_artifact_copy)
 
-    # conn.run(f"aws s3 cp --recursive {test_utils.TEST_TRANSFER_S3_BUCKET}/{artifact_folder} $HOME/container_tests")
-    # conn.run(f"mkdir -p $HOME/container_tests/logs && chmod -R +x $HOME/container_tests/*")
 
     return conn
 
-
-# def pytest_generate_tests(metafunc):
-#     LOGGER.info(f"Printing metafunc information")
-#     pass
-#     # if "ec2_key_name" in metafunc.fixturenames:
-#     #    metafunc.parametrize("ec2_key_name", key_names)
-
-#     # values_to_generate_for_fixture = {
-#     #     "ec2_connection": "ec2_key_name"
-#     # }

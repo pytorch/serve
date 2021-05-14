@@ -27,8 +27,8 @@ ECR_REPOSITORY_URL = "{}.dkr.ecr.{}.amazonaws.com/{}"
 GPU_INSTANCES = ["p2", "p3", "p4", "g2", "g3", "g4"]
 
 # DLAMI with nVidia Driver ver. 450.119.03 (support upto CUDA 11.2), Ubuntu 18.04
-# AMI_ID = "ami-0ff137c06803a8bb7"
-AMI_ID = "ami-0198925303105158c"
+AMI_ID = "ami-0ff137c06803a8bb7"
+# AMI_ID = "ami-0198925303105158c", with apache2-utils installed
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
