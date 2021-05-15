@@ -25,7 +25,7 @@ class LanguageTranslationHandler(BaseHandler):
 
         self.device = torch.device(
             "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None and properties.get("gpu_id") >= 0
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else "cpu")
 
         #read configs for the model_name, bpe etc. from setup_config.json
