@@ -123,7 +123,7 @@ class MarkdownDocument:
     def get_document(self):
         return self.markdown_content
 
-def generate_comprehensive_report(s3_bucket_uri):
+def main(s3_bucket_uri):
     """
     Compile a markdown file with different csv files as input
     """

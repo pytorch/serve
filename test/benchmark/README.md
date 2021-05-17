@@ -10,17 +10,26 @@ Check out a sample vgg11 model config at the path: `tests/suite/vgg11.yaml`
 -- [AmazonEC2ContainerRegistryFullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess) <br>
 -- [AmazonEC2FullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonEC2FullAccess) <br>
 -- [AmazonS3FullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonS3FullAccess) <br>
-* [Create](https://docs.aws.amazon.com/cli/latest/reference/ecr/create-repository.html) an ECR repository with the name “torchserve-benchmark” in the us-west-2 region
+-- [AmazonIAMFullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonIAMFullAccess) 
+<br (or at the least iam:passrole).
+
+* [Create](https://docs.aws.amazon.com/cli/latest/reference/ecr/create-repository.html) an ECR repository with the name “torchserve-benchmark” in the us-west-2 region, e.g.
+```
+aws ecr create-repository --repository-name torchserve-benchmark --region us-west-2
+```
+If you'd like to use your own repo, edit the __init__.py under `serve/test/benchmark/tests/utils`
 * Ensure you have [docker](https://docs.docker.com/get-docker/) client set-up on your system - osx/ec2
-* Adjust the following global variables to your preference in the file serve/test/benchmark/tests/utils/__init__.py <br>
+* Adjust the following global variables to your preference in the file `serve/test/benchmark/tests/utils/__init__.py` <br>
 -- IAM_INSTANCE_PROFILE :this role is attached to all ec2 instances created as part of the benchmarking process. Create this as described [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#create-iam-role). Default role name is 'EC2Admin'.<br>
 -- S3_BUCKET_BENCHMARK_ARTIFACTS :all temporary benchmarking artifacts including server logs will be stored in this bucket: <br>
 -- DEFAULT_DOCKER_DEV_ECR_REPO :docker image used for benchmarking will be pushed to this repo <br>
+* If you're running this setup on an EC2 instance, please ensure that the instance's security group settings 'allow' inbound ssh port 22. Refer [docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules.html).
 
 *The following steps assume that the current working directory is serve/.*
 
 1. Create or use any python virtual environment
 ```
+sudo apt-get install python3-venv
 python3 -m venv bvenv
 source bvenv/bin/activate
 ```

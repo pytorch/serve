@@ -98,6 +98,8 @@ def test_bert_benchmark(
             gpus = None
             if len(processors) == 2:
                 gpus = processors[1].get("gpus")
+            LOGGER.info(f"processors: {processors[1]}")
+            LOGGER.info(f"gpus: {gpus}")
 
             LOGGER.info(
                 f"\n benchmark_engine: {benchmark_engine}\n url: {url}\n workers: {workers}\n batch_delay: {batch_delay}\n batch_size:{batch_sizes}\n input_file: {input_file}\n requests: {requests}\n concurrency: {concurrency}\n backend_profiling: {backend_profiling}\n exec_env: {exec_env}\n processors: {processors}"
@@ -132,7 +134,7 @@ def test_bert_benchmark(
                 torchserveHandler.stop_torchserve()
 
                 # Generate report (note: needs to happen after torchserve has stopped)
-                apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency)
+                apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency, connection=ec2_connection)
 
                 # Move artifacts into a common folder.
                 remote_artifact_folder = (
@@ -140,7 +142,7 @@ def test_bert_benchmark(
                 )
 
                 ec2_connection.run(f"mkdir -p {remote_artifact_folder}")
-                ec2_connection.run(f"cp -R /tmp/benchmark/* {remote_artifact_folder}")
+                ec2_connection.run(f"cp -R /home/ubuntu/benchmark/* {remote_artifact_folder}")
 
                 # Upload artifacts to s3 bucket
                 ec2_connection.run(
@@ -150,8 +152,8 @@ def test_bert_benchmark(
                 time.sleep(3)
 
                 run(
-                    f"aws s3 cp --recursive /tmp/benchmark/ {S3_BUCKET_BENCHMARK_ARTIFACTS}/{benchmark_execution_id}/{model_name}/{ec2_instance_type}/{mode}/{batch_size}"
+                    f"aws s3 cp --recursive /tmp/{model_name}/ {S3_BUCKET_BENCHMARK_ARTIFACTS}/{benchmark_execution_id}/{model_name}/{ec2_instance_type}/{mode}/{batch_size}"
                 )
 
-                run(f"rm -rf /tmp/benchmark")
+                run(f"rm -rf /tmp/{model_name}")
                 apacheBenchHandler.clean_up()
