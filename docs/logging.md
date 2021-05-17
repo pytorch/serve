@@ -8,7 +8,7 @@ To further understand how to customize metrics or define custom logging layouts,
 
 * Be familiar with log4j configuration properties.
 For information on how to configure log4j parameters, see [Logging Services](https://logging.apache.org/log4j/2.x/manual/configuration.html).
-* Be familiar with the default [log4j.properties](../frontend/server/src/main/resources/log4j.properties) used by TorchServe.
+* Be familiar with the default [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) used by TorchServe.
 
 ## Types of logs
 
