@@ -18,7 +18,7 @@ Provide a custom script to:
 
 Following is applicable to all types of custom handlers
 * **data** - The input data from the incoming request
-* **context** - Is the TorchServe [context](../ts/context.py). You can use following information for customizaton
+* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
 model_name, model_dir, manifest, batch_size, gpu etc.
 
 ### Start with BaseHandler!
