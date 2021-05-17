@@ -345,10 +345,10 @@ In this document we show an example of how this is done and compare the performa
 TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.</p></li>
 <li><p>Model handler code: TorchServe requires the Model handler to handle batch inference requests.</p></li>
 </ol>
-<p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="../examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalised handler</a></p>
+<p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalised handler</a></p>
 <div class="section" id="torchserve-model-configuration">
 <h3>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this headline">¶</a></h3>
-<p>To configure TorchServe to use the batching feature, provide the batch configuration information through <a class="reference external" href="management_api.md#register-a-model"><strong>POST /models</strong> API</a>.</p>
+<p>To configure TorchServe to use the batching feature, provide the batch configuration information through <a class="reference internal" href="management_api.html"><span class="doc">POST /models API</span></a>.</p>
 <p>The configuration that we are interested in is the following:</p>
 <ol class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: This is the maximum batch size that a model is expected to handle.</p></li>

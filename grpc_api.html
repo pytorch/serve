@@ -296,16 +296,16 @@
               
   <div class="section" id="torchserve-grpc-api">
 <h1>TorchServe gRPC API<a class="headerlink" href="#torchserve-grpc-api" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe also supports <a class="reference external" href="../frontend/server/src/main/resources/proto">gRPC APIs</a> for both inference and management calls.</p>
+<p>TorchServe also supports <a class="reference external" href="https://github.com/pytorch/serve/tree/master/frontend/server/src/main/resources/proto">gRPC APIs</a> for both inference and management calls.</p>
 <p>TorchServe provides following gRPCs apis</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../frontend/server/src/main/resources/proto/inference.proto">Inference API</a></p>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto">Inference API</a></p>
 <ul>
 <li><p><strong>Ping</strong> : Gets the health status of the running server</p></li>
 <li><p><strong>Predictions</strong> : Gets predictions from the served model</p></li>
 </ul>
 </li>
-<li><p><a class="reference external" href="../frontend/server/src/main/resources/proto/management.proto">Management API</a></p>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">Management API</a></p>
 <ul>
 <li><p><strong>RegisterModel</strong> : Serve a model/model-version on TorchServe</p></li>
 <li><p><strong>UnregisterModel</strong> : Free up system resources by unregistering specific version of a model from TorchServe</p></li>
@@ -320,9 +320,9 @@
 To configure gRPC APIs on different ports refer <a class="reference internal" href="configuration.html"><span class="doc">configuration documentation</span></a></p>
 <div class="section" id="python-client-example-for-grpc-apis">
 <h2>Python client example for gRPC APIs<a class="headerlink" href="#python-client-example-for-grpc-apis" title="Permalink to this headline">¶</a></h2>
-<p>Run following commands to Register, run inference and unregister, densenet161 model from <a class="reference internal" href="model_zoo.html"><span class="doc">TorchServe model zoo</span></a> using <a class="reference external" href="../ts_scripts/torchserve_grpc_client.py">gRPC python client</a>.</p>
+<p>Run following commands to Register, run inference and unregister, densenet161 model from <a class="reference internal" href="model_zoo.html"><span class="doc">TorchServe model zoo</span></a> using <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py">gRPC python client</a>.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../README.md#install-torchserve-and-torch-model-archiver">Install TorchServe</a></p></li>
+<li><p><a class="reference internal" href="README.html"><span class="doc">Install TorchServe</span></a></p></li>
 <li><p>Clone serve repo to run this example</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone

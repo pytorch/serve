@@ -332,12 +332,12 @@
 </div>
 <p>The out is OpenAPI 3.0.1 json format. You can use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for detail.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../frontend/server/src/test/resources/inference_open_api.json">Inference API description output</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json">Inference API description output</a></p></li>
 </ul>
 </div>
 <div class="section" id="health-check-api">
 <h2>Health check API<a class="headerlink" href="#health-check-api" title="Permalink to this headline">¶</a></h2>
-<p>This API follows the <a class="reference external" href="../frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Ping</a> gRPC API. It returns the status of a model in the ModelServer.</p>
+<p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Ping</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p>TorchServe supports a <code class="docutils literal notranslate"><span class="pre">ping</span></code> API that you can call to check the health status of a running TorchServe server:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/ping
 </pre></div>
