@@ -25,7 +25,8 @@ class ObjectDetector(VisionHandler):
         # Torchvision breaks with object detector models before 0.6.0
         if version.parse(torchvision_version) < version.parse("0.6.0"):
             self.initialized = False
-            self.device = torch.device("cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu")
+            self.device = torch.device("cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None
+                                       else "cpu")
             self.model.to(self.device)
             self.model.eval()
             self.initialized = True
