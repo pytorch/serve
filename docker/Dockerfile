@@ -37,13 +37,13 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3.7 get-pip.py
-
 RUN python3.7 -m venv /home/venv
 
 ENV PATH="/home/venv/bin:$PATH"
 
 RUN update-alternatives --install /usr/bin/python python /home/venv/bin/python 100 \
     && update-alternatives --install /usr/local/bin/pip pip /home/venv/bin/pip 100
+RUN pip install --upgrade pip
 
 # This is only useful for cuda env
 RUN export USE_CUDA=1
