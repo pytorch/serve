@@ -1,0 +1,7 @@
+---
+# Note: the docker_tag of a GPU/cuda image MUST have the word "gpu", and that of a CPU image must have the word "cpu"
+gpu:
+    docker_tag: "gpu-dev-image"
+    cuda_version: "cu102"
+cpu:
+    docker_tag: "cpu-dev-image"
