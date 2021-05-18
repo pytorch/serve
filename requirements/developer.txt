@@ -9,5 +9,5 @@ nvgpu==0.8.0; sys_platform == 'win32'
 grpcio
 protobuf
 grpcio-tools
-transformers
+transformers==4.6.0
 pygit2
