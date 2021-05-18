@@ -17,3 +17,6 @@ test/logs/
 test/model_store/
 test/ts_console.log
 test/config.properties
+
+.vscode
+.scratch/

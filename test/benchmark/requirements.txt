@@ -1,0 +1,14 @@
+pytest
+pyyaml
+pytest-xdist
+boto3
+pytest-timeout
+pytest-rerunfailures
+retrying
+fabric2==2.5.0
+black
+gitpython
+docker
+pandas
+matplotlib
+pyyaml
