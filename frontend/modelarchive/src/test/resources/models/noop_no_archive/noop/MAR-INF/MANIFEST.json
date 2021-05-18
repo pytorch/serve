@@ -1,0 +1,12 @@
+{
+  "runtime": "python",
+  "model": {
+    "modelName": "noop",
+    "serializedFile": "model.pt",
+    "handler": "service.py",
+    "modelVersion": "1.11"
+  },
+  "modelServerVersion": "1.0",
+  "implementationVersion": "1.0",
+  "specificationVersion": "1.0"
+}

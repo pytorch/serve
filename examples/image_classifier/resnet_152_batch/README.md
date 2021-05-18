@@ -2,8 +2,8 @@
 Run the commands given in following steps from the root directory of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 
 ```bash
-wget https://download.pytorch.org/models/resnet152-b121ed2d.pth
-torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-b121ed2d.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
+wget https://download.pytorch.org/models/resnet152-394f9c45.pth
+torch-model-archiver --model-name resnet-152-batch --version 1.0 --model-file examples/image_classifier/resnet_152_batch/model.py --serialized-file resnet152-394f9c45.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
 mkdir model-store
 mv resnet-152-batch.mar model-store/
 torchserve --start --model-store model-store

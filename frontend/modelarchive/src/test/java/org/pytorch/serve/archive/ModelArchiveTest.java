@@ -173,7 +173,7 @@ public class ModelArchiveTest {
 
     @Test(
             expectedExceptions = ModelNotFoundException.class,
-            expectedExceptionsMessageRegExp = "Model not found in model store: noop1\\.mar")
+            expectedExceptionsMessageRegExp = "Model not found at: noop1.mar")
     public void testMarFileNotexist() throws ModelException, IOException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop1.mar");

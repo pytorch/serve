@@ -261,6 +261,16 @@
               "type": "boolean",
               "default": "false"
             }
+          },
+          {
+            "in": "query",
+            "name": "s3_sse_kms",
+            "description": "Model mar file is S3 SSE KMS(server side encryption) enabled or not, default: false.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
           }
         ],
         "responses": {

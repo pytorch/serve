@@ -41,7 +41,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         model_pt_path = os.path.join(model_dir, serialized_file)
         self.device = torch.device(
             "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available()
+            if torch.cuda.is_available() and properties.get("gpu_id")
             else "cpu"
         )
         # read configs for the mode, model_name, etc. from setup_config.json
@@ -70,14 +70,14 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning("Missing the checkpoint or state_dict.")
 
-        if not os.path.isfile(os.path.join(model_dir, "vocab.*")):
+        if any(fname for fname in os.listdir(model_dir) if fname.startswith("vocab.") and os.path.isfile(fname)):
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.setup_config["model_name"],
-                do_lower_case=self.setup_config["do_lower_case"],
+                model_dir, do_lower_case=self.setup_config["do_lower_case"]
             )
         else:
             self.tokenizer = AutoTokenizer.from_pretrained(
-                model_dir, do_lower_case=self.setup_config["do_lower_case"]
+                self.setup_config["model_name"],
+                do_lower_case=self.setup_config["do_lower_case"],
             )
 
         self.model.to(self.device)

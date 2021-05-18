@@ -15,7 +15,7 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 
 ## Register a model
 
-This API follows the [ManagementAPIsService.RegisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API.
+This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
 
 `POST /models`
 
@@ -38,6 +38,34 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
+If you'd like to serve an encrypted model then you need to setup [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html) with the following environment variables:
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* AWS_DEFAULT_REGION
+
+And set "s3_sse_kms=true" in HTTP request. 
+
+For example: model squeezenet1_1 is [encrypted on S3 under your own private account](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). The model http url on S3 is https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar.
+- if torchserve will run on EC2 instance (eg. OS: ubuntu)
+1. add an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
+2. run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+3. export AWS_DEFAULT_REGION=your_s3_bucket_region
+4. start torchserve
+5. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command.
+```bash
+curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar&s3_sse_kms=true"
+
+{
+  "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
+}
+```
+- if torchserve will run on local (eg. OS: macOS)
+1. Find your AWS access key and secret key. You can [reset them](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys_retrieve.html) if you forgot the keys.
+2. export AWS_ACCESS_KEY_ID=your_aws_access_key
+3. export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+4. export AWS_DEFAULT_REGION=your_s3_bucket_region
+5. start torchserve
+6. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command (same as EC2 example step 5).
 
 You might want to create workers during registration. because creating initial workers might take some time,
 you can choose between synchronous or asynchronous call to make sure initial workers are created properly.
@@ -76,14 +104,13 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 
 ## Scale workers
 
-This API follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.ScaleWorker](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 
 `PUT /models/{model_name}`
 
 * `min_worker` - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
 * `max_worker` - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
-* `number_gpu` - (optional) the number of GPU worker processes to create. The default value is `0`. If number_gpu exceeds the number of available GPUs, the rest of workers will run on CPU.
 * `synchronous` - whether or not the call is synchronous. The default value is `false`.
 * `timeout` - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
 
@@ -258,7 +285,7 @@ curl http://localhost:8081/models/noop/all
 
 ## Unregister a model
 
-This API follows the [ManagementAPIsService.UnregisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.UnregisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `DELETE /models/{model_name}/{version}`
 
@@ -273,7 +300,7 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 ```
 
 ## List models
-This API follows the [ManagementAPIsService.ListModels](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.ListModels](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models`
 
@@ -325,12 +352,12 @@ The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [s
 
 Example outputs of the Inference and Management APIs:
 
-* [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
-* [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
+* [Inference API description output](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json)
+* [Management API description output](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/management_open_api.json)
 
 ## Set Default Version
 
-This API follows the [ManagementAPIsService.SetDefault](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.SetDefault](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `PUT /models/{model_name}/{version}/set-default`
 
@@ -341,8 +368,3 @@ curl -v -X PUT http://localhost:8081/models/noop/2.0/set-default
 ```
 
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
-
-Example outputs of the Inference and Management APIs:
-
-* [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
-* [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
