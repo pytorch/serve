@@ -88,14 +88,14 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv BERTSeqClassification.mar model_store/
-torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ncs
 
 ```
 
 ### Run an inference
 
-To run an inference: `curl 127.0.0.1:8080/predictions/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
-To get an explanation: `curl 127.0.0.1:8080/explanations/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
+To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
+To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
 
 ## Token Classification
 
@@ -128,10 +128,8 @@ torchserve --start --model-store model_store --models my_tc=BERTTokenClassificat
 ```
 
 ### Run an inference
-```
-curl 127.0.0.1:8080/predictions/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
-curl 127.0.0.1:8080/explanations/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
-```
+To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt`
+To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt`
 
 ## Question Answering
 
@@ -162,10 +160,8 @@ mv BERTQA.mar model_store
 torchserve --start --model-store model_store --models my_tc=BERTQA.mar --ncs
 ```
 ### Run an inference
-```
-curl 127.0.0.1:8080/predictions/my_tc -T QA_artifacts/sample_text_captum_input.txt
-curl 127.0.0.1:8080/explanations/my_tc -T QA_artifacts/sample_text_captum_input.txt
-```
+To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T QA_artifacts/sample_text_captum_input.txt`
+To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T QA_artifacts/sample_text_captum_input.txt`
 
 ## Batch Inference
 
