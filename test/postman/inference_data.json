@@ -293,7 +293,7 @@
         "synchronous":"true",
         "file":"../examples/text_classification/sample_text.txt",
         "content-type":"application/json",
-                "expected":[
+                        "expected":[
           [
             "[CLS]",
             "B-LOC"
@@ -304,7 +304,7 @@
           ],
           [
             "has",
-            "I-PER"
+            "I-ORG"
           ],
           [
             "decided",
@@ -328,14 +328,10 @@
           ],
           [
             "report",
-            "B-PER"
+            "O"
           ],
           [
             "on",
-            "B-PER"
-          ],
-          [
-            "the",
             "O"
           ],
           [
@@ -343,8 +339,12 @@
             "B-PER"
           ],
           [
-            "economy",
+            "economic",
             "O"
+          ],
+          [
+            "situation",
+            "B-LOC"
           ],
           [
             ".",
