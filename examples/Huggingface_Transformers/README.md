@@ -4,7 +4,7 @@ In this example, we show how to serve a fine tuned or off the shelf Transformer 
 
 We use a custom handler, [Transformer_handler.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py).
 
-This handler enables us to use pre-trained transformer models from Hugginface, such as BERT, RoBERTA, XLM for token classification, sequence classification and question answering.
+This handler enables us to use pre-trained transformer models from Huggingface, such as BERT, RoBERTA, XLM for token classification, sequence classification and question answering.
 
 We borrowed ideas to write a custom handler for transformers from tutorial presented in [mnist from image classifiers examples](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist) and the post by [MFreidank](https://medium.com/analytics-vidhya/deploy-huggingface-s-bert-to-production-with-pytorch-serve-27b068026d18).
 
