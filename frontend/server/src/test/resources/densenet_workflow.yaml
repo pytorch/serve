@@ -1,0 +1,13 @@
+models:
+    #global model params
+    min-workers: 1
+    max-workers: 2
+    batch-size: 3
+    max-batch-delay : 5000
+
+    densenet:
+      url : https://torchserve-mar-files.s3.amazonaws.com/workflows/densenet_wf.mar
+ 
+dag: #can have only one start node
+  pre_processing : [densenet]
+  densenet : [post_processing]

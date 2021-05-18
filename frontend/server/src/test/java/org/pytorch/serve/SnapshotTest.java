@@ -61,7 +61,7 @@ public class SnapshotTest {
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-        configManager.setIniitialWorkerPort(9500);
+        configManager.setInitialWorkerPort(9500);
         server = new ModelServer(configManager);
         server.startRESTserver();
     }

@@ -54,7 +54,7 @@ In this example, we have shown how to serve a [English-to-French/English-German 
     ```bash
     curl http://127.0.0.1:8080/predictions/TransformerEn2Fr -T model_input/sample.txt | json_pp
     {
-        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
+        "input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
         "french_output" : "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus tôt possible."
     }
     ```
@@ -62,7 +62,7 @@ In this example, we have shown how to serve a [English-to-French/English-German 
 	```bash
 	curl http://127.0.0.1:8080/predictions/TransformerEn2De -T model_input/sample.txt | json_pp
     {
-        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
+        "input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
         "german_output" : "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie möglich."
     }
 	```
@@ -103,19 +103,19 @@ In this example, we are going to launch 1 worker which handles a `batch size` of
     curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample3.txt& 
     curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2Fr -T ./model_input/sample4.txt&
     {
-        "english_input" : "Hello World !!!\n",
+        "input" : "Hello World !!!\n",
         "french_output" : "Bonjour le monde ! ! !"
     }
     {
-        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
+        "input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
         "french_output" : "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus tôt possible."
     }
     {
-        "english_input" : "I’m sorry, I don’t remember your name. You are you?\n",
+        "input" : "I’m sorry, I don’t remember your name. You are you?\n",
         "french_output" : "Je vous prie de m'excuser, je ne me souviens pas de votre nom."
     }
     {
-        "english_input" : "I’m well. How are you?\nIt’s going well, thank you. How are you doing?\nFine, thanks. And yourself?\n",
+        "input" : "I’m well. How are you?\nIt’s going well, thank you. How are you doing?\nFine, thanks. And yourself?\n",
         "french_output" : "Je me sens bien. Comment allez-vous ? Ça va bien, merci. Comment allez-vous ?"
     }
     ```
@@ -143,19 +143,19 @@ In this example, we are going to launch 1 worker which handles a `batch size` of
 	curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2De -T ./model_input/sample3.txt& 
 	curl -X POST http://127.0.0.1:8080/predictions/TransformerEn2De -T ./model_input/sample4.txt&
     {
-        "english_input" : "Hello World !!!\n",
+        "input" : "Hello World !!!\n",
         "german_output" : "Hallo Welt!!!"
     }
     {
-        "english_input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
+        "input" : "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.\n",
         "german_output" : "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie möglich."
     }
     {
-        "english_input" : "I’m sorry, I don’t remember your name. You are you?\n",
+        "input" : "I’m sorry, I don’t remember your name. You are you?\n",
         "german_output" : "Es tut mir leid, ich erinnere mich nicht an Ihren Namen. Sie sind es?"
     }
     {
-        "english_input" : "I’m well. How are you?\nIt’s going well, thank you. How are you doing?\nFine, thanks. And yourself?\n",
+        "input" : "I’m well. How are you?\nIt’s going well, thank you. How are you doing?\nFine, thanks. And yourself?\n",
         "german_output" : "Mir geht es gut. Wie geht es Ihnen? Es läuft gut, danke. Wie geht es Ihnen? Gut, danke. Und sich selbst?"
     }
     ```

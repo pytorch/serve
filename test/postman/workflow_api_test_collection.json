@@ -1,0 +1,46 @@
+{
+	"info": {
+		"_postman_id": "7c2621dd-0466-4ecc-9ce5-57d12b764f13",
+		"name": "management_api_collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "workflow management request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f95d2908-8726-4ebb-82cf-3b5178550efa",
+						"exec": [
+							"    if (pm.iterationData.has(\"status_code\")) {",
+							"        var status_code = pm.iterationData.get(\"status_code\");       ",
+							"    } else {",
+							"        var  status_code = 200;",
+							"    }",
+							"pm.test(\"Successful  request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([status_code]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "{{METHOD}}",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": ["{{path}}"],
+					"query": []
+				}
+			},
+			"response": []
+		}
+	]
+}

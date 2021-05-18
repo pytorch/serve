@@ -1,0 +1,170 @@
+{
+	"info": {
+		"_postman_id": "e5c33100-70d4-4c78-8a60-7a2cbc09be6c",
+		"name": "workflow_inference",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Workflow - Register Workflow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{hostname}}:{{mgmt-port}}/workflows?url={{workflow_url}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{mgmt-port}}",
+					"path": [
+						"workflows"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "{{workflow_url}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Workflow - Inference",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.iterationData.has(\"status_code\")) {",
+							"    var status_code = pm.iterationData.get(\"status_code\");       ",
+							"} else {",
+							"    var  status_code = 200;",
+							"}",
+							"pm.test(\"Successful  request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([status_code]);",
+							"});",
+							"",
+							"var type_response = pm.iterationData.get(\"content-type\");",
+							"validators = {",
+							"    image_classification: validate_image_classification,",
+							"    default_json: validate_default",
+							"};",
+							"",
+							"if (type_response === \"text/plain\") {",
+							"    pm.test(\"Test expected TEXT response\", function() {",
+							"        pm.response.to.have.body(pm.iterationData.get(\"expected\"));",
+							"    });",
+							"",
+							"} else if (type_response === \"application/json\") {",
+							"    if (pm.iterationData.has(\"validator\")) {",
+							"        var validator = pm.iterationData.get(\"validator\");       ",
+							"    } else {",
+							"        var  validator = \"default_json\";",
+							"    }",
+							"    pm.test(\"Test expected JSON response\", function() {",
+							"        var actual_obj = pm.response.json();",
+							"        var expected_obj = pm.iterationData.get(\"expected\");",
+							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
+							"    });",
+							"",
+							"}",
+							"",
+							"function get_tolerance_value(expected_val) {",
+							"    var tolerance_percent = pm.iterationData.get(\"tolerance\");",
+							"    return (expected_val * tolerance_percent) / 100;",
+							"}",
+							"",
+							"function validate_image_classification(actual_obj, expected_obj) {",
+							"    if (_.size(expected_obj) != _.size(actual_obj)) {",
+							"        return false;",
+							"    }",
+							"",
+							"    ",
+							"    if (!_.isEqual(_.keys(expected_obj).sort(), _.keys(actual_obj).sort())) {",
+							"        return false;",
+							"    }",
+							"",
+							"",
+							"    for (const key in (expected_obj)) {",
+							"        expected_val = expected_obj[key]",
+							"        actual_val = actual_obj[key]",
+							"        ",
+							"        tolerance_value = get_tolerance_value(expected_val);",
+							"        if (!(Math.abs(expected_val - actual_val) < tolerance_value)) {",
+							"            return false;",
+							"        }",
+							"    }",
+							"    return true;",
+							"}",
+							"",
+							"/* Simple and nested json object can be compared using validate_default when key and value are constant.",
+							"-Notes-",
+							"The order of keys within an object may change.",
+							"If the output is array of objects then the objects compared are positional and cannot change order.",
+							"*/",
+							"function validate_default(actual_obj, expected_obj) {",
+							"    return _.isEqual(actual_obj, expected_obj);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "{{file}}"
+					}
+				},
+				"url": "{{protocol}}://{{hostname}}:{{pred-port}}/wfpredict/{{workflow_name}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Workflow - Unregister",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "{{protocol}}://{{hostname}}:{{mgmt-port}}/workflows/{{workflow_name}}"
+			},
+			"response": []
+		}
+	]
+}

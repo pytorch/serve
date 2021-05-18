@@ -20,6 +20,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
 * [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
+* [Serve a Workflow](docs/workflows.md)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
@@ -83,6 +84,7 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 ### Install TorchServe for development
 
 If you plan to develop with TorchServe and change some source code, you must install it from source code.
+
 Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
 Run the following script from the top of the source directory.

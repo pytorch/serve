@@ -33,6 +33,10 @@ class ArgParser(object):
                             required=False,
                             dest='model_store',
                             help='Model store location from where local or default models can be loaded')
+        parser.add_argument('--workflow-store',
+                            required=False,
+                            dest='workflow_store',
+                            help='Workflow store location from where local or default workflows can be loaded')
         parser.add_argument('--models',
                             metavar='MODEL_PATH1 MODEL_NAME=MODEL_PATH2...',
                             nargs='+',

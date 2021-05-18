@@ -77,7 +77,7 @@ For examples of how to configure a model for a use case and what the input forma
 ### Create model archive 
 
 ```
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json" --model-file model.py
 
 ```
 
@@ -213,5 +213,7 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
 ### Running KFServing 
-* [BERT Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) to run it locally.
-* [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
+
+[BERT Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) to run it locally.
+[End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
+

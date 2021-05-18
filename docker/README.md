@@ -26,7 +26,6 @@ cd serve/docker
 # Create TorchServe docker image
 
 Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
-
 | Parameter | Desciption |
 |------|------|
 |-h, --help|Show script help|
