@@ -47,7 +47,7 @@ In the setup_config.json :
 
 *max_length* : maximum length for the  input sequences to the models, this will be used in preprocessing of the handler. Also, if you choose to use Torchscript as the serialized model  for packaging your model this length should be equal to the length that has been used during the tracing of the model using torch.jit.trace.
 
-*captum_explanation* : `true` for eager mode models but should be set to `false` for torchscripted models
+*captum_explanation* : `true` for eager mode models but should be set to `false` for torchscripted models or if you don't need explanations
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be `bert` for `bert-base-uncased`, `roberta` for `roberta-base` or `roberta` for `xlm-roberta-large`.
 
@@ -94,10 +94,10 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 
 ### Run an inference
 
-To run an inference: `curl 27.0.0.1:8080/predictions/my_tc -T Sequence_classification_artifacts/sample_text_captum_input.txt`
-To get an explanation: `curl 27.0.0.1:8080/explanations/my_tc -T Sequence_classification_artifacts/sample_text_captum_input.txt`
+To run an inference: `curl 127.0.0.1:8080/predictions/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
+To get an explanation: `curl 127.0.0.1:8080/explanations/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
 
-### Token Classification
+## Token Classification
 
 Change `setup_config.json` to
 
@@ -123,17 +123,17 @@ torch-model-archiver --model-name BERTTokenClassification --version 1.0 --serial
 
 ```
 mkdir model_store
-mv BERTTokenClassification
+mv BERTTokenClassification model_store
 torchserve --start --model-store model_store --models my_tc=BERTTokenClassification.mar --ncs
 ```
 
 ### Run an inference
 ```
-curl 27.0.0.1:8080/predictions/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
-curl 27.0.0.1:8080/explanations/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
+curl 127.0.0.1:8080/predictions/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
+curl 127.0.0.1:8080/explanations/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
 ```
 
-### Question Answering
+## Question Answering
 
 Change `setup_config.json` to
 ```
@@ -163,8 +163,8 @@ torchserve --start --model-store model_store --models my_tc=BERTQA.mar --ncs
 ```
 ### Run an inference
 ```
-curl 27.0.0.1:8080/predictions/my_tc -T QA_artifacts/sample_text_captum_input.txt
-curl 27.0.0.1:8080/explanations/my_tc -T QA_artifacts/sample_text_captum_input.txt
+curl 127.0.0.1:8080/predictions/my_tc -T QA_artifacts/sample_text_captum_input.txt
+curl 127.0.0.1:8080/explanations/my_tc -T QA_artifacts/sample_text_captum_input.txt
 ```
 
 ## Batch Inference
