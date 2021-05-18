@@ -4,7 +4,7 @@ models:
     batch-size: 4
     max-batch-delay: 100
     retry-attempts: 5
-    timeout-ms: 10000
+    timeout-ms: 300000
 
     nmt_en_de:
       url: TransformerEn2De.mar

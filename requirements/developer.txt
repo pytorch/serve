@@ -11,3 +11,6 @@ protobuf
 grpcio-tools
 transformers==2.10.0
 pygit2
+fairseq==0.10.0
+subword-nmt==0.3.7
+fastBPE
