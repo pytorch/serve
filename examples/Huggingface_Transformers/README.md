@@ -97,7 +97,7 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 To run an inference: `curl 27.0.0.1:8080/predictions/my_tc -T Sequence_classification_artifacts/sample_text_captum_input.txt`
 To get an explanation: `curl 27.0.0.1:8080/explanations/my_tc -T Sequence_classification_artifacts/sample_text_captum_input.txt`
 
-### Token Classification
+## Token Classification
 
 Change `setup_config.json` to
 
@@ -133,7 +133,7 @@ curl 27.0.0.1:8080/predictions/my_tc -T Token_classification_artifacts/sample_te
 curl 27.0.0.1:8080/explanations/my_tc -T Token_classification_artifacts/sample_text_captum_input.txt
 ```
 
-### Question Answering
+## Question Answering
 
 Change `setup_config.json` to
 ```
