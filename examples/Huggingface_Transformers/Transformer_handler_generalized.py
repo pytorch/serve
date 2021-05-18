@@ -29,7 +29,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """In this initialize function, the BERT model is loaded and
         the Layer Integrated Gradients Algorithmfor Captum Explanations
         is initialized here.
-
         Args:
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
@@ -41,7 +40,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         model_pt_path = os.path.join(model_dir, serialized_file)
         self.device = torch.device(
             "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id")
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else "cpu"
         )
         # read configs for the mode, model_name, etc. from setup_config.json
@@ -100,11 +99,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.
-
         Args:
             requests (str): The Input data in the form of text is passed on to the preprocess
             function.
-
         Returns:
             list : The preprocess function returns a list of Tensor for the size of the word tokens.
         """
@@ -149,10 +146,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     def inference(self, input_batch):
         """Predict the class (or classes) of the received text using the
         serialized transformers checkpoint.
-
         Args:
             input_batch (list): List of Text Tensors from the pre-process function is passed here
-
         Returns:
             list : It returns a list of the predicted value for the input text
         """
@@ -216,7 +211,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
-
         Args:
             inference_output (list): It contains the predicted response of the input text.
         Returns:
@@ -227,12 +221,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     def get_insights(self, input_batch, text, target):
         """This function initialize and calls the layer integrated gradient to get word importance
         of the input text if captum explanation has been selected through setup_config
-
         Args:
             input_batch (int): Batches of tokens IDs of text
             text (str): The Text specified in the input request
             target (int): The Target can be set to any acceptable label under the user's discretion.
-
         Returns:
             (list): Returns a list of importances and words.
         """
@@ -304,12 +296,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 def construct_input_ref(text, tokenizer, device, mode):
     """For a given text, this function creates token id, reference id and
     attention mask based on encode which is faster for captum insights
-
     Args:
         text (str): The text specified in the input request
         tokenizer (AutoTokenizer Class Object): To word tokenize the input text
         device (cpu or gpu): Type of the Environment the server runs on.
-
     Returns:
         input_id(Tensor): It attributes to the tensor of the input tokenized words
         ref_input_ids(Tensor): Ref Input IDs are used as baseline for the attributions
@@ -345,14 +335,12 @@ def construct_input_ref(text, tokenizer, device, mode):
 def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
     """This function is used to get the predictions from the model and this function 
     can be used independent of the type of the BERT Task. 
-
     Args:
         inputs (list): Input for Predictions
         attention_mask (list, optional): The attention mask is a binary tensor indicating the position
          of the padded indices so that the model does not attend to them, it defaults to None.
         position (int, optional): Position depends on the BERT Task. 
         model ([type], optional): Name of the model, it defaults to None.
-
     Returns:
         list: Prediction Outcome
     """
@@ -365,10 +353,8 @@ def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None)
 
 def summarize_attributions(attributions):
     """Summarises the attribution across multiple runs
-
     Args:
         attributions ([list): attributions from the Layer Integrated Gradients
-
     Returns:
         list : Returns the attributions after normalizing them. 
     """
@@ -380,11 +366,9 @@ def summarize_attributions(attributions):
 def get_word_token(input_ids, tokenizer):
     """constructs word tokens from token id using the BERT's
     Auto Tokenizer
-
     Args:
         input_ids (list): Input IDs from construct_input_ref method
         tokenizer (class): The Auto Tokenizer Pre-Trained model object
-
     Returns:
         (list): Returns the word tokens
     """
