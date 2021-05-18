@@ -10,7 +10,7 @@ We borrowed ideas to write a custom handler for transformers from tutorial prese
 
 To get started [install Torchserve](https://github.com/pytorch/serve) and then
 
- `pip install transformers`
+ `pip install transformers==4.6.0`
 
 ### Objectives
 1. How to package a transformer into a torch model archive (.mar) file (eager mode or Torchscript) with `torch-model-archiver`
