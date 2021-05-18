@@ -114,6 +114,11 @@ Change `setup_config.json` to
 }
 ```
 
+```
+rm -r Transformer_model
+python Download_Transformer_models.py
+```
+
 ### Create model archive
 ```
 torch-model-archiver --model-name BERTTokenClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Token_classification_artifacts/index_to_name.json"
@@ -123,7 +128,7 @@ torch-model-archiver --model-name BERTTokenClassification --version 1.0 --serial
 
 ```
 mkdir model_store
-mv BERTTokenClassification model_store
+mv BERTTokenClassification.mar model_store
 torchserve --start --model-store model_store --models my_tc=BERTTokenClassification.mar --ncs
 ```
 
@@ -145,6 +150,11 @@ Change `setup_config.json` to
  "captum_explanation":true,
  "embedding_name": "distilbert"
 }
+```
+
+```
+rm -r Transformer_model
+python Download_Transformer_models.py
 ```
 
 ### Create model archive
