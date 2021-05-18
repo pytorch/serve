@@ -68,6 +68,7 @@ RUN pip install --no-cache-dir torchtext torchserve torch-model-archiver
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
 
+ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,target=/var/cache/apt \
