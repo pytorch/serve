@@ -88,7 +88,7 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv BERTSeqClassification.mar model_store/
-torchserve --start --model-store model_store --models my_tc=BERTSeqClassification_Torchscript.mar
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar
 
 ```
 
