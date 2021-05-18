@@ -38,15 +38,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         model_dir = properties.get("model_dir")
         serialized_file = self.manifest["model"]["serializedFile"]
         model_pt_path = os.path.join(model_dir, serialized_file)
-        self.device = torch.device(
-            "cuda:" + str(properties.get("gpu_id"))
-<<<<<<< HEAD
-            if torch.cuda.is_available()
-=======
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
->>>>>>> 8e0906314d1667dadfa47cfdff41ff863bb516b7
-            else "cpu"
-        )
+        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
         # read configs for the mode, model_name, etc. from setup_config.json
         setup_config_path = os.path.join(model_dir, "setup_config.json")
         if os.path.isfile(setup_config_path):
