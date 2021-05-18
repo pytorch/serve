@@ -15,7 +15,7 @@ Similar to the [Inference API](inference_api.md), the Management API provides a 
 
 ## Register a model
 
-This API follows the [ManagementAPIsService.RegisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API.
+This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
 
 `POST /models`
 
@@ -104,7 +104,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 
 ## Scale workers
 
-This API follows the [ManagementAPIsService.ScaleWorker](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.ScaleWorker](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 
 `PUT /models/{model_name}`
@@ -285,7 +285,7 @@ curl http://localhost:8081/models/noop/all
 
 ## Unregister a model
 
-This API follows the [ManagementAPIsService.UnregisterModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.UnregisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `DELETE /models/{model_name}/{version}`
 
@@ -300,7 +300,7 @@ curl -X DELETE http://localhost:8081/models/noop/1.0
 ```
 
 ## List models
-This API follows the [ManagementAPIsService.ListModels](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.ListModels](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models`
 
@@ -352,12 +352,12 @@ The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [s
 
 Example outputs of the Inference and Management APIs:
 
-* [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
-* [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
+* [Inference API description output](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json)
+* [Management API description output](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/management_open_api.json)
 
 ## Set Default Version
 
-This API follows the [ManagementAPIsService.SetDefault](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.SetDefault](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `PUT /models/{model_name}/{version}/set-default`
 
@@ -368,8 +368,3 @@ curl -v -X PUT http://localhost:8081/models/noop/2.0/set-default
 ```
 
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
-
-Example outputs of the Inference and Management APIs:
-
-* [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
-* [Management API description output](../frontend/server/src/test/resources/management_open_api.json)
