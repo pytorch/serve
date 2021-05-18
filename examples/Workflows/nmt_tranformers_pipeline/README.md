@@ -3,7 +3,7 @@
 This example uses the existing [nmt_transformers](../../nmt_transformer) standalone example to create a workflow. We use three models, in two examples to demonstrate stringing them together in a workflow.
 To change the default batch size and batch delay the yaml file for the workflow can to be changed. This cannot currently be set via the REST API.
 
-_NOTE: This example currently works with Py36 only due to fairseq dependency on dataclasses [issue](https://github.com/huggingface/transformers/issues/8638#issuecomment-790772391)_
+_NOTE: This example currently works with Py36 only due to fairseq dependency on dataclasses [issue](https://github.com/huggingface/transformers/issues/8638#issuecomment-790772391). This example currently doesn't work on Windows_
 
 ## Flow
 
