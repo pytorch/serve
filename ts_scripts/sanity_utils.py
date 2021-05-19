@@ -70,7 +70,7 @@ def test_sanity():
         {"name": "alexnet_scripted", "inputs": ["examples/image_classifier/kitten.jpg"], "handler": "image_classifier"},
         {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/persons.jpg"],
          "handler": "image_segmenter"},
-        {"name": "roberta_qa_no_torchscript",
+        {"name": "distill_bert_qa_eager",
          "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"},
         {"name": "bert_token_classification_no_torchscript",
          "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
