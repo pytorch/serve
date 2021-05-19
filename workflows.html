@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe model snapshot &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe Workflows &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -218,7 +218,17 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
+<li><a class="reference internal" href="#">TorchServe Workflows</a><ul>
+<li><a class="reference internal" href="#workflow-specification-file">Workflow Specification file</a><ul>
+<li><a class="reference internal" href="#workflow-models">Workflow Models</a></li>
+<li><a class="reference internal" href="#workflow-model-properties">Workflow model properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a></li>
+<li><a class="reference internal" href="#handler-file">Handler file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
 </div>
             
@@ -259,13 +269,13 @@
       </li>
 
         
-      <li>TorchServe model snapshot</li>
+      <li>TorchServe Workflows</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/snapshot.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/workflows.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -291,35 +301,145 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-model-snapshot">
-<h1>TorchServe model snapshot<a class="headerlink" href="#torchserve-model-snapshot" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.</p>
-<p>A TorchServe’s snapshot consists of following:</p>
+  <div class="section" id="torchserve-workflows">
+<h1>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this headline">¶</a></h1>
+<p>TorchServe can be used for serving ensemble of models &amp; functions (python) through Workflow APIs.</p>
+<p>It utilizes <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> for workflow management and predictions.</p>
+<p>A Workflow is served on TorchServe using a workflow-archive(.war) which comprises of following:</p>
+<div class="section" id="workflow-specification-file">
+<h2>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this headline">¶</a></h2>
+<p>A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.</p>
+<p>E.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">:</span>
+    <span class="c1">#global model params</span>
+    <span class="nb">min</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="nb">max</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">4</span>
+    <span class="n">batch</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="nb">max</span><span class="o">-</span><span class="n">batch</span><span class="o">-</span><span class="n">delay</span> <span class="p">:</span> <span class="mi">5000</span>
+    <span class="n">retry</span><span class="o">-</span><span class="n">attempts</span> <span class="p">:</span> <span class="mi">3</span>
+    <span class="n">timeout</span><span class="o">-</span><span class="n">ms</span> <span class="p">:</span> <span class="mi">5000</span>
+    <span class="n">m1</span><span class="p">:</span>
+       <span class="n">url</span> <span class="p">:</span> <span class="n">model1</span><span class="o">.</span><span class="n">mar</span> <span class="c1">#local or public URI</span>
+       <span class="nb">min</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">1</span>   <span class="c1">#override the global params</span>
+       <span class="nb">max</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">2</span>
+       <span class="n">batch</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">4</span>
+     
+    <span class="n">m2</span><span class="p">:</span>
+       <span class="n">url</span> <span class="p">:</span> <span class="n">model2</span><span class="o">.</span><span class="n">mar</span>
+
+    <span class="n">m3</span><span class="p">:</span>
+       <span class="n">url</span> <span class="p">:</span> <span class="n">model3</span><span class="o">.</span><span class="n">mar</span>
+       <span class="n">batch</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">3</span>
+
+    <span class="n">m4</span><span class="p">:</span>
+      <span class="n">url</span> <span class="p">:</span> <span class="n">model4</span><span class="o">.</span><span class="n">mar</span>
+ 
+<span class="n">dag</span><span class="p">:</span>
+  <span class="n">pre_processing</span> <span class="p">:</span> <span class="p">[</span><span class="n">m1</span><span class="p">]</span>
+  <span class="n">m1</span> <span class="p">:</span> <span class="p">[</span><span class="n">m2</span><span class="p">]</span>
+  <span class="n">m2</span> <span class="p">:</span> <span class="p">[</span><span class="n">m3</span><span class="p">]</span>
+  <span class="n">m3</span> <span class="p">:</span> <span class="p">[</span><span class="n">m4</span><span class="p">]</span>
+  <span class="n">m4</span> <span class="p">:</span> <span class="p">[</span><span class="n">postprocessing</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="workflow-models">
+<h3>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">models</span></code> section of the workflow specification defines the models used in the workflow. It uses the following syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">:</span>
+    <span class="o">&lt;</span><span class="n">model_name</span><span class="o">&gt;</span><span class="p">:</span>
+        <span class="n">url</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">local</span> <span class="ow">or</span> <span class="n">public</span> <span class="n">url</span> <span class="k">for</span> <span class="n">mar</span> <span class="n">file</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="workflow-model-properties">
+<h3>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this headline">¶</a></h3>
+<p>User can define following workflow model properties:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Properties</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>min-workers</td>
+<td>Number of minimum workers launched for every workflow model</td>
+<td>1</td>
+</tr>
+<tr>
+<td>max-workers</td>
+<td>Number of maximum workers launched for every workflow model</td>
+<td>1</td>
+</tr>
+<tr>
+<td>batch-size</td>
+<td>Batch size used for every workflow model</td>
+<td>1</td>
+</tr>
+<tr>
+<td>max-batch-delay</td>
+<td>Maximum batch delay time TorchServe waits for every workflow model to receive <code>batch_size</code> number of requests.</td>
+<td>50 ms</td>
+</tr>
+<tr>
+<td>retry-attempts</td>
+<td>Retry attempts for a specific workflow node incase of a failure</td>
+<td>1</td>
+</tr>
+<tr>
+<td>timeout-ms</td>
+<td>Timeout in MilliSeconds for a given node</td>
+<td>10000</td>
+</tr>
+</tbody>
+</table><p>These properties can be defined as a global value for every model and can be over-ridden at every model level in workflow specification. Refer the above example for more details.</p>
+</div>
+</div>
+<div class="section" id="workflow-dag">
+<h2>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this headline">¶</a></h2>
+<p>User can define the dataflow of a workflow using the <code class="docutils literal notranslate"><span class="pre">dag</span></code> section of the workflow specification. The <code class="docutils literal notranslate"><span class="pre">dag</span></code> consists of the model names defined in the <code class="docutils literal notranslate"><span class="pre">model</span></code> section and python function names which are implemented in the workflow-archive’s handler file.</p>
+<p>Eg.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
+  <span class="n">function1</span> <span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">]</span>
+  <span class="n">model1</span> <span class="p">:</span> <span class="p">[</span><span class="n">model2</span><span class="p">]</span>
+  <span class="n">model2</span> <span class="p">:</span> <span class="p">[</span><span class="n">function2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In the above example the data will flow as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span> <span class="o">-&gt;</span> <span class="n">function1</span> <span class="o">-&gt;</span> <span class="n">model1</span> <span class="o">-&gt;</span> <span class="n">model2</span> <span class="o">-&gt;</span> <span class="n">function2</span> <span class="o">-&gt;</span> <span class="n">output</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="handler-file">
+<h2>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this headline">¶</a></h2>
+<p>A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.</p>
+<p>Eg.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+<span class="k">def</span> <span class="nf">preprocss</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xontext</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="known-issues">
+<h1>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p>Server configuration, which comprises: Which models are running, which versions of those models, and how many workers are active for each model.</p></li>
-<li><p>Default server configuration used while starting TorchServe the first time.</p></li>
+<li><p><strong>Each workflow dag node (model/function) will receive input as bytes</strong></p></li>
+<li><p><strong>Workflow scale/updates is not supported through APIs. User will need to unregister the workflow and re-register with the required changes</strong></p></li>
+<li><p><strong>Each workflow dag node (model/function) will receive input as bytes</strong></p></li>
+<li><p><strong>Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors</strong></p></li>
+<li><p><strong>Specifying Input or output per workflow model is not supported</strong></p></li>
+<li><p><strong>Snapshots are not supported for workflows and related models are not captured in the workflow</strong></p></li>
+<li><p><strong>Workflow versioning is not supported</strong></p></li>
+<li><p><strong>Workflows registration having public model URL with mar file names which are already registered will fail.</strong></p></li>
+<li><p><strong>There is no validation in place to check if the function names provided in DAG are available in the handler supplied in the workflow archive.</strong></p></li>
+<li><p><strong>Workflow models can be currently accessed and modified through model management APIs</strong></p></li>
 </ul>
-<p>The snapshot is taken at following instances -</p>
-<ul class="simple">
-<li><p>After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<yyyyMMddHHmmssSSS>-startup.cfg</p></li>
-<li><p>If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-snapshot.cfg</p></li>
-<li><p>When the server is shut down intentionally with <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--stop</span></code>, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-shutdown.cfg</p></li>
-</ul>
-<p>User can use snapshots to restore the TorchServe’s state as follows :</p>
-<ul class="simple">
-<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag while starting TorchServe, last snapshot in ./logs/configs is used for startup.</p></li>
-<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag and no snapshots are available, TorchServe starts with default configurations.</p></li>
-<li><p>The user restarts the server specifying this config file: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--ts-config</span> <span class="pre">&lt;known</span> <span class="pre">good</span> <span class="pre">config</span> <span class="pre">snapshot&gt;</span></code></p></li>
-</ul>
-<p>If the user wishes to start without this resiliency feature, the user can start the server with :</p>
-<p><code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--no-config-snapshots</span></code></p>
-<p>This prevents to server from storing config snapshot files.</p>
-<p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in  <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory</p>
-<p><strong>Note</strong> :</p>
-<ol class="simple">
-<li><p>Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p></li>
-<li><p>For windows, if shutdown snapshot file is not generated then you can use last snapshot file.</p></li>
-</ol>
 </div>
 
 
@@ -356,7 +476,17 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
+<li><a class="reference internal" href="#">TorchServe Workflows</a><ul>
+<li><a class="reference internal" href="#workflow-specification-file">Workflow Specification file</a><ul>
+<li><a class="reference internal" href="#workflow-models">Workflow Models</a></li>
+<li><a class="reference internal" href="#workflow-model-properties">Workflow model properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a></li>
+<li><a class="reference internal" href="#handler-file">Handler file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
 
             </div>

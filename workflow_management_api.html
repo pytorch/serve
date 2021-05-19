@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe model snapshot &mdash; PyTorch/Serve master documentation</title>
+  <title>Management API &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -218,7 +218,13 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
+<li><a class="reference internal" href="#">Management API</a><ul>
+<li><a class="reference internal" href="#register-a-workflow">Register a workflow</a></li>
+<li><a class="reference internal" href="#describe-workflow">Describe workflow</a></li>
+<li><a class="reference internal" href="#unregister-a-workflow">Unregister a workflow</a></li>
+<li><a class="reference internal" href="#list-workflows">List workflows</a></li>
+</ul>
+</li>
 </ul>
 </div>
             
@@ -259,13 +265,13 @@
       </li>
 
         
-      <li>TorchServe model snapshot</li>
+      <li>Management API</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/snapshot.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/workflow_management_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -291,35 +297,98 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-model-snapshot">
-<h1>TorchServe model snapshot<a class="headerlink" href="#torchserve-model-snapshot" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.</p>
-<p>A TorchServe’s snapshot consists of following:</p>
-<ul class="simple">
-<li><p>Server configuration, which comprises: Which models are running, which versions of those models, and how many workers are active for each model.</p></li>
-<li><p>Default server configuration used while starting TorchServe the first time.</p></li>
-</ul>
-<p>The snapshot is taken at following instances -</p>
-<ul class="simple">
-<li><p>After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<yyyyMMddHHmmssSSS>-startup.cfg</p></li>
-<li><p>If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-snapshot.cfg</p></li>
-<li><p>When the server is shut down intentionally with <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--stop</span></code>, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-shutdown.cfg</p></li>
-</ul>
-<p>User can use snapshots to restore the TorchServe’s state as follows :</p>
-<ul class="simple">
-<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag while starting TorchServe, last snapshot in ./logs/configs is used for startup.</p></li>
-<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag and no snapshots are available, TorchServe starts with default configurations.</p></li>
-<li><p>The user restarts the server specifying this config file: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--ts-config</span> <span class="pre">&lt;known</span> <span class="pre">good</span> <span class="pre">config</span> <span class="pre">snapshot&gt;</span></code></p></li>
-</ul>
-<p>If the user wishes to start without this resiliency feature, the user can start the server with :</p>
-<p><code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--no-config-snapshots</span></code></p>
-<p>This prevents to server from storing config snapshot files.</p>
-<p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in  <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory</p>
-<p><strong>Note</strong> :</p>
+  <div class="section" id="management-api">
+<h1>Management API<a class="headerlink" href="#management-api" title="Permalink to this headline">¶</a></h1>
+<p>TorchServe provides the following APIs that allows you to manage models at runtime:</p>
 <ol class="simple">
-<li><p>Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p></li>
-<li><p>For windows, if shutdown snapshot file is not generated then you can use last snapshot file.</p></li>
+<li><p><a class="reference external" href="#register-a-workflow">Register a workflow</a></p></li>
+<li><p><a class="reference external" href="#describe-workflow">Describe a workflow’s status</a></p></li>
+<li><p><a class="reference external" href="#unregister-a-workflow">Unregister a workflow</a></p></li>
+<li><p><a class="reference external" href="#list-workflows">List registered workflows</a></p></li>
 </ol>
+<p>The Workflow Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
+<div class="section" id="register-a-workflow">
+<h2>Register a workflow<a class="headerlink" href="#register-a-workflow" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/workflows</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">url</span></code> - Workflow archive download url. Supports the following locations:</p>
+<ul>
+<li><p>a local workflow archive (.war); the file must be in the <code class="docutils literal notranslate"><span class="pre">workflow_store</span></code> folder (and not in a subfolder).</p></li>
+<li><p>a URI using the HTTP(s) protocol. TorchServe can download .war files from the Internet.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">workflow_name</span></code> - the name of the workflow; this name will be used as {workflow_name} in other APIs as part of the path. If this parameter is not present, <code class="docutils literal notranslate"><span class="pre">modelName</span></code> in MANIFEST.json will be used.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST  <span class="s2">&quot;http://localhost:8081/workflows?url=https://&lt;public_url&gt;/myworkflow.mar&quot;</span>
+
+<span class="o">{</span>
+  <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;Workflow myworkflow has been registered and scaled successfully.&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>The workflow registration API parses the workflow specification file (.yaml) supplied in the workflow archive(.war) and registers all the models specified in the DAG with TorchServe using the provided configuration in the specification.</p>
+</div>
+<div class="section" id="describe-workflow">
+<h2>Describe workflow<a class="headerlink" href="#describe-workflow" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
+<p>Use the Describe Wofkflow API to get detail of a workflow:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/workflows/myworkflow
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">&quot;workflowName&quot;</span>: <span class="s2">&quot;myworkflow&quot;</span>,
+    <span class="s2">&quot;workflowUrl&quot;</span>: <span class="s2">&quot;myworkflow.war&quot;</span>,
+    <span class="s2">&quot;minWorkers&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;maxWorkers&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;batchSize&quot;</span>: <span class="m">8</span>,
+    <span class="s2">&quot;maxBatchDelay&quot;</span>: <span class="m">5000</span>,
+    <span class="s2">&quot;workflowDag&quot;</span>: <span class="s2">&quot;{preprocessing=[m1], m1=[postprocessing]}&quot;</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="unregister-a-workflow">
+<h2>Unregister a workflow<a class="headerlink" href="#unregister-a-workflow" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
+<p>Use the Unregister Workflow API to free up system resources by unregistering a workflow from TorchServe:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X DELETE http://localhost:8081/workflows/myworkflow
+
+<span class="o">{</span>
+  <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;Workflow \&quot;myworkflow\&quot; unregistered&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-workflows">
+<h2>List workflows<a class="headerlink" href="#list-workflows" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">limit</span></code> - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">next_page_token</span></code> - (optional) queries for next page. It is passed as a query parameter. This value is return by a previous API call.</p></li>
+</ul>
+<p>Use the  list Workflows API to query currently registered workflows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl <span class="s2">&quot;http://localhost:8081/workflows&quot;</span>
+</pre></div>
+</div>
+<p>This API supports pagination:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl <span class="s2">&quot;http://localhost:8081/workflows?limit=2&amp;next_page_token=2&quot;</span>
+
+<span class="o">{</span>
+  <span class="s2">&quot;nextPageToken&quot;</span>: <span class="s2">&quot;4&quot;</span>,
+  <span class="s2">&quot;workflows&quot;</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">&quot;workflowName&quot;</span>: <span class="s2">&quot;myworkflow1&quot;</span>,
+      <span class="s2">&quot;workflowUrl&quot;</span>: <span class="s2">&quot;myworkflow1.war&quot;</span>
+    <span class="o">}</span>,
+    <span class="o">{</span>
+      <span class="s2">&quot;workflowName&quot;</span>: <span class="s2">&quot;myworkflow2&quot;</span>,
+      <span class="s2">&quot;workflowUrl&quot;</span>: <span class="s2">&quot;myworkflow2.war&quot;</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -356,7 +425,13 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
+<li><a class="reference internal" href="#">Management API</a><ul>
+<li><a class="reference internal" href="#register-a-workflow">Register a workflow</a></li>
+<li><a class="reference internal" href="#describe-workflow">Describe workflow</a></li>
+<li><a class="reference internal" href="#unregister-a-workflow">Unregister a workflow</a></li>
+<li><a class="reference internal" href="#list-workflows">List workflows</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

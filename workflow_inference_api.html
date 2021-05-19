@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe model snapshot &mdash; PyTorch/Serve master documentation</title>
+  <title>Workflow Inference API &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -218,7 +218,13 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
+<li><a class="reference internal" href="#">Workflow Inference API</a><ul>
+<li><a class="reference internal" href="#predictions-api">Predictions API</a><ul>
+<li><a class="reference internal" href="#curl-example">curl Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
             
@@ -259,13 +265,13 @@
       </li>
 
         
-      <li>TorchServe model snapshot</li>
+      <li>Workflow Inference API</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/snapshot.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/workflow_inference_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -291,35 +297,33 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-model-snapshot">
-<h1>TorchServe model snapshot<a class="headerlink" href="#torchserve-model-snapshot" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.</p>
-<p>A TorchServe’s snapshot consists of following:</p>
+  <div class="section" id="workflow-inference-api">
+<h1>Workflow Inference API<a class="headerlink" href="#workflow-inference-api" title="Permalink to this headline">¶</a></h1>
+<p>Workflow Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
+<p>The TorchServe server supports the following APIs:</p>
 <ul class="simple">
-<li><p>Server configuration, which comprises: Which models are running, which versions of those models, and how many workers are active for each model.</p></li>
-<li><p>Default server configuration used while starting TorchServe the first time.</p></li>
+<li><p><a class="reference external" href="#predictions-api">Predictions API</a> - Gets predictions from the served model</p></li>
 </ul>
-<p>The snapshot is taken at following instances -</p>
+<div class="section" id="predictions-api">
+<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
+<p>To get predictions from a workflow, make a REST call to <code class="docutils literal notranslate"><span class="pre">/wfpredict/{workflow_name}</span></code>:</p>
 <ul class="simple">
-<li><p>After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<yyyyMMddHHmmssSSS>-startup.cfg</p></li>
-<li><p>If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-snapshot.cfg</p></li>
-<li><p>When the server is shut down intentionally with <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--stop</span></code>, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-shutdown.cfg</p></li>
+<li><p>POST /wfpredict/{workflow_name}</p></li>
 </ul>
-<p>User can use snapshots to restore the TorchServe’s state as follows :</p>
-<ul class="simple">
-<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag while starting TorchServe, last snapshot in ./logs/configs is used for startup.</p></li>
-<li><p>If no config file is supplied with <code class="docutils literal notranslate"><span class="pre">--ts-config-file</span></code> flag and no snapshots are available, TorchServe starts with default configurations.</p></li>
-<li><p>The user restarts the server specifying this config file: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--ts-config</span> <span class="pre">&lt;known</span> <span class="pre">good</span> <span class="pre">config</span> <span class="pre">snapshot&gt;</span></code></p></li>
-</ul>
-<p>If the user wishes to start without this resiliency feature, the user can start the server with :</p>
-<p><code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;model</span> <span class="pre">store&gt;</span> <span class="pre">--no-config-snapshots</span></code></p>
-<p>This prevents to server from storing config snapshot files.</p>
-<p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in  <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory</p>
-<p><strong>Note</strong> :</p>
-<ol class="simple">
-<li><p>Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p></li>
-<li><p>For windows, if shutdown snapshot file is not generated then you can use last snapshot file.</p></li>
-</ol>
+<div class="section" id="curl-example">
+<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+
+curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
+
+or:
+
+curl http://localhost:8080/wfpredict/myworkflow -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
+</pre></div>
+</div>
+<p>The result is JSON object returning the response bytes from the leaf node of the workflow DAG</p>
+</div>
+</div>
 </div>
 
 
@@ -356,7 +360,13 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe model snapshot</a></li>
+<li><a class="reference internal" href="#">Workflow Inference API</a><ul>
+<li><a class="reference internal" href="#predictions-api">Predictions API</a><ul>
+<li><a class="reference internal" href="#curl-example">curl Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             </div>

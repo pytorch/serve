@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -351,6 +351,7 @@ usage: torchserve <span class="o">[</span>-h<span class="o">]</span> <span class
                           <span class="o">[</span>--stop<span class="o">]</span>
                           <span class="o">[</span>--ts-config TS_CONFIG<span class="o">]</span>
                           <span class="o">[</span>--model-store MODEL_STORE<span class="o">]</span>
+                          <span class="o">[</span>--workflow-store WORKFLOW_STORE<span class="o">]</span>
                           <span class="o">[</span>--models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]]</span>
                           <span class="o">[</span>--log-config LOG_CONFIG<span class="o">]</span>
 
@@ -359,6 +360,8 @@ torchserve
 mandatory arguments:
   --model-store MODEL_STORE
                         Model store location where models can be loaded
+
+  
 
 optional arguments:
   -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
@@ -377,6 +380,8 @@ optional arguments:
                         Log4j configuration file <span class="k">for</span> TorchServe
   --ncs, --no-config-snapshots         
                         Disable snapshot feature
+  --workflow-store WORKFLOW_STORE
+                        Workflow store location where workflow can be loaded. Defaults to model-store
 </pre></div>
 </div>
 <div class="section" id="arguments">
@@ -399,7 +404,8 @@ http link: http://hostname/path/to/resource</p>
 <p>d) Multiple models loading are also supported by specifying multiple name path pairs.</p>
 <p>e) For details on different ways to load models while starting TorchServe, refer <a class="reference external" href="#serving-multiple-models-with-torchserve">Serving Multiple Models with TorchServe</a></p>
 </li>
-<li><p><strong>model-store</strong>: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via <a class="reference external" href="management_api.md#register-a-model">register api call</a> or via models parameter while starting TorchServe.</p></li>
+<li><p><strong>model-store</strong>: mandatory, A location where default or local models are stored. The models available in model store can be registered in TorchServe via <a class="reference external" href="management_api.md#register-a-model">register api call</a> or via models parameter while starting TorchServe.</p></li>
+<li><p><strong>workflow-store</strong>: mandatory, A location where default or local workflows are stored. The workflows available in workflow store can be registered in TorchServe via <a class="reference external" href="workflow_management_api.md#register-a-workflow">register api call</a>.</p></li>
 <li><p><strong>ts-config</strong>: optional, provide a <a class="reference internal" href="configuration.html"><span class="doc">configuration</span></a> file in config.properties format.</p></li>
 <li><p><strong>log-config</strong>: optional, This parameter will override default log4j.properties, present within the server.</p></li>
 <li><p><strong>start</strong>: optional, A more descriptive way to start the server.</p></li>
@@ -509,8 +515,8 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="_static/katex_autorenderer.js"></script>
      
 
