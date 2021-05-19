@@ -10,5 +10,13 @@ dist/
 .github/.DS_Store
 .DS_Store
 frontend/server/src/main/java/org/pytorch/serve/grpc/
+
+# Postman files
+test/artifacts/
+test/logs/
+test/model_store/
+test/ts_console.log
+test/config.properties
+
 .vscode
 .scratch/
