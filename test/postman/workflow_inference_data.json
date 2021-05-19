@@ -30,33 +30,6 @@
         "tolerance":5
     },
     {
-        "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/nmt_wf_dual.war",
-        "workflow_name":"nmt_wf_dual",
-        "file":"../examples/Workflows/nmt_tranformers_pipeline/model_input/sample.txt",
-        "content-type":"application/json",
-        "validator":"default_json",
-        "synchronous":"true",
-        "expected":{
-            "english_input": "Hi James, when are you coming back home? I am waiting for you.\nPlease come as soon as possible.",
-            "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
-            "french_translation": "Bonjour James, quand rentrerez-vous chez vous, je vous attends et je vous prie de venir le plus t\u00f4t possible."
-        },
-        "tolerance":5
-    },
-    {
-        "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/nmt_wf_re.war",
-        "workflow_name":"nmt_wf_re",
-        "file":"../examples/Workflows/nmt_tranformers_pipeline/model_input/sample.txt",
-        "content-type":"application/json",
-        "validator":"default_json",
-        "synchronous":"true",
-        "expected":{
-            "german_translation": "Hallo James, wann kommst du nach Hause? Ich warte auf dich. Bitte komm so bald wie m\u00f6glich.",
-            "english_re_translation": "Hi James, when are you coming home? I am waiting for you. Please come as soon as possible."
-        },
-        "tolerance":5
-    },
-    {
         "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/dog_breed_wf.war",
         "workflow_name":"dog_breed_wf",
         "file":"../examples/Workflows/dog_breed_classification/model_input/Dog2.jpg",
