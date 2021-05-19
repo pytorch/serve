@@ -44,10 +44,10 @@ class BaseHandler(abc.ABC):
 
         """
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") else "cpu"
+        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu"
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id")
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else self.map_location
         )
         self.manifest = context.manifest

@@ -25,7 +25,7 @@ class LanguageTranslationHandler(BaseHandler):
 
         self.device = torch.device(
             "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id")
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else "cpu")
 
         #read configs for the model_name, bpe etc. from setup_config.json
@@ -63,7 +63,7 @@ class LanguageTranslationHandler(BaseHandler):
         logger.info("Model translated: %s", translation)
         for i in range(0, len(data)):
             output = {
-                "english_input": data[i],
+                "input": data[i],
                 self.setup_config["translated_output"]: translation[i]
             }
             inference_output.append(json.dumps(output))

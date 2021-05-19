@@ -1,0 +1,18 @@
+models:
+    min-workers: 1
+    max-workers: 1
+    batch-size: 4
+    max-batch-delay: 100
+    retry-attempts: 5
+    timeout-ms: 300000
+
+    nmt_en_de:
+      url: TransformerEn2De.mar
+
+    nmt_en_fr:
+      url: TransformerEn2Fr.mar
+
+dag:
+  pre_processing: [nmt_en_de, nmt_en_fr]
+  nmt_en_de: [aggregate_func]
+  nmt_en_fr: [aggregate_func]

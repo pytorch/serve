@@ -15,6 +15,7 @@ def getAPIS(snapshot_file):
     with open(snapshot_file, "r") as fp:
         lines = fp.readlines()
     for line in lines:
+        line = line.rstrip('\n')
         if "management_address" in line:
             MANAGEMENT_API = line.split("=")[1]
         if "inference_address" in line:

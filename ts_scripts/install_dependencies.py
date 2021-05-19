@@ -10,7 +10,6 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_python_version
 
-
 class Common():
     def __init__(self):
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
@@ -74,7 +73,7 @@ class Windows(Common):
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
-    
+
     def install_java(self):
         pass
 
