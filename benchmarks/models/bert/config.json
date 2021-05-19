@@ -1,0 +1,12 @@
+{
+        "url":"https://s3-us-west-2.amazonaws.com/mar-files-ts0.4/BERTSeqClassification_Torchscript_gpu.mar",
+        "requests": 1000,
+        "concurrency": 10,
+        "batch_size": 8,
+        "batch_delay":100,
+        "workers": 4,
+        "gpus": "1",
+        "input": "models/examples/sample_text.txt",
+        "exec_env": "docker",
+        "image":"torchserve-gpu:0.4.0"
+}

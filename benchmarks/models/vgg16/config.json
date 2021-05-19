@@ -1,0 +1,12 @@
+{
+        "url": "https://torchserve.pytorch.org/mar_files/vgg16.mar",
+        "requests": 1000,
+        "concurrency": 10,
+        "batch_size": 4,
+        "batch_delay":100,
+        "workers": 4,
+	"gpus": "all",
+        "input": "models/examples/kitten.jpg",
+        "exec_env": "docker",
+        "image":"torchserve-gpu:0.4.0"
+}
