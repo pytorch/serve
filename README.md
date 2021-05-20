@@ -221,7 +221,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 ## Highlighted Examples
 * [HuggingFace Transformers](examples/Huggingface_Transformers)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
-* Complex workflows with models to create a dependency graph of models
+* Complex workflows, models chained together in a dependency graph
   - [Dog Breed Classification](examples/Workflows/dog_breed_classification)
   - [Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline)
 
