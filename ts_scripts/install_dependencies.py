@@ -72,7 +72,7 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
     def install_wget(self):
-        os.system(f"{self.sudo_cmd}apt install wget")
+        os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
 class Windows(Common):
     def __init__(self):
