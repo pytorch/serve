@@ -9,7 +9,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ### Terminology:
 * **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients and manages the lifecycles of the models.
-* **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
+* **Model Workers**: These workers are responsible for running the actual inference on the models.
 * **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
 * **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
 * **Model Store**: This is a directory in which all the loadable models exist.
@@ -37,29 +37,11 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
         ```bash
         python ./ts_scripts/install_dependencies.py
         ```
-
-     - For GPU with Cuda 11.1
-
-       ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu111
-       ```
-
-     - For GPU with Cuda 10.2
+        
+     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`
 
        ```bash
        python ./ts_scripts/install_dependencies.py --cuda=cu102
-       ```
-
-     - For GPU with Cuda 10.1
-
-       ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu101
-       ```
-
-     - For GPU with Cuda 9.2
-
-       ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu92
        ```
 
     #### For Windows
@@ -85,7 +67,7 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 
 If you plan to develop with TorchServe and change some source code, you must install it from source code.
 
-Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
+Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
 Run the following script from the top of the source directory.
 
@@ -136,7 +118,7 @@ You can also create model stores to store your archived models.
     wget https://download.pytorch.org/models/densenet161-8d451a50.pth
     ```
 
-1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
+1. Archive the model by using the model archiver. The `extra-files` param uses a file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
     torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
@@ -182,23 +164,21 @@ python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_cla
 
 #### Using REST APIs
 
-Complete the following steps:
-
-* Open a new terminal window (other than the one running TorchServe).
-* Use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images)
-  and use the  `-o` flag to name it `kitten.jpg` for you.
-* Use `curl` to send `POST` to the TorchServe `predict` endpoint with the kitten's image.
+As an example we'll download the below cute kitten with
 
 ![kitten](docs/images/kitten_small.jpg)
 
-The following code completes all three steps:
-
 ```bash
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+```
+
+And then call the prediction endpoint 
+
+```bash
 curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
-The predict endpoint returns a prediction response in JSON. It will look something like the following result:
+Which will return the following JSON object
 
 ```json
 [
@@ -220,20 +200,17 @@ The predict endpoint returns a prediction response in JSON. It will look somethi
 ]
 ```
 
-You will see this result in the response to your `curl` call to the predict endpoint, and in the server logs in the terminal window running TorchServe. It's also being [logged locally with metrics](docs/metrics.md).
+All interactions with the endpoint will be logged in the `logs/` directory, so make sure to check it out!
 
 Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
 
-### Stop the running TorchServe
+### Stop TorchServe
 
-To stop the currently running TorchServe instance, run the following command:
+To stop the currently running TorchServe instance, run:
 
 ```bash
 torchserve --stop
 ```
-
-You see output specifying that TorchServe has stopped.
-
 
 ### Concurrency And Number of Workers
 TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
@@ -243,9 +220,21 @@ If TorchServe is hosted on a machine with GPUs, there is a config property calle
 ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 ```
 
-
 ## Quick Start with Docker
 Refer to [torchserve docker](docker/README.md) for details.
+
+## Highlighted Examples
+* [HuggingFace Transformers](examples/Huggingface_Transformers)
+* [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
+* Complex workflows, models chained together in a dependency graph
+  - [Dog Breed Classification](examples/Workflows/dog_breed_classification)
+  - [Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline)
+
+Feel free to skim the full list of [available examples](examples/README.md)
+
+## Featured Community Projects
+* [SynthDet by Unity Technologies](https://github.com/Unity-Technologies/SynthDet)
+* [Torchserve dashboard by cceyda](https://github.com/cceyda/torchserve-dashboard)
 
 ## Learn More
 
