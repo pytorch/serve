@@ -141,7 +141,7 @@ def get_brew_version():
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu110'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 
