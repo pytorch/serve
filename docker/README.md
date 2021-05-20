@@ -33,7 +33,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserv default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu110`. Default `cu110`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`. Default `cu102`|
 
 **PRODUCTION ENVIRONMENT IMAGES**
 
@@ -45,10 +45,16 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - For creating GPU based image with cuda version 11.0:
+ - For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -g -cv cu110
+./build_image.sh -g -cv cu111
+```
+
+ - For creating GPU based image with cuda version 10.2:
+
+```bash
+./build_image.sh -g -cv cu102
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -86,10 +92,10 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ```
 
 
-- For creating GPU based image with cuda version 11.0:
+- For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -bt dev -g -cv cu110
+./build_image.sh -bt dev -g -cv cu111
 ```
 
 - For creating GPU based image with cuda version 10.2:
@@ -113,7 +119,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 - For creating GPU based image with a different branch:
 
 ```bash
-./build_image.sh -bt dev -g -cv cu110 -b my_branch
+./build_image.sh -bt dev -g -cv cu111 -b my_branch
 ```
 
  - For creating image with a custom tag:
@@ -132,10 +138,10 @@ Creates a docker image for codebuild environment
 ./build_image.sh -bt codebuild
 ```
 
-- For creating GPU based image with cuda version 11.0:
+- For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -bt codebuild -g -cv cu110
+./build_image.sh -bt codebuild -g -cv cu111
 ```
 
  - For creating GPU based image with cuda version 10.1:
