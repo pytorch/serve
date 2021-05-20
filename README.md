@@ -37,7 +37,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
         ```bash
         python ./ts_scripts/install_dependencies.py
         ```
-
+        
      - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`
 
        ```bash
