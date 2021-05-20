@@ -52,6 +52,9 @@ class Common():
     def install_jmeter(self):
         pass
 
+    def install_wget(self):
+        pass
+
 
 class Linux(Common):
     def __init__(self):
@@ -68,6 +71,8 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
+    def install_wget(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
 class Windows(Common):
     def __init__(self):
@@ -80,6 +85,8 @@ class Windows(Common):
     def install_nodejs(self):
         pass
 
+    def install_wget(self):
+        pass
 
 class Darwin(Common):
     def __init__(self):
@@ -104,6 +111,9 @@ class Darwin(Common):
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
+    def install_wget(self):
+        os.system("brew install wget")
+
 
 def install_dependencies(cuda_version=None):
     os_map = {
@@ -121,6 +131,7 @@ def install_dependencies(cuda_version=None):
     if args.environment == "dev":
         system.install_nodejs()
         system.install_node_packages()
+        system.install_wget()
 
 def get_brew_version():
     """Returns `brew --version` output. """
