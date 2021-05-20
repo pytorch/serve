@@ -7,6 +7,7 @@
 * [Serving object detection model](#serving-object-detection-model)
 * [Serving image segmentation model](#serving-image-segmentation-model)
 * [Serving huggingface transformers model](#serving-huggingface-transformers)
+* [Serving machine translation model](#serving-neural-machine-translation)
 * [Serving waveglow text to speech synthesizer model](#serving-wavegolw-text-to-speech-synthesizer)
 * [Serving multi modal framework model](#Serving-Multi-modal-model)
 * [Serving Image Classification Workflow](#serving-image-classification-workflow)
@@ -84,6 +85,12 @@ The following example demonstrates how to create and serve a pretrained transfor
 
 * [Hugging Face Transformers](Huggingface_Transformers)
 
+## Serving Neural Machine Translation
+
+The following example demonstrates how to create and serve a neural translation model using fairseq
+
+* [Neural machine translation ](examples/nmt_transformer)
+
 ## Serving Wavegolw text to speech synthesizer
 
 The following example demonstrates how to create and serve the waveglow text to speech synthesizer
@@ -94,16 +101,16 @@ The following example demonstrates how to create and serve the waveglow text to 
 
 The following example demonstrates how to create and serve a multi modal model including audio, text and video
 
-* [Multi modal Framework](MMF-activity-recognition)
+* [Multi modal framework](MMF-activity-recognition)
 
 ## Serving Image Classification Workflow
 
 The following example demonstrates how to create and serve a complex image classification workflow for dog breed classification
 
-* [Image Classification Workflow](Workflows/dog_breed_classification)
+* [Image classification workflow](Workflows/dog_breed_classification)
 
 ## Serving Neural Machine Translation Workflow
 
 The following example demonstrates how to create and serve a complex neural machine translation workflow
 
-* [Neural Machine Translation Workflow](Workflows/nmt_tranformers_pipeline)
+* [Neural machine Translation workflow](Workflows/nmt_tranformers_pipeline)
