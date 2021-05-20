@@ -38,10 +38,10 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
         python ./ts_scripts/install_dependencies.py
         ```
 
-     - For GPU with Cuda 11.0. Options are `cu92`, `cu101`, `cu102`, `cu110`
+     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`
 
        ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu110
+       python ./ts_scripts/install_dependencies.py --cuda=cu102
        ```
 
     #### For Windows
@@ -80,7 +80,7 @@ python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
 
-Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu110`, `cu102`, `cu101`, `cu92`
+Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
 
 #### For Windows
 
@@ -224,6 +224,8 @@ Refer to [torchserve docker](docker/README.md) for details.
 * Complex workflows, models chained together in a dependency graph
   - [Dog Breed Classification](examples/Workflows/dog_breed_classification)
   - [Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline)
+
+Feel free to skim the full list of [available examples](examples/README.md)
 
 ## Featured Community Projects
 * [SynthDet by Unity Technologies](https://github.com/Unity-Technologies/SynthDet)
