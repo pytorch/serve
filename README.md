@@ -225,6 +225,9 @@ Refer to [torchserve docker](docker/README.md) for details.
   - [Dog Breed Classification](examples/Workflows/dog_breed_classification)
   - [Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline)
 
+## Featured Community Projects
+* [SynthDet by Unity Technologies](https://github.com/Unity-Technologies/SynthDet)
+* [Torchserve dashboard by cceyda](https://github.com/cceyda/torchserve-dashboard)
 
 ## Learn More
 
