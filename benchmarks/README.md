@@ -316,7 +316,7 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample latency graph
 ![](predict_latency.png)
 
-# Benchmarking-apache-bench-aws
+# Benchmarking Apache Bench AWS
 If you're making a large change to TorchServe it's best to run an [automated benchmarking suite on AWS](https://github.com/pytorch/serve/tree/master/test/benchmark) so that you can test multiple CUDA versions and EC2 hardware configurations easily.
 
 # Profiling
