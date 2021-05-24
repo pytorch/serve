@@ -48,17 +48,17 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
     Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
-2. Install torchserve and torch-model-archiver
+2. Install torchserve, torch-model-archiver and torch-workflow-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
     Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
     ```
-    conda install torchserve torch-model-archiver -c pytorch
+    conda install torchserve torch-model-archiver torch-workflow-archiver -c pytorch
     ```
    
     For Pip
     ```
-    pip install torchserve torch-model-archiver
+    pip install torchserve torch-model-archiver torch-workflow-archiver
     ```
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
@@ -71,7 +71,7 @@ Ensure that you have `python3` installed, and the user has access to the site-pa
 
 Run the following script from the top of the source directory.
 
-NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
+NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
 
 #### For Debian Based Systems/ MacOS
 
