@@ -241,9 +241,12 @@ Feel free to skim the full list of [available examples](examples/README.md)
 ## Learn More
 
 * [Full documentation on TorchServe](docs/README.md)
-* [Manage models API](docs/management_api.md)
+* [Model Management API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
+* [Metrics API](docs/metrics.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [Deploying TorchServe with Kubernetes](kubernetes/README.md)
+* [TorchServe Workflows](examples/Workflows/README.md)
 * [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing
