@@ -21,10 +21,11 @@ If you are interested in contributing to TorchServe, your contributions will fal
            ```
             > Supported cuda versions as cu111, cu102, cu101, cu92
        
-        - Execute sanity suite
+        - Run sanity suite
           ```bash
-          python ./torchserve_sanity.py
+          python torchserve_sanity.py
           ```
+    - Run Regression test `python test/regression_tests.py`
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
