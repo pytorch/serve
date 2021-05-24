@@ -305,7 +305,7 @@ Note: These pre-defined parameters in test plan can be overwritten by cmd line a
 The reports are generated at location "/tmp/benchmark/"
 - CSV report: /tmp/benchmark/ab_report.csv
 - latency graph: /tmp/benchmark/predict_latency.png
-- torhcserve logs: /tmp/benchmark/logs/model_metrics.log
+- torchserve logs: /tmp/benchmark/logs/model_metrics.log
 - raw ab output: /tmp/benchmark/result.txt
 
 ### Sample output CSV
