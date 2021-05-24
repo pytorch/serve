@@ -32,8 +32,10 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-b, --branch_name|Specify a branch name to use. Default: master |
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
-|-t, --tag|Tag name for image. If not specified, script uses torchserv default tag names.|
+|-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`. Default `cu102`|
+|--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
+
 
 **PRODUCTION ENVIRONMENT IMAGES**
 
