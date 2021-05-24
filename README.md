@@ -214,6 +214,11 @@ To stop the currently running TorchServe instance, run:
 torchserve --stop
 ```
 
+### Inspect the logs
+All the logs you've seen outputed to stdout related to model registration, management, inference are recorded in the `/logs` folder.
+
+High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](benchmark/README.md) and visualized in a report.
+
 ### Concurrency And Number of Workers
 TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 *Note: the following property has bigger impact under heavy workloads.*
