@@ -87,6 +87,7 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -175,6 +176,11 @@ public final class ConfigManager {
         String modelStore = args.getModelStore();
         if (modelStore != null) {
             prop.setProperty(TS_MODEL_STORE, modelStore);
+        }
+
+        String workflowStore = args.getWorkflowStore();
+        if (workflowStore != null) {
+            prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
         }
 
         String[] models = args.getModels();
@@ -400,6 +406,10 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
+    public String getWorkflowStore() {
+        return getCanonicalPath(prop.getProperty(TS_WORKFLOW_STORE));
+    }
+
     public String getModelSnapshot() {
         return prop.getProperty(MODEL_SNAPSHOT, null);
     }
@@ -595,7 +605,9 @@ public final class ConfigManager {
                 + "\nMetrics report format: "
                 + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
-                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nWorkflow Store: "
+                + (getWorkflowStore() == null ? "N/A" : getWorkflowStore());
     }
 
     public boolean useNativeIo() {
@@ -748,11 +760,11 @@ public final class ConfigManager {
         return "https".equalsIgnoreCase(protocol);
     }
 
-    public int getIniitialWorkerPort() {
+    public int getInitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
     }
 
-    public void setIniitialWorkerPort(int initialPort) {
+    public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
@@ -763,6 +775,7 @@ public final class ConfigManager {
         private String modelStore;
         private String[] models;
         private boolean snapshotDisabled;
+        private String workflowStore;
 
         public Arguments() {}
 
@@ -772,6 +785,7 @@ public final class ConfigManager {
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
+            workflowStore = cmd.getOptionValue("workflow-store");
         }
 
         public static Options getOptions() {
@@ -810,6 +824,13 @@ public final class ConfigManager {
                             .argName("NO-CONFIG-SNAPSHOT")
                             .desc("disable torchserve snapshot")
                             .build());
+            options.addOption(
+                    Option.builder("w")
+                            .longOpt("workflow-store")
+                            .hasArg()
+                            .argName("WORKFLOW-STORE")
+                            .desc("Workflow store location where workflow can be loaded.")
+                            .build());
             return options;
         }
 
@@ -827,6 +848,10 @@ public final class ConfigManager {
 
         public String getModelStore() {
             return modelStore;
+        }
+
+        public String getWorkflowStore() {
+            return workflowStore;
         }
 
         public void setModelStore(String modelStore) {

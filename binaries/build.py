@@ -33,7 +33,7 @@ def build():
     # Build TS & MA on Conda if available
     conda_build_exit_code = 0
     if is_conda_env():
-        conda_build_exit_code = conda_build(ts_wheel_path, ma_wheel_path)
+        conda_build_exit_code = conda_build()
 
     # If any one of the steps fail, exit with error
     if ts_build_exit_code != 0:

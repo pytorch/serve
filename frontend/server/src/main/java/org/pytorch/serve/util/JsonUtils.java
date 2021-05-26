@@ -8,12 +8,14 @@ public final class JsonUtils {
     public static final Gson GSON_PRETTY =
             new GsonBuilder()
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .disableHtmlEscaping()
                     .setPrettyPrinting()
                     .create();
 
     public static final Gson GSON_PRETTY_EXPOSED =
             new GsonBuilder()
                     .excludeFieldsWithoutExposeAnnotation()
+                    .disableHtmlEscaping()
                     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                     .setPrettyPrinting()
                     .create();

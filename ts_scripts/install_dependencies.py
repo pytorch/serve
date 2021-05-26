@@ -10,7 +10,6 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_python_version
 
-
 class Common():
     def __init__(self):
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
@@ -53,6 +52,9 @@ class Common():
     def install_jmeter(self):
         pass
 
+    def install_wget(self):
+        pass
+
 
 class Linux(Common):
     def __init__(self):
@@ -69,18 +71,22 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
+    def install_wget(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
 class Windows(Common):
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
-    
+
     def install_java(self):
         pass
 
     def install_nodejs(self):
         pass
 
+    def install_wget(self):
+        pass
 
 class Darwin(Common):
     def __init__(self):
@@ -105,6 +111,9 @@ class Darwin(Common):
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
+    def install_wget(self):
+        os.system("brew install wget")
+
 
 def install_dependencies(cuda_version=None):
     os_map = {
@@ -122,6 +131,7 @@ def install_dependencies(cuda_version=None):
     if args.environment == "dev":
         system.install_nodejs()
         system.install_node_packages()
+        system.install_wget()
 
 def get_brew_version():
     """Returns `brew --version` output. """
@@ -131,7 +141,7 @@ def get_brew_version():
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu110'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 

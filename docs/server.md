@@ -45,6 +45,7 @@ usage: torchserve [-h] [-v | --version]
                           [--stop]
                           [--ts-config TS_CONFIG]
                           [--model-store MODEL_STORE]
+                          [--workflow-store WORKFLOW_STORE]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
@@ -53,6 +54,8 @@ torchserve
 mandatory arguments:
   --model-store MODEL_STORE
                         Model store location where models can be loaded
+
+  
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -71,6 +74,8 @@ optional arguments:
                         Log4j configuration file for TorchServe
   --ncs, --no-config-snapshots         
                         Disable snapshot feature
+  --workflow-store WORKFLOW_STORE
+                        Workflow store location where workflow can be loaded. Defaults to model-store
 ```
 
 #### Arguments:
@@ -102,7 +107,8 @@ There are no default required arguments to start the server
 
     e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
 
-1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
+1. **model-store**: mandatory, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
+1. **workflow-store**: mandatory, A location where default or local workflows are stored. The workflows available in workflow store can be registered in TorchServe via [register api call](workflow_management_api.md#register-a-workflow).
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
 1. **start**: optional, A more descriptive way to start the server.

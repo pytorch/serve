@@ -264,7 +264,7 @@ class YamlHandler(object):
             if processor == "gpu":
                 assert (
                     "cuda_version" in docker_config_list
-                ), f"cuda_version missing under processor 'gpu'. cuda_version must be of format cuXYZ e.g.cu102, cu110 etc."
+                ), f"cuda_version missing under processor 'gpu'. cuda_version must be of format cuXYZ e.g.cu102, cu111 etc."
 
         invalid_processor_keys = set(processor_list).difference(YamlHandler.valid_docker_processors)
         assert (
