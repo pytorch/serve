@@ -223,7 +223,7 @@ This command will run Torchserve inside a docker container with 4 GPUs and perfo
 ### Run benchmark using a config file
 The config parameters can be provided using cmd line args and a config json file as well.
 This command will use all the configuration parameters given in config.json file.
-`python benchmark-ab.py --config config.json`
+`python benchmark-ab.py --config config.json`. The other parameters like config.properties, inference_model_url can also be added in the config.json.
 
 ### Sample config file
 ```json
@@ -253,7 +253,42 @@ The following parameters can be used to run the AB benchmark suite.
 - ts: Use Already running Torchserve instance. Default: False
 - gpus: Number of gpus to run docker container with. By default it runs the docker container on CPU.
 - backend_profiling: Enable backend profiling using CProfile. Default: False
+- config_properties: Path to config.properties file. Default: config.properties in the benchmark directory
+- inference_model_url: Inference function url - can be either for predictions or explanations. Default: predictions/benchmark.
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
+
+
+### Examples
+
+* TORCHSERVE SERVING PREDICTIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
+```
+
+* TORCHSERVE SERVING EXPLANATIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url explanations/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
+```
+
+* KUBEFLOW SERVING PREDICTIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:predict --input ../kubernetes/kfserving/kf_request_json/mnist.json
+```
+
+* KUBEFLOW SERVING EXPLANATIONS
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:explain --input ../kubernetes/kfserving/kf_request_json/mnist.json
+```
+
+* TORCHSERVE SERVING PREDICTIONS WITH DOCKER
+
+```
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png --exec_env docker 
+```
 
 ### Test plans
 Benchmark supports pre-defined, pre-configured params that can be selected based on the use case.

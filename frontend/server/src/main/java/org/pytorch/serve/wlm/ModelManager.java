@@ -1,6 +1,7 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
@@ -15,11 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.pytorch.serve.archive.Manifest;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.job.Job;
@@ -61,7 +63,7 @@ public final class ModelManager {
     }
 
     public ModelArchive registerModel(String url, String defaultModelName)
-            throws ModelException, IOException, InterruptedException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
         return registerModel(
                 url,
                 null,
@@ -70,16 +72,19 @@ public final class ModelManager {
                 1,
                 100,
                 configManager.getDefaultResponseTimeout(),
-                defaultModelName);
+                defaultModelName,
+                false,
+                false,
+                false);
     }
 
     public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
-            throws ModelException, IOException, InterruptedException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
 
-        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName);
+        ModelArchive archive = createModelArchive(modelName, url, null, null, modelName, false);
 
         Model tempModel = createModel(archive, modelInfo);
 
@@ -105,17 +110,40 @@ public final class ModelManager {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
-            String defaultModelName)
-            throws ModelException, IOException, InterruptedException {
+            String defaultModelName,
+            boolean ignoreDuplicate,
+            boolean isWorkflowModel,
+            boolean s3SseKms)
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
 
-        ModelArchive archive =
-                createModelArchive(modelName, url, handler, runtime, defaultModelName);
+        ModelArchive archive;
+        if (isWorkflowModel && url == null) { // This is  a workflow function
+            Manifest manifest = new Manifest();
+            manifest.getModel().setVersion("1.0");
+            manifest.getModel().setModelVersion("1.0");
+            manifest.getModel().setModelName(modelName);
+            manifest.getModel().setHandler(new File(handler).getName());
 
-        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout);
+            File f = new File(handler.substring(0, handler.lastIndexOf(':')));
+            archive = new ModelArchive(manifest, url, f.getParentFile(), true);
+        } else {
+            archive =
+                    createModelArchive(
+                            modelName, url, handler, runtime, defaultModelName, s3SseKms);
+        }
+
+        Model tempModel =
+                createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
 
         String versionId = archive.getModelVersion();
 
-        createVersionedModel(tempModel, versionId);
+        try {
+            createVersionedModel(tempModel, versionId);
+        } catch (ConflictStatusException e) {
+            if (!ignoreDuplicate) {
+                throw e;
+            }
+        }
 
         logger.info("Model {} loaded.", tempModel.getModelName());
 
@@ -129,11 +157,16 @@ public final class ModelManager {
             String url,
             String handler,
             Manifest.RuntimeType runtime,
-            String defaultModelName)
-            throws ModelException, IOException {
+            String defaultModelName,
+            boolean s3SseKms)
+            throws ModelException, IOException, DownloadArchiveException {
+
         ModelArchive archive =
                 ModelArchive.downloadModel(
-                        configManager.getAllowedUrls(), configManager.getModelStore(), url);
+                        configManager.getAllowedUrls(),
+                        configManager.getModelStore(),
+                        url,
+                        s3SseKms);
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
                 archive.getManifest().getModel().setModelName(defaultModelName);
@@ -194,11 +227,16 @@ public final class ModelManager {
     }
 
     private Model createModel(
-            ModelArchive archive, int batchSize, int maxBatchDelay, int responseTimeout) {
+            ModelArchive archive,
+            int batchSize,
+            int maxBatchDelay,
+            int responseTimeout,
+            boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setBatchSize(batchSize);
         model.setMaxBatchDelay(maxBatchDelay);
         model.setResponseTimeout(responseTimeout);
+        model.setWorkflowModel(isWorkflowModel);
 
         return model;
     }
@@ -206,6 +244,8 @@ public final class ModelManager {
     private Model createModel(ModelArchive archive, JsonObject modelInfo) {
         Model model = new Model(archive, configManager.getJobQueueSize());
         model.setModelState(modelInfo);
+        model.setWorkflowModel(false);
+
         return model;
     }
 
@@ -262,7 +302,7 @@ public final class ModelManager {
                 modelsNameMap.remove(modelName);
             }
 
-            if (!isCleanUp) {
+            if (!isCleanUp && model.getModelUrl() != null) {
                 ModelArchive.removeModel(configManager.getModelStore(), model.getModelUrl());
             }
         } catch (ModelVersionNotFoundException e) {
@@ -338,18 +378,25 @@ public final class ModelManager {
         return updateModel(modelName, versionId, minWorkers, maxWorkers, false, false);
     }
 
-    public Map<String, Model> getDefaultModels() {
+    public Map<String, Model> getDefaultModels(boolean skipFuntions) {
         ConcurrentHashMap<String, Model> defModelsMap = new ConcurrentHashMap<>();
         for (String key : modelsNameMap.keySet()) {
             ModelVersionedRefs mvr = modelsNameMap.get(key);
             if (mvr != null) {
                 Model defaultModel = mvr.getDefaultModel();
                 if (defaultModel != null) {
+                    if (skipFuntions && defaultModel.getModelUrl() == null) {
+                        continue;
+                    }
                     defModelsMap.put(key, defaultModel);
                 }
             }
         }
         return defModelsMap;
+    }
+
+    public Map<String, Model> getDefaultModels() {
+        return getDefaultModels(false);
     }
 
     public List<WorkerThread> getWorkers(ModelVersionName modelVersionName) {

@@ -3,8 +3,8 @@
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 
 ```bash
-wget https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth
-torch-model-archiver --model-name alexnet --version 1.0 --model-file ./serve/examples/image_classifier/alexnet/model.py --serialized-file alexnet-owt-4df8aa71.pth --handler image_classifier --extra-files ./serve/examples/image_classifier/index_to_name.json
+wget https://download.pytorch.org/models/alexnet-owt-7be5be79.pth
+torch-model-archiver --model-name alexnet --version 1.0 --model-file ./serve/examples/image_classifier/alexnet/model.py --serialized-file alexnet-owt-7be5be79.pth --handler image_classifier --extra-files ./serve/examples/image_classifier/index_to_name.json
 mkdir model_store
 mv alexnet model_store/
 torchserve --start --model-store model_store --models alexnet=alexnet.mar

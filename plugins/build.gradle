@@ -6,6 +6,13 @@
  * User Manual available at https://docs.gradle.org/5.4.1/userguide/java_library_plugin.html
  */
 
+buildscript {
+    ext {
+        spotbugsVersion = '4.0.2'
+        toolVersion = '4.0.2'
+    }
+}
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -13,6 +20,7 @@ allprojects {
     version = '1.0'
 
     repositories {
+        mavenLocal()
         jcenter()
     }
 
@@ -55,6 +63,7 @@ configure(javaProjects()) {
 
     defaultTasks 'jar'
 
+    apply from: file("${rootProject.projectDir}/tools/gradle/spotbugs.gradle")
     apply from: file("${rootProject.projectDir}/tools/gradle/formatter.gradle")
     apply from: file("${rootProject.projectDir}/tools/gradle/check.gradle")
 

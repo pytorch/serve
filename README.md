@@ -9,7 +9,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 ### Terminology:
 * **Frontend**: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients and manages the lifecycles of the models.
-* **Model Workers**: These workers are responsible for running the actual inference on the models. These are actual running instances of the models.
+* **Model Workers**: These workers are responsible for running the actual inference on the models.
 * **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
 * **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
 * **Model Store**: This is a directory in which all the loadable models exist.
@@ -20,6 +20,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
 * [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
 * [Serve a Model](#serve-a-model)
+* [Serve a Workflow](docs/workflows.md)
 * [Quick start with docker](#quick-start-with-docker)
 * [Contributing](#contributing)
 
@@ -27,35 +28,30 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
 1. Install dependencies
 
-Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python 3.8 is required to run Torchserve.
 
-#### For Debian Based Systems/ MacOS
- - For CPU or latest supported CUDA version (10.2) for Torch 1.6
+    #### For Debian Based Systems/ MacOS
+    
+     - For CPU
 
-    ```bash
-    python ./ts_scripts/install_dependencies.py
-    ```
+        ```bash
+        python ./ts_scripts/install_dependencies.py
+        ```
+        
+     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`
 
- - For GPU with Cuda 10.1
+       ```bash
+       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       ```
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu101
-   ```
+    #### For Windows
 
- - For GPU with Cuda 9.2
+    Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
-   ```bash
-   python ./ts_scripts/install_dependencies.py --cuda=cu92
-   ```
+2. Install torchserve and torch-model-archiver
 
-#### For Windows
-    Refer the documentation [here](docs/torchserve_on_win_native.md).
-
-
-3. Install torchserve and torch-model-archiver
-
-    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
-
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
+    Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver -c pytorch
     ```
@@ -70,7 +66,8 @@ Now you are ready to [package and serve models with TorchServe](#serve-a-model).
 ### Install TorchServe for development
 
 If you plan to develop with TorchServe and change some source code, you must install it from source code.
-Ensure that you have python3 installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
+
+Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
 
 Run the following script from the top of the source directory.
 
@@ -83,8 +80,11 @@ python ./ts_scripts/install_dependencies.py --environment=dev
 python ./ts_scripts/install_from_src.py
 ```
 
+Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
+
 #### For Windows
-    Refer the documentation [here].(docs/torchserve_on_win_native.md)
+
+Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
@@ -118,7 +118,7 @@ You can also create model stores to store your archived models.
     wget https://download.pytorch.org/models/densenet161-8d451a50.pth
     ```
 
-1. Archive the model by using the model archiver. The `extra-files` param uses fa file from the `TorchServe` repo, so update the path if necessary.
+1. Archive the model by using the model archiver. The `extra-files` param uses a file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
     torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
@@ -140,7 +140,7 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 ### Get predictions from a model
 
-To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](docs/inference_api.md) and [management](docs/management_api.md) api's through both [gRPC](docs/grpc_api.md) and [HTTP/REST](docs/grpc_api.md).
+To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](docs/inference_api.md) and [management](docs/management_api.md) api's through both [gRPC](docs/grpc_api.md) and [HTTP/REST](docs/rest_api.md).
 
 #### Using GRPC APIs through python client
 
@@ -153,34 +153,32 @@ pip install -U grpcio protobuf grpcio-tools
  - Generate inference client using proto files
 
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=scripts --grpc_python_out=scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Run inference using a sample client [gRPC python client](ts_scripts/torchserve_grpc_client.py)
 
 ```bash
-python scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
 
 #### Using REST APIs
 
-Complete the following steps:
-
-* Open a new terminal window (other than the one running TorchServe).
-* Use `curl` to download one of these [cute pictures of a kitten](https://www.google.com/search?q=cute+kitten&tbm=isch&hl=en&cr=&safe=images)
-  and use the  `-o` flag to name it `kitten.jpg` for you.
-* Use `curl` to send `POST` to the TorchServe `predict` endpoint with the kitten's image.
+As an example we'll download the below cute kitten with
 
 ![kitten](docs/images/kitten_small.jpg)
 
-The following code completes all three steps:
-
 ```bash
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+```
+
+And then call the prediction endpoint 
+
+```bash
 curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
-The predict endpoint returns a prediction response in JSON. It will look something like the following result:
+Which will return the following JSON object
 
 ```json
 [
@@ -202,20 +200,17 @@ The predict endpoint returns a prediction response in JSON. It will look somethi
 ]
 ```
 
-You will see this result in the response to your `curl` call to the predict endpoint, and in the server logs in the terminal window running TorchServe. It's also being [logged locally with metrics](docs/metrics.md).
+All interactions with the endpoint will be logged in the `logs/` directory, so make sure to check it out!
 
 Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
 
-### Stop the running TorchServe
+### Stop TorchServe
 
-To stop the currently running TorchServe instance, run the following command:
+To stop the currently running TorchServe instance, run:
 
 ```bash
 torchserve --stop
 ```
-
-You see output specifying that TorchServe has stopped.
-
 
 ### Concurrency And Number of Workers
 TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
@@ -225,9 +220,21 @@ If TorchServe is hosted on a machine with GPUs, there is a config property calle
 ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 ```
 
-
 ## Quick Start with Docker
-Refer [torchserve docker](docker/README.md) for details.
+Refer to [torchserve docker](docker/README.md) for details.
+
+## Highlighted Examples
+* [HuggingFace Transformers](examples/Huggingface_Transformers)
+* [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
+* Complex workflows, models chained together in a dependency graph
+  - [Dog Breed Classification](examples/Workflows/dog_breed_classification)
+  - [Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline)
+
+Feel free to skim the full list of [available examples](examples/README.md)
+
+## Featured Community Projects
+* [SynthDet by Unity Technologies](https://github.com/Unity-Technologies/SynthDet)
+* [Torchserve dashboard by cceyda](https://github.com/cceyda/torchserve-dashboard)
 
 ## Learn More
 

@@ -6,7 +6,7 @@ import requests
 import json
 import test_utils
 
-MODEL_SFILE_NAME = 'resnet18-5c106cde.pth'
+MODEL_SFILE_NAME = 'resnet18-f37072fd.pth'
 
 
 def setup_module(module):
@@ -53,7 +53,7 @@ def create_resnet_archive(model_name="resnset-18", version="1.0", force=False):
         model_name,
         version,
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
-        "{}resnet18-5c106cde.pth".format(test_utils.MODEL_STORE),
+        "{}resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
         "image_classifier",
         "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD),
         force
@@ -150,7 +150,7 @@ def test_model_archiver_without_handler_flag():
         "resnet-18",
         "1.0",
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
-        "{}/resnet18-5c106cde.pth".format(test_utils.MODEL_STORE),
+        "{}/resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
         None,
         "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD)
     )
@@ -168,7 +168,7 @@ def test_model_archiver_without_model_name_flag():
         None,
         "1.0",
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
-        "{}/resnet18-5c106cde.pth".format(test_utils.MODEL_STORE),
+        "{}/resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
         "image_classifier",
         "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD)
     )
@@ -182,7 +182,7 @@ def test_model_archiver_without_model_file_flag():
         "resnet-18",
         "1.0",
         None,
-        "{}/resnet18-5c106cde.pth".format(test_utils.MODEL_STORE),
+        "{}/resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
         "image_classifier",
         "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD),
         True

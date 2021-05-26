@@ -26,7 +26,6 @@ cd serve/docker
 # Create TorchServe docker image
 
 Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
-
 | Parameter | Desciption |
 |------|------|
 |-h, --help|Show script help|
@@ -34,7 +33,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserv default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`. Default `cu102`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`. Default `cu102`|
 
 **PRODUCTION ENVIRONMENT IMAGES**
 
@@ -46,10 +45,16 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - For creating GPU based image (Default cuda 10.2):
+ - For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -g
+./build_image.sh -g -cv cu111
+```
+
+ - For creating GPU based image with cuda version 10.2:
+
+```bash
+./build_image.sh -g -cv cu102
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -86,16 +91,17 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -b my_branch
 ```
 
-- For creating GPU based image (Default cuda 10.2):
+
+- For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -bt dev -g
+./build_image.sh -bt dev -g -cv cu111
 ```
 
-- For creating GPU based image with a different branch:
+- For creating GPU based image with cuda version 10.2:
 
 ```bash
-./build_image.sh -bt dev -g -b my_branch
+./build_image.sh -bt dev -g -cv cu102
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -108,6 +114,12 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 
 ```bash
 ./build_image.sh -bt dev -g -cv cu92
+```
+
+- For creating GPU based image with a different branch:
+
+```bash
+./build_image.sh -bt dev -g -cv cu111 -b my_branch
 ```
 
  - For creating image with a custom tag:
@@ -126,10 +138,10 @@ Creates a docker image for codebuild environment
 ./build_image.sh -bt codebuild
 ```
 
-- For creating GPU based image (Default cuda 10.2):
+- For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -bt codebuild -g
+./build_image.sh -bt codebuild -g -cv cu111
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -153,20 +165,20 @@ Creates a docker image for codebuild environment
 
 ## Start a container with a TorchServe image
 
-The following examples will start the container with 8080/81 port exposed to outer-world/localhost.
+The following examples will start the container with 8080/81/82 and 7070/71 port exposed to outer-world/localhost.
 
 #### Start CPU container
 
 For the latest version, you can use the `latest` tag:
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest
 ```
 
 For specific versions you can pass in the specific tag to use (ex: pytorch/torchserve:0.1.1-cpu):
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
+docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071  pytorch/torchserve:0.1.1-cpu
 ```
 
 #### Start GPU container
@@ -174,19 +186,19 @@ docker run --rm -it -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cpu
 For GPU latest image with gpu devices 1 and 2:
 
 ```bash
-docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
 ```
 
-For specific versions you can pass in the specific tag to use (ex: 0.1.1-cuda10.1-cudnn7-runtime):
+For specific versions you can pass in the specific tag to use (ex: `0.1.1-cuda10.1-cudnn7-runtime`):
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
 ```
 
 For the latest version, you can use the `latest-gpu` tag:
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest
+docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
 ```
 
 #### Accessing TorchServe APIs inside container
@@ -204,7 +216,7 @@ To create mar [model archive] file for TorchServe deployment, you can use follow
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  pytorch/torchserve:latest
 ```
 
 1. List your container or skip this if you know cotainer name
@@ -250,7 +262,8 @@ You may want to consider the following aspects / docker options when deploying t
   The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/), [here](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
 * Exposing specific ports / volumes between the host & docker env.
 
-    *  ```-p8080:8080 -p8081:8081``` TorchServe uses default ports 8080 / 8081 for inference & management APIs. You may want to expose these ports to the host for HTTP Requests between Docker & Host.
+    *  ```-p8080:8080 -p8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 ``` 
+       TorchServe uses default ports 8080 / 8081 / 8082 for REST based inference, management & metrics APIs and 7070 / 7071 for gRPC APIs. You may want to expose these ports to the host for HTTP & gRPC Requests between Docker & Host.
     * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
 For example,
@@ -261,5 +274,8 @@ docker run --rm --shm-size=1g \
         --ulimit stack=67108864 \
         -p8080:8080 \
         -p8081:8081 \
+        -p8082:8082 \
+        -p7070:7070 \
+        -p7071:7071 \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
 ```

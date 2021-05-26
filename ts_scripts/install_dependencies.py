@@ -3,13 +3,12 @@ import platform
 import argparse
 import sys
 from pathlib import Path
-
+from print_env_info import run_and_parse_first_match
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_python_version
-
 
 class Common():
     def __init__(self):
@@ -23,10 +22,17 @@ class Common():
         pass
 
     def install_torch_packages(self, cuda_version):
-        if cuda_version and cuda_version != "latest":
-            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
+        if cuda_version:
+            if platform.system() == "Darwin":
+                print("CUDA not supported on MacOS. Refer https://pytorch.org/ for installing from source.")
+                sys.exit(1)
+            elif cuda_version == "cu92" and platform.system() == "Windows":
+                print("CUDA 9.2 not supported on Windows. Refer https://pytorch.org/ for installing from source.")
+                sys.exit(1)
+            else:
+                os.system(f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt")
         else:
-            os.system(f"pip install -U -r requirements/torch.txt")
+            os.system(f"pip install -U -r requirements/torch_{platform.system().lower()}.txt")
 
     def install_python_packages(self, cuda_version, requirements_file_path):
         if os.system("conda") == 0:
@@ -40,11 +46,13 @@ class Common():
         os.system("pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package
 
-
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
 
     def install_jmeter(self):
+        pass
+
+    def install_wget(self):
         pass
 
 
@@ -63,17 +71,13 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
+    def install_wget(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
 class Windows(Common):
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
-
-    def install_torch_packages(self, cuda_version):
-        if cuda_version and cuda_version != "latest":
-            os.system(f"pip install -U -r requirements/torch_{cuda_version}.txt -f {self.torch_stable_url}")
-        else:
-            os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
 
     def install_java(self):
         pass
@@ -81,14 +85,23 @@ class Windows(Common):
     def install_nodejs(self):
         pass
 
+    def install_wget(self):
+        pass
 
 class Darwin(Common):
     def __init__(self):
         super().__init__()
 
     def install_java(self):
+        out = get_brew_version()
+        if out == "N/A":
+            sys.exit("**Error: Homebrew not installed...")
+
         os.system("brew tap AdoptOpenJDK/openjdk")
-        os.system("brew cask install adoptopenjdk11")
+        if out >= "2.7":
+            os.system("brew install --cask adoptopenjdk11")
+        else:
+            os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
         os.system("brew unlink node")
@@ -98,9 +111,8 @@ class Darwin(Common):
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
-
-    def install_torch_packages(self, cuda_version=''):
-        os.system(f"pip install -U -r requirements/torch.txt -f {self.torch_stable_url}")
+    def install_wget(self):
+        os.system("brew install wget")
 
 
 def install_dependencies(cuda_version=None):
@@ -119,12 +131,17 @@ def install_dependencies(cuda_version=None):
     if args.environment == "dev":
         system.install_nodejs()
         system.install_node_packages()
+        system.install_wget()
 
+def get_brew_version():
+    """Returns `brew --version` output. """
+
+    return run_and_parse_first_match("brew --version", r'Homebrew (.*)')
 
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'latest'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 

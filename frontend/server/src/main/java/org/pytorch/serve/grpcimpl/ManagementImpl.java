@@ -3,9 +3,10 @@ package org.pytorch.serve.grpcimpl;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.ExecutionException;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.grpc.management.DescribeModelRequest;
 import org.pytorch.serve.grpc.management.ListModelsRequest;
 import org.pytorch.serve.grpc.management.ManagementAPIsServiceGrpc.ManagementAPIsServiceImplBase;
@@ -67,7 +68,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
             sendException(responseObserver, e, "Error while creating workers");
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
             sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
-        } catch (ModelException | BadRequestException e) {
+        } catch (ModelException | BadRequestException | DownloadArchiveException e) {
             sendErrorResponse(responseObserver, Status.INVALID_ARGUMENT, e);
         }
     }

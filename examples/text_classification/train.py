@@ -41,7 +41,7 @@ def train_and_valid(lr_, sub_train_, sub_valid_):
     We use a SGD optimizer to train the model here and the learning rate
     decreases linearly with the progress of the training process.
 
-    Arguments:
+    Args:
         lr_: learning rate
         sub_train_: the data used to train the model
         sub_valid_: the data used for validation
@@ -79,7 +79,7 @@ def train_and_valid(lr_, sub_train_, sub_valid_):
 
 def test(data_):
     r"""
-    Arguments:
+    Args:
         data_: the data used to train the model
     """
     data = DataLoader(data_, batch_size=batch_size, collate_fn=generate_batch)
