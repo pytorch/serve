@@ -2,9 +2,6 @@
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-**WARNING:** TorchServe is experimental and subject to change.
-
-
 ## Basic Features
 
 * [Serving Quick Start](https://github.com/pytorch/serve/blob/master/README.md#serve-a-model) - Basic server usage tutorial
