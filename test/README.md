@@ -30,7 +30,7 @@ git checkout <branch_name>
 
 ```
 cd serve/docker
-./build_image.sh
+./build_image.sh -bt dev
 ```
 
 This would build a docker Image with a pytorch/torchserve:dev-cpu in which we would run our Regression Tests.
@@ -43,7 +43,7 @@ docker run -it --user root pytorch/torchserve:dev-cpu /bin/bash
 
 ```
 cd serve/docker
-./build_image.sh --gpu
+./build_image.sh -bt dev --gpu
 ```
 
 This would build a docker Image with a pytorch/torchserve:dev-gpu in which we would run our Regression Tests.
