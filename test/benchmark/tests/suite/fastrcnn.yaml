@@ -13,7 +13,7 @@ fastrcnn:
         input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/object_detector/persons.jpg"
         requests: 10000
         concurrency: 100
-        backend_profiling: True
+        backend_profiling: False
         exec_env: "docker"
         processors:
             - "cpu"

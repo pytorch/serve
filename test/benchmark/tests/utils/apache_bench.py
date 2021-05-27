@@ -33,7 +33,7 @@ class ApacheBenchHandler(object):
         self.result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
         self.ts_metric_log_file = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
         self.inference_url = "http://127.0.0.1:8080"
-        self.install_dependencies()
+        #self.install_dependencies()
 
         self.metrics = {
             "predict.txt": "PredictionTime",
@@ -47,7 +47,7 @@ class ApacheBenchHandler(object):
         """
         Installs apache2-utils, assuming it's an Ubuntu instance
         """
-        run_out = self.connection.sudo(f"apt install -y apache2-utils")
+        run_out = self.connection.sudo(f"apt install -y apache2-utils", pty=True)
         return run_out.return_code
 
     def run_apache_bench(self, requests, concurrency, input_file):
@@ -65,7 +65,7 @@ class ApacheBenchHandler(object):
         # Copy to the directory with other benchmark artifacts
         self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
 
-        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/png {self.inference_url}/predictions/benchmark > {self.result_file}"
+        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark > {self.result_file}"
 
         # Run apache bench
         run_out = self.connection.run(

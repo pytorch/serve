@@ -4,6 +4,7 @@ import os
 import random
 import re
 import sys
+import yaml
 
 import boto3
 import pytest
@@ -35,6 +36,20 @@ def pytest_addoption(parser):
         default="123456789",
         action="store",
         help="execution id that is used to keep all artifacts together",
+    )
+
+    parser.addoption(
+        "--use-instances",
+        default=False,
+        action="store",
+        help="Supply a .yaml file with test_name, instance_id, and key_filename to re-use already-running instances",
+    )
+
+    parser.addoption(
+        "--do-not-terminate",
+        action="store_true",
+        default=False,
+        help="Use with caution: does not terminate instances, instead saves the list to a file in order to re-use",
     )
 
 
@@ -164,10 +179,24 @@ def ec2_instance(
 ):
     key_filename = ec2_utils.generate_ssh_keypair(ec2_client, ec2_key_name)
 
-    def delete_ssh_keypair():
-        ec2_utils.destroy_ssh_keypair(ec2_client, key_filename)
+    use_instances_flag = request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
 
-    request.addfinalizer(delete_ssh_keypair)
+    if use_instances_flag:
+        instances_file = request.config.getoption("--use-instances")
+        instances_dict = YamlHandler.load_yaml(instances_file)
+        instances = instances_dict.get(request.node.name.split("[")[0], "")
+        assert instances != "", f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
+        instance_details = instances.get(ec2_instance_type, "")
+        assert instance_details != "", f"Could not obtain details for instance type: {ec2_instance_type}"
+        instance_id = instance_details.get("instance_id", "")
+        assert instance_id != "", f"Missing instance_id"
+        key_filename = instance_details.get("key_filename", "")
+        assert key_filename != "", f"Missing key_filename"
+
+        LOGGER.info(f"For test: {request.node.name}; Using instance_id: {instance_id} and key_filename: {key_filename}")
+
+        return instance_id, key_filename
+
 
     params = {
         "KeyName": ec2_key_name,
@@ -179,7 +208,7 @@ def ec2_instance(
         ],
         "MaxCount": 1,
         "MinCount": 1,
-        "BlockDeviceMappings": [{"DeviceName": "/dev/sda1", "Ebs": {"VolumeSize": 120}}],
+        "BlockDeviceMappings": [{"DeviceName": "/dev/sda1", "Ebs": {"VolumeSize": 220}}],
     }
 
     try:
@@ -196,10 +225,34 @@ def ec2_instance(
     def terminate_ec2_instance():
         ec2_client.terminate_instances(InstanceIds=[instance_id])
 
-    request.addfinalizer(terminate_ec2_instance)
+    def delete_ssh_keypair():
+        ec2_utils.destroy_ssh_keypair(ec2_client, key_filename)
+
+    do_not_terminate_flag = request.config.getoption("--do-not-terminate")
+
+    LOGGER.info(f"do_not_terminate_flag: {do_not_terminate_flag}")
+
+    instances_file = os.path.join(os.getcwd(), "instances.yaml")
+
+    if not do_not_terminate_flag:
+        request.addfinalizer(terminate_ec2_instance)
+        request.addfinalizer(delete_ssh_keypair)
+
+    if do_not_terminate_flag and not use_instances_flag:
+        instances_dict = YamlHandler.load_yaml(instances_file)
+        if not instances_dict:
+            instances_dict = {}
+
+        update_dictionary = {request.node.name.split("[")[0]: {ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}}}
+
+        instances_dict.update(update_dictionary)
+        LOGGER.info(f"instances_dict: {instances_dict}")
+
+        YamlHandler.write_yaml(instances_file, instances_dict)
 
     ec2_utils.check_instance_state(instance_id, state="running", region=region)
     ec2_utils.check_system_state(instance_id, system_status="ok", instance_status="ok", region=region)
+
     return instance_id, key_filename
 
 
@@ -232,6 +285,4 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
 
     request.addfinalizer(delete_s3_artifact_copy)
 
-
     return conn
-

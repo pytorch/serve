@@ -1,5 +1,6 @@
 import json
 import logging
+import fcntl
 import os
 import re
 import subprocess
@@ -17,7 +18,7 @@ from invoke.context import Context
 
 DEFAULT_REGION = "us-west-2"
 IAM_INSTANCE_PROFILE = "EC2Admin"
-S3_BUCKET_BENCHMARK_ARTIFACTS = "s3://torchserve-model-serving/benchmark_artifacts"
+S3_BUCKET_BENCHMARK_ARTIFACTS = "s3://nikhilsk-model-serving/benchmark_artifacts"
 
 DEFAULT_DOCKER_DEV_ECR_REPO = "torchserve-benchmark"
 DEFAULT_DOCKER_DEV_ECR_TAG = "dev-image"
@@ -27,8 +28,9 @@ ECR_REPOSITORY_URL = "{}.dkr.ecr.{}.amazonaws.com/{}"
 GPU_INSTANCES = ["p2", "p3", "p4", "g2", "g3", "g4"]
 
 # DLAMI with nVidia Driver ver. 450.119.03 (support upto CUDA 11.2), Ubuntu 18.04
-AMI_ID = "ami-0ff137c06803a8bb7"
-# AMI_ID = "ami-0198925303105158c", with apache2-utils installed
+# AMI_ID = "ami-0ff137c06803a8bb7"
+# AMI_ID = "ami-0198925303105158c", Base DLAMI 37.0 with apache2-utils installed
+AMI_ID = "ami-00c5ebd9076702cbe"#, DLAMI 43.0 with apache2-utils installed
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -179,8 +181,10 @@ class YamlHandler(object):
         :param dictionary_object: dictionary with content that needs to be written to a yaml file
         :return None
         """
-        with open(file_path) as f:
-            yaml.dump(f, dictionary_object)
+        with open(file_path, "a") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            yaml.dump(dictionary_object, f)
+            fcntl.flock(f, fcntl.LOCK_UN)
 
     @staticmethod
     def validate_benchmark_yaml(yaml_content):

@@ -127,16 +127,17 @@ class TorchServeHandler(object):
         :param batch_size: max number of requests allowed to be batched
         """
         run_out = self.connection.run(
-            f'curl -X POST "http://localhost:8081/models?url={url}&initial_workers={workers}&batch_delay={batch_delay}&batch_size={batch_size}&synchronous=true&model_name=benchmark"'
+            f'curl -X POST "http://localhost:8081/models?url={url}&initial_workers={workers}&batch_delay={batch_delay}&batch_size={batch_size}&synchronous=true&model_name=benchmark"', warn=True
         )
 
         LOGGER.info(
             f'curl -X POST "http://localhost:8081/models?url={url}&initial_workers={workers}&batch_delay={batch_delay}&batch_size={batch_size}&synchronous=true&model_name=benchmark"'
         )
 
-        time.sleep(5)
+        time.sleep(10)
 
-        assert run_out.return_code == 0, f"Failed to register model {model_name} sourced from url: {url}"
+        if run_out.return_code == 0:
+            LOGGER.error(f"Failed to register model {model_name} sourced from url: {url}")
 
     def unregister_model(self, model_name="benchmark"):
         """
@@ -148,7 +149,7 @@ class TorchServeHandler(object):
         LOGGER.info(f'curl -X DELETE "http://localhost:8081/models/{model_name}/1.0"')
         LOGGER.info(f"stdout: {run_out.stdout}")
 
-        time.sleep(5)
+        time.sleep(10)
         if run_out.return_code == 0:
             LOGGER.error(f"Failed to unregister model {model_name}")
 
