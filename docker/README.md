@@ -41,37 +41,19 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 
 Creates a docker image with publicly available `torchserve` and `torch-model-archiver` binaries installed.
 
- - For creating CPU based image :
+ - To create a CPU based image
 
 ```bash
 ./build_image.sh
 ```
 
- - For creating GPU based image with cuda version 11.1:
+ - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`
 
-```bash
-./build_image.sh -g -cv cu111
-```
+  ```bash
+  ./build_image.sh -g -cv cu102
+  ```
 
- - For creating GPU based image with cuda version 10.2:
-
-```bash
-./build_image.sh -g -cv cu102
-```
-
- - For creating GPU based image with cuda version 10.1:
-
-```bash
-./build_image.sh -g -cv cu101
-```
-
- - For creating GPU based image with cuda version 9.2:
-
-```bash
-./build_image.sh -g -cv cu92
-```
-
- - For creating image with a custom tag:
+ - To create an image with a custom tag
 
 ```bash
 ./build_image.sh -t torchserve:1.0
