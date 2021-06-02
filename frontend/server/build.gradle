@@ -2,7 +2,8 @@ dependencies {
     implementation "io.netty:netty-all:${netty_version}"
     implementation "io.prometheus:simpleclient:${prometheus_version}"
     implementation "io.prometheus:simpleclient_servlet:${prometheus_version}"
-    implementation project(":modelarchive")
+    implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    implementation project(":archive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
     testImplementation "org.testng:testng:${testng_version}"

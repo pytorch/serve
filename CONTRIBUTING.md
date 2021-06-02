@@ -17,9 +17,9 @@ If you are interested in contributing to TorchServe, your contributions will fal
           
          For GPU
            ```bash
-           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu110
+           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
            ```
-            > Supported cuda versions as cu110, cu102, cu101, cu92
+            > Supported cuda versions as cu111, cu102, cu101, cu92
        
         - Execute sanity suite
           ```bash

@@ -1,0 +1,2 @@
+include PyPiDescription.rst
+include workflow_archiver/version.txt

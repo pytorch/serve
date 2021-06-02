@@ -26,7 +26,6 @@ cd serve/docker
 # Create TorchServe docker image
 
 Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
-
 | Parameter | Desciption |
 |------|------|
 |-h, --help|Show script help|
@@ -34,7 +33,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserv default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu110`. Default `cu110`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`. Default `cu102`|
 
 **PRODUCTION ENVIRONMENT IMAGES**
 
@@ -46,10 +45,16 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - For creating GPU based image with cuda version 11.0:
+ - For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -g -cv cu110
+./build_image.sh -g -cv cu111
+```
+
+ - For creating GPU based image with cuda version 10.2:
+
+```bash
+./build_image.sh -g -cv cu102
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -87,10 +92,10 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ```
 
 
-- For creating GPU based image with cuda version 11.0:
+- For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -bt dev -g -cv cu110
+./build_image.sh -bt dev -g -cv cu111
 ```
 
 - For creating GPU based image with cuda version 10.2:
@@ -114,7 +119,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 - For creating GPU based image with a different branch:
 
 ```bash
-./build_image.sh -bt dev -g -cv cu110 -b my_branch
+./build_image.sh -bt dev -g -cv cu111 -b my_branch
 ```
 
  - For creating image with a custom tag:
@@ -133,10 +138,10 @@ Creates a docker image for codebuild environment
 ./build_image.sh -bt codebuild
 ```
 
-- For creating GPU based image with cuda version 11.0:
+- For creating GPU based image with cuda version 11.1:
 
 ```bash
-./build_image.sh -bt codebuild -g -cv cu110
+./build_image.sh -bt codebuild -g -cv cu111
 ```
 
  - For creating GPU based image with cuda version 10.1:
@@ -211,7 +216,7 @@ To create mar [model archive] file for TorchServe deployment, you can use follow
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  torchserve:latest
+docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples  pytorch/torchserve:latest
 ```
 
 1. List your container or skip this if you know cotainer name

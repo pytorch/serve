@@ -21,11 +21,11 @@ curl -X OPTIONS http://localhost:8080
 
 The out is OpenAPI 3.0.1 json format. You can use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
 
-* [Inference API description output](../frontend/server/src/test/resources/inference_open_api.json)
+* [Inference API description output](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json)
 
 ## Health check API
 
-This API follows the [InferenceAPIsService.Ping](../frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [InferenceAPIsService.Ping](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 TorchServe supports a `ping` API that you can call to check the health status of a running TorchServe server:
 

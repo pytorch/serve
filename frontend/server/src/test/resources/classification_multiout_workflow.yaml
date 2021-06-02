@@ -1,0 +1,15 @@
+models:
+    #global model params
+    min-workers: 1
+    max-workers: 4
+    batch-size: 3
+    max-batch-delay : 5000
+    resnet:
+       url : https://torchserve.pytorch.org/mar_files/resnet-18.mar
+       batch-size: 3
+
+    squeezenet:
+      url : https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar
+ 
+dag: #can have only one start node
+  pre_processing : [resnet, squeezenet]
