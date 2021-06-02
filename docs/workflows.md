@@ -12,7 +12,7 @@ A workflow specification is a YAML file which provides the details of the models
 
 E.g.
 
-```
+```yaml
 models:
     #global model params
     min-workers: 1
@@ -95,10 +95,10 @@ A handler file (python) is supplied in the workflow archive (.war) and consists 
 Eg.
 ```
 
-def preprocss(data, context):
+def preprocess(data, context):
     pass
 
-def postprocess(data, xontext):
+def postprocess(data, context):
     pass
 
 ```

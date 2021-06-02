@@ -34,7 +34,7 @@ To support batch inference, TorchServe needs the following:
    TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.
 2. Model handler code: TorchServe requires the Model handler to handle batch inference requests.
 
-For a full working example of a custom model handler with batch processing, see [Hugging face transformer generalised handler](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py)
+For a full working example of a custom model handler with batch processing, see [Hugging face transformer generalized handler](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py)
 
 ### TorchServe Model Configuration
 
@@ -49,7 +49,7 @@ requests before this timer time's out, it sends what ever requests that were rec
 Let's look at an example using this configuration
 
 ```bash
-# The following command will register a model "resnet-152.mar" and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milli seconds. 
+# The following command will register a model "resnet-152.mar" and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milliseconds. 
 curl -X POST "localhost:8081/models?url=resnet-152.mar&batch_size=8&max_batch_delay=50"
 ```
 
