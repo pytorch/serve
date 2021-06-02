@@ -24,7 +24,7 @@ def conda_build():
     os.environ["TORCH_WORKFLOW_ARCHIVER_VERSION"] = wa_version
     os.environ["TORCHSERVE_ROOT_DIR"] = REPO_ROOT
 
-    python_versions = ["3.6", "3.7", "3.8"]
+    python_versions = ["3.6", "3.7", "3.8", "3.9"]
     packages = [
         os.path.join(conda_build_dir, pkg)
         for pkg in ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]

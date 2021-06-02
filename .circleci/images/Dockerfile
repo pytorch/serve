@@ -19,6 +19,16 @@ RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get install --no-install-recommends -y \
         nodejs
 
+# Install python 3.9 using conda env
+FROM compile-image as conda39-image
+ENV PATH ~/.local/bin/:$PATH
+ENV PATH=/miniconda/bin:${PATH}
+RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+        && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -p /miniconda -b \
+        && rm Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+        && rm -rf /var/lib/apt/lists/* \
+        && conda install -y conda-build
+
 # Install python 3.8 using conda env
 FROM compile-image as conda38-image
 ENV PATH ~/.local/bin/:$PATH
