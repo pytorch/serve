@@ -4,4 +4,4 @@ gpu:
     docker_tag: "neuron-dev-image"
     cuda_version: "cu102"
 cpu:
-    docker_tag: "cpu-dev-image"
+    docker_tag: "neuron-dev-image"

@@ -99,7 +99,7 @@ class MarkdownDocument:
         newline_modifier = "\n" if newline else ""
         backticks_modifier = "```" if newline else "`"
 
-        self.markdown_content += str(f"{newline_modifier}{backticks_modifier}{newline_modifier}{content}\n{backticks_modifier}")
+        self.markdown_content += str(f"{newline_modifier}{backticks_modifier}\n{content}\n{backticks_modifier}{newline_modifier}")
 
     def add_paragraph(self, content: str, bold=False, italics=False, newline=True):
         """
@@ -123,19 +123,21 @@ class MarkdownDocument:
     def get_document(self):
         return self.markdown_content
 
-def main(s3_bucket_uri):
+def generate_comprehensive_report(s3_bucket_uri):
     """
     Compile a markdown file with different csv files as input
     """
     # Download the s3 files
-    run(f"mkdir -p /tmp/report")
-    run(f"aws s3 cp --recursive {s3_bucket_uri} /tmp/report")
+    # run(f"mkdir -p /tmp/report")
+    # run(f"aws s3 cp --recursive {s3_bucket_uri} /tmp/report")
 
     csv_files = []
 
     for root, dirs, files in os.walk("/tmp/report/"):
         for name in files:
             csv_files.append(os.path.join(root, name)) if "ab_report" in name else None
+    
+    csv_files = sorted(csv_files)
         
     markdownDocument = MarkdownDocument("Benchmark report")
     markdownDocument.add_newline()
@@ -151,7 +153,8 @@ def main(s3_bucket_uri):
 
         config_header = f"{model} | {mode} | {instance_type} | batch size {batch_size}"
 
-        markdownDocument.add_paragraph(config_header, bold=True, newline=True)
+        #markdownDocument.add_paragraph(config_header, bold=True, newline=True)
+        markdownDocument.add_code_block(config_header, newline=True)
 
         print(f"Updating data from file: {report_path}")
         markdownDocument.add_markdown_from_csv(report_path, delimiter=" ")
@@ -160,7 +163,7 @@ def main(s3_bucket_uri):
        f.write(markdownDocument.get_document()) 
 
     # Clean up 
-    run(f"rm -rf /tmp/report")
+    # run(f"rm -rf /tmp/report")
 
 
 if __name__ == "__main__":
