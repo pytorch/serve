@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Advanced configuration &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -314,7 +317,7 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="advanced-configuration">
+  <section id="advanced-configuration">
 <h1>Advanced configuration<a class="headerlink" href="#advanced-configuration" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe is meant to be easy to use. The default settings form TorchServe should be sufficient for most use cases.
 If you want to customize TorchServe, the configuration options described in this topic are available.</p>
@@ -327,7 +330,7 @@ If you want to customize TorchServe, the configuration options described in this
 <p>For example, the value of an environment variable overrides both command line arguments and
 a property in the configuration file. The value of a command line argument overrides
 a value in the configuration file.</p>
-<div class="section" id="environment-variables">
+<section id="environment-variables">
 <h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
 <p>You can change TorchServe behavior by setting the following environment variables:</p>
 <ul class="simple">
@@ -339,8 +342,8 @@ a value in the configuration file.</p>
 </ul>
 <p><strong>Note:</strong> Environment variables have higher priority than command line or config.properties.
 The value of an environment variable overrides other property values.</p>
-</div>
-<div class="section" id="command-line-parameters">
+</section>
+<section id="command-line-parameters">
 <h2>Command line parameters<a class="headerlink" href="#command-line-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Customize TorchServe behavior by using the following command line arguments when you call <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>:</p>
 <ul class="simple">
@@ -352,8 +355,8 @@ The value of an environment variable overrides other property values.</p>
 disabled, TorchServe runs in the background</p></li>
 </ul>
 <p>For more detailed information about <code class="docutils literal notranslate"><span class="pre">torchserve</span></code> command line options, see <a class="reference internal" href="server.html"><span class="doc">Serve Models with TorchServe</span></a>.</p>
-</div>
-<div class="section" id="config-properties-file">
+</section>
+<section id="config-properties-file">
 <h2>config.properties file<a class="headerlink" href="#config-properties-file" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe uses a <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file to store configurations. TorchServe uses following, in order of priority, to locate this <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
 <ol class="simple">
@@ -362,15 +365,15 @@ disabled, TorchServe runs in the background</p></li>
 <li><p>If there is a <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> in the folder where you call <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>, TorchServe loads the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file from the current working directory.</p></li>
 <li><p>If none of the above is specified, TorchServe loads a built-in configuration with default values.</p></li>
 </ol>
-<div class="section" id="customize-jvm-options">
+<section id="customize-jvm-options">
 <h3>Customize JVM options<a class="headerlink" href="#customize-jvm-options" title="Permalink to this headline">¶</a></h3>
 <p>To control TorchServe frontend memory footprint, configure the <strong>vmargs</strong> property in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file</p>
 <ul class="simple">
 <li><p>default: N/A, use JVM default options</p></li>
 </ul>
 <p>Adjust JVM options to fit your memory requirement.</p>
-</div>
-<div class="section" id="load-models-at-startup">
+</section>
+<section id="load-models-at-startup">
 <h3>Load models at startup<a class="headerlink" href="#load-models-at-startup" title="Permalink to this headline">¶</a></h3>
 <p>You can configure TorchServe to load models during startup by setting the <code class="docutils literal notranslate"><span class="pre">model_store</span></code> and <code class="docutils literal notranslate"><span class="pre">load_models</span></code> properties.
 The following values are valid:</p>
@@ -391,8 +394,8 @@ The following values are valid:</p>
 </li>
 </ul>
 <p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">model_store</span></code> and <code class="docutils literal notranslate"><span class="pre">load_models</span></code> properties are overridden by command line parameters, if specified.</p>
-</div>
-<div class="section" id="configure-torchserve-listening-address-and-port">
+</section>
+<section id="configure-torchserve-listening-address-and-port">
 <h3>Configure TorchServe listening address and port<a class="headerlink" href="#configure-torchserve-listening-address-and-port" title="Permalink to this headline">¶</a></h3>
 <p>TorchServe doesn’t support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default.
 The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
@@ -413,8 +416,8 @@ To run predictions on models on a specific IP address, specify the IP address an
 <span class="na">inference_address</span><span class="o">=</span><span class="s">https://172.16.1.10:8080</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="configure-torchserve-grpc-listening-ports">
+</section>
+<section id="configure-torchserve-grpc-listening-ports">
 <h3>Configure TorchServe gRPC listening ports<a class="headerlink" href="#configure-torchserve-grpc-listening-ports" title="Permalink to this headline">¶</a></h3>
 <p>The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.</p>
 <p>To configure different ports use following properties</p>
@@ -429,8 +432,8 @@ To run predictions on models on a specific IP address, specify the IP address an
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">grpc_management_port</span><span class="o">=</span><span class="s">9999</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="enable-ssl">
+</section>
+<section id="enable-ssl">
 <h3>Enable SSL<a class="headerlink" href="#enable-ssl" title="Permalink to this headline">¶</a></h3>
 <p>To enable HTTPs, you can change <code class="docutils literal notranslate"><span class="pre">inference_address</span></code>, <code class="docutils literal notranslate"><span class="pre">management_address</span></code> or <code class="docutils literal notranslate"><span class="pre">metrics_address</span></code> protocol from http to https. For example: <code class="docutils literal notranslate"><span class="pre">inference_address=https://127.0.0.1</span></code>.
 The default is port 443, but you can make TorchServe listen on whatever port you set to accept https requests.
@@ -451,7 +454,7 @@ For example, to receive https traffic on port 8443, you would use: <code class="
 <li><p><strong>private_key_file</strong>: the private key file location. Supports both PKCS8 and OpenSSL private keys.</p></li>
 <li><p><strong>certificate_file</strong>: the X509 certificate chain file location.</p></li>
 </ul>
-<div class="section" id="examples">
+<section id="examples">
 <h4>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h4>
 <p><strong>Option 1</strong>: Use a keystore; generate a keystore with Java’s keytool. Note the <code class="docutils literal notranslate"><span class="pre">storepass</span></code> argument expects you to create your own password.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>keytool -genkey -keyalg RSA -alias ts -keystore keystore.p12 -storepass changeit -storetype PKCS12 -validity <span class="m">3600</span> -keysize <span class="m">2048</span> -dname <span class="s2">&quot;CN=www.MY_TS.com, OU=Cloud Service, O=model server, L=Palo Alto, ST=California, C=US&quot;</span>
@@ -478,9 +481,9 @@ For example, to receive https traffic on port 8443, you would use: <code class="
 <span class="na">certificate_file</span><span class="o">=</span><span class="s">mycert.pem</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="configure-cross-origin-resource-sharing-cors">
+</section>
+</section>
+<section id="configure-cross-origin-resource-sharing-cors">
 <h3>Configure Cross-Origin Resource Sharing (CORS)<a class="headerlink" href="#configure-cross-origin-resource-sharing-cors" title="Permalink to this headline">¶</a></h3>
 <p>CORS is a mechanism that uses additional HTTP headers to tell a browser to let a
 web application running at one origin (domain) have permission to access selected
@@ -494,15 +497,15 @@ resources from a server at a different origin.</p>
 <span class="na">cors_allowed_headers</span><span class="o">=</span><span class="s">X-Custom-Header</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="prefer-direct-buffer">
+</section>
+<section id="prefer-direct-buffer">
 <h3>Prefer direct buffer<a class="headerlink" href="#prefer-direct-buffer" title="Permalink to this headline">¶</a></h3>
 <p>Configuration parameter prefer_direct_buffer controls if the model server will be using direct memory specified by -XX:MaxDirectMemorySize. This parameter is for model server only and  doesn’t affect other packages’ usage of direct memory buffer. Default: false</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">prefer_direct_buffer</span><span class="o">=</span><span class="s">true</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="allow-model-specific-custom-python-packages">
+</section>
+<section id="allow-model-specific-custom-python-packages">
 <h3>Allow model specific custom python packages.<a class="headerlink" href="#allow-model-specific-custom-python-packages" title="Permalink to this headline">¶</a></h3>
 <p>Custom models/handlers may depend on different python packages which are not installed by-default as a part of <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> setup. User can supply a requirements.txt file containing the required list of python packages to be installed by <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> for seamless model serving.
 Configuration parameter <code class="docutils literal notranslate"><span class="pre">install_py_dep_per_model</span></code> controls if the model server will install the python packages using the <code class="docutils literal notranslate"><span class="pre">requirements</span></code> file supplied with the model archive. Default: false</p>
@@ -510,38 +513,38 @@ Configuration parameter <code class="docutils literal notranslate"><span class="
 </pre></div>
 </div>
 <p>User can also supply custom python packages in zip or tar.gz format using the <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag while creating the model-archive and make an entry of the file name in the <code class="docutils literal notranslate"><span class="pre">requirements</span></code> file.</p>
-</div>
-<div class="section" id="restrict-backend-worker-to-access-environment-variables">
+</section>
+<section id="restrict-backend-worker-to-access-environment-variables">
 <h3>Restrict backend worker to access environment variables<a class="headerlink" href="#restrict-backend-worker-to-access-environment-variables" title="Permalink to this headline">¶</a></h3>
 <p>Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model’s custom code,
 which might expose a security risk. TorchServe provides a <code class="docutils literal notranslate"><span class="pre">blacklist_env_vars</span></code> property that allows you to restrict which environment variables can be accessed by backend workers.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">blacklist_env_vars</span></code>: a regular expression to filter out environment variable names. Default: all environment variables are visible to backend workers.</p></li>
 </ul>
-</div>
-<div class="section" id="limit-gpu-usage">
+</section>
+<section id="limit-gpu-usage">
 <h3>Limit GPU usage<a class="headerlink" href="#limit-gpu-usage" title="Permalink to this headline">¶</a></h3>
 <p>By default, TorchServe uses all available GPUs for inference. Use <code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code> to limit the usage of GPUs.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code>: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.</p></li>
 </ul>
-</div>
-<div class="section" id="enable-metrics-api">
+</section>
+<section id="enable-metrics-api">
 <h3>Enable metrics api<a class="headerlink" href="#enable-metrics-api" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus'</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">in</span> <span class="pre">conjunction</span> <span class="pre">with</span> </code>enable_meterics_api` option above.</p></li>
 </ul>
-</div>
-<div class="section" id="id1">
+</section>
+<section id="id1">
 <h3>Enable metrics api<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>
 This is used in conjunction with <code class="docutils literal notranslate"><span class="pre">enable_meterics_api</span></code> option above.</p></li>
 </ul>
-</div>
-<div class="section" id="other-properties">
+</section>
+<section id="other-properties">
 <h3>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
 <p>Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.</p>
 <ul class="simple">
@@ -579,9 +582,9 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
 </li>
 </ul>
 <hr class="docutils" />
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
              </article>
@@ -656,6 +659,7 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

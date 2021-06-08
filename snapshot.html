@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>TorchServe model snapshot &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -291,7 +294,7 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-model-snapshot">
+  <section id="torchserve-model-snapshot">
 <h1>TorchServe model snapshot<a class="headerlink" href="#torchserve-model-snapshot" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.</p>
 <p>A TorchServe’s snapshot consists of following:</p>
@@ -320,7 +323,7 @@
 <li><p>Models passed in –models parameter while starting TorchServe are ignored if restoring from a snapshot.</p></li>
 <li><p>For windows, if shutdown snapshot file is not generated then you can use last snapshot file.</p></li>
 </ol>
-</div>
+</section>
 
 
              </article>
@@ -372,6 +375,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

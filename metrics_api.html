@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Metrics API &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -295,7 +298,7 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="metrics-api">
+  <section id="metrics-api">
 <h1>Metrics API<a class="headerlink" href="#metrics-api" title="Permalink to this headline">¶</a></h1>
 <p>Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>. The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a <a class="reference external" href="#prometheus-server">Prometheus Server</a> to the endpoint and use <a class="reference external" href="#grafana">Grafana</a> for dashboards.</p>
 <p>By default these APIs are enable however same can be disabled by setting <code class="docutils literal notranslate"><span class="pre">enable_metrics_api=false</span></code> in torchserve config.properties file.
@@ -328,7 +331,7 @@ For details refer <a class="reference internal" href="configuration.html"><span 
 <span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
 </pre></div>
 </div>
-<div class="section" id="prometheus-server">
+<section id="prometheus-server">
 <h2>Prometheus server<a class="headerlink" href="#prometheus-server" title="Permalink to this headline">¶</a></h2>
 <p>To view these metrics on a Prometheus server, download and install using the instructions <a class="reference external" href="https://prometheus.io/download/#prometheus">here</a>. Create a minimal <code class="docutils literal notranslate"><span class="pre">prometheus.yml</span></code> config file as below and run <code class="docutils literal notranslate"><span class="pre">./prometheus</span> <span class="pre">--config.file=prometheus.yml</span></code>.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
@@ -345,14 +348,14 @@ For details refer <a class="reference internal" href="configuration.html"><span 
 </pre></div>
 </div>
 <p>Navigate to http://localhost:9090/ on a browser to execute queries and create graphs</p>
-<img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png"></div>
-<div class="section" id="grafana">
+<img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png"></section>
+<section id="grafana">
 <h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h2>
 <p>Once you have the Torchserve and Prometheus servers running, you can further <a class="reference external" href="https://prometheus.io/docs/visualization/grafana/">setup</a> Grafana, point it to Prometheus server and navigate to http://localhost:3000/ to create dashboards and graphs.</p>
 <p>You can use command given below to start Grafana -
 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">daemon-reload</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">enable</span> <span class="pre">grafana-server</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">start</span> <span class="pre">grafana-server</span></code></p>
-<img width="1220" alt="Screen Shot 2020-07-08 at 5 51 57 PM" src="https://user-images.githubusercontent.com/880376/86984550-c4fb6200-c143-11ea-9434-09d4d43dd6d4.png"></div>
-</div>
+<img width="1220" alt="Screen Shot 2020-07-08 at 5 51 57 PM" src="https://user-images.githubusercontent.com/880376/86984550-c4fb6200-c143-11ea-9434-09d4d43dd6d4.png"></section>
+</section>
 
 
              </article>
@@ -408,6 +411,7 @@ For details refer <a class="reference internal" href="configuration.html"><span 
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

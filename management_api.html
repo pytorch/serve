@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Management API &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -300,7 +303,7 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="management-api">
+  <section id="management-api">
 <h1>Management API<a class="headerlink" href="#management-api" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe provides the following APIs that allows you to manage models at runtime:</p>
 <ol class="simple">
@@ -313,7 +316,7 @@
 </ol>
 <p>The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 <p>Similar to the <a class="reference internal" href="inference_api.html"><span class="doc">Inference API</span></a>, the Management API provides a <a class="reference external" href="#api-description">API description</a> to describe management APIs with the OpenAPI 3.0 specification.</p>
-<div class="section" id="register-a-model">
+<section id="register-a-model">
 <h2>Register a model<a class="headerlink" href="#register-a-model" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.RegisterModel</a> gRPC API.</p>
 <p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/models</span></code></p>
@@ -406,8 +409,8 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 <span class="o">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="scale-workers">
+</section>
+<section id="scale-workers">
 <h2>Scale workers<a class="headerlink" href="#scale-workers" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.ScaleWorker</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/models/{model_name}</span></code></p>
@@ -463,8 +466,8 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 <span class="o">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="describe-model">
+</section>
+<section id="describe-model">
 <h2>Describe model<a class="headerlink" href="#describe-model" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="../frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.DescribeModel</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models/{model_name}</span></code></p>
@@ -568,8 +571,8 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 <span class="o">]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="unregister-a-model">
+</section>
+<section id="unregister-a-model">
 <h2>Unregister a model<a class="headerlink" href="#unregister-a-model" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.UnregisterModel</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/models/{model_name}/{version}</span></code></p>
@@ -581,8 +584,8 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 <span class="o">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="list-models">
+</section>
+<section id="list-models">
 <h2>List models<a class="headerlink" href="#list-models" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.ListModels</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models</span></code></p>
@@ -612,8 +615,8 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 <span class="o">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="api-description">
+</section>
+<section id="api-description">
 <h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">OPTIONS</span> <span class="pre">/</span></code></p>
 <p>To view a full list of inference and management APIs, you can use following command:</p>
@@ -630,8 +633,8 @@ curl -X OPTIONS http://localhost:8081
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json">Inference API description output</a></p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/management_open_api.json">Management API description output</a></p></li>
 </ul>
-</div>
-<div class="section" id="set-default-version">
+</section>
+<section id="set-default-version">
 <h2>Set Default Version<a class="headerlink" href="#set-default-version" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.SetDefault</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/models/{model_name}/{version}/set-default</span></code></p>
@@ -640,8 +643,8 @@ curl -X OPTIONS http://localhost:8081
 </pre></div>
 </div>
 <p>The out is OpenAPI 3.0.1 json format. You use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for detail.</p>
-</div>
-</div>
+</section>
+</section>
 
 
              </article>
@@ -702,6 +705,7 @@ curl -X OPTIONS http://localhost:8081
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

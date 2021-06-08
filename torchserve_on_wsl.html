@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4 &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -297,9 +300,9 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-on-windows-subsystem-for-linux-wsl-ubuntu-18-0-4">
+  <section id="torchserve-on-windows-subsystem-for-linux-wsl-ubuntu-18-0-4">
 <h1>TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4<a class="headerlink" href="#torchserve-on-windows-subsystem-for-linux-wsl-ubuntu-18-0-4" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="contents-of-this-document">
+<section id="contents-of-this-document">
 <h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#setup-ubuntu-1804-on-wsl">Setup Ubuntu 18.0.4 on WSL</a></p></li>
@@ -307,15 +310,15 @@
 <li><p><a class="reference external" href="#install-from-source">Install from source</a></p></li>
 <li><p><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#known-limitations">Known limitations of NVIDIA CUDA support on GPU</a></p></li>
 </ul>
-</div>
-<div class="section" id="setup-ubuntu-18-0-4-on-wsl">
+</section>
+<section id="setup-ubuntu-18-0-4-on-wsl">
 <h2>Setup Ubuntu 18.0.4 on WSL:<a class="headerlink" href="#setup-ubuntu-18-0-4-on-wsl" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux Installation Guide for Windows 10</a></p></li>
 <li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-on-server">Windows Subsystem for Linux Installation Guide for Windows Server 2019</a></p></li>
 </ul>
-</div>
-<div class="section" id="install-from-binaries">
+</section>
+<section id="install-from-binaries">
 <h2>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
 <li><p>Setup Ubuntu Environment</p></li>
@@ -338,8 +341,8 @@
 <span class="n">pip</span> <span class="n">install</span> <span class="n">torchserve</span> <span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-from-source">
+</section>
+<section id="install-from-source">
 <h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
 <li><p>Clone and install TorchServe</p></li>
@@ -354,8 +357,8 @@ echo &#39;export PATH=$HOME/.local/bin:$PATH&#39; &gt;&gt; ~/.bashrc
 source ~/.bashrc
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
              </article>
@@ -413,6 +416,7 @@ source ~/.bashrc
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

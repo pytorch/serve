@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Batch Inference with TorchServe &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -306,9 +309,9 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="batch-inference-with-torchserve">
+  <section id="batch-inference-with-torchserve">
 <h1>Batch Inference with TorchServe<a class="headerlink" href="#batch-inference-with-torchserve" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="contents-of-this-document">
+<section id="contents-of-this-document">
 <h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#introduction">Introduction</a></p></li>
@@ -316,28 +319,28 @@
 <li><p><a class="reference external" href="#batch-inference-with-torchserves-default-handlers">Batch Inference with TorchServe’s default handlers</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserve-using-resnet-152-model">Batch Inference with TorchServe using ResNet-152 model</a></p></li>
 </ul>
-</div>
-<div class="section" id="introduction">
+</section>
+<section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>Batch inference is a process of aggregating inference requests and sending this aggregated requests through the ML/DL framework for inference all at once.
 TorchServe was designed to natively support batching of incoming inference requests. This functionality enables you to use your host resources optimally,
 because most ML/DL frameworks are optimized for batch requests.
 This optimal use of host resources in turn reduces the operational expense of hosting an inference service using TorchServe.
 In this document we show an example of how this is done and compare the performance of running a batched inference against running single inference.</p>
-</div>
-<div class="section" id="prerequisites">
+</section>
+<section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>Before jumping into this document, read the following docs:</p>
 <ol class="simple">
 <li><p><a class="reference internal" href="README.html"><span class="doc">What is TorchServe?</span></a></p></li>
 <li><p><a class="reference internal" href="custom_service.html"><span class="doc">What is custom service code?</span></a></p></li>
 </ol>
-</div>
-<div class="section" id="batch-inference-with-torchserve-s-default-handlers">
+</section>
+<section id="batch-inference-with-torchserve-s-default-handlers">
 <h2>Batch Inference with TorchServe’s default handlers<a class="headerlink" href="#batch-inference-with-torchserve-s-default-handlers" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe’s default handlers support batch inference out of box except for <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> handler.</p>
-</div>
-<div class="section" id="batch-inference-with-torchserve-using-resnet-152-model">
+</section>
+<section id="batch-inference-with-torchserve-using-resnet-152-model">
 <h2>Batch Inference with TorchServe using ResNet-152 model<a class="headerlink" href="#batch-inference-with-torchserve-using-resnet-152-model" title="Permalink to this headline">¶</a></h2>
 <p>To support batch inference, TorchServe needs the following:</p>
 <ol class="simple">
@@ -346,7 +349,7 @@ TorchServe needs to know the maximum batch size that the model can handle and th
 <li><p>Model handler code: TorchServe requires the Model handler to handle batch inference requests.</p></li>
 </ol>
 <p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalised handler</a></p>
-<div class="section" id="torchserve-model-configuration">
+<section id="torchserve-model-configuration">
 <h3>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this headline">¶</a></h3>
 <p>To configure TorchServe to use the batching feature, provide the batch configuration information through <a class="reference internal" href="management_api.html"><span class="doc">POST /models API</span></a>.</p>
 <p>The configuration that we are interested in is the following:</p>
@@ -363,16 +366,16 @@ curl -X POST <span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp
 <p>These configurations are used both in TorchServe and in the model’s custom service code (a.k.a the handler code).
 TorchServe associates the batch related configuration with each model.
 The frontend then tries to aggregate the batch-size number of requests and send it to the backend.</p>
-</div>
-</div>
-<div class="section" id="demo-to-configure-torchserve-with-batch-supported-model">
+</section>
+</section>
+<section id="demo-to-configure-torchserve-with-batch-supported-model">
 <h2>Demo to configure TorchServe with batch-supported model<a class="headerlink" href="#demo-to-configure-torchserve-with-batch-supported-model" title="Permalink to this headline">¶</a></h2>
 <p>In this section lets bring up model server and launch Resnet-152 model, which uses the default <code class="docutils literal notranslate"><span class="pre">image_classifier</span></code> handler for batch inferencing.</p>
-<div class="section" id="setup-torchserve-and-torch-model-archiver">
+<section id="setup-torchserve-and-torch-model-archiver">
 <h3>Setup TorchServe and Torch Model Archiver<a class="headerlink" href="#setup-torchserve-and-torch-model-archiver" title="Permalink to this headline">¶</a></h3>
 <p>First things first, follow the main <a class="reference internal" href="README.html"><span class="doc">Readme</span></a> and install all the required packages including <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
-</div>
-<div class="section" id="loading-resnet-152-which-handles-batch-inferences">
+</section>
+<section id="loading-resnet-152-which-handles-batch-inferences">
 <h3>Loading Resnet-152 which handles batch inferences<a class="headerlink" href="#loading-resnet-152-which-handles-batch-inferences" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.</p></li>
@@ -453,9 +456,9 @@ $ torchserve --start --model-store model_store
 </ul>
 </li>
 </ul>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
              </article>
@@ -522,6 +525,7 @@ $ torchserve --start --model-store model_store
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

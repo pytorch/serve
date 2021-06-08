@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>TorchServe on Windows &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -302,17 +305,17 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve-on-windows">
+  <section id="torchserve-on-windows">
 <h1>TorchServe on Windows<a class="headerlink" href="#torchserve-on-windows" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="contents-of-this-document">
+<section id="contents-of-this-document">
 <h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
 <li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
 <li><p><a class="reference external" href="#install-from-source">Install from source</a></p></li>
 </ul>
-</div>
-<div class="section" id="prerequisites">
+</section>
+<section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>At present, it has only been certified on windows server 2019 however should work fine on Windows 10.</p></li>
@@ -337,8 +340,8 @@ e.g.</p></li>
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="install-from-binaries">
+</section>
+<section id="install-from-binaries">
 <h2>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
 <p>NOTE At present, wheels for windows are not available on PyPi. However following steps can also be used if you have prebuilt torchserve wheel for windows.</p>
 <ul class="simple">
@@ -359,8 +362,8 @@ e.g.</p></li>
 <li><p>Start torchserve <code class="docutils literal notranslate"><span class="pre">torchserve.exe</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">&lt;path-to-model-store&gt;</span></code></p></li>
 <li><p>For next steps refer <a class="reference external" href="../README.md#serve-a-model">Serving a model</a></p></li>
 </ul>
-</div>
-<div class="section" id="install-from-source">
+</section>
+<section id="install-from-source">
 <h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p>Esnure that system or user profile environment variable name <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> with value as <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk11-path&gt;</span></code> path is present.</p></li>
@@ -374,14 +377,14 @@ e.g. C:\Program Files\NVIDIA Corporation\NVSMI, add this path to <code class="do
 <li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">click</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
 </ul>
-<div class="section" id="for-production-usage-use-commands-below">
+<section id="for-production-usage-use-commands-below">
 <h3>For production usage, use commands below:<a class="headerlink" href="#for-production-usage-use-commands-below" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span> <span class="pre">--environment=prod</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
 </ul>
-</div>
-<div class="section" id="for-development-purposes-use-commands-below">
+</section>
+<section id="for-development-purposes-use-commands-below">
 <h3>For development purposes, use commands below:<a class="headerlink" href="#for-development-purposes-use-commands-below" title="Permalink to this headline">¶</a></h3>
 <p>If you plan to develop with TorchServe and change some source code, commands below will help.
 The install_dependencies script installs few extra dependencies which are needed for development and testing.</p>
@@ -389,9 +392,9 @@ The install_dependencies script installs few extra dependencies which are needed
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span> <span class="pre">--environment=dev</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="troubleshooting">
+</section>
+</section>
+<section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/config.properties</span></code>,
@@ -400,8 +403,8 @@ all files in <code class="docutils literal notranslate"><span class="pre">fronte
 <code class="docutils literal notranslate"><span class="pre">Remove-item</span> <span class="pre">alias:curl</span></code>
 Refer this <a class="reference external" href="https://stackoverflow.com/questions/25044010/running-curl-on-64-bit-windows">SO answer</a> for details.</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
              </article>
@@ -464,6 +467,7 @@ Refer this <a class="reference external" href="https://stackoverflow.com/questio
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>TorchServe &mdash; PyTorch/Serve master documentation</title>
@@ -27,6 +28,8 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
@@ -296,11 +299,10 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="torchserve">
+  <section id="torchserve">
 <h1>TorchServe<a class="headerlink" href="#torchserve" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe is a flexible and easy to use tool for serving PyTorch models.</p>
-<p><strong>WARNING:</strong> TorchServe is experimental and subject to change.</p>
-<div class="section" id="basic-features">
+<section id="basic-features">
 <h2>Basic Features<a class="headerlink" href="#basic-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
@@ -321,8 +323,8 @@
 <li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
 <li><p><a class="reference internal" href="model_zoo.html"><span class="doc">Model Zoo</span></a> - List of pre-trained model archives ready to be served for inference with TorchServe.</p></li>
 </ul>
-</div>
-<div class="section" id="advanced-features">
+</section>
+<section id="advanced-features">
 <h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced configuration</span></a> - Describes advanced TorchServe configurations.</p></li>
@@ -331,8 +333,8 @@
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking">Benchmark</a> - Use JMeter to run TorchServe through the paces and collect benchmark data.</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes">TorchServe on Kubernetes</a> -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart.</p></li>
 </ul>
-</div>
-<div class="section" id="default-handlers">
+</section>
+<section id="default-handlers">
 <h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
@@ -340,8 +342,8 @@
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_segmenter.py">Image Segmenter</a>- This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
              </article>
@@ -398,6 +400,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>
