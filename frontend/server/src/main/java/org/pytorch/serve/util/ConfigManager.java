@@ -1,5 +1,7 @@
 package org.pytorch.serve.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -7,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +32,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -95,6 +99,7 @@ public final class ConfigManager {
     private static final String METRIC_TIME_INTERVAL = "metric_time_interval";
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
     private static final String MODEL_SNAPSHOT = "model_snapshot";
+    private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
 
     // Variables which are local
@@ -119,6 +124,7 @@ public final class ConfigManager {
 
     private static ConfigManager instance;
     private String hostName;
+    private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -215,6 +221,8 @@ public final class ConfigManager {
             // Environment variables have higher precedence over the config file variables
             setSystemVars();
         }
+
+        setModelConfig();
     }
 
     public static String readFile(String path) throws IOException {
@@ -607,7 +615,9 @@ public final class ConfigManager {
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
                 + "\nWorkflow Store: "
-                + (getWorkflowStore() == null ? "N/A" : getWorkflowStore());
+                + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nModel config: "
+                + prop.getProperty(MODEL_CONFIG, "N/A");
     }
 
     public boolean useNativeIo() {
@@ -766,6 +776,23 @@ public final class ConfigManager {
 
     public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
+    }
+
+    private void setModelConfig() {
+        String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
+        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>(){}.getType();
+
+        if (modelConfigStr != null) {
+            this.modelConfig = JsonUtils.GSON.fromJson(modelConfigStr, type);
+        }
+    }
+
+    public JsonObject getModelConfig(String modelName, String version) {
+        if (this.modelConfig.containsKey(modelName)) {
+            Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
+            return versionModel.getOrDefault(version, null);
+        }
+        return null;
     }
 
     public static final class Arguments {

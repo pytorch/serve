@@ -97,6 +97,10 @@ public class ConfigManagerTest {
         ConfigManager configManager = ConfigManager.getInstance();
         Assert.assertEquals("false", configManager.getEnableEnvVarsConfig());
         Assert.assertEquals(120, configManager.getDefaultResponseTimeout());
+        Assert.assertEquals(4,
+                configManager.getModelConfig("model1", "1.0").get("batchSize").getAsInt());
+        Assert.assertEquals(4,
+                configManager.getModelConfig("model2", "1.0").get("maxWorkers").getAsInt());
         modifyEnv("TS_DEFAULT_RESPONSE_TIMEOUT", "120");
     }
 }
