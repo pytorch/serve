@@ -1,5 +1,6 @@
 package org.pytorch.serve;
 
+import com.google.gson.JsonObject;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
@@ -195,8 +196,10 @@ public class ModelServer {
                         modelManager.updateModel(
                                 archive.getModelName(),
                                 archive.getModelVersion(),
-                                workers,
-                                workers,
+                                configManager.getJsonIntValue(
+                                        archive.getModelName(), archive.getModelVersion(), Model.MIN_WORKERS, workers),
+                                configManager.getJsonIntValue(
+                                        archive.getModelName(), archive.getModelVersion(), Model.MAX_WORKERS, workers),
                                 true,
                                 false);
                         startupModels.add(archive.getModelName());
@@ -246,8 +249,10 @@ public class ModelServer {
                 modelManager.updateModel(
                         archive.getModelName(),
                         archive.getModelVersion(),
-                        workers,
-                        workers,
+                        configManager.getJsonIntValue(
+                                modelName, archive.getModelVersion(), Model.MIN_WORKERS, workers),
+                        configManager.getJsonIntValue(
+                                modelName, archive.getModelVersion(), Model.MAX_WORKERS, workers),
                         true,
                         false);
                 startupModels.add(archive.getModelName());

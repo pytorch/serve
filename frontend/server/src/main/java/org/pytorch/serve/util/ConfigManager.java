@@ -45,13 +45,17 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
+import org.pytorch.serve.ModelServer;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
+import org.slf4j.LoggerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
     // NOTE: Variables which can be configured through environment variables **SHOULD** have a
     // "TS_" prefix
+
+    private org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
@@ -787,12 +791,25 @@ public final class ConfigManager {
         }
     }
 
-    public JsonObject getModelConfig(String modelName, String version) {
+    public int getJsonIntValue(String modelName, String version, String element, int defaultVal) {
+        int value = defaultVal;
         if (this.modelConfig.containsKey(modelName)) {
             Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
-            return versionModel.getOrDefault(version, null);
+            JsonObject jsonObject = versionModel.getOrDefault(version, null);
+
+            if (jsonObject != null && jsonObject.get(element) != null) {
+                try {
+                    value = jsonObject.get(element).getAsInt();
+                    if (value <= 0) {
+                        value = defaultVal;
+                    }
+                } catch (ClassCastException | IllegalStateException e) {
+                    logger.error("Invalid value for model: " + modelName + ":" + version + ", parameter: " + element);
+                    return defaultVal;
+                }
+            }
         }
-        return null;
+        return value;
     }
 
     public static final class Arguments {

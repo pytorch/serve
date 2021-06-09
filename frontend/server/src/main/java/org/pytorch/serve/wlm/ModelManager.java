@@ -226,22 +226,6 @@ public final class ModelManager {
         }
     }
 
-    private int getJsonIntValue(JsonObject jsonObject, String element, int defaultVal) {
-        int value = defaultVal;
-        if (jsonObject != null && jsonObject.get(element) != null) {
-            try {
-                value = jsonObject.get(element).getAsInt();
-                if (value <= 0) {
-                    value = defaultVal;
-                }
-            } catch (ClassCastException | IllegalStateException e) {
-                logger.error("Invalid value for model parameter " + element);
-                return defaultVal;
-            }
-        }
-        return value;
-    }
-
     private Model createModel(
             ModelArchive archive,
             int batchSize,
@@ -249,13 +233,13 @@ public final class ModelManager {
             int responseTimeout,
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
-        JsonObject jsonObject = configManager.getModelConfig(archive.getModelName(), archive.getModelVersion());
 
-        model.setBatchSize(getJsonIntValue(jsonObject, Model.BATCH_SIZE, batchSize));
-        model.setMaxBatchDelay(getJsonIntValue(jsonObject, Model.MAX_BATCH_DELAY, maxBatchDelay));
-        model.setResponseTimeout(getJsonIntValue(jsonObject, Model.RESPONSE_TIMEOUT, responseTimeout));
-        model.setMinWorkers(getJsonIntValue(jsonObject, Model.MIN_WORKERS, configManager.getDefaultWorkers()));
-        model.setMaxWorkers(getJsonIntValue(jsonObject, Model.MAX_WORKERS, configManager.getDefaultWorkers()));
+        model.setBatchSize(configManager.getJsonIntValue(
+                archive.getModelName(), archive.getModelVersion(), Model.BATCH_SIZE, batchSize));
+        model.setMaxBatchDelay(configManager.getJsonIntValue(
+                archive.getModelName(), archive.getModelVersion(), Model.MAX_BATCH_DELAY, maxBatchDelay));
+        model.setResponseTimeout(configManager.getJsonIntValue(
+                archive.getModelName(), archive.getModelVersion(), Model.RESPONSE_TIMEOUT, responseTimeout));
         model.setWorkflowModel(isWorkflowModel);
 
         return model;
@@ -377,11 +361,9 @@ public final class ModelManager {
                     "Model version: " + versionId + " does not exist for model: " + modelName);
         }
 
-        if (!isStartup) {
-            model.setMinWorkers(minWorkers);
-            model.setMaxWorkers(maxWorkers);
-            logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
-        }
+        model.setMinWorkers(minWorkers);
+        model.setMaxWorkers(maxWorkers);
+        logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
 
         return wlm.modelChanged(model, isStartup, isCleanUp);
     }
