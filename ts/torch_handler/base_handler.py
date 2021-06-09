@@ -28,6 +28,8 @@ class BaseHandler(abc.ABC):
         self.context = None
         self.manifest = None
         self.map_location = None
+        self.explain = False
+        self.target = 0
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
@@ -42,20 +44,19 @@ class BaseHandler(abc.ABC):
 
         """
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
+        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu"
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available()
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else self.map_location
         )
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        serialized_file = self.manifest["model"]["serializedFile"]
-        model_pt_path = os.path.join(model_dir, serialized_file)
-
-        if not os.path.isfile(model_pt_path):
-            raise RuntimeError("Missing the model.pt file")
+        model_pt_path = None
+        if "serializedFile" in self.manifest["model"]:
+            serialized_file = self.manifest["model"]["serializedFile"]
+            model_pt_path = os.path.join(model_dir, serialized_file)
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
@@ -63,11 +64,14 @@ class BaseHandler(abc.ABC):
         if model_file:
             logger.debug("Loading eager model")
             self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model.to(self.device)
         else:
             logger.debug("Loading torchscript model")
+            if not os.path.isfile(model_pt_path):
+                raise RuntimeError("Missing the model.pt file")
+
             self.model = self._load_torchscript_model(model_pt_path)
 
-        self.model.to(self.device)
         self.model.eval()
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
@@ -87,7 +91,7 @@ class BaseHandler(abc.ABC):
         Returns:
             (NN Model Object) : Loads the model object.
         """
-        return torch.jit.load(model_pt_path, map_location=self.map_location)
+        return torch.jit.load(model_pt_path, map_location=self.device)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
@@ -120,9 +124,10 @@ class BaseHandler(abc.ABC):
             )
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path, map_location=self.map_location)
         model = model_class()
-        model.load_state_dict(state_dict)
+        if model_pt_path:
+            state_dict = torch.load(model_pt_path, map_location=self.device)
+            model.load_state_dict(state_dict)
         return model
 
     def preprocess(self, data):
@@ -141,7 +146,7 @@ class BaseHandler(abc.ABC):
     def inference(self, data, *args, **kwargs):
         """
         The Inference Function is used to make a prediction call on the given input request.
-        The user needs to over-ride the inference function to customize it.
+        The user needs to override the inference function to customize it.
 
         Args:
             data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
@@ -189,10 +194,47 @@ class BaseHandler(abc.ABC):
         self.context = context
         metrics = self.context.metrics
 
-        data = self.preprocess(data)
-        data = self.inference(data)
-        data = self.postprocess(data)
+        data_preprocess = self.preprocess(data)
+
+        if not self._is_explain():
+            output = self.inference(data_preprocess)
+            output = self.postprocess(output)
+        else :
+            output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
-        return data
+        return output
+
+    def explain_handle(self, data_preprocess, raw_data):
+        """Captum explanations handler
+
+        Args:
+            data_preprocess (Torch Tensor): Preprocessed data to be used for captum
+            raw_data (list): The unprocessed data to get target from the request
+
+        Returns:
+            dict : A dictionary response with the explanations response.
+        """
+        output_explain = None
+        inputs = None
+        target = 0
+
+        logger.info("Calculating Explanations")
+        row = raw_data[0]
+        if isinstance(row, dict):
+            logger.info("Getting data and target")
+            inputs = row.get("data") or row.get("body")
+            target = row.get("target")
+            if not target:
+                target = 0
+
+        output_explain = self.get_insights(data_preprocess, inputs, target)
+        return output_explain
+
+    def _is_explain(self):
+        if self.context and self.context.get_request_header(0, "explain"):
+            if self.context.get_request_header(0, "explain") == "True":
+                self.explain = True
+                return True
+        return False

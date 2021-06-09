@@ -28,8 +28,8 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
-import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.wlm.Model;
@@ -61,9 +61,9 @@ public class SnapshotTest {
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-        configManager.setIniitialWorkerPort(9500);
+        configManager.setInitialWorkerPort(9500);
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
     }
 
     @AfterClass
@@ -264,7 +264,7 @@ public class SnapshotTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
             channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
@@ -289,7 +289,7 @@ public class SnapshotTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         server = new ModelServer(configManager);
-        server.start();
+        server.startRESTserver();
         Channel channel = null;
         for (int i = 0; i < 5; ++i) {
             channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
@@ -399,6 +399,7 @@ public class SnapshotTest {
         }
 
         updateSnapshot(actualProp);
+
         assert actualProp.equals(expectedProp);
     }
 

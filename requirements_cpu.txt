@@ -1,2 +1,0 @@
--r requirements/production.txt
--r requirements/torch_cpu.txt

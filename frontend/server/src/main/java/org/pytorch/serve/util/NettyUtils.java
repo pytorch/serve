@@ -26,6 +26,7 @@ import java.net.SocketAddress;
 import java.util.List;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.Session;
+import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.messages.InputParameter;
@@ -97,6 +98,13 @@ public final class NettyUtils {
     public static void sendJsonResponse(
             ChannelHandlerContext ctx, Object json, HttpResponseStatus status) {
         sendJsonResponse(ctx, JsonUtils.GSON_PRETTY.toJson(json), status);
+    }
+
+    public static void sendJsonResponse(ChannelHandlerContext ctx, StatusResponse statusResponse) {
+        sendJsonResponse(
+                ctx,
+                JsonUtils.GSON_PRETTY_EXPOSED.toJson(statusResponse),
+                HttpResponseStatus.valueOf(statusResponse.getHttpResponseCode()));
     }
 
     public static void sendJsonResponse(ChannelHandlerContext ctx, String json) {

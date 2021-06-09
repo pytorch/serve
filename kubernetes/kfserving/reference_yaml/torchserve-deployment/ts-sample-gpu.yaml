@@ -1,0 +1,13 @@
+apiVersion: "serving.kubeflow.org/v1beta1"
+kind: "InferenceService"
+metadata:
+ name: "torch-pred-gpu"
+spec:
+ predictor:
+   pytorch:
+     protocolVersion: v2
+     storageUri: "pvc://model-store-claim"
+     resources:
+       limits:
+         memory: 4Gi
+         nvidia.com/gpu: 1

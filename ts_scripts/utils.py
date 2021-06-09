@@ -1,9 +1,13 @@
 import os
+import platform
 import sys
 
+nvidia_smi_cmd = {'Windows': 'nvidia-smi.exe',
+                         'Darwin': 'nvidia-smi',
+                         'Linux': 'nvidia-smi'}
 
 def is_gpu_instance():
-    return True if os.system("nvidia-smi") == 0 else False
+    return True if os.system(nvidia_smi_cmd[platform.system()]) == 0 else False
 
 
 def is_conda_env():

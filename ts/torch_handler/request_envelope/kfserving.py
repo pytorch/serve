@@ -1,6 +1,6 @@
 """
-This file is used to handle the KFServing input requests
-in TorchServe
+The KFServing Envelope is used to handle the KFServing
+Input Request inside Torchserve.
 """
 import json
 import logging
@@ -16,7 +16,6 @@ class KFservingEnvelope(BaseEnvelope):
 
     Args:
         data - List of Input Request in KFServing Format
-
     Returns:
         [list]: Returns the list of the Input Request in Torchserve Format
     """
@@ -41,18 +40,20 @@ class KFservingEnvelope(BaseEnvelope):
 
     def format_output(self, data):
         """
-        Returns the prediction response of the input request.
+        Returns the prediction response and captum explanation response of the input request.
 
         Args:
             outputs (List): The outputs arguments is in the form of a list of dictionaries.
 
         Returns:
-            (list): The response is returned as a list of predictions
+            (list): The response is returned as a list of predictions and explanations
         """
         response = {}
         logger.info("The Response of KFServing %s", data)
         if not self._is_explain():
             response["predictions"] = data
+        else:
+            response["explanations"] = data
         return [response]
 
     def _is_explain(self):

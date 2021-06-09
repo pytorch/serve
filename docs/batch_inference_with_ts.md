@@ -34,11 +34,11 @@ To support batch inference, TorchServe needs the following:
    TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.
 2. Model handler code: TorchServe requires the Model handler to handle batch inference requests.
 
-For a full working example of a custom model handler with batch processing, see [resnet152_handler.py](../examples/image_classifier/resnet_152_batch/resnet152_handler.py)
+For a full working example of a custom model handler with batch processing, see [Hugging face transformer generalised handler](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py)
 
 ### TorchServe Model Configuration
 
-To configure TorchServe to use the batching feature, provide the batch configuration information through [**POST /models** API](management_api.md#register-a-model).
+To configure TorchServe to use the batching feature, provide the batch configuration information through [**POST /models** API](management_api.md).
 
 The configuration that we are interested in is the following:
 
@@ -61,9 +61,9 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 
 In this section lets bring up model server and launch Resnet-152 model, which uses the default `image_classifier` handler for batch inferencing.
 
-### Prerequisites
+### Setup TorchServe and Torch Model Archiver
 
-Follow the main [Readme](../README.md) and install all the required packages including `torchserve`.
+First things first, follow the main [Readme](../README.md) and install all the required packages including `torchserve`.
 
 ### Loading Resnet-152 which handles batch inferences
 
@@ -98,7 +98,7 @@ $ curl -X POST "localhost:8081/models?url=https://torchserve.pytorch.org/mar_fil
 
 * Verify that the workers were started properly.
 
-```text
+```json
 [
   {
     "modelName": "resnet-152-batch_v2",

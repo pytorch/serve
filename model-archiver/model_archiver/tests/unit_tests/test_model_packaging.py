@@ -55,7 +55,6 @@ class TestModelPackaging:
         package_model(self.args, ModelExportUtils.generate_manifest_json(self.args))
         patches.export_utils.validate_inputs.assert_called()
         patches.export_utils.archive.assert_called()
-        patches.export_utils.clean_temp_files.assert_called()
 
     def test_export_model_method_tar(self, patches):
         self.args.update(archive_format="tar")
@@ -66,7 +65,6 @@ class TestModelPackaging:
         package_model(self.args, ModelExportUtils.generate_manifest_json(self.args))
         patches.export_utils.validate_inputs.assert_called()
         patches.export_utils.archive.assert_called()
-        patches.export_utils.clean_temp_files.assert_called()
 
     def test_export_model_method_noarchive(self, patches):
         self.args.update(archive_format="no-archive")
@@ -77,4 +75,3 @@ class TestModelPackaging:
         package_model(self.args, ModelExportUtils.generate_manifest_json(self.args))
         patches.export_utils.validate_inputs.assert_called()
         patches.export_utils.archive.assert_called()
-        patches.export_utils.clean_temp_files.assert_called()

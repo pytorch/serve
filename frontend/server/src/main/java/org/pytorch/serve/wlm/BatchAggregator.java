@@ -1,8 +1,8 @@
 package org.pytorch.serve.wlm;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
@@ -83,7 +83,7 @@ public class BatchAggregator {
                 if (j == null) {
                     throw new IllegalStateException("Unexpected job: " + reqId);
                 }
-                j.sendError(HttpResponseStatus.valueOf(message.getCode()), message.getMessage());
+                j.sendError(message.getCode(), message.getMessage());
             }
             if (!jobs.isEmpty()) {
                 throw new IllegalStateException("Not all jobs get response.");
@@ -91,7 +91,7 @@ public class BatchAggregator {
         }
     }
 
-    public void sendError(BaseModelRequest message, String error, HttpResponseStatus status) {
+    public void sendError(BaseModelRequest message, String error, int status) {
         if (message instanceof ModelLoadModelRequest) {
             logger.warn("Load model failed: {}, error: {}", message.getModelName(), error);
             return;

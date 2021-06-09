@@ -28,9 +28,9 @@ install_java_deps()
 
 install_torch_deps()
 {
-  if [ is_gpu_instance ] && [ "$1" == "cuda101" ];
+  if is_gpu_instance && [ ! -z "$1" ];
   then
-	  pip install -U -r requirements_cu101.txt -f https://download.pytorch.org/whl/torch_stable.html
+	  pip install -U -r requirements_$1.txt -f https://download.pytorch.org/whl/torch_stable.html
 	else
 	  pip install -U -r requirements.txt
 	fi
@@ -43,7 +43,7 @@ install_pytest_suite_deps()
 
 install_bert_dependencies()
 {
-  pip install transformers
+  pip install transformers==3.5.1
 }
 
 build_frontend() {
@@ -117,12 +117,51 @@ run_model_archiver_IT_suite()
   cd ..
 }
 
+run_workflow_archiver_python_linting()
+{
+  cd workflow-archiver
+  if pylint -rn --rcfile=./workflow_archiver/tests/pylintrc workflow_archiver/.;
+  then
+    echo "Workflow archiver python linting suite execution successful"
+  else
+    echo "Workflow archiver python linting execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
+run_workflow_archiver_UT_suite()
+{
+  cd workflow-archiver
+  if python -m pytest --cov-report html:htmlcov_ut --cov=workflow_archiver/ workflow_archiver/tests/unit_tests/;
+  then
+    echo "Workflow-archiver UT test suite execution successfully"
+  else
+    echo "Workflow-archiver UT test suite execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
+run_workflow_archiver_IT_suite()
+{
+  cd workflow-archiver
+  if python -m pytest --cov-report html:htmlcov_it --cov=workflow_archiver/ workflow_archiver/tests/integ_tests/;
+  then
+    echo "Workflow-archiver IT test suite execution successful"
+  else
+    echo "Workflow-archiver IT test suite execution failed!!! Check logs for more details"
+    exit 1
+  fi
+  cd ..
+}
+
 build_install_server()
 {
 	pip install .
 }
 
-build_install_archiver()
+build_install_model_archiver()
 {
 	echo $PWD
 	cd model-archiver
@@ -131,6 +170,20 @@ build_install_archiver()
     echo "Successfully installed torch-model-archiver"
   else
     echo "torch-model-archiver installation failed"
+    exit 1
+  fi
+  cd ..
+}
+
+build_install_workflow_archiver()
+{
+	echo $PWD
+	cd workflow-archiver
+	if pip install .;
+  then
+    echo "Successfully installed torch-workflow-archiver"
+  else
+    echo "torch-workflow-archiver installation failed"
     exit 1
   fi
   cd ..
@@ -223,17 +276,27 @@ clean_up_build_residuals()
   rm -rf ts/utils/__pycache__/
 }
 
-is_gpu_instance()
-{
-  [ -x "$(command -v nvidia-smi)" ]
+is_gpu_instance(){
+  if command -v nvidia-smi;
+  then
+    nvidia-smi | grep 'NVIDIA-SMI has failed'
+    if [ $? == 0 ];
+    then
+      return 1
+    else
+      return 0
+    fi
+
+  else
+    return 1
+  fi
 }
 
 run_markdown_link_checker(){
   STATUS=0
-  shopt -s globstar
   set +e
-  for i in **/*.md; do # Whitespace-safe and recursive
-        markdown-link-check $i --config link_check_config.json
+  for i in $(find . -name \*.md); do # Whitespace-safe and recursive
+        markdown-link-check $i --config link_check_config.json -q
         if [ $?  -ne  0 ] ; then
           echo Broken links in $i
           STATUS=1

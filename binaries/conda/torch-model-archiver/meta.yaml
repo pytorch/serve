@@ -2,6 +2,9 @@ package:
   name: torch-model-archiver
   version: "{{ environ.get('TORCH_MODEL_ARCHIVER_VERSION') }}"
 
+source:
+  path: "{{ environ.get('TORCHSERVE_ROOT_DIR') }}/model-archiver"
+
 requirements:
   build:
     - python
@@ -14,9 +17,7 @@ requirements:
     - future
 
 build:
-  noarch: generic
-  script_env:
-    - TORCH_MODEL_ARCHIVER_WHEEL
+  script: "{{ PYTHON }} -m pip install . -vv"
 
 about:
   home: https://github.com/pytorch/serve

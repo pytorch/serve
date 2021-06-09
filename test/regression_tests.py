@@ -12,6 +12,10 @@ from ts_scripts.api_utils import test_api
 from ts_scripts import print_env_info  as build_hdr_printer
 from ts_scripts.utils import check_python_version
 
+import datetime
+now = datetime.datetime.now()
+print ("Current date and time : " + now.strftime("%Y-%m-%d %H:%M:%S"))
+
 check_python_version()
 
 git_branch = Repository('.').head.shorthand

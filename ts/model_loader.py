@@ -83,7 +83,13 @@ class TsModelLoader(ModelLoader):
             module = self._load_default_handler(handler)
 
         if module is None:
-            raise ValueError("Unable to load module {}, make sure it is added to python path".format(module_name))
+            raise ValueError("Unable to load module {}, make sure it is added to python path".format(handler))
+        if function_name is None:
+            function_name = "handle"
+
+        if hasattr(module, function_name):
+            entry_point = getattr(module, function_name)
+            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size)
 
         envelope_class = None
         if envelope is not None:

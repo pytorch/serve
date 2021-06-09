@@ -245,7 +245,7 @@ kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 
 ## Login to grafana
 
-<http://your.grafana.loadbalancer.address:3000>
+`<http://your.grafana.loadbalancer.address:3000>`
 
 ## Logging
 
