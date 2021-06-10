@@ -496,6 +496,7 @@ public class ModelServer {
             try {
                 future.channel().close().sync();
             } catch (InterruptedException ignore) {
+                ignore.printStackTrace(); // NOPMD
             }
 
             SnapshotManager.getInstance().saveShutdownSnapshot();
