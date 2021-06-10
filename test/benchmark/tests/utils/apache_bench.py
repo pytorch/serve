@@ -58,12 +58,13 @@ class ApacheBenchHandler(object):
         """
         self.connection.run(f"mkdir -p {TMP_DIR}/benchmark")
 
-        self.connection.run(f"wget {input_file}")
-
-        file_name = self.connection.run(f"basename {input_file}").stdout.strip()
-
-        # Copy to the directory with other benchmark artifacts
-        self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
+        if input_file.startswith("https://") or input_file.startswith("http://"):
+            self.connection.run(f"wget {input_file}", warn=True)
+            file_name = self.connection.run(f"basename {input_file}").stdout.strip()
+            # Copy to the directory with other benchmark artifacts
+            self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
+        else:
+            self.connection.run(f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}")
 
         apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark > {self.result_file}"
 

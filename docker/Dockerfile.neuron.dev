@@ -34,6 +34,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     build-essential \
     openjdk-11-jdk \
     curl \
+    wget \
     vim \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
@@ -44,6 +45,17 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
 RUN pip install -U pip setuptools
+
+RUN echo "deb https://apt.repos.neuron.amazonaws.com bionic main" > /etc/apt/sources.list.d/neuron.list
+RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
+
+RUN apt-get update \
+    && apt-get install -y \
+    aws-neuron-runtime \
+    aws-neuron-tools \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/tmp* \
+    && apt-get clean
 
 # Build Dev Image
 FROM compile-image AS dev-image

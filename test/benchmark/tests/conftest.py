@@ -91,6 +91,10 @@ def benchmark_execution_id(request):
 
 
 @pytest.fixture(scope="function")
+def bert_neuron_config_file_path(request):
+    return os.path.join(os.getcwd(), "tests", "suite", "bert_neuron.yaml")
+
+@pytest.fixture(scope="function")
 def vgg11_config_file_path(request):
     return os.path.join(os.getcwd(), "tests", "suite", "vgg11.yaml")
 

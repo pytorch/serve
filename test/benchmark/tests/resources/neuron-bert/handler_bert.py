@@ -49,14 +49,11 @@ class BertEmbeddingHandler(BaseHandler, ABC):
         Tokenization pre-processing
         """
 
-        logger.info(f"input_data: {input_data}")
-
         input_ids = []
         attention_masks = []
         token_type_ids = []
 
         for row in input_data:
-            logger.info(f"row: {row}")
             #seq_0 = row['body']['seq_0'].decode('utf-8')
             #seq_1 = row['body']['seq_1'].decode('utf-8')
 

@@ -10,6 +10,7 @@ import utils.ec2 as ec2_utils
 import utils.s3 as s3_utils
 import utils.ts as ts_utils
 import utils.apache_bench as ab_utils
+import utils.neuron as neuron_utils
 
 from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
@@ -23,15 +24,15 @@ from tests.utils import (
 
 INSTANCE_TYPES_TO_TEST = ["inf1.6xlarge"]
 
-@pytest.mark.skip()
+
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
 def test_vgg16_benchmark(
-    ec2_connection, ec2_instance_type, vgg16_config_file_path, docker_dev_image_config_path, benchmark_execution_id
+    ec2_connection, ec2_instance_type, bert_neuron_config_file_path, docker_dev_image_config_path, benchmark_execution_id
 ):
 
-    test_config = YamlHandler.load_yaml(vgg16_config_file_path)
+    test_config = YamlHandler.load_yaml(bert_neuron_config_file_path)
 
-    model_name = vgg16_config_file_path.split("/")[-1].split(".")[0]
+    model_name = bert_neuron_config_file_path.split("/")[-1].split(".")[0]
 
     LOGGER.info("Validating yaml contents")
 
@@ -83,7 +84,6 @@ def test_vgg16_benchmark(
         for mode, mode_config in config.items():
             mode_list.append(mode)
             benchmark_engine = mode_config.get("benchmark_engine")
-            url = mode_config.get("url")
             workers = mode_config.get("workers")
             batch_delay = mode_config.get("batch_delay")
             batch_sizes = mode_config.get("batch_size")
@@ -96,11 +96,11 @@ def test_vgg16_benchmark(
             gpus = None
             if len(processors) == 2:
                 gpus = processors[1].get("gpus")
-            LOGGER.info(f"processors: {processors[1]}")
-            LOGGER.info(f"gpus: {gpus}")
+                LOGGER.info(f"processors: {processors[1]}")
+                LOGGER.info(f"gpus: {gpus}")
 
             LOGGER.info(
-                f"\n benchmark_engine: {benchmark_engine}\n url: {url}\n workers: {workers}\n batch_delay: {batch_delay}\n batch_size:{batch_sizes}\n input_file: {input_file}\n requests: {requests}\n concurrency: {concurrency}\n backend_profiling: {backend_profiling}\n exec_env: {exec_env}\n processors: {processors}"
+                f"\n benchmark_engine: {benchmark_engine}\n  workers: {workers}\n batch_delay: {batch_delay}\n batch_size:{batch_sizes}\n input_file: {input_file}\n requests: {requests}\n concurrency: {concurrency}\n backend_profiling: {backend_profiling}\n exec_env: {exec_env}\n processors: {processors}"
             )
 
             torchserveHandler = ts_utils.TorchServeHandler(
@@ -111,11 +111,19 @@ def test_vgg16_benchmark(
                 backend_profiling=backend_profiling,
                 connection=ec2_connection,
             )
+            
+            # Note: Assumes a DLAMI is being used
+            torchserveHandler.setup_torchserve(virtual_env_name="aws_neuron_pytorch_p36")
 
             for batch_size in batch_sizes:
+                url = f"benchmark_{batch_size}.mar"
+                LOGGER.info(f"Running benchmark for model archive: {url}")
+
+                # Generate bert inf model
+                neuron_utils.setup_neuron_mar_files(connection=ec2_connection, virtual_env_name="aws_neuron_pytorch_p36", batch_size=batch_size)
 
                 # Start torchserve
-                torchserveHandler.start_torchserve_docker()
+                torchserveHandler.start_torchserve_local(virtual_env_name="aws_neuron_pytorch_p36")
 
                 # Register
                 torchserveHandler.register_model(
@@ -132,7 +140,9 @@ def test_vgg16_benchmark(
                 torchserveHandler.stop_torchserve()
 
                 # Generate report (note: needs to happen after torchserve has stopped)
-                apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency, connection=ec2_connection)
+                apacheBenchHandler.generate_report(
+                    requests=requests, concurrency=concurrency, connection=ec2_connection
+                )
 
                 # Move artifacts into a common folder.
                 remote_artifact_folder = (

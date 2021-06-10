@@ -3,12 +3,23 @@ import torch
 import torch.neuron
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import logging
+import argparse
 
 ## Enable logging so we can see any important warnings
 logger = logging.getLogger('Neuron')
 logger.setLevel(logging.INFO)
 
-batch_size = 6
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+"--batch-size",
+action="store",
+help="Supply a .yaml file with test_name, instance_id, and key_filename to re-use already-running instances",
+)
+
+arguments = parser.parse_args()
+
+batch_size = int(arguments.batch_size)
 
 # Build tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-cased-finetuned-mrpc", return_dict=False)
@@ -51,4 +62,4 @@ paraphrase_classification_logits_neuron = model_neuron(*example_inputs_paraphras
 not_paraphrase_classification_logits_neuron = model_neuron(*example_inputs_not_paraphrase)
 
 # Save the TorchScript for later use
-model_neuron.save("bert_neuron.pt".format(batch_size))
+model_neuron.save(f"bert_neuron_{batch_size}.pt")

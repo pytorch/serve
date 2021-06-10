@@ -142,11 +142,10 @@ class YamlHandler(object):
         "input",
         "processors",
         "requests",
-        "url",
         "workers",
     ]
 
-    optional_config_keys = ["dockerhub_image", "docker_dev_image"]
+    optional_config_keys = ["url", "dockerhub_image", "docker_dev_image", "compile_per_batch_size"]
 
     valid_config_keys = mandatory_config_keys + optional_config_keys
 
@@ -156,7 +155,7 @@ class YamlHandler(object):
 
     valid_processors = ["cpu", "gpus"]
 
-    valid_docker_processors = ["cpu", "gpu"]
+    valid_docker_processors = ["cpu", "gpu", "inferentia"]
 
     mandatory_docker_config_keys = ["docker_tag"]
 
