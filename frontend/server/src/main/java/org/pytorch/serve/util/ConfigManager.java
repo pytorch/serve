@@ -45,7 +45,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
-import org.pytorch.serve.ModelServer;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.LoggerFactory;
@@ -784,7 +783,7 @@ public final class ConfigManager {
 
     private void setModelConfig() {
         String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
-        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>(){}.getType();
+        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {}.getType();
 
         if (modelConfigStr != null) {
             this.modelConfig = JsonUtils.GSON.fromJson(modelConfigStr, type);
@@ -804,7 +803,13 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    logger.error("Invalid value for model: " + modelName + ":" + version + ", parameter: " + element);
+                    logger.error(
+                            "Invalid value for model: "
+                                    + modelName
+                                    + ":"
+                                    + version
+                                    + ", parameter: "
+                                    + element);
                     return defaultVal;
                 }
             }

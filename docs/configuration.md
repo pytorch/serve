@@ -250,10 +250,10 @@ marName: the mar file name of a model
 A model's configuration example 
 ```properties
 models={\
-  "model1": {\
+  "noop": {\
     "1.0": {\
         "defaultVersion": true,\
-        "marName": "model1.mar",\
+        "marName": "noop.mar",\
         "minWorkers": 1,\
         "maxWorkers": 1,\
         "batchSize": 4,\
@@ -261,10 +261,10 @@ models={\
         "responseTimeout": 120\
     }\
   },\
-  "model2": {\
+  "vgg16": {\
     "1.0": {\
         "defaultVersion": true,\
-        "marName": "model2.mar",\
+        "marName": "vgg16.mar",\
         "minWorkers": 1,\
         "maxWorkers": 4,\
         "batchSize": 8,\

@@ -1,6 +1,5 @@
 package org.pytorch.serve;
 
-import com.google.gson.JsonObject;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
@@ -197,9 +196,15 @@ public class ModelServer {
                                 archive.getModelName(),
                                 archive.getModelVersion(),
                                 configManager.getJsonIntValue(
-                                        archive.getModelName(), archive.getModelVersion(), Model.MIN_WORKERS, workers),
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MIN_WORKERS,
+                                        workers),
                                 configManager.getJsonIntValue(
-                                        archive.getModelName(), archive.getModelVersion(), Model.MAX_WORKERS, workers),
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MAX_WORKERS,
+                                        workers),
                                 true,
                                 false);
                         startupModels.add(archive.getModelName());
@@ -246,13 +251,17 @@ public class ModelServer {
                                 false,
                                 false,
                                 false);
+                logger.info("minWorkers="+configManager.getJsonIntValue(
+                        archive.getModelName(), archive.getModelVersion(), Model.MIN_WORKERS, workers));
+                logger.info("maxWorkers="+configManager.getJsonIntValue(
+                        archive.getModelName(), archive.getModelVersion(), Model.MAX_WORKERS, workers));
                 modelManager.updateModel(
                         archive.getModelName(),
                         archive.getModelVersion(),
                         configManager.getJsonIntValue(
-                                modelName, archive.getModelVersion(), Model.MIN_WORKERS, workers),
+                                archive.getModelName(), archive.getModelVersion(), Model.MIN_WORKERS, workers),
                         configManager.getJsonIntValue(
-                                modelName, archive.getModelVersion(), Model.MAX_WORKERS, workers),
+                                archive.getModelName(), archive.getModelVersion(), Model.MAX_WORKERS, workers),
                         true,
                         false);
                 startupModels.add(archive.getModelName());
@@ -491,18 +500,17 @@ public class ModelServer {
             try {
                 future.channel().close().sync();
             } catch (InterruptedException ignore) {
-                ignore.printStackTrace(); // NOPMD
             }
-        }
 
-        SnapshotManager.getInstance().saveShutdownSnapshot();
-        serverGroups.shutdown(true);
-        serverGroups.init();
+            SnapshotManager.getInstance().saveShutdownSnapshot();
+            serverGroups.shutdown(true);
+            serverGroups.init();
 
-        try {
-            exitModelStore();
-        } catch (Exception e) {
-            e.printStackTrace(); // NOPMD
+            try {
+                exitModelStore();
+            } catch (Exception e) {
+                e.printStackTrace(); // NOPMD
+            }
         }
     }
 }

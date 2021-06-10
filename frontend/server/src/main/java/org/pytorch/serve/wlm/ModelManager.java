@@ -234,12 +234,24 @@ public final class ModelManager {
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
-        model.setBatchSize(configManager.getJsonIntValue(
-                archive.getModelName(), archive.getModelVersion(), Model.BATCH_SIZE, batchSize));
-        model.setMaxBatchDelay(configManager.getJsonIntValue(
-                archive.getModelName(), archive.getModelVersion(), Model.MAX_BATCH_DELAY, maxBatchDelay));
-        model.setResponseTimeout(configManager.getJsonIntValue(
-                archive.getModelName(), archive.getModelVersion(), Model.RESPONSE_TIMEOUT, responseTimeout));
+        model.setBatchSize(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.BATCH_SIZE,
+                        batchSize));
+        model.setMaxBatchDelay(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.MAX_BATCH_DELAY,
+                        maxBatchDelay));
+        model.setResponseTimeout(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.RESPONSE_TIMEOUT,
+                        responseTimeout));
         model.setWorkflowModel(isWorkflowModel);
 
         return model;
