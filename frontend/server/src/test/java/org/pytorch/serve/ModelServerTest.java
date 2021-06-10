@@ -201,8 +201,10 @@ public class ModelServerTest {
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        Assert.assertEquals(resp[0].getMinWorkers(),
-                configManager.getJsonIntValue("noop", "1.11", Model.MIN_WORKERS, configManager.getDefaultWorkers()));
+        Assert.assertEquals(
+                resp[0].getMinWorkers(),
+                configManager.getJsonIntValue(
+                        "noop", "1.11", Model.MIN_WORKERS, configManager.getDefaultWorkers()));
     }
 
     @Test(
