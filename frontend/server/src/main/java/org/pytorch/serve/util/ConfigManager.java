@@ -225,7 +225,9 @@ public final class ConfigManager {
             setSystemVars();
         }
 
-        setModelConfig();
+        if (prop.getProperty(MODEL_SNAPSHOT) == null) {
+            setModelConfig();
+        }
     }
 
     public static String readFile(String path) throws IOException {
