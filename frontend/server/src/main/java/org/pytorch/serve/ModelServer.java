@@ -255,9 +255,15 @@ public class ModelServer {
                         archive.getModelName(),
                         archive.getModelVersion(),
                         configManager.getJsonIntValue(
-                                archive.getModelName(), archive.getModelVersion(), Model.MIN_WORKERS, workers),
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MIN_WORKERS,
+                                workers),
                         configManager.getJsonIntValue(
-                                archive.getModelName(), archive.getModelVersion(), Model.MAX_WORKERS, workers),
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MAX_WORKERS,
+                                workers),
                         true,
                         false);
                 startupModels.add(archive.getModelName());
@@ -498,16 +504,16 @@ public class ModelServer {
             } catch (InterruptedException ignore) {
                 ignore.printStackTrace(); // NOPMD
             }
+        }
 
-            SnapshotManager.getInstance().saveShutdownSnapshot();
-            serverGroups.shutdown(true);
-            serverGroups.init();
+        SnapshotManager.getInstance().saveShutdownSnapshot();
+        serverGroups.shutdown(true);
+        serverGroups.init();
 
-            try {
-                exitModelStore();
-            } catch (Exception e) {
-                e.printStackTrace(); // NOPMD
-            }
+        try {
+            exitModelStore();
+        } catch (Exception e) {
+            e.printStackTrace(); // NOPMD
         }
     }
 }
