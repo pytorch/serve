@@ -251,10 +251,6 @@ public class ModelServer {
                                 false,
                                 false,
                                 false);
-                logger.info("minWorkers="+configManager.getJsonIntValue(
-                        archive.getModelName(), archive.getModelVersion(), Model.MIN_WORKERS, workers));
-                logger.info("maxWorkers="+configManager.getJsonIntValue(
-                        archive.getModelName(), archive.getModelVersion(), Model.MAX_WORKERS, workers));
                 modelManager.updateModel(
                         archive.getModelName(),
                         archive.getModelVersion(),
