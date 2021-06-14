@@ -54,8 +54,6 @@ public final class ConfigManager {
     // NOTE: Variables which can be configured through environment variables **SHOULD** have a
     // "TS_" prefix
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigManager.class);
-
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
@@ -803,7 +801,7 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    logger.error(
+                    Logger.getRootLogger().error(
                             "Invalid value for model: "
                                     + modelName
                                     + ":"
