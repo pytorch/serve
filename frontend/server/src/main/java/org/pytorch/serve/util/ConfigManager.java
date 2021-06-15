@@ -47,7 +47,6 @@ import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
-import org.slf4j.LoggerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -801,13 +800,14 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    Logger.getRootLogger().error(
-                            "Invalid value for model: "
-                                    + modelName
-                                    + ":"
-                                    + version
-                                    + ", parameter: "
-                                    + element);
+                    Logger.getRootLogger()
+                            .error(
+                                    "Invalid value for model: "
+                                            + modelName
+                                            + ":"
+                                            + version
+                                            + ", parameter: "
+                                            + element);
                     return defaultVal;
                 }
             }
