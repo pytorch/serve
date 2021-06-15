@@ -73,3 +73,20 @@
     
      ##### Windows:
      Conda install is currently not supported. Please use pip install command instead.
+
+# Uploading packages for staging
+1. Export the following environment variables for TestPypi and anaconda.org authentication
+   ```
+   export CONDA_TOKEN=<>
+   export TWINE_USERNAME=<>
+   export TWINE_PASSWORD=<>
+   ```
+2. Edit `upload.py` to change the CONDA_USER if necessary
+3. Run the following commands to build the packages, and then upload them to staging repos
+   ```
+   python3 binaries/conda/build_packages.py --install-conda-dependencies
+   exec bash
+   python3 binaries/build.py --staging
+   cd binaries/
+   python3 upload.py --upload-pypi-packages --upload-conda-packages 
+   ```
