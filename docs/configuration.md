@@ -84,8 +84,6 @@ See [Enable SSL](#enable-ssl) to configure HTTPS.
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 
-Here are a couple of examples:
-
 ```properties
 # bind inference API to all network interfaces with SSL enabled
 inference_address=https://0.0.0.0:8443
