@@ -12,17 +12,17 @@ the model when you use the model archiver. TorchServe executes this code when it
 
 Provide a custom script to:
 * Initialize the model instance
-* Pre-process input data before it is sent to the model for inference or captum explanations
+* Pre-process input data before it is sent to the model for inference or Captum explanations
 * Customize how the model is invoked for inference or explanations
-* Post-process output from the model before sending the response to the user
+* Post-process output from the model before sending back a response
 
 Following is applicable to all types of custom handlers
 * **data** - The input data from the incoming request
-* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customizaton
+* **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customization
 model_name, model_dir, manifest, batch_size, gpu etc.
 
 ### Start with BaseHandler!
-`BaseHandler` implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you'll only need to override `preprocess` or `postprocess`.
+[BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py) implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you'll only need to override `preprocess` or `postprocess`.
 
 ### Custom handler with `module` level entry point
 

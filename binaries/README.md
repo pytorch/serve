@@ -9,7 +9,7 @@
    ```pwsh
    python .\ts_scripts\install_dependencies.py --environment=dev
    ```
-   > For GPU with Cuda 10.1, make sure add the `--cuda cu101` arg to the above command
+   > For GPU with Cuda 10.2, make sure add the `--cuda cu102` arg to the above command
    
    
 2. To build a `torchserve` and `torch-model-archiver` wheel execute:

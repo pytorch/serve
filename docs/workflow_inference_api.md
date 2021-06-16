@@ -18,10 +18,6 @@ To get predictions from a workflow, make a REST call to `/wfpredict/{workflow_na
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
 curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
-
-or:
-
-curl http://localhost:8080/wfpredict/myworkflow -F "data=@kitten_small.jpg"
 ```
 
 The result is JSON object returning the response bytes from the leaf node of the workflow DAG

@@ -1,12 +1,12 @@
 # Torchserve Use Cases
 
 Torchserve can be used for different use cases. In order to make it convenient for users, some of them have been documented here.
-These use-cases assume you have pre-trained model(s) and torchserve, torch-model-archiver is installed on your target system. 
+These use-cases assume you have pre-trained model(s) and `torchserve`, `torch-model-archiver` is installed on your target system. 
 This should help you in moving your development environment model to production/serving environment.
 
 NOTES
 - If you have not installed latest torchserve and torch-model-archiver then follow [installation](../README.md#install-torchserve-and-torch-model-archiver) instructions and complete installation
-- If planning to use docker (henceforth referred as `Docker`), make sure following prerequisites are in place - 
+- If planning to use docker make sure following prerequisites are in place - 
     - Make sure you have latest docker engine install on your target node. If not then use [this](https://docs.docker.com/engine/install/) link to install it.
     - Follow instructions [install using docker](../docker/README.md#running-torchserve-in-a-production-docker-environment) to share `model-store` directory and start torchserve
 - The following use-case steps uses `curl` to execute torchserve REST api calls. However, you can also use chrome plugin `postman` for this.
@@ -19,7 +19,7 @@ NOTES
 
 [Serve pytorch scripted mode model](#deploy-pytorch-scripted-mode-model)
 
-[Serve readymade models on torchserve model zoo](#serve-readymade-models-on-torchserve-model-zoo)
+[Serve ready made models on torchserve model zoo](#serve-readymade-models-on-torchserve-model-zoo)
 
 [Secure model serving](#secure-model-serving)
 
@@ -54,13 +54,9 @@ NOTES
 - Able to deploy any scripted model
 - Able to do inference using deployed model
 
-**Examples**
-- ../examples/image_classifier
-
-
 ### Deploy pytorch scripted mode model
 **Prerequisites**
-- Assuming you have a torchscripted model if not then follow instructions in this [example](../examples/image_classifier/densenet_161/README.md#torchscript-example-using-densenet161-image-classifier) to save your eager mode model as scripted model.
+- Assuming you have a torchscripted model if not then follow instructions in this [example](https://github.com/pytorch/serve/tree/master/examples/image_classifier/densenet_161) to save your eager mode model as scripted model.
 
 **Steps to deploy your model(s)**
 - Create MAR file for [torch scripted model](../examples#creating-mar-file-for-torchscript-mode-model)
@@ -169,9 +165,6 @@ e.g. number_of_gpu=2
 - Able to deploy any model to GPU
 - Able to do inference using deployed model
 
-**Examples**
-- ../examples/image_classifier
-
 ### Serve custom models with no third party dependency
 This use case demonstrates torchserve deployment for custom models with no python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.
@@ -209,7 +202,7 @@ This use case demonstrates torchserve deployment for custom models with python d
 The example taken here uses scripted mode model however you can also deploy eager models.
 
 **Prerequisites**
-- Assuming you have a torchscripted model if not then follow instructions in this [example](../examples/image_classifier#torchscript-example-using-densenet161-image-classifier) to save your eager mode model as scripted model.
+- Assuming you have a torchscripted model if not then follow instructions in this [example](https://github.com/pytorch/serve/tree/master/examples/image_classifier/densenet_161) to save your eager mode model as scripted model.
 
 **Steps to deploy your model(s)**
 - Create [<your_custom_handler_py_file>](https://github.com/pytorch/serve/blob/master/docs/custom_service.md) which uses third party python package such as [fairseq](https://github.com/pytorch/fairseq) for pretrained NMT models
