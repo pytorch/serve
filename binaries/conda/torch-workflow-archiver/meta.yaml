@@ -1,9 +1,9 @@
 package:
-  name: torch-model-archiver
-  version: "{{ environ.get('TORCH_MODEL_ARCHIVER_VERSION') }}"
+  name: torch-workflow-archiver
+  version: "{{ environ.get('TORCH_WORKFLOW_ARCHIVER_VERSION') }}"
 
 source:
-  path: "{{ environ.get('TORCHSERVE_ROOT_DIR') }}/model-archiver"
+  path: "{{ environ.get('TORCHSERVE_ROOT_DIR') }}/workflow-archiver"
 
 requirements:
   build:
@@ -21,4 +21,4 @@ build:
 
 about:
   home: https://github.com/pytorch/serve
-  summary: 'Model serving on PyTorch'
+  summary: 'Workflow serving on PyTorch'
