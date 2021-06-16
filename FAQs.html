@@ -398,7 +398,7 @@ Refer <a class="reference internal" href="configuration.html"><span class="doc">
 </section>
 <section id="how-can-i-resolve-model-specific-python-dependency">
 <h3>How can I resolve model specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this headline">¶</a></h3>
-<p>You can provide a requirements.txt while creating a mar file using “–requirements-file/ -r” flag. Also, you can add dependency files using “–extra-files” flag.
+<p>You can provide a <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> while creating a mar file using “–requirements-file/ -r” flag. Also, you can add dependency files using “–extra-files” flag.
 Refer <a class="reference internal" href="configuration.html"><span class="doc">configuration.md</span></a> for more details.</p>
 </section>
 <section id="can-i-deploy-torchserve-in-kubernetes">
@@ -408,7 +408,7 @@ Refer <a class="reference external" href="../kubernetes/README">Kubernetes deplo
 </section>
 <section id="can-i-deploy-torchserve-with-aws-elb-and-aws-asg">
 <h3>Can I deploy Torchserve with AWS ELB and AWS ASG?<a class="headerlink" href="#can-i-deploy-torchserve-with-aws-elb-and-aws-asg" title="Permalink to this headline">¶</a></h3>
-<p>Yes, you can deploy Torchserve on a multinode ASG AWS EC2 cluster. There is a cloud formation template available <a class="reference external" href="https://github.com/pytorch/serve/blob/master/cloudformation/ec2-asg.yaml">here</a> for this type of deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/cloudformation#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb"> Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)</a> more details.</p>
+<p>Yes, you can deploy Torchserve on a multi-node ASG AWS EC2 cluster. There is a cloud formation template available <a class="reference external" href="https://github.com/pytorch/serve/blob/master/cloudformation/ec2-asg.yaml">here</a> for this type of deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/cloudformation#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb"> Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)</a> more details.</p>
 </section>
 <section id="how-can-i-backup-and-restore-torchserve-state">
 <h3>How can I backup and restore Torchserve state?<a class="headerlink" href="#how-can-i-backup-and-restore-torchserve-state" title="Permalink to this headline">¶</a></h3>
@@ -419,7 +419,7 @@ Refer <a class="reference external" href="snapshot.md#torchserve-model-snapshot"
 <h3>How can I build a Torchserve image from source?<a class="headerlink" href="#how-can-i-build-a-torchserve-image-from-source" title="Permalink to this headline">¶</a></h3>
 <p>Torchserve has a utility <a class="reference external" href="../docker/build_image.sh">script</a> for creating docker images, the docker image can be hardware-based CPU or GPU compatible. A Torchserve docker image could be CUDA version specific as well.</p>
 <p>All these docker images can be created using <code class="docutils literal notranslate"><span class="pre">build_image.sh</span></code> with appropriate options.</p>
-<p>Run <code class="docutils literal notranslate"><span class="pre">./build_image.sh</span> <span class="pre">--help</span></code> for all availble options.</p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">./build_image.sh</span> <span class="pre">--help</span></code> for all available options.</p>
 <p>Refer <a class="reference external" href="../docker/README.md#create-torchserve-docker-image">Create Torchserve docker image from source</a> for more details.</p>
 </section>
 <section id="how-to-build-a-torchserve-image-for-a-specific-branch-or-commit-id">
@@ -431,14 +431,14 @@ Refer <a class="reference external" href="snapshot.md#torchserve-model-snapshot"
 </section>
 <section id="what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev">
 <h3>What is the difference between image created using Dockerfile and image created using Dockerfile.dev?<a class="headerlink" href="#what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev" title="Permalink to this headline">¶</a></h3>
-<p>The image created using Dockerfile.dev has Torchserve installed from source where as image created using Dockerfile has Torchserve installed from pypi distribution.</p>
+<p>The image created using Dockerfile.dev has Torchserve installed from source where as image created using Dockerfile has Torchserve installed from PyPi distribution.</p>
 </section>
 </section>
 <section id="api">
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
 <p>Relevant documents</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../docs/model_zoo.md#model-zoo">Torchserve Rest API</a></p></li>
+<li><p><a class="reference internal" href="rest_api.html"><span class="doc">Torchserve Rest API</span></a></p></li>
 </ul>
 <section id="what-can-i-use-other-than-curl-to-make-requests-to-torchserve">
 <h3>What can I use other than <em>curl</em> to make requests to Torchserve?<a class="headerlink" href="#what-can-i-use-other-than-curl-to-make-requests-to-torchserve" title="Permalink to this headline">¶</a></h3>
@@ -464,7 +464,7 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/issue
 </ul>
 <section id="how-do-i-return-an-image-output-for-a-model">
 <h3>How do I return an image output for a model?<a class="headerlink" href="#how-do-i-return-an-image-output-for-a-model" title="Permalink to this headline">¶</a></h3>
-<p>You would have to write a custom handler with the post processing to return image.
+<p>You would have to write a custom handler and modify the postprocessing to return the image
 Refer <a class="reference external" href="custom_service.md#custom-handlers">custom service documentation</a> for more details.</p>
 </section>
 <section id="how-to-enhance-the-default-handlers">
@@ -480,7 +480,7 @@ Refer <a class="reference external" href="default_handlers.md#torchserve-default
 <section id="is-it-possible-to-deploy-hugging-face-models">
 <h3>Is it possible to deploy Hugging Face models?<a class="headerlink" href="#is-it-possible-to-deploy-hugging-face-models" title="Permalink to this headline">¶</a></h3>
 <p>Yes, you can deploy Hugging Face models using a custom handler.
-Refer <a class="reference external" href="../examples/Huggingface_Transformers/README">Huggingface_Transformers</a> for example.</p>
+Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md">HuggingFace_Transformers</a> for example.</p>
 </section>
 </section>
 <section id="model-archiver">
@@ -492,7 +492,7 @@ Refer <a class="reference external" href="../examples/Huggingface_Transformers/R
 </ul>
 <section id="what-is-a-mar-file">
 <h3>What is a mar file?<a class="headerlink" href="#what-is-a-mar-file" title="Permalink to this headline">¶</a></h3>
-<p>A mar file is a zip file consisting of all model artifacts with the “.mar” extension. The cmd-line utility <em>torch-model-archiver</em> is used to create a mar file.</p>
+<p>A mar file is a zip file consisting of all model artifacts with the “.mar” extension. The cmd-line utility <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> is used to create a mar file.</p>
 </section>
 <section id="how-can-create-mar-file-using-torchserve-docker-container">
 <h3>How can create mar file using Torchserve docker container?<a class="headerlink" href="#how-can-create-mar-file-using-torchserve-docker-container" title="Permalink to this headline">¶</a></h3>
@@ -500,9 +500,9 @@ Refer <a class="reference external" href="../examples/Huggingface_Transformers/R
 </section>
 <section id="can-i-add-multiple-serialized-files-in-single-mar-file">
 <h3>Can I add multiple serialized files in single mar file?<a class="headerlink" href="#can-i-add-multiple-serialized-files-in-single-mar-file" title="Permalink to this headline">¶</a></h3>
-<p>Currently <code class="docutils literal notranslate"><span class="pre">TorchModelArchiver</span></code> allows supplying only one serialized file with <code class="docutils literal notranslate"><span class="pre">--serialized-file</span></code> parameter while creating the mar. However, you can supply any number and any type of file with <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag. All the files supplied in the mar file are available in <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> location which can be accessed through the context object supplied to the handler’s entry point.</p>
+<p>Currently <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> allows supplying only one serialized file with <code class="docutils literal notranslate"><span class="pre">--serialized-file</span></code> parameter while creating the mar. However, you can supply any number and any type of file with <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag. All the files supplied in the mar file are available in <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> location which can be accessed through the context object supplied to the handler’s entry point.</p>
 <p>Sample code snippet:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">properties</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">system_properties</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">properties</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">system_properties</span>
 <span class="n">model_dir</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_dir&quot;</span><span class="p">)</span>
 </pre></div>
 </div>

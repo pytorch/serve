@@ -333,7 +333,7 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X OPTIONS http://localhost:8080
 </pre></div>
 </div>
-<p>The out is OpenAPI 3.0.1 json format. You can use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for detail.</p>
+<p>The output is in the OpenAPI 3.0.1 json format. You can use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for more details.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json">Inference API description output</a></p></li>
 </ul>
@@ -354,7 +354,7 @@
 </section>
 <section id="predictions-api">
 <h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
-<p>This API follows the <a class="reference external" href="../frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Predictions</a> gRPC API. It returns the status of a model in the ModelServer.</p>
+<p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Predictions</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p>To get predictions from the default version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}</span></code>:</p>
 <ul class="simple">
 <li><p>POST /predictions/{model_name}</p></li>
@@ -454,7 +454,7 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </section>
 <section id="kfserving-explanations-api">
 <h2>KFServing Explanations API<a class="headerlink" href="#kfserving-explanations-api" title="Permalink to this headline">¶</a></h2>
-<p>Torchserve makes use of KFServing API spec  to return the explanations for the the models that is served.</p>
+<p>Torchserve makes use of KFServing API spec to return the explanations for the the models that it served.</p>
 <p>To get explanations from the loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/v1/models/{model_name}:explain</span></code>:</p>
 <ul class="simple">
 <li><p>/v1/models/{model_name}:explain</p></li>

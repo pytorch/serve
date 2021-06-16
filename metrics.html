@@ -324,14 +324,14 @@
 </section>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe collects system-level metrics in regular intervals, and also provides an API to collect custom metrics.
+<p>TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
 Metrics collected by metrics are logged and can be aggregated by metric agents.
 The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
 TorchServe logs these two sets of metrics to different log files.
 Metrics are collected by default at:</p>
 <ul class="simple">
-<li><p>System metrics - log_directory/ts_metrics.log</p></li>
-<li><p>Custom metrics - log directory/model_metrics.log</p></li>
+<li><p>System metrics - <code class="docutils literal notranslate"><span class="pre">log_directory/ts_metrics.log</span></code></p></li>
+<li><p>Custom metrics - <code class="docutils literal notranslate"><span class="pre">log</span> <span class="pre">directory/model_metrics.log</span></code></p></li>
 </ul>
 <p>The location of log files and metric files can be configured i in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file</p>
 </section>
@@ -530,7 +530,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </pre></div>
 </div>
 <p>Note that the default unit in this case is ‘ms’</p>
-<p><strong>Supported units</strong>: [’ms’, ‘s’]</p>
+<p><strong>Supported units</strong>: <code class="docutils literal notranslate"><span class="pre">['ms',</span> <span class="pre">'s']</span></code></p>
 <p>To add custom time-based metrics:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add inference time</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
@@ -563,11 +563,11 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </pre></div>
 </div>
 <p>Note that the default unit in this case is milliseconds (ms).</p>
-<p><strong>Supported units</strong>: [’MB’, ‘kB’, ‘GB’]</p>
+<p><strong>Supported units</strong>: <code class="docutils literal notranslate"><span class="pre">['MB',</span> <span class="pre">'kB',</span> <span class="pre">'GB']</span></code></p>
 <p>To add custom size based metrics</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Image size as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
-<span class="c1"># Assuming batch size is 1 for example</span>
+<span class="c1"># Assuming batch size 1</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">add_size</span><span class="p">(</span><span class="s1">&#39;SizeOfImage&#39;</span><span class="p">,</span> <span class="n">img_size</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -596,7 +596,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 <p>To add custom percentage-based metrics:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add MemoryUtilization as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
-<span class="c1"># Assuming batch size  is 1 for example</span>
+<span class="c1"># Assuming batch size 1</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">add_percent</span><span class="p">(</span><span class="s1">&#39;MemoryUtilization&#39;</span><span class="p">,</span> <span class="n">utilization_percent</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -625,7 +625,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 <p>To create, increment and decrement counter-based metrics we can use the following calls:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Loop Count as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
-<span class="c1"># Assuming batch size is 1 for example</span>
+<span class="c1"># Assuming batch size 1</span>
 
 <span class="c1"># Create a counter with name &#39;LoopCount&#39; and dimensions, initial value</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
@@ -647,7 +647,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[METRICS]</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>This custom metrics information is logged in the model_metrics.log file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file.</p>
+<p>This custom metrics information is logged in the <code class="docutils literal notranslate"><span class="pre">model_metrics.log</span></code> file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file.</p>
 </section>
 </section>
 </section>

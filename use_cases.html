@@ -310,12 +310,12 @@
   <section id="torchserve-use-cases">
 <h1>Torchserve Use Cases<a class="headerlink" href="#torchserve-use-cases" title="Permalink to this headline">¶</a></h1>
 <p>Torchserve can be used for different use cases. In order to make it convenient for users, some of them have been documented here.
-These use-cases assume you have pre-trained model(s) and torchserve, torch-model-archiver is installed on your target system.
+These use-cases assume you have pre-trained model(s) and <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>, <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> is installed on your target system.
 This should help you in moving your development environment model to production/serving environment.</p>
 <p>NOTES</p>
 <ul class="simple">
 <li><p>If you have not installed latest torchserve and torch-model-archiver then follow <a class="reference external" href="../README.md#install-torchserve-and-torch-model-archiver">installation</a> instructions and complete installation</p></li>
-<li><p>If planning to use docker (henceforth referred as <code class="docutils literal notranslate"><span class="pre">Docker</span></code>), make sure following prerequisites are in place -</p>
+<li><p>If planning to use docker make sure following prerequisites are in place -</p>
 <ul>
 <li><p>Make sure you have latest docker engine install on your target node. If not then use <a class="reference external" href="https://docs.docker.com/engine/install/">this</a> link to install it.</p></li>
 <li><p>Follow instructions <a class="reference external" href="../docker/README.md#running-torchserve-in-a-production-docker-environment">install using docker</a> to share <code class="docutils literal notranslate"><span class="pre">model-store</span></code> directory and start torchserve</p></li>
@@ -329,7 +329,7 @@ This should help you in moving your development environment model to production/
 <h2>Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="#deploy-pytorch-eager-mode-model">Serve pytorch eager mode model</a></p>
 <p><a class="reference external" href="#deploy-pytorch-scripted-mode-model">Serve pytorch scripted mode model</a></p>
-<p><a class="reference external" href="#serve-readymade-models-on-torchserve-model-zoo">Serve readymade models on torchserve model zoo</a></p>
+<p><a class="reference external" href="#serve-readymade-models-on-torchserve-model-zoo">Serve ready made models on torchserve model zoo</a></p>
 <p><a class="reference external" href="#secure-model-serving">Secure model serving</a></p>
 <p><a class="reference external" href="#serve-models-on-gpus">Serve models on GPUs</a></p>
 <p><a class="reference external" href="#serve-custom-models-with-no-third-party-dependency">Serve custom models with no third party dependency</a></p>
@@ -369,16 +369,12 @@ This should help you in moving your development environment model to production/
 <li><p>Able to deploy any scripted model</p></li>
 <li><p>Able to do inference using deployed model</p></li>
 </ul>
-<p><strong>Examples</strong></p>
-<ul class="simple">
-<li><p>../examples/image_classifier</p></li>
-</ul>
 </section>
 <section id="deploy-pytorch-scripted-mode-model">
 <h3>Deploy pytorch scripted mode model<a class="headerlink" href="#deploy-pytorch-scripted-mode-model" title="Permalink to this headline">¶</a></h3>
 <p><strong>Prerequisites</strong></p>
 <ul class="simple">
-<li><p>Assuming you have a torchscripted model if not then follow instructions in this <a class="reference external" href="../examples/image_classifier/densenet_161/README.md#torchscript-example-using-densenet161-image-classifier">example</a> to save your eager mode model as scripted model.</p></li>
+<li><p>Assuming you have a torchscripted model if not then follow instructions in this <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/densenet_161">example</a> to save your eager mode model as scripted model.</p></li>
 </ul>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>
@@ -533,10 +529,6 @@ e.g. number_of_gpu=2</p></li>
 <li><p>Able to deploy any model to GPU</p></li>
 <li><p>Able to do inference using deployed model</p></li>
 </ul>
-<p><strong>Examples</strong></p>
-<ul class="simple">
-<li><p>../examples/image_classifier</p></li>
-</ul>
 </section>
 <section id="serve-custom-models-with-no-third-party-dependency">
 <h3>Serve custom models with no third party dependency<a class="headerlink" href="#serve-custom-models-with-no-third-party-dependency" title="Permalink to this headline">¶</a></h3>
@@ -589,7 +581,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 The example taken here uses scripted mode model however you can also deploy eager models.</p>
 <p><strong>Prerequisites</strong></p>
 <ul class="simple">
-<li><p>Assuming you have a torchscripted model if not then follow instructions in this <a class="reference external" href="../examples/image_classifier#torchscript-example-using-densenet161-image-classifier">example</a> to save your eager mode model as scripted model.</p></li>
+<li><p>Assuming you have a torchscripted model if not then follow instructions in this <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/densenet_161">example</a> to save your eager mode model as scripted model.</p></li>
 </ul>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>

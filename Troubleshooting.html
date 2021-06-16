@@ -244,7 +244,7 @@
 </li>
 <li><a class="reference internal" href="#model-archiver">Model-archiver</a><ul>
 <li><a class="reference internal" href="#how-can-add-model-specific-custom-dependency">How can add model  specific custom dependency?</a></li>
-<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model  specific python dependency?</a></li>
+<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model specific python dependency?</a></li>
 <li><a class="reference internal" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed">I have added  requirements.txt in my mar file but the packages listed are not getting installed.</a></li>
 <li><a class="reference internal" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">Backend worker monitoring thread interrupted or backend worker process died error.</a></li>
 </ul>
@@ -348,7 +348,7 @@
 <section id="unable-to-send-big-files-for-inference-request">
 <h3>Unable to send big files for inference request?<a class="headerlink" href="#unable-to-send-big-files-for-inference-request" title="Permalink to this headline">¶</a></h3>
 <p>The default max request size and response size is roughly 6.5 Mb. Hence any file size greater than 6.5mb cannot be uploaded.
-To resolve this update <code class="docutils literal notranslate"><span class="pre">max_request_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_response_size</span></code> in a config.properties file and start the torchserve with this config file.</p>
+To resolve this update <code class="docutils literal notranslate"><span class="pre">max_request_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_response_size</span></code> in a config.properties file and start torchserve with this config file.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cat config.properties
 max_request_size=&lt;request size in bytes&gt;
 max_response_size=&lt;response size in bytes&gt;
@@ -392,7 +392,7 @@ Relevant issues: [<a class="reference external" href="https://github.com/pytorch
 </section>
 <section id="register-model-failed-with-exception-downloadmodelexception-error-code-400">
 <h3>Register model: Failed with exception “DownloadModelException” &amp; error code 400.<a class="headerlink" href="#register-model-failed-with-exception-downloadmodelexception-error-code-400" title="Permalink to this headline">¶</a></h3>
-<p>Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publically.</p>
+<p>Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publicly.</p>
 </section>
 <section id="register-model-failed-with-exception-modelnotfoundexception-error-code-404">
 <h3>Register model: Failed with exception “ModelNotFoundException” &amp; error code 404.<a class="headerlink" href="#register-model-failed-with-exception-modelnotfoundexception-error-code-404" title="Permalink to this headline">¶</a></h3>
@@ -412,7 +412,7 @@ Relevant issues: [<a class="reference external" href="https://github.com/pytorch
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/566">#566</a>]</p>
 </section>
 <section id="how-can-i-resolve-model-specific-python-dependency">
-<h3>How can I resolve model  specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this headline">¶</a></h3>
+<h3>How can I resolve model specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this headline">¶</a></h3>
 <p>You can provide a requirements.txt while creating a mar file using “–requirements-file/ -r” flag. You can refer to the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer">waveglow text-to-speech-synthesizer</a> example</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh">waveglow mar creation script</a></p></li>
@@ -491,7 +491,7 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
 </li>
 <li><a class="reference internal" href="#model-archiver">Model-archiver</a><ul>
 <li><a class="reference internal" href="#how-can-add-model-specific-custom-dependency">How can add model  specific custom dependency?</a></li>
-<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model  specific python dependency?</a></li>
+<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model specific python dependency?</a></li>
 <li><a class="reference internal" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed">I have added  requirements.txt in my mar file but the packages listed are not getting installed.</a></li>
 <li><a class="reference internal" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">Backend worker monitoring thread interrupted or backend worker process died error.</a></li>
 </ul>

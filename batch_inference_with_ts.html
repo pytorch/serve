@@ -348,7 +348,7 @@ In this document we show an example of how this is done and compare the performa
 TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.</p></li>
 <li><p>Model handler code: TorchServe requires the Model handler to handle batch inference requests.</p></li>
 </ol>
-<p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalised handler</a></p>
+<p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalized handler</a></p>
 <section id="torchserve-model-configuration">
 <h3>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this headline">¶</a></h3>
 <p>To configure TorchServe to use the batching feature, provide the batch configuration information through <a class="reference internal" href="management_api.html"><span class="doc">POST /models API</span></a>.</p>
@@ -359,7 +359,7 @@ TorchServe needs to know the maximum batch size that the model can handle and th
 requests before this timer time’s out, it sends what ever requests that were received to the model <code class="docutils literal notranslate"><span class="pre">handler</span></code>.</p></li>
 </ol>
 <p>Let’s look at an example using this configuration</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milli seconds. </span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milliseconds. </span>
 curl -X POST <span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=50&quot;</span>
 </pre></div>
 </div>

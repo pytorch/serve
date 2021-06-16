@@ -319,9 +319,8 @@
               
   <section id="advanced-configuration">
 <h1>Advanced configuration<a class="headerlink" href="#advanced-configuration" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe is meant to be easy to use. The default settings form TorchServe should be sufficient for most use cases.
-If you want to customize TorchServe, the configuration options described in this topic are available.</p>
-<p>There are three ways to configure TorchServe. In order of priority, the are:</p>
+<p>The default settings form TorchServe should be sufficient for most use cases. However, if you want to customize TorchServe, the configuration options described in this topic are available.</p>
+<p>There are three ways to configure TorchServe. In order of priority, they are:</p>
 <ol class="simple">
 <li><p>Environment variables</p></li>
 <li><p>Command line arguments</p></li>
@@ -402,12 +401,11 @@ The inference API is listening on port 8080. The management API is listening on 
 See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure HTTPS.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">inference_address</span></code>: Inference API binding address. Default: http://127.0.0.1:8080</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">management_address</span></code>: management API binding address. Default: http://127.0.0.1:8081</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">metrics_address</span></code>: metrics API binding address. Default: http://127.0.0.1:8082</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">management_address</span></code>: Management API binding address. Default: http://127.0.0.1:8081</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics_address</span></code>: Metrics API binding address. Default: http://127.0.0.1:8082</p></li>
 <li><p>To run predictions on models on a public IP address, specify the IP address as <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
 To run predictions on models on a specific IP address, specify the IP address and port.</p></li>
 </ul>
-<p>Here are a couple of examples:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="c"># bind inference API to all network interfaces with SSL enabled</span>
 <span class="na">inference_address</span><span class="o">=</span><span class="s">https://0.0.0.0:8443</span>
 </pre></div>
@@ -426,12 +424,6 @@ To run predictions on models on a specific IP address, specify the IP address an
 <li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_port</span></code>: management gRPC API binding port. Default: 7071</p></li>
 </ul>
 <p>Here are a couple of examples:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">grpc_inference_port</span><span class="o">=</span><span class="s">8888</span>
-</pre></div>
-</div>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">grpc_management_port</span><span class="o">=</span><span class="s">9999</span>
-</pre></div>
-</div>
 </section>
 <section id="enable-ssl">
 <h3>Enable SSL<a class="headerlink" href="#enable-ssl" title="Permalink to this headline">¶</a></h3>
@@ -533,7 +525,7 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 <h3>Enable metrics api<a class="headerlink" href="#enable-metrics-api" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus'</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">in</span> <span class="pre">conjunction</span> <span class="pre">with</span> </code>enable_meterics_api` option above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus'</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">in</span> <span class="pre">conjunction</span> <span class="pre">with</span> </code>enable_metrics_api` option above.</p></li>
 </ul>
 </section>
 <section id="id1">
@@ -541,7 +533,7 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>
-This is used in conjunction with <code class="docutils literal notranslate"><span class="pre">enable_meterics_api</span></code> option above.</p></li>
+This is used in conjunction with <code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> option above.</p></li>
 </ul>
 </section>
 <section id="other-properties">
@@ -549,7 +541,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 <p>Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_envvars_config</span></code>: Enable configuring TorchServe through environment variables. When this option is set to “true”, all the static configurations of TorchServe can come through environment variables as well. Default: false</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">number_of_netty_threads</span></code>: Number frontend netty thread. This specifies the numer of threads in the child <a class="reference external" href="https://livebook.manning.com/book/netty-in-action/chapter-8">EventLoopGroup</a> of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number_of_netty_threads</span></code>: Number frontend netty thread. This specifies the number of threads in the child <a class="reference external" href="https://livebook.manning.com/book/netty-in-action/chapter-8">EventLoopGroup</a> of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">netty_client_threads</span></code>: Number of backend netty thread. This specifies the number of threads in the WorkerThread <a class="reference external" href="https://livebook.manning.com/book/netty-in-action/chapter-8">EventLoopGroup</a> which writes inference responses to the frontend. Default: number of logical processors available to the JVM.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">default_workers_per_model</span></code>: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">job_queue_size</span></code>: Number inference jobs that frontend will queue before backend can serve. Default: 100.</p></li>
@@ -565,13 +557,9 @@ the backend workers convert “Bytearray to utf-8 string” when the Content-Typ
 <li><p><code class="docutils literal notranslate"><span class="pre">max_request_size</span></code> : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_response_size</span></code> : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> : Comma separated regex of allowed source URL(s) from where models can be registered. Default: “file://.<em>|http(s)?://.</em>” (all URLs and local file system)
-eg : To allow base URLs <code class="docutils literal notranslate"><span class="pre">https://s3.amazonaws.com/</span></code> and <code class="docutils literal notranslate"><span class="pre">https://torchserve.pytorch.org/</span></code> use following regex string</p></li>
+eg : To allow base URLs <code class="docutils literal notranslate"><span class="pre">https://s3.amazonaws.com/</span></code> and <code class="docutils literal notranslate"><span class="pre">https://torchserve.pytorch.org/</span></code> use the following regex string <code class="docutils literal notranslate"><span class="pre">allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">workflow_store</span></code> : Path of workflow store directory. Defaults to model store directory.</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">allowed_urls</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">s3</span><span class="o">.</span><span class="n">amazonaws</span><span class="o">.</span><span class="n">com</span><span class="o">/.*</span><span class="p">,</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">torchserve</span><span class="o">.</span><span class="n">pytorch</span><span class="o">.</span><span class="n">org</span><span class="o">/.*</span>
-</pre></div>
-</div>
-<hr class="docutils" />
 <p><strong>NOTE</strong></p>
 <p>All the above config properties can be set using environment variable as follows.</p>
 <ul>

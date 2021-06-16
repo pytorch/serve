@@ -325,19 +325,19 @@ the model when you use the model archiver. TorchServe executes this code when it
 <p>Provide a custom script to:</p>
 <ul class="simple">
 <li><p>Initialize the model instance</p></li>
-<li><p>Pre-process input data before it is sent to the model for inference or captum explanations</p></li>
+<li><p>Pre-process input data before it is sent to the model for inference or Captum explanations</p></li>
 <li><p>Customize how the model is invoked for inference or explanations</p></li>
-<li><p>Post-process output from the model before sending the response to the user</p></li>
+<li><p>Post-process output from the model before sending back a response</p></li>
 </ul>
 <p>Following is applicable to all types of custom handlers</p>
 <ul class="simple">
 <li><p><strong>data</strong> - The input data from the incoming request</p></li>
-<li><p><strong>context</strong> - Is the TorchServe <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a>. You can use following information for customizaton
+<li><p><strong>context</strong> - Is the TorchServe <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a>. You can use following information for customization
 model_name, model_dir, manifest, batch_size, gpu etc.</p></li>
 </ul>
 <section id="start-with-basehandler">
 <h2>Start with BaseHandler!<a class="headerlink" href="#start-with-basehandler" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">BaseHandler</span></code> implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you’ll only need to override <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> or <code class="docutils literal notranslate"><span class="pre">postprocess</span></code>.</p>
+<p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py">BaseHandler</a> implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you’ll only need to override <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> or <code class="docutils literal notranslate"><span class="pre">postprocess</span></code>.</p>
 </section>
 <section id="custom-handler-with-module-level-entry-point">
 <h2>Custom handler with <code class="docutils literal notranslate"><span class="pre">module</span></code> level entry point<a class="headerlink" href="#custom-handler-with-module-level-entry-point" title="Permalink to this headline">¶</a></h2>

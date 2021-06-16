@@ -318,10 +318,6 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
 curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
-
-or:
-
-curl http://localhost:8080/wfpredict/myworkflow -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
 </pre></div>
 </div>
 <p>The result is JSON object returning the response bytes from the leaf node of the workflow DAG</p>

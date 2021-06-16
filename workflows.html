@@ -313,36 +313,36 @@
 <h2>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this headline">¶</a></h2>
 <p>A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.</p>
 <p>E.g.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
     <span class="c1">#global model params</span>
-    <span class="nb">min</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">1</span>
-    <span class="nb">max</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">4</span>
-    <span class="n">batch</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">3</span>
-    <span class="nb">max</span><span class="o">-</span><span class="n">batch</span><span class="o">-</span><span class="n">delay</span> <span class="p">:</span> <span class="mi">5000</span>
-    <span class="n">retry</span><span class="o">-</span><span class="n">attempts</span> <span class="p">:</span> <span class="mi">3</span>
-    <span class="n">timeout</span><span class="o">-</span><span class="n">ms</span> <span class="p">:</span> <span class="mi">5000</span>
-    <span class="n">m1</span><span class="p">:</span>
-       <span class="n">url</span> <span class="p">:</span> <span class="n">model1</span><span class="o">.</span><span class="n">mar</span> <span class="c1">#local or public URI</span>
-       <span class="nb">min</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">1</span>   <span class="c1">#override the global params</span>
-       <span class="nb">max</span><span class="o">-</span><span class="n">workers</span><span class="p">:</span> <span class="mi">2</span>
-       <span class="n">batch</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">4</span>
+    <span class="nt">min-workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">max-workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+    <span class="nt">batch-size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">max-batch-delay </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+    <span class="nt">retry-attempts </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">timeout-ms </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+    <span class="nt">m1</span><span class="p">:</span>
+       <span class="nt">url </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">model1.mar</span> <span class="c1">#local or public URI</span>
+       <span class="nt">min-workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>   <span class="c1">#override the global params</span>
+       <span class="nt">max-workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+       <span class="nt">batch-size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
      
-    <span class="n">m2</span><span class="p">:</span>
-       <span class="n">url</span> <span class="p">:</span> <span class="n">model2</span><span class="o">.</span><span class="n">mar</span>
+    <span class="nt">m2</span><span class="p">:</span>
+       <span class="nt">url </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">model2.mar</span>
 
-    <span class="n">m3</span><span class="p">:</span>
-       <span class="n">url</span> <span class="p">:</span> <span class="n">model3</span><span class="o">.</span><span class="n">mar</span>
-       <span class="n">batch</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="nt">m3</span><span class="p">:</span>
+       <span class="nt">url </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">model3.mar</span>
+       <span class="nt">batch-size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
 
-    <span class="n">m4</span><span class="p">:</span>
-      <span class="n">url</span> <span class="p">:</span> <span class="n">model4</span><span class="o">.</span><span class="n">mar</span>
+    <span class="nt">m4</span><span class="p">:</span>
+      <span class="nt">url </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">model4.mar</span>
  
-<span class="n">dag</span><span class="p">:</span>
-  <span class="n">pre_processing</span> <span class="p">:</span> <span class="p">[</span><span class="n">m1</span><span class="p">]</span>
-  <span class="n">m1</span> <span class="p">:</span> <span class="p">[</span><span class="n">m2</span><span class="p">]</span>
-  <span class="n">m2</span> <span class="p">:</span> <span class="p">[</span><span class="n">m3</span><span class="p">]</span>
-  <span class="n">m3</span> <span class="p">:</span> <span class="p">[</span><span class="n">m4</span><span class="p">]</span>
-  <span class="n">m4</span> <span class="p">:</span> <span class="p">[</span><span class="n">postprocessing</span><span class="p">]</span>
+<span class="nt">dag</span><span class="p">:</span>
+  <span class="nt">pre_processing </span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m1</span><span class="p p-Indicator">]</span>
+  <span class="nt">m1 </span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m2</span><span class="p p-Indicator">]</span>
+  <span class="nt">m2 </span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m3</span><span class="p p-Indicator">]</span>
+  <span class="nt">m3 </span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m4</span><span class="p p-Indicator">]</span>
+  <span class="nt">m4 </span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">postprocessing</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <section id="workflow-models">
@@ -420,10 +420,10 @@
 <p>A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.</p>
 <p>Eg.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-<span class="k">def</span> <span class="nf">preprocss</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">pass</span>
 
-<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xontext</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">pass</span>
 </pre></div>
 </div>

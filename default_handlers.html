@@ -333,7 +333,7 @@
 <li><p>Input : RGB image</p></li>
 <li><p>Output : Batch of lists of detected classes and bounding boxes respectively</p></li>
 </ul>
-<p>Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.</p>
+<p>Note : We recommend running <code class="docutils literal notranslate"><span class="pre">torchvision&gt;0.6</span></code> otherwise the object_detector default handler will only run on the default GPU device</p>
 <p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
 </section>
 <section id="text-classifier">
@@ -341,9 +341,10 @@
 <ul class="simple">
 <li><p>Description : Handles models trained on the ImageNet dataset.</p></li>
 <li><p>Input : text file</p></li>
-<li><p>Output : Class of input text. NO BATCHING SUPPORTED!</p></li>
+<li><p>Output : Class of input text. (No batching supported)</p></li>
 </ul>
 <p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_classification">examples</a></p>
+<p>For a more comprehensive list of available handlers make sure to check out the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">examples page</a></p>
 </section>
 </section>
 <section id="common-features">
@@ -360,9 +361,9 @@
 </section>
 <section id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>If you’d like to edit or create a new default_handler class, you need to take the following steps:</p>
+<p>We welcome new contributed handlers, if your usecase isn’t covered by one of the existing default handlers please follow the below steps to contribute it</p>
 <ol class="simple">
-<li><p>Write a new class derived from BaseHandler. Add it as a separate file in <code class="docutils literal notranslate"><span class="pre">ts/torch_handler/</span></code></p></li>
+<li><p>Write a new class derived from <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py">BaseHandler</a>. Add it as a separate file in <code class="docutils literal notranslate"><span class="pre">ts/torch_handler/</span></code></p></li>
 <li><p>Update <code class="docutils literal notranslate"><span class="pre">model-archiver/model_packaging.py</span></code> to add in your classes name</p></li>
 <li><p>Run and update the unit tests in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests">unit_tests</a>. As always, make sure to run <a class="reference external" href="https://github.com/pytorch/serve/tree/master/torchserve_sanity.py">torchserve_sanity.py</a> before submitting.</p></li>
 </ol>

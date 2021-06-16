@@ -1,9 +1,8 @@
 # Advanced configuration
 
-TorchServe is meant to be easy to use. The default settings form TorchServe should be sufficient for most use cases.
-If you want to customize TorchServe, the configuration options described in this topic are available.
+The default settings form TorchServe should be sufficient for most use cases. However, if you want to customize TorchServe, the configuration options described in this topic are available.
 
-There are three ways to configure TorchServe. In order of priority, the are:
+There are three ways to configure TorchServe. In order of priority, they are:
 
 1. Environment variables
 2. Command line arguments
@@ -80,12 +79,10 @@ The inference API is listening on port 8080. The management API is listening on 
 See [Enable SSL](#enable-ssl) to configure HTTPS.
 
 * `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
-* `management_address`: management API binding address. Default: http://127.0.0.1:8081
-* `metrics_address`: metrics API binding address. Default: http://127.0.0.1:8082
+* `management_address`: Management API binding address. Default: http://127.0.0.1:8081
+* `metrics_address`: Metrics API binding address. Default: http://127.0.0.1:8082
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
-
-Here are a couple of examples:
 
 ```properties
 # bind inference API to all network interfaces with SSL enabled
@@ -106,14 +103,6 @@ To configure different ports use following properties
 * `grpc_management_port`: management gRPC API binding port. Default: 7071
 
 Here are a couple of examples:
-
-```properties
-grpc_inference_port=8888
-```
-
-```properties
-grpc_management_port=9999
-```
 
 ### Enable SSL
 
@@ -217,12 +206,12 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
 * `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
-		     This is used in conjunction with `enable_meterics_api` option above.
+		     This is used in conjunction with `enable_metrics_api` option above.
 
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
 * `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
-		     This is used in conjunction with `enable_meterics_api` option above.
+		     This is used in conjunction with `enable_metrics_api` option above.
 
 
 ### Other properties
@@ -230,7 +219,7 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.
 
 * `enable_envvars_config`: Enable configuring TorchServe through environment variables. When this option is set to "true", all the static configurations of TorchServe can come through environment variables as well. Default: false
-* `number_of_netty_threads`: Number frontend netty thread. This specifies the numer of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
+* `number_of_netty_threads`: Number frontend netty thread. This specifies the number of threads in the child [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) of the frontend netty server. This group provides EventLoops for processing Netty Channel events (namely inference and management requests) from accepted connections. Default: number of logical processors available to the JVM.
 * `netty_client_threads`: Number of backend netty thread. This specifies the number of threads in the WorkerThread [EventLoopGroup](https://livebook.manning.com/book/netty-in-action/chapter-8) which writes inference responses to the frontend. Default: number of logical processors available to the JVM.
 * `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
 * `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
@@ -246,13 +235,8 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
-eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use following regex string
+eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
-```
-allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*
-```
-
----
 
 **NOTE**
 
