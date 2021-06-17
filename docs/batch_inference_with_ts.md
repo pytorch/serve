@@ -6,6 +6,8 @@
 * [Prerequisites](#prerequisites)
 * [Batch Inference with TorchServe's default handlers](#batch-inference-with-torchserves-default-handlers)
 * [Batch Inference with TorchServe using ResNet-152 model](#batch-inference-with-torchserve-using-resnet-152-model)  
+* [Demo to configure TorchServe ResNet-152 model with batch-supported model](#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model)
+* [Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker](##demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model-using-docker)
 
 ## Introduction
 
@@ -80,7 +82,7 @@ These configurations are used both in TorchServe and in the model's custom servi
 TorchServe associates the batch related configuration with each model.
 The frontend then tries to aggregate the batch-size number of requests and send it to the backend.
 
-## Demo to configure TorchServe with batch-supported model
+## Demo to configure TorchServe ResNet-152 model with batch-supported model
 
 In this section lets bring up model server and launch Resnet-152 model, which uses the default `image_classifier` handler for batch inferencing.
 
@@ -254,7 +256,7 @@ curl http://localhost:8081/models/resnet-152-batch_v2
           "quilt": 0.0002698268508538604
       }
     ```
-## Demo to configure TorchServe with batch-supported model using Docker
+## Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker
 
 Here, we show how to register a model with batch inference support when serving the model using docker contianers. We set the `batch_size` and `max_batch_delay`  in the config.properties similar to the previous section which is being used by [dockered_entrypoint.sh](../docker/dockerd-entrypoint.sh).
 
