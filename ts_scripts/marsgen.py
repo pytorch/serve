@@ -6,10 +6,11 @@ import urllib.request
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
-model_store_dir = os.path.join(REPO_ROOT, "model_store")
-os.makedirs(model_store_dir, exist_ok=True)
+MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store")
+os.makedirs(MODEL_STORE_DIR, exist_ok=True)
+MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
-def generate_mars(mar_config):
+def generate_mars(mar_config, model_store_dir):
 
     with open(mar_config) as f:
         models = json.loads(f.read())
@@ -108,9 +109,9 @@ if __name__ == "__main__":
     # python ts_scripts/marsgen.py
     # python ts_scripts/marsgen.py --config my_mar_config.json
 
-    mar_config_file_path = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
     parser = argparse.ArgumentParser(description="Generate model mar files")
-    parser.add_argument('--config', default=mar_config_file_path, help="mar file configuration json file")
+    parser.add_argument('--config', default=MAR_CONFIG_FILE_PATH, help="mar file configuration json file")
+    parser.add_argument('--model-store', default=MODEL_STORE_DIR, help="model store dir")
 
     args = parser.parse_args()
-    generate_mars(args.config)
+    generate_mars(args.config, MODEL_STORE_DIR)

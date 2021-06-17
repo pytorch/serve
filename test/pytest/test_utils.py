@@ -5,15 +5,16 @@ import glob
 import os
 import requests
 import tempfile
+from ts_scripts import tsutils as ts
 
 ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
-
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
     stop_torchserve()
+    ts.gen_mar(model_store)
     cmd = ["torchserve", "--start"]
     model_store = model_store if model_store else MODEL_STORE
     cmd.extend(["--model-store", model_store])
@@ -75,3 +76,7 @@ def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     if model_mar is not None:
         for f in glob.glob(path.join(model_store, model_mar + "*")):
             os.remove(f)
+
+
+
+

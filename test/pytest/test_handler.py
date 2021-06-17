@@ -29,8 +29,10 @@ TF_MANAGEMENT_API, TF_INFERENCE_API = getAPIS(snapshot_file_tf)
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
-    open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
+    mnist_mar = test_utils.MODEL_STORE + "/mnist.mar"
+    if not os.path.isfile(mnist_mar):
+        response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
+        open(mnist_mar, 'wb').write(response.content)
 
 
 def teardown_module(module):

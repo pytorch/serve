@@ -3,6 +3,7 @@ import platform
 import sys
 import time
 import requests
+import ts_scripts.marsgen as mg
 
 
 torchserve_command = {
@@ -25,6 +26,7 @@ torch_workflow_archiver_command = {
 
 
 def start_torchserve(ncs=False, model_store="model_store", workflow_store="", models="", config_file="", log_file="", wait_for=10):
+    gen_mar(model_store)
     print("## Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
@@ -128,3 +130,8 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
     files = {"data": (file_name, open(file_name, "rb"))}
     response = requests.post(url, files=files, timeout=timeout)
     return response
+
+def gen_mar(model_store=None):
+    if model_store is not None and os.path.exists(model_store):
+        if len(os.listdir(model_store)) == 0:
+            mg.generate_mars(mar_config=mg.MAR_CONFIG_FILE_PATH, model_store_dir=model_store)
