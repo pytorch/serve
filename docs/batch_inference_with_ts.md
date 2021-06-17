@@ -262,7 +262,7 @@ Here, we show how to register a model with batch inference support when serving 
 
 * Set the batch `batch_size` and `max_batch_delay`  in the config.properties as referenced in the [dockered_entrypoint.sh](../docker/dockerd-entrypoint.sh)
 
-```json
+```text
 inference_address=http://0.0.0.0:8080
 management_address=http://0.0.0.0:8081
 metrics_address=http://0.0.0.0:8082
