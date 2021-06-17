@@ -175,16 +175,40 @@ To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T
 
 ## Batch Inference
 
-For batch inference the main difference is that you need set the batch size while registering the model. As an example on sequence classification.
+For batch inference the main difference is that you need set the batch size while registering the model. This can be done either through the management API or if using Torchserve 0.4.1 and above, it can be set through config.properties as well.  Here is an example of setting batch size for sequence classification with management API and through config.properties. You can read more on batch inference in Torchserve [here](https://github.com/pytorch/serve/tree/master/docs/batch_inference_with_ts.md).
 
-```
-mkdir model_store
-mv BERTSeqClassification.mar model_store/
-torchserve --start --model-store model_store 
+* Management API
+    ```
+    mkdir model_store
+    mv BERTSeqClassification.mar model_store/
+    torchserve --start --model-store model_store 
 
-curl -X POST "localhost:8081/models?model_name=BERTSeqClassification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
-```
+    curl -X POST "localhost:8081/models?model_name=BERTSeqClassification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+    ```
 
+* Config.properties
+    ```text
+
+    models={\
+      "BERTSeqClassification": {\
+        "2.0": {\
+            "defaultVersion": true,\
+            "marName": "BERTSeqClassification.mar",\
+            "minWorkers": 1,\
+            "maxWorkers": 1,\
+            "batchSize": 4,\
+            "maxBatchDelay": 5000,\
+            "responseTimeout": 120\
+        }\
+      }\
+    }
+    ```
+     ```
+    mkdir model_store
+    mv BERTSeqClassification.mar model_store/
+    torchserve --start --model-store model_store --ts-config config.properties --models BERTSeqClassification= BERTSeqClassification.mar
+
+    ```   
 Now to run the batch inference following command can be used:
 
 ```
@@ -192,6 +216,7 @@ curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq
 & curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt
 & curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt &
 ```
+
 ## More information
 
 ### Captum Explanations for Visual Insights
