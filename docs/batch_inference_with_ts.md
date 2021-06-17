@@ -7,7 +7,7 @@
 * [Batch Inference with TorchServe's default handlers](#batch-inference-with-torchserves-default-handlers)
 * [Batch Inference with TorchServe using ResNet-152 model](#batch-inference-with-torchserve-using-resnet-152-model)  
 * [Demo to configure TorchServe ResNet-152 model with batch-supported model](#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model)
-* [Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker](##demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model-using-docker)
+* [Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker](#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model-using-docker)
 
 ## Introduction
 
