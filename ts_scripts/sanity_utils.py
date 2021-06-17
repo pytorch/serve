@@ -104,7 +104,11 @@ def test_sanity():
         model_handler = model["handler"]
 
         # Run gRPC sanity
-        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name}"
+        marfile = "{}.mar".format(model_name)
+        if not os.path.isfile("model_store/" + marfile):
+            marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
+            
+        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {marfile} {model_name}"
         status = os.system(register_model_grpc_cmd)
 
         if status != 0:
