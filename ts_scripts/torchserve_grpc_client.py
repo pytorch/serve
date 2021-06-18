@@ -4,6 +4,11 @@ import inference_pb2_grpc
 import management_pb2
 import management_pb2_grpc
 import sys
+import os
+
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(REPO_ROOT)
+
 import ts_scripts.marsgen as mg
 
 def get_inference_stub():
