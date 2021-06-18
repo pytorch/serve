@@ -40,7 +40,7 @@ def infer(stub, model_name, model_input):
 
 def register(stub, model_name):
     marfile = f"{model_name}.mar"
-    print(f"check {marfile} in GEN_MAR_SET :", mg.GEN_MAR_SE)
+    print(f"check {marfile} in GEN_MAR_SET :", mg.GEN_MAR_SET)
     if marfile not in mg.GEN_MAR_SET:
         marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
 
