@@ -33,9 +33,13 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
-def register(stub, url, model_name):
+def register(stub, model_name):
+    marfile = f"{model_name}.mar"
+    if marfile not in mg.GEN_MAR_SET:
+        marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
+
     params = {
-        'url': url,
+        'url': marfile,
         'initial_workers': 1,
         'synchronous': True,
         'model_name': model_name

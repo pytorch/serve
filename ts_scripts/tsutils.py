@@ -69,9 +69,13 @@ def stop_torchserve(wait_for=10):
 def register_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {model_name} model")
     model_zoo_url = "https://torchserve.s3.amazonaws.com"
+    marfile = f"{model_name}.mar"
+    if marfile not in mg.GEN_MAR_SET:
+        marfile = f"{model_zoo_url}/mar_files/{model_name}.mar"
+
     params = (
         ("model_name", model_name),
-        ("url", f"{model_zoo_url}/mar_files/{model_name}.mar"),
+        ("url", marfile),
         ("initial_workers", "1"),
         ("synchronous", "true"),
     )
@@ -132,6 +136,7 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
     return response
 
 def gen_mar(model_store=None):
+    mg.GEN_MAR_SET = {}
     if model_store is not None and os.path.exists(model_store):
         if len(os.listdir(model_store)) == 0:
             mg.generate_mars(mar_config=mg.MAR_CONFIG_FILE_PATH, model_store_dir=model_store)
