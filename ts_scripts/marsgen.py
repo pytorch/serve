@@ -79,7 +79,7 @@ def generate_mars(mar_config, model_store_dir):
                 os.remove(serialized_file_path)
 
             if sys_exit_code != 0:
-                sys.exit("## {} creation failed !\n".format(model["model_name"]))
+                print("## {} creation failed !\n".format(model["model_name"]))
             else :
                 marfile = "{}.mar".format(model["model_name"])
                 print("## {} is generated.\n".format(marfile))
