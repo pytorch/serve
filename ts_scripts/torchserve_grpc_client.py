@@ -4,7 +4,7 @@ import inference_pb2_grpc
 import management_pb2
 import management_pb2_grpc
 import sys
-
+from ts_scripts import marsgen as mg
 
 def get_inference_stub():
     channel = grpc.insecure_channel('localhost:7070')
