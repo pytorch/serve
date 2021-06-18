@@ -70,7 +70,7 @@ def register_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {model_name} model")
     model_zoo_url = "https://torchserve.s3.amazonaws.com"
     marfile = f"{model_name}.mar"
-    if marfile not in mg.GEN_MAR_SET:
+    if marfile not in mg.gen_mar_set:
         marfile = f"{model_zoo_url}/mar_files/{model_name}.mar"
 
     params = (
