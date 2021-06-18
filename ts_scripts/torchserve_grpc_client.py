@@ -43,6 +43,7 @@ def register(stub, model_name):
     if marfile not in mg.GEN_MAR_SET:
         marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
 
+    print(f"register marfile:{marfile}")
     params = {
         'url': marfile,
         'initial_workers': 1,
