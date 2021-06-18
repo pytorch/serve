@@ -3,8 +3,7 @@ import platform
 import sys
 import time
 import requests
-import ts_scripts.marsgen as mg
-
+from ts_scripts.marsgen import mar_set
 
 torchserve_command = {
     "Windows": "torchserve.exe",
@@ -43,7 +42,7 @@ def start_torchserve(ncs=False, model_store="model_store", workflow_store="", mo
     status = os.system(cmd)
     if status == 0:
         print("## Successfully started TorchServe")
-        gen_mar(model_store)
+        mg.gen_mar(model_store)
         time.sleep(wait_for)
         return True
     else:
@@ -70,7 +69,7 @@ def register_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {model_name} model")
     model_zoo_url = "https://torchserve.s3.amazonaws.com"
     marfile = f"{model_name}.mar"
-    if marfile not in mg.gen_mar_set:
+    if marfile not in mar_set:
         marfile = f"{model_zoo_url}/mar_files/{model_name}.mar"
 
     params = (
@@ -135,7 +134,3 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
     response = requests.post(url, files=files, timeout=timeout)
     return response
 
-def gen_mar(model_store=None):
-    if model_store is not None and os.path.exists(model_store):
-        if len(os.listdir(model_store)) == 0:
-            mg.generate_mars(mar_config=mg.MAR_CONFIG_FILE_PATH, model_store_dir=model_store)

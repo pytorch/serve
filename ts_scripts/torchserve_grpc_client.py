@@ -9,7 +9,7 @@ import os
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-import ts_scripts.marsgen as mg
+from ts_scripts.marsgen import mar_set
 
 def get_inference_stub():
     channel = grpc.insecure_channel('localhost:7070')
@@ -40,8 +40,8 @@ def infer(stub, model_name, model_input):
 
 def register(stub, model_name):
     marfile = f"{model_name}.mar"
-    print(f"check {marfile} in gen_mar_set :", mg.gen_mar_set)
-    if marfile not in mg.gen_mar_set:
+    print(f"check {marfile} in mar_set :", mar_set)
+    if marfile not in mar_set:
         marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
 
     print(f"register marfile:{marfile}")

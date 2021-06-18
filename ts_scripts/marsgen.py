@@ -10,10 +10,13 @@ MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store")
 os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
+def gen_mar(model_store=None):
+    if model_store is not None and os.path.exists(model_store):
+        if len(os.listdir(model_store)) == 0:
+            generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=model_store)
 
+mar_set = set()
 def generate_mars(mar_config, model_store_dir):
-    global gen_mar_set
-    gen_mar_set = set()
     with open(mar_config) as f:
         models = json.loads(f.read())
 
@@ -65,7 +68,7 @@ def generate_mars(mar_config, model_store_dir):
             else :
                 marfile = "{}.mar".format(model["model_name"])
                 print("## {} is generated.\n".format(marfile))
-                gen_mar_set.add(marfile)
+                mar_set.add(marfile)
 
 def model_archiver_command_builder(model_name=None, version=None, model_file=None,
                                    serialized_file=None, handler=None, extra_files=None,
