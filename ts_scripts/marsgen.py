@@ -3,19 +3,33 @@ import json
 import os
 import sys
 import urllib.request
+import shutil
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
-MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store")
+MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store_gen")
 os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
-def gen_mar(model_store=None):
-    if model_store is not None and os.path.exists(model_store):
-        if len(os.listdir(model_store)) == 0:
-            generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=model_store)
+def delete_model_store_gen_dir():
+    if os.path.isdir(MODEL_STORE_DIR):
+        try:
+            shutil.rmtree(MODEL_STORE_DIR)
+        except OSError as e:
+            print("Error: %s : %s" % (MODEL_STORE_DIR, e.strerror))
 
 mar_set = set()
+def gen_mar(model_store=None):
+    if len(mar_set) == 0:
+        generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR)
+
+    if model_store is not None and os.path.exists(model_store):
+        print("create symlink for mar files")
+        for mar_file in mar_set:
+            src = f"{MODEL_STORE_DIR}/{mar_file}"
+            dst = f"{model_store}/{mar_file}"
+            os.symlink(src, dst)
+
 def generate_mars(mar_config, model_store_dir):
     mar_set.clear()
     with open(mar_config) as f:

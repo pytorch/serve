@@ -8,6 +8,7 @@ from ts_scripts.shell_utils import rm_dir, rm_file
 from ts_scripts.frontend_utils import test_frontend
 import ts_scripts.tsutils as ts
 import ts_scripts.print_env_info as build_hdr_printer
+from ts_scripts.marsgen import delete_model_store_gen_dir
 
 
 def torchserve_sanity():
@@ -45,6 +46,9 @@ def cleanup():
     # clean up residual from model-archiver IT suite.
     rm_dir('model-archiver/model_archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it')
     rm_file('ts_scripts/*_pb2*.py', True)
+
+    # delete mar_gen_dir
+    delete_model_store_gen_dir()
 
 
 if __name__ == '__main__':

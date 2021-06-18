@@ -11,6 +11,7 @@ from ts_scripts.regression_utils import test_regression
 from ts_scripts.api_utils import test_api
 from ts_scripts import print_env_info  as build_hdr_printer
 from ts_scripts.utils import check_python_version
+from ts_scripts.marsgen import delete_model_store_gen_dir
 
 import datetime
 now = datetime.datetime.now()
@@ -29,3 +30,6 @@ test_api("all") #"all" > management, inference, increased_timeout_inference, htt
 
 # Run regression tests
 test_regression()
+
+# delete mar_gen_dir
+delete_model_store_gen_dir()
