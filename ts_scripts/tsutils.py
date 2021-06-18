@@ -3,7 +3,7 @@ import platform
 import sys
 import time
 import requests
-from ts_scripts.marsgen import mar_set
+from ts_scripts import marsgen as mg
 
 torchserve_command = {
     "Windows": "torchserve.exe",
