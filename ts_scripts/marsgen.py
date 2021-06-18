@@ -9,10 +9,9 @@ sys.path.append(REPO_ROOT)
 MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store")
 os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
-GEN_MAR_SET = {}
+GEN_MAR_SET = set()
 
 def generate_mars(mar_config, model_store_dir):
-
     with open(mar_config) as f:
         models = json.loads(f.read())
 

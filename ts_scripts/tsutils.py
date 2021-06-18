@@ -136,7 +136,7 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
     return response
 
 def gen_mar(model_store=None):
-    mg.GEN_MAR_SET = {}
+    mg.GEN_MAR_SET = set()
     if model_store is not None and os.path.exists(model_store):
         if len(os.listdir(model_store)) == 0:
             mg.generate_mars(mar_config=mg.MAR_CONFIG_FILE_PATH, model_store_dir=model_store)
