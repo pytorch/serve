@@ -33,7 +33,10 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
-def register(stub, model_name, mar_set):
+def register(stub, model_name, mar_set_str):
+    mar_set = set()
+    if mar_set_str:
+        mar_set = set(mar_set_str.split(','))
     marfile = f"{model_name}.mar"
     print(f"check {marfile} in mar_set :", mar_set)
     if marfile not in mar_set:

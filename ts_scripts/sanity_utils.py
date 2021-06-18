@@ -102,7 +102,10 @@ def test_sanity():
         model_handler = model["handler"]
 
         # Run gRPC sanity
-        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name} {mg.mar_set}"
+        print("pass mg.mar_set=", mg.mar_set)
+        mar_set_list_str = [str(s) for s in mg.mar_set]
+        mar_set_str = ",".join(mar_set_list_str)
+        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name} {mar_set_str}"
         status = os.system(register_model_grpc_cmd)
 
         if status != 0:
