@@ -5,7 +5,7 @@ import glob
 import os
 import requests
 import tempfile
-from ts_scripts import tsutils as ts
+from ts_scripts import marsgen as mg
 
 ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 
@@ -23,7 +23,7 @@ def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=F
         cmd.extend(["--no-config-snapshots"])
     print(cmd)
     subprocess.run(cmd)
-    ts.gen_mar(model_store)
+    mg.gen_mar(model_store)
     time.sleep(10)
 
 

@@ -4,12 +4,7 @@ import inference_pb2_grpc
 import management_pb2
 import management_pb2_grpc
 import sys
-import os
 
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-sys.path.append(REPO_ROOT)
-
-from ts_scripts.marsgen import mar_set
 
 def get_inference_stub():
     channel = grpc.insecure_channel('localhost:7070')
@@ -38,7 +33,7 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
-def register(stub, model_name):
+def register(stub, model_name, mar_set):
     marfile = f"{model_name}.mar"
     print(f"check {marfile} in mar_set :", mar_set)
     if marfile not in mar_set:
@@ -80,4 +75,7 @@ if __name__ == '__main__':
         infer(get_inference_stub(), args[1], args[2])
     else:
         api = globals()[args[0]]
-        api(get_management_stub(), args[1])
+        if args[0] == "register":
+            api(get_management_stub(), args[1], args[2])
+        else:
+            api(get_management_stub(), args[1])

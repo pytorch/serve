@@ -17,6 +17,7 @@ def gen_mar(model_store=None):
 
 mar_set = set()
 def generate_mars(mar_config, model_store_dir):
+    mar_set.clear()
     with open(mar_config) as f:
         models = json.loads(f.read())
 
