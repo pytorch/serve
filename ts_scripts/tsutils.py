@@ -25,6 +25,7 @@ torch_workflow_archiver_command = {
 
 
 def start_torchserve(ncs=False, model_store="model_store", workflow_store="", models="", config_file="", log_file="", wait_for=10):
+    mg.gen_mar(model_store)
     print("## Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
@@ -42,7 +43,6 @@ def start_torchserve(ncs=False, model_store="model_store", workflow_store="", mo
     status = os.system(cmd)
     if status == 0:
         print("## Successfully started TorchServe")
-        mg.gen_mar(model_store)
         time.sleep(wait_for)
         return True
     else:

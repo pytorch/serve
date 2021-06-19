@@ -14,6 +14,7 @@ CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
 def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False):
     stop_torchserve()
+    mg.gen_mar(model_store)
     cmd = ["torchserve", "--start"]
     model_store = model_store if model_store else MODEL_STORE
     cmd.extend(["--model-store", model_store])
@@ -23,7 +24,6 @@ def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=F
         cmd.extend(["--no-config-snapshots"])
     print(cmd)
     subprocess.run(cmd)
-    mg.gen_mar(model_store)
     time.sleep(10)
 
 
