@@ -28,7 +28,10 @@ def gen_mar(model_store=None):
         for mar_file in mar_set:
             src = f"{MODEL_STORE_DIR}/{mar_file}"
             dst = f"{model_store}/{mar_file}"
-            os.symlink(src, dst)
+            if os.path.isfile(dst):
+                print(f"{dst} already exists.")
+            else:
+                os.symlink(src, dst)
 
 def generate_mars(mar_config, model_store_dir):
     mar_set.clear()
