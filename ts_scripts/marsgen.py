@@ -12,7 +12,7 @@ os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
 def delete_model_store_gen_dir():
-    if os.path.isdir(MODEL_STORE_DIR):
+    if os.path.exists(MODEL_STORE_DIR):
         try:
             shutil.rmtree(MODEL_STORE_DIR)
         except OSError as e:
@@ -28,7 +28,7 @@ def gen_mar(model_store=None):
         for mar_file in mar_set:
             src = f"{MODEL_STORE_DIR}/{mar_file}"
             dst = f"{model_store}/{mar_file}"
-            if os.path.isfile(dst):
+            if os.path.exists(dst):
                 print(f"{dst} already exists.")
             else:
                 os.symlink(src, dst)
@@ -78,7 +78,9 @@ def generate_mars(mar_config, model_store_dir):
                                                  runtime, archive_format, requirements_file, export_path)
             print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
             sys_exit_code = os.system(cmd)
-            if model.get("serialized_file_remote") and model["serialized_file_remote"]:
+            if model.get("serialized_file_remote") and \
+                    model["serialized_file_remote"] and \
+                    os.path.exists(serialized_file_path):
                 os.remove(serialized_file_path)
 
             if sys_exit_code != 0:
