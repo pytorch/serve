@@ -12,6 +12,7 @@ os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
 def delete_model_store_gen_dir():
+    mar_set.clear()
     if os.path.exists(MODEL_STORE_DIR):
         try:
             shutil.rmtree(MODEL_STORE_DIR)
