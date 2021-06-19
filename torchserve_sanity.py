@@ -19,6 +19,9 @@ def torchserve_sanity():
         # Install from src
         install_from_src()
 
+        # Generate mar files
+        mg.generate_mars()
+
         # Test Torchserve pylint, pytest
         test_torchserve()
 
@@ -27,9 +30,6 @@ def torchserve_sanity():
 
         # Test Workflow archiver pylint, pytest, IT
         test_workflow_archiver()
-
-        # Generate mar files
-        mg.generate_mars()
 
         # Run Sanity Tests
         test_sanity()

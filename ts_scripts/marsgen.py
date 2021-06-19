@@ -12,6 +12,7 @@ os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
 def delete_model_store_gen_dir():
+    print(f"delete model_store_gen_dir: {MODEL_STORE_DIR}")
     mar_set.clear()
     if os.path.exists(MODEL_STORE_DIR):
         try:
@@ -21,6 +22,7 @@ def delete_model_store_gen_dir():
 
 mar_set = set()
 def gen_mar(model_store=None):
+    print(f"starting gen_mar: {model_store}")
     if len(mar_set) == 0:
         generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR)
 
@@ -35,6 +37,7 @@ def gen_mar(model_store=None):
                 os.symlink(src, dst)
 
 def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
+    print(f"starting generate_mars, mar_config:{mar_config}, model_store_dir:{model_store_dir}")
     mar_set.clear()
     with open(mar_config) as f:
         models = json.loads(f.read())
