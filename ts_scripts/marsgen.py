@@ -34,7 +34,7 @@ def gen_mar(model_store=None):
             else:
                 os.symlink(src, dst)
 
-def generate_mars(mar_config, model_store_dir):
+def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
     mar_set.clear()
     with open(mar_config) as f:
         models = json.loads(f.read())

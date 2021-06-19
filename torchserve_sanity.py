@@ -8,7 +8,7 @@ from ts_scripts.shell_utils import rm_dir, rm_file
 from ts_scripts.frontend_utils import test_frontend
 import ts_scripts.tsutils as ts
 import ts_scripts.print_env_info as build_hdr_printer
-from ts_scripts.marsgen import delete_model_store_gen_dir
+from ts_scripts import marsgen as mg
 
 
 def torchserve_sanity():
@@ -27,6 +27,9 @@ def torchserve_sanity():
 
         # Test Workflow archiver pylint, pytest, IT
         test_workflow_archiver()
+
+        # Generate mar files
+        mg.generate_mars()
 
         # Run Sanity Tests
         test_sanity()
@@ -48,7 +51,7 @@ def cleanup():
     rm_file('ts_scripts/*_pb2*.py', True)
 
     # delete mar_gen_dir
-    delete_model_store_gen_dir()
+    mg.delete_model_store_gen_dir()
 
 
 if __name__ == '__main__':
