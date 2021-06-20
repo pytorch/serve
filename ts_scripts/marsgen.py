@@ -12,7 +12,7 @@ os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
 def delete_model_store_gen_dir():
-    print(f"delete model_store_gen_dir: {MODEL_STORE_DIR}")
+    print(f"## Deleting model_store_gen_dir: {MODEL_STORE_DIR}\n")
     mar_set.clear()
     if os.path.exists(MODEL_STORE_DIR):
         try:
@@ -22,22 +22,22 @@ def delete_model_store_gen_dir():
 
 mar_set = set()
 def gen_mar(model_store=None):
-    print(f"starting gen_mar: {model_store}")
+    print(f"## Starting gen_mar: {model_store}\n")
     if len(mar_set) == 0:
         generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR)
 
     if model_store is not None and os.path.exists(model_store):
-        print("create symlink for mar files")
+        print("## Create symlink for mar files\n")
         for mar_file in mar_set:
             src = f"{MODEL_STORE_DIR}/{mar_file}"
             dst = f"{model_store}/{mar_file}"
             if os.path.exists(dst):
-                print(f"{dst} already exists.")
+                print(f"## {dst} already exists.\n")
             else:
                 os.symlink(src, dst)
 
 def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
-    print(f"starting generate_mars, mar_config:{mar_config}, model_store_dir:{model_store_dir}")
+    print(f"## Starting generate_mars, mar_config:{mar_config}, model_store_dir:{model_store_dir}\n")
     mar_set.clear()
     with open(mar_config) as f:
         models = json.loads(f.read())
@@ -80,7 +80,7 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
             cmd = model_archiver_command_builder(model["model_name"], model["version"], model["model_file"],
                                                  serialized_file_path, handler, extra_files,
                                                  runtime, archive_format, requirements_file, export_path)
-            print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+            print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
             sys_exit_code = os.system(cmd)
             if model.get("serialized_file_remote") and \
                     model["serialized_file_remote"] and \

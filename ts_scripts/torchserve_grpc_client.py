@@ -4,6 +4,8 @@ import inference_pb2_grpc
 import management_pb2
 import management_pb2_grpc
 import sys
+import os
+from ts_scripts import marsgen as mg
 
 
 def get_inference_stub():
@@ -38,11 +40,11 @@ def register(stub, model_name, mar_set_str):
     if mar_set_str:
         mar_set = set(mar_set_str.split(','))
     marfile = f"{model_name}.mar"
-    print(f"check {marfile} in mar_set :", mar_set)
-    if marfile not in mar_set:
+    print(f"## Check {marfile} in mar_set :", mar_set)
+    if marfile not in mar_set or not os.path.exists(f"{mg.MODEL_STORE_DIR}/{marfile}"):
         marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
 
-    print(f"register marfile:{marfile}")
+    print(f"## Register marfile:{marfile}\n")
     params = {
         'url': marfile,
         'initial_workers': 1,
