@@ -82,23 +82,18 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
                                                  serialized_file_path, handler, extra_files,
                                                  runtime, archive_format, requirements_file, export_path)
             print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
-            exit_code = 0
             try:
                 subprocess.check_call(cmd, shell=True)
+                marfile = "{}.mar".format(model["model_name"])
+                print("## {} is generated.\n".format(marfile))
+                mar_set.add(marfile)
             except subprocess.CalledProcessError as exc:
-                exit_code = 1
                 print("## {} creation failed !, error: {}\n".format(model["model_name"], exc))
-
 
             if model.get("serialized_file_remote") and \
                     model["serialized_file_remote"] and \
                     os.path.exists(serialized_file_path):
                 os.remove(serialized_file_path)
-
-            if exit_code == 0:
-                marfile = "{}.mar".format(model["model_name"])
-                print("## {} is generated.\n".format(marfile))
-                mar_set.add(marfile)
 
 
 def model_archiver_command_builder(model_name=None, version=None, model_file=None,
