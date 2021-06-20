@@ -4,6 +4,7 @@ import os
 import sys
 import urllib.request
 import shutil
+import time
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
@@ -91,8 +92,14 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
                 print("## {} creation failed !\n".format(model["model_name"]))
             else :
                 marfile = "{}.mar".format(model["model_name"])
-                print("## {} is generated.\n".format(marfile))
-                mar_set.add(marfile)
+                marfilepath = f"{model_store_dir}/{marfile}"
+                for i in range (0, 10):
+                    if not os.path.exists(marfilepath):
+                        time.sleep(30)
+                    else:
+                        print("## {} is generated.\n".format(marfile))
+                        mar_set.add(marfile)
+                        break
 
 def model_archiver_command_builder(model_name=None, version=None, model_file=None,
                                    serialized_file=None, handler=None, extra_files=None,
