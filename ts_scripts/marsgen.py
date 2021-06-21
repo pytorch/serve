@@ -35,7 +35,18 @@ def gen_mar(model_store=None):
             if os.path.exists(dst):
                 print(f"## {dst} already exists.\n")
             else:
-                os.symlink(src, dst)
+                try:
+                    shutil.copyfile(src, dst)
+                    print(f"## Copied {src} to {dst} successfully.")
+                except shutil.SameFileError:
+                    print(f"## {src} and {dst} represents the same file.")
+                except IsADirectoryError:
+                    print(f"## {dst} is a directory.")
+                except PermissionError:
+                    print(f"## Permission denied. Copy {src} to {dst}.")
+                except:
+                    print(f"Error occurred while copying {src} to {dst}.")
+
 
 def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
     print(f"## Starting generate_mars, mar_config:{mar_config}, model_store_dir:{model_store_dir}\n")
