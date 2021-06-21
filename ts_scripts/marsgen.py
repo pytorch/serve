@@ -43,7 +43,7 @@ def gen_mar(model_store=None):
                 except IsADirectoryError:
                     print(f"## {dst} is a directory.")
                 except PermissionError:
-                    print(f"## Permission denied. Copy {src} to {dst}.")
+                    print(f"## Permission denied while copying  {src} to {dst}.")
                 except:
                     print(f"Error occurred while copying {src} to {dst}.")
 
