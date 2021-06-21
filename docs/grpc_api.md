@@ -28,7 +28,7 @@ Run following commands to Register, run inference and unregister, densenet161 mo
  - Clone serve repo to run this example
  
 ```bash
-git clone
+git clone https://github.com/pytorch/serve
 cd serve
 ```
 

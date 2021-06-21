@@ -1,6 +1,6 @@
 # Management API
 
-TorchServe provides the following APIs that allows you to manage models at runtime:
+TorchServe provides the following APIs that allows you to manage workflows at runtime:
 
 1. [Register a workflow](#register-a-workflow)
 1. [Describe a workflow's status](#describe-workflow)
