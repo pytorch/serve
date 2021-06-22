@@ -15,14 +15,14 @@ class Model(object):
         self.model_name = model_name
         self.serialized_file = None
         if serialized_file:
-            if sys.platform.startswith('win32') and self.serialized_file.find("\\") != -1:
+            if sys.platform.startswith('win32') and serialized_file.find("\\") != -1:
                 self.serialized_file = serialized_file.split("\\")[-1]
             else:
                 self.serialized_file = serialized_file.split("/")[-1]
         self.model_file = model_file
         self.model_version = model_version
         self.extensions = extensions
-        if sys.platform.startswith('win32') and self.serialized_file.find("\\") != -1:
+        if sys.platform.startswith('win32') and handler.find("\\") != -1:
             self.handler = handler.split("\\")[-1]
         else:
             self.handler = handler.split("/")[-1]
