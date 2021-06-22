@@ -69,8 +69,8 @@ class TorchServeHandler(object):
 
 
     def prepare_common_dependency(self):
-        # Note: the following command cleans up any previous run logs
-        self.connection.run(f"rm -rf {os.path.join(TMP_DIR, 'benchmark')}")
+        # Note: the following command cleans up any previous run logs, except any *.mar files generated to avoid re-creation
+        self.connection.run(f"find {os.path.join(TMP_DIR, 'benchmark')} ! -name '*.mar' -type f -exec rm -f {{}} +")
         # Recreate required folders
         self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'conf')}")
         self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'logs')}")
@@ -99,7 +99,7 @@ class TorchServeHandler(object):
         self.management_port = urlparse(management_api).port
         self.inference_api = urlparse(inference_api).port
 
-    def start_torchserve_local(self, virtual_env_name=None):
+    def start_torchserve_local(self, virtual_env_name=None, stop_torchserve=True):
 
         self.prepare_common_dependency()
         self.getAPIS()
@@ -110,13 +110,18 @@ class TorchServeHandler(object):
         if self.backend_profiling:
             activation_command = f"{activation_command} && export TS_BENCHMARK=True && "
         
-        LOGGER.info(f"Stop existing torchserve instance")
-        self.connection.run(f"{activation_command}torchserve --stop", warn=True)
+        if stop_torchserve:
+            LOGGER.info(f"Stop existing torchserve instance")
+            self.connection.run(f"{activation_command}torchserve --stop", warn=True)
         
-        self.connection.run(f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log") 
+        self.connection.run(f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store/ --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log", warn=True)
+        LOGGER.info(f"Started torchserve using command")
+        LOGGER.info(f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store/ --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log")
+
+        time.sleep(10)
 
 
-    def start_torchserve_docker(self):
+    def start_torchserve_docker(self, stop_torchserve=True):
 
         self.prepare_common_dependency()
         self.getAPIS()
@@ -128,8 +133,9 @@ class TorchServeHandler(object):
         if self.backend_profiling:
             backend_profiling = f"-e TS_BENCHMARK=True"
 
-        LOGGER.info(f"Removing existing TS container instance...")
-        self.connection.run("docker rm -f ts")
+        if stop_torchserve:
+            LOGGER.info(f"Removing existing TS container instance...")
+            self.connection.run("docker rm -f ts")
 
         LOGGER.info(f"Starting docker container on the instance from image: {self.torchserve_docker_image}")
         docker_run_cmd = (

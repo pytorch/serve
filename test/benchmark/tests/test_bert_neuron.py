@@ -112,18 +112,21 @@ def test_vgg16_benchmark(
                 connection=ec2_connection,
             )
             
-            # Note: Assumes a DLAMI is being used
+            # Note: Assumes a DLAMI (conda-based) is being used
             torchserveHandler.setup_torchserve(virtual_env_name="aws_neuron_pytorch_p36")
 
             for batch_size in batch_sizes:
                 url = f"benchmark_{batch_size}.mar"
                 LOGGER.info(f"Running benchmark for model archive: {url}")
+                
+                # Stop torchserve
+                torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name="aws_neuron_pytorch_p36")
 
                 # Generate bert inf model
                 neuron_utils.setup_neuron_mar_files(connection=ec2_connection, virtual_env_name="aws_neuron_pytorch_p36", batch_size=batch_size)
 
                 # Start torchserve
-                torchserveHandler.start_torchserve_local(virtual_env_name="aws_neuron_pytorch_p36")
+                torchserveHandler.start_torchserve_local(virtual_env_name="aws_neuron_pytorch_p36", stop_torchserve=False)
 
                 # Register
                 torchserveHandler.register_model(
@@ -137,7 +140,7 @@ def test_vgg16_benchmark(
                 torchserveHandler.unregister_model()
 
                 # Stop torchserve
-                torchserveHandler.stop_torchserve()
+                torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name="aws_neuron_pytorch_p36")
 
                 # Generate report (note: needs to happen after torchserve has stopped)
                 apacheBenchHandler.generate_report(

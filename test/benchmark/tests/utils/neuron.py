@@ -21,14 +21,32 @@ TORCHSERVE_DIR = os.path.join(ROOT_DIR, "serve")
 MODEL_STORE = os.path.join(TORCHSERVE_DIR, "model_store")
 LOCAL_TMP_DIR = "/tmp"
 TMP_DIR = "/home/ubuntu"
+NEURON_RESOURCES_FOLDER = os.path.join(TORCHSERVE_DIR, "test", "benchmark", "tests", "resources", "neuron-bert")
 
 def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size=1):
     activation_command = ""
+    
     if virtual_env_name:
         activation_command = f"cd /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert && source activate {virtual_env_name} && "
-
+    # run_out = connection.run(f"{activation_command}test -e benchmark_{batch_size}.mar", warn=True)
+    # if run_out.return_code != 0: 
     connection.run(f"{activation_command}python3 compile_bert.py --batch-size {batch_size}", warn=True)
-    connection.run(f"sed -i 's/batch_size=[[:digit:]]\+/batch_size={batch_size}/g' config.py", warn=True)
-    connection.run(f"mkdir -p /home/ubuntu/benchmark/model_store")
-    connection.run(f"{activation_command}torch-model-archiver --model-name 'benchmark_{batch_size}' --version 1.0 --serialized-file ./bert_neuron_{batch_size}.pt --handler './handler_bert.py' --extra-files './config.py' --export-path /home/ubuntu/benchmark/model_store")
-    pass
+    time.sleep(5)
+    run_out_sed = connection.run(f"{activation_command}sed -i 's/batch_size=[[:digit:]]\+/batch_size={batch_size}/g' config.py", warn=True)
+    LOGGER.info(f"run_out_sed: {run_out_sed.stdout}, run_out_return: {run_out_sed.return_code}")
+    run_out_mkdir = connection.run(f"mkdir -p /home/ubuntu/benchmark/model_store")
+    LOGGER.info(f"run_out_mkdir: {run_out_mkdir.stdout}, run_out_return: {run_out_mkdir.return_code}")
+    run_out_archiver = connection.run(f"{activation_command}torch-model-archiver --model-name 'benchmark_{batch_size}' --version 1.0 --serialized-file ./bert_neuron_{batch_size}.pt --handler './handler_bert.py' --extra-files './config.py' -f", warn=True)
+    LOGGER.info(f"run_out_archiver: {run_out_archiver.stdout}, run_out_return: {run_out_archiver.return_code}")
+    
+    LOGGER.info(f"Running copy command")
+    connection.run(f"cp /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert/benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store")
+    run_out = connection.run(f"test -e /home/ubuntu/benchmark/model_store/benchmark_{batch_size}.mar")
+    if run_out.return_code == 0:
+        LOGGER.info(f"mar file available at location /home/ubuntu/benchmark/model_store/benchmark_{batch_size}.mar")
+    else:
+        LOGGER.info(f"mar file NOT available at location /home/ubuntu/benchmark/model_store/benchmark_{batch_size}.mar")
+
+    #LOGGER.info(f"{activation_command}cp ./benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store/")
+    #connection.run(f"cd /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert && cp ./benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store/")
+    time.sleep(5)
