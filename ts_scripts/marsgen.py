@@ -49,16 +49,15 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
             serialized_file_path = None
             if model.get("serialized_file_remote") and model["serialized_file_remote"]:
                 os.chdir(model_store_dir)
-                serialized_model_file_url = "https://download.pytorch.org/models/{}".format(model["serialized_file_remote"])
-                urllib.request.urlretrieve(serialized_model_file_url, model["serialized_file_remote"])
+                if model.get("gen_scripted_file_path") and model["gen_scripted_file_path"]:
+                    subprocess.run(["python", model["gen_scripted_file_path"]])
+                else:
+                    serialized_model_file_url = \
+                        "https://download.pytorch.org/models/{}".format(model["serialized_file_remote"])
+                    urllib.request.urlretrieve(serialized_model_file_url, model["serialized_file_remote"])
                 serialized_file_path = os.path.join(model_store_dir, model["serialized_file_remote"])
             elif model.get("serialized_file_local") and model["serialized_file_local"]:
-                if model.get("gen_scripted_file_path") and model["gen_scripted_file_path"]:
-                    os.chdir(model_store_dir)
-                    subprocess.run(["python", model["gen_scripted_file_path"]])
-                    serialized_file_path = os.path.join(model_store_dir, model["serialized_file_local"])
-                else:
-                    serialized_file_path = model["serialized_file_local"]
+                serialized_file_path = model["serialized_file_local"]
 
             handler = None
             if model.get("handler") and model["handler"]:
