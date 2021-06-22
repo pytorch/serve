@@ -21,7 +21,7 @@ from tests.utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
-INSTANCE_TYPES_TO_TEST = ["inf1.6xlarge"]
+INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 
 @pytest.mark.skip()
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
