@@ -63,7 +63,7 @@
     "extra_files": "examples/image_classifier/index_to_name.json"
   },
   {
-    "model_name": "deeplabv3_resnet_101",
+    "model_name": "deeplabv3_resnet_101_eager",
     "version": "1.0",
     "model_file": "examples/image_segmenter/deeplabv3/model.py",
     "serialized_file_remote": "deeplabv3_resnet101_coco-586e9e4e.pth",
