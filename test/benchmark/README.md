@@ -21,8 +21,45 @@ If you'd like to use your own repo, edit the __init__.py under `serve/test/bench
 * Ensure you have [docker](https://docs.docker.com/get-docker/) client set-up on your system - osx/ec2
 * Adjust the following global variables to your preference in the file `serve/test/benchmark/tests/utils/__init__.py` <br>
 -- IAM_INSTANCE_PROFILE :this role is attached to all ec2 instances created as part of the benchmarking process. Create this as described [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#create-iam-role). Default role name is 'EC2Admin'.<br>
+Use the following commands to create a new role if you don't have one you can use.
+1. Create the trust policy file `ec2-admin-trust-policy.json` and add the following content:
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+2. Create the EC2 role as follows:
+```
+aws iam create-role --role-name EC2Admin --assume-role-policy-document file://ec2-admin-trust-policy.json
+```
+3. Add the permissions to the role as follows:
+```
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --role-name EC2Admin
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name EC2Admin
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --role-name EC2Admin
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess --role-name EC2Admin
+```
 -- S3_BUCKET_BENCHMARK_ARTIFACTS :all temporary benchmarking artifacts including server logs will be stored in this bucket: <br>
+Use the following command to create a new S3 bucket if you don't have one you can use.
+```
+aws s3api create-bucket --bucket <torchserve-benchmark> --region us-west-2
+```
 -- DEFAULT_DOCKER_DEV_ECR_REPO :docker image used for benchmarking will be pushed to this repo <br>
+Use the following command to create a new ECR repo if you don't have one you can use.
+```
+aws ecr create-repository --bucket torchserve-benchmark --region us-west-2
+```
 * If you're running this setup on an EC2 instance, please ensure that the instance's security group settings 'allow' inbound ssh port 22. Refer [docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules.html).
 
 *The following steps assume that the current working directory is serve/.*
@@ -32,6 +69,8 @@ If you'd like to use your own repo, edit the __init__.py under `serve/test/bench
 sudo apt-get install python3-venv
 python3 -m venv bvenv
 source bvenv/bin/activate
+# Ensure you have the latest pip
+pip3 install -U pip
 ```
 2. Install requirements for the benchmarking 
 ```
@@ -57,7 +96,7 @@ python report.py
 ```
 The final benchmark report will be available in markdown format as `report.md` in the `serve/` folder. 
 
-**Example report for vgg16 model**
+**Example report for vgg11 model**
 
 
 ### Benchmark report

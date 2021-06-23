@@ -59,7 +59,7 @@ class TorchServeHandler(object):
         if virtual_env_name:
             activation_command = f"cd /home/ubuntu/serve && source activate {virtual_env_name} && "
 
-        if self.connection.run(f"{activation_command}torchserve --version").return_code == 0:
+        if self.connection.run(f"{activation_command}torchserve --version", warn=True).return_code == 0:
             return
 
         self.connection.run(f"{activation_command}python3 ./ts_scripts/install_dependencies.py --environment=dev", warn=True)
@@ -70,7 +70,7 @@ class TorchServeHandler(object):
 
     def prepare_common_dependency(self):
         # Note: the following command cleans up any previous run logs, except any *.mar files generated to avoid re-creation
-        self.connection.run(f"find {os.path.join(TMP_DIR, 'benchmark')} ! -name '*.mar' -type f -exec rm -f {{}} +")
+        self.connection.run(f"find {os.path.join(TMP_DIR, 'benchmark')} ! -name '*.mar' -type f -exec rm -f {{}} +", warn=True)
         # Recreate required folders
         self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'conf')}")
         self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'logs')}")

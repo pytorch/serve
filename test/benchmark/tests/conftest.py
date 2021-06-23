@@ -15,9 +15,9 @@ from invoke import run
 from invoke.context import Context
 
 
-import tests.utils.ec2 as ec2_utils
-import tests.utils.s3 as s3_utils
-from tests.utils import (
+import utils.ec2 as ec2_utils
+import utils.s3 as s3_utils
+from utils import (
     AMI_ID,
     DEFAULT_REGION,
     IAM_INSTANCE_PROFILE,
@@ -27,7 +27,7 @@ from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
-from tests.utils.s3 import ArtifactsHandler
+from utils.s3 import ArtifactsHandler
 
 
 def pytest_addoption(parser):

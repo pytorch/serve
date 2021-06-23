@@ -12,7 +12,7 @@ import utils.ts as ts_utils
 import utils.apache_bench as ab_utils
 import utils.neuron as neuron_utils
 
-from tests.utils import (
+from utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     DEFAULT_REGION,
     GPU_INSTANCES,
@@ -24,9 +24,8 @@ from tests.utils import (
 
 INSTANCE_TYPES_TO_TEST = ["inf1.6xlarge"]
 
-
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
-def test_vgg16_benchmark(
+def test_neuron_benchmark(
     ec2_connection, ec2_instance_type, bert_neuron_config_file_path, docker_dev_image_config_path, benchmark_execution_id
 ):
 

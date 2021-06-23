@@ -28,8 +28,11 @@ def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size=1)
     
     if virtual_env_name:
         activation_command = f"cd /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert && source activate {virtual_env_name} && "
-    # run_out = connection.run(f"{activation_command}test -e benchmark_{batch_size}.mar", warn=True)
-    # if run_out.return_code != 0: 
+    
+    # Note: change version here to make sure the torch version compatible with neuron is being used.
+    connection.run(f"{activation_command}pip3 install -U --ignore-installed torch==1.7.1", warn=True)
+    connection.run(f"{activation_command}pip3 install -U --ignore-installed torch-neuron 'neuron-cc[tensorflow]' --extra-index-url=https://pip.repos.neuron.amazonaws.com", warn=True)
+    
     connection.run(f"{activation_command}python3 compile_bert.py --batch-size {batch_size}", warn=True)
     time.sleep(5)
     run_out_sed = connection.run(f"{activation_command}sed -i 's/batch_size=[[:digit:]]\+/batch_size={batch_size}/g' config.py", warn=True)

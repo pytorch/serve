@@ -11,7 +11,7 @@ import utils.s3 as s3_utils
 import utils.ts as ts_utils
 import utils.apache_bench as ab_utils
 
-from tests.utils import (
+from utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     DEFAULT_REGION,
     GPU_INSTANCES,
