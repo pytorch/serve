@@ -50,6 +50,10 @@ class BaseHandler(abc.ABC):
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else self.map_location
         )
+
+        if device == "cpu":
+            torch.set_num_threads(1)
+
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
