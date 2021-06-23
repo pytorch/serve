@@ -57,7 +57,7 @@
   {
     "model_name": "vgg16",
     "version": "1.0",
-    "model_file": "examples/image_classifier/squeezenet/model.py",
+    "model_file": "examples/image_classifier/vgg_16/model.py",
     "serialized_file_remote": "vgg16-397923af.pth",
     "handler": "examples/image_classifier/vgg_16/vgg_handler.py",
     "extra_files": "examples/image_classifier/index_to_name.json"
