@@ -106,7 +106,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             list : The preprocess function returns a list of Tensor for the size of the word tokens.
         """
-        input_batch = None
+        input_ids_batch = None
+        attention_mask_batch = None
         for idx, data in enumerate(requests):
             input_text = data.get("data")
             if input_text is None:
@@ -137,12 +138,15 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 context = question_context["context"]
                 inputs = self.tokenizer.encode_plus(question, context, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors="pt")
             input_ids = inputs["input_ids"].to(self.device)
+            attention_mask = inputs["attention_mask"].to(self.device)
             if input_ids.shape is not None:
-                if input_batch is None:
-                    input_batch = input_ids
+                if input_ids_batch is None:
+                    input_ids_batch = input_ids
+                    attention_mask_batch = attention_mask
                 else:
-                    input_batch = torch.cat((input_batch, input_ids), 0)
-        return input_batch
+                    input_ids_batch = torch.cat((input_ids_batch, input_ids), 0)
+                    attention_mask_batch = torch.cat((attention_mask_batch, attention_mask), 0)
+        return (input_ids_batch, attention_mask_batch)
 
     def inference(self, input_batch):
         """Predict the class (or classes) of the received text using the
@@ -152,11 +156,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             list : It returns a list of the predicted value for the input text
         """
-
+        input_ids_batch, attention_mask_batch = input_batch
         inferences = []
         # Handling inference for sequence_classification.
         if self.setup_config["mode"] == "sequence_classification":
-            predictions = self.model(input_batch)
+            predictions = self.model(input_ids_batch,attention_mask_batch)
             print("This the output size from the Seq classification model", predictions[0].size())
             print("This the output from the Seq classification model", predictions)
 
@@ -175,7 +179,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 answer_start_scores = outputs.start_logits
                 answer_end_scores = outputs.end_logits
             else:
-                answer_start_scores, answer_end_scores = self.model(input_batch)
+                answer_start_scores, answer_end_scores = self.model(input_ids_batch, attention_mask_batch)
             print("This the output size for answer start scores from the question answering model", answer_start_scores.size())
             print("This the output for answer start scores from the question answering model", answer_start_scores)
             print("This the output size for answer end scores from the question answering model", answer_end_scores.size())
@@ -188,19 +192,19 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 answer_start = torch.argmax(answer_start_scores_one_seq)
                 answer_end_scores_one_seq = answer_end_scores[i].unsqueeze(0)
                 answer_end = torch.argmax(answer_end_scores_one_seq) + 1
-                prediction = self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_batch[i].tolist()[answer_start:answer_end]))
+                prediction = self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_ids_batch[i].tolist()[answer_start:answer_end]))
                 inferences.append(prediction)
             logger.info("Model predicted: '%s'", prediction)
         # Handling inference for token_classification.
         elif self.setup_config["mode"]== "token_classification":
-            outputs = self.model(input_batch)[0]
+            outputs = self.model(input_ids_batch, attention_mask_batch)[0]
             print("This the output size from the token classification model", outputs.size())
             print("This the output from the token classification model",outputs)
             num_rows = outputs.shape[0]
             for i in range(num_rows):
                 output = outputs[i].unsqueeze(0)
                 predictions = torch.argmax(output, dim=2)
-                tokens = self.tokenizer.tokenize(self.tokenizer.decode(input_batch[i]))
+                tokens = self.tokenizer.tokenize(self.tokenizer.decode(input_ids_batch[i]))
                 if self.mapping:
                     label_list = self.mapping["label_list"]
                 label_list = label_list.strip('][').split(', ')
