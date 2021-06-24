@@ -53,7 +53,7 @@ def pytest_addoption(parser):
     )
 
 
-#@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def build_docker_container(request, docker_dev_image_config_path):
     LOGGER.info(f"Setting up docker image to be used")
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)

@@ -33,7 +33,7 @@ class ApacheBenchHandler(object):
         self.result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
         self.ts_metric_log_file = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
         self.inference_url = "http://127.0.0.1:8080"
-        #self.install_dependencies()
+        self.install_dependencies()
 
         self.metrics = {
             "predict.txt": "PredictionTime",

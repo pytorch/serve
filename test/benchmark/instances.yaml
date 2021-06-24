@@ -1,4 +1,0 @@
-test_vgg16_benchmark:
-  inf1.6xlarge:
-    instance_id: i-04b6adea9c066ad0f
-    key_filename: /Users/nikhilsk/nskool/serve/test/benchmark/ec2-key-name-6028.pem
