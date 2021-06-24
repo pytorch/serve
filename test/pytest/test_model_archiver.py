@@ -11,10 +11,8 @@ MODEL_SFILE_NAME = 'resnet18-f37072fd.pth'
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    mar_file = test_utils.MODEL_STORE + MODEL_SFILE_NAME
-    if not os.path.isfile(mar_file):
-        response = requests.get('https://download.pytorch.org/models/' + MODEL_SFILE_NAME, allow_redirects=True)
-        open(mar_file, 'wb').write(response.content)
+    response = requests.get('https://download.pytorch.org/models/' + MODEL_SFILE_NAME, allow_redirects=True)
+    open(test_utils.MODEL_STORE + "/" + MODEL_SFILE_NAME, 'wb').write(response.content)
 
 
 def teardown_module(module):

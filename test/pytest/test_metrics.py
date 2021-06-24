@@ -15,11 +15,8 @@ NUM_STARTUP_CFG = 0
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    densenet161_mar = test_utils.MODEL_STORE + "/densenet161.mar"
-    if not os.path.isfile(densenet161_mar):
-        response = requests.get("https://torchserve.pytorch.org/mar_files/densenet161.mar", allow_redirects=True)
-        open(densenet161_mar, 'wb').write(response.content)
-
+    response = requests.get("https://torchserve.pytorch.org/mar_files/densenet161.mar", allow_redirects=True)
+    open(test_utils.MODEL_STORE + "/densenet161.mar", 'wb').write(response.content)
 
 def teardown_module(module):
     test_utils.torchserve_cleanup()

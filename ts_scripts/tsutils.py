@@ -24,8 +24,11 @@ torch_workflow_archiver_command = {
     }
 
 
-def start_torchserve(ncs=False, model_store="model_store", workflow_store="", models="", config_file="", log_file="", wait_for=10):
-    mg.gen_mar(model_store)
+def start_torchserve(
+        ncs=False, model_store="model_store", workflow_store="",
+        models="", config_file="", log_file="", wait_for=10, gen_mar=True):
+    if gen_mar:
+        mg.gen_mar(model_store)
     print("## Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
@@ -133,4 +136,3 @@ def workflow_prediction(workflow_name, file_name, protocol="http", host="localho
     files = {"data": (file_name, open(file_name, "rb"))}
     response = requests.post(url, files=files, timeout=timeout)
     return response
-

@@ -16,10 +16,8 @@ snapshot_file = os.path.join(REPO_ROOT,"test/config_kf.properties")
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    mnist_mar = test_utils.MODEL_STORE + "/mnist.mar"
-    if not os.path.isfile(mnist_mar):
-        response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
-        open(mnist_mar, 'wb').write(response.content)
+    response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
+    open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
 
 
 def teardown_module(module):
