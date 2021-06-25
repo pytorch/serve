@@ -1,8 +1,11 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -145,11 +148,12 @@ public final class ModelManager {
             }
         }
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
 
         setupModelDependencies(tempModel);
 
-        return archive;
+        logger.info("Model {} loaded.", tempModel.getModelName());
+
+	return archive;
     }
 
     private ModelArchive createModelArchive(
@@ -211,15 +215,34 @@ public final class ModelManager {
                             + requirementsFilePath; // NOPMD
 
             String[] envp =
-                    EnvironmentUtils.getEnvString(configManager.getModelServerHome(), null, null);
+                    EnvironmentUtils.getEnvString(model.getModelDir().getAbsolutePath(), null, null);
+
             Process process =
                     Runtime.getRuntime()
                             .exec(
                                     packageInstallCommand,
                                     envp,
                                     model.getModelDir().getAbsoluteFile());
+
             int exitCode = process.waitFor();
+
             if (exitCode != 0) {
+
+                String line;
+                // process's stdout is InputStream for caller process
+                logger.error("Dependency installation stdout:");
+                BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                while((line = brdr.readLine()) != null) {
+                    System.out.println(line);
+                }
+
+                // process's stderr is ErrorStream for caller process
+                logger.info("Dependency installation stderr:");
+                brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                while((line = brdr.readLine()) != null) {
+                        System.out.println(line);
+                }
+
                 throw new ModelException(
                         "Custom pip package installation failed for " + model.getModelName());
             }
