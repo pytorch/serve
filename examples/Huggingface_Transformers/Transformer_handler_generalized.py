@@ -55,7 +55,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
-            self.model = torch.jit.load(model_pt_path)
+            self.model = torch.jit.load(model_pt_path, map_location=self.device)
         elif self.setup_config["save_mode"] == "pretrained":
             if self.setup_config["mode"] == "sequence_classification":
                 self.model = AutoModelForSequenceClassification.from_pretrained(
@@ -67,6 +67,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
+            self.model.to(self.device)
+            
         else:
             logger.warning("Missing the checkpoint or state_dict.")
 
@@ -80,7 +82,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 do_lower_case=self.setup_config["do_lower_case"],
             )
 
-        self.model.to(self.device)
         self.model.eval()
 
         logger.info(
@@ -247,7 +248,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             text = text.decode('utf-8')
         text_target = ast.literal_eval(text)
         
-        if not self.setup_config["mode"]=="question_answering":
+        if  not self.setup_config["mode"]=="question_answering":
             text = text_target["text"]
         self.target = text_target["target"]
         
