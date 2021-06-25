@@ -1,5 +1,5 @@
 package org.pytorch.serve.wlm;
-
+  
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.File;
@@ -147,12 +147,11 @@ public final class ModelManager {
             }
         }
 
-
         setupModelDependencies(tempModel);
 
         logger.info("Model {} loaded.", tempModel.getModelName());
 
-	return archive;
+        return archive;
     }
 
     private ModelArchive createModelArchive(
@@ -214,7 +213,8 @@ public final class ModelManager {
                             + requirementsFilePath; // NOPMD
 
             String[] envp =
-                    EnvironmentUtils.getEnvString(model.getModelDir().getAbsolutePath(), null, null);
+                    EnvironmentUtils.getEnvString(
+                            model.getModelDir().getAbsolutePath(), null, null);
 
             Process process =
                     Runtime.getRuntime()
@@ -230,16 +230,17 @@ public final class ModelManager {
                 String line;
                 // process's stdout is InputStream for caller process
                 logger.error("Dependency installation stdout:");
-                BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while((line = brdr.readLine()) != null) {
+                BufferedReader brdr =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                while ((line = brdr.readLine()) != null) {
                     System.out.println(line);
                 }
 
                 // process's stderr is ErrorStream for caller process
                 logger.info("Dependency installation stderr:");
                 brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while((line = brdr.readLine()) != null) {
-                        System.out.println(line);
+                while ((line = brdr.readLine()) != null) {
+                    System.out.println(line);
                 }
 
                 throw new ModelException(
