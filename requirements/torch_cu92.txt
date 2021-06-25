@@ -1,4 +1,4 @@
-torch==1.9.0+cu92
-torchvision==0.10.0+cu92
+torch==1.9.0
+torchvision==0.10.0
 torchtext==0.10.0
 torchaudio==0.9.0
