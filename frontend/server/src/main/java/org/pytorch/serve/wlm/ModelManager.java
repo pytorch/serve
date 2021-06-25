@@ -1,5 +1,5 @@
 package org.pytorch.serve.wlm;
-  
+
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.File;
