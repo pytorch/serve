@@ -25,7 +25,6 @@ from utils import (
 INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 
 
-@pytest.mark.skip()
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
 def test_bert_benchmark(
     ec2_connection, ec2_instance_type, bert_config_file_path, docker_dev_image_config_path, benchmark_execution_id
@@ -71,7 +70,7 @@ def test_bert_benchmark(
                 account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
             )
             docker_repo_tag_for_current_instance = docker_repo_tag
-            cuda_version_for_instance = cuda_version
+            cuda_version_for_instance = None
             break
 
     mode_list = []

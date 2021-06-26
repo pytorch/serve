@@ -64,7 +64,7 @@ ARG CUDA_VERSION
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git clone https://github.com/pytorch/serve.git \
     && cd serve \
-    && git checkout --track origin/release_0.4.0 \
+    && git checkout --track ${BRANCH_NAME} \
     && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
     && python ts_scripts/install_from_src.py \
     && useradd -m model-server \

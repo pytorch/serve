@@ -81,10 +81,6 @@ class MarkdownDocument:
                 md_string += item + " | "
             md_string += "\n"
 
-        # writing md_string to the output_file
-        # file = open(output_file, "w", encoding="UTF-8")
-        # file.write(md_string)
-        # file.close()
         self.markdown_content += md_string
 
         print("The markdown file has been created!!!")
@@ -127,6 +123,7 @@ def generate_comprehensive_report(s3_bucket_uri):
     """
     Compile a markdown file with different csv files as input
     """
+    # TODO: Remove comments after report.py is called automatically from run_benchmark.py
     # Download the s3 files
     # run(f"mkdir -p /tmp/report")
     # run(f"aws s3 cp --recursive {s3_bucket_uri} /tmp/report")
@@ -153,7 +150,6 @@ def generate_comprehensive_report(s3_bucket_uri):
 
         config_header = f"{model} | {mode} | {instance_type} | batch size {batch_size}"
 
-        #markdownDocument.add_paragraph(config_header, bold=True, newline=True)
         markdownDocument.add_code_block(config_header, newline=True)
 
         print(f"Updating data from file: {report_path}")
@@ -163,6 +159,7 @@ def generate_comprehensive_report(s3_bucket_uri):
        f.write(markdownDocument.get_document()) 
 
     # Clean up 
+    # TODO: Remove comments after report.py is called automatically from run_benchmark.py
     # run(f"rm -rf /tmp/report")
 
 
