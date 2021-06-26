@@ -228,23 +228,27 @@ public final class ModelManager {
             if (exitCode != 0) {
 
                 String line;
+                String outputString = "";
                 // process's stdout is InputStream for caller process
-                logger.error("Dependency installation stdout:");
                 BufferedReader brdr =
                         new BufferedReader(new InputStreamReader(process.getInputStream()));
                 while ((line = brdr.readLine()) != null) {
-                    System.out.println(line);
+                    outputString += line;
                 }
-
+                String errorString = "";
                 // process's stderr is ErrorStream for caller process
-                logger.info("Dependency installation stderr:");
                 brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 while ((line = brdr.readLine()) != null) {
-                    System.out.println(line);
+                    errorString += line;
                 }
 
                 throw new ModelException(
-                        "Custom pip package installation failed for " + model.getModelName());
+                        "Custom pip package installation failed for "
+                                + model.getModelName()
+                                + "\nDependency installation stdout:\n"
+                                + outputString
+                                + "\nDependency installation stderr:\n"
+                                + errorString);
             }
         }
     }
