@@ -214,7 +214,7 @@ public final class ModelManager {
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
-                            model.getModelDir().getAbsolutePath(), null, null);
+                            configManager.getModelServerHome(), null, null);
 
             Process process =
                     Runtime.getRuntime()
