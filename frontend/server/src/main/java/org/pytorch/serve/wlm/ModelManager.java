@@ -214,7 +214,7 @@ public final class ModelManager {
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
-                            configManager.getModelServerHome(), null, null);
+                            model.getModelDir().getAbsolutePath(), null, null);
 
             Process process =
                     Runtime.getRuntime()
@@ -242,13 +242,11 @@ public final class ModelManager {
                     errorString += line;
                 }
 
+                logger.info("Dependency installation stdout:\n" + outputString);
+                logger.error("Dependency installation stderr:\n" + errorString);
+
                 throw new ModelException(
-                        "Custom pip package installation failed for "
-                                + model.getModelName()
-                                + "\nDependency installation stdout:\n"
-                                + outputString
-                                + "\nDependency installation stderr:\n"
-                                + errorString);
+                        "Custom pip package installation failed for " + model.getModelName());
             }
         }
     }
