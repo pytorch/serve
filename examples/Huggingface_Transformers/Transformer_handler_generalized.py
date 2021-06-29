@@ -140,6 +140,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 inputs = self.tokenizer.encode_plus(question, context, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors="pt")
             input_ids = inputs["input_ids"].to(self.device)
             attention_mask = inputs["attention_mask"].to(self.device)
+            # making a batch out of the recieved requests
+            # attention masks are passed for cases where input tokens are padded.
             if input_ids.shape is not None:
                 if input_ids_batch is None:
                     input_ids_batch = input_ids
