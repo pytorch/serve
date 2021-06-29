@@ -161,7 +161,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         inferences = []
         # Handling inference for sequence_classification.
         if self.setup_config["mode"] == "sequence_classification":
-            predictions = self.model(input_ids_batch,attention_mask_batch)
+            predictions = self.model(input_ids_batch, attention_mask_batch)
             print("This the output size from the Seq classification model", predictions[0].size())
             print("This the output from the Seq classification model", predictions)
 
@@ -248,7 +248,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             text = text.decode('utf-8')
         text_target = ast.literal_eval(text)
         
-        if  not self.setup_config["mode"]=="question_answering":
+        if not self.setup_config["mode"]=="question_answering":
             text = text_target["text"]
         self.target = text_target["target"]
         
