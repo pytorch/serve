@@ -22,7 +22,7 @@ If you're finetuning an existing model then you need to save your model and toke
 
 ```
 mkdir Transformer_model
-mv pytorch_model_bin vocab.txt config.json Transformer_model/
+mv pytorch_model.bin vocab.txt config.json Transformer_model/
 ```
 
 If you'd like to download a pretrained model without fine tuning we've provided a simple helper script which will do the above for you. All you need to do is change [setup.config.json](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/setup_config.json) to your liking and run
