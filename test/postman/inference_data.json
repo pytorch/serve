@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_v3.mar",
+        "url":"https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/my_text_classifier.mar",
         "model_name":"my_text_classifier",
         "worker":1,
         "synchronous":"true",
@@ -8,15 +8,15 @@
         "content-type":"application/json",
         "validator":"image_classification",
         "expected":{
-            "World":6.338399998639943e-06,
-            "Sports":1.7732110890733566e-08,
-            "Business":0.9997542500495911,
-            "Sci/Tec":0.0002394452749285847
+            "World": 0.02911965548992157,
+            "Sports": 2.9431605071295053e-05,
+            "Business": 0.9074352383613586,
+            "Sci/Tec": 0.06341567635536194
         },
         "tolerance":5
     },
     {
-        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_scripted_v2.mar",
+        "url":"https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/my_text_classifier_scripted.mar",
         "model_name":"my_text_classifier_scripted",
         "worker":1,
         "synchronous":"true",
@@ -24,10 +24,10 @@
         "content-type":"application/json",
         "validator":"image_classification",
         "expected":{
-            "World":0.0021506540942937136,
-            "Sports":2.8953058972547296e-07,
-            "Business":0.9967544674873352,
-            "Sci/Tec":0.0010945842368528247
+            "World": 0.04559721797704697,
+            "Sports": 0.0003771769697777927,
+            "Business": 0.08623101562261581,
+            "Sci/Tec": 0.8677946329116821
         },
         "tolerance":5
     },
