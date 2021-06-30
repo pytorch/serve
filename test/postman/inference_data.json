@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/my_text_classifier.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_v4.mar",
         "model_name":"my_text_classifier",
         "worker":1,
         "synchronous":"true",
@@ -16,7 +16,7 @@
         "tolerance":5
     },
     {
-        "url":"https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/my_text_classifier_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_scripted_v3.mar",
         "model_name":"my_text_classifier_scripted",
         "worker":1,
         "synchronous":"true",
