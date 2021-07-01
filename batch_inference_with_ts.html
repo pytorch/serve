@@ -230,9 +230,14 @@
 <li><a class="reference internal" href="#torchserve-model-configuration">TorchServe Model Configuration</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#demo-to-configure-torchserve-with-batch-supported-model">Demo to configure TorchServe with batch-supported model</a><ul>
+<li><a class="reference internal" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model">Demo to configure TorchServe ResNet-152 model with batch-supported model</a><ul>
 <li><a class="reference internal" href="#setup-torchserve-and-torch-model-archiver">Setup TorchServe and Torch Model Archiver</a></li>
-<li><a class="reference internal" href="#loading-resnet-152-which-handles-batch-inferences">Loading Resnet-152 which handles batch inferences</a></li>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-with-managment-api">Batch inference of Resnet-152 configured with managment API</a></li>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-through-config-properties">Batch inference of Resnet-152 configured through config.properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker</a><ul>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-using-docker-contianer">Batch inference of Resnet-152 using docker contianer</a></li>
 </ul>
 </li>
 </ul>
@@ -318,6 +323,8 @@
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserves-default-handlers">Batch Inference with TorchServe’s default handlers</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserve-using-resnet-152-model">Batch Inference with TorchServe using ResNet-152 model</a></p></li>
+<li><p><a class="reference external" href="#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model">Demo to configure TorchServe ResNet-152 model with batch-supported model</a></p></li>
+<li><p><a class="reference external" href="#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model-using-docker">Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker</a></p></li>
 </ul>
 </section>
 <section id="introduction">
@@ -325,8 +332,8 @@
 <p>Batch inference is a process of aggregating inference requests and sending this aggregated requests through the ML/DL framework for inference all at once.
 TorchServe was designed to natively support batching of incoming inference requests. This functionality enables you to use your host resources optimally,
 because most ML/DL frameworks are optimized for batch requests.
-This optimal use of host resources in turn reduces the operational expense of hosting an inference service using TorchServe.
-In this document we show an example of how this is done and compare the performance of running a batched inference against running single inference.</p>
+This optimal use of host resources in turn reduces the operational expense of hosting an inference service using TorchServe.</p>
+<p>In this document we show an example of how to use batch inference in Torchserve when serving models locally or using docker containers.</p>
 </section>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
@@ -344,23 +351,45 @@ In this document we show an example of how this is done and compare the performa
 <h2>Batch Inference with TorchServe using ResNet-152 model<a class="headerlink" href="#batch-inference-with-torchserve-using-resnet-152-model" title="Permalink to this headline">¶</a></h2>
 <p>To support batch inference, TorchServe needs the following:</p>
 <ol class="simple">
-<li><p>TorchServe model configuration: Configure <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> by using the  “POST /models” management API.
+<li><p>TorchServe model configuration: Configure <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> by using the  “POST /models” management API or settings in config.properties.
 TorchServe needs to know the maximum batch size that the model can handle and the maximum time that TorchServe should wait to fill each batch request.</p></li>
 <li><p>Model handler code: TorchServe requires the Model handler to handle batch inference requests.</p></li>
 </ol>
 <p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalized handler</a></p>
 <section id="torchserve-model-configuration">
 <h3>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this headline">¶</a></h3>
-<p>To configure TorchServe to use the batching feature, provide the batch configuration information through <a class="reference internal" href="management_api.html"><span class="doc">POST /models API</span></a>.</p>
-<p>The configuration that we are interested in is the following:</p>
+<p>Started from Torchserve 0.4.1, there are two methods to configure TorchServe to use the batching feature:</p>
 <ol class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: This is the maximum batch size that a model is expected to handle.</p></li>
+<li><p>provide the batch configuration information through <a class="reference internal" href="management_api.html"><span class="doc">POST /models API</span></a>.</p></li>
+<li><p>provide the batch configuration information through configuration file, config.properties.</p></li>
+</ol>
+<p>The configuration properties that we are interested in are the following:</p>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: This is the maximum batch size in <code class="docutils literal notranslate"><span class="pre">ms</span></code> that a model is expected to handle.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>: This is the maximum batch delay time TorchServe waits to receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of requests. If TorchServe doesn’t receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of
 requests before this timer time’s out, it sends what ever requests that were received to the model <code class="docutils literal notranslate"><span class="pre">handler</span></code>.</p></li>
 </ol>
-<p>Let’s look at an example using this configuration</p>
+<p>Let’s look at an example using this configuration through management API:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milliseconds. </span>
 curl -X POST <span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=50&quot;</span>
+</pre></div>
+</div>
+<p>Here is an example of using this configuration through the config.properties:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milli seconds, in the config.properties.
+
+models={\
+  &quot;resnet-152&quot;: {\
+    &quot;1.0&quot;: {\
+        &quot;defaultVersion&quot;: true,\
+        &quot;marName&quot;: &quot;resnet-152.mar&quot;,\
+        &quot;minWorkers&quot;: 1,\
+        &quot;maxWorkers&quot;: 1,\
+        &quot;batchSize&quot;: 8,\
+        &quot;maxBatchDelay&quot;: 50,\
+        &quot;responseTimeout&quot;: 120\
+    }\
+  }\
+}
 </pre></div>
 </div>
 <p>These configurations are used both in TorchServe and in the model’s custom service code (a.k.a the handler code).
@@ -368,15 +397,15 @@ TorchServe associates the batch related configuration with each model.
 The frontend then tries to aggregate the batch-size number of requests and send it to the backend.</p>
 </section>
 </section>
-<section id="demo-to-configure-torchserve-with-batch-supported-model">
-<h2>Demo to configure TorchServe with batch-supported model<a class="headerlink" href="#demo-to-configure-torchserve-with-batch-supported-model" title="Permalink to this headline">¶</a></h2>
+<section id="demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model">
+<h2>Demo to configure TorchServe ResNet-152 model with batch-supported model<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model" title="Permalink to this headline">¶</a></h2>
 <p>In this section lets bring up model server and launch Resnet-152 model, which uses the default <code class="docutils literal notranslate"><span class="pre">image_classifier</span></code> handler for batch inferencing.</p>
 <section id="setup-torchserve-and-torch-model-archiver">
 <h3>Setup TorchServe and Torch Model Archiver<a class="headerlink" href="#setup-torchserve-and-torch-model-archiver" title="Permalink to this headline">¶</a></h3>
 <p>First things first, follow the main <a class="reference internal" href="README.html"><span class="doc">Readme</span></a> and install all the required packages including <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
 </section>
-<section id="loading-resnet-152-which-handles-batch-inferences">
-<h3>Loading Resnet-152 which handles batch inferences<a class="headerlink" href="#loading-resnet-152-which-handles-batch-inferences" title="Permalink to this headline">¶</a></h3>
+<section id="batch-inference-of-resnet-152-configured-with-managment-api">
+<h3>Batch inference of Resnet-152 configured with managment API<a class="headerlink" href="#batch-inference-of-resnet-152-configured-with-managment-api" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.</p></li>
 </ul>
@@ -400,7 +429,7 @@ $ torchserve --start --model-store model_store
 <ul class="simple">
 <li><p>Now let’s launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> of 10ms.</p></li>
 </ul>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&amp;batch_size=8&amp;max_batch_delay=10&amp;initial_workers=1&quot;
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&amp;batch_size=3&amp;max_batch_delay=10&amp;initial_workers=1&quot;
 {
   &quot;status&quot;: &quot;Processing worker updates...&quot;
 }
@@ -409,6 +438,9 @@ $ torchserve --start --model-store model_store
 <ul class="simple">
 <li><p>Verify that the workers were started properly.</p></li>
 </ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/resnet-152-batch_v2
+</pre></div>
+</div>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">{</span>
     <span class="nt">&quot;modelName&quot;</span><span class="p">:</span> <span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span>
@@ -418,15 +450,208 @@ $ torchserve --start --model-store model_store
     <span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="nt">&quot;batchSize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-    <span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
     <span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
     <span class="nt">&quot;workers&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="p">{</span>
         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;9000&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;startTime&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-07-28T05:04:05.465Z&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;startTime&quot;</span><span class="p">:</span> <span class="s2">&quot;2021-06-14T23:18:21.793Z&quot;</span><span class="p">,</span>
         <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;READY&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;gpu&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-        <span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span> <span class="mi">1726554112</span><span class="p">,</span>
+        <span class="nt">&quot;pid&quot;</span><span class="p">:</span> <span class="mi">19946</span><span class="p">,</span>
+        <span class="nt">&quot;gpu&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span> <span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>Now let’s test this service.</p>
+<ul>
+<li><p>Get an image to test this service</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -LJO https://github.com/pytorch/serve/raw/master/examples/image_classifier/kitten.jpg
+</pre></div>
+</div>
+</li>
+<li><p>Run inference to test the model.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>  $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
+  {
+      &quot;tiger_cat&quot;: 0.5848360657691956,
+      &quot;tabby&quot;: 0.3782736361026764,
+      &quot;Egyptian_cat&quot;: 0.03441936895251274,
+      &quot;lynx&quot;: 0.0005633446853607893,
+      &quot;quilt&quot;: 0.0002698268508538604
+  }
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="batch-inference-of-resnet-152-configured-through-config-properties">
+<h3>Batch inference of Resnet-152 configured through config.properties<a class="headerlink" href="#batch-inference-of-resnet-152-configured-through-config-properties" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Here, we first set the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties, make sure the mar file is located in the model-store and the version in the models setting is consistent with version of the mar file created. To read more about configurations please refer to this <a class="reference internal" href="configuration.html"><span class="doc">document</span></a>.</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>load_models=resnet-152-batch_v2.mar
+models={\
+  &quot;resnet-152-batch_v2&quot;: {\
+    &quot;2.0&quot;: {\
+        &quot;defaultVersion&quot;: true,\
+        &quot;marName&quot;: &quot;resnet-152-batch_v2.mar&quot;,\
+        &quot;minWorkers&quot;: 1,\
+        &quot;maxWorkers&quot;: 1,\
+        &quot;batchSize&quot;: 3,\
+        &quot;maxBatchDelay&quot;: 5000,\
+        &quot;responseTimeout&quot;: 120\
+    }\
+  }\
+}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Then will start Torchserve by passing the config.properties using <code class="docutils literal notranslate"><span class="pre">--ts-config</span></code> flag</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store model_store  --ts-config config.properties
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Verify that TorchServe is up and running</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl localhost:8080/ping
+{
+  &quot;status&quot;: &quot;Healthy&quot;
+}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Verify that the workers were started properly.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/resnet-152-batch_v2
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;modelName&quot;</span><span class="p">:</span> <span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;resnet-152-batch_v2.mar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;runtime&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;batchSize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;workers&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;9000&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;startTime&quot;</span><span class="p">:</span> <span class="s2">&quot;2021-06-14T22:44:36.742Z&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;READY&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;pid&quot;</span><span class="p">:</span> <span class="mi">19116</span><span class="p">,</span>
+        <span class="nt">&quot;gpu&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span> <span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<ul>
+<li><p>Now let’s test this service.</p>
+<ul>
+<li><p>Get an image to test this service</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -LJO https://github.com/pytorch/serve/raw/master/examples/image_classifier/kitten.jpg
+</pre></div>
+</div>
+</li>
+<li><p>Run inference to test the model.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>  $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
+  {
+      &quot;tiger_cat&quot;: 0.5848360657691956,
+      &quot;tabby&quot;: 0.3782736361026764,
+      &quot;Egyptian_cat&quot;: 0.03441936895251274,
+      &quot;lynx&quot;: 0.0005633446853607893,
+      &quot;quilt&quot;: 0.0002698268508538604
+  }
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">
+<h2>Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker" title="Permalink to this headline">¶</a></h2>
+<p>Here, we show how to register a model with batch inference support when serving the model using docker contianers. We set the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties similar to the previous section which is being used by <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a>.</p>
+<section id="batch-inference-of-resnet-152-using-docker-contianer">
+<h3>Batch inference of Resnet-152 using docker contianer<a class="headerlink" href="#batch-inference-of-resnet-152-using-docker-contianer" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Set the batch <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties as referenced in the <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a></p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>inference_address=http://0.0.0.0:8080
+management_address=http://0.0.0.0:8081
+metrics_address=http://0.0.0.0:8082
+number_of_netty_threads=32
+job_queue_size=1000
+model_store=/home/model-server/model-store
+load_models=resnet-152-batch_v2.mar
+models={\
+  &quot;resnet-152-batch_v2&quot;: {\
+    &quot;1.0&quot;: {\
+        &quot;defaultVersion&quot;: true,\
+        &quot;marName&quot;: &quot;resnet-152-batch_v2.mar&quot;,\
+        &quot;minWorkers&quot;: 1,\
+        &quot;maxWorkers&quot;: 1,\
+        &quot;batchSize&quot;: 3,\
+        &quot;maxBatchDelay&quot;: 100,\
+        &quot;responseTimeout&quot;: 120\
+    }\
+  }\
+}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>build the targeted docker image from <a class="reference external" href="../docker">here</a>, here we use the gpu image</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build_image.sh -g -cv cu102
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Start serving the model with the container and pass the config.properties to the container</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> docker run --rm -it --gpus all -p <span class="m">8080</span>:8080 -p <span class="m">8081</span>:8081 --name mar -v /home/ubuntu/serve/model_store:/home/model-server/model-store  -v $ path to config.properties:/home/model-server/config.properties  pytorch/torchserve:latest-gpu
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Verify that the workers were started properly.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/resnet-152-batch_v2
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;modelName&quot;</span><span class="p">:</span> <span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;resnet-152-batch_v2.mar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;runtime&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;batchSize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;workers&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;9000&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;startTime&quot;</span><span class="p">:</span> <span class="s2">&quot;2021-06-14T22:44:36.742Z&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;READY&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;pid&quot;</span><span class="p">:</span> <span class="mi">19116</span><span class="p">,</span>
+        <span class="nt">&quot;gpu&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span> <span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span>
       <span class="p">}</span>
     <span class="p">]</span>
   <span class="p">}</span>
@@ -503,9 +728,14 @@ $ torchserve --start --model-store model_store
 <li><a class="reference internal" href="#torchserve-model-configuration">TorchServe Model Configuration</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#demo-to-configure-torchserve-with-batch-supported-model">Demo to configure TorchServe with batch-supported model</a><ul>
+<li><a class="reference internal" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model">Demo to configure TorchServe ResNet-152 model with batch-supported model</a><ul>
 <li><a class="reference internal" href="#setup-torchserve-and-torch-model-archiver">Setup TorchServe and Torch Model Archiver</a></li>
-<li><a class="reference internal" href="#loading-resnet-152-which-handles-batch-inferences">Loading Resnet-152 which handles batch inferences</a></li>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-with-managment-api">Batch inference of Resnet-152 configured with managment API</a></li>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-through-config-properties">Batch inference of Resnet-152 configured through config.properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker</a><ul>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-using-docker-contianer">Batch inference of Resnet-152 using docker contianer</a></li>
 </ul>
 </li>
 </ul>
