@@ -19,7 +19,7 @@ To view a full list of inference APIs, you can use following command:
 curl -X OPTIONS http://localhost:8080
 ```
 
-The out is OpenAPI 3.0.1 json format. You can use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
+The output is in the OpenAPI 3.0.1 json format. You can use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for more details.
 
 * [Inference API description output](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/inference_open_api.json)
 
@@ -43,7 +43,7 @@ If the server is running, the response is:
 
 ## Predictions API
 
-This API follows the [InferenceAPIsService.Predictions](../frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [InferenceAPIsService.Predictions](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 To get predictions from the default version of each loaded model, make a REST call to `/predictions/{model_name}`:
 
@@ -144,7 +144,7 @@ The result is a json that gives you the predictions for the input json
 
 ## KFServing Explanations API
 
-Torchserve makes use of KFServing API spec  to return the explanations for the the models that is served.
+Torchserve makes use of KFServing API spec to return the explanations for the the models that it served.
 
 To get explanations from the loaded model, make a REST call to `/v1/models/{model_name}:explain`:
 

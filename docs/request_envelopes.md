@@ -12,7 +12,7 @@ Torchserve currently has no fixed request body signature. Envelopes allow you to
 
 # Usage
 1. When you write a handler, always expect a plain Python list containing data ready to go into `preprocess`. Crucially, you should assume that your handler code looks the same locally or in your model orchestrator.
-1. When you deploy Torchserve behind a model orchestrator, make sure to set the corresponding `service_envelope` in your `config.properties` file. For example, if you're using Google Cloud AI Platform, which has a JSON format, you'd add `service_envelope=json` to your `config.properties` file.
+2. When you deploy Torchserve behind a model orchestrator, make sure to set the corresponding `service_envelope` in your `config.properties` file. For example, if you're using Google Cloud AI Platform, which has a JSON format, you'd add `service_envelope=json` to your `config.properties` file.
 
 # Contributing
-Add new files under `ts/torch_handler/request_envelope`. Only include one class per file. The key used in `config.properties` will be the name of the .py file you write your class in.
+Add new files under [ts/torch_handler/request_envelope](https://github.com/pytorch/serve/tree/master/ts/torch_handler). Only include one class per file. The key used in `config.properties` will be the name of the .py file you write your class in.
