@@ -3,7 +3,8 @@ psutil
 wheel
 requests
 sentencepiece
-pillow==8.2.0
+pillow==8.2.0; sys_platform != 'win32'
+pillow; sys_platform == 'win32'
 captum
 packaging
 numpy; sys_platform != 'win32'
