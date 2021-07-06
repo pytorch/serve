@@ -17,8 +17,8 @@ to process a sequence of tensors.
 
 
 class TextSentiment(nn.Module):
-    def __init__(self, vocab_size=1308844, embed_dim=32, num_class=4):
-        super().__init__()
+    def __init__(self, vocab_size=1308843, embed_dim=32, num_class=4):
+        super(TextSentiment, self).__init__()
         self.embedding = nn.EmbeddingBag(vocab_size, embed_dim, sparse=True)
         self.fc = nn.Linear(embed_dim, num_class)
         self.init_weights()
@@ -37,3 +37,4 @@ class TextSentiment(nn.Module):
                 into the individual sequences.
         """
         return self.fc(self.embedding(text, offsets))
+
