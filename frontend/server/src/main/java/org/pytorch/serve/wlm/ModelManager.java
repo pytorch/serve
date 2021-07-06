@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringBuilder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -230,22 +231,22 @@ public final class ModelManager {
             if (exitCode != 0) {
 
                 String line;
-                String outputString = "";
+                StringBuilder outputString = new StringBuilder();
                 // process's stdout is InputStream for caller process
                 BufferedReader brdr =
                         new BufferedReader(new InputStreamReader(process.getInputStream()));
                 while ((line = brdr.readLine()) != null) {
-                    outputString += line;
+                    outputString.append(line);
                 }
-                String errorString = "";
+                String errorString = new StringBuilder();
                 // process's stderr is ErrorStream for caller process
                 brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 while ((line = brdr.readLine()) != null) {
-                    errorString += line;
+                    errorString.append(line);
                 }
 
-                logger.info("Dependency installation stdout:\n" + outputString);
-                logger.error("Dependency installation stderr:\n" + errorString);
+                logger.info("Dependency installation stdout:\n" + outputString.toString());
+                logger.error("Dependency installation stderr:\n" + errorString.toString());
 
                 throw new ModelException(
                         "Custom pip package installation failed for " + model.getModelName());
