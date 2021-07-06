@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.StringBuilder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -238,7 +237,7 @@ public final class ModelManager {
                 while ((line = brdr.readLine()) != null) {
                     outputString.append(line);
                 }
-                String errorString = new StringBuilder();
+                StringBuilder errorString = new StringBuilder();
                 // process's stderr is ErrorStream for caller process
                 brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 while ((line = brdr.readLine()) != null) {
