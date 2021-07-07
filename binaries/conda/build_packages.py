@@ -35,7 +35,7 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     Build conda packages for different python versions
     """
 
-    print("## Started torchserve and modelarchiver conda build")
+    print("## Started torchserve, model-archiver and workflow-archiver conda build")
     print(f"## Using torchserve wheel: {ts_wheel_path}")
     print(f"## Using model archiver wheel: {ma_wheel_path}")
     print(f"## Using workflow archiver wheel: {wa_wheel_path}")
@@ -51,12 +51,16 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
     os.environ["TORCH_WORKFLOW_ARCHIVER_VERSION"] = wa_version
 
-    os.environ["TORCHSERVE_WHEEL"] = ts_wheel_path
-    os.environ["TORCH_MODEL_ARCHIVER_WHEEL"] = ma_wheel_path
-    os.environ["TORCH_WORKFLOW_ARCHIVER_WHEEL"] = wa_wheel_path
+    os.environ["TORCHSERVE_ROOT_DIR"] = REPO_ROOT
+    # os.environ["TORCHSERVE_WHEEL"] = ts_wheel_path
+    # os.environ["TORCH_MODEL_ARCHIVER_WHEEL"] = ma_wheel_path
+    # os.environ["TORCH_WORKFLOW_ARCHIVER_WHEEL"] = wa_wheel_path
 
     python_versions = ["3.6", "3.7", "3.8", "3.9"]
-    packages = [os.path.join(conda_build_dir, "torchserve"), os.path.join(conda_build_dir, "torch-model-archiver"), os.path.join(conda_build_dir, "torch-workflow-archiver")]
+    packages = [
+        os.path.join(conda_build_dir, pkg)
+        for pkg in ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
+    ]
 
     for pkg in packages:
         for pyv in python_versions:
@@ -75,7 +79,7 @@ if __name__ == "__main__":
     parser.add_argument("--ts-wheel", type=str, required=False, help="torchserve wheel path")
     parser.add_argument("--ma-wheel", type=str, required=False, help="torch-model-archiver wheel path")
     parser.add_argument("--wa-wheel", type=str, required=False, help="torch-workflow-archiver wheel path")
-    parser.add_argument("--install-conda-dependencies", action="store_true", required=False, help="specify to instal miniconda and conda-build")
+    parser.add_argument("--install-conda-dependencies", action="store_true", required=False, help="specify to install miniconda and conda-build")
     args = parser.parse_args()
     
     if args.install_conda_dependencies:

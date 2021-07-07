@@ -7,6 +7,8 @@ import glob
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
+STAGING_SUFFIX = "-staging"
+
 from pathlib import Path
 
 from ts_scripts.utils import is_conda_env, is_conda_build_env
@@ -21,13 +23,13 @@ def build(is_staging=False):
    
     if is_staging:
         f_ts = Path(ts_setup_file)
-        f_ts.write_text(f_ts.read_text().replace(f"name='torchserve'", f"name='torchserve-staging'"))
+        f_ts.write_text(f_ts.read_text().replace(f"name='torchserve'", f"name='torchserve{STAGING_SUFFIX}'"))
 
         f_ma = Path(ma_setup_file)
-        f_ma.write_text(f_ma.read_text().replace(f"name='torch-model-archiver'", f"name='torch-model-archiver-staging'"))
+        f_ma.write_text(f_ma.read_text().replace(f"name='torch-model-archiver'", f"name='torch-model-archiver{STAGING_SUFFIX}'"))
 
         f_wa = Path(wa_setup_file)
-        f_wa.write_text(f_wa.read_text().replace(f"name='torch-workflow-archiver'", f"name='torch-workflow-archiver-staging'"))
+        f_wa.write_text(f_wa.read_text().replace(f"name='torch-workflow-archiver'", f"name='torch-workflow-archiver{STAGING_SUFFIX}'"))
 
     print("## Started torchserve, model-archiver and workflow-archiver build")
     create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
@@ -70,13 +72,13 @@ def build(is_staging=False):
     # Revert setup.py changes
     if is_staging:
         f_ts = Path(ts_setup_file)
-        f_ts.write_text(f_ts.read_text().replace(f"name='torchserve-staging'", f"name='torchserve'"))
+        f_ts.write_text(f_ts.read_text().replace(f"name='torchserve{STAGING_SUFFIX}'", f"name='torchserve'"))
 
         f_ma = Path(ma_setup_file)
-        f_ma.write_text(f_ma.read_text().replace(f"name='torch-model-archiver-staging'", f"name='torch-model-archiver'"))
+        f_ma.write_text(f_ma.read_text().replace(f"name='torch-model-archiver{STAGING_SUFFIX}'", f"name='torch-model-archiver'"))
 
         f_wa = Path(wa_setup_file)
-        f_wa.write_text(f_wa.read_text().replace(f"name='torch-workflow-archiver-staging'", f"name='torch-workflow-archiver'"))
+        f_wa.write_text(f_wa.read_text().replace(f"name='torch-workflow-archiver{STAGING_SUFFIX}'", f"name='torch-workflow-archiver'"))
 
     # If any one of the steps fail, exit with error
     if ts_build_exit_code != 0:

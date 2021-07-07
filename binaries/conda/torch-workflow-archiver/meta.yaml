@@ -2,6 +2,9 @@ package:
   name: torch-workflow-archiver
   version: "{{ environ.get('TORCH_WORKFLOW_ARCHIVER_VERSION') }}"
 
+source:
+  path: "{{ environ.get('TORCHSERVE_ROOT_DIR') }}/workflow-archiver"
+
 requirements:
   build:
     - python
@@ -14,10 +17,8 @@ requirements:
     - future
 
 build:
-  noarch: generic
-  script_env:
-    - TORCH_WORKFLOW_ARCHIVER_WHEEL
+  script: "{{ PYTHON }} -m pip install . -vv"
 
 about:
   home: https://github.com/pytorch/serve
-  summary: 'Model serving on PyTorch'
+  summary: 'Workflow serving on PyTorch'

@@ -9,7 +9,7 @@ PYPI_USERNAME_ENV_VARIABLE = "TWINE_USERNAME"
 PYPI_PASSWORD_ENV_VARIABLE = "TWINE_PASSWORD"
 
 CONDA_TOKEN_ENV_VARIABLE = "CONDA_TOKEN"
-CONDA_USER = "torchserve-staging"
+CONDA_USER = "nskool"
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
