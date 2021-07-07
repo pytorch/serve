@@ -45,7 +45,7 @@ def build(is_staging=False):
 
     os.chdir(REPO_ROOT)
     
-    # Build model archiver wheel
+    # Build workflow archiver wheel
     os.chdir("workflow-archiver")
     print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
     wa_build_exit_code = os.system(create_wheel_cmd)

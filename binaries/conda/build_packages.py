@@ -52,9 +52,6 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     os.environ["TORCH_WORKFLOW_ARCHIVER_VERSION"] = wa_version
 
     os.environ["TORCHSERVE_ROOT_DIR"] = REPO_ROOT
-    # os.environ["TORCHSERVE_WHEEL"] = ts_wheel_path
-    # os.environ["TORCH_MODEL_ARCHIVER_WHEEL"] = ma_wheel_path
-    # os.environ["TORCH_WORKFLOW_ARCHIVER_WHEEL"] = wa_wheel_path
 
     python_versions = ["3.6", "3.7", "3.8", "3.9"]
     packages = [
@@ -75,7 +72,7 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Conda Build for torchserve and torch-model-archiver")
+    parser = argparse.ArgumentParser(description="Conda Build for torchserve, torch-model-archiver and torch-workflow-archiver")
     parser.add_argument("--ts-wheel", type=str, required=False, help="torchserve wheel path")
     parser.add_argument("--ma-wheel", type=str, required=False, help="torch-model-archiver wheel path")
     parser.add_argument("--wa-wheel", type=str, required=False, help="torch-workflow-archiver wheel path")
