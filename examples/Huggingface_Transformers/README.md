@@ -74,10 +74,17 @@ For examples of how to configure a model for a use case and what the input forma
 
 ## Sequence Classification
 
-### Create model archive 
+### Create model archive eager mode
 
 ```
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json" --model-file model.py
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+
+```
+
+### Create model archive Torchscript mode
+
+```
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
 
 ```
 
@@ -119,9 +126,14 @@ rm -r Transformer_model
 python Download_Transformer_models.py
 ```
 
-### Create model archive
+### Create model archive eager mode
 ```
 torch-model-archiver --model-name BERTTokenClassification --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json,./Token_classification_artifacts/index_to_name.json"
+```
+
+### Create model archive Torchscript mode
+```
+torch-model-archiver --model-name BERTTokenClassification --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Token_classification_artifacts/index_to_name.json"
 ```
 
 ### Register the model
@@ -157,9 +169,14 @@ rm -r Transformer_model
 python Download_Transformer_models.py
 ```
 
-### Create model archive
+### Create model archive eager mode
 ```
 torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
+```
+
+### Create model archive Torchscript mode
+```
+torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json"
 ```
 
 ### Register the model
