@@ -49,8 +49,9 @@ def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_
         dummy_input = "This is a dummy input for torch jit trace"
         inputs = tokenizer.encode_plus(dummy_input,max_length = int(max_length),pad_to_max_length = True, add_special_tokens = True, return_tensors = 'pt')
         input_ids = inputs["input_ids"].to(device)
+        attention_mask = inputs["attention_mask"].to(device)
         model.to(device).eval()
-        traced_model = torch.jit.trace(model, [input_ids])
+        traced_model = torch.jit.trace(model, (input_ids, attention_mask))
         torch.jit.save(traced_model,os.path.join(NEW_DIR, "traced_model.pt"))
     return
 if __name__== "__main__":
