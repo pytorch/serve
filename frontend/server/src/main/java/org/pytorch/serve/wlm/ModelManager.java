@@ -1,8 +1,10 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -145,9 +147,9 @@ public final class ModelManager {
             }
         }
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
-
         setupModelDependencies(tempModel);
+
+        logger.info("Model {} loaded.", tempModel.getModelName());
 
         return archive;
     }
@@ -211,15 +213,40 @@ public final class ModelManager {
                             + requirementsFilePath; // NOPMD
 
             String[] envp =
-                    EnvironmentUtils.getEnvString(configManager.getModelServerHome(), null, null);
+                    EnvironmentUtils.getEnvString(
+                            configManager.getModelServerHome(),
+                            model.getModelDir().getAbsolutePath(),
+                            null);
+
             Process process =
                     Runtime.getRuntime()
                             .exec(
                                     packageInstallCommand,
                                     envp,
                                     model.getModelDir().getAbsoluteFile());
+
             int exitCode = process.waitFor();
+
             if (exitCode != 0) {
+
+                String line;
+                StringBuilder outputString = new StringBuilder();
+                // process's stdout is InputStream for caller process
+                BufferedReader brdr =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                while ((line = brdr.readLine()) != null) {
+                    outputString.append(line);
+                }
+                StringBuilder errorString = new StringBuilder();
+                // process's stderr is ErrorStream for caller process
+                brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                while ((line = brdr.readLine()) != null) {
+                    errorString.append(line);
+                }
+
+                logger.info("Dependency installation stdout:\n" + outputString.toString());
+                logger.error("Dependency installation stderr:\n" + errorString.toString());
+
                 throw new ModelException(
                         "Custom pip package installation failed for " + model.getModelName());
             }
