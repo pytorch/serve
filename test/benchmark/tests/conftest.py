@@ -15,9 +15,9 @@ from invoke import run
 from invoke.context import Context
 
 
-import utils.ec2 as ec2_utils
-import utils.s3 as s3_utils
-from utils import (
+import tests.utils.ec2 as ec2_utils
+import tests.utils.s3 as s3_utils
+from tests.utils import (
     AMI_ID,
     DEFAULT_REGION,
     IAM_INSTANCE_PROFILE,
@@ -27,7 +27,7 @@ from utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
-from utils.s3 import ArtifactsHandler
+from tests.utils.s3 import ArtifactsHandler
 
 
 def pytest_addoption(parser):
@@ -51,29 +51,6 @@ def pytest_addoption(parser):
         default=False,
         help="Use with caution: does not terminate instances, instead saves the list to a file in order to re-use",
     )
-
-
-@pytest.fixture(scope="session", autouse=True)
-def build_docker_container(request, docker_dev_image_config_path):
-    LOGGER.info(f"Setting up docker image to be used")
-    docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
-    YamlHandler.validate_docker_yaml(docker_config)
-
-    account_id = run("aws sts get-caller-identity --query Account --output text").stdout.strip()
-
-    for processor, config in docker_config.items():
-        docker_tag = None
-        cuda_version = None
-        for config_key, config_value in config.items():
-            if processor == "gpu" and config_key == "cuda_version":
-                cuda_version = config_value
-            if config_key == "docker_tag":
-                docker_tag = config_value
-        dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
-        dockerImageHandler.build_image()
-        dockerImageHandler.push_docker_image_to_ecr(
-            account_id, DEFAULT_REGION, f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
-        )
 
 
 @pytest.fixture(scope="session")
@@ -187,6 +164,7 @@ def ec2_instance(
 
     if use_instances_flag:
         instances_file = request.config.getoption("--use-instances")
+        run(f"touch {instances_file}", warn=True)
         instances_dict = YamlHandler.load_yaml(instances_file)
         instances = instances_dict.get(request.node.name.split("[")[0], "")
         assert instances != "", f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
@@ -237,6 +215,7 @@ def ec2_instance(
     LOGGER.info(f"do_not_terminate_flag: {do_not_terminate_flag}")
 
     instances_file = os.path.join(os.getcwd(), "instances.yaml")
+    run(f"touch {instances_file}", warn=True)
 
     if not do_not_terminate_flag:
         request.addfinalizer(terminate_ec2_instance)

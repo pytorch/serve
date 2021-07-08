@@ -17,4 +17,4 @@ bert:
         exec_env: "docker"
         processors:
             - "cpu"
-            - "gpus": "all"
+            - "gpus": "1"

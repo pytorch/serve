@@ -6,12 +6,12 @@ import time
 from invoke import run
 from invoke.context import Context
 
-import utils.ec2 as ec2_utils
-import utils.s3 as s3_utils
-import utils.ts as ts_utils
-import utils.apache_bench as ab_utils
+import tests.utils.ec2 as ec2_utils
+import tests.utils.s3 as s3_utils
+import tests.utils.ts as ts_utils
+import tests.utils.apache_bench as ab_utils
 
-from utils import (
+from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     DEFAULT_REGION,
     GPU_INSTANCES,
@@ -21,7 +21,7 @@ from utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
-INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
+INSTANCE_TYPES_TO_TEST = ["c4.4xlarge"]
 
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
 def test_mnist_benchmark(

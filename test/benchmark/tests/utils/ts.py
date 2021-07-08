@@ -26,7 +26,7 @@ TMP_DIR = "/home/ubuntu"
 class TorchServeHandler(object):
     def __init__(
         self,
-        exec_env="local",
+        exec_env="docker",
         cuda_version="cu102",
         gpus=None,
         torchserve_docker_image=None,
@@ -187,7 +187,7 @@ class TorchServeHandler(object):
             LOGGER.error(f"Failed to unregister model {model_name}")
 
 
-    def stop_torchserve(self, exec_env="local", virtual_env_name=None):
+    def stop_torchserve(self, exec_env="docker", virtual_env_name=None):
         """
         Stops torchserve depending on the exec_env
         :param exec_env: either 'local' or 'docker'

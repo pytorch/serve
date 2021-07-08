@@ -142,3 +142,37 @@ The final benchmark report will be available in markdown format as `report.md` i
  | AB | vgg11 | 100 | 1000 | 0 | 3.47 | 28765 | 29849 | 30488 | 28781.227 | 0.0 | 1576.24 | 1758.28 | 1758.28 | 2249.52 | 2249.34 | 25210.43 | 46.77 | 
 
 
+## Features of the automation:
+1. To save time by *not* creating new instances for every benchmark run for local testing, use the '--do-not-terminate' flag. This will automatically create a file called 'instances.yaml' and write instance-related data into the file so that it may be re-used next time.
+```
+python test/benchmark/run_benchmark.py --do-not-terminate
+```
+
+2. To re-use an instance already recorded in `instances.yaml`, use the '--use-instances' flag:
+```
+python test/benchmark/run_benchmark.py --use-instances <full_path_to>/instances.yaml --do-no-terminate
+```
+`Note: Use --do-not-termninate flag to keep re-using the instances, else, it will be terminated`.
+
+3. To run a test containing a specific string, use the `--run-only` flag. Note that the argument is 'string matched' i.e. if the test-name contains the supplied argument as a substring, the test will run. 
+```
+# To run mnist test
+python test/benchmark/run_benchmark.py --run-only mnist
+
+# To run fastrcnn test
+python test/benchmark/run_benchmark.py --run-only fastrcnn
+
+# To run bert_neuron and bert
+python test/benchmark/run_benchmark.py --run-only bert
+
+# To run vgg11 test
+python test/benchmark/run_benchmark.py --run-only vgg11
+
+# To run vgg16 test
+python test/benchmark/run_benchmark.py --run-only vgg16
+```
+
+4. You can benchmark a specifc branch of the torchserve github repo by specifying the flag `--use-torchserve-branch` e.g., 
+```
+python test/benchmark/run_benchmark.py --use-torchserve-branch issue_1115
+```

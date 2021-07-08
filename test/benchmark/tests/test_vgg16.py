@@ -6,12 +6,12 @@ import time
 from invoke import run
 from invoke.context import Context
 
-import utils.ec2 as ec2_utils
-import utils.s3 as s3_utils
-import utils.ts as ts_utils
-import utils.apache_bench as ab_utils
+import tests.utils.ec2 as ec2_utils
+import tests.utils.s3 as s3_utils
+import tests.utils.ts as ts_utils
+import tests.utils.apache_bench as ab_utils
 
-from utils import (
+from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     DEFAULT_REGION,
     GPU_INSTANCES,
@@ -21,7 +21,7 @@ from utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
-INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
+INSTANCE_TYPES_TO_TEST = ["c4.4xlarge", "p3.8xlarge"]
 
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
 def test_vgg16_benchmark(
@@ -128,7 +128,7 @@ def test_vgg16_benchmark(
                 torchserveHandler.unregister_model()
 
                 # Stop torchserve
-                torchserveHandler.stop_torchserve()
+                torchserveHandler.stop_torchserve(exec_env="docker")
 
                 # Generate report (note: needs to happen after torchserve has stopped)
                 apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency, connection=ec2_connection)
