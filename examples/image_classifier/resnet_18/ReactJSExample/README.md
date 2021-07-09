@@ -1,6 +1,6 @@
-![alt text](demo.gif "Title")
+![alt text]("Title")
 
-<img src="./demo.gif" width="50>
+<img src="./demo.gif" width="700">
 
 Instructions
 
