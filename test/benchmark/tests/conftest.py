@@ -231,7 +231,6 @@ def ec2_instance(
         update_dictionary = {request.node.name.split("[")[0]: {ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}}}
 
         instances_dict.update(update_dictionary)
-        LOGGER.info(f"instances_dict: {instances_dict}")
 
         YamlHandler.write_yaml(instances_file, instances_dict)
 

@@ -167,7 +167,7 @@ class TorchServeHandler(object):
             f'curl -X POST "http://localhost:8081/models?url={url}&initial_workers={workers}&batch_delay={batch_delay}&batch_size={batch_size}&synchronous=true&model_name=benchmark"'
         )
 
-        time.sleep(10)
+        time.sleep(40)
 
         if run_out.return_code == 0:
             LOGGER.error(f"Failed to register model {model_name} sourced from url: {url}")

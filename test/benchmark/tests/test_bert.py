@@ -23,7 +23,7 @@ from tests.utils import (
 )
 
 # Add/remove from the following list to benchmark on the instance of your choice
-INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
+INSTANCE_TYPES_TO_TEST = ["c4.4xlarge"]
 
 
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
