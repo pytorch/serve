@@ -50,6 +50,4 @@ def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size=1)
     else:
         LOGGER.info(f"mar file NOT available at location /home/ubuntu/benchmark/model_store/benchmark_{batch_size}.mar")
 
-    #LOGGER.info(f"{activation_command}cp ./benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store/")
-    #connection.run(f"cd /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert && cp ./benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store/")
     time.sleep(5)
