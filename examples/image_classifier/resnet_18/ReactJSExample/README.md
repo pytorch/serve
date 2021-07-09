@@ -1,5 +1,7 @@
 ![alt text](demo.gif "Title")
 
+<img src="./demo.gif" width="50>
+
 Instructions
 
 Step1: Setup the config.properties file.
