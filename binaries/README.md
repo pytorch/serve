@@ -29,7 +29,8 @@
     ##### Linux and MacOs:
    - Wheel files
      `dist/torchserve-*.whl`  
-     `model-archiver/dist/torch_model_archiver-*.whl`  
+     `model-archiver/dist/torch_model_archiver-*.whl`
+     `workflow-archiver/dist/torch_workflow_archiver-*.whl`
    - Conda pacakages
      `binaries/conda/output/*`  
      
@@ -37,6 +38,7 @@
     - Wheel files
       `dist\torchserve-*.whl`  
       `model-archiver\dist\torch_model_archiver-*.whl`  
+      `workflow-archiver\dist\torch_workflow_archiver-*.whl`  
     - Conda pacakages
       `binaries\conda\output\*`
 
@@ -58,17 +60,19 @@
       ```bash
       pip install dist/torchserve-*.whl
       pip install model-archiver/dist/torch_model_archiver-*.whl
+      pip install workflow-archiver/dist/torch_workflow_archiver-*.whl
       ```
 
       ##### Windows:
       ```pwsh
       pip install .\dist\<torchserve_wheel>
       pip install .\model-archiver\dist\<torch_model_archiver_wheel>
+      pip install .\workflow-archiver\dist\<torch_workflow_archiver_wheel>
       ```
    - Using conda packages
       ##### Linux and MacOs:
      ```bash
-      conda install --channel ./binaries/conda/output -y torchserve torch-model-archiver
+      conda install --channel ./binaries/conda/output -y torchserve torch-model-archiver torch-workflow-archiver
      ```
     
      ##### Windows:
