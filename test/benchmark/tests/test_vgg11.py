@@ -21,7 +21,8 @@ from tests.utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
-INSTANCE_TYPES_TO_TEST = ["c4.4xlarge"]
+# Add/remove from the following list to benchmark on the instance of your choice
+INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
 def test_vgg11_benchmark(

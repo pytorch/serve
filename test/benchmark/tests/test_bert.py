@@ -22,6 +22,7 @@ from tests.utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
+# Add/remove from the following list to benchmark on the instance of your choice
 INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 
 
@@ -130,7 +131,7 @@ def test_bert_benchmark(
                 torchserveHandler.unregister_model()
 
                 # Stop torchserve
-                torchserveHandler.stop_torchserve()
+                torchserveHandler.stop_torchserve(exec_env="docker")
 
                 # Generate report (note: needs to happen after torchserve has stopped)
                 apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency, connection=ec2_connection)

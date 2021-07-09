@@ -22,6 +22,7 @@ from tests.utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
+# Add/remove from the following list to benchmark on the instance of your choice
 INSTANCE_TYPES_TO_TEST = ["inf1.6xlarge"]
 
 @pytest.mark.skip(reason="Skipping neuron test, manually unskip if you need to benchmark")

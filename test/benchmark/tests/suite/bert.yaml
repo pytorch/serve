@@ -2,7 +2,7 @@
 bert:
     scripted_mode:
         benchmark_engine: "ab"
-        url: "https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_Torchscript_batch.mar"
+        url: "https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar"
         workers: 4
         batch_delay: 100
         batch_size:
@@ -10,11 +10,11 @@ bert:
             - 2
             - 4
             - 8
-        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/kitten.jpg"
+        input: "https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar"
         requests: 10000
         concurrency: 100
         backend_profiling: False
         exec_env: "docker"
         processors:
             - "cpu"
-            - "gpus": "1"
+            - "gpus": "all"

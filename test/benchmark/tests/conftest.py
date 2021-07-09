@@ -158,7 +158,6 @@ def ec2_instance(
     ec2_instance_ami,
     region,
 ):
-    key_filename = ec2_utils.generate_ssh_keypair(ec2_client, ec2_key_name)
 
     use_instances_flag = request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
 
@@ -166,7 +165,9 @@ def ec2_instance(
         instances_file = request.config.getoption("--use-instances")
         run(f"touch {instances_file}", warn=True)
         instances_dict = YamlHandler.load_yaml(instances_file)
+        LOGGER.info(f"instances_dict: {instances_dict}")
         instances = instances_dict.get(request.node.name.split("[")[0], "")
+        LOGGER.info(f"instances: {instances}")
         assert instances != "", f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
         instance_details = instances.get(ec2_instance_type, "")
         assert instance_details != "", f"Could not obtain details for instance type: {ec2_instance_type}"
@@ -179,6 +180,7 @@ def ec2_instance(
 
         return instance_id, key_filename
 
+    key_filename = ec2_utils.generate_ssh_keypair(ec2_client, ec2_key_name)
 
     params = {
         "KeyName": ec2_key_name,
@@ -225,7 +227,7 @@ def ec2_instance(
         instances_dict = YamlHandler.load_yaml(instances_file)
         if not instances_dict:
             instances_dict = {}
-
+        
         update_dictionary = {request.node.name.split("[")[0]: {ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}}}
 
         instances_dict.update(update_dictionary)
