@@ -1,3 +1,7 @@
+![alt text](demo.gif "Title")
+
+Instructions
+
 Step1: Setup the config.properties file.
 
 Make a file called config.properties and put these two lines in the file as text.
@@ -19,8 +23,14 @@ torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --
 
 ```
 
-![alt text](demo.gif "Title")
+Step3: Run the frontend ReactApp at the parent directory of the build folder.
+
+```bash
+
+serve -s build
+
+```
+
+![](image/README/1625839865715.png)
 
 <img src="image/README/1625836884119.png" width="500">
-
-img src="image/README/1625837204184.png" width="500">
