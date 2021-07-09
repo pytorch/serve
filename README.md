@@ -45,6 +45,8 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
        ```bash
        python ./ts_scripts/install_dependencies.py --cuda=cu102
        ```
+       
+     Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.  
 
     #### For Windows
 
