@@ -27,10 +27,10 @@ Step3: Run the frontend ReactApp at the parent directory of the build folder.
 
 ```bash
 
-serve -s build
+serve -s deployed
 
 ```
 
-![](image/README/1625839865715.png)
+![](image/README/1625898706091.png)
 
 <img src="image/README/1625836884119.png" width="500">
