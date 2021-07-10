@@ -1,5 +1,3 @@
-![alt text]("Title")
-
 <img src="./demo.gif" width="700">
 
 Instructions
