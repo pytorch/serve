@@ -44,6 +44,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else "cpu"
         )
+
+        if self.device == "cpu":
+            torch.set_num_threads(1)
         
         # read configs for the mode, model_name, etc. from setup_config.json
         setup_config_path = os.path.join(model_dir, "setup_config.json")

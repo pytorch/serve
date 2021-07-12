@@ -52,6 +52,9 @@ class MMFHandler(BaseHandler):
             else self.map_location
         )
 
+        if self.device == "cpu":
+            torch.set_num_threads(1)
+
         # reading the csv file which include all the labels in the dataset to make the class/index mapping
         # and matching the output of the model with num labels from dataset
         df = pd.read_csv('./charades_action_lables.csv')
