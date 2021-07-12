@@ -10,6 +10,7 @@ import tests.utils.ec2 as ec2_utils
 import tests.utils.s3 as s3_utils
 import tests.utils.ts as ts_utils
 import tests.utils.apache_bench as ab_utils
+import tests.utils.neuron as neuron_utils
 
 from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
@@ -22,16 +23,17 @@ from tests.utils import (
 )
 
 # Add/remove from the following list to benchmark on the instance of your choice
-INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
+INSTANCE_TYPES_TO_TEST = ["inf1.6xlarge"]
 
+@pytest.mark.skip(reason="Skipping neuron test, manually unskip if you need to benchmark")
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
-def test_mnist_benchmark(
-    ec2_connection, ec2_instance_type, mnist_config_file_path, docker_dev_image_config_path, benchmark_execution_id
+def test_neuron_benchmark(
+    ec2_connection, ec2_instance_type, bert_neuron_config_file_path, docker_dev_image_config_path, benchmark_execution_id
 ):
 
-    test_config = YamlHandler.load_yaml(mnist_config_file_path)
+    test_config = YamlHandler.load_yaml(bert_neuron_config_file_path)
 
-    model_name = mnist_config_file_path.split("/")[-1].split(".")[0]
+    model_name = bert_neuron_config_file_path.split("/")[-1].split(".")[0]
 
     LOGGER.info("Validating yaml contents")
 
@@ -55,7 +57,7 @@ def test_mnist_benchmark(
 
         docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
 
-        if ec2_instance_type[:2] in GPU_INSTANCES and "gpu" in docker_tag:
+        if ec2_instance_type[:2] in GPU_INSTANCES and ("gpu" in docker_tag or "neuron" in docker_tag):
             dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
             dockerImageHandler.pull_docker_image_from_ecr(
                 account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
@@ -63,7 +65,7 @@ def test_mnist_benchmark(
             docker_repo_tag_for_current_instance = docker_repo_tag
             cuda_version_for_instance = cuda_version
             break
-        if ec2_instance_type[:2] not in GPU_INSTANCES and "cpu" in docker_tag:
+        if ec2_instance_type[:2] not in GPU_INSTANCES and ("cpu" in docker_tag or "neuron" in docker_tag):
             dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
             dockerImageHandler.pull_docker_image_from_ecr(
                 account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
@@ -83,7 +85,6 @@ def test_mnist_benchmark(
         for mode, mode_config in config.items():
             mode_list.append(mode)
             benchmark_engine = mode_config.get("benchmark_engine")
-            url = mode_config.get("url")
             workers = mode_config.get("workers")
             batch_delay = mode_config.get("batch_delay")
             batch_sizes = mode_config.get("batch_size")
@@ -96,26 +97,37 @@ def test_mnist_benchmark(
             gpus = None
             if len(processors) == 2:
                 gpus = processors[1].get("gpus")
-            LOGGER.info(f"processors: {processors[1]}")
-            LOGGER.info(f"gpus: {gpus}")
+                LOGGER.info(f"processors: {processors[1]}")
+                LOGGER.info(f"gpus: {gpus}")
 
             LOGGER.info(
-                f"\n benchmark_engine: {benchmark_engine}\n url: {url}\n workers: {workers}\n batch_delay: {batch_delay}\n batch_size:{batch_sizes}\n input_file: {input_file}\n requests: {requests}\n concurrency: {concurrency}\n backend_profiling: {backend_profiling}\n exec_env: {exec_env}\n processors: {processors}"
+                f"\n benchmark_engine: {benchmark_engine}\n  workers: {workers}\n batch_delay: {batch_delay}\n batch_size:{batch_sizes}\n input_file: {input_file}\n requests: {requests}\n concurrency: {concurrency}\n backend_profiling: {backend_profiling}\n exec_env: {exec_env}\n processors: {processors}"
             )
 
             torchserveHandler = ts_utils.TorchServeHandler(
                 exec_env=exec_env,
-                cuda_version=cuda_version,
+                cuda_version=cuda_version_for_instance,
                 gpus=gpus,
                 torchserve_docker_image=docker_repo_tag_for_current_instance,
                 backend_profiling=backend_profiling,
                 connection=ec2_connection,
             )
+            
+            # Note: Assumes a DLAMI (conda-based) is being used
+            torchserveHandler.setup_torchserve(virtual_env_name="aws_neuron_pytorch_p36")
 
             for batch_size in batch_sizes:
+                url = f"benchmark_{batch_size}.mar"
+                LOGGER.info(f"Running benchmark for model archive: {url}")
+                
+                # Stop torchserve
+                torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name="aws_neuron_pytorch_p36")
+
+                # Generate bert inf model
+                neuron_utils.setup_neuron_mar_files(connection=ec2_connection, virtual_env_name="aws_neuron_pytorch_p36", batch_size=batch_size)
 
                 # Start torchserve
-                torchserveHandler.start_torchserve_docker()
+                torchserveHandler.start_torchserve_local(virtual_env_name="aws_neuron_pytorch_p36", stop_torchserve=False)
 
                 # Register
                 torchserveHandler.register_model(
@@ -129,10 +141,12 @@ def test_mnist_benchmark(
                 torchserveHandler.unregister_model()
 
                 # Stop torchserve
-                torchserveHandler.stop_torchserve()
+                torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name="aws_neuron_pytorch_p36")
 
                 # Generate report (note: needs to happen after torchserve has stopped)
-                apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency, connection=ec2_connection)
+                apacheBenchHandler.generate_report(
+                    requests=requests, concurrency=concurrency, connection=ec2_connection
+                )
 
                 # Move artifacts into a common folder.
                 remote_artifact_folder = (
