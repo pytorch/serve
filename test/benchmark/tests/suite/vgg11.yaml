@@ -13,7 +13,7 @@ vgg11:
         input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/kitten.jpg"
         requests: 1000
         concurrency: 100
-        backend_profiling: True
+        backend_profiling: False
         exec_env: "docker"
         processors:
             - "cpu"
@@ -31,7 +31,7 @@ vgg11:
         input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/kitten.jpg"
         requests: 1000
         concurrency: 100
-        backend_profiling: True
+        backend_profiling: False
         exec_env: "docker"
         dockerhub_image:  "pytorch/torchserve:latest"
         processors:

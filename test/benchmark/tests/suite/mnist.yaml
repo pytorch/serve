@@ -10,10 +10,10 @@ mnist:
             - 2
             - 4
             - 8
-        requests: 10000
+        requests: 1000
         concurrency: 10
         input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/mnist/test_data/0.png"
-        backend_profiling: True
+        backend_profiling: False
         exec_env: "docker"
         processors:
             - "cpu"
