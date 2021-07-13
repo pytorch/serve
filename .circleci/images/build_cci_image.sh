@@ -9,7 +9,7 @@ do
         -h|--help)
           echo "options:"
           echo "-h, --help  show brief help"
-          echo "-e, --env_type specify env_type to use from { pythn36, conda38, pyenv37, venv36 }"
+          echo "-e, --env_type specify env_type to use from { pythn36, conda38, pyenv37, venv36, conda39 }"
           echo "-t, --tag specify tag name for docker image \"<image>:<tag>\""
           exit 0
           ;;

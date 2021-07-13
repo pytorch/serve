@@ -47,7 +47,7 @@ class ApacheBenchHandler(object):
         """
         Installs apache2-utils, assuming it's an Ubuntu instance
         """
-        run_out = self.connection.sudo(f"apt install -y apache2-utils")
+        run_out = self.connection.sudo(f"apt install -y apache2-utils", pty=True)
         return run_out.return_code
 
     def run_apache_bench(self, requests, concurrency, input_file):
@@ -58,14 +58,15 @@ class ApacheBenchHandler(object):
         """
         self.connection.run(f"mkdir -p {TMP_DIR}/benchmark")
 
-        self.connection.run(f"wget {input_file}")
+        if input_file.startswith("https://") or input_file.startswith("http://"):
+            self.connection.run(f"wget {input_file}", warn=True)
+            file_name = self.connection.run(f"basename {input_file}").stdout.strip()
+            # Copy to the directory with other benchmark artifacts
+            self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
+        else:
+            self.connection.run(f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}")
 
-        file_name = self.connection.run(f"basename {input_file}").stdout.strip()
-
-        # Copy to the directory with other benchmark artifacts
-        self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
-
-        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/png {self.inference_url}/predictions/benchmark > {self.result_file}"
+        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark > {self.result_file}"
 
         # Run apache bench
         run_out = self.connection.run(
