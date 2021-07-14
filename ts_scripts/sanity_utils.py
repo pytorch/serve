@@ -2,9 +2,7 @@ import os
 import sys
 import nvgpu
 import glob
-import platform
-import shutil
-import requests
+from ts_scripts import marsgen as mg
 
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -104,7 +102,10 @@ def test_sanity():
         model_handler = model["handler"]
 
         # Run gRPC sanity
-        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name}"
+        print("pass mg.mar_set=", mg.mar_set)
+        mar_set_list_str = [str(s) for s in mg.mar_set]
+        mar_set_str = ",".join(mar_set_list_str)
+        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name} {mar_set_str}"
         status = os.system(register_model_grpc_cmd)
 
         if status != 0:

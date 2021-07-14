@@ -7,6 +7,9 @@ import ast
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
+data_file_mnist = os.path.join(REPO_ROOT, 'examples/image_classifier/mnist/test_data/1.png')
+input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kfserving/kf_request_json/mnist.json")
+input_json_mmf = os.path.join(REPO_ROOT, "examples/MMF-activity-recognition/372CC.info.json")
 
 def getAPIS(snapshot_file):
     MANAGEMENT_API = "http://127.0.0.1:8081"
@@ -31,7 +34,6 @@ def setup_module(module):
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
     open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
-
 
 def teardown_module(module):
     test_utils.torchserve_cleanup()
@@ -107,10 +109,9 @@ def test_mnist_model_register_and_inference_on_valid_model():
     """
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model('mnist', 'mnist.mar')
-
     files = {
-        'data': ('../../examples/image_classifier/mnist/test_data/1.png',
-                 open('../../examples/image_classifier/mnist/test_data/1.png', 'rb')),
+        'data': (data_file_mnist,
+                 open(data_file_mnist, 'rb')),
     }
     response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
 
@@ -142,8 +143,8 @@ def test_mnist_model_register_scale_inference_with_non_existent_handler():
     mnist_list = json.loads(response.content)
     assert len(mnist_list[0]['workers']) > 1
     files = {
-        'data': ('../../examples/image_classifier/mnist/test_data/1.png',
-                 open('../../examples/image_classifier/mnist/test_data/1.png', 'rb')),
+        'data': (data_file_mnist,
+                 open(data_file_mnist, 'rb')),
     }
 
     response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
@@ -161,10 +162,9 @@ def test_mnist_model_register_and_inference_on_valid_model_explain():
     """
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model('mnist', 'mnist.mar')
-
     files = {
-        'data': ('../../examples/image_classifier/mnist/test_data/1.png',
-                 open('../../examples/image_classifier/mnist/test_data/1.png', 'rb')),
+        'data': (data_file_mnist,
+                 open(data_file_mnist, 'rb')),
     }
     response = run_inference_using_url_with_data(TF_INFERENCE_API + '/explanations/mnist', files)
 
@@ -179,8 +179,7 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model():
     test_utils.start_torchserve(snapshot_file = snapshot_file_kf)
     test_utils.register_model('mnist', 'mnist.mar')
 
-    input_json = "../../kubernetes/kfserving/kf_request_json/mnist.json"
-    with open(input_json, 'r') as f:
+    with open(input_json_mnist, 'r') as f:
         s = f.read()
         s = s.replace('\'','\"')
         data = json.loads(s)
@@ -195,9 +194,7 @@ def test_kfserving_mnist_model_register_scale_inference_with_non_existent_handle
     response = mnist_model_register_using_non_existent_handler_then_scale_up()
     mnist_list = json.loads(response.content)
     assert len(mnist_list[0]['workers']) > 1
-    
-    input_json = "../../kubernetes/kfserving/kf_request_json/mnist.json"
-    with open(input_json, 'r') as f:
+    with open(input_json_mnist, 'r') as f:
         s = f.read()
         s = s.replace('\'','\"')
         data = json.loads(s)
@@ -218,9 +215,7 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
     """
     test_utils.start_torchserve(snapshot_file = snapshot_file_kf)
     test_utils.register_model('mnist', 'mnist.mar')
-
-    input_json = "../../kubernetes/kfserving/kf_request_json/mnist.json"
-    with open(input_json, 'r') as f:
+    with open(input_json_mnist, 'r') as f:
         s = f.read()
         s = s.replace('\'','\"')
         data = json.loads(s)
