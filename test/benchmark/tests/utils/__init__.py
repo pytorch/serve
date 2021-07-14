@@ -1,5 +1,8 @@
+from __future__ import absolute_import
+
 import json
 import logging
+import fcntl
 import os
 import re
 import subprocess
@@ -27,8 +30,9 @@ ECR_REPOSITORY_URL = "{}.dkr.ecr.{}.amazonaws.com/{}"
 GPU_INSTANCES = ["p2", "p3", "p4", "g2", "g3", "g4"]
 
 # DLAMI with nVidia Driver ver. 450.119.03 (support upto CUDA 11.2), Ubuntu 18.04
-AMI_ID = "ami-0ff137c06803a8bb7"
-# AMI_ID = "ami-0198925303105158c", with apache2-utils installed
+# AMI_ID = "ami-064696901389beb84"
+# AMI_ID = "ami-0198925303105158c", Base DLAMI 37.0 with apache2-utils installed
+AMI_ID = "ami-00c5ebd9076702cbe"#, DLAMI 43.0 with apache2-utils installed
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -50,10 +54,10 @@ class DockerImageHandler(object):
         os.chdir(torch_serve_docker_directory)
         if self.cuda_version:
             run_out = run(
-                f"./build_image.sh -bt dev -g -cv {self.cuda_version} -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
+                f"./build_image.sh -b {self.branch} -bt dev -g -cv {self.cuda_version} -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
             )
         else:
-            run_out = run(f"./build_image.sh -bt dev -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}")
+            run_out = run(f"./build_image.sh -b {self.branch} -bt dev -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}")
 
         # Switch back to original directory
         os.chdir(current_working_directory)
@@ -140,11 +144,10 @@ class YamlHandler(object):
         "input",
         "processors",
         "requests",
-        "url",
         "workers",
     ]
 
-    optional_config_keys = ["dockerhub_image", "docker_dev_image"]
+    optional_config_keys = ["url", "dockerhub_image", "docker_dev_image", "compile_per_batch_size"]
 
     valid_config_keys = mandatory_config_keys + optional_config_keys
 
@@ -154,7 +157,7 @@ class YamlHandler(object):
 
     valid_processors = ["cpu", "gpus"]
 
-    valid_docker_processors = ["cpu", "gpu"]
+    valid_docker_processors = ["cpu", "gpu", "inferentia"]
 
     mandatory_docker_config_keys = ["docker_tag"]
 
@@ -179,8 +182,10 @@ class YamlHandler(object):
         :param dictionary_object: dictionary with content that needs to be written to a yaml file
         :return None
         """
-        with open(file_path) as f:
-            yaml.dump(f, dictionary_object)
+        with open(file_path, "a") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            yaml.dump(dictionary_object, f)
+            fcntl.flock(f, fcntl.LOCK_UN)
 
     @staticmethod
     def validate_benchmark_yaml(yaml_content):

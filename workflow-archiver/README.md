@@ -22,7 +22,7 @@ The following information is required to create a standalone workflow archive:
 
 ## Installation
 
-Install torch-workflow-archiver as follows:
+Install `torch-workflow-archiver` as follows:
 
 ```bash
 pip install torch-workflow-archiver
@@ -30,7 +30,7 @@ pip install torch-workflow-archiver
 
 ## Installation from source
 
-Install torch-workflow-archiver from source as follows:
+Install `torch-workflow-archiver` from source as follows:
 
 ```bash
 git clone https://github.com/pytorch/serve.git

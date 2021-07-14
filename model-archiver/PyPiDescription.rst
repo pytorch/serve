@@ -1,11 +1,11 @@
 Project Description
 ===================
 
-Torch Model Archiver is a tool used for creating archives of trained neural net models that can be consumed by TorchServe inference.
+Torch Model Archiver is a tool used for creating archives of trained neural net models that can be consumed for TorchServe inference.
 
 Use the Torch Model Archiver CLI to start create a ``.mar`` file.
 
-Torch Model Archiver is part of `TS <https://pypi.org/project/torchserve/>`__.
+Torch Model Archiver is part of `TorchServe <https://pypi.org/project/torchserve/>`__.
 However, you can install Torch Model Archiver stand alone.
 
 Detailed documentation and examples are provided in the `README

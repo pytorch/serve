@@ -41,7 +41,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
     
 ## Install from source
 
- - Esnure that system or user profile environment variable name `JAVA_HOME` with value as `<your-openjdk11-path>` path is present.
+ - Ensure that system or user profile environment variable name `JAVA_HOME` with value as `<your-openjdk11-path>` path is present.
  - Install [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads)
  
    NOTE ensure that you have restarted system after install above Visual C++ components
@@ -65,6 +65,6 @@ NOTE At present, wheels for windows are not available on PyPi. However following
 ## Troubleshooting
  - If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in `frontend/server/src/test/resources/config.properties`,
    all files in `frontend/server/src/test/resources/snapshot/*` and `frontend/server/src/main/java/org/pytorch/serve/util/ConfigManager.java`
- - If `curl` command fails to execute then run following command on APP (anaconda powershell promopt)
+ - If `curl` command fails to execute then run following command on APP (anaconda powershell prompt)
  `Remove-item alias:curl`
- Refer this [SO answer](https://stackoverflow.com/questions/25044010/running-curl-on-64-bit-windows) for details.
+ Refer to this [SO answer](https://stackoverflow.com/questions/25044010/running-curl-on-64-bit-windows) for details.
