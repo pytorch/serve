@@ -51,7 +51,7 @@ class BaseHandler(abc.ABC):
             else self.map_location
         )
 
-        if self.device == "cpu":
+        if self.device == torch.device("cpu"):
             torch.set_num_threads(1)
 
         self.manifest = context.manifest
