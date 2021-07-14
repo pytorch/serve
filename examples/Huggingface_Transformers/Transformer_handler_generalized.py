@@ -45,7 +45,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             else "cpu"
         )
 
-        if self.device == "cpu":
+        if self.device == torch.device("cpu"):
             torch.set_num_threads(1)
         
         # read configs for the mode, model_name, etc. from setup_config.json
