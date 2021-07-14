@@ -29,7 +29,7 @@ source ~/.bashrc
 sudo apt-get install openjdk-11-jdk
 ```
 
-1. Install `TorchServe` and `Torch Model Archiver`
+1. Install Dependencies
 
 ```
 pip install torch torchtext torchvision sentencepiece psutil future

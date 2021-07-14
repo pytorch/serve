@@ -52,6 +52,23 @@ create_model_archiver_wheel()
   trap - SIGINT SIGTERM EXIT
 }
 
+create_workflow_archiver_wheel()
+{
+  cd ../../workflow-archiver
+
+  trap 'cleanup; exit 1' SIGINT SIGTERM EXIT
+
+  python setup.py bdist_wheel --release --universal
+
+  cp dist/*.whl ../binaries/pip/output/
+
+  cleanup
+
+  cd -
+
+  trap - SIGINT SIGTERM EXIT
+}
+
 rm -rf output
 
 mkdir output
@@ -63,3 +80,5 @@ install_python_deps
 create_torchserve_wheel
 
 create_model_archiver_wheel
+
+create_workflow_archiver_wheel

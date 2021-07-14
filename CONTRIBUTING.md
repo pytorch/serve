@@ -21,11 +21,14 @@ If you are interested in contributing to TorchServe, your contributions will fal
            ```
             > Supported cuda versions as cu111, cu102, cu101, cu92
        
-        - Execute sanity suite
+        - Run sanity suite
           ```bash
-          python ./torchserve_sanity.py
+          python torchserve_sanity.py
           ```
+    - Run Regression test `python test/regression_tests.py`
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
+    - If you are updating an existing model make sure that performance hasn't degraded by running [benchmarks](https://github.com/pytorch/serve/tree/master/benchmarks) on the master branch and your branch and verify there is no performance regression 
+    - For large changes make sure to run the [automated benchmark suite](https://github.com/pytorch/serve/tree/master/test/benchmark) which will run the apache bench tests on several configurations of CUDA and EC2 instances
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
 Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve. Use this [template](pull_request_template.md) when creating a Pull Request.

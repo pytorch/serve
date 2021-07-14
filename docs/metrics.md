@@ -10,14 +10,14 @@
 
 ## Introduction
 
-TorchServe collects system-level metrics in regular intervals, and also provides an API to collect custom metrics.
+TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
 Metrics collected by metrics are logged and can be aggregated by metric agents.
 The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
 TorchServe logs these two sets of metrics to different log files.
 Metrics are collected by default at:
 
-* System metrics - log_directory/ts_metrics.log
-* Custom metrics - log directory/model_metrics.log
+* System metrics - `log_directory/ts_metrics.log`
+* Custom metrics - `log directory/model_metrics.log`
 
 The location of log files and metric files can be configured i in the [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file
 
@@ -180,7 +180,7 @@ Function API
 
 Note that the default unit in this case is 'ms'
 
-**Supported units**: ['ms', 's']
+**Supported units**: `['ms', 's']`
 
 To add custom time-based metrics:
 
@@ -219,14 +219,14 @@ Function API
 
 Note that the default unit in this case is milliseconds (ms).
 
-**Supported units**: ['MB', 'kB', 'GB']
+**Supported units**: `['MB', 'kB', 'GB']`
 
 To add custom size based metrics
 
 ```python
 # Add Image size as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
-# Assuming batch size is 1 for example
+# Assuming batch size 1
 metrics.add_size('SizeOfImage', img_size, None, 'MB', dimensions)
 ```
 
@@ -259,7 +259,7 @@ To add custom percentage-based metrics:
 ```python
 # Add MemoryUtilization as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
-# Assuming batch size  is 1 for example
+# Assuming batch size 1
 metrics.add_percent('MemoryUtilization', utilization_percent, None, dimensions)
 ```
 
@@ -292,7 +292,7 @@ To create, increment and decrement counter-based metrics we can use the followin
 ```python
 # Add Loop Count as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
-# Assuming batch size is 1 for example
+# Assuming batch size 1
 
 # Create a counter with name 'LoopCount' and dimensions, initial value
 metrics.add_counter('LoopCount', 1, None, dimensions)
@@ -316,4 +316,4 @@ for metric in metrics.store:
     logger.info("[METRICS]%s", str(metric))
 ```
 
-This custom metrics information is logged in the model_metrics.log file configured through [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.
+This custom metrics information is logged in the `model_metrics.log` file configured through [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.

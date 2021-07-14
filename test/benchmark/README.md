@@ -21,8 +21,45 @@ If you'd like to use your own repo, edit the __init__.py under `serve/test/bench
 * Ensure you have [docker](https://docs.docker.com/get-docker/) client set-up on your system - osx/ec2
 * Adjust the following global variables to your preference in the file `serve/test/benchmark/tests/utils/__init__.py` <br>
 -- IAM_INSTANCE_PROFILE :this role is attached to all ec2 instances created as part of the benchmarking process. Create this as described [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#create-iam-role). Default role name is 'EC2Admin'.<br>
+Use the following commands to create a new role if you don't have one you can use.
+1. Create the trust policy file `ec2-admin-trust-policy.json` and add the following content:
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+2. Create the EC2 role as follows:
+```
+aws iam create-role --role-name EC2Admin --assume-role-policy-document file://ec2-admin-trust-policy.json
+```
+3. Add the permissions to the role as follows:
+```
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --role-name EC2Admin
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name EC2Admin
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --role-name EC2Admin
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess --role-name EC2Admin
+```
 -- S3_BUCKET_BENCHMARK_ARTIFACTS :all temporary benchmarking artifacts including server logs will be stored in this bucket: <br>
+Use the following command to create a new S3 bucket if you don't have one you can use.
+```
+aws s3api create-bucket --bucket <torchserve-benchmark> --region us-west-2
+```
 -- DEFAULT_DOCKER_DEV_ECR_REPO :docker image used for benchmarking will be pushed to this repo <br>
+Use the following command to create a new ECR repo if you don't have one you can use.
+```
+aws ecr create-repository --bucket torchserve-benchmark --region us-west-2
+```
 * If you're running this setup on an EC2 instance, please ensure that the instance's security group settings 'allow' inbound ssh port 22. Refer [docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules.html).
 
 *The following steps assume that the current working directory is serve/.*
@@ -32,6 +69,8 @@ If you'd like to use your own repo, edit the __init__.py under `serve/test/bench
 sudo apt-get install python3-venv
 python3 -m venv bvenv
 source bvenv/bin/activate
+# Ensure you have the latest pip
+pip3 install -U pip
 ```
 2. Install requirements for the benchmarking 
 ```
@@ -57,7 +96,7 @@ python report.py
 ```
 The final benchmark report will be available in markdown format as `report.md` in the `serve/` folder. 
 
-**Example report for vgg16 model**
+**Example report for vgg11 model**
 
 
 ### Benchmark report
@@ -103,3 +142,37 @@ The final benchmark report will be available in markdown format as `report.md` i
  | AB | vgg11 | 100 | 1000 | 0 | 3.47 | 28765 | 29849 | 30488 | 28781.227 | 0.0 | 1576.24 | 1758.28 | 1758.28 | 2249.52 | 2249.34 | 25210.43 | 46.77 | 
 
 
+## Features of the automation:
+1. To save time by *not* creating new instances for every benchmark run for local testing, use the '--do-not-terminate' flag. This will automatically create a file called 'instances.yaml' and write instance-related data into the file so that it may be re-used next time.
+```
+python test/benchmark/run_benchmark.py --do-not-terminate
+```
+
+2. To re-use an instance already recorded in `instances.yaml`, use the '--use-instances' flag:
+```
+python test/benchmark/run_benchmark.py --use-instances <full_path_to>/instances.yaml --do-no-terminate
+```
+`Note: Use --do-not-termninate flag to keep re-using the instances, else, it will be terminated`.
+
+3. To run a test containing a specific string, use the `--run-only` flag. Note that the argument is 'string matched' i.e. if the test-name contains the supplied argument as a substring, the test will run. 
+```
+# To run mnist test
+python test/benchmark/run_benchmark.py --run-only mnist
+
+# To run fastrcnn test
+python test/benchmark/run_benchmark.py --run-only fastrcnn
+
+# To run bert_neuron and bert
+python test/benchmark/run_benchmark.py --run-only bert
+
+# To run vgg11 test
+python test/benchmark/run_benchmark.py --run-only vgg11
+
+# To run vgg16 test
+python test/benchmark/run_benchmark.py --run-only vgg16
+```
+
+4. You can benchmark a specifc branch of the torchserve github repo by specifying the flag `--use-torchserve-branch` e.g., 
+```
+python test/benchmark/run_benchmark.py --use-torchserve-branch issue_1115
+```

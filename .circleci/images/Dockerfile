@@ -19,6 +19,16 @@ RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get install --no-install-recommends -y \
         nodejs
 
+# Install python 3.9 using conda env
+FROM compile-image as conda39-image
+ENV PATH ~/.local/bin/:$PATH
+ENV PATH=/miniconda/bin:${PATH}
+RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+        && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -p /miniconda -b \
+        && rm Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+        && rm -rf /var/lib/apt/lists/* \
+        && conda install -y conda-build
+
 # Install python 3.8 using conda env
 FROM compile-image as conda38-image
 ENV PATH ~/.local/bin/:$PATH
@@ -39,7 +49,8 @@ RUN apt-get install --no-install-recommends -y \
         python3-setuptools \
         python3-wheel \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
-    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1 \
+    && pip3 install --upgrade pip 
 
 # Install python 3.7 using pyenv env
 FROM compile-image as pyenv37-image
@@ -50,7 +61,8 @@ RUN apt-get install --no-install-recommends -y  libssl-dev zlib1g-dev libbz2-dev
         libsqlite3-dev libxml2-dev libxmlsec1-dev libffi-dev\
     && curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash \
     && pyenv install 3.7.0 \
-    && pyenv global 3.7.0
+    && pyenv global 3.7.0 \
+    && pip3 install --upgrade pip
 
 # Install python 3.6 and venv env
 FROM compile-image as venv36-image
@@ -66,7 +78,8 @@ RUN apt-get install --no-install-recommends -y \
         python3-venv\
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1\
-    && python3 -m venv $VIRTUAL_ENV
+    && python3 -m venv $VIRTUAL_ENV \
+    && pip3 install --upgrade pip
 
 
 FROM ${ENV_TYPE}-image AS final-image
@@ -103,9 +116,9 @@ RUN pip install --no-cache-dir \
         pytest-mock \
         requests \
         sentencepiece \
-        torch==1.6.0 \
-        torchaudio==0.6.0 \
-        torchtext==0.7.0 \
-        torchvision==0.7.0 \
-        transformers\
+        torch==1.8.1 \
+        torchaudio==0.8.1 \
+        torchtext==0.9.1 \
+        torchvision==0.9.1 \
+        transformers==4.6.0 \
         wheel

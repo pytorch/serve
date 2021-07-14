@@ -24,7 +24,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 * Input : RGB image
 * Output : Batch of lists of detected classes and bounding boxes respectively
 
-Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.
+Note : We recommend running `torchvision>0.6` otherwise the object_detector default handler will only run on the default GPU device
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/object_detector)
 
@@ -32,9 +32,11 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 
 * Description : Handles models trained on the ImageNet dataset.
 * Input : text file
-* Output : Class of input text. NO BATCHING SUPPORTED!
+* Output : Class of input text. (No batching supported)
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/text_classification)
+
+For a more comprehensive list of available handlers make sure to check out the [examples page](https://github.com/pytorch/serve/tree/master/examples)
 
 # Common features
 
@@ -46,7 +48,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json)
 
 # Contributing
-If you'd like to edit or create a new default_handler class, you need to take the following steps:
-1. Write a new class derived from BaseHandler. Add it as a separate file in `ts/torch_handler/`
-1. Update `model-archiver/model_packaging.py` to add in your classes name
-1. Run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.
+We welcome new contributed handlers, if your usecase isn't covered by one of the existing default handlers please follow the below steps to contribute it
+1. Write a new class derived from [BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). Add it as a separate file in `ts/torch_handler/`
+2. Update `model-archiver/model_packaging.py` to add in your classes name
+3. Run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.
