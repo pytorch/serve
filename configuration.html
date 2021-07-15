@@ -240,6 +240,7 @@
 <li><a class="reference internal" href="#limit-gpu-usage">Limit GPU usage</a></li>
 <li><a class="reference internal" href="#enable-metrics-api">Enable metrics api</a></li>
 <li><a class="reference internal" href="#id1">Enable metrics api</a></li>
+<li><a class="reference internal" href="#config-model">Config model</a></li>
 <li><a class="reference internal" href="#other-properties">Other properties</a></li>
 </ul>
 </li>
@@ -536,6 +537,60 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 This is used in conjunction with <code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> option above.</p></li>
 </ul>
 </section>
+<section id="config-model">
+<h3>Config model<a class="headerlink" href="#config-model" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">models</span></code>: Use this to set configuration of each model. The value is presented in json format.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;modelName&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;parameterName1&quot;</span><span class="p">:</span> <span class="n">parameterValue1</span><span class="p">,</span>
+            <span class="s2">&quot;parameterName2&quot;</span><span class="p">:</span> <span class="n">parameterValue2</span><span class="p">,</span>
+            <span class="s2">&quot;parameterNameN&quot;</span><span class="p">:</span> <span class="n">parameterValueN</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A model’s parameters are defined in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24">model source code</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">minWorkers</span><span class="p">:</span> <span class="n">the</span> <span class="n">minimum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">workers</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
+<span class="n">maxWorkers</span><span class="p">:</span> <span class="n">the</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">workers</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
+<span class="n">batchSize</span><span class="p">:</span> <span class="n">the</span> <span class="n">batch</span> <span class="n">size</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
+<span class="n">maxBatchDelay</span><span class="p">:</span> <span class="n">the</span> <span class="n">maximum</span> <span class="n">dalay</span> <span class="ow">in</span> <span class="n">msec</span> <span class="n">of</span> <span class="n">a</span> <span class="n">batch</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
+<span class="n">responseTimeout</span><span class="p">:</span> <span class="n">the</span> <span class="n">timeout</span> <span class="ow">in</span> <span class="n">msec</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span><span class="s1">&#39;s response</span>
+<span class="n">defaultVersion</span><span class="p">:</span> <span class="n">the</span> <span class="n">default</span> <span class="n">version</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
+<span class="n">marName</span><span class="p">:</span> <span class="n">the</span> <span class="n">mar</span> <span class="n">file</span> <span class="n">name</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
+</pre></div>
+</div>
+<p>A model’s configuration example</p>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">models</span><span class="o">=</span><span class="s">{\</span>
+<span class="s">  &quot;noop&quot;: {\</span>
+<span class="s">    &quot;1.0&quot;: {\</span>
+<span class="s">        &quot;defaultVersion&quot;: true,\</span>
+<span class="s">        &quot;marName&quot;: &quot;noop.mar&quot;,\</span>
+<span class="s">        &quot;minWorkers&quot;: 1,\</span>
+<span class="s">        &quot;maxWorkers&quot;: 1,\</span>
+<span class="s">        &quot;batchSize&quot;: 4,\</span>
+<span class="s">        &quot;maxBatchDelay&quot;: 100,\</span>
+<span class="s">        &quot;responseTimeout&quot;: 120\</span>
+<span class="s">    }\</span>
+<span class="s">  },\</span>
+<span class="s">  &quot;vgg16&quot;: {\</span>
+<span class="s">    &quot;1.0&quot;: {\</span>
+<span class="s">        &quot;defaultVersion&quot;: true,\</span>
+<span class="s">        &quot;marName&quot;: &quot;vgg16.mar&quot;,\</span>
+<span class="s">        &quot;minWorkers&quot;: 1,\</span>
+<span class="s">        &quot;maxWorkers&quot;: 4,\</span>
+<span class="s">        &quot;batchSize&quot;: 8,\</span>
+<span class="s">        &quot;maxBatchDelay&quot;: 100,\</span>
+<span class="s">        &quot;responseTimeout&quot;: 120\</span>
+<span class="s">    }\</span>
+<span class="s">  }\</span>
+<span class="s">}</span>
+</pre></div>
+</div>
+</section>
 <section id="other-properties">
 <h3>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
 <p>Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.</p>
@@ -627,6 +682,7 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
 <li><a class="reference internal" href="#limit-gpu-usage">Limit GPU usage</a></li>
 <li><a class="reference internal" href="#enable-metrics-api">Enable metrics api</a></li>
 <li><a class="reference internal" href="#id1">Enable metrics api</a></li>
+<li><a class="reference internal" href="#config-model">Config model</a></li>
 <li><a class="reference internal" href="#other-properties">Other properties</a></li>
 </ul>
 </li>
