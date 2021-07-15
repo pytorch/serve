@@ -7,6 +7,7 @@
 * [Serving object detection model](#serving-object-detection-model)
 * [Serving image segmentation model](#serving-image-segmentation-model)
 * [Serving huggingface transformers model](#serving-huggingface-transformers)
+* [Serving image generator model](#example-to-serve-GAN-model)
 * [Serving machine translation model](#serving-neural-machine-translation)
 * [Serving waveglow text to speech synthesizer model](#serving-wavegolw-text-to-speech-synthesizer)
 * [Serving multi modal framework model](#Serving-Multi-modal-model)
@@ -84,6 +85,12 @@ The following example demonstrates how to create and serve a pretrained fcn NN m
 The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM
 
 * [Hugging Face Transformers](Huggingface_Transformers)
+
+## Example to serve GAN model
+
+The following example demonstrates how to create and serve a pretrained DCGAN model from [facebookresearch/pytorch_GAN_zoo](https://github.com/facebookresearch/pytorch_GAN_zoo)
+
+* [GAN Image Generator](dcgan_fashiongen)
 
 ## Serving Neural Machine Translation
 
