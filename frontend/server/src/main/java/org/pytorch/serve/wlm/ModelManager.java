@@ -260,9 +260,25 @@ public final class ModelManager {
             int responseTimeout,
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
-        model.setBatchSize(batchSize);
-        model.setMaxBatchDelay(maxBatchDelay);
-        model.setResponseTimeout(responseTimeout);
+
+        model.setBatchSize(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.BATCH_SIZE,
+                        batchSize));
+        model.setMaxBatchDelay(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.MAX_BATCH_DELAY,
+                        maxBatchDelay));
+        model.setResponseTimeout(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.RESPONSE_TIMEOUT,
+                        responseTimeout));
         model.setWorkflowModel(isWorkflowModel);
 
         return model;
@@ -383,6 +399,7 @@ public final class ModelManager {
             throw new ModelVersionNotFoundException(
                     "Model version: " + versionId + " does not exist for model: " + modelName);
         }
+
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);

@@ -213,6 +213,56 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 * `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
 		     This is used in conjunction with `enable_metrics_api` option above.
 
+### Config model
+* `models`: Use this to set configuration of each model. The value is presented in json format.
+```
+{
+    "modelName": {
+        "version": {
+            "parameterName1": parameterValue1,
+            "parameterName2": parameterValue2,
+            "parameterNameN": parameterValueN,
+        }
+    }
+}
+```
+A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
+```
+minWorkers: the minimum number of workers of a model
+maxWorkers: the maximum number of workers of a model
+batchSize: the batch size of a model
+maxBatchDelay: the maximum dalay in msec of a batch of a model
+responseTimeout: the timeout in msec of a model's response
+defaultVersion: the default version of a model
+marName: the mar file name of a model
+```
+A model's configuration example 
+```properties
+models={\
+  "noop": {\
+    "1.0": {\
+        "defaultVersion": true,\
+        "marName": "noop.mar",\
+        "minWorkers": 1,\
+        "maxWorkers": 1,\
+        "batchSize": 4,\
+        "maxBatchDelay": 100,\
+        "responseTimeout": 120\
+    }\
+  },\
+  "vgg16": {\
+    "1.0": {\
+        "defaultVersion": true,\
+        "marName": "vgg16.mar",\
+        "minWorkers": 1,\
+        "maxWorkers": 4,\
+        "batchSize": 8,\
+        "maxBatchDelay": 100,\
+        "responseTimeout": 120\
+    }\
+  }\
+}
+```
 
 ### Other properties
 

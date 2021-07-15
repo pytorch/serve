@@ -44,6 +44,7 @@ import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
+import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
@@ -200,7 +201,10 @@ public class ModelServerTest {
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        Assert.assertEquals(resp[0].getMinWorkers(), configManager.getDefaultWorkers());
+        Assert.assertEquals(
+                resp[0].getMinWorkers(),
+                configManager.getJsonIntValue(
+                        "noop", "1.11", Model.MIN_WORKERS, configManager.getDefaultWorkers()));
     }
 
     @Test(
