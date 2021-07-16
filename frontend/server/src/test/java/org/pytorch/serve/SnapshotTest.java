@@ -53,7 +53,7 @@ public class SnapshotTest {
     public void beforeSuite()
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
-        System.setProperty("tsConfigFile", "src/test/resources/config.properties");
+        System.setProperty("tsConfigFile", "src/test/resources/config_snapshot.properties");
         FileUtils.cleanDirectory(new File(System.getProperty("LOG_LOCATION"), "config"));
 
         ConfigManager.init(new ConfigManager.Arguments());

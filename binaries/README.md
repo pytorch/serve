@@ -29,7 +29,8 @@
     ##### Linux and MacOs:
    - Wheel files
      `dist/torchserve-*.whl`  
-     `model-archiver/dist/torch_model_archiver-*.whl`  
+     `model-archiver/dist/torch_model_archiver-*.whl`
+     `workflow-archiver/dist/torch_workflow_archiver-*.whl`
    - Conda pacakages
      `binaries/conda/output/*`  
      
@@ -37,6 +38,7 @@
     - Wheel files
       `dist\torchserve-*.whl`  
       `model-archiver\dist\torch_model_archiver-*.whl`  
+      `workflow-archiver\dist\torch_workflow_archiver-*.whl`  
     - Conda pacakages
       `binaries\conda\output\*`
 
@@ -58,18 +60,37 @@
       ```bash
       pip install dist/torchserve-*.whl
       pip install model-archiver/dist/torch_model_archiver-*.whl
+      pip install workflow-archiver/dist/torch_workflow_archiver-*.whl
       ```
 
       ##### Windows:
       ```pwsh
       pip install .\dist\<torchserve_wheel>
       pip install .\model-archiver\dist\<torch_model_archiver_wheel>
+      pip install .\workflow-archiver\dist\<torch_workflow_archiver_wheel>
       ```
    - Using conda packages
       ##### Linux and MacOs:
      ```bash
-      conda install --channel ./binaries/conda/output -y torchserve torch-model-archiver
+      conda install --channel ./binaries/conda/output -y torchserve torch-model-archiver torch-workflow-archiver
      ```
     
      ##### Windows:
      Conda install is currently not supported. Please use pip install command instead.
+
+# Uploading packages for staging
+1. Export the following environment variables for TestPypi and anaconda.org authentication
+   ```
+   export CONDA_TOKEN=<>
+   export TWINE_USERNAME=<>
+   export TWINE_PASSWORD=<>
+   ```
+2. Edit `upload.py` to change the CONDA_USER if necessary
+3. Run the following commands to build the packages, and then upload them to staging repos
+   ```
+   python3 binaries/conda/build_packages.py --install-conda-dependencies
+   exec bash
+   python3 binaries/build.py --staging
+   cd binaries/
+   python3 upload.py --upload-pypi-packages --upload-conda-packages 
+   ```

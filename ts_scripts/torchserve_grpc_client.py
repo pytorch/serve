@@ -33,9 +33,18 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
-def register(stub, model_name):
+def register(stub, model_name, mar_set_str):
+    mar_set = set()
+    if mar_set_str:
+        mar_set = set(mar_set_str.split(','))
+    marfile = f"{model_name}.mar"
+    print(f"## Check {marfile} in mar_set :", mar_set)
+    if marfile not in mar_set:
+        marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
+
+    print(f"## Register marfile:{marfile}\n")
     params = {
-        'url': "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name),
+        'url': marfile,
         'initial_workers': 1,
         'synchronous': True,
         'model_name': model_name
@@ -69,4 +78,7 @@ if __name__ == '__main__':
         infer(get_inference_stub(), args[1], args[2])
     else:
         api = globals()[args[0]]
-        api(get_management_stub(), args[1])
+        if args[0] == "register":
+            api(get_management_stub(), args[1], args[2])
+        else:
+            api(get_management_stub(), args[1])

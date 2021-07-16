@@ -9,6 +9,8 @@ nvidia_smi_cmd = {'Windows': 'nvidia-smi.exe',
 def is_gpu_instance():
     return True if os.system(nvidia_smi_cmd[platform.system()]) == 0 else False
 
+def is_conda_build_env():
+    return True if os.system("conda-build") == 0 else False
 
 def is_conda_env():
     return True if os.system("conda") == 0 else False

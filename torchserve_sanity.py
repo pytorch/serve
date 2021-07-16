@@ -8,6 +8,7 @@ from ts_scripts.shell_utils import rm_dir, rm_file
 from ts_scripts.frontend_utils import test_frontend
 import ts_scripts.tsutils as ts
 import ts_scripts.print_env_info as build_hdr_printer
+from ts_scripts import marsgen as mg
 
 
 def torchserve_sanity():
@@ -17,6 +18,9 @@ def torchserve_sanity():
 
         # Install from src
         install_from_src()
+
+        # Generate mar files
+        mg.generate_mars()
 
         # Test Torchserve pylint, pytest
         test_torchserve()
@@ -45,6 +49,9 @@ def cleanup():
     # clean up residual from model-archiver IT suite.
     rm_dir('model-archiver/model_archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it')
     rm_file('ts_scripts/*_pb2*.py', True)
+
+    # delete mar_gen_dir
+    mg.delete_model_store_gen_dir()
 
 
 if __name__ == '__main__':

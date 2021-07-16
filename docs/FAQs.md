@@ -146,3 +146,6 @@ You can use both s3 v2 and v4 signature URLs.
 Note: For v4 type replace `&` characters in model url with its URL encoding character in the curl command i.e.`%26`.
 
 Relevant issues: [[#669](https://github.com/pytorch/serve/issues/669)]
+
+### How to set a model's batch size on SageMaker?  Key parameters for TorchServe performance tuning.
+[TorchServe performance tuning example](https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb)

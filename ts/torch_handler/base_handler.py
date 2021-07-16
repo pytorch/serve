@@ -199,7 +199,7 @@ class BaseHandler(abc.ABC):
         if not self._is_explain():
             output = self.inference(data_preprocess)
             output = self.postprocess(output)
-        else :
+        else:
             output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()

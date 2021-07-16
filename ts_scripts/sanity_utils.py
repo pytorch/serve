@@ -2,9 +2,7 @@ import os
 import sys
 import nvgpu
 import glob
-import platform
-import shutil
-import requests
+from ts_scripts import marsgen as mg
 
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -62,10 +60,10 @@ def test_sanity():
         {"name": "fcn_resnet_101",
          "inputs": ["docs/images/blank_image.jpg", "examples/image_segmenter/persons.jpg"],
          "handler": "image_segmenter"},
-        {"name": "my_text_classifier_v2", "inputs": ["examples/text_classification/sample_text.txt"],
+        {"name": "my_text_classifier_v4", "inputs": ["examples/text_classification/sample_text.txt"],
          "handler": "text_classification"},
         resnet18_model,
-        {"name": "my_text_classifier_scripted_v2", "inputs": ["examples/text_classification/sample_text.txt"],
+        {"name": "my_text_classifier_scripted_v3", "inputs": ["examples/text_classification/sample_text.txt"],
          "handler": "text_classification"},
         {"name": "alexnet_scripted", "inputs": ["examples/image_classifier/kitten.jpg"], "handler": "image_classifier"},
         {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/persons.jpg"],
@@ -104,7 +102,10 @@ def test_sanity():
         model_handler = model["handler"]
 
         # Run gRPC sanity
-        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name}"
+        print("pass mg.mar_set=", mg.mar_set)
+        mar_set_list_str = [str(s) for s in mg.mar_set]
+        mar_set_str = ",".join(mar_set_list_str)
+        register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name} {mar_set_str}"
         status = os.system(register_model_grpc_cmd)
 
         if status != 0:

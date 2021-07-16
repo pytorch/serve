@@ -46,9 +46,14 @@ def test_inference_apis():
         test_data = json.loads(f.read())
 
     for item in test_data:
+        if item['url'].startswith('{{mar_path_'):
+            path = test_utils.mar_file_table[item['url'][2:-2]]
+        else:
+            path = item['url']
+
         managment_stub = test_gRPC_utils.get_management_stub()
         response = managment_stub.RegisterModel(management_pb2.RegisterModelRequest(
-            url=item['url'],
+            url=path,
             initial_workers=item['worker'],
             synchronous=bool(item['synchronous']),
             model_name=item['model_name']
