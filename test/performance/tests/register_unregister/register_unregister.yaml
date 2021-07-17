@@ -1,0 +1,17 @@
+---
+~execution:
+- concurrency: ${CONCURRENCY}
+  ramp-up: ${RAMP-UP}
+  iterations: ${ITERATIONS}
+  scenario: scenario_0
+
+scenarios:
+  scenario_0:
+    script: register_unregister.jmx
+
+reporting:
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of UnregisterModel<${UNREG_SUCC}
+    - avg-rt of UnregisterModel>${UNREG_RT}

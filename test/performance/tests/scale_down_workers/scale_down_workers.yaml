@@ -1,0 +1,109 @@
+---
+
+scenarios:
+  scenario_0:
+    script: scale_down_workers.jmx
+
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X PUT  http://localhost:8081/models/${SQZNET_NAME}?min_worker=4&synchronous=true"
+      - "sleep 10s"
+
+~reporting:
+- module: passfail # this is to enable passfail module
+- module: junit-xml
+  data-source: pass-fail
+- module: junit-xml
+  data-source: sample-labels
+- module: final-stats
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of ScaleDown<${SCL_DWN_SUCC}
+    - avg-rt of ScaleDown>${SCL_DWN_RT}
+    # Custom Criteria
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '>'
+      threshold: ${TOTAL_PROCS_B4_SCL_DWN}
+      timeframe: 1s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS_AFTR_SCL_DWN}
+      timeframe: 10s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_workers
+      condition: '>'
+      threshold: ${TOTAL_WRKRS_B4_SCL_DWN}
+      timeframe: 10s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_workers
+      condition: '<'
+      threshold: ${TOTAL_WRKRS_AFTR_SCL_DWN}
+      timeframe: 10s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/frontend_file_descriptors
+      condition: '>'
+      threshold: ${FRNTEND_FDS}
+      timeframe: 10s
+      stop : ${STOP}
+      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/sum_workers_file_descriptors
+      condition: '>'
+      threshold: ${TOTAL_WRKRS_FDS_B4_SCL_DWN}
+      timeframe: 10s
+      stop : ${STOP}
+      fail : true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/frontend_memory_rss
+#      condition: '>'
+#      threshold: ${FRNTEND_MEM}
+#      timeframe: 10s
+#      stop : ${STOP}
+#      fail : true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_workers_memory_rss
+#      condition: '>'
+#      threshold: ${TOTAL_WRKRS_MEM_B4_SCL_DWN}
+#      timeframe: 10s
+#      stop : ${STOP}
+#      fail : true
+#    - class: bzt.modules.monitoring.MonitoringCriteria
+#      subject: ServerLocalClient/sum_workers_memory_rss
+#      condition: '<'
+#      threshold: ${TOTAL_WRKRS_MEM_AFTR_SCL_DWN}
+#      timeframe: 10s
+#      stop : ${STOP}
+#      fail : true
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/orphans
+      condition: '>'
+      threshold: ${TOTAL_ORPHANS}
+      timeframe: 10s
+      stop: ${STOP}
+      fail: true
+      diff_percent_previous: ${TOTAL_ORPHANS_DIFF}
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/zombies
+      condition: '>'
+      threshold: ${TOTAL_ZOMBIES}
+      timeframe: 10s
+      stop: ${STOP}
+      fail: true
+
+~compare_criteria:
+  -

@@ -1,0 +1,21 @@
+---
+scenarios:
+  scenario_0:
+    script: list_models.jmx
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X POST http://localhost:8081/models?url=${RESNET_URL}"
+
+reporting:
+- module: passfail
+  criteria:
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS}
+      timeframe: 5s
+      stop : {STOP}
+      fail : true

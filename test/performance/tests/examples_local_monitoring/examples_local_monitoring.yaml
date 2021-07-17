@@ -1,0 +1,44 @@
+---
+~execution:
+- concurrency: 1
+  ramp-up: 5s
+  hold-for: 20s
+  scenario: Inference
+
+~scenarios:
+  Inference:
+    script: examples_local_monitoring.jmx
+
+modules:
+  server_monitoring:
+    # metrics_monitoring and dependencies should be in python path
+    class : metrics_monitoring.Monitor # monitoring class.
+
+~services:
+  - module: shellexec
+    prepare:
+      - "curl -s -O ${INPUT_IMG_URL}"
+      - "mkdir -p /tmp/ts_model_store"
+      - "ps aux | grep '${SERVER_PROCESS_NAME}' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
+      - "${SERVER_START_CMD} --model-store /tmp/ts_model_store > /dev/null 2>&1"
+      - "sleep 20s"
+    post-process:
+      - "${SERVER_STOP_CMD} > /dev/null 2>&1"
+      - "rm ${INPUT_IMG_PATH}"
+      - "rm -r /tmp/ts_model_store"
+      - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
+
+  - module: server_monitoring # should be added in modules section
+    ServerLocalClient: # keyword from metrics_monitoring.Monitor
+      - interval: 1s
+        metrics:
+          - cpu
+          - disk-space
+          - mem
+          - sum_workers_memory_percent
+
+~reporting:
+  - module: passfail
+
+~compare_criteria:
+  -

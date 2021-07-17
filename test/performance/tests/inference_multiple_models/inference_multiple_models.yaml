@@ -1,0 +1,27 @@
+---
+scenarios:
+  scenario_0:
+    script: inference_multiple_models.jmx
+
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=${SQZNET_URL}"
+      - "curl -s -X POST http://localhost:8081/models?url=${RESNET_URL}"
+      - "curl -s -X PUT  http://localhost:8081/models/${SQZNET_NAME}?min_worker=1&synchronous=true"
+      - "curl -s -X PUT  http://localhost:8081/models/${RESNET_NAME}?min_worker=1&synchronous=true"
+
+reporting:
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of Inference2<${INFR2_SUCC}
+    - avg-rt of Inference2>${INFR2_RT}
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/total_processes
+      condition: '<'
+      threshold: ${TOTAL_PROCS}
+      timeframe: 5s
+      stop : ${STOP}
+      fail : true

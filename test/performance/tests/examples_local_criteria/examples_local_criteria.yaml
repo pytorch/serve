@@ -1,0 +1,64 @@
+---
+~execution:
+- concurrency: 1
+  ramp-up: 5s
+  hold-for: 20s
+  scenario: Inference
+
+~scenarios:
+  Inference:
+    script: examples_local_criteria.jmx
+
+modules:
+  server_monitoring:
+    # metrics_monitoring and dependencies should be in python path
+    class : metrics_monitoring.Monitor # monitoring class.
+
+~services:
+  - module: shellexec
+    prepare:
+      - "curl -s -O ${INPUT_IMG_URL}"
+      - "mkdir -p /tmp/ts_model_store"
+      - "ps aux | grep '${SERVER_PROCESS_NAME}' | awk '{print $2}' | xargs kill -9 2> /dev/null || true"
+      - "${SERVER_START_CMD} --model-store /tmp/ts_model_store > /dev/null 2>&1"
+      - "sleep 20s"
+    post-process:
+      - "${SERVER_STOP_CMD} > /dev/null 2>&1"
+      - "rm ${INPUT_IMG_PATH}"
+      - "rm -r /tmp/ts_model_store"
+      - "mv logs ${ARTIFACTS_DIR}/model_server_logs"
+
+  - module: server_monitoring # should be added in modules section
+    ServerLocalClient: # keyword from metrics_monitoring.Monitor
+    - interval: 1s
+      logging : True
+      metrics:
+        - cpu
+        - disk-space
+        - mem
+        - sum_workers_memory_rss
+
+~reporting:
+- module: passfail # this is to enable passfail module
+- module: junit-xml
+  data-source: pass-fail
+- module: junit-xml
+  data-source: sample-labels
+- module: final-stats
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
+- module: passfail
+  criteria:
+    - fail >${FAIL}
+    - p90 >${P90}
+    - avg-rt >${AVG_RT}
+    - class: bzt.modules.monitoring.MonitoringCriteria
+      subject: ServerLocalClient/sum_workers_memory_rss
+      condition: '>'
+      threshold: ${TOTAL_WORKERS_MEM}
+      timeframe: 1s
+      stop : ${STOP}
+      fail : true
+      diff_percent_previous : ${TOTAL_WORKERS_MEM_DIFF}
+
+~compare_criteria:
+  -

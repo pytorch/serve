@@ -1,0 +1,34 @@
+---
+~execution:
+- concurrency: ${CONCURRENCY}
+  ramp-up: ${RAMP-UP}
+  iterations: ${ITERATIONS}
+  scenario: scenario_0
+
+scenarios:
+  scenario_0:
+    script: register_unregister_multiple.jmx
+
+services:
+  - module: shellexec
+    prepare:
+      - "curl -s -X POST http://localhost:8081/models?url=${RESNET_URL}"
+
+
+~reporting:
+- module: passfail # this is to enable passfail module
+- module: junit-xml
+  data-source: pass-fail
+- module: junit-xml
+  data-source: sample-labels
+- module: final-stats
+  dump-csv : ${ARTIFACTS_DIR}/final_stats.csv
+- module: passfail
+  criteria:
+    # Inbuilt Criteria
+    - success of ${API_LABEL}<${API_SUCCESS}
+    - avg-rt of ${API_LABEL}>${API_AVG_RT}
+    - success of ScaleUp<${SCL_UP_SUCC}
+    - success of UnregisterModel<${UNREG_SUCC}
+    - avg-rt of ScaleUp>${SCL_UP_RT}
+    - avg-rt of UnregisterModel>${UNREG_RT}
