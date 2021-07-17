@@ -60,6 +60,10 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
+            buf = request.getRequestId().getBytes(StandardCharsets.UTF_8);
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
         } else if (msg instanceof ModelInferenceRequest) {
             out.writeByte('I');
             ModelInferenceRequest request = (ModelInferenceRequest) msg;

@@ -7,7 +7,6 @@ import importlib
 import json
 import logging
 import os
-import uuid
 from abc import ABCMeta, abstractmethod
 
 from builtins import str
@@ -34,7 +33,7 @@ class ModelLoader(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, request_id, envelope=None):
         """
         Load model from file.
 
@@ -43,6 +42,7 @@ class ModelLoader(object):
         :param handler:
         :param gpu_id:
         :param batch_size:
+        :param request_id:
         :param envelope:
         :return: Model
         """
@@ -55,7 +55,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, request_id, envelope=None):
         """
         Load TorchServe 1.0 model from file.
 
@@ -64,12 +64,12 @@ class TsModelLoader(ModelLoader):
         :param handler:
         :param gpu_id:
         :param batch_size:
+        :param request_id:
         :param envelope:
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        # TODO: Request ID is not given. UUID is a temp UUID.
-        metrics = MetricsStore(uuid.uuid4(), model_name)
+        metrics = MetricsStore(request_id, model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -78,9 +78,9 @@ class TsModelLoader(ModelLoader):
 
         function_name = None
         try:
-            module, function_name = self._load_handler_file(handler)
+            module, function_name, module_name = self._load_handler_file(handler)
         except ImportError:
-            module = self._load_default_handler(handler)
+            module, module_name = self._load_default_handler(handler)
 
         if module is None:
             raise ValueError("Unable to load module {}, make sure it is added to python path".format(handler))
@@ -119,12 +119,12 @@ class TsModelLoader(ModelLoader):
             module_name = module_name[:-3]
         module_name = module_name.split("/")[-1]
         module = importlib.import_module(module_name)
-        return module, function_name
+        return module, function_name, module_name
 
     def _load_default_handler(self, handler):
         module_name = ".{0}".format(handler)
         module = importlib.import_module(module_name, 'ts.torch_handler')
-        return module
+        return module, module_name
 
     def _load_default_envelope(self, envelope):
         module_name = ".{0}".format(envelope)
