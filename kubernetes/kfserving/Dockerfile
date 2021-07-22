@@ -10,7 +10,7 @@
 #       For reference: 
 #           https://docs.docker.com/develop/develop-images/build_enhancements
 
-ARG BASE_IMAGE=pytorch/torchserve:0.4.0-cpu
+ARG BASE_IMAGE=pytorch/torchserve:latest
 FROM ${BASE_IMAGE}
 
 USER root
