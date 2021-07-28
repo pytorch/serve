@@ -6,6 +6,7 @@ We currently support benchmarking with JMeter & Apache Bench. One can also profi
 
 * [Benchmarking with JMeter](#benchmarking-with-jmeter)
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
+* [AutoBenchmarking Apachage Bench on AWS](#benchmarking-apache-bench-aws)
 * [Profiling](#profiling)
 
 # Benchmarking with JMeter
@@ -304,7 +305,7 @@ Note: These pre-defined parameters in test plan can be overwritten by cmd line a
 The reports are generated at location "/tmp/benchmark/"
 - CSV report: /tmp/benchmark/ab_report.csv
 - latency graph: /tmp/benchmark/predict_latency.png
-- torhcserve logs: /tmp/benchmark/logs/model_metrics.log
+- torchserve logs: /tmp/benchmark/logs/model_metrics.log
 - raw ab output: /tmp/benchmark/result.txt
 
 ### Sample output CSV
@@ -314,6 +315,9 @@ The reports are generated at location "/tmp/benchmark/"
 
 ### Sample latency graph
 ![](predict_latency.png)
+
+# Benchmarking Apache Bench AWS
+If you're making a large change to TorchServe it's best to run an [automated benchmarking suite on AWS](https://github.com/pytorch/serve/tree/master/test/benchmark) so that you can test multiple CUDA versions and EC2 hardware configurations easily.
 
 # Profiling
 

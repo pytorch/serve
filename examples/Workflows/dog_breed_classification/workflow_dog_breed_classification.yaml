@@ -1,0 +1,17 @@
+models:
+    min-workers: 1
+    max-workers: 1
+    batch-size: 4
+    max-batch-delay: 100
+    retry-attempts: 5
+    timeout-ms: 300000
+
+    cat_dog_classification:
+      url: cat_dog_classification.mar
+
+    dog_breed_classification:
+      url: dog_breed_classification.mar
+
+dag:
+  pre_processing: [cat_dog_classification, dog_breed_classification]
+  cat_dog_classification: [dog_breed_classification]

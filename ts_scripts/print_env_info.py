@@ -124,7 +124,7 @@ def get_pip_packages(package_name=None):
 
 
 def get_java_version():
-    rc, out, _ = run("java --version")
+    rc, out, _ = run("java -version")
     if rc != 0:
         return "**Warning: java not installed..."
     return out
@@ -220,7 +220,7 @@ def get_nvidia_gpu_info():
 
 
 def get_running_cuda_version():
-    return run_and_parse_first_match('nvcc --version', r'V(.*)$')
+    return run_and_parse_first_match('nvcc --version', r'V([\d.]+)')
 
 
 def get_cudnn_version():
