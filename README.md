@@ -22,6 +22,8 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
 * [Serve a Model](#serve-a-model)
 * [Serve a Workflow](docs/workflows.md)
 * [Quick start with docker](#quick-start-with-docker)
+* [Highlighted Examples](#highlighted-examples)
+* [Featured Community Projects](#featured-community-projects)
 * [Contributing](#contributing)
 
 ## Install TorchServe and torch-model-archiver
@@ -43,22 +45,24 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
        ```bash
        python ./ts_scripts/install_dependencies.py --cuda=cu102
        ```
+       
+     Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.  
 
     #### For Windows
 
     Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
-2. Install torchserve and torch-model-archiver
+2. Install torchserve, torch-model-archiver and torch-workflow-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
     Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
     ```
-    conda install torchserve torch-model-archiver -c pytorch
+    conda install torchserve torch-model-archiver torch-workflow-archiver -c pytorch
     ```
    
     For Pip
     ```
-    pip install torchserve torch-model-archiver
+    pip install torchserve torch-model-archiver torch-workflow-archiver
     ```
 
 Now you are ready to [package and serve models with TorchServe](#serve-a-model).
@@ -71,7 +75,7 @@ Ensure that you have `python3` installed, and the user has access to the site-pa
 
 Run the following script from the top of the source directory.
 
-NOTE: This script uninstalls existing `torchserve` and `torch-model-archiver` installations
+NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
 
 #### For Debian Based Systems/ MacOS
 
@@ -136,7 +140,7 @@ torchserve --start --ncs --model-store model_store --models densenet161.mar
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
 
-**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resoures (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
+**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resources (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
 
 ### Get predictions from a model
 
@@ -212,6 +216,11 @@ To stop the currently running TorchServe instance, run:
 torchserve --stop
 ```
 
+### Inspect the logs
+All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
+
+High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](benchmark/README.md) and visualized in a report.
+
 ### Concurrency And Number of Workers
 TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 *Note: the following property has bigger impact under heavy workloads.*
@@ -239,9 +248,12 @@ Feel free to skim the full list of [available examples](examples/README.md)
 ## Learn More
 
 * [Full documentation on TorchServe](docs/README.md)
-* [Manage models API](docs/management_api.md)
+* [Model Management API](docs/management_api.md)
 * [Inference API](docs/inference_api.md)
+* [Metrics API](docs/metrics.md)
 * [Package models for use with TorchServe](model-archiver/README.md)
+* [Deploying TorchServe with Kubernetes](kubernetes/README.md)
+* [TorchServe Workflows](examples/Workflows/README.md)
 * [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
 
 ## Contributing

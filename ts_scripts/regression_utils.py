@@ -34,7 +34,8 @@ def generate_densenet_test_model_archive():
                 --model-file {model_file} \
                 --serialized-file {serialized_file_path} \
                 --extra-files {extra_files} \
-                --handler {handler}"
+                --handler {handler} \
+                --force"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     sys_exit_code = os.system(cmd)
     os.remove(serialized_file_path)

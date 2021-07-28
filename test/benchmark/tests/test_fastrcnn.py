@@ -6,10 +6,10 @@ import time
 from invoke import run
 from invoke.context import Context
 
-import utils.ec2 as ec2_utils
-import utils.s3 as s3_utils
-import utils.ts as ts_utils
-import utils.apache_bench as ab_utils
+import tests.utils.ec2 as ec2_utils
+import tests.utils.s3 as s3_utils
+import tests.utils.ts as ts_utils
+import tests.utils.apache_bench as ab_utils
 
 from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
@@ -21,9 +21,9 @@ from tests.utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
-INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
+# Add/remove from the following list to benchmark on the instance of your choice
+INSTANCE_TYPES_TO_TEST = ["c4.4xlarge", "p3.8xlarge"]
 
-@pytest.mark.skip()
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
 def test_fastrcnn_benchmark(
     ec2_connection, ec2_instance_type, fastrcnn_config_file_path, docker_dev_image_config_path, benchmark_execution_id
@@ -69,7 +69,7 @@ def test_fastrcnn_benchmark(
                 account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
             )
             docker_repo_tag_for_current_instance = docker_repo_tag
-            cuda_version_for_instance = cuda_version
+            cuda_version_for_instance = None
             break
 
     mode_list = []

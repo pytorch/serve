@@ -2,9 +2,6 @@
 
 TorchServe is a flexible and easy to use tool for serving PyTorch models.
 
-**WARNING:** TorchServe is experimental and subject to change.
-
-
 ## Basic Features
 
 * [Serving Quick Start](https://github.com/pytorch/serve/blob/master/README.md#serve-a-model) - Basic server usage tutorial
@@ -18,6 +15,7 @@ TorchServe is a flexible and easy to use tool for serving PyTorch models.
    * [Metrics API](metrics_api.md) - How to configure metrics API
 * [Batch inference with TorchServe](batch_inference_with_ts.md) - How to create and serve a model with batch inference in TorchServe
 * [Model Zoo](model_zoo.md) - List of pre-trained model archives ready to be served for inference with TorchServe.
+* [Examples](https://github.com/pytorch/serve/tree/master/examples) - Many examples of how to package and deploy models and workflows with TorchServe
 
 ## Advanced Features
 

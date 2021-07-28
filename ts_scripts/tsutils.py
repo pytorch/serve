@@ -3,7 +3,7 @@ import platform
 import sys
 import time
 import requests
-
+from ts_scripts import marsgen as mg
 
 torchserve_command = {
     "Windows": "torchserve.exe",
@@ -24,7 +24,11 @@ torch_workflow_archiver_command = {
     }
 
 
-def start_torchserve(ncs=False, model_store="model_store", workflow_store="", models="", config_file="", log_file="", wait_for=10):
+def start_torchserve(
+        ncs=False, model_store="model_store", workflow_store="",
+        models="", config_file="", log_file="", wait_for=10, gen_mar=True):
+    if gen_mar:
+        mg.gen_mar(model_store)
     print("## Starting TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --start --model-store={model_store}"
     if models:
@@ -67,9 +71,13 @@ def stop_torchserve(wait_for=10):
 def register_model(model_name, protocol="http", host="localhost", port="8081"):
     print(f"## Registering {model_name} model")
     model_zoo_url = "https://torchserve.s3.amazonaws.com"
+    marfile = f"{model_name}.mar"
+    if marfile not in mg.mar_set:
+        marfile = f"{model_zoo_url}/mar_files/{model_name}.mar"
+
     params = (
         ("model_name", model_name),
-        ("url", f"{model_zoo_url}/mar_files/{model_name}.mar"),
+        ("url", marfile),
         ("initial_workers", "1"),
         ("synchronous", "true"),
     )
