@@ -21,7 +21,7 @@ class TorchserveModel(kfserving.KFModel):
     return a KFServing side response
 
     Args:
-        kfserving.KFModel(class object): The predict and explain methods are overriden by torchserve
+        kfserving.KFModel(class object): The predict and explain methods are overridden by torchserve
         side predict and explain http requests.
     """
     def __init__(self, name, inference_address, management_address, model_dir):
@@ -32,7 +32,7 @@ class TorchserveModel(kfserving.KFModel):
             name (str): Model Name
             inference_address (str): The Inference Address in which we hit the inference end point
             management_address (str): The Management Address in which we register the model.
-            model_dir (str): The location of the model artefacts.
+            model_dir (str): The location of the model artifacts.
         """
         super().__init__(name)
 
