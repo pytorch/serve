@@ -1,6 +1,6 @@
 # TorchServe
 
-TorchServe is a performant, flexible and easy to use tool for serving PyTorch models.
+TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torschripted Pytorch models.
 
 ## Basic Features
 
