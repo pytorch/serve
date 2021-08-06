@@ -7,7 +7,8 @@ import glob
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-STAGING_SUFFIX = "-staging"
+# Change staging suffix if required
+STAGING_SUFFIX = ""
 
 from pathlib import Path
 
