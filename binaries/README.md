@@ -78,7 +78,7 @@
      ##### Windows:
      Conda install is currently not supported. Please use pip install command instead.
 
-# Uploading packages for staging
+# Uploading packages for testing to a personal account
 1. Export the following environment variables for TestPypi and anaconda.org authentication
    ```
    export CONDA_TOKEN=<>
@@ -90,7 +90,7 @@
    ```
    python3 binaries/conda/build_packages.py --install-conda-dependencies
    exec bash
-   python3 binaries/build.py --staging
+   python3 binaries/build.py
    cd binaries/
    python3 upload.py --upload-pypi-packages --upload-conda-packages 
    ```
