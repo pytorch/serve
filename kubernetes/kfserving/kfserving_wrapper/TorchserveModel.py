@@ -8,7 +8,6 @@ import tornado.web
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
-
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
 
@@ -24,6 +23,7 @@ class TorchserveModel(kfserving.KFModel):
         kfserving.KFModel(class object): The predict and explain methods are overridden by torchserve
         side predict and explain http requests.
     """
+
     def __init__(self, name, inference_address, management_address, model_dir):
         """The Model Name, Inference Address, Management Address and the model directory
         are specified.
@@ -80,7 +80,8 @@ class TorchserveModel(kfserving.KFModel):
         )
 
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code,
+                                        reason=response.body)
         return json.loads(response.body)
 
     async def explain(self, request: Dict) -> Dict:
@@ -113,5 +114,6 @@ class TorchserveModel(kfserving.KFModel):
             body=json.dumps(request),
         )
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code,
+                                        reason=response.body)
         return json.loads(response.body)

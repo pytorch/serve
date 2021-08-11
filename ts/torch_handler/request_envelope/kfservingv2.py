@@ -42,18 +42,16 @@ def _to_datatype(dtype: np.dtype) -> str:
 
     return datatype
 
+
 class KFservingv2Envelope(BaseEnvelope):
+    """
+    Implementation. Captures batches in KFServing v2 protocol format, returns
+    also in FServing v2 protocol format.
+    """
+
     def parse_input(self, data):
-        logger.info("Parsing input in KFServingv2.py")
+        logger.info("Parsing input in KFServing v2 format %s", data)
         inputs = self._batch_from_json(data)
-    
-        # If the KF Transformer and Explainer sends in data as bytesarray
-        if isinstance(data, (bytes, bytearray)):
-
-            data = data.decode()
-            data = json.loads(data)
-            logger.info("Bytes array is %s", data)
-
         logger.info("KFServingv2 parsed inputs %s", inputs)
         return inputs
 
@@ -62,7 +60,7 @@ class KFservingv2Envelope(BaseEnvelope):
         Joins the instances of a batch of JSON objects
         """
         logger.info("Parse input data %s", rows)
-        body_list = rows[0].get("body")
+        body_list = rows[0].get("body") or rows[0].get("data")
         data_list = self._from_json(body_list)
         return data_list
 
@@ -70,15 +68,22 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         Extracts the data from the JSON object
         """
-        data_list = [row for row in body_list.get("inputs")]
+        # If the KF Transformer and Explainer sends in data as bytesarray
+        if isinstance(body_list, (bytes, bytearray)):
+            inputs = body_list.decode()
+            inputs = json.loads(body_list)
+            logger.info("Bytes array is %s", inputs)
+        data_list = [row for row in inputs.get("inputs")]
         return data_list
 
     def format_output(self, data):
-        logger.info("The Response of KFServingv2 %s", data)
+        logger.info("The Response of KFServing v2 format %s", data)
         response = {}
         response["id"] = self.context.get_request_id(0)
-        response["model_name"] = self.context.manifest.get("model").get("modelName")
-        response["model_version"] = self.context.manifest.get("model").get("modelVersion")
+        response["model_name"] = self.context.manifest.get("model").get(
+            "modelName")
+        response["model_version"] = self.context.manifest.get("model").get(
+            "modelVersion")
         response["outputs"] = self._batch_to_json(data)
         return [response]
 
@@ -96,8 +101,12 @@ class KFservingv2Envelope(BaseEnvelope):
         Constructs JSON object from data
         """
         output_data = {}
-        data_ndarray = np.ndarray(data)
-        output_data["name"] = "explain" if self.context.get_request_header(0, "explain") == "True" else "predict"
+        if isinstance(data, str):
+            data_ndarray = np.array(list(data.encode()))
+        else:
+            data_ndarray = np.array(data)
+        output_data["name"] = "explain" if self.context.get_request_header(
+            0, "explain") == "True" else "predict"
         output_data["shape"] = data_ndarray.shape
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
         output_data["data"] = data_ndarray.flatten().tolist()
