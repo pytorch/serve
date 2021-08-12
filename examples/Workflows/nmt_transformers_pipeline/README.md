@@ -1,7 +1,7 @@
 # Workflow pipeline example using nmt transformer nlp model
 
 This example uses the existing [nmt_transformers](../../nmt_transformer) standalone example to create a workflow. We use three models, in two examples to demonstrate stringing them together in a workflow.
-To change the default batch size and batch delay the yaml file for the workflow can to be changed. This cannot currently be set via the REST API.
+The default batch size and delay can only be changed via the YAML file. This cannot currently be set via the REST API.
 
 _NOTE: This example currently works with Py36 only due to fairseq dependency on dataclasses [issue](https://github.com/huggingface/transformers/issues/8638#issuecomment-790772391). This example currently doesn't work on Windows_
 
@@ -26,7 +26,7 @@ $ ./create_mar.sh de2en_model
 $ ./create_mar.sh en2de_model
 $ ./create_mar.sh en2fr_model
 
-$ cd $TORCH_SERVE_DIR/examples/Workflows/nmt_tranformers_pipeline/
+$ cd $TORCH_SERVE_DIR/examples/Workflows/nmt_transformers_pipeline/
 $ mkdir model_store wf_store
 $ mv $TORCH_SERVE_DIR/examples/nmt_transformer/model_store/*.mar model_store/
 $ torch-workflow-archiver -f --workflow-name nmt_wf_dual --spec-file nmt_workflow_dualtranslation.yaml --handler nmt_workflow_handler_dualtranslation.py --export-path wf_store/
