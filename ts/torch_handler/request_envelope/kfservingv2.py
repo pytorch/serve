@@ -44,12 +44,33 @@ def _to_datatype(dtype: np.dtype) -> str:
 
 
 class KFservingv2Envelope(BaseEnvelope):
-    """
-    Implementation. Captures batches in KFServing v2 protocol format, returns
+    """Implementation. Captures batches in KFServing v2 protocol format, returns
     also in FServing v2 protocol format.
     """
 
     def parse_input(self, data):
+        """Translates KFServing request input to list of data expected by Torchserve.
+        
+        Parameters:
+        data (json): KFServing v2 request input json.
+        {
+          "inputs": [{
+            "name": "input-0",
+            "shape": [37],
+            "datatype": "INT64",
+            "data": [66, 108, 111, 111, 109]
+          }]
+        }
+        
+        Returns: list of data objects.
+        [{
+        'name': 'input-0',
+        'shape': [5],
+        'datatype': 'INT64',
+        'data': [66, 108, 111, 111, 109]
+        }] 
+
+        """
         logger.info("Parsing input in KFServing v2 format %s", data)
         inputs = self._batch_from_json(data)
         logger.info("KFServingv2 parsed inputs %s", inputs)
@@ -70,13 +91,32 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         # If the KF Transformer and Explainer sends in data as bytesarray
         if isinstance(body_list, (bytes, bytearray)):
-            inputs = body_list.decode()
-            inputs = json.loads(body_list)
-            logger.info("Bytes array is %s", inputs)
-        data_list = [row for row in inputs.get("inputs")]
+            body_list = body_list.decode()
+            body_list = json.loads(body_list)
+            logger.info("Bytes array is %s", body_list)
+        data_list = [row for row in body_list.get("inputs")]
         return data_list
 
     def format_output(self, data):
+        """Translates Torchserve output KFServing v2 response format.
+        
+        Parameters:
+        data (list): Torchserve response for handler.
+
+        Returns: KFServing v2 response json.
+        {
+          "id": "f0222600-353f-47df-8d9d-c96d96fa894e",
+          "model_name": "bert",
+          "model_version": "1",
+          "outputs": [{
+            "name": "predict",
+            "shape": [1],
+            "datatype": "INT64",
+            "data": [2]
+          }]
+        }
+        
+        """
         logger.info("The Response of KFServing v2 format %s", data)
         response = {}
         response["id"] = self.context.get_request_id(0)
@@ -101,13 +141,10 @@ class KFservingv2Envelope(BaseEnvelope):
         Constructs JSON object from data
         """
         output_data = {}
-        if isinstance(data, str):
-            data_ndarray = np.array(list(data.encode()))
-        else:
-            data_ndarray = np.array(data)
+        data_ndarray = np.array(data)
         output_data["name"] = "explain" if self.context.get_request_header(
             0, "explain") == "True" else "predict"
-        output_data["shape"] = data_ndarray.shape
+        output_data["shape"] = list(data_ndarray.shape)
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
         output_data["data"] = data_ndarray.flatten().tolist()
         return output_data
