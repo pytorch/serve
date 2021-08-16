@@ -4,6 +4,12 @@ The documentation covers the steps to run Torchserve inside the KFServing enviro
 
 Currently, KFServing supports the Inference API for all the existing models but text to speech synthesizer and it's explain API works for the eager models of MNIST,BERT and text classification only.
 
+### Docker Image Dev Build
+
+```
+DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:latest-dev .
+```
+
 ### Docker Image Building
 
 For CPU Image
@@ -24,9 +30,9 @@ docker push pytorch/torchserve-kfs:latest
 
 Individual Readmes for KFServing :
 
-* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
-* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md)
-* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md)
+* [BERT](./examples/Huggingface_readme.md)
+* [Text Classifier](./examples/text_classifier_readme.md)
+* [MNIST](./examples/mnist_readme.md)
 
 Please follow the below steps to deploy Torchserve in Kubeflow Cluster as kfpredictor:
 
@@ -36,19 +42,28 @@ Run the below command inside the serve folder
 ```bash
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
-For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation). 
+For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](./examples/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](./examples/text_classifier_readme.md#mar-file-creation). 
 
 
 * Step - 2 : Create a config.properties file and place the contents like below:
 
 ```bash
- inference_address=http://0.0.0.0:8085
- management_address=http://0.0.0.0:8081
- number_of_netty_threads=4
- service_envelope=kfserving
- job_queue_size=10
- model_store=/mnt/models/model-store
- model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"<model_name>":{"1.0":{"defaultVersion":true,"marName":"<name of the mar file.>","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
+inference_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8085
+metrics_address=http://0.0.0.0:8082
+grpc_inference_port=7070
+grpc_management_port=7071
+enable_envvars_config=true
+install_py_dep_per_model=true
+enable_metrics_api=true
+metrics_format=prometheus
+NUM_WORKERS=1
+number_of_netty_threads=4
+job_queue_size=10
+service_envelope=kfserving
+# service_envelope=kfservingv2
+model_store=/mnt/models/model-store
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"<model_name>":{"1.0":{"defaultVersion":true,"marName":"<name of the mar file.>","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
 ```
 
 
@@ -186,14 +201,15 @@ This shows the service is ready for inference:
 NAME         URL                                            READY   AGE
 torch-pred   http://torch-pred.kfserving-test.example.com   True    39m
 ```
+* For v1 protocol
 
-* Step - 7 : Hit the Curl Request to make a prediction as below :
+* The Curl Request to make a prediction as below :
 
-Navigate to serve/kubernetes/kfserving/
+Navigate to serve/kubernetes/kfserving/kf_request_json
 
 The image file can be converted into string of bytes array by running  
 ``` 
-python img2bytearray.py <imagefile>
+python v1/img2bytearray.py <imagefile>
 ```
 
 The JSON Input content is as below :
@@ -226,7 +242,7 @@ The response is as below :
 }
 ```
 
- * Step - 8 : Hit the Curl Request to make an explanation as below:
+ * The Curl Request to make an explanation as below:
 
 
 ```bash
@@ -269,8 +285,97 @@ The response is as below :
 }
 ```
 
+* For v2 protocol
+
+* The Curl Request to make a prediction as below :
+
+Navigate to serve/kubernetes/kfserving/kf_request_json
+
+The input image and text files can be converted to tensor using totensor.py file
+
+``` 
+python v2/totensor.py <inputfile>
+```
+
+The JSON Input content is as below :
+
+```json
+{
+  "inputs": [{
+    "name": "a5c32978-fe42-4af0-a1c6-7dded82d12aa",
+    "shape": [37],
+    "datatype": "INT64",
+    "data": [66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114, 101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32, 101, 99, 111, 110, 111, 109, 121]
+  }]
+}
+```
+
+```bash
+DEPLOYMENT_NAME=torch-pred
+SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
+ -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
+
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
+```
+
+The response is as below :
+
+```json
+{
+  "id": "87522347-c21c-4904-9bd3-f6d3ddcc06b0",
+  "model_name": "mnist",
+  "model_version": "1.0",
+  "outputs": [{
+    "name": "predict",
+    "shape": [1],
+    "datatype": "INT64",
+    "data": [1]
+  }]
+}
+```
+
+ * The Curl Request to make an explanation as below:
+
+
+```bash
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:explain -d @./input.json
+```
+
+The JSON Input content is as below :
+
+```json
+{
+  "inputs": [{
+    "name": "a5c32978-fe42-4af0-a1c6-7dded82d12aa",
+    "shape": [37],
+    "datatype": "INT64",
+    "data": [66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114, 101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32, 101, 99, 111, 110, 111, 109, 121]
+  }]
+}
+```
+
+The response is as below :
+```json
+{
+  "id": "3482b766-0483-40e9-84b0-8ce8d4d1576e",
+  "model_name": "mnist",
+  "model_version": "1.0",
+  "outputs": [{
+    "name": "explain",
+    "shape": [1, 28, 28],
+    "datatype": "FP64",
+    "data": [-0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, -0.0, -0.0, 0.0, -0.0, 0.0
+    ...
+    ...
+    ]
+  }]
+}
+```
+
 KFServing supports Static batching by adding new examples in the instances key of the request json.
 But the batch size should still be set at 1, when we register the model. Explain doesn't support batching. 
+
+For v1 protocol
 
 ```json
 {
@@ -285,7 +390,27 @@ But the batch size should still be set at 1, when we register the model. Explain
 }
 ```
 
-For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
+For v2 protocol
+
+```json
+{
+  "inputs": [{
+    "name": "a5c32978-fe42-4af0-a1c6-7dded82d12aa",
+    "shape": [37],
+    "datatype": "INT64",
+    "data": [66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114, 101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32, 101, 99, 111, 110, 111, 109, 121]
+  },
+  {
+    "name": "a5c32978-fe42-4af0-a1c6-7dded82d12ab",
+    "shape": [37],
+    "datatype": "INT64",
+    "data": [66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114, 101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32, 101, 99, 111, 110, 111, 109, 121]
+  }]
+}
+```
+
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](./examples/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](./examples/text_classifier_readme.md#mar-file-creation).
+
 
 ### Troubleshooting guide for KFServing :
 

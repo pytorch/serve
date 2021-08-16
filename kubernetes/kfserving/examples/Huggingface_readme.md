@@ -21,16 +21,27 @@ torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serializ
 To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
-```
-inference_address=http://127.0.0.0:8085
-management_address=http://127.0.0.0:8081
-number_of_netty_threads=4
-service_envelope=kfserving
-job_queue_size=10
-model_store=model-store
 
+```bash
+inference_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8085
+metrics_address=http://0.0.0.0:8082
+grpc_inference_port=7070
+grpc_management_port=7071
+enable_envvars_config=true
+install_py_dep_per_model=true
+enable_metrics_api=true
+metrics_format=prometheus
+NUM_WORKERS=1
+number_of_netty_threads=4
+job_queue_size=10
+service_envelope=kfserving
+# service_envelope=kfservingv2
+model_store=/mnt/models/model-store
 ```
-The service_envelope=kfserving setting is needed when deploying models on KFServing
+
+The 
+```service_envelope=kfserving``` or ```service_envelope=kfservingv2``` config is needed when deploying models on KFServing
 
 * start Torchserve by invoking the below command:
 ```
