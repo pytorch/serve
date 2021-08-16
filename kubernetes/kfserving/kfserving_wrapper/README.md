@@ -56,30 +56,45 @@ sudo  mkdir -p /mnt/models/model-store
 
 * Step 8: Move the model to /mnt/models/model-store
 
-* Step 9: Move the config.properties to /mnt/models/config/.
+* Step 9: Set service_envelope in config.properties to switch between kfserving v1 and v2 protocols
+
+For v1 protocol
+
+```service_envelope=kfserving```
+
+For v2 protocol
+
+```service_envelope=kfservingv2```
+
+* Step 10: Move the config.properties to /mnt/models/config/.
 The config.properties file is as below :
 ```bash
 inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8081
+management_address=http://0.0.0.0:8085
 metrics_address=http://0.0.0.0:8082
+grpc_inference_port=7070
+grpc_management_port=7071
+enable_envvars_config=true
+install_py_dep_per_model=true
 enable_metrics_api=true
 metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
 service_envelope=kfserving
+# service_envelope=kfservingv2
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
 
-* Step 10: Run the below command to start the KFServer
+* Step 11: Run the below command to start the KFServer
 ```bash
 python3 serve/kubernetes/kfserving/kfserving_wrapper/__main__.py
 ```
 
 Output:
 ```bash
-[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//0.0.0.0:8085, management address http://0.0.0.0:8081, model store /mnt/models/model-store
+[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//0.0.0.0:8085, management address http://0.0.0.0:8085, model store /mnt/models/model-store
 [I 201211 18:29:29 TorchserveModel:48] kfmodel Predict URL set to 0.0.0.0:8085
 [I 201211 18:29:29 TorchserveModel:50] kfmodel Explain URL set to 0.0.0.0:8085
 [I 201211 18:29:29 TSModelRepository:26] TSModelRepo is initialized
@@ -89,14 +104,16 @@ Output:
 ```
 
 
-* Step 11: Start torchserve using config.properties in /mnt/models/config/
+* Step 12: Start torchserve using config.properties in /mnt/models/config/
 ```bash
 torchserve --start --ts-config /mnt/models/config/config.properties
 ```
 Please note that Model runs at 8085,KFserving at 8080.The request first comes to the KFServing Wrapper at 8080 in turn requests the torchserve at 8085. So our request should be made at 8080.
 
 
-* Step 12: The curl request for inference is as below:
+For v1 protocol
+
+The curl request for inference is as below:
 ```bash
 curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
 ```
@@ -105,7 +122,7 @@ Output:
 {"predictions": [2]}
 ```
 
-* Step 13: The curl request for explain is as below:
+The curl request for explain is as below:
 ```
 curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:explain
 ```
@@ -118,21 +135,54 @@ Output:
 }
 ```
 
-Outputs in KFServing after the request:
+For v2 protocol
+
+The curl request for inference is as below:
+
 ```bash
-[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//0.0.0.0:8085, management address http://0.0.0.0:8081, model store /mnt/models/model-store
-[I 201211 18:29:29 TorchserveModel:48] kfmodel Predict URL set to 0.0.0.0:8085
-[I 201211 18:29:29 TorchserveModel:50] kfmodel Explain URL set to 0.0.0.0:8085
-[I 201211 18:29:29 TSModelRepository:26] TSModelRepo is initialized
-[I 201211 18:29:29 kfserver:115] Registering model: mnist
-[I 201211 18:29:29 kfserver:96] Listening on port 8080
-[I 201211 18:29:29 kfserver:98] Will fork 1 workers
-[I 201211 18:53:42 TorchserveModel:72] PREDICTOR_HOST : 0.0.0.0:8085
-[I 201211 18:53:43 web:2239] 200 POST /v1/models/mnist:predict (127.0.0.1) 229.43ms
-[I 201211 18:57:42 TorchserveModel:72] PREDICTOR_HOST : 0.0.0.0:8085
-[I 201211 18:57:42 web:2239] 200 POST /v1/models/mnist:predict (127.0.0.1) 229.58ms
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist_v2.json http://0.0.0.0:8080/v2/models/mnist/infer
 ```
 
+Response:
+
+```json
+{
+  "id": "87522347-c21c-4904-9bd3-f6d3ddcc06b0",
+  "model_name": "mnist",
+  "model_version": "1.0",
+  "outputs": [{
+    "name": "predict",
+    "shape": [1],
+    "datatype": "INT64",
+    "data": [1]
+  }]
+}
+```
+
+The curl request for explain is as below:
+
+```
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v2/models/mnist/explain
+```
+
+Response:
+
+```json
+{
+  "id": "3482b766-0483-40e9-84b0-8ce8d4d1576e",
+  "model_name": "mnist",
+  "model_version": "1.0",
+  "outputs": [{
+    "name": "explain",
+    "shape": [1, 28, 28],
+    "datatype": "FP64",
+    "data": [-0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, -0.0, -0.0, 0.0, -0.0, 0.0
+    ...
+    ...
+    ]
+  }]
+}
+```
 ## KFServing Wrapper Testing in Local for BERT
 
 * Step 1: Follow the same steps from to 10 as what was done for MNIST.
@@ -140,14 +190,19 @@ Outputs in KFServing after the request:
 * Step 2: Use this config.properties- Change the mode_snaphot to bert
 ```bash
 inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8081
+management_address=http://0.0.0.0:8085
 metrics_address=http://0.0.0.0:8082
+grpc_inference_port=7070
+grpc_management_port=7071
+enable_envvars_config=true
+install_py_dep_per_model=true
 enable_metrics_api=true
 metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
 service_envelope=kfserving
+# service_envelope=kfservingv2
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"bert":{"1.0":{"defaultVersion":true,"marName":"bert.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
@@ -161,12 +216,30 @@ python3 serve/kubernetes/kfserving/kfserving_wrapper/__main__.py
 torchserve --start --ts-config /mnt/models/config/config.properties
 ```
 
-* Step 5: The curl request for inference is as below:
+For v1 protocol
+
+The curl request for inference is as below:
+
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://0.0.0.0:8080/v1/models/bert:predict
 ```
 
-* Step 6: The curl request for Explain is as below:
+The curl request for Explain is as below:
+
 ```bash
 curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://0.0.0.0:8080/v1/models/bert:explain
+```
+
+For v2 protocol
+
+The curl request for inference is as below:
+
+```bash
+curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://0.0.0.0:8080/v2/models/bert/infer
+```
+
+The curl request for Explain is as below:
+
+```bash
+curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/bert.json http://0.0.0.0:8080/v2/models/bert/explain
 ```
