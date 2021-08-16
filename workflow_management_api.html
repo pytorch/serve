@@ -317,7 +317,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">url</span></code> - Workflow archive download url. Supports the following locations:</p>
 <ul>
 <li><p>a local workflow archive (.war); the file must be in the <code class="docutils literal notranslate"><span class="pre">workflow_store</span></code> folder (and not in a subfolder).</p></li>
-<li><p>a URI using the HTTP(s) protocol. TorchServe can download .war files from the Internet.</p></li>
+<li><p>a URI using the HTTP(s) protocol. TorchServe can download <code class="docutils literal notranslate"><span class="pre">.war</span></code> files from the Internet.</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">workflow_name</span></code> - the name of the workflow; this name will be used as {workflow_name} in other APIs as part of the path. If this parameter is not present, <code class="docutils literal notranslate"><span class="pre">modelName</span></code> in MANIFEST.json will be used.</p></li>
@@ -334,7 +334,7 @@
 <section id="describe-workflow">
 <h2>Describe workflow<a class="headerlink" href="#describe-workflow" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
-<p>Use the Describe Wofkflow API to get detail of a workflow:</p>
+<p>Use the Describe Workflow API to get detail of a workflow:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/workflows/myworkflow
 <span class="o">[</span>
   <span class="o">{</span>

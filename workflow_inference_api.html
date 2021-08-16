@@ -310,9 +310,7 @@
 <section id="predictions-api">
 <h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
 <p>To get predictions from a workflow, make a REST call to <code class="docutils literal notranslate"><span class="pre">/wfpredict/{workflow_name}</span></code>:</p>
-<ul class="simple">
-<li><p>POST /wfpredict/{workflow_name}</p></li>
-</ul>
+<p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/wfpredict/{workflow_name}</span></code></p>
 <section id="curl-example">
 <h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
@@ -320,7 +318,7 @@
 curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
 </pre></div>
 </div>
-<p>The result is JSON object returning the response bytes from the leaf node of the workflow DAG</p>
+<p>The result is JSON object returning the response bytes from the leaf node of the workflow DAG.</p>
 </section>
 </section>
 </section>

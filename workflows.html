@@ -227,10 +227,15 @@
 <li><a class="reference internal" href="#workflow-model-properties">Workflow model properties</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a></li>
+<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a><ul>
+<li><a class="reference internal" href="#sequential-dag">Sequential DAG</a></li>
+<li><a class="reference internal" href="#parallel-dag">Parallel DAG</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#handler-file">Handler file</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#related-docs">Related docs</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
 </div>
@@ -306,12 +311,18 @@
               
   <section id="torchserve-workflows">
 <h1>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe can be used for serving ensemble of models &amp; functions (python) through Workflow APIs.</p>
+<p>TorchServe can be used for serving ensemble of Pytorch models packaged as mar files and Python functions through Workflow APIs.</p>
 <p>It utilizes <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> for workflow management and predictions.</p>
 <p>A Workflow is served on TorchServe using a workflow-archive(.war) which comprises of following:</p>
 <section id="workflow-specification-file">
 <h2>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this headline">¶</a></h2>
 <p>A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.</p>
+<p>The YAML file is split into a few sections</p>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">models</span></code> which include global model parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m1,m2,m3</span></code> all the relevant model parameters which would override the global model params</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dag</span></code> which describes the structure of the workflow, which nodes feed into which other nodes</p></li>
+</ol>
 <p>E.g.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
     <span class="c1">#global model params</span>
@@ -403,6 +414,8 @@
 <section id="workflow-dag">
 <h2>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this headline">¶</a></h2>
 <p>User can define the dataflow of a workflow using the <code class="docutils literal notranslate"><span class="pre">dag</span></code> section of the workflow specification. The <code class="docutils literal notranslate"><span class="pre">dag</span></code> consists of the model names defined in the <code class="docutils literal notranslate"><span class="pre">model</span></code> section and python function names which are implemented in the workflow-archive’s handler file.</p>
+<section id="sequential-dag">
+<h3>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this headline">¶</a></h3>
 <p>Eg.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">function1</span> <span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">]</span>
@@ -410,17 +423,35 @@
   <span class="n">model2</span> <span class="p">:</span> <span class="p">[</span><span class="n">function2</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>In the above example the data will flow as follows:</p>
+<p>Which maps to this data flow</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span> <span class="o">-&gt;</span> <span class="n">function1</span> <span class="o">-&gt;</span> <span class="n">model1</span> <span class="o">-&gt;</span> <span class="n">model2</span> <span class="o">-&gt;</span> <span class="n">function2</span> <span class="o">-&gt;</span> <span class="n">output</span>
 </pre></div>
 </div>
+</section>
+<section id="parallel-dag">
+<h3>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this headline">¶</a></h3>
+<p>E.g</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
+  <span class="n">pre_processing</span><span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>
+  <span class="n">model1</span><span class="p">:</span> <span class="p">[</span><span class="n">aggregate_func</span><span class="p">]</span>
+  <span class="n">model2</span><span class="p">:</span> <span class="p">[</span><span class="n">aggregate_func</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Which maps to this data flow</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                          <span class="n">model1</span>
+                         <span class="o">/</span>       \
+<span class="nb">input</span> <span class="o">-&gt;</span> <span class="n">preprocessing</span> <span class="o">-&gt;</span>         <span class="o">-&gt;</span> <span class="n">aggregate_func</span>
+                         \       <span class="o">/</span>
+                          <span class="n">model2</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="handler-file">
 <h2>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this headline">¶</a></h2>
 <p>A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.</p>
 <p>Eg.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-<span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">pass</span>
 
 <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -429,19 +460,22 @@
 </div>
 </section>
 </section>
+<section id="related-docs">
+<h1>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="workflow_inference_api.html"><span class="doc">workflow_inference_api.md</span></a></p></li>
+<li><p><a class="reference internal" href="workflow_management_api.html"><span class="doc">workflow_management_api.md</span></a></p></li>
+</ul>
+</section>
 <section id="known-issues">
 <h1>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p><strong>Each workflow dag node (model/function) will receive input as bytes</strong></p></li>
-<li><p><strong>Workflow scale/updates is not supported through APIs. User will need to unregister the workflow and re-register with the required changes</strong></p></li>
-<li><p><strong>Each workflow dag node (model/function) will receive input as bytes</strong></p></li>
-<li><p><strong>Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors</strong></p></li>
-<li><p><strong>Specifying Input or output per workflow model is not supported</strong></p></li>
-<li><p><strong>Snapshots are not supported for workflows and related models are not captured in the workflow</strong></p></li>
-<li><p><strong>Workflow versioning is not supported</strong></p></li>
-<li><p><strong>Workflows registration having public model URL with mar file names which are already registered will fail.</strong></p></li>
-<li><p><strong>There is no validation in place to check if the function names provided in DAG are available in the handler supplied in the workflow archive.</strong></p></li>
-<li><p><strong>Workflow models can be currently accessed and modified through model management APIs</strong></p></li>
+<li><p>Each workflow dag node (model/function) will receive input as bytes</p></li>
+<li><p>Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors</p></li>
+<li><p>Workflow scale/updates is not supported through APIs. User will need to unregister the workflow and re-register with the required changes</p></li>
+<li><p>Snapshots are not supported for workflows and related models are not captured in the workflow</p></li>
+<li><p>Workflow versioning is not supported</p></li>
+<li><p>Workflows registration having public model URL with mar file names which are already registered will fail.</p></li>
 </ul>
 </section>
 
@@ -485,10 +519,15 @@
 <li><a class="reference internal" href="#workflow-model-properties">Workflow model properties</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a></li>
+<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a><ul>
+<li><a class="reference internal" href="#sequential-dag">Sequential DAG</a></li>
+<li><a class="reference internal" href="#parallel-dag">Parallel DAG</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#handler-file">Handler file</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#related-docs">Related docs</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
 
