@@ -10,7 +10,7 @@ The TorchServe server supports the following APIs:
 
 To get predictions from a workflow, make a REST call to `/wfpredict/{workflow_name}`:
 
-* POST /wfpredict/{workflow_name}
+`POST /wfpredict/{workflow_name}`
 
 ### curl Example
 
@@ -20,4 +20,4 @@ curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitte
 curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
 ```
 
-The result is JSON object returning the response bytes from the leaf node of the workflow DAG
+The result is JSON object returning the response bytes from the leaf node of the workflow DAG.
