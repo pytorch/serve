@@ -56,7 +56,7 @@ In the Docker CLI execute the following cmds.
 
 ```
 apt-get update 
-apt-get install -y git wget sudo 
+apt-get install -y git wget sudo curl
 git clone https://github.com/pytorch/serve
 cd serve 
 git checkout <branch_name>
