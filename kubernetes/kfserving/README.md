@@ -60,8 +60,6 @@ metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
-service_envelope=kfserving
-# service_envelope=kfservingv2
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"<model_name>":{"1.0":{"defaultVersion":true,"marName":"<name of the mar file.>","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
 ```
@@ -180,6 +178,7 @@ metadata:
 spec:
   predictor:
     pytorch:
+      protocol: v1  # Set protocol to v2 for kfserving v2 protocol 
       storageUri: "pvc://model-pv-claim"
 ```
 

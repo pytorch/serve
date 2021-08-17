@@ -76,14 +76,14 @@ The config.properties file is as below:
 
 ```bash
 inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8081
+management_address=http://0.0.0.0:8085
 metrics_address=http://0.0.0.0:8082
 enable_metrics_api=true
 metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
-service_envelope=kfserving
+enable_envvars_config=true
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
@@ -104,6 +104,12 @@ python3 -m image_transformer --predictor_host 0.0.0.0:8085
 ```
 The transformer will hit the predictor host after pre-processing.
 The predictor host is the inference url of torchserve.
+
+* Set service envelope environment variable
+
+The 
+```export TS_SERVICE_ENVELOPE=kfserving``` or ```TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between
+KFServing v1 and v2 protocols
 
 * Start torchserve using config.properties in /mnt/models/config/
 ```
