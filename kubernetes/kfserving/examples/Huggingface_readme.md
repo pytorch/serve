@@ -35,13 +35,14 @@ metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
-service_envelope=kfserving
-# service_envelope=kfservingv2
 model_store=/mnt/models/model-store
 ```
 
+* Set service envelope environment variable
+
 The 
-```service_envelope=kfserving``` or ```service_envelope=kfservingv2``` config is needed when deploying models on KFServing
+```export TS_SERVICE_ENVELOPE=kfserving``` or ```TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between
+KFServing v1 and v2 protocols
 
 * start Torchserve by invoking the below command:
 ```

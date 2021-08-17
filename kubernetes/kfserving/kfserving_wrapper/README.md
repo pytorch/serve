@@ -60,11 +60,11 @@ sudo  mkdir -p /mnt/models/model-store
 
 For v1 protocol
 
-```service_envelope=kfserving```
+````export TS_SERVICE_ENVELOPE=kfserving```
 
 For v2 protocol
 
-```service_envelope=kfservingv2```
+````export TS_SERVICE_ENVELOPE=kfservingv2```
 
 * Step 10: Move the config.properties to /mnt/models/config/.
 The config.properties file is as below :
@@ -81,8 +81,6 @@ metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
-service_envelope=kfserving
-# service_envelope=kfservingv2
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
@@ -201,8 +199,6 @@ metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
-service_envelope=kfserving
-# service_envelope=kfservingv2
 model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"bert":{"1.0":{"defaultVersion":true,"marName":"bert.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```

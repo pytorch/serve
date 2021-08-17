@@ -43,7 +43,7 @@ POSTMAN_COLLECTION_EXPLANATION = os.path.join("postman", "explanation_api_test_c
 POSTMAN_COLLECTION_HTTPS = os.path.join("postman", "https_test_collection.json")
 
 
-### KFserving
+### KFServing v1 protocol
 ARTIFACTS_MANAGEMENT_DIR_KF = os.path.join("artifacts", "management_kf")
 ARTIFACTS_INFERENCE_DIR_KF = os.path.join("artifacts", "inference_kf")
 ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR_KF = os.path.join("artifacts", "increased_timeout_inference_kf")
@@ -57,6 +57,21 @@ POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE_KF = os.path.join("postman", "increas
 POSTMAN_COLLECTION_INFERENCE_KF = os.path.join("postman", "kf_api_test_collection.json")
 
 POSTMAN_COLLECTION_HTTPS_KF = os.path.join("postman", "kf_https_test_collection.json")
+
+### KFServing v2 protocol
+ARTIFACTS_MANAGEMENT_DIR_KF = os.path.join("artifacts", "management_kfv2")
+ARTIFACTS_INFERENCE_DIR_KF = os.path.join("artifacts", "inference_kfv2")
+ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR_KF = os.path.join("artifacts", "increased_timeout_inference_kfv2")
+ARTIFACTS_HTTPS_DIR_KF = os.path.join("artifacts", "https_kfv2")
+
+TS_CONFIG_FILE_HTTPS_KFV2 = os.path.join("resources", "config_kfv2.properties")
+
+POSTMAN_INFERENCE_DATA_FILE_KF = os.path.join("postman", "kfv2_inference_data.json")
+POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE_KF = os.path.join("postman", "increased_timeout_inference.json")
+
+POSTMAN_COLLECTION_INFERENCE_KF = os.path.join("postman", "kfv2_api_test_collection.json")
+
+POSTMAN_COLLECTION_HTTPS_KF = os.path.join("postman", "kfv2_https_test_collection.json")
 
 REPORT_FILE = os.path.join("report.html")
 
@@ -190,6 +205,45 @@ def trigger_https_tests_kf():
     cleanup_model_store()
     return EXIT_CODE
 
+def trigger_management_tests_kfv2():
+    """ Return exit code of newman execution of management collection """
+    
+    config_file = open("config.properties", "w")
+    config_file.write("service_envelope=kfserving")
+    config_file.close()
+
+    ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, config_file="config.properties", log_file=TS_CONSOLE_LOG_FILE)
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,html --reporter-html-export {ARTIFACTS_MANAGEMENT_DIR_KF}/{REPORT_FILE} --verbose")
+    ts.stop_torchserve()
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR_KF)
+    cleanup_model_store()
+    os.remove("config.properties")
+    return EXIT_CODE
+
+def trigger_inference_tests_kfv2():
+    """ Return exit code of newman execution of inference collection """
+
+    config_file = open("config.properties", "w")
+    config_file.write("service_envelope=kfserving")
+    config_file.close()
+
+    ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, config_file="config.properties", log_file=TS_CONSOLE_LOG_FILE)
+    EXIT_CODE = os.system(f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE_KF} -d {POSTMAN_INFERENCE_DATA_FILE_KF} -r cli,html --reporter-html-export {ARTIFACTS_INFERENCE_DIR_KF}/{REPORT_FILE} --verbose")
+    ts.stop_torchserve()
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR_KF)
+    cleanup_model_store()
+    os.remove("config.properties")
+    return EXIT_CODE
+
+
+def trigger_https_tests_kfv2():
+    """ Return exit code of newman execution of https collection """
+    ts.start_torchserve(ncs=True, model_store=MODEL_STORE_DIR, config_file=TS_CONFIG_FILE_HTTPS_KF, log_file=TS_CONSOLE_LOG_FILE)
+    EXIT_CODE = os.system(f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS_KF} -r cli,html --reporter-html-export {ARTIFACTS_HTTPS_DIR_KF}/{REPORT_FILE} --verbose")
+    ts.stop_torchserve()
+    move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR_KF)
+    cleanup_model_store()
+    return EXIT_CODE
 
 def trigger_all():
     exit_code1 = trigger_management_tests()
@@ -199,10 +253,13 @@ def trigger_all():
     exit_code5 = trigger_management_tests_kf()
     exit_code6 = trigger_inference_tests_kf()
     exit_code7 = trigger_https_tests_kf()
-    exit_code8 = trigger_explanation_tests()
-    exit_code9 = trigger_workflow_tests()
-    exit_code10 = trigger_workflow_inference_tests()
-    return 1 if any(code != 0 for code in [exit_code1, exit_code2, exit_code3, exit_code4, exit_code5, exit_code6, exit_code7, exit_code8, exit_code9, exit_code10]) else 0
+    exit_code8 = trigger_management_tests_kfv2()
+    exit_code9 = trigger_inference_tests_kfv2()
+    exit_code10 = trigger_https_tests_kfv2()
+    exit_code11 = trigger_explanation_tests()
+    exit_code12 = trigger_workflow_tests()
+    exit_code13 = trigger_workflow_inference_tests()
+    return 1 if any(code != 0 for code in [exit_code1, exit_code2, exit_code3, exit_code4, exit_code5, exit_code6, exit_code7, exit_code8, exit_code9, exit_code10, exit_code11, exit_code12, exit_code13]) else 0
 
 
 def test_api(collection):
@@ -218,12 +275,15 @@ def test_api(collection):
     switcher = {
         "management": trigger_management_tests,
         "management_kf": trigger_management_tests_kf,
+        "management_kf": trigger_management_tests_kf,
         "inference": trigger_inference_tests,
-        "inference_kf": trigger_inference_tests_kf,
+        "inference_kfv2": trigger_inference_tests_kfv2,
+        "inference_kfv2": trigger_inference_tests_kfv2,
         "explanation": trigger_explanation_tests,
         "increased_timeout_inference": trigger_incr_timeout_inference_tests,
         "https": trigger_https_tests,
         "https_kf": trigger_https_tests_kf,
+        "https_kfv2": trigger_https_tests_kfv2,
         "all": trigger_all
     }
 
