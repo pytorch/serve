@@ -88,6 +88,7 @@
 2. Edit `upload.py` to change the CONDA_USER if necessary
 3. Run the following commands to build the packages, and then upload them to staging repos
    ```
+   python3 ts_scripts/install_dependencies.py --environment=dev
    python3 binaries/conda/build_packages.py --install-conda-dependencies
    exec bash
    python3 binaries/build.py
