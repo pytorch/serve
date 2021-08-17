@@ -15,10 +15,6 @@ from binaries.conda.build_packages import conda_build, install_miniconda, instal
 
 def build():
     
-    ts_setup_file = glob.glob(os.path.join(REPO_ROOT, "setup.py"))[0]
-    ma_setup_file = glob.glob(os.path.join(REPO_ROOT, "model-archiver","setup.py"))[0]
-    wa_setup_file = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver","setup.py"))[0]
-   
     print("## Started torchserve, model-archiver and workflow-archiver build")
     create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
 
