@@ -82,6 +82,8 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         logger.info("Parse input data %s", rows)
         body_list = rows[0].get("body") or rows[0].get("data")
+        if "id" in body_list:
+            setattr(self.context, "input_request_id", body_list["id"])
         data_list = self._from_json(body_list)
         return data_list
 
@@ -120,6 +122,9 @@ class KFservingv2Envelope(BaseEnvelope):
         logger.info("The Response of KFServing v2 format %s", data)
         response = {}
         response["id"] = self.context.get_request_id(0)
+        if hasattr(self.context, "input_request_id"):
+            response["id"] = getattr(self.context, "input_request_id")
+            delattr(self.context, "input_request_id")
         response["model_name"] = self.context.manifest.get("model").get(
             "modelName")
         response["model_version"] = self.context.manifest.get("model").get(
