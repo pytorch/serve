@@ -1,22 +1,18 @@
-Faster Transformer 
+## Faster Transformer 
 
 Batch inferencing with Transformers faces two challenges
 
 - Large batch sizes suffer from higher latency and small or medium-sized batches this will become kernel latency launch bound. 
 - Padding wastes a lot of compute, (batchsize, seq_length) requires to pad the sequence to (batchsize, max_length) where difference between avg_length and max_length results in a considerable waste of computation, increasing the batch size worsen this situation.
 
-[Faster Transformers](https://github.com/NVIDIA/FasterTransformer/blob/main/sample/pytorch/run_glue.py) (FT) from Nvidia along with [Efficient Transformers](https://github.com/bytedance/effective_transformer) (EFFT) address the above two challenges, by fusing the CUDA kernels and dynamically removing padding during computations. The current implementation from [Faster Transformers](https://github.com/NVIDIA/FasterTransformer/blob/main/sample/pytorch/run_glue.py) support BERT like encoder and decoder layers. In this example, we show the following
-
-- How to get a Torchsctipted (traced) EFFT variant of Bert models from HuggingFace (HF) for sequence classification and question answering.
-- How to serve the Torchscripted EFFT model with Torchserve.
+[Faster Transformers](https://github.com/NVIDIA/FasterTransformer/blob/main/sample/pytorch/run_glue.py) (FT) from Nvidia along with [Efficient Transformers](https://github.com/bytedance/effective_transformer) (EFFT) that is built on top of FT address the above two challenges, by fusing the CUDA kernels and dynamically removing padding during computations. The current implementation from [Faster Transformers](https://github.com/NVIDIA/FasterTransformer/blob/main/sample/pytorch/run_glue.py) support BERT like encoder and decoder layers. In this example, we show how to get a Torchsctipted (traced) EFFT variant of Bert models from HuggingFace (HF) for sequence classification and question answering and serve it.
 
 
-
-### How to get a Torchsctipted (traced) EFFT of HF Bert model and serving it
+### How to get a Torchsctipted (Traced) EFFT of HF Bert model and serving it
 
 **Requirements** 
 
-Running Faster Transformer at this point is recommended through [NVIDIA docker and NGC container](https://github.com/NVIDIA/FasterTransformer#requirements), also it requires [Volta](https://www.nvidia.com/en-us/data-center/volta-gpu-architecture/) or [Turing](https://www.nvidia.com/en-us/geforce/turing/) or [Ampere](https://www.nvidia.com/en-us/data-center/nvidia-ampere-gpu-architecture/) based GPU.
+Running Faster Transformer at this point is recommended through [NVIDIA docker and NGC container](https://github.com/NVIDIA/FasterTransformer#requirements), also it requires [Volta](https://www.nvidia.com/en-us/data-center/volta-gpu-architecture/) or [Turing](https://www.nvidia.com/en-us/geforce/turing/) or [Ampere](https://www.nvidia.com/en-us/data-center/nvidia-ampere-gpu-architecture/) based GPU. For this example we have used a **g4dn.2xlarge** EC2 instance that has a T4 GPU.
 
 **Setup the a GPU machine that meets the requirements and connect to it**.
 
