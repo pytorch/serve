@@ -92,6 +92,12 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             } else if (segments[3].contains(":explain")) {
                 handleKFV1Predictions(ctx, req, segments, true);
             }
+        } else if (isKFV2InferenceReq(segments)) {
+            if (segments[4].equals("infer")) {
+                handleKFV2Predictions(ctx, req, segments, false);
+            } else if (segments[4].equals("explain")) {
+                handleKFV2Predictions(ctx, req, segments, true);
+            }
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
@@ -116,6 +122,13 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 && "v1".equals(segments[1])
                 && "models".equals(segments[2])
                 && (segments[3].contains(":predict") || segments[3].contains(":explain"));
+    }
+
+    private boolean isKFV2InferenceReq(String[] segments) {
+        return segments.length == 5
+                && "v2".equals(segments[1])
+                && "models".equals(segments[2])
+                && (segments[4].equals("infer") || segments[4].equals("explain"));
     }
 
     private void validatePredictionsEndpoint(String[] segments) {
@@ -151,6 +164,20 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleKFV1Predictions(
+            ChannelHandlerContext ctx, FullHttpRequest req, String[] segments, boolean explain)
+            throws ModelNotFoundException, ModelVersionNotFoundException {
+        String modelVersion = null;
+        String modelName = segments[3].split(":")[0];
+
+        req.headers().add("explain", "False");
+        if (explain) {
+            req.headers().add("explain", "True");
+        }
+
+        predict(ctx, req, null, modelName, modelVersion);
+    }
+
+    private void handleKFV2Predictions(
             ChannelHandlerContext ctx, FullHttpRequest req, String[] segments, boolean explain)
             throws ModelNotFoundException, ModelVersionNotFoundException {
         String modelVersion = null;
