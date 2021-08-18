@@ -71,13 +71,26 @@ cd /workspace/FasterTransformer/build/
 
 # This will generate the Traced model "traced_model.pt"
 # --data_type can be fp16 or fp32
-python pytorch/Bert_FT_trace.py --mode sequence_classification --model_name_or_path "/workspace//serve/examples/Huggingface_Transformers/Transformer_model" --tokenizer_name "bert-base-uncased" --per_gpu_eval_batch_size 1 --data_type fp16 --model_type thsext
+python pytorch/Bert_FT_trace.py --mode sequence_classification --model_name_or_path "/workspace//serve/examples/Huggingface_Transformers/Transformer_model" --tokenizer_name "bert-base-uncased" --batch_size 1 --data_type fp16 --model_type thsext
 
 cd - 
 
-# make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript"
+# make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript" and "FasterTransformer":true
 
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ./Transformer_FT_handler.py --extra-files "../Huggingface_Transformers/setup_config.json,./Seq_classification_artifacts/index_to_name.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
+# change the ../Huggingface_Transformers/setup_config.json
+{
+ "model_name":"bert-base-uncased",
+ "mode":"question_answering",
+ "do_lower_case":true,
+ "num_labels":"0",
+ "save_mode":"pretrained",
+ "max_length":"128",
+ "captum_explanation":false,
+ "embedding_name": "bert",
+ "FasterTransformer":true
+}
+
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ../Huggingface_Transformers/Transformer_handler_generalized.py --extra-files "../Huggingface_Transformers/setup_config.json,../Huggingface_Transformers/Seq_classification_artifacts/index_to_name.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
 
 mkdir model_store
 
@@ -85,10 +98,8 @@ mv BERTSeqClassification.mar model_store/
 
 torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ncs
 
-curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt
+curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ../Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt
 
-
-curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt
 ```
 
 #### Question answering EFFT Traced model and serving
@@ -104,8 +115,9 @@ curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Seq_classification_arti
  "num_labels":"0",
  "save_mode":"pretrained",
  "max_length":"128",
- "captum_explanation":true,
- "embedding_name": "bert"
+ "captum_explanation":false,
+ "embedding_name": "bert",
+ "FasterTransformer":true
 }
 python ../Huggingface_Transformers/Download_Transformer_models.py
 
@@ -115,13 +127,13 @@ cd /workspace/FasterTransformer/build/
 
 # This will generate the Traced model "traced_model.pt"
 # --data_type can be fp16 or fp32
-python pytorch/Bert_FT_trace.py --mode question_answering --model_name_or_path "/workspace//serve/examples/Huggingface_Transformers/Transformer_model" --tokenizer_name "bert-base-uncased" --per_gpu_eval_batch_size 1 --data_type fp16 --model_type thsext
+python pytorch/Bert_FT_trace.py --mode question_answering --model_name_or_path "/workspace//serve/examples/Huggingface_Transformers/Transformer_model" --tokenizer_name "bert-base-uncased" --batch_size 1 --data_type fp16 --model_type thsext
 
 cd - 
 
 # make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript"
 
-torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ./Transformer_FT_handler.py --extra-files "../Huggingface_Transformers/setup_config.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
+torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ../Huggingface_Transformers/Transformer_handler_generalized.py --extra-files "../Huggingface_Transformers/setup_config.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
 
 mkdir model_store
 
@@ -129,10 +141,8 @@ mv BERTQA.mar model_store/
 
 torchserve --start --model-store model_store --models my_tc=BERTQA.mar --ncs
 
-curl -X POST http://127.0.0.1:8080/predictions/my_tc -T QA_artifacts/sample_text_captum_input.txt
+curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ../Huggingface_Transformers/QA_artifacts/sample_text_captum_input.txt
 
-
-curl -X POST http://127.0.0.1:8080/explanations/my_tc -T QA_artifacts/sample_text_captum_input.txt
 ```
 
 #### 
