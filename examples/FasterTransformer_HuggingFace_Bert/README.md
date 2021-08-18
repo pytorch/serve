@@ -77,7 +77,7 @@ cd -
 
 # make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript"
 
-torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "../Huggingface_Transformers/setup_config.json,./Seq_classification_artifacts/index_to_name.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
+torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ./Transformer_FT_handler.py --extra-files "../Huggingface_Transformers/setup_config.json,./Seq_classification_artifacts/index_to_name.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
 
 mkdir model_store
 
@@ -121,7 +121,7 @@ cd -
 
 # make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript"
 
-torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "../Huggingface_Transformers/setup_config.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
+torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file /workspace/FasterTransformer/build/traced_model.pt --handler ./Transformer_FT_handler.py --extra-files "../Huggingface_Transformers/setup_config.json,/workspace/FasterTransformer/build/lib/libpyt_fastertransformer.so"
 
 mkdir model_store
 
