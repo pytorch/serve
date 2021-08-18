@@ -59,7 +59,7 @@ cp /examples/FasterTransformer_HuggingFace_Bert/Bert_FT_trace.py /workspace/Fast
 
 Now we are ready to make the Torchscripted file, as mentioned at the beginning two models are supported Bert for sequence classification and question answering. To do this step we need the download the model weights. We do this the same way we do in [HuggingFace example](https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers).
 
-#### Sequence Classification EFFT Traced model and serving
+#### Sequence classification EFFT Traced model and serving
 
 ```bash
 # Sequence classification
