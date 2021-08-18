@@ -104,6 +104,7 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
         docker_torchserve_start()
 
     check_torchserve_health()
+    warm_up()
     run_benchmark()
     generate_report()
 
@@ -123,10 +124,18 @@ def check_torchserve_health():
             time.sleep(3)
     failure_exit("Could not connect to Tochserve instance at " + execution_params['inference_url'])
 
-
-def run_benchmark():
+def warm_up():
     register_model()
 
+    click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
+    click.secho("*Executing inference performance test...", fg='green')
+    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p {TMP_DIR}/benchmark/input -T " \
+             f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
+    
+    execute(ab_cmd, wait=True)
+
+
+def run_benchmark():
     click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
     click.secho("*Executing inference performance test...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
