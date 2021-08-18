@@ -10,7 +10,9 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_python_version
 
+
 class Common():
+
     def __init__(self):
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
         self.sudo_cmd = 'sudo '
@@ -24,15 +26,23 @@ class Common():
     def install_torch_packages(self, cuda_version):
         if cuda_version:
             if platform.system() == "Darwin":
-                print("CUDA not supported on MacOS. Refer https://pytorch.org/ for installing from source.")
+                print(
+                    "CUDA not supported on MacOS. Refer https://pytorch.org/ for installing from source."
+                )
                 sys.exit(1)
             elif cuda_version == "cu92" and platform.system() == "Windows":
-                print("CUDA 9.2 not supported on Windows. Refer https://pytorch.org/ for installing from source.")
+                print(
+                    "CUDA 9.2 not supported on Windows. Refer https://pytorch.org/ for installing from source."
+                )
                 sys.exit(1)
             else:
-                os.system(f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt")
+                os.system(
+                    f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
+                )
         else:
-            os.system(f"pip install -U -r requirements/torch_{platform.system().lower()}.txt")
+            os.system(
+                f"pip install -U -r requirements/torch_{platform.system().lower()}.txt"
+            )
 
     def install_python_packages(self, cuda_version, requirements_file_path):
         if os.system("conda") == 0:
@@ -47,7 +57,9 @@ class Common():
         # If conda is available install conda-build package
 
     def install_node_packages(self):
-        os.system(f"{self.sudo_cmd}npm install -g newman newman-reporter-html markdown-link-check")
+        os.system(
+            f"{self.sudo_cmd}npm install -g newman newman-reporter-htmlextra markdown-link-check"
+        )
 
     def install_jmeter(self):
         pass
@@ -57,6 +69,7 @@ class Common():
 
 
 class Linux(Common):
+
     def __init__(self):
         super().__init__()
         os.system(f"{self.sudo_cmd}apt-get update")
@@ -66,7 +79,9 @@ class Linux(Common):
 
     def install_nodejs(self):
         python_path = Path(sys.executable).resolve()
-        os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+        os.system(
+            f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
+        )
         os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
         os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
@@ -84,7 +99,9 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}apt-get install -y maven")
 
 
+
 class Windows(Common):
+
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
@@ -98,7 +115,9 @@ class Windows(Common):
     def install_wget(self):
         pass
 
+
 class Darwin(Common):
+
     def __init__(self):
         super().__init__()
 
@@ -126,11 +145,7 @@ class Darwin(Common):
 
 
 def install_dependencies(cuda_version=None):
-    os_map = {
-        "Linux": Linux,
-        "Windows": Windows,
-        "Darwin": Darwin
-    }
+    os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
     system = os_map[platform.system()]()
 
     if platform.system() == "Linux" and args.environment == "dev":
@@ -139,7 +154,8 @@ def install_dependencies(cuda_version=None):
     
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
+    requirements_file_path = "requirements/" + (
+        "production.txt" if args.environment == "prod" else "developer.txt")
     system.install_python_packages(cuda_version, requirements_file_path)
 
     if args.environment == "dev":
@@ -148,10 +164,12 @@ def install_dependencies(cuda_version=None):
         system.install_wget()
     
 
+
 def get_brew_version():
     """Returns `brew --version` output. """
 
     return run_and_parse_first_match("brew --version", r'Homebrew (.*)')
+
 
 if __name__ == "__main__":
     check_python_version()
