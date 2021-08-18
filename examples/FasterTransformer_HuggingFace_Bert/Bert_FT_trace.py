@@ -1,20 +1,3 @@
-# coding=utf-8
-# Copyright (c) 2020, NVIDIA CORPORATION.  All rights reserved.
-# Copyright 2018 The Google AI Language Team Authors and The HuggingFace Inc. team.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# Modified By Hamid Shojanazeri.
-
 import argparse
 import logging
 import os
@@ -44,8 +27,6 @@ def set_seed(args):
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    if args.n_gpu > 0:
-        torch.cuda.manual_seed_all(args.seed)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -86,11 +67,11 @@ def main():
     )
 
     parser.add_argument(
-        "--per_gpu_eval_batch_size", default=8, type=int, help="Batch size per GPU/CPU for evaluation.",
+        "--batch_size", default=8, type=int, help="Batch size for tracing.",
     )
 
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
-    parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
+    # parser.add_arument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
     parser.add_argument("--model_type", type=str, help="ori, ths, thsext")
     parser.add_argument("--data_type", type=str, help="fp32, fp16")
@@ -103,23 +84,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Setup CUDA, GPU 
-    if args.local_rank == -1:
+    if torch.cuda.is_available():
         device = torch.device("cuda")
-        args.n_gpu = torch.cuda.device_count()
     args.device = device
-
+    
     # Setup logging
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
         datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO if args.local_rank in [-1, 0] else logging.WARN,
-    )
-    logger.warning(
-        "Process rank: %s, device: %s, n_gpu: %s",
-        args.local_rank,
-        device,
-        args.n_gpu,
+        level=logging.INFO if args.device else logging.WARN,
     )
 
     # Set seed
@@ -165,10 +138,10 @@ def main():
             model.replace_encoder(enc_)
         if use_ths:
             logger.info("Use TorchScript mode")
-            fake_input_id = torch.LongTensor(args.per_gpu_eval_batch_size, args.max_seq_length)
+            fake_input_id = torch.LongTensor(args.batch_size, args.max_seq_length)
             fake_input_id.fill_(1)
             fake_input_id = fake_input_id.to(args.device)
-            fake_mask = torch.ones(args.per_gpu_eval_batch_size, args.max_seq_length).to(args.device)
+            fake_mask = torch.ones(args.batch_size, args.max_seq_length).to(args.device)
             fake_type_id = fake_input_id.clone().detach()
             if args.data_type == 'fp16':
                 fake_mask = fake_mask.half()
