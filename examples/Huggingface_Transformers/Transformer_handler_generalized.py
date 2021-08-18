@@ -52,6 +52,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning("Missing the setup_config.json file.")
 
+        # Loading the shared object of compiled Faster Transformer Library if Faster Transformer is set
+        if self.setup_config["FasterTransformer"]:
+            faster_transformer_complied_path = os.path.join(model_dir, "libpyt_fastertransformer.so")
+            torch.classes.load_library(faster_transformer_complied_path)
+
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
