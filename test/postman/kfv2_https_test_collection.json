@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "09c6e24d-b09c-4ff6-868a-99705499a1ce",
+		"_postman_id": "34faac3d-2e62-455b-87b4-e7b4a3c20a31",
 		"name": "kfv2_https_test_collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ad6d7412-e888-4166-bc12-6d372f0c112d",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -41,7 +40,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d4a9d9b8-979e-4915-aa1b-b0348e1fd92f",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -71,7 +69,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3391b6eb-517b-43a4-80ae-0c1e0ee50822",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -101,7 +98,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "90a3b63b-1239-4546-97a3-c798fc9f5bda",
 						"exec": [
 							"pm.test(\"Successful POST request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -152,7 +148,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "30b54fd6-63fa-483f-a1a6-a18e6fc24fbe",
 						"exec": [
 							"pm.test(\"Successful GET request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -186,7 +181,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d8a02cbc-0b0a-46d7-90ad-99717532f678",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
@@ -234,7 +228,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ea3c6bb2-601d-4ee8-aa8f-401efac1c290",
 						"exec": [
 							"pm.test(\"Successful PUT request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
@@ -282,7 +275,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "31e8e9fb-1a2c-41b1-91c4-9d0012edd0bc",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -312,16 +304,17 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-pred-port}}/v1/models/mnist:predict",
+					"raw": "https://{{hostname}}:{{sec-pred-port}}/v2/models/mnist/infer",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
 					],
 					"port": "{{sec-pred-port}}",
 					"path": [
-						"v1",
+						"v2",
 						"models",
-						"mnist:predict"
+						"mnist",
+						"infer"
 					]
 				},
 				"description": "Runs an inference test for Mnist model with kfserving envelope"
@@ -334,7 +327,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "03983abd-8a05-46c8-b987-1a2347cdbc0a",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -364,16 +356,17 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{hostname}}:{{sec-pred-port}}/v1/models/mnist:explain",
+					"raw": "https://{{hostname}}:{{sec-pred-port}}/v2/models/mnist/explain",
 					"protocol": "https",
 					"host": [
 						"{{hostname}}"
 					],
 					"port": "{{sec-pred-port}}",
 					"path": [
-						"v1",
+						"v2",
 						"models",
-						"mnist:explain"
+						"mnist",
+						"explain"
 					]
 				},
 				"description": "Runs an inference test for Mnist model with kfserving envelope"
@@ -386,7 +379,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "96c80c26-585f-4db4-a9d3-f99e6abc58a9",
 						"exec": [
 							"pm.test(\"Successful DELETE request\", function () {",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
@@ -414,6 +406,5 @@
 			},
 			"response": []
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }
