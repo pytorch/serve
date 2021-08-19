@@ -339,6 +339,20 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testNoopVersionedExplanation"})
+    public void testNoopVersionedKFV2Prediction() throws InterruptedException {
+        testKFV2Predictions("noopversioned", "OK", "1.11");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopVersionedKFV1Prediction"})
+    public void testNoopVersionedKFV2Explanation() throws InterruptedException {
+        testKFV2Explanations("noopversioned", "OK", "1.11");
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testNoopVersionedKFV1Prediction"})
     public void testSetDefaultVersionNoop() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
@@ -439,6 +453,20 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testNoopExplanation"})
+    public void testNoopKFV2Prediction() throws InterruptedException {
+        testKFV2Predictions("noop", "OK", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopKFV1Prediction"})
+    public void testNoopKFV2Explanation() throws InterruptedException {
+        testKFV2Explanations("noop", "OK", null);
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testNoopKFV1Explanation"})
     public void testPredictionsBinary() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
@@ -513,6 +541,20 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testNoopWithHandlerNameExplanation"})
+    public void testNoopWithHandlerNameKFV2Prediction() throws InterruptedException {
+        testKFV2Predictions("noop_handlername", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithHandlerNameKFV1Prediction"})
+    public void testNoopWithHandlerNameKFV2Explanation() throws InterruptedException {
+        testKFV2Explanations("noop_handlername", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testNoopWithHandlerNameKFV1Explanation"})
     public void testLoadModelWithEntryPntFuncName() throws InterruptedException {
         testLoadModelWithInitialWorkers("noop_entrypntfunc.mar", "noop_entrypntfunc", "1.0");
@@ -544,6 +586,20 @@ public class ModelServerTest {
             dependsOnMethods = {"testNoopWithEntryPntFuncKFV1Prediction"})
     public void testNoopWithEntryPntFuncKFV1Explanation() throws InterruptedException {
         testKFV1Explanations("noop_entrypntfunc", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithEntryPntFuncExplanation"})
+    public void testNoopWithEntryPntFuncKFV2Prediction() throws InterruptedException {
+        testKFV2Predictions("noop_entrypntfunc", "OK", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopWithEntryPntFuncKFV1Prediction"})
+    public void testNoopWithEntryPntFuncKFV2Explanation() throws InterruptedException {
+        testKFV2Explanations("noop_entrypntfunc", "OK", "1.0");
     }
 
     @Test(
@@ -1736,6 +1792,20 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testExplanationMNISTEagerModel"})
+    public void testKFV2PredictionMNISTEagerModel() throws InterruptedException {
+        testKFV2Predictions("mnist", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1PredictionMNISTEagerModel"})
+    public void testKFV2ExplanationMNISTEagerModel() throws InterruptedException {
+        testKFV2Explanations("mnist", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testKFV1ExplanationMNISTEagerModel"})
     public void testUnregistedMNISTEagerModel() throws InterruptedException {
         testUnregisterModel("mnist", null);
@@ -1778,6 +1848,20 @@ public class ModelServerTest {
 
     @Test(
             alwaysRun = true,
+            dependsOnMethods = {"testExplanationMNISTScriptedModel"})
+    public void testKFV2PredictionMNISTScriptedModel() throws InterruptedException {
+        testKFV2Predictions("mnist_scripted", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1PredictionMNISTScriptedModel"})
+    public void testKFV2ExplanationMNISTScriptedModel() throws InterruptedException {
+        testKFV2Explanations("mnist_scripted", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
             dependsOnMethods = {"testKFV1ExplanationMNISTScriptedModel"})
     public void testUnregistedMNISTScriptedModel() throws InterruptedException {
         testUnregisterModel("mnist_scripted", null);
@@ -1816,6 +1900,20 @@ public class ModelServerTest {
             dependsOnMethods = {"testKFV1PredictionMNISTTracedModel"})
     public void testKFV1ExplanationMNISTTracedModel() throws InterruptedException {
         testKFV1Explanations("mnist_traced", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testExplanationMNISTTracedModel"})
+    public void testKFV2PredictionMNISTTracedModel() throws InterruptedException {
+        testKFV2Predictions("mnist_traced", "0", null);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testKFV1PredictionMNISTTracedModel"})
+    public void testKFV2ExplanationMNISTTracedModel() throws InterruptedException {
+        testKFV2Explanations("mnist_traced", "0", null);
     }
 
     @Test(
