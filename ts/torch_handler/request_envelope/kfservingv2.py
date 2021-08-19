@@ -121,10 +121,11 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         logger.info("The Response of KFServing v2 format %s", data)
         response = {}
-        response["id"] = self.context.get_request_id(0)
         if hasattr(self.context, "input_request_id"):
             response["id"] = getattr(self.context, "input_request_id")
             delattr(self.context, "input_request_id")
+        else:
+            response["id"] = self.context.get_request_id(0)
         response["model_name"] = self.context.manifest.get("model").get(
             "modelName")
         response["model_version"] = self.context.manifest.get("model").get(
