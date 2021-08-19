@@ -2036,6 +2036,48 @@ public class ModelServerTest {
         testModelMetrics(modelName, version);
     }
 
+    private void testKFV2Predictions(String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/v2/models/" + modelName + "/infer";
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
+
+    private void testKFV2Explanations(String modelName, String expectedOutput, String version)
+            throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        String requestURL = "/v2/models/" + modelName + "/explain";
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        req.content().writeCharSequence("data=test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getResult(), expectedOutput);
+        testModelMetrics(modelName, version);
+    }
+
     private void testModelMetrics(String modelName, String version) throws InterruptedException {
         Channel metricsChannel = TestUtils.getMetricsChannel(configManager);
         TestUtils.setResult(null);
