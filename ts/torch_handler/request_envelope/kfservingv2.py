@@ -3,8 +3,8 @@ The KFServing Envelope is used to handle the KFServing
 Input Request inside Torchserve.
 """
 import json
-import numpy as np
 import logging
+import numpy as np
 from .base import BaseEnvelope
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class KFservingv2Envelope(BaseEnvelope):
 
     def parse_input(self, data):
         """Translates KFServing request input to list of data expected by Torchserve.
-        
+
         Parameters:
         data (json): KFServing v2 request input json.
         {
@@ -61,14 +61,14 @@ class KFservingv2Envelope(BaseEnvelope):
             "data": [66, 108, 111, 111, 109]
           }]
         }
-        
+
         Returns: list of data objects.
         [{
         'name': 'input-0',
         'shape': [5],
         'datatype': 'INT64',
         'data': [66, 108, 111, 111, 109]
-        }] 
+        }]
 
         """
         logger.info("Parsing input in KFServing v2 format %s", data)
@@ -101,7 +101,7 @@ class KFservingv2Envelope(BaseEnvelope):
 
     def format_output(self, data):
         """Translates Torchserve output KFServing v2 response format.
-        
+
         Parameters:
         data (list): Torchserve response for handler.
 
@@ -117,7 +117,7 @@ class KFservingv2Envelope(BaseEnvelope):
             "data": [2]
           }]
         }
-        
+
         """
         logger.info("The Response of KFServing v2 format %s", data)
         response = {}
@@ -148,8 +148,8 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         output_data = {}
         data_ndarray = np.array(data)
-        output_data["name"] = "explain" if self.context.get_request_header(
-            0, "explain") == "True" else "predict"
+        output_data["name"] = ("explain" if self.context.get_request_header(
+            0, "explain") == "True" else "predict")
         output_data["shape"] = list(data_ndarray.shape)
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
         output_data["data"] = data_ndarray.flatten().tolist()
