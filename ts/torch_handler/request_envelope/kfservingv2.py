@@ -82,8 +82,6 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         logger.info("Parse input data %s", rows)
         body_list = rows[0].get("body") or rows[0].get("data")
-        if "id" in body_list:
-            setattr(self.context, "input_request_id", body_list["id"])
         data_list = self._from_json(body_list)
         return data_list
 
@@ -96,6 +94,8 @@ class KFservingv2Envelope(BaseEnvelope):
             body_list = body_list.decode()
             body_list = json.loads(body_list)
             logger.info("Bytes array is %s", body_list)
+        if "id" in body_list:
+            setattr(self.context, "input_request_id", body_list["id"])
         data_list = [row for row in body_list.get("inputs")]
         return data_list
 
