@@ -66,6 +66,9 @@ def benchmark_execution_id(request):
     )
     return execution_id
 
+@pytest.fixture(scope="function")
+def wf_dog_breed_config_file_path(request):
+    return os.path.join(os.getcwd(), "tests", "suite", "wf_dog_breed.yaml")
 
 @pytest.fixture(scope="function")
 def bert_neuron_config_file_path(request):
