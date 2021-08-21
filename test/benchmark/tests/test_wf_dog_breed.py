@@ -11,7 +11,6 @@ import tests.utils.s3 as s3_utils
 import tests.utils.ts as ts_utils
 import tests.utils.apache_bench as ab_utils
 
-
 from tests.utils import (
     DEFAULT_DOCKER_DEV_ECR_REPO,
     DEFAULT_REGION,
@@ -25,15 +24,16 @@ from tests.utils import (
 # Add/remove from the following list to benchmark on the instance of your choice
 INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 
-
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
-def test_bert_benchmark(
-    ec2_connection, ec2_instance_type, bert_config_file_path, docker_dev_image_config_path, benchmark_execution_id
+def test_wf_dog_breed_benchmark(
+    ec2_connection, ec2_instance_type, wf_dog_breed_config_file_path, docker_dev_image_config_path, benchmark_execution_id
 ):
 
-    test_config = YamlHandler.load_yaml(bert_config_file_path)
+    LOGGER.info(f"Loading yaml file")
 
-    model_name = bert_config_file_path.split("/")[-1].split(".")[0]
+    test_config = YamlHandler.load_yaml(wf_dog_breed_config_file_path)
+
+    model_name = wf_dog_breed_config_file_path.split("/")[-1].split(".")[0]
 
     LOGGER.info("Validating yaml contents")
 
@@ -59,17 +59,17 @@ def test_bert_benchmark(
 
         if ec2_instance_type[:2] in GPU_INSTANCES and "gpu" in docker_tag:
             dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
-            dockerImageHandler.pull_docker_image_from_ecr(
-                account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
-            )
+            # dockerImageHandler.pull_docker_image_from_ecr(
+            #     account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+            # )
             docker_repo_tag_for_current_instance = docker_repo_tag
             cuda_version_for_instance = cuda_version
             break
         if ec2_instance_type[:2] not in GPU_INSTANCES and "cpu" in docker_tag:
             dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
-            dockerImageHandler.pull_docker_image_from_ecr(
-                account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
-            )
+            # dockerImageHandler.pull_docker_image_from_ecr(
+            #     account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+            # )
             docker_repo_tag_for_current_instance = docker_repo_tag
             cuda_version_for_instance = None
             break
@@ -95,6 +95,23 @@ def test_bert_benchmark(
             backend_profiling = mode_config.get("backend_profiling")
             exec_env = mode_config.get("exec_env")
             processors = mode_config.get("processors")
+
+            # values for workflow
+            workflow_name = mode_config.get("workflow_name")
+            workflow_model_urls = mode_config.get("models")
+            workflow_specfile_url = mode_config.get("specfile")
+            workflow_handler_url = mode_config.get("workflow_handler")
+            retry_attempts = mode_config.get("retry_attempts")
+            timeout_ms = mode_config.get("timeout_ms")
+
+            # url is just a name in this case
+            url = workflow_name
+
+            LOGGER.info(f"model_urls_in_workflow: {workflow_model_urls}")
+            LOGGER.info(f"workflow_specfile_url: {workflow_specfile_url}")
+            LOGGER.info(f"workflow_handler_url: {workflow_handler_url}")
+            LOGGER.info(f"workflow_name: {workflow_name}")
+
             gpus = None
             if len(processors) == 2:
                 gpus = processors[1].get("gpus")
@@ -114,24 +131,35 @@ def test_bert_benchmark(
                 connection=ec2_connection,
             )
 
-            for batch_size in batch_sizes:
+            torchserveHandler.download_workflow_artifacts(workflow_name, workflow_model_urls, workflow_specfile_url, workflow_handler_url)
 
+            for batch_size in batch_sizes:
                 # Start torchserve
                 torchserveHandler.start_torchserve_docker()
 
+                # Create workflow archive and place in the wf_store
+                torchserveHandler.create_and_update_workflow_archive(
+                    workflow_name, 
+                    os.path.basename(workflow_specfile_url),
+                    os.path.basename(workflow_handler_url),
+                    batch_size,
+                    workers,
+                    batch_delay,
+                    retry_attempts,
+                    timeout_ms)
+
+                
                 # Register
-                torchserveHandler.register_model(
-                    url=url, workers=workers, batch_delay=batch_delay, batch_size=batch_size
-                )
+                torchserveHandler.register_workflow(url=url)
 
                 # Run benchmark
-                apacheBenchHandler.run_apache_bench(requests=requests, concurrency=concurrency, input_file=input_file)
+                apacheBenchHandler.run_apache_bench(requests=requests, concurrency=concurrency, input_file=input_file, is_workflow=True, workflow_name=workflow_name)
 
                 # Unregister
-                torchserveHandler.unregister_model()
+                torchserveHandler.unregister_workflow(workflow_name=workflow_name)
 
                 # Stop torchserve
-                torchserveHandler.stop_torchserve(exec_env="docker")
+                torchserveHandler.stop_torchserve()
 
                 # Generate report (note: needs to happen after torchserve has stopped)
                 apacheBenchHandler.generate_report(requests=requests, concurrency=concurrency, connection=ec2_connection)
