@@ -50,7 +50,7 @@ class ApacheBenchHandler(object):
         run_out = self.connection.sudo(f"apt install -y apache2-utils", pty=True)
         return run_out.return_code
 
-    def run_apache_bench(self, requests, concurrency, input_file):
+    def run_apache_bench(self, requests, concurrency, input_file, is_workflow=False, workflow_name=None):
         """
         :param requests: number of requests to perform
         :param concurrency: number of virtual users making the request
@@ -65,13 +65,19 @@ class ApacheBenchHandler(object):
             self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
         else:
             self.connection.run(f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}")
+        
+        predict_flag = "predictions"
+        model_name = "benchmark"
+        if is_workflow:
+            predict_flag = "wfpredict"
+            model_name = workflow_name
 
         # Run warmup
-        apache_bench_warmup_command = f"ab -c {concurrency} {100} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark"
+        apache_bench_warmup_command = f"ab -c {concurrency} -n 100 -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/{predict_flag}/{model_name}"
         run_out = self.connection.run(apache_bench_warmup_command, warn=True, pty=True)
         LOGGER.info(f"warmup command used: {apache_bench_warmup_command}")
 
-        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark > {self.result_file}"
+        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/{predict_flag}/{model_name} > {self.result_file}"
 
         # Run apache bench
         run_out = self.connection.run(apache_bench_command, warn=True, pty=True)
@@ -86,6 +92,7 @@ class ApacheBenchHandler(object):
 
     def clean_up(self):
         self.connection.run(f"rm -rf {os.path.join(TMP_DIR, 'benchmark')}")
+        #self.connection.run(f"rm -rf {os.path.join(LOCAL_TMP_DIR, 'workflow')}")
 
     def extract_metrics(self, connection=None):
         metric_log = f"{os.path.join(self.local_tmp_dir, 'benchmark_metric.log')}"

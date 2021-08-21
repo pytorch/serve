@@ -132,7 +132,7 @@ class DockerImageHandler(object):
 
 class YamlHandler(object):
 
-    valid_mode_keys = ["eager_mode", "scripted_mode", "kf_serving_mode"]
+    valid_mode_keys = ["eager_mode", "scripted_mode", "kf_serving_mode", "workflow"]
 
     mandatory_config_keys = [
         "backend_profiling",
@@ -147,9 +147,11 @@ class YamlHandler(object):
         "workers",
     ]
 
+    workflow_config_keys = ["workflow_name", "models", "specfile", "workflow_handler", "retry_attempts", "timeout_ms"]
+
     optional_config_keys = ["url", "dockerhub_image", "docker_dev_image", "compile_per_batch_size"]
 
-    valid_config_keys = mandatory_config_keys + optional_config_keys
+    valid_config_keys = mandatory_config_keys + optional_config_keys + workflow_config_keys
 
     mutually_exclusive_docker_config_keys = ["dockerhub_image", "docker_dev_image"]
 
