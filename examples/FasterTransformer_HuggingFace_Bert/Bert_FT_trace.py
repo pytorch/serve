@@ -1,3 +1,5 @@
+# This script is adopted from the run-glue example of Nvidia-FasterTransformer,https://github.com/NVIDIA/FasterTransformer/blob/main/sample/pytorch/run_glue.py
+
 import argparse
 import logging
 import os
