@@ -224,10 +224,7 @@ High level performance data like Throughput or Percentile Precision can be gener
 ### Concurrency And Number of Workers
 TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 *Note: the following property has bigger impact under heavy workloads.*
-
-**CPU**: there is a config property called `workers` which sets the number of worker threads for a model. The best value to set `workers` to is 1 for CPU inference, otherwise the worker threads will contend with each other causing unncessary context switching. The best way to achieve paralellism on CPU is to then increase the `batch_size` parameter until diminishing returns are observed.  
-
-**GPU**: there is a config property called `number_of_gpu` that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
+If TorchServe is hosted on a machine with GPUs, there is a config property called `number_of_gpu` that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (>= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.
 ```
 ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 ```
