@@ -22,7 +22,7 @@ docker login nvcr.io
 Username: $oauthtoken
 Password: API key
 
-Docker pull nvcr.io/nvidia/pytorch:20.12-py3
+docker pull nvcr.io/nvidia/pytorch:20.12-py3
 
 nvidia-docker run -ti --gpus all --rm nvcr.io/nvidia/pytorch:20.12-py3 bash
 
