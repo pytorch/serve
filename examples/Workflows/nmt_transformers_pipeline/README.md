@@ -1,21 +1,21 @@
 # Workflow pipeline example using nmt transformer nlp model
 
 This example uses the existing [nmt_transformers](../../nmt_transformer) standalone example to create a workflow. We use three models, in two examples to demonstrate stringing them together in a workflow.
-To change the default batch size and batch delay the yaml file for the workflow can to be changed. This cannot currently be set via the REST API.
+The default batch size and delay can only be changed via the YAML file. This cannot currently be set via the REST API.
 
-_NOTE: This example currently works with Py36 only due to fairseq dependency on dataclasses [issue](https://github.com/huggingface/transformers/issues/8638#issuecomment-790772391). This example currently doesn't work on Windows_
+_NOTE: This example currently works with Python 3.6 only due to fairseq dependency on dataclasses [issue](https://github.com/huggingface/transformers/issues/8638#issuecomment-790772391). This example currently doesn't work on Windows_
 
 ## Flow
 
 ### Example 1: Dual translation
 
-In the case of dual translation we use a preprocessing node as a dummy node to pass the input to both the english to french and english to german translators. The output from both the translations are converted into a single output by the aggregate-output node and returned to the user.
+In the case of dual translation we use a preprocessing node as a dummy node to pass the input to both the English to French and English to German translators. The output from both the translations are converted into a single output by the aggregate-output node and returned to the user.
 
 ![NMTDualTranslate](../../../docs/images/NMTDualTranslate.png)
 
 ### Example 2: Back-translation
 
-In the case of back translation we pass the input to an english to german translation model. The output is cleaned up by the intermediate-input-processing node and converted into a format which is expected by the german to english translation model. The post-processing node takes the final output and converts the keys of the output dictionary to be relevant to the workflow.
+In the case of back translation we pass the input to an English to German translation model. The output is cleaned up by the intermediate-input-processing node and converted into a format which is expected by the German to English translation model. The post-processing node takes the final output and converts the keys of the output dictionary to be relevant to the workflow.
 
 ![NMTBackTranslate](../../../docs/images/NMTBackTranslate.png)
 
@@ -26,7 +26,7 @@ $ ./create_mar.sh de2en_model
 $ ./create_mar.sh en2de_model
 $ ./create_mar.sh en2fr_model
 
-$ cd $TORCH_SERVE_DIR/examples/Workflows/nmt_tranformers_pipeline/
+$ cd $TORCH_SERVE_DIR/examples/Workflows/nmt_transformers_pipeline/
 $ mkdir model_store wf_store
 $ mv $TORCH_SERVE_DIR/examples/nmt_transformer/model_store/*.mar model_store/
 $ torch-workflow-archiver -f --workflow-name nmt_wf_dual --spec-file nmt_workflow_dualtranslation.yaml --handler nmt_workflow_handler_dualtranslation.py --export-path wf_store/

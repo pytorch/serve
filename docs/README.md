@@ -18,6 +18,9 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 * [Prometheus and Grafana metrics](metrics_api.md) - How to configure metrics API with Prometheus formatted metrics in a Grafana dashboard
 * [Captum Explanations](https://github.com/pytorch/serve/blob/master/captum/Captum_visualization_for_bert.ipynb) - Built in support for Captum explanations for both text and images
 * [Batch inference with TorchServe](batch_inference_with_ts.md) - How to create and serve a model with batch inference in TorchServe
+* [Workflows](workflows.md) - How to create workflows to compose Pytorch models and Python functions in sequential and parallel pipelines
+
+
 
 ## Default Handlers
 
