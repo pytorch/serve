@@ -96,7 +96,7 @@ class KFservingv2Envelope(BaseEnvelope):
             logger.info("Bytes array is %s", body_list)
         if "id" in body_list:
             setattr(self.context, "input_request_id", body_list["id"])
-        data_list = [row for row in body_list.get("inputs")]
+        data_list = body_list.get("inputs")
         return data_list
 
     def format_output(self, data):
