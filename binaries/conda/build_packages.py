@@ -65,7 +65,7 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     for pkg in packages:
         for pyv in python_versions:
             output_dir = os.path.join(conda_build_dir, "output")
-            cmd = f"{CONDA_BINARY} build Y-output-folder {output_dir} --python={pyv} {pkg}"
+            cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
             exit_code = os.system(cmd)
             if exit_code != 0:

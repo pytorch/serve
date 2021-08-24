@@ -18,4 +18,4 @@ phases:
       - python3 binaries/build.py --staging
       - cd binaries/
       - python3 upload.py --upload-pypi-packages --upload-conda-packages 
-      - python3 s3_binary_upload --s3-bucket --nightly
+      - python3 s3_binary_upload --s3-bucket torchserve-builds --nightly
