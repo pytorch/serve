@@ -17,4 +17,4 @@ phases:
       - exec bash
       - python3 binaries/build.py
       - cd binaries/
-      - python3 s3_binary_upload.py --s3-bucket torchserve-builds --nightly
+      - python3 s3_binary_upload.py --s3-bucket s3://torchserve-builds --nightly
