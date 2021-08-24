@@ -212,7 +212,7 @@ docker ps
 2. Bind and get the bash prompt of running container
 
 ```bash
-docker exec -it <container_name> /bin/bash
+docker exec -it -u="root" <container_name> /bin/bash
 ```
 
 You will be landing at /home/model-server/.
