@@ -15,7 +15,6 @@ phases:
     commands:
       - python3 binaries/conda/build_packages.py --install-conda-dependencies
       - exec bash
-      - python3 binaries/build.py --staging
+      - python3 binaries/build.py
       - cd binaries/
-      - python3 upload.py --upload-pypi-packages --upload-conda-packages 
       - python3 s3_binary_upload --s3-bucket torchserve-builds --nightly
