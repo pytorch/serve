@@ -12,8 +12,6 @@ LOGGER.addHandler(logging.StreamHandler(sys.stderr))
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
-CONDA_PACKAGES_PATH = os.path.join(REPO_ROOT, "binaries", "conda", "output")
-
 TS_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "dist"))[0]
 MA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "model-archiver", "dist"))[0]
 WA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver", "dist"))[0]
