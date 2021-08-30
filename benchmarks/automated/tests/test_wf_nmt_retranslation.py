@@ -19,26 +19,22 @@ from tests.utils import (
 )
 
 # Add/remove from the following list to benchmark on the instance of your choice
-INSTANCE_TYPES_TO_TEST = ["inf1.6xlarge"]
+INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 
-
-# @pytest.mark.skip(reason="Skipping neuron test, manually unskip if you need to benchmark")
 @pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
-def test_neuron_benchmark(
-    ec2_connection,
-    ec2_instance_type,
-    bert_neuron_config_file_path,
-    docker_dev_image_config_path,
-    benchmark_execution_id,
+def test_wf_nmt_retranslation_benchmark(
+    ec2_connection, ec2_instance_type, wf_nmt_retranslation_config_file_path, docker_dev_image_config_path, benchmark_execution_id
 ):
 
-    test_config = YamlHandler.load_yaml(bert_neuron_config_file_path)
+    LOGGER.info(f"Loading yaml file")
 
-    model_name = bert_neuron_config_file_path.split("/")[-1].split(".")[0]
+    test_config = YamlHandler.load_yaml(wf_nmt_retranslation_config_file_path)
+
+    model_name = wf_nmt_retranslation_config_file_path.split("/")[-1].split(".")[0]
 
     LOGGER.info("Validating yaml contents")
 
-    LOGGER.info(YamlHandler.validate_benchmark_yaml(test_config))
+    LOGGER.info(YamlHandler.validate_model_yaml(test_config))
 
     cuda_version_for_instance, docker_repo_tag_for_current_instance = DockerImageHandler.process_docker_config(
         ec2_connection, docker_dev_image_config_path, ec2_instance_type
@@ -46,10 +42,6 @@ def test_neuron_benchmark(
 
     benchmarkHandler = benchmark_utils.BenchmarkHandler(model_name, benchmark_execution_id, ec2_connection)
 
-    benchmarkHandler.execute_local_benchmark(
-        test_config,
-        ec2_instance_type,
-        cuda_version_for_instance,
-        docker_repo_tag_for_current_instance,
-        exec_env="aws_neuron_pytorch_p36",
-    )
+    benchmarkHandler.execute_workflow_benchmark(
+        test_config, ec2_instance_type, cuda_version_for_instance, docker_repo_tag_for_current_instance
+    ) 
