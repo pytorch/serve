@@ -51,18 +51,39 @@ curl http://127.0.0.1:8080/predictions/resnet152 -T examples/image_classifier/re
    traced_script_module.save("resnet-152-batch.pt")
    ```  
 
-* Use following commands to register Resnet152-batch torchscript model on TorchServe and run image prediction
+* For batch inference you need to set the batch size while registering the model. This can be done either through the management API or if using Torchserve 0.4.1 and above, it can be set through config.properties as well.  Here is how to register Resnet152-batch torchscript with batch size setting with management API and through config.properties. You can read more on batch inference in Torchserve [here](https://github.com/pytorch/serve/tree/master/docs/batch_inference_with_ts.md).
 
-    ```bash
+    * Management API
 
-    torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files examples/image_classifier/index_to_name.json  --handler image_classifier
-    mkdir model_store
-    mv resnet-152-batch.mar model_store/
-    torchserve --start --model-store model_store --models resnet_152=resnet-152-batch.mar
+            ```bash
 
-    curl -X POST "localhost:8081/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
-    ```
+            torch-model-archiver --model-name resnet-152-batch --version 1.0  --serialized-file resnet-152-batch.pt --extra-files examples/image_classifier/index_to_name.json  --handler image_classifier
+            mkdir model_store
+            mv resnet-152-batch.mar model_store/
+            torchserve --start --model-store model_store --models resnet_152=resnet-152-batch.mar
 
+            curl -X POST "localhost:8081/models?model_name=resnet152&url=resnet-152-batch.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+            ```
+    * Config.properties
+        ```text
+        load_models=resnet-152-batch_v2.mar
+        models={\
+          "resnet-152-batch_v2": {\
+            "2.0": {\
+                "defaultVersion": true,\
+                "marName": "resnet-152-batch_v2.mar",\
+                "minWorkers": 1,\
+                "maxWorkers": 1,\
+                "batchSize": 3,\
+                "maxBatchDelay": 5000,\
+                "responseTimeout": 120\
+            }\
+          }\
+        }
+        ```    
+        ```bash
+        torchserve --start --model-store model_store  --ts-config config.properties
+        ```
 * To test batch inference execute the following commands within the specified max_batch_delay time :
 
 ```bash

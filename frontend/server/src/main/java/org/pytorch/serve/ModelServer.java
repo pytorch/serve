@@ -195,8 +195,16 @@ public class ModelServer {
                         modelManager.updateModel(
                                 archive.getModelName(),
                                 archive.getModelVersion(),
-                                workers,
-                                workers,
+                                configManager.getJsonIntValue(
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MIN_WORKERS,
+                                        workers),
+                                configManager.getJsonIntValue(
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MAX_WORKERS,
+                                        workers),
                                 true,
                                 false);
                         startupModels.add(archive.getModelName());
@@ -246,8 +254,16 @@ public class ModelServer {
                 modelManager.updateModel(
                         archive.getModelName(),
                         archive.getModelVersion(),
-                        workers,
-                        workers,
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MIN_WORKERS,
+                                workers),
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MAX_WORKERS,
+                                workers),
                         true,
                         false);
                 startupModels.add(archive.getModelName());

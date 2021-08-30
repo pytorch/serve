@@ -16,7 +16,7 @@ For example, you want to make an app that lets your users snap a picture, and it
 
 ## Technical Details
 
-Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
+Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a Pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
 
 To try out TorchServe serving now, you can load the custom MNIST model, with this example:
 
