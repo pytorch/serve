@@ -20,7 +20,7 @@ from invoke.context import Context
 
 DEFAULT_REGION = "us-west-2"
 IAM_INSTANCE_PROFILE = "EC2Admin"
-S3_BUCKET_BENCHMARK_ARTIFACTS = "s3://torchserve-model-serving/benchmark_artifacts"
+S3_BUCKET_BENCHMARK_ARTIFACTS = "s3://nikhilsk-model-serving/benchmark_artifacts"
 
 DEFAULT_DOCKER_DEV_ECR_REPO = "torchserve-benchmark"
 DEFAULT_DOCKER_DEV_ECR_TAG = "dev-image"
@@ -128,6 +128,49 @@ class DockerImageHandler(object):
         assert run_out.return_code == 0, f"ECR docker push failed"
 
         LOGGER.info(f"Dev image pull from ECR successful.")
+
+    @staticmethod
+    def process_docker_config(ec2_connection, docker_dev_image_config_path, ec2_instance_type):
+        """
+        :param docker_dev_config_path: path of the config file that describes docker config properties
+        :return cuda_version_for_instance: return the cuda version based on the instance type provided
+        """
+        docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
+
+        docker_repo_tag_for_current_instance = ""
+        cuda_version_for_instance = ""
+        account_id = run("aws sts get-caller-identity --query Account --output text").stdout.strip()
+
+        for processor, config in docker_config.items():
+            docker_tag = None
+            cuda_version = None
+            for config_key, config_value in config.items():
+                if processor == "gpu" and config_key == "cuda_version":
+                    cuda_version = config_value
+                if config_key == "docker_tag":
+                    docker_tag = config_value
+
+            docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
+
+            if ec2_instance_type[:2] in GPU_INSTANCES and "gpu" in docker_tag:
+                dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
+                dockerImageHandler.pull_docker_image_from_ecr(
+                    account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                )
+                docker_repo_tag_for_current_instance = docker_repo_tag
+                cuda_version_for_instance = cuda_version
+                break
+            if ec2_instance_type[:2] not in GPU_INSTANCES and "cpu" in docker_tag:
+                dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
+                dockerImageHandler.pull_docker_image_from_ecr(
+                    account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                )
+                docker_repo_tag_for_current_instance = docker_repo_tag
+                cuda_version_for_instance = None
+                break
+        
+        return cuda_version_for_instance, docker_repo_tag_for_current_instance
+
 
 
 class YamlHandler(object):

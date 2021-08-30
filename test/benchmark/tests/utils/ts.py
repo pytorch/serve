@@ -175,7 +175,7 @@ class TorchServeHandler(object):
 
         time.sleep(40)
 
-        if run_out.return_code == 0:
+        if run_out.return_code != 0:
             LOGGER.error(f"Failed to register model {model_name} sourced from url: {url}")
 
     def unregister_model(self, model_name="benchmark"):
@@ -189,7 +189,7 @@ class TorchServeHandler(object):
         LOGGER.info(f"stdout: {run_out.stdout}")
 
         time.sleep(10)
-        if run_out.return_code == 0:
+        if run_out.return_code != 0:
             LOGGER.error(f"Failed to unregister model {model_name}")
 
 
