@@ -15,8 +15,6 @@ dog_breed:
         batch_size:
             - 1
             - 2
-            - 4
-            - 8
         requests: 1000
         concurrency: 10
         input: "https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg"

@@ -78,7 +78,7 @@ def main():
     parser.add_argument(
         "--use-torchserve-branch",
         default="master",
-        help="Specify a specific torchserve branch to benchmark on, else uses 'master' by default"
+        help="Specify a specific torchserve branch to build a container to benchmark on, else uses 'master' by default"
     )
 
     parser.add_argument(
