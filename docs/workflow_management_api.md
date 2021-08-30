@@ -15,7 +15,7 @@ The Workflow Management API listens on port 8081 and is only accessible from loc
 
 * `url` - Workflow archive download url. Supports the following locations:
   * a local workflow archive (.war); the file must be in the `workflow_store` folder (and not in a subfolder).
-  * a URI using the HTTP(s) protocol. TorchServe can download .war files from the Internet.
+  * a URI using the HTTP(s) protocol. TorchServe can download `.war` files from the Internet.
 * `workflow_name` - the name of the workflow; this name will be used as {workflow_name} in other APIs as part of the path. If this parameter is not present, `modelName` in MANIFEST.json will be used.
 
 ```bash
@@ -32,7 +32,7 @@ The workflow registration API parses the workflow specification file (.yaml) sup
 
 `GET /workflows/{workflow_name}`
 
-Use the Describe Wofkflow API to get detail of a workflow:
+Use the Describe Workflow API to get detail of a workflow:
 
 ```bash
 curl http://localhost:8081/workflows/myworkflow

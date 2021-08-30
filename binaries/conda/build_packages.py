@@ -51,7 +51,9 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
     os.environ["TORCH_WORKFLOW_ARCHIVER_VERSION"] = wa_version
 
-    os.environ["TORCHSERVE_ROOT_DIR"] = REPO_ROOT
+    os.environ["TORCHSERVE_ROOT_DIR"] = REPO_ROOT.replace("\\", "/")
+
+    os.environ["PYTHON"] = "python"
 
     python_versions = ["3.6", "3.7", "3.8", "3.9"]
     packages = [
