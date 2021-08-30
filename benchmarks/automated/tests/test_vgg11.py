@@ -33,7 +33,7 @@ def test_vgg11_benchmark(
 
     LOGGER.info("Validating yaml contents")
 
-    LOGGER.info(YamlHandler.validate_benchmark_yaml(test_config))
+    LOGGER.info(YamlHandler.validate_model_yaml(test_config))
 
     cuda_version_for_instance, docker_repo_tag_for_current_instance = DockerImageHandler.process_docker_config(
         ec2_connection, docker_dev_image_config_path, ec2_instance_type
