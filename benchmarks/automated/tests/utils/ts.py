@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 from invoke import run
 from invoke.context import Context
 
-from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import LOGGER, BenchmarkConfig
 
 # Assumes the functions from this file execute on an Ubuntu ec2 instance
 ROOT_DIR = f"/home/ubuntu"
@@ -52,6 +52,11 @@ class TorchServeHandler(object):
 
         # Install torch-model-archiver and torch-workflow-archiver
         self.connection.run(f"pip3 install torch-model-archiver torch-workflow-archiver")
+
+        benchmark_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "suite", "benchmark", "config.yaml")
+        benchmarkConfig = BenchmarkConfig(benchmark_config_path)
+
+        self.s3_bucket_benchmark_artifacts = benchmarkConfig.s3_bucket_benchmark_artifacts
 
     def setup_torchserve(self, virtual_env_name=None):
         """
@@ -224,7 +229,7 @@ class TorchServeHandler(object):
         else:
             activation_command = ""
             if virtual_env_name:
-                activation_command = f"cd /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert && source activate {virtual_env_name} && "
+                activation_command = f"cd /home/ubuntu/serve/benchmark/automated/tests/resources/neuron-bert && source activate {virtual_env_name} && "
             self.connection.run(f"{activation_command}torchserve --stop", warn=True)
 
         time.sleep(5)

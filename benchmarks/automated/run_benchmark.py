@@ -31,7 +31,7 @@ LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 def build_docker_container(torchserve_branch="master"):
     LOGGER.info(f"Setting up docker image to be used")
 
-    docker_dev_image_config_path = os.path.join(os.getcwd(), "test", "benchmark", "tests", "suite", "docker", "docker.yaml")
+    docker_dev_image_config_path = os.path.join(os.getcwd(), "benchmarks", "automated", "tests", "suite", "docker", "docker.yaml")
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
     YamlHandler.validate_docker_yaml(docker_config)
@@ -106,7 +106,7 @@ def main():
         build_docker_container(torchserve_branch=torchserve_branch)
 
     # Run this script from the root directory 'serve', it changes directory below as required
-    os.chdir(os.path.join(os.getcwd(), "test", "benchmark"))
+    os.chdir(os.path.join(os.getcwd(), "benchmarks", "automated"))
 
     execution_id = f"ts-benchmark-run-{str(uuid.uuid4())}"
 

@@ -33,7 +33,7 @@ def test_vgg16_benchmark(
 
     LOGGER.info("Validating yaml contents")
 
-    LOGGER.info(YamlHandler.validate_benchmark_yaml(test_config))
+    LOGGER.info(YamlHandler.validate_model_yaml(test_config))
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
 
