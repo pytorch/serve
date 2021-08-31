@@ -18,6 +18,13 @@ def install_miniconda():
     """
     Installs miniconda, a slimmer anaconda installation to build conda packages
     """
+
+    # Check if conda binary already exists
+    exit_code = os.system(f"conda --version")
+    if exit_code == 0:
+        print(f"'conda' already present on the system. Proceeding without a fresh minconda installation.")
+        return
+
     os.system(f"rm -rf $HOME/miniconda")
     exit_code = os.system(f"wget {MINICONDA_DOWNLOAD_URL} -O ~/miniconda.sh")
     if exit_code != 0:

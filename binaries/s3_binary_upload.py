@@ -31,25 +31,6 @@ class S3BinaryUploader:
 
         self.channel = "nightly" if is_nightly else ""
 
-    def s3_upload_default_binaries(self):
-        """
-        Uploads the *.whl files provided in the standard directory structure of the pytorch 'serve' directory,
-        assuming that the *.whl files are available in the 'dist' folder of the 
-        is_backup: bool: boolean value that specified whether or not to upload the binaries to a backup S3 bucket
-        """
-        for local_folder_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
-            s3_command = f"{self.s3_command} --exclude '*' --include '*.whl' {local_folder_path} {self.s3_bucket.rstrip('/')}/whl/{self.channel}"
-
-            try:
-                ret_code = subprocess.run(
-                    s3_command, check=True, stdout=subprocess.PIPE, universal_newlines=True, shell=True
-                )
-
-            except subprocess.CalledProcessError as e:
-                LOGGER.info(f"S3 upload command failed: {s3_command}. Exception: {e}")
-
-            LOGGER.info(f"S3 upload successful using command: {s3_command}")
-
     def s3_upload_local_folder(self, local_folder_path: str):
         """
         Uploads the  *.whl files provided in a local folder to s3 bucket
@@ -68,6 +49,15 @@ class S3BinaryUploader:
             LOGGER.info(f"S3 upload command failed: {s3_command}. Exception: {e}")
 
         LOGGER.info(f"S3 upload using command: {s3_command}")
+
+    def s3_upload_default_binaries(self):
+        """
+        Uploads the *.whl files provided in the standard directory structure of the pytorch 'serve' directory,
+        assuming that the *.whl files are available in the 'dist' folder of the 
+        is_backup: bool: boolean value that specified whether or not to upload the binaries to a backup S3 bucket
+        """
+        for local_folder_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
+            self.s3_upload_local_folder(local_folder_path)
 
 
 if __name__ == "__main__":
@@ -99,6 +89,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     s3BinaryUploader = S3BinaryUploader(args.s3_bucket, args.dry_run, args.nightly)
+
     if args.local_binaries_path:
         s3BinaryUploader.s3_upload_local_folder(args.local_binaries_path)
     else:
