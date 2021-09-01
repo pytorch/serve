@@ -1,11 +1,8 @@
-
-
 """
 CustomService class definitions
 """
 import logging
 import time
-
 from builtins import str
 
 import ts
@@ -15,6 +12,10 @@ from ts.protocol.otf_message_handler import create_predict_response
 
 PREDICTION_METRIC = 'PredictionTime'
 logger = logging.getLogger(__name__)
+
+
+class InvalidArgumentException(Exception):
+    pass
 
 
 class Service(object):
@@ -98,6 +99,9 @@ class Service(object):
         # noinspection PyBroadException
         try:
             ret = self._entry_point(input_batch, self.context)
+        except InvalidArgumentException as argument_exception:
+            logger.warning("Invoking custom service failed, invalid arguments.", exc_info=True)
+            return create_predict_response(None, req_id_map, str(argument_exception), 400)
         except MemoryError:
             logger.error("System out of memory", exc_info=True)
             return create_predict_response(None, req_id_map, "Out of resources", 507)
