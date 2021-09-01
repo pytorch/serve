@@ -4,26 +4,47 @@ import java.util.List;
 
 public class ModelWorkerResponse {
 
-    private int code;
-    private String message;
+    private List<Integer> codes;
+    private List<String> messages;
     private List<Predictions> predictions;
 
     public ModelWorkerResponse() {}
 
-    public int getCode() {
-        return code;
+    public List<Integer> getCode() {
+        return codes;
     }
 
-    public void setCode(int code) {
-        this.code = code;
+    public boolean isAll200Code() {
+        for (Integer code : codes) {
+            if(code != 200) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public String getMessage() {
-        return message;
+    public void setCodes(List<Integer> codes) {
+        this.codes = codes;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void appendCode(Integer code) {
+        this.codes.add(code);
+    }
+
+    public List<Integer> getCodes() {
+        return this.codes;
+    }
+
+    public List<String> getMessages() {
+        return this.messages;
+    }
+
+    public void appendMessage(String message) {
+        this.messages.add(message);
+    }
+
+    public void setMessages(List<String> messages) {
+        this.messages = messages;
     }
 
     public List<Predictions> getPredictions() {

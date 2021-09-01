@@ -51,7 +51,7 @@ public class WorkflowManifest {
         return workflow;
     }
 
-    public void setModel(Workflow model) {
+    public void setModel(Workflow workflow) {
         this.workflow = workflow;
     }
 

@@ -56,9 +56,8 @@ public class BatchAggregator {
     }
 
     public void sendResponse(ModelWorkerResponse message) {
-        // TODO: Handle prediction level code
 
-        if (message.getCode() == 200) {
+        if (message.isAll200Code()) {
             if (jobs.isEmpty()) {
                 // this is from initial load.
                 return;
@@ -68,7 +67,7 @@ public class BatchAggregator {
                 String jobId = prediction.getRequestId();
                 Job job = jobs.remove(jobId);
                 if (job == null) {
-                    throw new IllegalStateException("Unexpected job: " + jobId);
+                    continue;
                 }
                 job.response(
                         prediction.getResp(),
@@ -80,16 +79,18 @@ public class BatchAggregator {
         } else {
             for (String reqId : jobs.keySet()) {
                 Job j = jobs.remove(reqId);
+                
                 if (j == null) {
-                    throw new IllegalStateException("Unexpected job: " + reqId);
+                    continue;
                 }
-                j.sendError(message.getCode(), message.getMessage());
+                //TODO: fix thix
+                for(int i = 0; i < message.getCodes().size(); i++) {
+                    j.sendError(message.getCodes().get(i), message.getMessages().get(i));
+                }
+                // j.sendError(message.getCode(), message.getMessage());
             }
-            if (!jobs.isEmpty()) {
-                throw new IllegalStateException("Not all jobs get response.");
             }
         }
-    }
 
     public void sendError(BaseModelRequest message, String error, int status) {
         if (message instanceof ModelLoadModelRequest) {
@@ -108,9 +109,16 @@ public class BatchAggregator {
                     job.sendError(status, error);
                 }
             }
+
+            //TODO: Fix this
             if (!jobs.isEmpty()) {
+                for (Job job : jobs.values()) 
+                {
+                    job.sendError(status, error);
+
+                }
                 jobs.clear();
-                logger.error("Not all jobs get response.");
+                logger.error("Not all jobs got a response.");
             }
         } else {
             // Send the error message to all the jobs

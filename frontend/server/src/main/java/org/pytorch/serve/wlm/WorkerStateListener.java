@@ -3,6 +3,7 @@ package org.pytorch.serve.wlm;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
+//TODO: Should WorkerState Listener use CompletableFuture<List<Integer>> instead?
 public class WorkerStateListener {
 
     private CompletableFuture<Integer> future;
@@ -13,7 +14,7 @@ public class WorkerStateListener {
         this.count = new AtomicInteger(count);
     }
 
-    public void notifyChangeState(String modelName, WorkerState state, Integer status) {
+    public void notifyChangeState(String modelName, WorkerState state, int status) {
         // Update success and fail counts
         if (state == WorkerState.WORKER_MODEL_LOADED) {
             if (count.decrementAndGet() == 0) {

@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -203,12 +204,12 @@ public class WorkerThread implements Runnable {
                         model.resetFailedInfReqs();
                         break;
                     case LOAD:
-                        if (reply.getCode() == 200) {
+                        if (reply.isAll200Code()) {
                             setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
                             backoffIdx = 0;
                         } else {
                             setState(WorkerState.WORKER_ERROR, reply.getCode());
-                            status = reply.getCode();
+                            status = reply.getCodes();
                         }
                         break;
                     case UNLOAD:
@@ -237,7 +238,7 @@ public class WorkerThread implements Runnable {
                         e);
             }
         } catch (WorkerInitializationException e) {
-            logger.error("Backend worker error", e);
+            logger.error("Backend worker initialization error", e);
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
@@ -447,8 +448,8 @@ public class WorkerThread implements Runnable {
             logger.error("Unknown exception", cause);
             if (cause instanceof OutOfMemoryError) {
                 ModelWorkerResponse msg = new ModelWorkerResponse();
-                msg.setCode(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
-                msg.setMessage(cause.getMessage());
+                msg.appendCode(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
+                msg.appendMessage(cause.getMessage());
                 if (!replies.offer(msg)) {
                     throw new IllegalStateException("Reply queue is full.");
                 }

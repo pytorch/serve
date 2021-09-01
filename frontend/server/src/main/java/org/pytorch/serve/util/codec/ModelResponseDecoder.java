@@ -28,13 +28,13 @@ public class ModelResponseDecoder extends ByteToMessageDecoder {
         try {
             ModelWorkerResponse resp = new ModelWorkerResponse();
             // Get Response overall Code
-            resp.setCode(in.readInt());
+            resp.appendCode(in.readInt());
 
             int len = CodecUtils.readLength(in, maxBufferSize);
             if (len == CodecUtils.BUFFER_UNDER_RUN) {
                 return;
             }
-            resp.setMessage(CodecUtils.readString(in, len));
+            resp.appendMessage(CodecUtils.readString(in, len));
 
             List<Predictions> predictions = new ArrayList<>();
             while ((len = CodecUtils.readLength(in, maxBufferSize)) != CodecUtils.END) {
