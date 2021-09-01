@@ -10,10 +10,6 @@ public class ModelWorkerResponse {
 
     public ModelWorkerResponse() {}
 
-    public List<Integer> getCode() {
-        return codes;
-    }
-
     public boolean isAll200Code() {
         for (Integer code : codes) {
             if(code != 200) {

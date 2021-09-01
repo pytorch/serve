@@ -174,6 +174,8 @@ public class WorkerThread implements Runnable {
         thread.setName(getWorkerName());
         currentThread.set(thread);
         BaseModelRequest req = null;
+
+        //cannot instantiate a list of integers but need to find a solution for this
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
 
         try {
@@ -208,8 +210,9 @@ public class WorkerThread implements Runnable {
                             setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
                             backoffIdx = 0;
                         } else {
-                            setState(WorkerState.WORKER_ERROR, reply.getCode());
-                            status = reply.getCodes();
+                            //fix this, this is very wrong
+                            setState(WorkerState.WORKER_ERROR, reply.getCodes().get(0));
+                            status = reply.getCodes().get(0);
                         }
                         break;
                     case UNLOAD:
@@ -399,7 +402,7 @@ public class WorkerThread implements Runnable {
         return "W-" + port + '-' + modelName;
     }
 
-    public void setState(WorkerState newState, int status) {
+    public void setState(WorkerState newState, Integer status) {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
