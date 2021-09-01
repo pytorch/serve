@@ -8,23 +8,20 @@ Run the commands given in following steps from the parent directory of the root 
 
 ## Steps
 
-- Step 1: By default prediction time and handler time are the two custom metrics added in the base handler.
-New metrics can be added to handler in the handle method. In this example we export the `HandlerTime` and `PredictionTime` using mtail.
+- Step 1: In this example we introduce a new custom metric `InferenceTime` in the custom handler and export it using mtail.
 
   ```python
-  def handle(self, data, context):
-      start_time = time.time()
-  
-      self.context = context
-      metrics = self.context.metrics
+  def inference(self, data, *args, **kwargs):
+    self.context = context
+    metrics = self.context.metrics
+    start_time = time.time()
 
-      # <-------- Handler code -------->
-      
-      stop_time = time.time()
-      metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
-      return output
+    # <-------- Inference -------->
+
+    stop_time = time.time()
+    metrics.add_time('InferenceTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+    return output
   ```
-  Base handler with `HandlerTime` custom metric - https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py
 
   Refer: [Custom Metrics](https://github.com/pytorch/serve/blob/master/docs/metrics.md#custom-metrics-api)
   Refer: [Custom Handler](https://github.com/pytorch/serve/blob/master/docs/custom_service.md#custom-handlers)
@@ -32,7 +29,7 @@ New metrics can be added to handler in the handle method. In this example we exp
 - Step 2: Create a torch model archive using the torch-model-archiver utility to archive the above files.
 
   ```bash
-  torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
+  torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler examples/custom_metrics/mnist_handler.py
   ```
 
 - Step 3: Register the model on TorchServe using the above model archive file.
@@ -53,7 +50,7 @@ New metrics can be added to handler in the handle method. In this example we exp
 
 - Step 5: Create a mtail program. In this example we using a program to export default custom metrics.
 
-  Refer: [mtail Programming Guide](https://google.github.io/mtail/Programming-Guide.html). 
+  Refer: [mtail Programming Guide](https://google.github.io/mtail/Programming-Guide.html).
 
 - Step 6: Start mtail export by running the below command
 
@@ -76,22 +73,23 @@ New metrics can be added to handler in the handle method. In this example we exp
 
 - Step 8: Sart Prometheus with mtailtarget added to scarpe config
 
-  * Download [Prometheus](https://prometheus.io/download/) 
+  - Download [Prometheus](https://prometheus.io/download/)
 
-  * Add mtail target added to scrape config in the config file
+  - Add mtail target added to scrape config in the config file
 
   ```yaml
   scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: "prometheus"
-  
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-  
-    static_configs:
-      - targets: ["localhost:9090", "localhost:3903"]
+    # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+    - job_name: "prometheus"
+
+      # metrics_path defaults to '/metrics'
+      # scheme defaults to 'http'.
+
+      static_configs:
+        - targets: ["localhost:9090", "localhost:3903"]
   ```
-  * Start Prometheus with config file
+
+  - Start Prometheus with config file
 
   ```bash
   ./prometheus --config.file prometheus.yml
