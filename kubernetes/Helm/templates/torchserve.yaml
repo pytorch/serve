@@ -43,6 +43,17 @@ spec:
       - name: persistent-storage
         persistentVolumeClaim:
           claimName: model-store-claim
+      initContainers:
+      - name: volume-ownership
+        image: alpine:3
+        command:
+        - chown
+        - -R
+        - 1000:1000
+        - {{ .Values.torchserve.pvd_mount }}
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: {{ .Values.torchserve.pvd_mount }}
       containers:
       - name: torchserve
         image: {{ .Values.torchserve_image }}
