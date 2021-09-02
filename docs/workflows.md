@@ -129,11 +129,11 @@ def postprocess(data, context):
 
 ```
 
-# Related docs
+## Related docs
 * [workflow_inference_api.md](workflow_inference_api.md)
 * [workflow_management_api.md](workflow_management_api.md)
 
-# Known issues
+## Known issues
 
 * Each workflow dag node (model/function) will receive input as bytes
 * Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors

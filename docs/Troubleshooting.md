@@ -1,4 +1,4 @@
-## Troubleshooting guide.
+## Troubleshooting Guide
 Refer to this section for common issues faced while deploying your Pytorch models using Torchserve and their corresponding troubleshooting steps.
 
 * [Deployment and config issues](#deployment-and-config-issues)
