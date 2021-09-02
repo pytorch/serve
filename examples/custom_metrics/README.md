@@ -8,19 +8,14 @@ Run the commands given in following steps from the parent directory of the root 
 
 ## Steps
 
-- Step 1: In this example we introduce a new custom metric `InferenceTime` in the custom handler and export it using mtail.
+- Step 1: In this example we introduce a new custom metric `SizeOfImage` in the custom handler and export it using mtail.
 
   ```python
-  def inference(self, data, *args, **kwargs):
-    self.context = context
+  def preprocess(self, data):
     metrics = self.context.metrics
-    start_time = time.time()
-
-    # <-------- Inference -------->
-
-    stop_time = time.time()
-    metrics.add_time('InferenceTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
-    return output
+    input = data[0].get('body')
+    metrics.add_size('SizeOfImage', len(input) / 1024, None, 'kB')
+    return ImageClassifier.preprocess(self, data)
   ```
 
   Refer: [Custom Metrics](https://github.com/pytorch/serve/blob/master/docs/metrics.md#custom-metrics-api)

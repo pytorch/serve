@@ -1,5 +1,5 @@
-import time
-import random
+import io
+from PIL import Image
 from torchvision import transforms
 from ts.torch_handler.image_classifier import ImageClassifier
 
@@ -16,6 +16,22 @@ class MNISTDigitClassifier(ImageClassifier):
         [transforms.ToTensor(),
          transforms.Normalize((0.1307,), (0.3081,))])
 
+    def preprocess(self, data):
+        """
+        Preprocess function to convert the request input to a tensor(Torchserve supported format).
+        The user needs to override to customize the pre-processing
+
+        Args :
+            data (list): List of the data from the request input.
+
+        Returns:
+            tensor: Returns the tensor data of the input
+        """
+        metrics = self.context.metrics
+        input = data[0].get('body')
+        metrics.add_size('SizeOfImage', len(input) / 1024, None, 'kB')
+        return ImageClassifier.preprocess(self, data)
+
     def postprocess(self, data):
         """The post process of MNIST converts the predicted output response to a label.
 
@@ -26,21 +42,3 @@ class MNISTDigitClassifier(ImageClassifier):
             list : A list of dictionary with predictons and explanations are returned.
         """
         return data.argmax(1).flatten().tolist()
-
-    def inference(self, data, *args, **kwargs):
-        """
-        Args:
-            data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
-            The shape should match the model input shape.
-
-        Returns:
-            Torch Tensor : The Predicted Torch Tensor is returned in this function.
-        """
-
-        metrics = self.context.metrics
-        start_time = time.time()
-        results = ImageClassifier.inference(self, data, *args, **kwargs)
-        stop_time = time.time()
-        metrics.add_time('InferenceTime',
-                         round((stop_time - start_time) * 1000, 2), None, 'ms')
-        return results

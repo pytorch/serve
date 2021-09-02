@@ -1,5 +1,5 @@
 counter request_count
-gauge inference_time
+gauge image_size
 gauge model_name
 gauge level
 gauge host_name
@@ -11,11 +11,11 @@ gauge time_stamp
 # 2021-08-27 21:15:03,376 - HandlerTime.Milliseconds:109.74|#ModelName:bert,Level:Model|#hostname:ubuntu-ThinkPad-E14,requestID:09ed6c2c-9380-480d-a61a-66bfea958c1d,timestamp:1630079103
 # 2021-09-02 00:24:34,001 - InferenceTime.Milliseconds:3.05|#ModelName:mnist,Level:Model|#hostname:ubuntu-ThinkPad-E14,requestID:ce9a3631-e509-4a82-91c4-482cd2a15cd9,timestamp:1630522474
 
-const PATTERN /InferenceTime\.Milliseconds:(\d+\.\d+)\|#ModelName:([a-zA-Z]+),Level:([a-zA-Z]+)\|#hostname:([a-zA-Z0-9-]+),requestID:([a-zA-Z0-9-]+),timestamp:([0-9]+)/
+const PATTERN /SizeOfImage\.Kilobytes:(\d+\.\d+)\|#ModelName:([a-zA-Z]+),Level:([a-zA-Z]+)\|#hostname:([a-zA-Z0-9-]+),requestID:([a-zA-Z0-9-]+),timestamp:([0-9]+)/
 
 PATTERN{
   request_count++
-  inference_time = $1
+  image_size = $1
   model_name = $2
   level = $3
   host_name = $4
