@@ -16,6 +16,9 @@ torchserve:
 
 deployment:
   replicas: 1
-
+  
 persitant_volume:
   size: 1Gi
+
+securityContext:
+  groupId: 1000
