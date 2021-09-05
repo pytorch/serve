@@ -48,8 +48,7 @@ spec:
         image: alpine:3
         command:
         - chown
-        - -R
-        - 1000:1000
+        - root:{{ .Values.securityContext.groupId }}
         - {{ .Values.torchserve.pvd_mount }}
         volumeMounts:
         - name: persistent-storage
