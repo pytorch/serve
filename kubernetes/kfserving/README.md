@@ -328,3 +328,18 @@ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -
 DEPLOYMENT_NAME=_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 ```
+
+## Autoscaling
+One of the main serverless inference features is to automatically scale the replicas of an `InferenceService` matching the incoming workload.
+KFServing by default enables [Knative Pod Autoscaler](https://knative.dev/docs/serving/autoscaling/) which watches traffic flow and scales up and down
+based on the configured metrics.
+
+[Autoscaling Example](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/autoscaling/README.md)
+
+## Canary Rollout
+Canary rollout is a deployment strategy when you release a new version of model to a small percent of the production traffic.
+
+[Canary Deployment](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/canary/README.md)
+
+## Monitoring
+[Expose metrics and setup grafana dashboards](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/metrics/README.md)
