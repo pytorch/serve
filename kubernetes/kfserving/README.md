@@ -76,13 +76,13 @@ Follow the instructions in the link below for creating PV and copying the config
 [Steps for creating PVC](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
 
 
-* Step - 5 : Create the Inference Service
+* Step - 4 : Create the Inference Service
 
 Refer the following linn to create an inference service
 
 [Creating inference service](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
 
-* Step - 7 : Hit the Curl Request to make a prediction as below :
+* Step - 5 : Hit the Curl Request to make a prediction as below :
 
 Navigate to serve/kubernetes/kfserving/
 
