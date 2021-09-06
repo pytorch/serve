@@ -30,12 +30,6 @@ Currently, KFServing supports the Inference API for all the existing models but 
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-Individual Readmes for KFServing :
-
-* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
-* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md)
-* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md)
-
 Please follow the below steps to deploy Torchserve in Kubeflow Cluster as kfpredictor:
 
 * Step - 1 : Create the .mar file for mnist by invoking the below command :
@@ -84,85 +78,27 @@ Refer the following linn to create an inference service
 
 * Step - 5 : Hit the Curl Request to make a prediction as below :
 
-Navigate to serve/kubernetes/kfserving/
-
-The image file can be converted into string of bytes array by running  
-``` 
-python img2bytearray.py <imagefile>
-```
-
-The JSON Input content is as below :
-
-```json
-{
-  "instances": [
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    }
-  ]
-}
-```
-
 ```bash
 DEPLOYMENT_NAME=torch-pred
 SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 
-curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:predict -d @<path-to-input-file>
 ```
 
-The response is as below :
 
-```json
-{
-  "predictions": [
-    2
-  ]
-}
-```
-
- * Step - 8 : Hit the Curl Request to make an explanation as below:
+ * Step - 6 : Hit the Curl Request to make an explanation as below:
 
 
 ```bash
-curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:explain -d @./input.json
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:explain -d @<path-to-input-file>
 ```
 
-The JSON Input content is as below :
+Refer the individual Readmes for KFServing :
 
-```json
-{
-  "instances": [
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    }
-    
-  ]
-}
-```
-
-The response is as below :
-```json
-{
-  "explanations": [
-    [
-      [
-        [
-          0.004570948731989492,
-          0.006216969640322402,
-          0.008197565423679522,
-          0.009563574612830427,
-          0.008999274832810742,
-          0.009673474804303854,
-          0.007599905146155397,
-          ,
-          ,
-        ]
-      ]
-    ]
-  ]
-}
-```
+* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
+* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md)
+* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md)
 
 KFServing supports Static batching by adding new examples in the instances key of the request json.
 But the batch size should still be set at 1, when we register the model. Explain doesn't support batching. 
