@@ -71,93 +71,10 @@ The below sequence of steps need to be executed in the Kubeflow cluster.
 
 * Step - 3 : Create PV, PVC and PV pods in KFServing
 
- You need to Create a volume in EC2 for EBS storage PV, PVC and PV pod. You can see below the examples of the pv.yaml, pvc.yaml and pv_pod.yaml.
+Follow the instructions in the link below for creating PV and copying the config files
 
-pv.yaml:
+[Create PVC](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
 
-```yaml
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: model-pv-volume
-  labels:
-    type: "amazonEBS"
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-      - ReadWriteOnce
-  awsElasticBlockStore:
-    volumeID: {volume-id} #vol-074ea8934f7080df5
-    fsType: ext4
-```
-
-```bash
-kubectl apply -f pv.yaml -n kfserving-test
-```
-
-pvc.yaml:
-
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: model-pv-claim
-  labels:
-    type: "amazonEBS"
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-```
-
-```bash
-kubectl apply -f pvc.yaml -n kfserving-test
-```
-
-pv_pod.yaml:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
- name: model-store-pod
-spec:
- volumes:
-   - name: model-store
-     persistentVolumeClaim:
-       claimName: model-pv-claim
- containers:
-   - name: model-store
-     image: ubuntu
-     command: [ "sleep" ]
-     args: [ "infinity" ]
-     volumeMounts:
-       - mountPath: "/pv/"
-         name: model-store
-```
-
-```bash
-kubectl apply -f pv_pod.yaml -n kfserving-test
-```
-
-
-* Step - 4 : Copy the Model Files and Config Properties.
- 
-First, create the model store and the config directory using the below command :
-```bash
-kubectl exec -t model-store-pod -c model-store -n kfserving-test -- mkdir /pv/model-store/
-kubectl exec -t model-store-pod -c model-store -n kfserving-test -- mkdir /pv/config/
-```
-
-Now, copy the .mar file that we created in the previous step and the config.properties with the commands below:
-
-```bash
-kubectl cp mnist.mar model-store-pod:/pv/model-store/mnist.mar -c model-store -n kfserving-test 
-kubectl cp config.properties model-store-pod:/pv/config/config.properties -c model-store -n kfserving-test 
-```
 
 * Step - 5 : Create the Inference Service
 
