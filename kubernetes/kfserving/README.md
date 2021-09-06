@@ -73,44 +73,14 @@ The below sequence of steps need to be executed in the Kubeflow cluster.
 
 Follow the instructions in the link below for creating PV and copying the config files
 
-[Create PVC](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
+[Steps for creating PVC](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
 
 
 * Step - 5 : Create the Inference Service
 
-CPU Deployment : For deployment in CPU the sample yaml file is shown as below 
+Refer the following linn to create an inference service
 
-ts-sample.yaml 
-
-```yaml
-apiVersion: "serving.kubeflow.org/v1beta1"
-kind: "InferenceService"
-metadata:
-  name: "torch-pred"
-spec:
-  predictor:
-    pytorch:
-      storageUri: "pvc://model-pv-claim"
-```
-
-To deploy the Torchserve Inference Service in CPU use the below command :
-
-```bash
-kubectl apply -f ts-sample.yaml -n kfserving-test
-```
-
-* Step - 6 : Check if the Inference Service is up and running : 
-
-Use the below command for the check 
-```bash
-kubectl get inferenceservice torch-pred -n kfserving-test
-```
-
-This shows the service is ready for inference:
-```bash
-NAME         URL                                            READY   AGE
-torch-pred   http://torch-pred.kfserving-test.example.com   True    39m
-```
+[Creating inference service](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
 
 * Step - 7 : Hit the Curl Request to make a prediction as below :
 
