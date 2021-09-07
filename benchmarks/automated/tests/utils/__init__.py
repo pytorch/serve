@@ -14,6 +14,8 @@ import docker
 import git
 import pytest
 import yaml
+
+from pprint import pprint
 from botocore.exceptions import ClientError
 from invoke import run
 from invoke.context import Context
@@ -195,7 +197,7 @@ class YamlHandler(object):
         :param yaml_content: dictionary containing yaml contents of the docker config
         """
         LOGGER.info(f"docker content: ")
-        LOGGER.info(f"{yaml_content}")
+        pprint(yaml_content)
 
         processor_list = []
         docker_config_list = []

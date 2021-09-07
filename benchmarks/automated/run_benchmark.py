@@ -28,10 +28,12 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 
 
-def build_docker_container(torchserve_branch="master"):
+def build_docker_container(torchserve_branch="master", push_image=True):
     LOGGER.info(f"Setting up docker image to be used")
 
-    docker_dev_image_config_path = os.path.join(os.getcwd(), "benchmarks", "automated", "tests", "suite", "docker", "docker.yaml")
+    docker_dev_image_config_path = os.path.join(
+        os.getcwd(), "benchmarks", "automated", "tests", "suite", "docker", "docker.yaml"
+    )
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
     YamlHandler.validate_docker_yaml(docker_config)
@@ -48,14 +50,15 @@ def build_docker_container(torchserve_branch="master"):
                 docker_tag = config_value
         dockerImageHandler = DockerImageHandler(docker_tag, cuda_version, torchserve_branch)
         dockerImageHandler.build_image()
-        dockerImageHandler.push_docker_image_to_ecr(
-            account_id, DEFAULT_REGION, f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
-        )
+        if push_image:
+            dockerImageHandler.push_docker_image_to_ecr(
+                account_id, DEFAULT_REGION, f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
+            )
+        else:
+            LOGGER.warn(f"Docker image will not be pushed to ECR repo in local execution.")
 
 
 def main():
-
-    LOGGER.info(f"sys.path: {sys.path}")
 
     parser = argparse.ArgumentParser()
 
@@ -78,21 +81,21 @@ def main():
     parser.add_argument(
         "--use-torchserve-branch",
         default="master",
-        help="Specify a specific torchserve branch to build a container to benchmark on, else uses 'master' by default"
+        help="Specify a specific torchserve branch to build a container to benchmark on, else uses 'master' by default",
     )
 
     parser.add_argument(
         "--skip-docker-build",
         action="store_true",
         default=False,
-        help="Use if you already have a docker image built and available locally and have specified it in docker.yaml"
+        help="Use if you already have a docker image built and available locally and have specified it in docker.yaml",
     )
 
     parser.add_argument(
         "--local-execution",
         action="store_true",
         default=False,
-        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore instances specified in the model config *.yaml files."
+        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore instances specified in the model config *.yaml files.",
     )
 
     arguments = parser.parse_args()
@@ -110,7 +113,10 @@ def main():
 
     # Build docker containers as specified in docker.yaml
     if not arguments.skip_docker_build:
-        build_docker_container(torchserve_branch=torchserve_branch)
+        push_image = False if arguments.local_execution else True
+        build_docker_container(torchserve_branch=torchserve_branch, push_image=push_image)
+    else:
+        LOGGER.warn(f"Skipping docker build.")
 
     # Run this script from the root directory 'serve', it changes directory below as required
     os.chdir(os.path.join(os.getcwd(), "benchmarks", "automated"))
