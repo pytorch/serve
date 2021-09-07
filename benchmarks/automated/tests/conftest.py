@@ -62,6 +62,10 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
+def is_local_execution(request):
+    return request.config.getoption("--local-execution")
+
+@pytest.fixture(scope="session")
 def docker_dev_image_config_path(request):
     return os.path.join(os.getcwd(), "tests", "suite", "docker", "docker.yaml")
 
@@ -185,9 +189,10 @@ def ec2_instance(
     ec2_instance_role_name,
     ec2_instance_ami,
     region,
+    is_local_execution
 ):
 
-    if request.config.getoption("--local-execution"):
+    if is_local_execution:
         return None
 
     (_, ec2_instance_type) = model_config_path_ec2_instance_tuple

@@ -143,11 +143,9 @@ class YamlHandler(object):
         for model, config in yaml_content.items():
             if model == "instance_types":
                 continue
-            LOGGER.info(f"model: {model}")
-            LOGGER.info(f"config: {config}")
+            
             for mode, mode_config in config.items():
-                LOGGER.info(f"mode: {mode}")
-                LOGGER.info(f"mode_config: {mode_config}")
+                
                 mode_list.append(mode)
                 for config, value in mode_config.items():
                     if config == "batch_size":
@@ -369,7 +367,7 @@ class DockerImageHandler(object):
         LOGGER.info(f"Dev image pull from ECR successful.")
 
     @staticmethod
-    def process_docker_config(ec2_connection, docker_dev_image_config_path, ec2_instance_type):
+    def process_docker_config(ec2_connection, docker_dev_image_config_path, ec2_instance_type, is_local_execution):
         """
         :param docker_dev_config_path: path of the config file that describes docker config properties
         :return cuda_version_for_instance: return the cuda version based on the instance type provided
@@ -393,17 +391,19 @@ class DockerImageHandler(object):
 
             if ec2_instance_type[:2] in GPU_INSTANCES and "gpu" in docker_tag:
                 dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
-                dockerImageHandler.pull_docker_image_from_ecr(
-                    account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
-                )
+                if not is_local_execution:
+                    dockerImageHandler.pull_docker_image_from_ecr(
+                        account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                    )
                 docker_repo_tag_for_current_instance = docker_repo_tag
                 cuda_version_for_instance = cuda_version
                 break
             if ec2_instance_type[:2] not in GPU_INSTANCES and "cpu" in docker_tag:
                 dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
-                dockerImageHandler.pull_docker_image_from_ecr(
-                    account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
-                )
+                if not is_local_execution:
+                    dockerImageHandler.pull_docker_image_from_ecr(
+                        account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                    )
                 docker_repo_tag_for_current_instance = docker_repo_tag
                 cuda_version_for_instance = None
                 break
