@@ -68,11 +68,20 @@ class YamlHandler(object):
 
     workflow_config_keys = ["workflow_name", "models", "specfile", "workflow_handler", "retry_attempts", "timeout_ms"]
 
-    optional_config_keys = ["url", "dockerhub_image", "docker_dev_image", "compile_per_batch_size"]
+    optional_config_keys = [
+        "url",
+        "dockerhub_image",
+        "docker_dev_image",
+        "compile_per_batch_size",
+        "instance_types",
+        "on_instance",
+    ]
 
     valid_config_keys = mandatory_config_keys + optional_config_keys + workflow_config_keys
 
     mutually_exclusive_docker_config_keys = ["dockerhub_image", "docker_dev_image"]
+
+    mutually_exclusive_instance_config_keys = ["instance_types", "on_instance"]
 
     valid_batch_sizes = [1, 2, 3, 4]
 
@@ -130,7 +139,13 @@ class YamlHandler(object):
         processor_list = []
 
         for model, config in yaml_content.items():
+            if model == "instance_types":
+                continue
+            LOGGER.info(f"model: {model}")
+            LOGGER.info(f"config: {config}")
             for mode, mode_config in config.items():
+                LOGGER.info(f"mode: {mode}")
+                LOGGER.info(f"mode_config: {mode_config}")
                 mode_list.append(mode)
                 for config, value in mode_config.items():
                     if config == "batch_size":
@@ -156,6 +171,10 @@ class YamlHandler(object):
                 assert not all(
                     key in config_list for key in YamlHandler.mutually_exclusive_docker_config_keys
                 ), f"Either of the keys {YamlHandler.mutually_exclusive_docker_config_keys} maybe present in config, but not both. Check config for '{mode}' under model '{model}'."
+
+                assert not all(
+                    key in config_list for key in YamlHandler.mutually_exclusive_instance_config_keys
+                ), f"Either of the keys {YamlHandler.mutually_exclusive_instance_config_keys} maybe present in config, but not both. Check config for '{mode}' under model '{model}'."
 
                 config_list.clear()
                 batch_size_list.clear()
@@ -236,7 +255,9 @@ LOGGER.setLevel(logging.INFO)
 LOGGER.addHandler(logging.StreamHandler(sys.stderr))
 
 
-benchmark_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "suite", "benchmark", "config.yaml")
+benchmark_config_path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "suite", "benchmark", "config.yaml"
+)
 benchmarkConfig = BenchmarkConfig(benchmark_config_path)
 
 # Read from config
