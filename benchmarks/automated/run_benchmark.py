@@ -88,6 +88,13 @@ def main():
         help="Use if you already have a docker image built and available locally and have specified it in docker.yaml"
     )
 
+    parser.add_argument(
+        "--local-execution",
+        action="store_true",
+        default=False,
+        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore instances specified in the model config *.yaml files."
+    )
+
     arguments = parser.parse_args()
     do_not_terminate_string = "" if not arguments.do_not_terminate else "--do-not-terminate"
     use_instances_arg_list = ["--use-instances", f"{arguments.use_instances}"] if arguments.use_instances else []

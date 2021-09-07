@@ -55,6 +55,8 @@ class BenchmarkHandler:
         apacheBenchHandler = ab_utils.ApacheBenchHandler(model_name=self.model_name, connection=self.connection)
 
         for model, config in test_config.items():
+            if model == "instance_types":
+                continue
             for mode, mode_config in config.items():
                 mode_list.append(mode)
                 benchmark_engine = mode_config.get("benchmark_engine")

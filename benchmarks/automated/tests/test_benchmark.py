@@ -18,24 +18,19 @@ from tests.utils import (
     S3_BUCKET_BENCHMARK_ARTIFACTS,
 )
 
-# Add/remove from the following list to benchmark on the instance of your choice
-INSTANCE_TYPES_TO_TEST = ["c4.4xlarge"]
 
-
-@pytest.mark.parametrize("ec2_instance_type", INSTANCE_TYPES_TO_TEST, indirect=True)
-def test_vgg16_benchmark(
-    ec2_connection, ec2_instance_type, vgg16_config_file_path, docker_dev_image_config_path, benchmark_execution_id
+def test_model_benchmark(
+    ec2_connection, model_config_path_ec2_instance_tuple, docker_dev_image_config_path, benchmark_execution_id
 ):
+    (model_config_file_path, ec2_instance_type) = model_config_path_ec2_instance_tuple
 
-    test_config = YamlHandler.load_yaml(vgg16_config_file_path)
+    test_config = YamlHandler.load_yaml(model_config_file_path)
 
-    model_name = vgg16_config_file_path.split("/")[-1].split(".")[0]
+    model_name = model_config_file_path.split("/")[-1].split(".")[0]
 
     LOGGER.info("Validating yaml contents")
 
     LOGGER.info(YamlHandler.validate_model_yaml(test_config))
-
-    docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
 
     cuda_version_for_instance, docker_repo_tag_for_current_instance = DockerImageHandler.process_docker_config(
         ec2_connection, docker_dev_image_config_path, ec2_instance_type
