@@ -24,13 +24,14 @@ from . import neuron as neuron_utils
 
 
 class BenchmarkHandler:
-    def __init__(self, model_name, benchmark_execution_id, connection=None):
+    def __init__(self, model_name, benchmark_execution_id, connection=None, is_local_execution=False):
         """
         :param connection: fabric/invoke connection for local or remote execution
         """
         self.model_name = model_name
         self.benchmark_execution_id = benchmark_execution_id
         self.connection = invoke if not connection else connection
+        self.is_local_execution = is_local_execution
 
     def execute_local_benchmark(
         self,
@@ -86,6 +87,7 @@ class BenchmarkHandler:
                     torchserve_docker_image=docker_repo_tag_for_current_instance,
                     backend_profiling=backend_profiling,
                     connection=self.connection,
+                    is_local_execution=self.is_local_execution
                 )
 
                 # Note: Assumes a DLAMI (conda-based) is being used
@@ -196,6 +198,7 @@ class BenchmarkHandler:
                     torchserve_docker_image=docker_repo_tag_for_current_instance,
                     backend_profiling=backend_profiling,
                     connection=self.connection,
+                    is_local_execution=self.is_local_execution
                 )
 
                 for batch_size in batch_sizes:
@@ -309,6 +312,7 @@ class BenchmarkHandler:
                     torchserve_docker_image=docker_repo_tag_for_current_instance,
                     backend_profiling=backend_profiling,
                     connection=self.connection,
+                    is_local_execution=is_local_execution
                 )
 
                 torchserveHandler.download_workflow_artifacts(
