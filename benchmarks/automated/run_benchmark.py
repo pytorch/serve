@@ -98,7 +98,22 @@ def main():
         help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore instances specified in the model config *.yaml files.",
     )
 
+    parser.add_argument(
+        "--local-instance-type",
+        default="c4.4xlarge",
+        help="Specify the current ec2 instance on which the benchmark executes. May not specify any other value than a valid ec2 instance type."
+    )
+
+
     arguments = parser.parse_args()
+
+    if arguments.local_instance_type and not arguments.local_execution:
+        LOGGER.error(f"--local-instance-type may only be used with --local-execution")
+        sys.exit(1)
+
+    if arguments.local_execution and not arguments.local_instance_type:
+        LOGGER.error(f"--local-instance-type must be specified when using --local-execution")
+
     do_not_terminate_string = "" if not arguments.do_not_terminate else "--do-not-terminate"
     local_execution_string = "" if not arguments.local_execution else "--local-execution"
     use_instances_arg_list = ["--use-instances", f"{arguments.use_instances}"] if arguments.use_instances else []
@@ -109,6 +124,11 @@ def main():
         LOGGER.info(f"Note: running only the tests that have the name '{run_only_test}'.")
     else:
         run_only_string = ""
+
+    if arguments.local_execution:
+        local_instance_type_string = f"--local-instance-type {arguments.local_instance_type}"
+    else:
+        local_execution_string = "" 
 
     torchserve_branch = arguments.use_torchserve_branch
 
@@ -138,7 +158,8 @@ def main():
         "--execution-id",
         execution_id,
         do_not_terminate_string,
-        local_execution_string
+        local_execution_string,
+        local_instance_type_string
     ] + use_instances_arg_list
 
     LOGGER.info(f"Running pytest")
