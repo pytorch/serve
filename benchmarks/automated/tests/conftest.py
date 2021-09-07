@@ -1,4 +1,5 @@
 import datetime
+import invoke
 import logging
 import os
 import random
@@ -52,6 +53,13 @@ def pytest_addoption(parser):
         help="Use with caution: does not terminate instances, instead saves the list to a file in order to re-use",
     )
 
+    parser.addoption(
+        "--local-execution",
+        action="store_true",
+        default=False,
+        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore the instances specified in the model config *.yaml file."
+    )
+
 
 @pytest.fixture(scope="session")
 def docker_dev_image_config_path(request):
@@ -66,21 +74,39 @@ def benchmark_execution_id(request):
     )
     return execution_id
 
+
+#@pytest.fixture(scope="session", autouse=True)
+def get_model_config_paths():
+    model_configs_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "suite")
+    model_config_paths = []
+    for root, _, files in os.walk(model_configs_folder):
+        for name in files:
+            model_config_paths.append(os.path.join(root, name))
+        # break, don't explore sub-directories
+        break
+    LOGGER.info(f"return model_config_paths: {model_config_paths}")
+    return model_config_paths
+
+
 @pytest.fixture(scope="function")
 def wf_dog_breed_config_file_path(request):
     return os.path.join(os.getcwd(), "tests", "suite", "wf_dog_breed.yaml")
+
 
 @pytest.fixture(scope="function")
 def wf_nmt_retranslation_config_file_path(request):
     return os.path.join(os.getcwd(), "tests", "suite", "wf_nmt_retranslation.yaml")
 
+
 @pytest.fixture(scope="function")
 def wf_nmt_dualtranslation_config_file_path(request):
     return os.path.join(os.getcwd(), "tests", "suite", "wf_nmt_dualtranslation.yaml")
 
+
 @pytest.fixture(scope="function")
 def bert_neuron_config_file_path(request):
     return os.path.join(os.getcwd(), "tests", "suite", "bert_neuron.yaml")
+
 
 @pytest.fixture(scope="function")
 def vgg11_config_file_path(request):
@@ -154,14 +180,21 @@ def ec2_instance(
     request,
     ec2_client,
     ec2_resource,
-    ec2_instance_type,
+    model_config_path_ec2_instance_tuple,
     ec2_key_name,
     ec2_instance_role_name,
     ec2_instance_ami,
     region,
 ):
 
-    use_instances_flag = request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
+    if request.config.getoption("--local-execution"):
+        return None
+
+    (_, ec2_instance_type) = model_config_path_ec2_instance_tuple
+
+    use_instances_flag = (
+        request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
+    )
 
     if use_instances_flag:
         instances_file = request.config.getoption("--use-instances")
@@ -170,7 +203,9 @@ def ec2_instance(
         LOGGER.info(f"instances_dict: {instances_dict}")
         instances = instances_dict.get(request.node.name.split("[")[0], "")
         LOGGER.info(f"instances: {instances}")
-        assert instances != "", f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
+        assert (
+            instances != ""
+        ), f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
         instance_details = instances.get(ec2_instance_type, "")
         assert instance_details != "", f"Could not obtain details for instance type: {ec2_instance_type}"
         instance_id = instance_details.get("instance_id", "")
@@ -229,8 +264,12 @@ def ec2_instance(
         instances_dict = YamlHandler.load_yaml(instances_file)
         if not instances_dict:
             instances_dict = {}
-        
-        update_dictionary = {request.node.name.split("[")[0]: {ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}}}
+
+        update_dictionary = {
+            request.node.name.split("[")[0]: {
+                ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}
+            }
+        }
 
         instances_dict.update(update_dictionary)
 
@@ -252,6 +291,9 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
     :param region: Region where ec2 instance is launched
     :return: Fabric connection object
     """
+    if ec2_instance is None:
+        return invoke
+
     instance_id, instance_pem_file = ec2_instance
     ip_address = ec2_utils.get_public_ip(instance_id, region=region)
     LOGGER.info(f"Instance ip_address: {ip_address}")
@@ -272,3 +314,31 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
     request.addfinalizer(delete_s3_artifact_copy)
 
     return conn
+
+
+def pytest_generate_tests(metafunc):
+    """
+    Parameterize test function based on the number of ec2 instances supplied to be benchmarked
+    on in the config file
+    """
+    parameter_list = []
+    ids = []
+
+    model_config_paths = get_model_config_paths()
+
+    for model_config_path in model_config_paths:
+        model_name = model_config_path.split("/")[-1].split(".")[0]
+
+        model_yaml_content = YamlHandler.load_yaml(model_config_path)
+        YamlHandler.validate_model_yaml(model_yaml_content)
+        instance_types = model_yaml_content.get("instance_types")
+
+        if instance_types:
+            for ec2_instance_type in instance_types:
+                parameter_list.append((model_config_path, ec2_instance_type))
+                ids.append(f"{model_name}-{ec2_instance_type}")
+
+    LOGGER.info(f"parameter_list: {parameter_list}")
+
+    if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames: 
+        metafunc.parametrize("model_config_path_ec2_instance_tuple", parameter_list, ids=ids)
