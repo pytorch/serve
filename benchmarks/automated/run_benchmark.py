@@ -126,9 +126,9 @@ def main():
         run_only_string = ""
 
     if arguments.local_execution:
-        local_instance_type_string = f"--local-instance-type {arguments.local_instance_type}"
+        local_instance_type_list = ["--local-instance-type", arguments.local_instance_type]
     else:
-        local_execution_string = "" 
+        local_instance_type_list = []
 
     torchserve_branch = arguments.use_torchserve_branch
 
@@ -159,8 +159,7 @@ def main():
         execution_id,
         do_not_terminate_string,
         local_execution_string,
-        local_instance_type_string
-    ] + use_instances_arg_list
+    ] + local_instance_type_list + use_instances_arg_list
 
     LOGGER.info(f"Running pytest")
 
