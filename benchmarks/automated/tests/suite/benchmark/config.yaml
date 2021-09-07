@@ -1,7 +1,7 @@
 ---
 aws_region: "us-west-2"
 iam_instance_profile: "EC2Admin"
-s3_bucket_benchmark_artifacts: "s3://nikhilsk-model-serving/benchmark_artifacts"
+s3_bucket_benchmark_artifacts: "s3://torchserve-benchmarks/benchmark_artifacts"
 docker_default_dev_ecr_repo: "torchserve-benchmark"
 default_docker_dev_ecr_tag: "dev-image"
 ami_id: "ami-00c5ebd9076702cbe" #DLAMI 43.0 with apache2-utils installed
