@@ -17,3 +17,6 @@ bert_inf1:
         exec_env: "local"
         processors:
             - "inferentia"
+instance_types:
+    - "inf1.6xlarge"
+    - "c5.metal"
