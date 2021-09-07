@@ -113,6 +113,7 @@ def main():
 
     if arguments.local_execution and not arguments.local_instance_type:
         LOGGER.error(f"--local-instance-type must be specified when using --local-execution")
+        sys.exit(1)
 
     do_not_terminate_string = "" if not arguments.do_not_terminate else "--do-not-terminate"
     local_execution_string = "" if not arguments.local_execution else "--local-execution"
