@@ -352,7 +352,7 @@ def pytest_generate_tests(metafunc):
                 ids.append(f"{model_name}-{ec2_instance_type}")
         else:
             parameter_list.append((model_config_path, local_instance_type))
-            ids.append(f"{model_name}-{ec2_instance_type}")
+            ids.append(f"{model_name}-{local_instance_type}")
 
     if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames: 
         metafunc.parametrize("model_config_path_ec2_instance_tuple", parameter_list, ids=ids)
