@@ -196,9 +196,6 @@ class YamlHandler(object):
         """
         :param yaml_content: dictionary containing yaml contents of the docker config
         """
-        LOGGER.info(f"docker content: ")
-        pprint(yaml_content)
-
         processor_list = []
         docker_config_list = []
 
@@ -234,7 +231,8 @@ class YamlHandler(object):
         """
         :param yaml_content: dictionary containing yaml contents of the benchmark config
         """
-        LOGGER.info(f"Benchmark config: {yaml_content}")
+        LOGGER.info(f"Benchmark config:")
+        pprint(yaml_content)
 
         config_key_list = []
 
