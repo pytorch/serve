@@ -90,10 +90,7 @@ INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
 python benchmarks/automated/run_benchmark.py
 ```
 7. To start test for a particual model, modify the `pytest_args` list in run_benchmark.py to include `["-k", "vgg11"]`, if that particular model is vgg11
-8. For generating benchmarking report, modify the argument to function `generate_comprehensive_report()` to point to the s3 bucket uri for the benchmark run. Run the script as:
-```
-python report.py
-```
+ 
 The final benchmark report will be available in markdown format as `report.md` in the `serve/` folder. 
 
 **Example report for vgg11 model**
@@ -175,4 +172,14 @@ python benchmarks/automated/run_benchmark.py --run-only vgg16
 4. You can benchmark a specifc branch of the torchserve github repo by specifying the flag `--use-torchserve-branch` e.g., 
 ```
 python benchmarks/automated/run_benchmark.py --use-torchserve-branch issue_1115
+```
+
+5. Once the docker image is built, you may choose to not have it re-built by passing the argument `--skip-docker-build` e.g.,
+```
+python benchmarks/automated/run_benchmark.py --skip-docker-build
+```
+
+6. If you do not wish to benchmark on different instance types specified in the model config `*.yaml`, you may pass the argument `--local-execution`. In this case, the instance types specified in the model config `*.yaml` file are *ignored*. Also, in this case, all the model benchmarks will be performed *sequentially* in order to 
+```
+python benchmarks/automated/run_benchmarks.py --local-execution
 ```
