@@ -60,6 +60,12 @@ def pytest_addoption(parser):
         help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore the instances specified in the model config *.yaml file."
     )
 
+    parser.addoption(
+        "--local-instance-type",
+        default="c4.4xlarge",
+        help="Specify the current ec2 instance on which the benchmark executes. Note: default is c4.4xlarge or CPU mode. May not specify any other value than an ec2 instance type."
+    )
+
 
 @pytest.fixture(scope="session")
 def is_local_execution(request):
@@ -330,17 +336,22 @@ def pytest_generate_tests(metafunc):
 
     model_config_paths = get_model_config_paths()
 
+    is_local_execution = metafunc.config.getoption('--local-execution')
+    local_instance_type = metafunc.config.getoption('--local-instance-type')
+
     for model_config_path in model_config_paths:
         model_name = model_config_path.split("/")[-1].split(".")[0]
 
         model_yaml_content = YamlHandler.load_yaml(model_config_path)
         YamlHandler.validate_model_yaml(model_yaml_content)
-        instance_types = model_yaml_content.get("instance_types")
+        instance_types = None if is_local_execution else model_yaml_content.get("instance_types")
 
         if instance_types:
             for ec2_instance_type in instance_types:
                 parameter_list.append((model_config_path, ec2_instance_type))
                 ids.append(f"{model_name}-{ec2_instance_type}")
+        else:
+            parameter_list.append((model_config_path, local_instance_type))
 
     if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames: 
         metafunc.parametrize("model_config_path_ec2_instance_tuple", parameter_list, ids=ids)
