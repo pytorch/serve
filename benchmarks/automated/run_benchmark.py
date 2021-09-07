@@ -100,6 +100,7 @@ def main():
 
     arguments = parser.parse_args()
     do_not_terminate_string = "" if not arguments.do_not_terminate else "--do-not-terminate"
+    local_execution_string = "" if not arguments.local_execution else "--local-execution"
     use_instances_arg_list = ["--use-instances", f"{arguments.use_instances}"] if arguments.use_instances else []
     run_only_test = arguments.run_only
 
@@ -137,6 +138,7 @@ def main():
         "--execution-id",
         execution_id,
         do_not_terminate_string,
+        local_execution_string
     ] + use_instances_arg_list
 
     LOGGER.info(f"Running pytest")
