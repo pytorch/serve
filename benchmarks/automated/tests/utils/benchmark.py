@@ -53,6 +53,7 @@ class BenchmarkHandler:
         batch_size_list = []
         processor_list = []
 
+        ec2_instance_type = "local_execution" if self.is_local_execution else ec2_instance_type
         apacheBenchHandler = ab_utils.ApacheBenchHandler(model_name=self.model_name, connection=self.connection)
 
         for model, config in test_config.items():
@@ -165,6 +166,7 @@ class BenchmarkHandler:
         batch_size_list = []
         processor_list = []
 
+        ec2_instance_type = "local_execution" if self.is_local_execution else ec2_instance_type
         apacheBenchHandler = ab_utils.ApacheBenchHandler(model_name=self.model_name, connection=self.connection)
 
         for model, config in test_config.items():
@@ -262,6 +264,7 @@ class BenchmarkHandler:
         batch_size_list = []
         processor_list = []
 
+        ec2_instance_type = "local_execution" if self.is_local_execution else ec2_instance_type
         apacheBenchHandler = ab_utils.ApacheBenchHandler(model_name=self.model_name, connection=self.connection)
 
         for model, config in test_config.items():
@@ -312,7 +315,7 @@ class BenchmarkHandler:
                     torchserve_docker_image=docker_repo_tag_for_current_instance,
                     backend_profiling=backend_profiling,
                     connection=self.connection,
-                    is_local_execution=is_local_execution
+                    is_local_execution=self.is_local_execution
                 )
 
                 torchserveHandler.download_workflow_artifacts(
