@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 from invoke import run
 from invoke.context import Context
 
-from . import LOGGER, BenchmarkConfig
+from . import LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
 
 # Assumes the functions from this file execute on an Ubuntu ec2 instance
 ROOT_DIR = f"/home/ubuntu"
@@ -43,6 +43,8 @@ class TorchServeHandler(object):
         self.torchserve_docker_image = torchserve_docker_image
         self.backend_profiling = backend_profiling
         self.connection = invoke if not connection else connection
+        self.is_local_execution = is_local_execution
+
         self.config_properties = os.path.join(TMP_DIR, "benchmark", "conf", "config.properties")
 
         self.management_api = "http://127.0.0.1:8081"
@@ -53,11 +55,6 @@ class TorchServeHandler(object):
 
         # Install torch-model-archiver and torch-workflow-archiver
         self.connection.run(f"pip3 install torch-model-archiver torch-workflow-archiver")
-
-        benchmark_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "suite", "benchmark", "config.yaml")
-        benchmarkConfig = BenchmarkConfig(benchmark_config_path)
-
-        self.s3_bucket_benchmark_artifacts = benchmarkConfig.s3_bucket_benchmark_artifacts
 
     def setup_torchserve(self, virtual_env_name=None):
         """
@@ -94,7 +91,10 @@ class TorchServeHandler(object):
 
 
     def getAPIS(self):
-        self.connection.get(self.config_properties, os.path.join(LOCAL_TMP_DIR, "config.properties"))
+        if self.is_local_execution:
+            self.connection.run(f"cp {self.config_properties} {os.path.join(LOCAL_TMP_DIR, 'config.properties')}")
+        else:
+            self.connection.get(self.config_properties, os.path.join(LOCAL_TMP_DIR, "config.properties"))
 
         with open(os.path.join(LOCAL_TMP_DIR, "config.properties")) as f:
             lines = f.readlines()
