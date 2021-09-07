@@ -225,9 +225,6 @@ class YamlHandler(object):
         """
         :param yaml_content: dictionary containing yaml contents of the benchmark config
         """
-        LOGGER.info(f"Benchmark config:")
-        pprint(yaml_content)
-
         config_key_list = []
 
         for config_key, _ in yaml_content.items():

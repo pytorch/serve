@@ -35,6 +35,7 @@ class TorchServeHandler(object):
         torchserve_docker_image=None,
         backend_profiling=None,
         connection=None,
+        is_local_execution=False
     ):
         self.exec_env = exec_env
         self.cuda_version = cuda_version
