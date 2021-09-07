@@ -100,7 +100,7 @@ def main():
 
     parser.add_argument(
         "--local-instance-type",
-        default="c4.4xlarge",
+        default=None,
         help="Specify the current ec2 instance on which the benchmark executes. May not specify any other value than a valid ec2 instance type."
     )
 
