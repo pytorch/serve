@@ -185,8 +185,6 @@ class YamlHandler(object):
             len(invalid_mode_keys) == 0
         ), f"Invalid mode key found, 'mode' must be either of {YamlHandler.valid_mode_keys}. Check config for '{invalid_mode_keys}' under model '{model}'"
 
-        LOGGER.info(f"Benchmark YAML config validation successful.")
-
         return True
 
     @staticmethod
@@ -221,8 +219,6 @@ class YamlHandler(object):
         assert (
             len(invalid_processor_keys) == 0
         ), f"Invalid processor key found, must be either of {YamlHandler.valid_docker_processors}"
-
-        LOGGER.info(f"Docker YAML config validation successful.")
 
     @staticmethod
     def validate_benchmark_yaml(yaml_content):
