@@ -79,16 +79,15 @@ def benchmark_execution_id(request):
     return execution_id
 
 
-#@pytest.fixture(scope="session", autouse=True)
 def get_model_config_paths():
     model_configs_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "suite")
     model_config_paths = []
     for root, _, files in os.walk(model_configs_folder):
         for name in files:
             model_config_paths.append(os.path.join(root, name))
+        
         # break, don't explore sub-directories
         break
-    LOGGER.info(f"return model_config_paths: {model_config_paths}")
     return model_config_paths
 
 
@@ -342,8 +341,6 @@ def pytest_generate_tests(metafunc):
             for ec2_instance_type in instance_types:
                 parameter_list.append((model_config_path, ec2_instance_type))
                 ids.append(f"{model_name}-{ec2_instance_type}")
-
-    LOGGER.info(f"parameter_list: {parameter_list}")
 
     if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames: 
         metafunc.parametrize("model_config_path_ec2_instance_tuple", parameter_list, ids=ids)
