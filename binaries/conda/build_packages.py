@@ -6,17 +6,25 @@ import subprocess
 conda_build_dir = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
 MINICONDA_DOWNLOAD_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh"
+CONDA_BINARY = os.popen("which conda").read().strip() if os.system(f"conda --version") == 0 else  f"$HOME/miniconda/condabin/conda"
 
 def install_conda_build():
     """
     Install conda-build, required to create conda packages
     """
-    os.system(f"conda install python=3.8 conda-build anaconda-client -y")
+    os.system(f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y")
 
 def install_miniconda():
     """
     Installs miniconda, a slimmer anaconda installation to build conda packages
     """
+
+    # Check if conda binary already exists
+    exit_code = os.system(f"conda --version")
+    if exit_code == 0:
+        print(f"'conda' already present on the system. Proceeding without a fresh minconda installation.")
+        return
+
     os.system(f"rm -rf $HOME/miniconda")
     exit_code = os.system(f"wget {MINICONDA_DOWNLOAD_URL} -O ~/miniconda.sh")
     if exit_code != 0:
@@ -27,7 +35,7 @@ def install_miniconda():
     os.system(f"ln -s $HOME/miniconda/bin/activate $HOME/miniconda/condabin/activate")
     os.system(f"ln -s $HOME/miniconda/bin/deactivate $HOME/miniconda/condabin/deactivate")
 
-    os.system(f"$HOME/miniconda/condabin/conda init")
+    os.system(f"{CONDA_BINARY} init")
 
 
 def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
@@ -64,7 +72,7 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     for pkg in packages:
         for pyv in python_versions:
             output_dir = os.path.join(conda_build_dir, "output")
-            cmd = f"conda build --output-folder {output_dir} --python={pyv} {pkg}"
+            cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
             exit_code = os.system(cmd)
             if exit_code != 0:
