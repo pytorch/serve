@@ -127,8 +127,10 @@ def main():
         run_only_string = ""
 
     if arguments.local_execution:
+        number_of_threads_string = ""
         local_instance_type_list = ["--local-instance-type", arguments.local_instance_type]
     else:
+        number_of_threads_string = "-n=4"
         local_instance_type_list = []
 
     torchserve_branch = arguments.use_torchserve_branch
@@ -153,7 +155,7 @@ def main():
         run_only_string,
         "-rA",
         test_path,
-        "-n=4",
+        number_of_threads_string,
         "--disable-warnings",
         "-v",
         "--execution-id",
