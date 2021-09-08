@@ -12,21 +12,29 @@ DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:lates
 
 ### Docker Image Building
 
-For CPU Image
+* To create a CPU based image
+
 ```
-docker build -t pytorch/torchserve-kfs:latest .
+./build_image.sh 
 ```
 
-For GPU Image
+* To create a CPU based image with custom tag
+
 ```
-docker build --build-arg BASE_IMAGE=pytorch/torchserve:latest-gpu -t pytorch/torchserve-kfs:latest-gpu .
+./build_image.sh -t <repository>/<image>:<tag>
 ```
 
-Push image to repository
+* To create a GPU based image
+
 ```
-docker push pytorch/torchserve-kfs:latest
+./build_image.sh -g 
 ```
 
+* To create a GPU based image with custom tag
+
+```
+./build_image.sh -g -t <repository>/<image>:<tag>
+```
 
 Individual Readmes for KFServing :
 
