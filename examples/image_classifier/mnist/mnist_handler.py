@@ -1,6 +1,6 @@
+import os
 from torchvision import transforms
 from ts.torch_handler.image_classifier import ImageClassifier
-import torch
 
 
 class MNISTDigitClassifier(ImageClassifier):
@@ -25,5 +25,8 @@ class MNISTDigitClassifier(ImageClassifier):
         Returns:
             list : A list of dictionaries with predictions and explanations is returned
         """
+        # Adding condition for KFServing v2 protocol
+        if os.environ('TS_SERVICE_ENVELOPE') == 'kfservingv2':
+            return [data.argmax(1).flatten().tolist()]
         return data.argmax(1).tolist()
         

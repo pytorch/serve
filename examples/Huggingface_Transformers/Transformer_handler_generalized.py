@@ -229,6 +229,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             (list): Returns a list of the Predictions and Explanations.
         """
+        # Adding condition for KFServing v2 protocol
+        if os.environ('TS_SERVICE_ENVELOPE') == 'kfservingv2':
+            return [inference_output.flatten().tolist()]
         return inference_output
 
     def get_insights(self, input_batch, text, target):
