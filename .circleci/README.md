@@ -54,6 +54,7 @@ Following _executors_ are available for job execution -
 2. ubuntu18-conda38-cpu-docker
 3. ubuntu18-pyenv37-cpu-docker
 4. ubuntu18-venv36-cpu-docker
+5. ubuntu18-conda39-cpu-docker
 
 > Please check the _workflows_, _jobs_ and _executors_ section in _config.yml_ for an up to date list
 
@@ -74,6 +75,7 @@ Available environment types are
 * `conda38`: python 3.8 with `conda` env
 * `pyenv37`: python 3.7 with `pyenv` env
 * `venv36`: python 3.6.9 with `venv` env
+* `conda39`: python 3.9 with `conda` env
 ```
 ./build_cci_image.sh --env_type <env-type>
 ```

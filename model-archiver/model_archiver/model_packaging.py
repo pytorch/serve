@@ -5,6 +5,7 @@ Command line interface to export model files to be used for inference by MXNet M
 
 import logging
 import sys
+import shutil
 from .arg_parser import ArgParser
 from .model_packaging_utils import ModelExportUtils
 from .model_archiver_error import ModelArchiverError
@@ -22,8 +23,6 @@ def package_model(args, manifest):
     export_file_path = args.export_path
     requirements_file = args.requirements_file
 
-    temp_files = []
-
     try:
         ModelExportUtils.validate_inputs(model_name, export_file_path)
         # Step 1 : Check if .mar already exists with the given model name
@@ -38,13 +37,11 @@ def package_model(args, manifest):
 
         # Step 2 : Zip 'em all up
         ModelExportUtils.archive(export_file_path, model_name, model_path, manifest, args.archive_format)
-
+        shutil.rmtree(model_path)
         logging.info("Successfully exported model %s to file %s", model_name, export_file_path)
     except ModelArchiverError as e:
         logging.error(e)
         sys.exit(1)
-    finally:
-        ModelExportUtils.clean_temp_files(temp_files)
 
 
 def generate_model_archive():

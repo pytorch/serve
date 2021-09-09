@@ -1,0 +1,20 @@
+---
+bert:
+    scripted_mode:
+        benchmark_engine: "ab"
+        url: "https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar" #for CPU: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_Torchscript_batch.mar
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "docker"
+        processors:
+            - "cpu"
+            - "gpus": "all"

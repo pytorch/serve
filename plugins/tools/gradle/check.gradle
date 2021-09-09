@@ -1,16 +1,3 @@
-apply plugin: 'findbugs'
-findbugs {
-    excludeFilter = file("${rootProject.projectDir}/tools/conf/findbugs-exclude.xml")
-    ignoreFailures = false
-    findbugsTest.enabled = true
-}
-tasks.withType(FindBugs) {
-    reports {
-        xml.enabled false
-        html.enabled true
-    }
-}
-
 apply plugin: 'pmd'
 pmd {
     ignoreFailures = false
@@ -33,8 +20,9 @@ checkstyle {
     configProperties = [ "checkstyle.suppressions.file" : file("${rootProject.projectDir}/tools/conf/suppressions.xml")]
     configFile = file("${rootProject.projectDir}/tools/conf/checkstyle.xml")
 }
+
 checkstyleMain {
-    classpath += configurations.compile
+    classpath += configurations.compileClasspath
 }
 tasks.withType(Checkstyle) {
     reports {
@@ -45,7 +33,7 @@ tasks.withType(Checkstyle) {
 
 apply plugin: "jacoco"
 jacoco {
-    toolVersion = "0.8.1"
+    toolVersion = "0.8.5"
 }
 jacocoTestReport {
     group = "Reporting"

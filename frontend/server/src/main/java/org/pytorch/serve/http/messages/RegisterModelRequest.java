@@ -35,6 +35,9 @@ public class RegisterModelRequest {
     @SerializedName("url")
     private String modelUrl;
 
+    @SerializedName("s3_sse_kms")
+    private boolean s3SseKms;
+
     public RegisterModelRequest(QueryStringDecoder decoder) {
         modelName = NettyUtils.getParameter(decoder, "model_name", null);
         runtime = NettyUtils.getParameter(decoder, "runtime", null);
@@ -49,6 +52,7 @@ public class RegisterModelRequest {
         synchronous = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", "true"));
         responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
         modelUrl = NettyUtils.getParameter(decoder, "url", null);
+        s3SseKms = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "s3_sse_kms", "false"));
     }
 
     public RegisterModelRequest(org.pytorch.serve.grpc.management.RegisterModelRequest request) {
@@ -64,6 +68,7 @@ public class RegisterModelRequest {
         synchronous = request.getSynchronous();
         responseTimeout = GRPCUtils.getRegisterParam(request.getResponseTimeout(), -1);
         modelUrl = GRPCUtils.getRegisterParam(request.getUrl(), null);
+        s3SseKms = request.getS3SseKms();
     }
 
     public RegisterModelRequest() {
@@ -72,6 +77,7 @@ public class RegisterModelRequest {
         synchronous = true;
         initialWorkers = ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel();
         responseTimeout = -1;
+        s3SseKms = false;
     }
 
     public String getModelName() {
@@ -108,5 +114,9 @@ public class RegisterModelRequest {
 
     public String getModelUrl() {
         return modelUrl;
+    }
+
+    public Boolean getS3SseKms() {
+        return s3SseKms;
     }
 }

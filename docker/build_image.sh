@@ -36,8 +36,8 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04"
-          CUDA_VERSION="cu110"
+          BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
+          CUDA_VERSION="cu102"
           shift
           ;;
         -bt|--buildtype)
@@ -53,9 +53,9 @@ do
           ;;
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ $CUDA_VERSION == "cu110" ];
+          if [ $CUDA_VERSION == "cu111" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu102" ];
           then
             BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
@@ -89,5 +89,5 @@ if [ $BUILD_TYPE == "production" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
 else
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE .
+  DOCKER_BUILDKIT=1 docker build --pull --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE .
 fi

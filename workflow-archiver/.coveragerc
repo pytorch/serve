@@ -1,0 +1,16 @@
+
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    if __name__ == "__main__" :
+
+[run]
+branch = True
+omit = */__init__.py
+       workflow_archiver/tests/*
+       workflow_archiver/manifest_components/*
+       workflow_archiver/arg_parser.py
+       workflow_archiver/setup.py
+

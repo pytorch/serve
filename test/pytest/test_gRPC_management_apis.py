@@ -31,6 +31,8 @@ def __get_query_params(parsed_url):
             query_params[key] = int(query_params[key])
         if key in ['synchronous']:
             query_params[key] = bool(query_params[key])
+        if key in ['url'] and query_params[key].startswith('{{mar_path_'):
+            query_params[key] = test_utils.mar_file_table[query_params[key][2:-2]]
 
     return query_params
 

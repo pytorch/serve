@@ -3,6 +3,7 @@ package org.pytorch.serve;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -31,9 +32,10 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.pytorch.serve.archive.ModelArchive;
-import org.pytorch.serve.archive.ModelException;
-import org.pytorch.serve.archive.ModelNotFoundException;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.grpcimpl.GRPCInterceptor;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
 import org.pytorch.serve.metrics.MetricManager;
@@ -50,6 +52,7 @@ import org.pytorch.serve.util.ServerGroups;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
+import org.pytorch.serve.workflow.WorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,6 +143,7 @@ public class ModelServer {
     private void initModelStore() throws InvalidSnapshotException, IOException {
         WorkLoadManager wlm = new WorkLoadManager(configManager, serverGroups.getBackendGroup());
         ModelManager.init(configManager, wlm);
+        WorkflowManager.init(configManager);
         SnapshotManager.init(configManager);
         Set<String> startupModels = ModelManager.getInstance().getStartupModels();
         String defaultModelName;
@@ -191,12 +195,23 @@ public class ModelServer {
                         modelManager.updateModel(
                                 archive.getModelName(),
                                 archive.getModelVersion(),
-                                workers,
-                                workers,
+                                configManager.getJsonIntValue(
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MIN_WORKERS,
+                                        workers),
+                                configManager.getJsonIntValue(
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MAX_WORKERS,
+                                        workers),
                                 true,
                                 false);
                         startupModels.add(archive.getModelName());
-                    } catch (ModelException | IOException | InterruptedException e) {
+                    } catch (ModelException
+                            | IOException
+                            | InterruptedException
+                            | DownloadArchiveException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -232,16 +247,30 @@ public class ModelServer {
                                 1,
                                 100,
                                 configManager.getDefaultResponseTimeout(),
-                                defaultModelName);
+                                defaultModelName,
+                                false,
+                                false,
+                                false);
                 modelManager.updateModel(
                         archive.getModelName(),
                         archive.getModelVersion(),
-                        workers,
-                        workers,
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MIN_WORKERS,
+                                workers),
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MAX_WORKERS,
+                                workers),
                         true,
                         false);
                 startupModels.add(archive.getModelName());
-            } catch (ModelException | IOException | InterruptedException e) {
+            } catch (ModelException
+                    | IOException
+                    | InterruptedException
+                    | DownloadArchiveException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }
@@ -381,7 +410,8 @@ public class ModelServer {
     private Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
         ServerBuilder<?> s =
-                ServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                NettyServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                        .maxInboundMessageSize(configManager.getMaxRequestSize())
                         .addService(
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),

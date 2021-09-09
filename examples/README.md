@@ -7,7 +7,11 @@
 * [Serving object detection model](#serving-object-detection-model)
 * [Serving image segmentation model](#serving-image-segmentation-model)
 * [Serving huggingface transformers model](#serving-huggingface-transformers)
+* [Serving machine translation model](#serving-neural-machine-translation)
 * [Serving waveglow text to speech synthesizer model](#serving-wavegolw-text-to-speech-synthesizer)
+* [Serving multi modal framework model](#Serving-Multi-modal-model)
+* [Serving Image Classification Workflow](#serving-image-classification-workflow)
+* [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
 
 # TorchServe Examples
 
@@ -18,8 +22,8 @@ The following are examples on how to create and serve model archives with TorchS
 Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
 
 * Pre-requisites to create a torch model archive (.mar) :
-    * serialized-file (.pt) : This file represents the state_dict in case of eager mode model.
-    * model-file (.py) : This file contains model class extended from torch nn.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from torch.nn.modules
+    * serialized-file (.pt) : This file represents the `state_dict` in case of eager mode model.
+    * model-file (.py) : This file contains model class extended from `torch nn`.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from torch.nn.modules
     * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
     * version : Model's version.
     * handler : TorchServe default handler's name or path to custom inference handler(.py)
@@ -34,7 +38,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
 
 * Pre-requisites to create a torch model archive (.mar) :
-    * serialized-file (.pt) : This file represents the state_dict in case of eager mode model or an executable ScriptModule in case of TorchScript.
+    * serialized-file (.pt) : This file represents the state_dict in case of eager mode model or an executable `ScriptModule` in case of TorchScript.
     * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
     * version : Model's version.
     * handler : TorchServe default handler's name or path to custom inference handler(.py)
@@ -77,12 +81,36 @@ The following example demonstrates how to create and serve a pretrained fcn NN m
 
 ## Serving Huggingface Transformers
 
-The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
+The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM
 
 * [Hugging Face Transformers](Huggingface_Transformers)
 
+## Serving Neural Machine Translation
+
+The following example demonstrates how to create and serve a neural translation model using fairseq
+
+* [Neural machine translation ](examples/nmt_transformer)
+
 ## Serving Wavegolw text to speech synthesizer
 
-The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM :
+The following example demonstrates how to create and serve the waveglow text to speech synthesizer
 
 * [Waveglow text to speech synthesizer](text_to_speech_synthesizer)
+
+## Serving Multi modal model
+
+The following example demonstrates how to create and serve a multi modal model including audio, text and video
+
+* [Multi modal framework](MMF-activity-recognition)
+
+## Serving Image Classification Workflow
+
+The following example demonstrates how to create and serve a complex image classification workflow for dog breed classification
+
+* [Image classification workflow](Workflows/dog_breed_classification)
+
+## Serving Neural Machine Translation Workflow
+
+The following example demonstrates how to create and serve a complex neural machine translation workflow
+
+* [Neural machine Translation workflow](Workflows/nmt_tranformers_pipeline)

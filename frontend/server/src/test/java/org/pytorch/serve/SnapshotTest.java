@@ -28,8 +28,8 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
+import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
-import org.pytorch.serve.snapshot.Snapshot;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.wlm.Model;
@@ -53,7 +53,7 @@ public class SnapshotTest {
     public void beforeSuite()
             throws InterruptedException, IOException, GeneralSecurityException,
                     InvalidSnapshotException {
-        System.setProperty("tsConfigFile", "src/test/resources/config.properties");
+        System.setProperty("tsConfigFile", "src/test/resources/config_snapshot.properties");
         FileUtils.cleanDirectory(new File(System.getProperty("LOG_LOCATION"), "config"));
 
         ConfigManager.init(new ConfigManager.Arguments());
@@ -61,7 +61,7 @@ public class SnapshotTest {
         PluginsManager.getInstance().initialize();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-        configManager.setIniitialWorkerPort(9500);
+        configManager.setInitialWorkerPort(9500);
         server = new ModelServer(configManager);
         server.startRESTserver();
     }
@@ -399,6 +399,7 @@ public class SnapshotTest {
         }
 
         updateSnapshot(actualProp);
+
         assert actualProp.equals(expectedProp);
     }
 
