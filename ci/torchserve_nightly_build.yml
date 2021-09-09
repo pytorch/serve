@@ -1,0 +1,20 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+env:
+  shell: bash
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install sudo -y
+      - python ts_scripts/install_dependencies.py --cuda=cu102 --environment=dev
+
+  build:
+    commands:
+      - python3 binaries/conda/build_packages.py --install-conda-dependencies
+      - exec bash
+      - python3 binaries/build.py
+      - cd binaries/
+      - python3 s3_binary_upload.py --s3-bucket s3://torchserve-builds --nightly

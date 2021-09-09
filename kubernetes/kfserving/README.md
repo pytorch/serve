@@ -4,6 +4,32 @@ The documentation covers the steps to run Torchserve inside the KFServing enviro
 
 Currently, KFServing supports the Inference API for all the existing models but text to speech synthesizer and it's explain API works for the eager models of MNIST,BERT and text classification only.
 
+### Docker Image Building
+
+* To create a CPU based image
+
+```
+./build_image.sh 
+```
+
+* To create a CPU based image with custom tag
+
+```
+./build_image.sh -t <repository>/<image>:<tag>
+```
+
+* To create a GPU based image
+
+```
+./build_image.sh -g 
+```
+
+* To create a GPU based image with custom tag
+
+```
+./build_image.sh -g -t <repository>/<image>:<tag>
+```
+
 Individual Readmes for KFServing :
 
 * [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
