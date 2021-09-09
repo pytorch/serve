@@ -88,9 +88,15 @@
 2. Edit `upload.py` to change the CONDA_USER if necessary
 3. Run the following commands to build the packages, and then upload them to staging repos
    ```
+   python3 ts_scripts/install_dependencies.py --environment=dev
    python3 binaries/conda/build_packages.py --install-conda-dependencies
    exec bash
    python3 binaries/build.py
    cd binaries/
    python3 upload.py --upload-pypi-packages --upload-conda-packages 
+   ```
+4. To upload *.whl files to S3 bucket, run the following command: 
+   Note: `--nightly` option puts the *.whl files in a subfolder named 'nightly' in the specified bucket
+   ```
+   python s3_binary_upload.py --s3-bucket <s3_bucket> --s3-backup-bucket <s3_backup_bucket> --nightly
    ```
