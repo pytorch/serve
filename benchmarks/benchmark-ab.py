@@ -127,8 +127,7 @@ def check_torchserve_health():
 def warm_up():
     register_model()
 
-    click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
-    click.secho("*Executing inference performance test...", fg='green')
+    click.secho("\n\nExecuting warm-up ...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
@@ -136,8 +135,7 @@ def warm_up():
 
 
 def run_benchmark():
-    click.secho("\n\nExecuting Apache Bench tests ...", fg='green')
-    click.secho("*Executing inference performance test...", fg='green')
+    click.secho("\n\nExecuting inference perfromance tests ...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
