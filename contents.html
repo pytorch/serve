@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>8. Logging in Torchserve &mdash; PyTorch/Serve master documentation</title>
+  <title>&lt;no title&gt; &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,7 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="9. TorchServe Metrics" href="metrics.html" />
-    <link rel="prev" title="7. TorchServe default inference handlers" href="default_handlers.html" />
+    <link rel="next" title="1. TorchServe" href="index.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -222,7 +221,7 @@
             
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
@@ -230,7 +229,7 @@
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">8. Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
@@ -282,7 +281,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="contents.html">
+        <a href="#">
           
             Docs
           
@@ -290,13 +289,13 @@
       </li>
 
         
-      <li><span class="section-number">8. </span>Logging in Torchserve</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/logging.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/contents.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -322,118 +321,92 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="logging-in-torchserve">
-<h1><span class="section-number">8. </span>Logging in Torchserve<a class="headerlink" href="#logging-in-torchserve" title="Permalink to this headline">¶</a></h1>
-<p>In this document we explain logging in TorchServe. We also explain how to modify the behavior of logging in the model server.
-Logging in TorchServe also covers metrics, as metrics are logged into a file.
-To further understand how to customize metrics or define custom logging layouts, see <a class="reference internal" href="metrics.html"><span class="doc">Metrics on TorchServe</span></a></p>
-<section id="prerequisites">
-<h2><span class="section-number">8.1. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Be familiar with log4j configuration properties.
-For information on how to configure log4j parameters, see <a class="reference external" href="https://logging.apache.org/log4j/2.x/manual/configuration.html">Logging Services</a>.</p></li>
-<li><p>Be familiar with the default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> used by TorchServe.</p></li>
+  <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">14. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">15. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">16. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">17. TorchServe Workflows</a></li>
 </ul>
-</section>
-<section id="types-of-logs">
-<h2><span class="section-number">8.2. </span>Types of logs<a class="headerlink" href="#types-of-logs" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe currently provides the following types of logs</p>
-<ol class="simple">
-<li><p>Access logs</p></li>
-<li><p>TorchServe logs</p></li>
-</ol>
-<section id="access-logs">
-<h3><span class="section-number">8.2.1. </span>Access Logs<a class="headerlink" href="#access-logs" title="Permalink to this headline">¶</a></h3>
-<p>These logs collect the access pattern to TorchServe. The configuration for access logs are as follows:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.logger.ACCESS_LOG</span> <span class="o">=</span> <span class="s">INFO, access_log</span>
-
-
-<span class="na">log4j.appender.access_log</span> <span class="o">=</span> <span class="s">org.apache.log4j.RollingFileAppender</span>
-<span class="na">log4j.appender.access_log.File</span> <span class="o">=</span> <span class="s">${LOG_LOCATION}/access_log.log</span>
-<span class="na">log4j.appender.access_log.MaxFileSize</span> <span class="o">=</span> <span class="s">100MB</span>
-<span class="na">log4j.appender.access_log.MaxBackupIndex</span> <span class="o">=</span> <span class="s">5</span>
-<span class="na">log4j.appender.access_log.layout</span> <span class="o">=</span> <span class="s">org.apache.log4j.PatternLayout</span>
-<span class="na">log4j.appender.access_log.layout.ConversionPattern</span> <span class="o">=</span> <span class="s">%d{ISO8601} - %m%n</span>
-</pre></div>
 </div>
-<p>As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file.
-When you load TorchServe with a model and run inference against the server, the following logs are collected into the access_log.log:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-10-15 13:56:18,976 [INFO ] BackendWorker-9000 ACCESS_LOG - /127.0.0.1:64003 &quot;POST /predictions/resnet-18 HTTP/1.1&quot; 200 118
-</pre></div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="grpc_api.html#python-client-example-for-grpc-apis">Python client example for gRPC APIs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#api-description">API Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#health-check-api">Health check API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#predictions-api">Predictions API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="inference_api.html#curl-example">curl Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#id1">curl Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#explanations-api">Explanations API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="inference_api.html#id2">curl example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#kfserving-inference-api">KFServing Inference API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="inference_api.html#id3">curl example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="inference_api.html#kfserving-explanations-api">KFServing Explanations API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="inference_api.html#id4">curl example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#register-a-model">Register a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management_api.html#encrypted-model-serving">Encrypted model serving</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#scale-workers">Scale workers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#describe-model">Describe model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#unregister-a-model">Unregister a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#list-models">List models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#api-description">API Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="management_api.html#set-default-version">Set Default Version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_api.html">Metrics API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="metrics_api.html#prometheus-server">Prometheus server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metrics_api.html#grafana">Grafana</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflow_inference_api.html#predictions-api">Predictions API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflow_inference_api.html#curl-example">curl Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#register-a-workflow">Register a workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#describe-workflow">Describe workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#unregister-a-workflow">Unregister a workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#list-workflows">List workflows</a></li>
+</ul>
+</li>
+</ul>
 </div>
-<p>The above log tells us that a successful <code class="docutils literal notranslate"><span class="pre">POST</span></code> call to <code class="docutils literal notranslate"><span class="pre">/predictions/resnet-18</span></code> was made by remote host <code class="docutils literal notranslate"><span class="pre">127.0.0.1:64003</span></code> it took <code class="docutils literal notranslate"><span class="pre">118</span></code>ms to complete this request.</p>
-<p>These logs are useful to determine the current performance of the model-server as well as understand the requests received by model-server.</p>
-</section>
-<section id="torchserve-logs">
-<h3><span class="section-number">8.2.2. </span>TorchServe Logs<a class="headerlink" href="#torchserve-logs" title="Permalink to this headline">¶</a></h3>
-<p>These logs collect all the logs from TorchServe and from the backend workers (the custom model code).
-The default configuration pertaining to TorchServe logs are as follows:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.logger.com.amazonaws.ml.ts</span> <span class="o">=</span> <span class="s">DEBUG, ts_log</span>
-
-
-<span class="na">log4j.appender.ts_log</span> <span class="o">=</span> <span class="s">org.apache.log4j.RollingFileAppender</span>
-<span class="na">log4j.appender.ts_log.File</span> <span class="o">=</span> <span class="s">${LOG_LOCATION}/ts_log.log</span>
-<span class="na">log4j.appender.ts_log.MaxFileSize</span> <span class="o">=</span> <span class="s">100MB</span>
-<span class="na">log4j.appender.ts_log.MaxBackupIndex</span> <span class="o">=</span> <span class="s">5</span>
-<span class="na">log4j.appender.ts_log.layout</span> <span class="o">=</span> <span class="s">org.apache.log4j.PatternLayout</span>
-<span class="na">log4j.appender.ts_log.layout.ConversionPattern</span> <span class="o">=</span> <span class="s">%d{ISO8601} [%-5p] %t %c - %m%n</span>
-</pre></div>
-</div>
-<p>This configuration by default dumps all the logs above <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level.</p>
-</section>
-</section>
-<section id="generate-custom-logs">
-<h2><span class="section-number">8.3. </span>Generate custom logs<a class="headerlink" href="#generate-custom-logs" title="Permalink to this headline">¶</a></h2>
-<p>You might want to generate custom logs. This could be for debugging purposes or to log any errors.
-To do this, print the required logs to <code class="docutils literal notranslate"><span class="pre">stdout/stderr</span></code>.
-TorchServe captures the logs generated by the backend workers and logs it into the log file. Some examples of logs are as follows:</p>
-<ol class="simple">
-<li><p>Messages printed to stderr:</p></li>
-</ol>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-10-14 16:46:51,656 [WARN ] W-9000-stderr org.pytorch.serve.wlm.WorkerLifeCycle - [16:46:51] src/nnvm/legacy_json_util.cc:209: Loading symbol saved by previous version v0.8.0. Attempting to upgrad\
-e...
-2018-10-14 16:46:51,657 [WARN ] W-9000-stderr org.pytorch.serve.wlm.WorkerLifeCycle - [16:46:51] src/nnvm/legacy_json_util.cc:217: Symbol successfully upgraded!
-</pre></div>
-</div>
-<ol class="simple">
-<li><p>Messages printed to stdout:</p></li>
-</ol>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2018-10-14 16:59:59,926 [INFO ] W-9000-stdout org.pytorch.serve.wlm.WorkerLifeCycle - preprocess time: 3.60
-2018-10-14 16:59:59,926 [INFO ] W-9000-stdout org.pytorch.serve.wlm.WorkerLifeCycle - inference time: 117.31
-2018-10-14 16:59:59,926 [INFO ] W-9000-stdout org.pytorch.serve.wlm.WorkerLifeCycle - postprocess time: 8.52
-</pre></div>
-</div>
-</section>
-<section id="modify-the-behavior-of-the-logs">
-<h2><span class="section-number">8.4. </span>Modify the behavior of the logs<a class="headerlink" href="#modify-the-behavior-of-the-logs" title="Permalink to this headline">¶</a></h2>
-<p>To modify the default logging behavior, define a <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file. There are two ways of starting TorchServe with custom logs:</p>
-<section id="provide-with-config-properties">
-<h3><span class="section-number">8.4.1. </span>Provide with config.properties<a class="headerlink" href="#provide-with-config-properties" title="Permalink to this headline">¶</a></h3>
-<p>After you define a custom <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file, add the following to the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">vmargs</span><span class="o">=</span><span class="s">-Dlog4j.configuration=file:///path/to/custom/log4j.properties</span>
-</pre></div>
-</div>
-<p>Then start TorchServe as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --start --ts-config /path/to/config.properties
-</pre></div>
-</div>
-<p>Alternatively</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --start --log-config /path/to/custom/log4j.properties
-</pre></div>
-</div>
-</section>
-</section>
-<section id="enable-asynchronous-logging">
-<h2><span class="section-number">8.5. </span>Enable asynchronous logging<a class="headerlink" href="#enable-asynchronous-logging" title="Permalink to this headline">¶</a></h2>
-<p>If your model is super lightweight and you want high throughput, consider enabling asynchronous logging.
-Log output might be delayed, and the most recent log might be lost if TorchServe is terminated unexpectedly.
-Asynchronous logging is disabled by default.
-To enable asynchronous logging, add following property in <code class="docutils literal notranslate"><span class="pre">config.properties</span></code>:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">async_logging</span><span class="o">=</span><span class="s">true</span>
-</pre></div>
-</div>
-</section>
-</section>
 
 
              </article>
@@ -443,10 +416,8 @@ To enable asynchronous logging, add following property in <code class="docutils 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="metrics.html" class="btn btn-neutral float-right" title="9. TorchServe Metrics" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="index.html" class="btn btn-neutral float-right" title="1. TorchServe" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
-      
-        <a href="default_handlers.html" class="btn btn-neutral" title="7. TorchServe default inference handlers" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -478,21 +449,6 @@ To enable asynchronous logging, add following property in <code class="docutils 
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">8. Logging in Torchserve</a><ul>
-<li><a class="reference internal" href="#prerequisites">8.1. Prerequisites</a></li>
-<li><a class="reference internal" href="#types-of-logs">8.2. Types of logs</a><ul>
-<li><a class="reference internal" href="#access-logs">8.2.1. Access Logs</a></li>
-<li><a class="reference internal" href="#torchserve-logs">8.2.2. TorchServe Logs</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#generate-custom-logs">8.3. Generate custom logs</a></li>
-<li><a class="reference internal" href="#modify-the-behavior-of-the-logs">8.4. Modify the behavior of the logs</a><ul>
-<li><a class="reference internal" href="#provide-with-config-properties">8.4.1. Provide with config.properties</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#enable-asynchronous-logging">8.5. Enable asynchronous logging</a></li>
-</ul>
-</li>
 </ul>
 
             </div>

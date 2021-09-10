@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>To check branch stability run the sanity suite as follows &mdash; PyTorch/Serve master documentation</title>
+  <title>4. Code Coverage &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,6 +35,8 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="5. Advanced configuration" href="configuration.html" />
+    <link rel="prev" title="3. Batch Inference with TorchServe" href="batch_inference_with_ts.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -219,20 +221,37 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">To check branch stability run the sanity suite as follows</a></li>
-<li><a class="reference internal" href="#to-run-frontend-build-suite-run-following-command">To run frontend build suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-backend-pytest-suite-run-following-command">To run backend pytest suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-python-linting-on-ts-package-run-following-command">To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command</a></li>
-<li><a class="reference internal" href="#to-run-pytest-suite-on-model-archiver-run-following-command">To run pytest suite on model-archiver run following command</a></li>
-<li><a class="reference internal" href="#to-run-it-suite-on-model-archiver-run-following-command">To run IT suite on model-archiver run following command</a></li>
-<li><a class="reference internal" href="#to-run-the-markdown-link-check-run-following-command">To run the markdown link check run following command</a><ul>
-<li><a class="reference internal" href="#install-markdown-link-checker-dependencies">Install markdown link checker dependencies</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">14. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">15. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">16. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">17. TorchServe Workflows</a></li>
 </ul>
-</li>
+<p class="caption" role="heading"><span class="caption-text">APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -263,7 +282,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="index.html">
+        <a href="contents.html">
           
             Docs
           
@@ -271,7 +290,7 @@
       </li>
 
         
-      <li>To check branch stability run the sanity suite as follows</li>
+      <li><span class="section-number">4. </span>Code Coverage</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -303,8 +322,10 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="to-check-branch-stability-run-the-sanity-suite-as-follows">
-<h1>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this headline">¶</a></h1>
+  <section id="code-coverage">
+<h1><span class="section-number">4. </span>Code Coverage<a class="headerlink" href="#code-coverage" title="Permalink to this headline">¶</a></h1>
+<section id="to-check-branch-stability-run-the-sanity-suite-as-follows">
+<h2><span class="section-number">4.1. </span>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p>Install dependencies (if not already installed)
 For CPU:</p>
@@ -330,7 +351,7 @@ For CPU:</p>
 </ul>
 </section>
 <section id="to-run-frontend-build-suite-run-following-command">
-<h1>To run frontend build suite run following command<a class="headerlink" href="#to-run-frontend-build-suite-run-following-command" title="Permalink to this headline">¶</a></h1>
+<h2><span class="section-number">4.2. </span>To run frontend build suite run following command<a class="headerlink" href="#to-run-frontend-build-suite-run-following-command" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>frontend/gradlew -p frontend clean build
 </pre></div>
 </div>
@@ -344,20 +365,20 @@ For CPU:</p>
 <p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">frontend/server/build/reports</span></code></p>
 </section>
 <section id="to-run-backend-pytest-suite-run-following-command">
-<h1>To run backend pytest suite run following command<a class="headerlink" href="#to-run-backend-pytest-suite-run-following-command" title="Permalink to this headline">¶</a></h1>
+<h2><span class="section-number">4.3. </span>To run backend pytest suite run following command<a class="headerlink" href="#to-run-backend-pytest-suite-run-following-command" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest --cov-report html:htmlcov --cov<span class="o">=</span>ts/ ts/tests/unit_tests/
 </pre></div>
 </div>
 <p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">htmlcov/</span></code></p>
 </section>
 <section id="to-run-python-linting-on-ts-package-run-following-command">
-<h1>To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command<a class="headerlink" href="#to-run-python-linting-on-ts-package-run-following-command" title="Permalink to this headline">¶</a></h1>
+<h2><span class="section-number">4.4. </span>To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command<a class="headerlink" href="#to-run-python-linting-on-ts-package-run-following-command" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pylint -rn --rcfile<span class="o">=</span>./ts/tests/pylintrc ts/.
 </pre></div>
 </div>
 </section>
 <section id="to-run-pytest-suite-on-model-archiver-run-following-command">
-<h1>To run pytest suite on model-archiver run following command<a class="headerlink" href="#to-run-pytest-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h1>
+<h2><span class="section-number">4.5. </span>To run pytest suite on model-archiver run following command<a class="headerlink" href="#to-run-pytest-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> model-archiver
 python -m pytest --cov-report html:htmlcov_ut --cov<span class="o">=</span>model_archiver/ model_archiver/tests/unit_tests/
 </pre></div>
@@ -365,7 +386,7 @@ python -m pytest --cov-report html:htmlcov_ut --cov<span class="o">=</span>model
 <p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">model-archiver/htmlcov_ut/</span></code></p>
 </section>
 <section id="to-run-it-suite-on-model-archiver-run-following-command">
-<h1>To run IT suite on model-archiver run following command<a class="headerlink" href="#to-run-it-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h1>
+<h2><span class="section-number">4.6. </span>To run IT suite on model-archiver run following command<a class="headerlink" href="#to-run-it-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> model-archiver
 pip install .
 python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model_archiver/ model_archiver/tests/integ_tests/
@@ -375,9 +396,9 @@ python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model
 <p><strong>Note</strong>: All the above commands needs to be excuted from serve home</p>
 </section>
 <section id="to-run-the-markdown-link-check-run-following-command">
-<h1>To run the markdown link check run following command<a class="headerlink" href="#to-run-the-markdown-link-check-run-following-command" title="Permalink to this headline">¶</a></h1>
+<h2><span class="section-number">4.7. </span>To run the markdown link check run following command<a class="headerlink" href="#to-run-the-markdown-link-check-run-following-command" title="Permalink to this headline">¶</a></h2>
 <section id="install-markdown-link-checker-dependencies">
-<h2>Install markdown link checker dependencies<a class="headerlink" href="#install-markdown-link-checker-dependencies" title="Permalink to this headline">¶</a></h2>
+<h3><span class="section-number">4.7.1. </span>Install markdown link checker dependencies<a class="headerlink" href="#install-markdown-link-checker-dependencies" title="Permalink to this headline">¶</a></h3>
 <p>Run following commands to install node and <a class="reference external" href="https://github.com/tcort/markdown-link-check/"><code class="docutils literal notranslate"><span class="pre">markdown-link-check</span></code></a> npm package.</p>
 <ul class="simple">
 <li><p>Install node</p></li>
@@ -405,12 +426,22 @@ python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model
 </div>
 </section>
 </section>
+</section>
 
 
              </article>
              
             </div>
             <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="configuration.html" class="btn btn-neutral float-right" title="5. Advanced configuration" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="batch_inference_with_ts.html" class="btn btn-neutral" title="3. Batch Inference with TorchServe" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
   
 
   
@@ -440,14 +471,17 @@ python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">To check branch stability run the sanity suite as follows</a></li>
-<li><a class="reference internal" href="#to-run-frontend-build-suite-run-following-command">To run frontend build suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-backend-pytest-suite-run-following-command">To run backend pytest suite run following command</a></li>
-<li><a class="reference internal" href="#to-run-python-linting-on-ts-package-run-following-command">To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command</a></li>
-<li><a class="reference internal" href="#to-run-pytest-suite-on-model-archiver-run-following-command">To run pytest suite on model-archiver run following command</a></li>
-<li><a class="reference internal" href="#to-run-it-suite-on-model-archiver-run-following-command">To run IT suite on model-archiver run following command</a></li>
-<li><a class="reference internal" href="#to-run-the-markdown-link-check-run-following-command">To run the markdown link check run following command</a><ul>
-<li><a class="reference internal" href="#install-markdown-link-checker-dependencies">Install markdown link checker dependencies</a></li>
+<li><a class="reference internal" href="#">4. Code Coverage</a><ul>
+<li><a class="reference internal" href="#to-check-branch-stability-run-the-sanity-suite-as-follows">4.1. To check branch stability run the sanity suite as follows</a></li>
+<li><a class="reference internal" href="#to-run-frontend-build-suite-run-following-command">4.2. To run frontend build suite run following command</a></li>
+<li><a class="reference internal" href="#to-run-backend-pytest-suite-run-following-command">4.3. To run backend pytest suite run following command</a></li>
+<li><a class="reference internal" href="#to-run-python-linting-on-ts-package-run-following-command">4.4. To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command</a></li>
+<li><a class="reference internal" href="#to-run-pytest-suite-on-model-archiver-run-following-command">4.5. To run pytest suite on model-archiver run following command</a></li>
+<li><a class="reference internal" href="#to-run-it-suite-on-model-archiver-run-following-command">4.6. To run IT suite on model-archiver run following command</a></li>
+<li><a class="reference internal" href="#to-run-the-markdown-link-check-run-following-command">4.7. To run the markdown link check run following command</a><ul>
+<li><a class="reference internal" href="#install-markdown-link-checker-dependencies">4.7.1. Install markdown link checker dependencies</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

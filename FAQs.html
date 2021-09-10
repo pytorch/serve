@@ -219,54 +219,37 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">FAQ’S</a><ul>
-<li><a class="reference internal" href="#general">General</a><ul>
-<li><a class="reference internal" href="#does-torchserve-api-s-follow-some-rest-api-standard">Does Torchserve API’s follow some REST API standard?</a></li>
-<li><a class="reference internal" href="#how-to-use-torchserve-in-production">How to use Torchserve in production?</a></li>
-<li><a class="reference internal" href="#what-s-difference-between-torchserve-and-a-python-web-app-using-web-frameworks-like-flask-django">What’s difference between Torchserve and a python web app using web frameworks like Flask, Django?</a></li>
-<li><a class="reference internal" href="#are-there-any-sample-models-available">Are there any sample Models available?</a></li>
-<li><a class="reference internal" href="#does-torchserve-support-other-models-based-on-programming-languages-other-than-python">Does Torchserve support other models based on programming languages other than python?</a></li>
-<li><a class="reference internal" href="#what-benefits-does-torchserve-have-over-aws-multi-model-server">What benefits does Torchserve have over AWS Multi-Model-Server?</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">14. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">15. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">16. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">17. TorchServe Workflows</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#deployment-and-config">Deployment and config</a><ul>
-<li><a class="reference internal" href="#can-i-run-torchserve-apis-on-ports-other-than-the-default-8080-8081">Can I run Torchserve APIs on ports other than the default 8080 &amp; 8081?</a></li>
-<li><a class="reference internal" href="#how-can-i-resolve-model-specific-python-dependency">How can I resolve model specific python dependency?</a></li>
-<li><a class="reference internal" href="#can-i-deploy-torchserve-in-kubernetes">Can I deploy Torchserve in Kubernetes?</a></li>
-<li><a class="reference internal" href="#can-i-deploy-torchserve-with-aws-elb-and-aws-asg">Can I deploy Torchserve with AWS ELB and AWS ASG?</a></li>
-<li><a class="reference internal" href="#how-can-i-backup-and-restore-torchserve-state">How can I backup and restore Torchserve state?</a></li>
-<li><a class="reference internal" href="#how-can-i-build-a-torchserve-image-from-source">How can I build a Torchserve image from source?</a></li>
-<li><a class="reference internal" href="#how-to-build-a-torchserve-image-for-a-specific-branch-or-commit-id">How to build a Torchserve image for a specific branch or commit id?</a></li>
-<li><a class="reference internal" href="#what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev">What is the difference between image created using Dockerfile and image created using Dockerfile.dev?</a></li>
+<p class="caption" role="heading"><span class="caption-text">APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#api">API</a><ul>
-<li><a class="reference internal" href="#what-can-i-use-other-than-curl-to-make-requests-to-torchserve">What can I use other than <em>curl</em> to make requests to Torchserve?</a></li>
-<li><a class="reference internal" href="#how-can-i-add-a-custom-api-to-an-existing-framework">How can I add a custom API to an existing framework?</a></li>
-<li><a class="reference internal" href="#how-can-pass-multiple-images-in-inference-request-call-to-my-model">How can pass multiple images in Inference request call to my model?</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#handler">Handler</a><ul>
-<li><a class="reference internal" href="#how-do-i-return-an-image-output-for-a-model">How do I return an image output for a model?</a></li>
-<li><a class="reference internal" href="#how-to-enhance-the-default-handlers">How to enhance the default handlers?</a></li>
-<li><a class="reference internal" href="#do-i-always-have-to-write-a-custom-handler-or-are-there-default-ones-that-i-can-use">Do I always have to write a custom handler or are there default ones that I can use?</a></li>
-<li><a class="reference internal" href="#is-it-possible-to-deploy-hugging-face-models">Is it possible to deploy Hugging Face models?</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#model-archiver">Model-archiver</a><ul>
-<li><a class="reference internal" href="#what-is-a-mar-file">What is a mar file?</a></li>
-<li><a class="reference internal" href="#how-can-create-mar-file-using-torchserve-docker-container">How can create mar file using Torchserve docker container?</a></li>
-<li><a class="reference internal" href="#can-i-add-multiple-serialized-files-in-single-mar-file">Can I add multiple serialized files in single mar file?</a></li>
-<li><a class="reference internal" href="#can-i-download-and-register-model-using-s3-presigned-v4-url">Can I download and register model using s3 presigned v4 url?</a></li>
-<li><a class="reference internal" href="#how-to-set-a-model-s-batch-size-on-sagemaker-key-parameters-for-torchserve-performance-tuning">How to set a model’s batch size on SageMaker?  Key parameters for TorchServe performance tuning.</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
+
             
           
         </div>
@@ -297,7 +280,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="index.html">
+        <a href="contents.html">
           
             Docs
           
