@@ -1,3 +1,5 @@
+# Code Coverage
+
 ## To check branch stability run the sanity suite as follows
  - Install dependencies (if not already installed)
    For CPU:
