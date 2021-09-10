@@ -1,3 +1,5 @@
+# Custom Service
+
 ## Contents of this Document
 
 * [Custom handlers](#custom-handlers)
@@ -380,7 +382,7 @@ class ModelHandler(object):
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 ```
 
-# Installing model specific python dependencies
+## Installing model specific python dependencies
 
 Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup.
 
