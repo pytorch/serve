@@ -12,6 +12,7 @@ dist/
 frontend/server/src/main/java/org/pytorch/serve/grpc/
 *.pem
 *.backup
+docs/sphinx/src/
 
 # Postman files
 test/artifacts/
