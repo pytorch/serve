@@ -1,4 +1,5 @@
-# TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4
+# TorchServe on Windows Subsystem for Linux (WSL)
+* Ubuntu 18.0.4
 
 ## Contents of this Document
 

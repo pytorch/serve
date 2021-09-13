@@ -78,7 +78,7 @@ source_suffix = {
 
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
 project = 'PyTorch/Serve'
@@ -129,7 +129,7 @@ html_theme_path = [pytorch_sphinx_theme.get_html_theme_path()]
 #
 html_theme_options = {
     'pytorch_project': 'audio',
-    'collapse_navigation': False,
+    'collapse_navigation': True,
     'display_version': True,
     'logo_only': True,
 }
