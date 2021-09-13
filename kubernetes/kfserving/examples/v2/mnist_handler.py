@@ -1,7 +1,7 @@
 from torchvision import transforms
 from ts.torch_handler.image_classifier import ImageClassifier
 import torch
-
+import captum
 
 class MNISTDigitClassifier(ImageClassifier):
     """
@@ -23,7 +23,7 @@ class MNISTDigitClassifier(ImageClassifier):
             data (list): The predicted output from the Inference with probabilities is passed
             to the post-process function
         Returns:
-            list : A list of dictionaries with predictions and explanations is returned
+            list : A list of dictionary with predictons and explanations are returned.
         """
-        return data.argmax(1).tolist()
+        return [data.argmax(1).flatten().tolist()]
         
