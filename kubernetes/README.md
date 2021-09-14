@@ -69,7 +69,7 @@ persitant_volume:
 To install Torchserve run ```helm install ts .```  
 
 ```bash
-ubuntu@ip-172-31-50-36:~/serve/kubernetes$ helm install ts .
+ubuntu@ip-172-31-50-36:~/serve/kubernetes/Helm$ helm install ts .
 NAME: ts
 LAST DEPLOYED: Wed Jul 29 08:29:04 2020
 NAMESPACE: default

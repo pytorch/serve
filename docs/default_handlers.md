@@ -38,16 +38,16 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 
 For a more comprehensive list of available handlers make sure to check out the [examples page](https://github.com/pytorch/serve/tree/master/examples)
 
-# Common features
+## Common features
 
-## index_to_name.json
+### index_to_name.json
 
 `image_classifier`, `text_classifier` and `object_detector` can all automatically map from numeric classes (0,1,2...) to friendly strings. To do this, simply include in your model archive a file, `index_to_name.json`, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:
 - [image_classifier](https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json)
 - [text_classifier](https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json)
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json)
 
-# Contributing
+### Contributing
 We welcome new contributed handlers, if your usecase isn't covered by one of the existing default handlers please follow the below steps to contribute it
 1. Write a new class derived from [BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). Add it as a separate file in `ts/torch_handler/`
 2. Update `model-archiver/model_packaging.py` to add in your classes name
