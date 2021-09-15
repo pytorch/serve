@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Iterator;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -63,35 +64,37 @@ public class BatchAggregator {
                 // this is from initial load.
                 return;
             }
+            Iterator<Predictions> predictionsIterator = message.getPredictions().iterator();
 
-            for (Predictions prediction : message.getPredictions()) {
+            while (predictionsIterator.hasNext()) {
+                Predictions prediction = predictionsIterator.next();
                 String jobId = prediction.getRequestId();
-                Job job = jobs.remove(jobId);
+                Job job = jobs.get(jobId);
+
                 if (job == null) {
-                    throw new IllegalStateException("Unexpected job: " + jobId);
+                    throw new IllegalStateException("Unexpected job " + jobId);
                 }
                 job.response(
-                        prediction.getResp(),
-                        prediction.getContentType(),
-                        prediction.getStatusCode(),
-                        prediction.getReasonPhrase(),
-                        prediction.getHeaders());
+                    prediction.getResp(),
+                    prediction.getContentType(),
+                    prediction.getStatusCode(),
+                    prediction.getReasonPhrase(),
+                    prediction.getHeaders());
             }
+            
         } else {
-            Iterator<String> jobsIterator = jobs.keySet().iterator();
-            while(jobsIterator.hasNext()) {
-                String reqId = jobsIterator.next();
-                Job j = jobsIterator.remove(reqId);
+            for (Map.Entry<String, Job> j : jobs.entrySet()) {
                 
-                if (j == null) {
-                    throw new IllegalStateException("Unexpected job: " + reqId);
+                if (j.getValue() == null) {
+                    throw new IllegalStateException("Unexpected job: " + j.getKey());
                 }
-                j.sendError(message.getCode(), message.getMessage());
+                j.getValue().sendError(message.getCode(), message.getMessage());
             }
             if (!jobs.isEmpty()) {
-                throw new IllegalStateException("Not all jobs get response.");
+                throw new IllegalStateException("Not all jobs got a response.");
             }
         }
+        jobs.clear();
     }
 
     public void sendError(BaseModelRequest message, String error, int status) {
@@ -102,24 +105,27 @@ public class BatchAggregator {
 
         if (message != null) {
             ModelInferenceRequest msg = (ModelInferenceRequest) message;
-            for (RequestInput req : msg.getRequestBatch()) {
-                String requestId = req.getRequestId();
-                Job job = jobs.remove(requestId);
+            Iterator<RequestInput> requestIterator = msg.getRequestBatch().iterator();
+            while(requestIterator.hasNext()) {
+                String requestId = requestIterator.next().getRequestId();
+                Job job = jobs.get(requestId);
+
                 if (job == null) {
                     logger.error("Unexpected job: " + requestId);
                 } else {
-                    job.sendError(status, error);
+                    job.sendError(status,error);
                 }
             }
+
             if (!jobs.isEmpty()) {
                 jobs.clear();
-                logger.error("Not all jobs get response.");
+                logger.error("Not all jobs got a response.");
             }
         } else {
             // Send the error message to all the jobs
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
                 String jobsId = j.getValue().getJobId();
-                Job job = jobs.remove(jobsId);
+                Job job = jobs.get(jobsId);
 
                 if (job.isControlCmd()) {
                     job.sendError(status, error);
@@ -130,5 +136,6 @@ public class BatchAggregator {
                 }
             }
         }
+        jobs.clear();
     }
 }
