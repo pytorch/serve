@@ -78,8 +78,11 @@ public class BatchAggregator {
                         prediction.getHeaders());
             }
         } else {
-            for (String reqId : jobs.keySet()) {
-                Job j = jobs.remove(reqId);
+            Iterator<String> jobsIterator = jobs.keySet().iterator();
+            while(jobIterator.hasNext()) {
+                String reqId = jobsIterator.next();
+                Job j = jobsIterator.remove(reqId);
+                
                 if (j == null) {
                     throw new IllegalStateException("Unexpected job: " + reqId);
                 }
