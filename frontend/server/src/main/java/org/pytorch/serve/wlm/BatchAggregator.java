@@ -72,7 +72,7 @@ public class BatchAggregator {
                 Job job = jobs.get(jobId);
 
                 if (job == null) {
-                    throw new IllegalStateException("Unexpected job " + jobId);
+                    throw new IllegalStateException("Unexpected job: " + jobId);
                 }
                 job.response(
                     prediction.getResp(),
