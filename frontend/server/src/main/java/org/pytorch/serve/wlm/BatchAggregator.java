@@ -79,7 +79,7 @@ public class BatchAggregator {
             }
         } else {
             Iterator<String> jobsIterator = jobs.keySet().iterator();
-            while(jobIterator.hasNext()) {
+            while(jobsIterator.hasNext()) {
                 String reqId = jobsIterator.next();
                 Job j = jobsIterator.remove(reqId);
                 
