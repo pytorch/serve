@@ -22,6 +22,10 @@ public abstract class Job {
         scheduled = begin;
     }
 
+    public String toString() {
+        return "Model name: " + this.modelName + "version: " + this.modelVersion + "cmd: " + this.cmd + "input: " + this.input; 
+    }
+
     public String getJobId() {
         return input.getRequestId();
     }
