@@ -90,9 +90,6 @@ public class BatchAggregator {
                 }
                 j.getValue().sendError(message.getCode(), message.getMessage());
             }
-            if (!jobs.isEmpty()) {
-                throw new IllegalStateException("Not all jobs got a response.");
-            }
         }
         jobs.clear();
     }
@@ -117,10 +114,6 @@ public class BatchAggregator {
                 }
             }
 
-            if (!jobs.isEmpty()) {
-                jobs.clear();
-                logger.error("Not all jobs got a response.");
-            }
         } else {
             // Send the error message to all the jobs
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
