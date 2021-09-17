@@ -2,7 +2,6 @@ package org.pytorch.serve.wlm;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Iterator;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -64,29 +63,29 @@ public class BatchAggregator {
                 // this is from initial load.
                 return;
             }
-            Iterator<Predictions> predictionsIterator = message.getPredictions().iterator();
-
-            while (predictionsIterator.hasNext()) {
-                Predictions prediction = predictionsIterator.next();
+            for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
                 Job job = jobs.get(jobId);
 
                 if (job == null) {
-                    throw new IllegalStateException("Unexpected job: " + jobId);
+                    throw new IllegalStateException(
+                            "Unexpected job in sendResponse() with 200 status code: " + jobId);
                 }
                 job.response(
-                    prediction.getResp(),
-                    prediction.getContentType(),
-                    prediction.getStatusCode(),
-                    prediction.getReasonPhrase(),
-                    prediction.getHeaders());
+                        prediction.getResp(),
+                        prediction.getContentType(),
+                        prediction.getStatusCode(),
+                        prediction.getReasonPhrase(),
+                        prediction.getHeaders());
             }
-            
+
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
-                
+
                 if (j.getValue() == null) {
-                    throw new IllegalStateException("Unexpected job: " + j.getKey());
+                    throw new IllegalStateException(
+                            "Unexpected job in sendResponse() with non 200 status code: "
+                                    + j.getKey());
                 }
                 j.getValue().sendError(message.getCode(), message.getMessage());
             }
@@ -102,18 +101,19 @@ public class BatchAggregator {
 
         if (message != null) {
             ModelInferenceRequest msg = (ModelInferenceRequest) message;
-            Iterator<RequestInput> requestIterator = msg.getRequestBatch().iterator();
-            while(requestIterator.hasNext()) {
-                String requestId = requestIterator.next().getRequestId();
-                Job job = jobs.get(requestId);
-
+            for (RequestInput req : msg.getRequestBatch()) {
+                String requestId = req.getRequestId();
+                Job job = jobs.remove(requestId);
                 if (job == null) {
-                    logger.error("Unexpected job: " + requestId);
+                    logger.error("Unexpected job in sendError(): " + requestId);
                 } else {
-                    job.sendError(status,error);
+                    job.sendError(status, error);
                 }
             }
-
+            if (!jobs.isEmpty()) {
+                jobs.clear();
+                logger.error("Not all jobs got an error response.");
+            }
         } else {
             // Send the error message to all the jobs
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
