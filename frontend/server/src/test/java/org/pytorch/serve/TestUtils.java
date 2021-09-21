@@ -157,11 +157,17 @@ public final class TestUtils {
             String url,
             String modelName,
             boolean withInitialWorkers,
-            boolean syncChannel)
+            boolean syncChannel,
+            int batchSize)
             throws InterruptedException {
         String requestURL = "/models?url=" + url + "&model_name=" + modelName + "&runtime=python";
+        
         if (withInitialWorkers) {
             requestURL += "&initial_workers=1&synchronous=true";
+        }
+
+        if (batchSize > 1) {
+            requestURL += "&batch_size=" + batchSize + "&bath_delay=10000";
         }
 
         HttpRequest req =
