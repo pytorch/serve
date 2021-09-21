@@ -92,7 +92,7 @@ def run_inference_using_url_with_data(purl=None, pfiles=None, ptimeout=120):
     else:
         return response
 
-def run_inference_using_url_with_data_json(purl=None, json_input=None, ptimeout=120):
+def run_inference_using_url_with_data_json(purl=None, pfiles=None, json_input=None, ptimeout=120):
     if purl is None and pfiles is None:
         return
     try:
@@ -223,6 +223,27 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
     response = run_inference_using_url_with_data_json(KF_INFERENCE_API + '/v1/models/mnist:explain', data)
 
     assert np.array(json.loads(response.content)['explanations']).shape == (1, 1, 28, 28)
+    test_utils.unregister_model("mnist")
+
+def test_mnist_batch_inference():
+    test_utils.start_torchserve()
+
+    test_utils.register_model('mnist', 'mnist.mar')
+    files = {
+        'data': (data_file_mnist,
+                 open(data_file_mnist, 'rb')),
+    }
+
+    batch_size = 8
+    for _ in range(batch_size):
+        response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
+
+    response = response.content.decode("utf-8")
+    response = ast.literal_eval(response)
+    response = [n.strip() for n in response]
+    
+    # We could instead assert len(response) == batch_size but this test will be flaky unless batch delay is about 10s
+    assert len(response) > 1
     test_utils.unregister_model("mnist")
     
     
