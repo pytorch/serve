@@ -226,15 +226,14 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
     test_utils.unregister_model("mnist")
 
 def test_mnist_batch_inference():
+    batch_size = 8
     test_utils.start_torchserve()
-
-    test_utils.register_model('mnist', 'mnist.mar')
+    test_utils.register_model(model_name='mnist', url='mnist.mar',batch_size=batch_size)
     files = {
         'data': (data_file_mnist,
                  open(data_file_mnist, 'rb')),
     }
 
-    batch_size = 8
     for _ in range(batch_size):
         response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
 
