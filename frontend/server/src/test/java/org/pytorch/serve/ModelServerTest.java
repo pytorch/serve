@@ -1068,6 +1068,53 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
+    public void testSuccessBatch() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.setHttpStatus(null);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+
+        TestUtils.registerModel(channel, "error_batch.mar", "err_batch", true, false);
+        TestUtils.getLatch().await();
+
+        StatusResponse status =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(
+                status.getStatus(),
+                "Model \"err_batch\" Version: 1.0 registered with 1 initial workers");
+
+        channel.close().sync();
+
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.setHttpStatus(null);
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/err_batch");
+        req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
+        Assert.assertEquals(TestUtils.getResult(), "Invalid response");
+        channel.close().sync();
+    }
+
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testSuccessBatch"})
     public void testErrorBatch() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);

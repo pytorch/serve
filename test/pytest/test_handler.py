@@ -235,15 +235,17 @@ def test_mnist_batch_inference():
     }
 
     # only last example in the batch will return a response
+    responses = []
     for _ in range(batch_size - 1):
-        run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
+        response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
     
-    response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
-    response = response.content.decode("utf-8")
-    response = ast.literal_eval(response)
-    response = [n.strip() for n in response]
+        response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
+        response = response.content.decode("utf-8")
+        response = ast.literal_eval(response)
+        response = [n.strip() for n in response]
+        responses.append(response)
     
-    assert len(response) == batch_size
+    assert len(responses) == batch_size
     test_utils.unregister_model("mnist")
     
     
