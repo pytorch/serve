@@ -65,7 +65,7 @@ def register_model(model_name, url, batch_size=1, initial_workers=1):
         ('initial_workers', str(initial_workers)),
         ('synchronous', 'true'),
         ('batch_size', str(batch_size)),
-        ('batch_delay', '1')
+        ('batch_delay', '10000')
         
     )
     return register_model_with_params(params)

@@ -242,8 +242,7 @@ def test_mnist_batch_inference():
     response = ast.literal_eval(response)
     response = [n.strip() for n in response]
     
-    # We could instead assert len(response) == batch_size but this test will be flaky unless batch delay is about 10s
-    assert len(response) > 1
+    assert len(response) == batch_size
     test_utils.unregister_model("mnist")
     
     
