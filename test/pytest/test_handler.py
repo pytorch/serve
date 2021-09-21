@@ -234,9 +234,11 @@ def test_mnist_batch_inference():
                  open(data_file_mnist, 'rb')),
     }
 
-    for _ in range(batch_size):
-        response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
-
+    # only last example in the batch will return a response
+    for _ in range(batch_size - 1):
+        run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
+    
+    response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
     response = response.content.decode("utf-8")
     response = ast.literal_eval(response)
     response = [n.strip() for n in response]
