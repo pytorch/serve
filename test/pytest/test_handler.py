@@ -104,7 +104,7 @@ def run_inference_using_url_with_data_json(purl=None, pfiles=None, json_input=No
 
 
 def test_mnist_model_register_and_inference_on_valid_model():
-    """
+   """
     Validates that snapshot.cfg is created when management apis are invoked.
     """
     test_utils.start_torchserve(no_config_snapshots=True)
@@ -236,7 +236,7 @@ def test_mnist_batch_inference():
 
     # only last example in the batch will return a response
     responses = []
-    for _ in range(batch_size - 1):
+    for _ in range(batch_size):
         response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
     
         response = run_inference_using_url_with_data(TF_INFERENCE_API + '/predictions/mnist', files)
