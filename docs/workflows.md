@@ -1,6 +1,6 @@
 # TorchServe Workflows
 
-TorchServe can be used for serving ensemble of models & functions (python) through Workflow APIs. 
+TorchServe can be used for serving ensemble of Pytorch models packaged as mar files and Python functions through Workflow APIs. 
 
 It utilizes [REST based APIs](rest_api.md) for workflow management and predictions.
 
@@ -10,9 +10,14 @@ A Workflow is served on TorchServe using a workflow-archive(.war) which comprise
 
 A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.
 
+The YAML file is split into a few sections
+1. `models` which include global model parameters
+2. `m1,m2,m3` all the relevant model parameters which would override the global model params
+3. `dag` which describes the structure of the workflow, which nodes feed into which other nodes
+
 E.g.
 
-```
+```yaml
 models:
     #global model params
     min-workers: 1
@@ -74,6 +79,8 @@ These properties can be defined as a global value for every model and can be ove
 
 User can define the dataflow of a workflow using the `dag` section of the workflow specification. The `dag` consists of the model names defined in the `model` section and python function names which are implemented in the workflow-archive's handler file.
 
+### Sequential DAG
+
 Eg.
 ```
 dag:
@@ -82,10 +89,30 @@ dag:
   model2 : [function2]
 ```
 
-In the above example the data will flow as follows:
+Which maps to this data flow
 
 ```
 input -> function1 -> model1 -> model2 -> function2 -> output
+```
+
+### Parallel DAG
+
+E.g
+```
+dag:
+  pre_processing: [model1, model2]
+  model1: [aggregate_func]
+  model2: [aggregate_func]
+```
+
+Which maps to this data flow
+
+```
+                          model1
+                         /       \
+input -> preprocessing ->         -> aggregate_func
+                         \       /
+                          model2
 ```
 
 ## Handler file
@@ -93,25 +120,24 @@ input -> function1 -> model1 -> model2 -> function2 -> output
 A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.
 
 Eg.
-```
-
-def preprocss(data, context):
+```python
+def preprocess(data, context):
     pass
 
-def postprocess(data, xontext):
+def postprocess(data, context):
     pass
 
 ```
 
-# Known issues
+## Related docs
+* [workflow_inference_api.md](workflow_inference_api.md)
+* [workflow_management_api.md](workflow_management_api.md)
 
- * **Each workflow dag node (model/function) will receive input as bytes**
- * **Workflow scale/updates is not supported through APIs. User will need to unregister the workflow and re-register with the required changes**
- * **Each workflow dag node (model/function) will receive input as bytes**
- * **Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors**
- * **Specifying Input or output per workflow model is not supported**
- * **Snapshots are not supported for workflows and related models are not captured in the workflow**
- * **Workflow versioning is not supported**
- * **Workflows registration having public model URL with mar file names which are already registered will fail.**
- * **There is no validation in place to check if the function names provided in DAG are available in the handler supplied in the workflow archive.**
- * **Workflow models can be currently accessed and modified through model management APIs**
+## Known issues
+
+* Each workflow dag node (model/function) will receive input as bytes
+* Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors
+* Workflow scale/updates is not supported through APIs. User will need to unregister the workflow and re-register with the required changes
+* Snapshots are not supported for workflows and related models are not captured in the workflow
+* Workflow versioning is not supported
+* Workflows registration having public model URL with mar file names which are already registered will fail.

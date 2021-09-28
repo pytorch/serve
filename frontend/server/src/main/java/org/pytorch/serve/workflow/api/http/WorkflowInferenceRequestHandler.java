@@ -45,10 +45,10 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException {
-        if (segments.length < 3) {
-            throw new ResourceNotFoundException();
-        }
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
+            if (segments.length < 3) {
+                throw new ResourceNotFoundException();
+            }
             handlePredictions(ctx, req, segments);
         } else {
             chain.handleRequest(ctx, req, decoder, segments);

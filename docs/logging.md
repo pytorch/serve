@@ -4,7 +4,7 @@ In this document we explain logging in TorchServe. We also explain how to modify
 Logging in TorchServe also covers metrics, as metrics are logged into a file.
 To further understand how to customize metrics or define custom logging layouts, see [Metrics on TorchServe](metrics.md)
 
-## Pre-requisites
+## Prerequisites
 
 * Be familiar with log4j configuration properties.
 For information on how to configure log4j parameters, see [Logging Services](https://logging.apache.org/log4j/2.x/manual/configuration.html).
@@ -103,9 +103,7 @@ Then start TorchServe as follows:
 $ torchserve --start --ts-config /path/to/config.properties
 ```
 
-## Log with the TorchServe CLI
-
-Alternatively, you could start the TorchServe with the following command as well
+Alternatively
 
 ```bash
 $ torchserve --start --log-config /path/to/custom/log4j.properties

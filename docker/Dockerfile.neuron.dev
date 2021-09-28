@@ -8,7 +8,7 @@
 #       If you do not use buildkit you are not going to have a good time
 #
 #       For reference: 
-#           https://docs.docker.com/develop/develop-images/build_enhancements
+#           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 ARG BASE_IMAGE=ubuntu:18.04
 ARG BUILD_TYPE=dev
@@ -17,7 +17,8 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE
 ARG BRANCH_NAME=master
 ARG MACHINE_TYPE=cpu
-ARG BRANCH_NAME_KF=master
+ARG CUDA_VERSION
+
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -26,12 +27,14 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     fakeroot \
     ca-certificates \
     dpkg-dev \
+    sudo \
     g++ \
     git \
     python3-dev \
     build-essential \
     openjdk-11-jdk \
     curl \
+    wget \
     vim \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
@@ -41,38 +44,44 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
-#ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 RUN pip install -U pip setuptools
+
+RUN echo "deb https://apt.repos.neuron.amazonaws.com bionic main" > /etc/apt/sources.list.d/neuron.list
+RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
+
+RUN apt-get update \
+    && apt-get install -y \
+    aws-neuron-runtime \
+    aws-neuron-tools \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/tmp* \
+    && apt-get clean
 
 # Build Dev Image
 FROM compile-image AS dev-image
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
-    && git clone -b ${BRANCH_NAME_KF} https://github.com/kubeflow/kfserving.git \
-    && pip install -e ./kfserving/python/kfserving \
     && git clone https://github.com/pytorch/serve.git \
     && cd serve \
-    && git checkout ${BRANCH_NAME} \
+    && git checkout --track ${BRANCH_NAME} \
     && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
     && python ts_scripts/install_from_src.py \
-    && pip install captum \
-    && pip install transformers\
-    && pip install . \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
-    && cp kubernetes/kfserving/kf_predictor_docker/dockerd-entrypoint_kf.sh /usr/local/bin/dockerd-entrypoint_kf.sh \
-    && chmod +x /usr/local/bin/dockerd-entrypoint_kf.sh \
+    && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
+    && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server \
-    && cp -R kubernetes/kfserving/kfserving_wrapper /home/model-server/kfserving_wrapper \
-    && cp kubernetes/kfserving/kf_predictor_docker/config_kf.properties /home/model-server/config.properties \
-    && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
+    && cp docker/config.properties /home/model-server/config.properties \
+    && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store \
+    && pip install torch-neuron 'neuron-cc[tensorflow]' --extra-index-url=https://pip.repos.neuron.amazonaws.com 
 
-EXPOSE 8080 8081 8082
+EXPOSE 8080 8081 8082 7070 7071
 USER model-server
 WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
-ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint_kf.sh"]
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]
 
 # Build CodeBuild Image
 FROM compile-image AS codebuild-image

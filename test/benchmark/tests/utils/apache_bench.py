@@ -47,7 +47,7 @@ class ApacheBenchHandler(object):
         """
         Installs apache2-utils, assuming it's an Ubuntu instance
         """
-        run_out = self.connection.sudo(f"apt install -y apache2-utils")
+        run_out = self.connection.sudo(f"apt install -y apache2-utils", pty=True)
         return run_out.return_code
 
     def run_apache_bench(self, requests, concurrency, input_file):
@@ -58,27 +58,25 @@ class ApacheBenchHandler(object):
         """
         self.connection.run(f"mkdir -p {TMP_DIR}/benchmark")
 
-        self.connection.run(f"wget {input_file}")
+        if input_file.startswith("https://") or input_file.startswith("http://"):
+            self.connection.run(f"wget {input_file}", warn=True)
+            file_name = self.connection.run(f"basename {input_file}").stdout.strip()
+            # Copy to the directory with other benchmark artifacts
+            self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
+        else:
+            self.connection.run(f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}")
 
-        file_name = self.connection.run(f"basename {input_file}").stdout.strip()
+        # Run warmup
+        apache_bench_warmup_command = f"ab -c {concurrency} {100} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark"
+        run_out = self.connection.run(apache_bench_warmup_command, warn=True, pty=True)
+        LOGGER.info(f"warmup command used: {apache_bench_warmup_command}")
 
-        # Copy to the directory with other benchmark artifacts
-        self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
-
-        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/png {self.inference_url}/predictions/benchmark > {self.result_file}"
+        apache_bench_command = f"ab -c {concurrency} -n {requests} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark > {self.result_file}"
 
         # Run apache bench
-        run_out = self.connection.run(
-            apache_bench_command,
-            warn=True,
-            pty=True
-        )
+        run_out = self.connection.run(apache_bench_command, warn=True, pty=True)
 
-        #self.connection.run(f"mkdir -p /home/ubuntu/benchmark")
-        #self.connection.run(f"cp -R /tmp/benchmark/* /home/ubuntu/benchmark/")
-
-        LOGGER.info(f"apache_bench command used: {apache_bench_command}")
-
+        LOGGER.info(f"apache bench command used: {apache_bench_command}")
 
         time.sleep(40)
 
@@ -96,7 +94,7 @@ class ApacheBenchHandler(object):
         temp_uuid = uuid.uuid4()
 
         time.sleep(5)
-        #self.connection.get(self.result_file, result_file)
+        
         # Upload to s3 and fetch back to local instance: more reliable than using self.connection.get()
         connection.run(f"aws s3 cp {self.result_file} {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/result.txt")
         time.sleep(2)
@@ -109,8 +107,6 @@ class ApacheBenchHandler(object):
 
         # Clean up right away
         run(f"aws s3 rm --recursive {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/")
-
-        #self.connection.get(TS_SERVER_LOG, metric_log)
 
         with open(metric_log) as f:
             lines = f.readlines()
@@ -171,7 +167,7 @@ class ApacheBenchHandler(object):
             csvwriter = csv.writer(csv_file)
             csvwriter.writerow(artifacts.keys())
             csvwriter.writerow(artifacts.values())
-        
+
         LOGGER.info(f"Generated csv output.")
 
         return artifacts

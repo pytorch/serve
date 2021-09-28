@@ -3,6 +3,11 @@
 from collections import namedtuple
 
 import pytest
+import sys
+from mock import MagicMock
+
+sys.modules['shutil'] = MagicMock()
+sys.modules['shutil.rmtree'] = MagicMock()
 
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_packaging import generate_model_archive, package_model

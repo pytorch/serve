@@ -24,12 +24,12 @@ This API follows the [ManagementAPIsService.RegisterModel](https://github.com/py
   * a URI using the HTTP(s) protocol. TorchServe can download .mar files from the Internet.
 * `model_name` - the name of the model; this name will be used as {model_name} in other APIs as part of the path. If this parameter is not present, `modelName` in MANIFEST.json will be used.
 * `handler` - the inference handler entry-point. This value will override `handler` in MANIFEST.json if present. **NOTE: Make sure that the given `handler` is in the `PYTHONPATH`. The format of handler is `module_name:method_name`.**
-* runtime - the runtime for the model custom service code. This value will override runtime in MANIFEST.json if present. The default value is `PYTHON`.
-* batch_size - the inference batch size. The default value is `1`.
-* max_batch_delay - the maximum delay for batch aggregation. The default value is 100 milliseconds.
-* initial_workers - the number of initial workers to create. The default value is `0`. TorchServe will not run inference until there is at least one work assigned.
-* synchronous - whether or not the creation of worker is synchronous. The default value is false. TorchServe will create new workers without waiting for acknowledgement that the previous worker is online.
-* response_timeout - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
+* `runtime` - the runtime for the model custom service code. This value will override runtime in MANIFEST.json if present. The default value is `PYTHON`.
+* `batch_size` - the inference batch size. The default value is `1`.
+* `max_batch_delay` - the maximum delay for batch aggregation. The default value is 100 milliseconds.
+* `initial_workers` - the number of initial workers to create. The default value is `0`. TorchServe will not run inference until there is at least one work assigned.
+* `synchronous` - whether or not the creation of worker is synchronous. The default value is false. TorchServe will create new workers without waiting for acknowledgement that the previous worker is online.
+* `response_timeout` - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
 
 ```bash
 curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
@@ -38,6 +38,8 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
+
+### Encrypted model serving 
 If you'd like to serve an encrypted model then you need to setup [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html) with the following environment variables:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
