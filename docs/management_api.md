@@ -38,6 +38,8 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
+
+### Encrypted model serving 
 If you'd like to serve an encrypted model then you need to setup [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html) with the following environment variables:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
