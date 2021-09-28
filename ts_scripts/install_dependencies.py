@@ -68,8 +68,6 @@ class Linux(Common):
         python_path = Path(sys.executable).resolve()
         os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
         os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
-        os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
-        os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
     def install_wget(self):
         os.system(f"{self.sudo_cmd}apt-get install -y wget")
