@@ -1,11 +1,11 @@
-""" KFServing wrapper to handler inference in the kfserving_predictor """
+""" KServe wrapper to handler inference in the kserve_predictor """
 import json
 import logging
-import kfserving
+import kserve
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
 
-logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
+logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 DEFAULT_MODEL_NAME = "model"
 DEFAULT_INFERENCE_ADDRESS = "http://127.0.0.1:8085"
@@ -65,28 +65,24 @@ def parse_config():
         management_address = DEFAULT_MANAGEMENT_ADDRESS
     if not model_store:
         model_store = DEFAULT_MODEL_STORE
-    logging.info(
-        "Wrapper : Model names %s, inference address %s, management address %s, model store %s",
-        model_names, inference_address, management_address, model_store)
+    logging.info("Wrapper : Model names %s, inference address %s, management address %s, model store %s", model_names,
+                 inference_address, management_address, model_store)
 
     return model_names, inference_address, management_address, model_store
 
 
 if __name__ == "__main__":
 
-    model_names, inference_address, management_address, model_dir = parse_config(
-    )
+    model_names, inference_address, management_address, model_dir = parse_config()
 
     models = []
 
     for model_name in model_names:
 
-        model = TorchserveModel(model_name, inference_address,
-                                management_address, model_dir)
+        model = TorchserveModel(model_name, inference_address, management_address, model_dir)
         models.append(model)
-    kfserving.KFServer(
-        registered_models=TSModelRepository(inference_address,
-                                            management_address, model_dir),
+    kserve.KFServer(
+        registered_models=TSModelRepository(inference_address, management_address, model_dir),
         http_port=8080,
         grpc_port=7070,
     ).start(models)
