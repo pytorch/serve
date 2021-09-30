@@ -96,20 +96,33 @@
 
   To create a cluster run the following command. 
 
-  First update the `templates/eks_cluster.yaml` with 
+  Update the `templates/eks_cluster.yaml` with needed changes like `region`, `ami`, `instanceType` in the yaml.
+  Note: Make sure to set cluster name in `overrideBootstrapCommand`
 
   ```yaml
   apiVersion: eksctl.io/v1alpha5
   kind: ClusterConfig
-  
+
   metadata:
     name: "TorchserveCluster"
-    region: "us-west-2" # Update AWS Region
-  
-  nodeGroups:
-    - name: ng-1
-      instanceType: g4dn.xlarge # Update Node Type
-      desiredCapacity: 3 # Update Node count
+    region: "us-west-2"
+
+  managedNodeGroups:
+    - name: mg-1
+      # EKS Optimized AMIs - https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html
+      ami: ami-048af94822f84c9c1
+      instanceType: g4dn.xlarge
+      minSize: 1
+      desiredCapacity: 2
+      maxSize: 3
+      overrideBootstrapCommand: |
+        #!/bin/bash
+        /etc/eks/bootstrap.sh <cluster-name> --container-runtime containerd
+
+  cloudWatch:
+    clusterLogging:
+      enableTypes:
+        ["audit", "authenticator", "api", "controllerManager", "scheduler"]
   ```
 
   
@@ -130,30 +143,30 @@
   [ℹ]  subnets for us-west-2c - public:192.168.0.0/19 private:192.168.96.0/19
   [ℹ]  subnets for us-west-2b - public:192.168.32.0/19 private:192.168.128.0/19
   [ℹ]  subnets for us-west-2a - public:192.168.64.0/19 private:192.168.160.0/19
-  [ℹ]  nodegroup "ng-1" will use "ami-0b6e3586ae536bd40" [AmazonLinux2/1.16]
+  [ℹ]  nodegroup "mg-1" will use "ami-048af94822f84c9c1" [AmazonLinux2/1.16]
   [ℹ]  using Kubernetes version 1.16
   [ℹ]  creating EKS cluster "TorchserveCluster" in "us-west-2" region with un-managed nodes
-  [ℹ]  1 nodegroup (ng-1) was included (based on the include/exclude rules)
+  [ℹ]  1 nodegroup (mg-1) was included (based on the include/exclude rules)
   [ℹ]  will create a CloudFormation stack for cluster itself and 1 nodegroup stack(s)
   [ℹ]  will create a CloudFormation stack for cluster itself and 0 managed nodegroup stack(s)
   [ℹ]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=us-west-2 --cluster=TorchserveCluster'
   [ℹ]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "TorchserveCluster" in "us-west-2"
-  [ℹ]  2 sequential tasks: { create cluster control plane "TorchserveCluster", 2 sequential sub-tasks: { update CloudWatch logging configuration, create nodegroup "ng-1" } }
+  [ℹ]  2 sequential tasks: { create cluster control plane "TorchserveCluster", 2 sequential sub-tasks: { update CloudWatch logging configuration, create nodegroup "mg-1" } }
   [ℹ]  building cluster stack "eksctl-TorchserveCluster-cluster"
   [ℹ]  deploying stack "eksctl-TorchserveCluster-cluster"
   [✔]  configured CloudWatch logging for cluster "TorchserveCluster" in "us-west-2" (enabled types: api, audit, authenticator, controllerManager, scheduler & no types disabled)
-  [ℹ]  building nodegroup stack "eksctl-TorchserveCluster-nodegroup-ng-1"
-  [ℹ]  --nodes-min=1 was set automatically for nodegroup ng-1
-  [ℹ]  --nodes-max=1 was set automatically for nodegroup ng-1
-  [ℹ]  deploying stack "eksctl-TorchserveCluster-nodegroup-ng-1"
+  [ℹ]  building nodegroup stack "eksctl-TorchserveCluster-nodegroup-mg-1"
+  [ℹ]  --nodes-min=1 was set automatically for nodegroup mg-1
+  [ℹ]  --nodes-max=1 was set automatically for nodegroup mg-1
+  [ℹ]  deploying stack "eksctl-TorchserveCluster-nodegroup-mg-1"
   [ℹ]  waiting for the control plane availability...
   [✔]  saved kubeconfig as "/home/ubuntu/.kube/config"
   [ℹ]  no tasks
   [✔]  all EKS cluster resources for "TorchserveCluster" have been created
   [ℹ]  adding identity "arn:aws:iam::ACCOUNT_ID:role/eksctl-TorchserveCluster-nodegrou-NodeInstanceRole" to auth ConfigMap
-  [ℹ]  nodegroup "ng-1" has 0 node(s)
-  [ℹ]  waiting for at least 1 node(s) to become ready in "ng-1"
-  [ℹ]  nodegroup "ng-1" has 1 node(s)
+  [ℹ]  nodegroup "mg-1" has 0 node(s)
+  [ℹ]  waiting for at least 1 node(s) to become ready in "mg-1"
+  [ℹ]  nodegroup "mg-1" has 1 node(s)
   [ℹ]  node "ip-instance_id.us-west-2.compute.internal" is ready
   [ℹ]  as you are using a GPU optimized instance type you will need to install NVIDIA Kubernetes device plugin.
   [ℹ]  	 see the following page for instructions: https://github.com/NVIDIA/k8s-device-plugin
@@ -212,7 +225,6 @@
   helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
   helm repo update
   helm install \
-      --version=0.7.1 \
       --generate-name \
       nvdp/nvidia-device-plugin
   ```
