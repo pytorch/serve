@@ -81,7 +81,7 @@ class KFservingv2Envelope(BaseEnvelope):
         Joins the instances of a batch of JSON objects
         """
         logger.info("Parse input data %s", rows)
-        body_list = rows[0].get("body") or rows[0].get("data")
+        body_list = list(map(lambda body_list: body_list.get("body"), rows))
         data_list = self._from_json(body_list)
         return data_list
 
@@ -96,7 +96,8 @@ class KFservingv2Envelope(BaseEnvelope):
             logger.info("Bytes array is %s", body_list)
         if "id" in body_list:
             setattr(self.context, "input_request_id", body_list["id"])
-        data_list = body_list.get("inputs")
+        data_list = list(
+            map(lambda inputs_list: inputs_list.get("inputs"), body_list))[0]
         return data_list
 
     def format_output(self, data):

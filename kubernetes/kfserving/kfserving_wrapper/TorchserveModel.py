@@ -3,10 +3,10 @@
 import json
 from typing import Dict
 import logging
-import kfserving
+import kserve
 import tornado.web
 
-logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
+logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
@@ -15,7 +15,7 @@ PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
-class TorchserveModel(kfserving.KFModel):
+class TorchserveModel(kserve.KFModel):
     """The torchserve side inference and explain end-points requests are handled to
     return a KFServing side response
 
@@ -80,8 +80,7 @@ class TorchserveModel(kfserving.KFModel):
         )
 
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code,
-                                        reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)
 
     async def explain(self, request: Dict) -> Dict:
@@ -114,6 +113,5 @@ class TorchserveModel(kfserving.KFModel):
             body=json.dumps(request),
         )
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code,
-                                        reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)
