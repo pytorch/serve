@@ -228,7 +228,15 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
 def test_huggingface_bert_batch_inference():
     batch_size = 4
     batch_delay = 10000 # 10 seconds
-    test_utils.register_model_with_params(model_name='BERTSeqClassification', url='https://bert-mar-file.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar', batch_size=batch_size, batch_delay=batch_delay)
+    params = (
+        ('model_name', 'BERTSeqClassification'),
+        ('url', 'https://bert-mar-file.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar'),
+        ('initial_workers', '1'),
+        ('synchronous', 'true'),
+        ('batch_size', '4'),
+        ('batch_delay', '10000')
+    )
+    test_utils.register_model_with_params(params)
     input_text = "../../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
     files = {
     'data': (input_text,
