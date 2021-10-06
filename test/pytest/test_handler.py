@@ -236,6 +236,7 @@ def test_huggingface_bert_batch_inference():
         ('batch_size', '4'),
         ('batch_delay', '10000')
     )
+    test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)
     input_text = "../../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
     files = {
