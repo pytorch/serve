@@ -69,7 +69,7 @@ persitant_volume:
 To install Torchserve run ```helm install ts .```  
 
 ```bash
-ubuntu@ip-172-31-50-36:~/serve/kubernetes$ helm install ts .
+ubuntu@ip-172-31-50-36:~/serve/kubernetes/Helm$ helm install ts .
 NAME: ts
 LAST DEPLOYED: Wed Jul 29 08:29:04 2020
 NAMESPACE: default
@@ -279,10 +279,12 @@ Follow the link for log aggregation with EFK Stack.\
   * Helm is picking up other .yaml files. Make sure you’ve added other files correctly to .helmignore. It should only run with values.yaml.
 * `kubectl describe pod` shows error message "0/1 nodes are available: 1 Insufficient cpu."
   * Ensure that the `n_cpu` value in `values.yaml` is set to a number that can be supported by the nodes in the cluster.
-  
+
+## Autoscaling
+  [Autoscaling with torchserve metrics](autoscale.md)
+
 ## Roadmap
 
-* [] Autoscaling
 * [] Log / Metrics Aggregation using [AWS Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)
 * [] EFK Stack Integration
 * [] Readiness / Liveness Probes
