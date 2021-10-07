@@ -2,8 +2,6 @@ import os
 import requests
 import json
 import test_utils
-import asyncio
-import multiprocessing
 import numpy as np
 import ast 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
@@ -240,12 +238,13 @@ def test_huggingface_bert_batch_inference():
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)
     input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
- 
+    
+    # Make 2 curl requests in parallel with &
     response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
-
-    # handler responds with number of inferences
     response = response.read()
-    assert response == batch_size
+
+    ## Assert that 2 responses are returned from the same batch
+    assert response == 'Not AcceptedNot Accepted'
     test_utils.unregister_model('BERTSeqClassification')
     
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
