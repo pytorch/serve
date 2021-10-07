@@ -2,6 +2,8 @@ import os
 import requests
 import json
 import test_utils
+import asyncio
+import multiprocessing
 import numpy as np
 import ast 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
@@ -226,8 +228,8 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
     test_utils.unregister_model("mnist")
 
 def test_huggingface_bert_batch_inference():
-    batch_size = 4
-    batch_delay = 20000 # 20 seconds
+    batch_size = 2
+    batch_delay = 10000 # 10 seconds
     params = (
         ('model_name', 'BERTSeqClassification'),
         ('url', 'https://bert-mar-file.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar'),
@@ -238,18 +240,12 @@ def test_huggingface_bert_batch_inference():
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)
     input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
-    files = {
-    'data': (input_text,
-                open(input_text, 'rb')),
-    }
-    
-    for _ in range(batch_size):
-        response = run_inference_using_url_with_data(TF_INFERENCE_API + '/v1/models/BERTSeqClassification:predict', pfiles=files)
-    
-    response = response.content
-    # response = ast.literal_eval(response)
-    # custom handler returns number of responses not the actual responses
-    assert int(response) == batch_size
+ 
+    response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
+
+    # handler responds with number of inferences
+    response = response.read()
+    assert response == batch_size
     test_utils.unregister_model('BERTSeqClassification')
     
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
