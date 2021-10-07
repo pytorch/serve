@@ -1,5 +1,5 @@
 """
-The KFServing Envelope is used to handle the KFServing
+The KServe Envelope is used to handle the KServe
 Input Request inside Torchserve.
 """
 import json
@@ -9,19 +9,19 @@ from .base import BaseEnvelope
 logger = logging.getLogger(__name__)
 
 
-class KFservingEnvelope(BaseEnvelope):
+class KServeEnvelope(BaseEnvelope):
     """
-    This function is used to handle the input request specified in KFServing
+    This function is used to handle the input request specified in kserve
     format and converts it into a Torchserve readable format.
 
     Args:
-        data - List of Input Request in KFServing Format
+        data - List of Input Request in kserve Format
     Returns:
         [list]: Returns the list of the Input Request in Torchserve Format
     """
 
     def parse_input(self, data):
-        logger.info("Parsing input in KFServing.py")
+        logger.info("Parsing input in kserve.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
         # selecting the first input from the list torchserve creates
         logger.info("Parse input data_list %s", self._data_list)
@@ -35,7 +35,7 @@ class KFservingEnvelope(BaseEnvelope):
             logger.info("Bytes array is %s", data)
 
         self._inputs = data.get("instances")
-        logger.info("KFServing parsed inputs %s", self._inputs)
+        logger.info("kserve parsed inputs %s", self._inputs)
         return self._inputs
 
     def format_output(self, data):
@@ -49,7 +49,7 @@ class KFservingEnvelope(BaseEnvelope):
             (list): The response is returned as a list of predictions and explanations
         """
         response = {}
-        logger.info("The Response of KFServing %s", data)
+        logger.info("The Response of kserve %s", data)
         if not self._is_explain():
             response["predictions"] = data
         else:

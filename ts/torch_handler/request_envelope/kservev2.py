@@ -1,5 +1,5 @@
 """
-The KFServing Envelope is used to handle the KFServing
+The KServe Envelope is used to handle the KServe
 Input Request inside Torchserve.
 """
 import json
@@ -43,16 +43,16 @@ def _to_datatype(dtype: np.dtype) -> str:
     return datatype
 
 
-class KFservingv2Envelope(BaseEnvelope):
-    """Implementation. Captures batches in KFServing v2 protocol format, returns
+class KServev2Envelope(BaseEnvelope):
+    """Implementation. Captures batches in KServe v2 protocol format, returns
     also in FServing v2 protocol format.
     """
 
     def parse_input(self, data):
-        """Translates KFServing request input to list of data expected by Torchserve.
+        """Translates KServe request input to list of data expected by Torchserve.
 
         Parameters:
-        data (json): KFServing v2 request input json.
+        data (json): KServe v2 request input json.
         {
           "inputs": [{
             "name": "input-0",
@@ -71,9 +71,9 @@ class KFservingv2Envelope(BaseEnvelope):
         }]
 
         """
-        logger.info("Parsing input in KFServing v2 format %s", data)
+        logger.info("Parsing input in KServe v2 format %s", data)
         inputs = self._batch_from_json(data)
-        logger.info("KFServingv2 parsed inputs %s", inputs)
+        logger.info("KServev2 parsed inputs %s", inputs)
         return inputs
 
     def _batch_from_json(self, rows):
@@ -101,12 +101,12 @@ class KFservingv2Envelope(BaseEnvelope):
         return data_list
 
     def format_output(self, data):
-        """Translates Torchserve output KFServing v2 response format.
+        """Translates Torchserve output KServe v2 response format.
 
         Parameters:
         data (list): Torchserve response for handler.
 
-        Returns: KFServing v2 response json.
+        Returns: KServe v2 response json.
         {
           "id": "f0222600-353f-47df-8d9d-c96d96fa894e",
           "model_name": "bert",
@@ -120,7 +120,7 @@ class KFservingv2Envelope(BaseEnvelope):
         }
 
         """
-        logger.info("The Response of KFServing v2 format %s", data)
+        logger.info("The Response of KServe v2 format %s", data)
         response = {}
         if hasattr(self.context, "input_request_id"):
             response["id"] = getattr(self.context, "input_request_id")

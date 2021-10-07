@@ -12,11 +12,14 @@ import test_utils
 
 NUM_STARTUP_CFG = 0
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-snapshot_file = os.path.join(REPO_ROOT,"test/config_kf.properties")
+snapshot_file = os.path.join(REPO_ROOT, "test/config_kf.properties")
+
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
+    response = requests.get(
+        "https://torchserve.pytorch.org/mar_files/mnist.mar",
+        allow_redirects=True)
     open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
 
 
@@ -25,18 +28,21 @@ def teardown_module(module):
 
 
 def logs_created(no_config_snapshots=False):
-    
-    test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
+
+    test_utils.start_torchserve(snapshot_file=snapshot_file,
+                                no_config_snapshots=no_config_snapshots)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
     assert len(glob.glob('logs/ts_log.log')) == 1
+
 
 def validate_metrics_created(no_config_snapshots=False):
     test_utils.delete_all_snapshots()
     global NUM_STARTUP_CFG
     # Reset NUM_STARTUP_CFG as we are deleting snapshots in the previous step
     NUM_STARTUP_CFG = 0
-    test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
+    test_utils.start_torchserve(snapshot_file=snapshot_file,
+                                no_config_snapshots=no_config_snapshots)
     if not no_config_snapshots:
         NUM_STARTUP_CFG += 1
 
@@ -44,9 +50,11 @@ def validate_metrics_created(no_config_snapshots=False):
     assert len(glob.glob('logs/ts_metrics.log')) == 1
 
 
-def run_log_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=False):
+def run_log_location_var(custom_path=test_utils.ROOT_DIR,
+                         no_config_snapshots=False):
     test_utils.delete_all_snapshots()
-    test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
+    test_utils.start_torchserve(snapshot_file=snapshot_file,
+                                no_config_snapshots=no_config_snapshots)
 
     # This check warrants that we are not accidentally monitoring a readonly logs/snapshot directory
     if os.access(custom_path, os.W_OK):
@@ -132,12 +140,16 @@ def test_log_location_var_snapshot_enabled():
     del os.environ['LOG_LOCATION']
 
     # In case of snapshot enabled, we get these three config files additionally in the custom directory
-    assert len(glob.glob(path.join(test_utils.ROOT_DIR,'config/*startup.cfg'))) >= 1
+    assert len(glob.glob(path.join(test_utils.ROOT_DIR,
+                                   'config/*startup.cfg'))) >= 1
     if platform.system() != "Windows":
-        assert len(glob.glob(path.join(test_utils.ROOT_DIR, 'config/*shutdown.cfg'))) >= 1
-    assert len(glob.glob(path.join(test_utils.ROOT_DIR, 'config/*snap*.cfg'))) >= 1
+        assert len(
+            glob.glob(path.join(test_utils.ROOT_DIR,
+                                'config/*shutdown.cfg'))) >= 1
+    assert len(glob.glob(path.join(test_utils.ROOT_DIR,
+                                   'config/*snap*.cfg'))) >= 1
     for f in glob.glob(path.join(test_utils.ROOT_DIR, "*.log")):
-        print("-------------Deleting "+f)
+        print("-------------Deleting " + f)
         os.remove(f)
 
     shutil.rmtree(path.join(test_utils.ROOT_DIR, 'config'))
@@ -156,7 +168,7 @@ def test_async_logging():
     async_config_file = test_utils.ROOT_DIR + 'async-log-config.properties'
     with open(async_config_file, "w+") as f:
         f.write("async_logging=true")
-        f.write("service_envelope=kfserving")
+        f.write("service_envelope=kserve")
     test_utils.start_torchserve(snapshot_file=async_config_file)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
@@ -173,7 +185,7 @@ def test_async_logging_non_boolean():
     async_config_file = test_utils.ROOT_DIR + 'async-log-config.properties'
     with open(async_config_file, "w+") as f:
         f.write("async_logging=2")
-        f.write("service_envelope=kfserving")
+        f.write("service_envelope=kserve")
     test_utils.start_torchserve(snapshot_file=async_config_file)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
@@ -181,9 +193,11 @@ def test_async_logging_non_boolean():
     test_utils.stop_torchserve()
 
 
-def run_metrics_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=False):
+def run_metrics_location_var(custom_path=test_utils.ROOT_DIR,
+                             no_config_snapshots=False):
     test_utils.delete_all_snapshots()
-    test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
+    test_utils.start_torchserve(snapshot_file=snapshot_file,
+                                no_config_snapshots=no_config_snapshots)
 
     if os.access(custom_path, os.W_OK):
         assert len(glob.glob(custom_path + '/ts_metrics.log')) == 1
@@ -296,10 +310,11 @@ def test_metrics_location_var_snapshot_enabled_rdonly_dir():
     # First remove existing logs otherwise it may be a false positive case
     for f in glob.glob('logs/*.log'):
         os.remove(f)
-    RDONLY_DIR = path.join(test_utils.ROOT_DIR,'rdonly_dir')
+    RDONLY_DIR = path.join(test_utils.ROOT_DIR, 'rdonly_dir')
     os.environ['METRICS_LOCATION'] = RDONLY_DIR
     try:
-        run_metrics_location_var(custom_path=RDONLY_DIR, no_config_snapshots=False)
+        run_metrics_location_var(custom_path=RDONLY_DIR,
+                                 no_config_snapshots=False)
         requests.post('http://127.0.0.1:8081/models?url=mnist.mar')
         assert len(glob.glob('logs/access_log.log')) == 1
         assert len(glob.glob('logs/model_log.log')) == 1
