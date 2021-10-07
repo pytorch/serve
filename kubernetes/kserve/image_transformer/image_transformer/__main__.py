@@ -15,16 +15,16 @@
 
 import argparse
 import json
-import kfserving
+import kserve
 from .image_transformer import ImageTransformer
 from .transformer_model_repository import TransformerModelRepository
 
 DEFAULT_MODEL_NAME = "model"
 
-parser = argparse.ArgumentParser(parents=[kfserving.kfserver.parser])
-parser.add_argument(
-    "--predictor_host", help="The URL for the model predict function", required=True
-)
+parser = argparse.ArgumentParser(parents=[kserve.kfserver.parser])
+parser.add_argument("--predictor_host",
+                    help="The URL for the model predict function",
+                    required=True)
 
 args, _ = parser.parse_known_args()
 
@@ -65,9 +65,10 @@ if __name__ == "__main__":
     model_names = parse_config()
     models = []
     for model_name in model_names:
-        transformer = ImageTransformer(model_name, predictor_host=args.predictor_host)
+        transformer = ImageTransformer(model_name,
+                                       predictor_host=args.predictor_host)
         models.append(transformer)
-    kfserving.KFServer(
+    kserve.KFServer(
         registered_models=TransformerModelRepository(args.predictor_host),
         http_port=8080,
     ).start(models=models)

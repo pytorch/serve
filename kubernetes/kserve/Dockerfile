@@ -23,7 +23,7 @@ RUN pip install -r requirements.txt
 
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh
-COPY kfserving_wrapper kfserving_wrapper
+COPY kserve_wrapper kserve_wrapper
 COPY config.properties config.properties
 
 USER model-server

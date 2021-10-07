@@ -1,5 +1,5 @@
 """ The torchserve side inference end-points request are handled to
-    return a KFServing side response """
+    return a KServe side response """
 import json
 from typing import Dict
 import logging
@@ -17,10 +17,10 @@ EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 class TorchserveModel(kserve.KFModel):
     """The torchserve side inference and explain end-points requests are handled to
-    return a KFServing side response
+    return a KServe side response
 
     Args:
-        kfserving.KFModel(class object): The predict and explain methods are overridden by torchserve
+        kserve.KFModel(class object): The predict and explain methods are overridden by torchserve
         side predict and explain http requests.
     """
 
@@ -52,13 +52,13 @@ class TorchserveModel(kserve.KFModel):
     async def predict(self, request: Dict) -> Dict:
         """The predict method is called when we hit the inference endpoint and handles
         the inference request and response from the Torchserve side and passes it on
-        to the KFServing side.
+        to the KServe side.
 
         Args:
             request (Dict): Input request from the http client side.
 
         Raises:
-            NotImplementedError: If the predictor host on the KFServing side is not
+            NotImplementedError: If the predictor host on the KServe side is not
                                  available.
 
             tornado.web.HTTPError: If there is a bad response from the http client.
@@ -80,19 +80,20 @@ class TorchserveModel(kserve.KFModel):
         )
 
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code,
+                                        reason=response.body)
         return json.loads(response.body)
 
     async def explain(self, request: Dict) -> Dict:
         """The predict method is called when we hit the explain endpoint and handles the
         explain request and response from the Torchserve side and passes it on to the
-        KFServing side.
+        KServe side.
 
         Args:
             request (Dict): Input request from the http client side.
 
         Raises:
-            NotImplementedError: If the predictor host on the KFServing side is not
+            NotImplementedError: If the predictor host on the KServe side is not
                                  available.
 
             tornado.web.HTTPError: If there is a bad response from the http client.
@@ -113,5 +114,6 @@ class TorchserveModel(kserve.KFModel):
             body=json.dumps(request),
         )
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code,
+                                        reason=response.body)
         return json.loads(response.body)

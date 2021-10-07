@@ -21,17 +21,16 @@ from typing import List, Dict
 import tornado
 from PIL import Image
 import torchvision.transforms as transforms
-import kfserving
+import kserve
 
-logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
-
+logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
-image_processing = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
+image_processing = transforms.Compose(
+    [transforms.ToTensor(),
+     transforms.Normalize((0.1307,), (0.3081,))])
+
 
 def image_transform(instance):
     """converts the input image of Bytes Array into Tensor
@@ -51,14 +50,15 @@ def image_transform(instance):
     return instance
 
 
-class ImageTransformer(kfserving.KFModel):
+class ImageTransformer(kserve.KFModel):
     """ A class object for the data handling activities of Image Classification
-    Task and returns a KFServing compatible response.
+    Task and returns a KServe compatible response.
 
     Args:
-        kfserving (class object): The KFModel class from the KFServing
+        kserve (class object): The KFModel class from the KServe
         modeule is passed here.
     """
+
     def __init__(self, name: str, predictor_host: str):
         """Initialize the model name, predictor host and the explainer host
 
@@ -78,15 +78,19 @@ class ImageTransformer(kfserving.KFModel):
         """Pre-process activity of the Image Input data.
 
         Args:
-            inputs (Dict): KFServing http request
+            inputs (Dict): Kserve http request
 
         Returns:
             Dict: Returns the request input after converting it into a tensor
         """
-        return {'instances': [image_transform(instance) for instance in inputs['instances']]}
+        return {
+            'instances': [
+                image_transform(instance) for instance in inputs['instances']
+            ]
+        }
 
     def postprocess(self, inputs: List) -> List:
-        """Post process function of Torchserve on the KFServing side is
+        """Post process function of Torchserve on the Kserve side is
         written here.
 
         Args:
@@ -113,15 +117,15 @@ class ImageTransformer(kfserving.KFModel):
         """
         if self.explainer_host is None:
             raise NotImplementedError
-        logging.info("Inside Image Transformer explain %s" ,EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name))
-        response = await self._http_client.fetch(
-            EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name),
-            method='POST',
-            request_timeout=self.timeout,
-            body=json.dumps(request)
-        )
+        logging.info(
+            "Inside Image Transformer explain %s",
+            EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name))
+        response = await self._http_client.fetch(EXPLAINER_URL_FORMAT.format(
+            self.explainer_host, self.name),
+                                                 method='POST',
+                                                 request_timeout=self.timeout,
+                                                 body=json.dumps(request))
         if response.code != 200:
-            raise tornado.web.HTTPError(
-                status_code=response.code,
-                reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code,
+                                        reason=response.body)
         return json.loads(response.body)

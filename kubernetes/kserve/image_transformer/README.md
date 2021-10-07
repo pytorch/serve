@@ -2,10 +2,10 @@
 
 Most of the model servers expect tensors as input data, so a pre-processing step is needed before making the prediction call if the user is sending in raw input format. Transformer is a service for users to implement pre/post processing code before making the prediction call. In this example we add additional pre-processing step to allow the user send raw image data and convert it into json array.
 
-
-##  Build Transformer image
+## Build Transformer image
 
 ### Extend KFModel and implement pre/post processing functions
+
 ```python
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
@@ -22,7 +22,7 @@ def image_transform(instance):
     return instance
 
 
-class ImageTransformer(kfserving.KFModel):
+class ImageTransformer(kserve.KFModel):
 
     def __init__(self, name: str, predictor_host: str):
         super().__init__(name)
@@ -40,37 +40,44 @@ class ImageTransformer(kfserving.KFModel):
     def postprocess(self, inputs: List) -> List:
         return inputs
 ```
-## Steps to run Image Transformer in local environment
-### Install the Image Transformer and KFServing Repo
 
-* Clone the KFServing Git Repository
+## Steps to run Image Transformer in local environment
+
+### Install the Image Transformer and KServe Repo
+
+- Clone the KServe Git Repository
+
 ```bash
-git clone -b master https://github.com/kubeflow/kfserving.git
+git clone -b master https://github.com/kserve/kserve.git
 ```
 
-* Install KFServing as below:
-```bash
-pip install -e ./kfserving/python/kfserving
-``` 
+- Install KServe as below:
 
-* Run the Install Dependencies script
+```bash
+pip install -e ./kserve/python/kserve
+```
+
+- Run the Install Dependencies script
+
 ```bash
 python ./ts_scripts/install_dependencies.py --environment=dev
 ```
 
-* Run the Install from Source command
+- Run the Install from Source command
+
 ```bash
 python ./ts_scripts/install_from_src.py
 ```
 
-* Create a directory to place the config.properties in the folder structure below:
+- Create a directory to place the config.properties in the folder structure below:
+
 ```bash
 sudo  mkdir -p /mnt/models/config/
 ```
 
-* Move the model to /mnt/models/model-store
+- Move the model to /mnt/models/model-store
 
-* Move the config.properties to /mnt/models/config/.
+- Move the config.properties to /mnt/models/config/.
 
 The config.properties file is as below:
 
@@ -88,30 +95,35 @@ model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
 
-* Create a directory to place the .mar file in the folder structure below
+- Create a directory to place the .mar file in the folder structure below
+
 ```bash
 sudo  mkdir -p /mnt/models/model-store
 ```
 
-* Install Image Transformer with the below command
+- Install Image Transformer with the below command
+
 ```bash
-pip install -e ./serve/kubernetes/kfserving/image_transformer/
+pip install -e ./serve/kubernetes/kserve/image_transformer/
 ```
 
-* Run the Image Transformer with the below command
+- Run the Image Transformer with the below command
+
 ```bash
 python3 -m image_transformer --predictor_host 0.0.0.0:8085
 ```
+
 The transformer will hit the predictor host after pre-processing.
 The predictor host is the inference url of torchserve.
 
-* Set service envelope environment variable
+- Set service envelope environment variable
 
-The 
-```export TS_SERVICE_ENVELOPE=kfserving``` or ```TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between
-KFServing v1 and v2 protocols
+The
+`export TS_SERVICE_ENVELOPE=kserve` or `TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
+KServe v1 and v2 protocols
 
-* Start torchserve using config.properties in /mnt/models/config/
+- Start torchserve using config.properties in /mnt/models/config/
+
 ```
 torchserve --start --ts-config /mnt/models/config/config.properties
 ```
@@ -119,20 +131,22 @@ torchserve --start --ts-config /mnt/models/config/config.properties
 Please note that Model runs at port 8085,Image transformer runs at port 8080.
 The request first comes to the image transformer at port 8080 and in turn requests the torchserve at port 8085. So our request should be made at port 8080.
 
-* The curl request for inference is as below:
+- The curl request for inference is as below:
+
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kfserving/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
 ```
 
 output:
+
 ```json
-{"predictions": [2]}
+{ "predictions": [2] }
 ```
 
 ## Build Transformer docker image
-This step can be used to continuously build the transformer image version. 
+
+This step can be used to continuously build the transformer image version.
+
 ```shell
 docker build -t <image_name>:<tag> -f transformer.Dockerfile .
 ```
-
-
