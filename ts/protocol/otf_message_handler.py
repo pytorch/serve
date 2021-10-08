@@ -190,6 +190,7 @@ def _retrieve_load_msg(conn):
     | int batch-size length |
     | int handler length | handler value |
     | int gpu id |
+    | bool limitMaxImagePixels |
 
     :param conn:
     :return:
