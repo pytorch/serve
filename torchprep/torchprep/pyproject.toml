@@ -6,7 +6,7 @@ authors = ["Mark Saroufim <marksaroufim@fb.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-rick-portal-gun = "torchprep.main:app"
+torchprep = "torchprep.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.9"
