@@ -284,6 +284,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `model_server_home` : Torchserve home directory. 
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
+* `limit_max_image_pixels` : Default value is true. If this is set to "false", PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler. 
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
 eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
