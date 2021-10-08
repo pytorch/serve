@@ -253,7 +253,8 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (HttpPostRequestDecoder.isMultipart(req)
                 || HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(
                         contentType)) {
-            HttpDataFactory factory = new DefaultHttpDataFactory(ConfigManager.getInstance().getMaxRequestSize());
+            HttpDataFactory factory =
+                    new DefaultHttpDataFactory(ConfigManager.getInstance().getMaxRequestSize());
             HttpPostRequestDecoder form = new HttpPostRequestDecoder(factory, req);
             try {
                 while (form.hasNext()) {
