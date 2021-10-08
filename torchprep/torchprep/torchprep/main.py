@@ -32,6 +32,14 @@ def distill(model_path : Path, device : Device, parameter_scaling : int, layer_s
     typer.echo("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
+def fuse(model_path : Path):
+    typer.echo(f"Coming soon")
+
+@app.command()
+def env_variables(model_path : Path):
+    typer.echo(f"Coming soon")
+
+@app.command()
 def quantize(model_path : Path, precision : Precision , device : Device = Device.cpu, profile : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> None:
     # TODO: define model output path
     """
