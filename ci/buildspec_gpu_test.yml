@@ -1,0 +1,16 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - apt-get update
+      - apt-get install sudo python3-venv -y
+      - chmod +x ci/utils/setup.sh && sh ci/utils/setup.sh
+
+#  build:
+#    commands:
+#      - python torchserve_sanity.py
+#      - cd serving-sdk/ && mvn clean install -q && cd ../
