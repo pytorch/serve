@@ -22,6 +22,11 @@ class Device(str, Enum):
     cpu = "cpu"
     gpu = "gpu"
 
+class Architecture(str, Enum):
+    ipex = "ipex"
+    tensorrt = "tensorrt"
+    fastertransformer = "fastertransformer"
+
 
 @app.command()
 def hello() -> None:
@@ -47,12 +52,17 @@ def fuse(model_path : Path, device : Device = Device.cpu) -> None:
 
     torch.save(optimized_model, 'optimized_model.pt') 
 
-
-
-
 @app.command()
-def env_variables(model_path : Path):
-    typer.echo(f"Coming soon")
+def env_variables(model_path : Path, architecture : Architecture):
+    """
+    Set environment variables for optimized inference. Run this command on the machine where inference will happen!
+    """
+    if architecture == Architecture.ipex:
+        os.environ["OMP_NUM_THREADS"] = 1
+        os.environ["KMP_BLOCKTIME"] = 1
+    else:
+        typer.echo(f"support for architecture {architecture} coming soon")
+
 
 @app.command()
 def quantize(model_path : Path, precision : Precision , device : Device = Device.cpu, profile : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> None:
