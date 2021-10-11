@@ -6,7 +6,11 @@ import os
 from enum import Enum
 from pathlib import Path
 import math
+from tqdm import tqdm
+import torch.fx as fx
 
+
+# TODO: Make commands return a nn.Module instead of None so operations can be composed
 
 app = typer.Typer()
 
@@ -32,8 +36,19 @@ def distill(model_path : Path, device : Device, parameter_scaling : int, layer_s
     typer.echo("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
-def fuse(model_path : Path):
-    typer.echo(f"Coming soon")
+def fuse(model_path : Path, device : Device = Device.cpu) -> None:
+    """
+    Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
+    https://github.com/pytorch/pytorch/blob/master/torch/fx/experimental/optimization.py#L234
+    """
+    model = load_model(model_path, device)
+    optimized_model = fx.experimental.optimization.optimize_for_inference(model)
+    # TODO: Add profiling
+
+    torch.save(optimized_model, 'optimized_model.pt') 
+
+
+
 
 @app.command()
 def env_variables(model_path : Path):
@@ -61,7 +76,7 @@ def quantize(model_path : Path, precision : Precision , device : Device = Device
             print("int8 precision is not suported for GPUs, defaulting to float16")
         quantized_model = model.half()
     
-    print("Model succesfully quantized")
+    print("Model successfully quantized")
 
     print_size_of_model(model, label = "base model")
     print_size_of_model(quantized_model, label = "quantized_model")
@@ -79,8 +94,12 @@ def quantize(model_path : Path, precision : Precision , device : Device = Device
 def profile_model(model, input_tensor, label="model", iterations=100):
     print("Starting profile")
 
+    warmup_iterations = 10
+    for step in range(warmup_iterations):
+        model(input_tensor)
+
     durations = []
-    for step in range(iterations):
+    for step in tqdm(iterations):
         tic = time.time()
         model(input_tensor)
         toc = time.time()
