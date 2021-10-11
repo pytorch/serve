@@ -6,6 +6,7 @@ phases:
   install:
     commands:
       - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo $CODEBUILD_SOURCE_REPO_URL
       - apt-get update
       - apt-get install sudo python3-venv -y
       - chmod +x ci/utils/setup.sh && sh ci/utils/setup.sh
