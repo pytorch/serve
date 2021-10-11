@@ -33,7 +33,7 @@ def hello() -> None:
     typer.echo(f"Hello torchprep")
 
 @app.command()
-def distill(model_path : Path, device : Device, parameter_scaling : int, layer_scaling : int = None, profile : List[int] = None) -> None:
+def distill(model_path : Path, device : Device, parameter_scaling : int, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
     """
     Create a smaller student model by setting a distillation ratio and teach it how to behave exactly like your existing model
     """
@@ -41,7 +41,7 @@ def distill(model_path : Path, device : Device, parameter_scaling : int, layer_s
     typer.echo("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
-def fuse(model_path : Path, device : Device = Device.cpu) -> None:
+def fuse(model_path : Path, device : Device = Device.cpu) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     https://github.com/pytorch/pytorch/blob/master/torch/fx/experimental/optimization.py#L234
@@ -51,9 +51,10 @@ def fuse(model_path : Path, device : Device = Device.cpu) -> None:
     # TODO: Add profiling
 
     torch.save(optimized_model, 'optimized_model.pt') 
+    return optimized_model
 
 @app.command()
-def env_variables(model_path : Path, architecture : Architecture):
+def env_variables(model_path : Path, architecture : Architecture) -> None:
     """
     Set environment variables for optimized inference. Run this command on the machine where inference will happen!
     """
@@ -65,7 +66,8 @@ def env_variables(model_path : Path, architecture : Architecture):
 
 
 @app.command()
-def quantize(model_path : Path, precision : Precision , device : Device = Device.cpu, profile : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> None:
+def quantize(model_path : Path, precision : Precision ,
+ device : Device = Device.cpu, profile : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
     # TODO: define model output path
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
@@ -83,7 +85,7 @@ def quantize(model_path : Path, precision : Precision , device : Device = Device
     # TODO: Add AMP
     if device == Device.gpu:
         if precision == Precision.int8:
-            print("int8 precision is not suported for GPUs, defaulting to float16")
+            print("int8 precision is not supported for GPUs, defaulting to float16")
         quantized_model = model.half()
     
     print("Model successfully quantized")
@@ -99,12 +101,13 @@ def quantize(model_path : Path, precision : Precision , device : Device = Device
     
     torch.save(quantized_model, 'quantized_model.pt')
     print(f"model quantized_model.pt was saved")
+    return quantized_model
 
 
-def profile_model(model, input_tensor, label="model", iterations=100):
+def profile_model(model :torch.nn.Module, input_tensor, label : str = "model", iterations : int = 100) -> List[float]:
     print("Starting profile")
 
-    warmup_iterations = 10
+    warmup_iterations = iterations // 10
     for step in range(warmup_iterations):
         model(input_tensor)
 
@@ -122,14 +125,14 @@ def profile_model(model, input_tensor, label="model", iterations=100):
     print(f"Average latency for {label} is: {avg} ms")
     print(f"Min latency for {label} is: {min_latency} ms")
     print(f"Max p99 latency for {label} is: {max_latency} ms")
+    return [avg, min_latency, max_latency]
 
-
-def load_model(model_path: str, device="cpu"):
+def load_model(model_path: str, device="cpu") -> torch.nn.Module:
     map_location = torch.device(device)
     model = torch.load(model_path, map_location=map_location)
     return model
 
-def print_size_of_model(model, label=""):
+def print_size_of_model(model : torch.nn.Module, label : str = ""):
     torch.save(model.state_dict(), "temp.p")
     size=os.path.getsize("temp.p")
     print("model: ",label,':','Size (MB):', size/1e6)
