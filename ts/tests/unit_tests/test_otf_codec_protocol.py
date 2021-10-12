@@ -45,7 +45,7 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x07", b"handler",
             b"\x00\x00\x00\x01",
             b"\x00\x00\x00\x08", b"envelope",
-            b"\x00\x00\x00\x01"
+            b"\x01"
         ]
         cmd, ret = codec.retrieve_msg(socket_patches.socket)
 
@@ -66,7 +66,7 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x07", b"handler",
             b"\xFF\xFF\xFF\xFF",
             b"\x00\x00\x00\x08", b"envelope",
-            b"\x00\x00\x00\x01"
+            b"\x01"
         ]
         cmd, ret = codec.retrieve_msg(socket_patches.socket)
 
