@@ -77,7 +77,7 @@ class Linux(Common):
     def install_libgit2(self):
         os.system(f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz")
         os.system(f"tar xzf libgit2-1.3.0.tar.gz")
-        os.system(f"cd libgit2-1.3.0.tar.gz && cmake . && make && sudo make install")
+        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install")
 
 
 class Windows(Common):

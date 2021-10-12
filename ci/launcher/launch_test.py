@@ -112,7 +112,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
 
         command_return_value_map = run_commands_on_ec2_instance(ec2_connection, is_gpu)
 
-        if all([int(ret_val) == 0 for ret_val in command_return_value_map.keys()]):
+        if all([ret_val == 0 for ret_val in command_return_value_map.keys()]):
             raise ValueError(f"*** One of the commands executed on ec2 returned a non-zero value.")
         else:
             LOGGER.info(f"*** All commands executed successfully on ec2. command:return_value map is as follows:")
