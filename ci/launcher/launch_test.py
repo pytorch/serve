@@ -152,6 +152,8 @@ def main():
     arguments = parser.parse_args()
 
     instance_type = arguments.instance_type
+    region = arguments.region
+    ami_id = arguments.ami_id
 
     launch_ec2_instance(region, instance_type, ami_id)
 
