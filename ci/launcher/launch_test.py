@@ -62,6 +62,7 @@ def launch_ec2_instance(instance_type):
     github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
     github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "local-start").strip()
     github_hookshot = github_hookshot.replace("/", "-")
+    github_pull_request_number = github_hookshot.split("-")[1]
 
     ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=DEFAULT_REGION)
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
@@ -94,7 +95,7 @@ def launch_ec2_instance(instance_type):
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
-            ec2_connection.run(f"cd serve && git reset --hard {github_pr_commit_id}")
+            ec2_connection.run(f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull")
 
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
             # This will NOT fail for other AMI where default python is python3
@@ -119,9 +120,9 @@ def launch_ec2_instance(instance_type):
     except Exception as e:
         LOGGER.error(f"*** Exception occured. {e}")
     finally:
-        LOGGER.warn(f"*** Terminating instance-id: {instance_id} with name: {ec2_key_name}")
+        LOGGER.warning(f"*** Terminating instance-id: {instance_id} with name: {ec2_key_name}")
         ec2_utils.terminate_instance(instance_id, DEFAULT_REGION)
-        LOGGER.warn(f"*** Destroying ssh key_pair: {ec2_key_name}")
+        LOGGER.warning(f"*** Destroying ssh key_pair: {ec2_key_name}")
         ec2_utils.destroy_ssh_keypair(ec2_client, ec2_key_name)
 
 
