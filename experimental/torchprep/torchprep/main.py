@@ -112,7 +112,7 @@ def profile_model(model :torch.nn.Module, input_tensor, label : str = "model", i
         model(input_tensor)
 
     durations = []
-    for step in tqdm(iterations):
+    for step in tqdm(range(iterations)):
         tic = time.time()
         model(input_tensor)
         toc = time.time()
