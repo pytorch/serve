@@ -11,8 +11,8 @@ import os
 import io
 from builtins import bytearray
 from builtins import bytes
-import torch
 import time
+import torch
 
 bool_size = 1
 int_size = 4

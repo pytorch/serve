@@ -92,7 +92,8 @@ class TorchModelServiceWorker(object):
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope, limit_max_image_pixels)
+            service = model_loader.load(model_name, model_dir, handler, gpu,
+                                        batch_size, envelope, limit_max_image_pixels)
 
             logging.debug("Model %s loaded.", model_name)
 
