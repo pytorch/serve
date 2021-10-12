@@ -15,13 +15,13 @@ from utils import ec2 as ec2_utils
 
 CPU_INSTANCE_COMMANDS_LIST = [
     "python3 ts_scripts/install_dependencies.py --environment=dev",
-    "python torchserve_sanity.py",
+    "python3 torchserve_sanity.py",
     "cd serving-sdk/ && mvn clean install -q && cd ../"
 ]
 
 GPU_INSTANCE_COMMANDS_LIST = [
     "python3 ts_scripts/install_dependencies.py --environment=dev --cuda=cu102",
-    "python torchserve_sanity.py",
+    "python3 torchserve_sanity.py",
     "cd serving-sdk/ && mvn clean install -q && cd ../"
 ]
 
