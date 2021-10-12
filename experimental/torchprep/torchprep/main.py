@@ -46,12 +46,13 @@ def fuse(model_path : Path, device : Device = Device.cpu) -> torch.nn.Module:
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     https://github.com/pytorch/pytorch/blob/master/torch/fx/experimental/optimization.py#L234
     """
-    model = load_model(model_path, device)
-    optimized_model = fx.experimental.optimization.optimize_for_inference(model)
-    # TODO: Add profiling
+    # model = load_model(model_path, device)
+    # optimized_model = fx.experimental.optimization.optimize_for_inference(model)
+    # # TODO: Add profiling
 
-    torch.save(optimized_model, 'optimized_model.pt') 
-    return optimized_model
+    # torch.save(optimized_model, 'optimized_model.pt') 
+    # return optimized_model
+    typer.echo("coming soon")
 
 @app.command()
 def env_variables(model_path : Path, architecture : Architecture) -> None:
