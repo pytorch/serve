@@ -16,13 +16,13 @@ from utils import ec2 as ec2_utils
 CPU_INSTANCE_COMMANDS_LIST = [
     "python3 ts_scripts/install_dependencies.py --environment=dev",
     "python3 torchserve_sanity.py",
-    "cd serving-sdk/ && mvn clean install -q && cd ../"
+    "cd serving-sdk/ && mvn clean install -q && cd ../",
 ]
 
 GPU_INSTANCE_COMMANDS_LIST = [
     "python3 ts_scripts/install_dependencies.py --environment=dev --cuda=cu102",
     "python3 torchserve_sanity.py",
-    "cd serving-sdk/ && mvn clean install -q && cd ../"
+    "cd serving-sdk/ && mvn clean install -q && cd ../",
 ]
 
 
@@ -45,9 +45,9 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
                 LOGGER.error(f"*** Failed command: {command}")
                 LOGGER.error(f"*** Failed command stdout: {ret_obj.stdout}")
                 LOGGER.error(f"*** Failed command stderr: {ret_obj.stderr}")
-            
+
             command_result_map[command] = ret_obj.return_code
-    
+
     return command_result_map
 
 
@@ -95,24 +95,29 @@ def launch_ec2_instance(region, instance_type, ami_id):
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
-            ec2_connection.run(f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull")
+            ec2_connection.run(
+                f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
+            )
 
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
             # This will NOT fail for other AMI where default python is python3
-            ec2_connection.run(f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip", warn=True)
-            ec2_connection.run(f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1", warn=True)
-
+            ec2_connection.run(
+                f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip", warn=True
+            )
+            ec2_connection.run(
+                f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1", warn=True
+            )
 
         is_gpu = True if instance_type[:2] in GPU_INSTANCES else False
 
         command_return_value_map = run_commands_on_ec2_instance(ec2_connection, is_gpu)
 
-        if not all(command_return_value_map.keys()):
+        if all([int(ret_val) == 0 for ret_val in command_return_value_map.keys()]):
             raise ValueError(f"*** One of the commands executed on ec2 returned a non-zero value.")
         else:
             LOGGER.info(f"*** All commands executed successfully on ec2. command:return_value map is as follows:")
             LOGGER.info(command_return_value_map)
-    
+
     except ValueError as e:
         LOGGER.error(f"*** ValueError: {e}")
         LOGGER.error(f"*** Following commands had the corresponding return value:")
@@ -139,14 +144,14 @@ def main():
     parser.add_argument(
         "--region",
         default="us-west-2",
-        help="Specify the aws region in which you want associated ec2 instance to be spawned"
+        help="Specify the aws region in which you want associated ec2 instance to be spawned",
     )
 
     parser.add_argument(
         "--ami-id",
         default="ami-032e40ca6b0973cf2",
         help="Specify an Ubuntu Base DLAMI only. This AMI type ships with nvidia drivers already setup. Using other AMIs might"
-        "need non-trivial installations on the AMI. AMI-ids differ per aws region."
+        "need non-trivial installations on the AMI. AMI-ids differ per aws region.",
     )
 
     arguments = parser.parse_args()

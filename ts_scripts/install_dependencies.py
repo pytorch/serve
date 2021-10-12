@@ -77,10 +77,8 @@ class Linux(Common):
     def install_libgit2(self):
         os.system(f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz")
         os.system(f"tar xzf libgit2-1.3.0.tar.gz")
-        os.chdir(f"libgit2-1.3.0.tar.gz")
-        os.system(f"cmake .")
-        os.system(f"make")
-        os.system(f"sudo make install")
+        os.system(f"cd libgit2-1.3.0.tar.gz && cmake . && make && sudo make install")
+
 
 class Windows(Common):
     def __init__(self):
@@ -131,6 +129,9 @@ def install_dependencies(cuda_version=None):
     }
     system = os_map[platform.system()]()
 
+    if platform.system() == "Linux":
+        system.install_libgit2()
+    
     # Sequence of installation to be maintained
     system.install_java()
     requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
@@ -141,8 +142,6 @@ def install_dependencies(cuda_version=None):
         system.install_node_packages()
         system.install_wget()
     
-    if platform.system() == "Linux":
-        system.install_libgit2()
 
 def get_brew_version():
     """Returns `brew --version` output. """
