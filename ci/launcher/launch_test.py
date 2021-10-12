@@ -10,7 +10,7 @@ from botocore.config import Config
 from fabric2 import Connection
 from invoke import run
 
-from utils import DEFAULT_REGION, UBUNTU_18_BASE_DLAMI_US_WEST_2, LOGGER, GPU_INSTANCES
+from utils import LOGGER, GPU_INSTANCES
 from utils import ec2 as ec2_utils
 
 CPU_INSTANCE_COMMANDS_LIST = [
@@ -51,7 +51,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
     return command_result_map
 
 
-def launch_ec2_instance(instance_type):
+def launch_ec2_instance(region, instance_type, ami_id):
     """
     Note: This function relies on CODEBUILD environment variables. If this function is used outside of CODEBUILD,
     modify the function accordingly.
@@ -64,7 +64,7 @@ def launch_ec2_instance(instance_type):
     github_hookshot = github_hookshot.replace("/", "-")
     github_pull_request_number = github_hookshot.split("-")[1]
 
-    ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=DEFAULT_REGION)
+    ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=region)
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
     ec2_key_name = f"{github_hookshot}-ec2-instance-{random.randint(1, 1000)}"
 
@@ -72,23 +72,23 @@ def launch_ec2_instance(instance_type):
     try:
         key_file = ec2_utils.generate_ssh_keypair(ec2_client, ec2_key_name)
         instance_details = ec2_utils.launch_instance(
-            UBUNTU_18_BASE_DLAMI_US_WEST_2,
+            ami_id,
             instance_type,
             ec2_key_name=ec2_key_name,
-            region=DEFAULT_REGION,
+            region=region,
             user_data=None,
             iam_instance_profile_name=ec2_utils.EC2_INSTANCE_ROLE_NAME,
             instance_name=ec2_key_name,
         )
 
         instance_id = instance_details["InstanceId"]
-        ip_address = ec2_utils.get_public_ip(instance_id, region=DEFAULT_REGION)
+        ip_address = ec2_utils.get_public_ip(instance_id, region=region)
 
-        ec2_utils.check_instance_state(instance_id, state="running", region=DEFAULT_REGION)
-        ec2_utils.check_system_state(instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION)
+        ec2_utils.check_instance_state(instance_id, state="running", region=region)
+        ec2_utils.check_system_state(instance_id, system_status="ok", instance_status="ok", region=region)
 
         # Create a fabric connection to the ec2 instance.
-        ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, DEFAULT_REGION)
+        ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
 
         ec2_connection.run(f"sudo apt update")
 
@@ -99,7 +99,7 @@ def launch_ec2_instance(instance_type):
 
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
             # This will NOT fail for other AMI where default python is python3
-            ec2_connection.run(f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip", warn=True)
+            ec2_connection.run(f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip", warn=True)
             ec2_connection.run(f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1", warn=True)
 
 
@@ -121,7 +121,7 @@ def launch_ec2_instance(instance_type):
         LOGGER.error(f"*** Exception occured. {e}")
     finally:
         LOGGER.warning(f"*** Terminating instance-id: {instance_id} with name: {ec2_key_name}")
-        ec2_utils.terminate_instance(instance_id, DEFAULT_REGION)
+        ec2_utils.terminate_instance(instance_id, region)
         LOGGER.warning(f"*** Destroying ssh key_pair: {ec2_key_name}")
         ec2_utils.destroy_ssh_keypair(ec2_client, ec2_key_name)
 
@@ -136,11 +136,24 @@ def main():
         help="Specify the instance type you want to run the test on. Default: p3.2xlarge",
     )
 
+    parser.add_argument(
+        "--region",
+        default="us-west-2",
+        help="Specify the aws region in which you want associated ec2 instance to be spawned"
+    )
+
+    parser.add_argument(
+        "--ami-id",
+        default="ami-032e40ca6b0973cf2",
+        help="Specify an Ubuntu Base DLAMI only. This AMI type ships with nvidia drivers already setup. Using other AMIs might"
+        "need non-trivial installations on the AMI. AMI-ids differ per aws region."
+    )
+
     arguments = parser.parse_args()
 
     instance_type = arguments.instance_type
 
-    launch_ec2_instance(instance_type)
+    launch_ec2_instance(region, instance_type, ami_id)
 
 
 if __name__ == "__main__":

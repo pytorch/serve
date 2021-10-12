@@ -12,7 +12,7 @@ from botocore.exceptions import ClientError
 from invoke import run
 from invoke.context import Context
 
-from . import DEFAULT_REGION, LOGGER, UL_AMI_LIST
+from . import DEFAULT_REGION, LOGGER 
 
 EC2_INSTANCE_ROLE_NAME = "ec2InstanceCIRole"
 
@@ -50,7 +50,7 @@ def launch_instance(
     ami_id,
     instance_type,
     ec2_key_name=None,
-    region=DEFAULT_REGION,
+    region="us-west-2",
     user_data=None,
     iam_instance_profile_name=None,
     instance_name="",
@@ -166,7 +166,8 @@ def get_instance_user(instance_id, region=DEFAULT_REGION):
     :return: <str> user name
     """
     instance = get_instance_from_id(instance_id, region)
-    user = "ubuntu" if instance["ImageId"] in UL_AMI_LIST else "ec2-user"
+    # Modify here if an AMI other than Ubuntu AMI must be used.
+    user = "ubuntu"
     return user
 
 
