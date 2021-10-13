@@ -39,7 +39,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
 
         for command in commands_list:
             LOGGER.info(f"*** Executing command on ec2 instance: {command}")
-            ret_obj = ec2_connection.run(command, warn=True)
+            ret_obj = ec2_connection.run(command, echo=True, pty=True, warn=True)
 
             if ret_obj.return_code != 0:
                 LOGGER.error(f"*** Failed command: {command}")
