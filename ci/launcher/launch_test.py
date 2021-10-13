@@ -40,7 +40,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
         for command in commands_list:
             LOGGER.info(f"*** Executing command on ec2 instance: {command}")
             ret_obj = ec2_connection.run(
-                command, echo=True, pty=True, warn=True, shell="/bin/bash", env={"LC_CTYPE": "en_US.utf8"}
+                command, echo=True, warn=True, shell="/bin/bash", env={"LC_CTYPE": "en_US.utf8"}
             )
 
             if ret_obj.return_code != 0:
@@ -124,8 +124,10 @@ def launch_ec2_instance(region, instance_type, ami_id):
         LOGGER.error(f"*** ValueError: {e}")
         LOGGER.error(f"*** Following commands had the corresponding return value:")
         LOGGER.error(command_return_value_map)
+        raise e
     except Exception as e:
         LOGGER.error(f"*** Exception occured. {e}")
+        raise e
     finally:
         LOGGER.warning(f"*** Terminating instance-id: {instance_id} with name: {ec2_key_name}")
         ec2_utils.terminate_instance(instance_id, region)
