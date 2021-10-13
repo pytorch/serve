@@ -26,4 +26,3 @@ class MNISTDigitClassifier(ImageClassifier):
             list : A list of dictionary with predictons and explanations are returned.
         """
         return [data.argmax(1).flatten().tolist()]
-        
