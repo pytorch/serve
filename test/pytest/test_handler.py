@@ -240,7 +240,8 @@ def test_huggingface_bert_batch_inference():
     input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
     
     # Make 2 curl requests in parallel with &
-    response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl --header \"X-Forwarded-For: 1.2.3.4\" http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
+    # curl --header \"X-Forwarded-For: 1.2.3.4\" won't work since you can't access local host anymore
+    response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
     response = response.read()
 
 
