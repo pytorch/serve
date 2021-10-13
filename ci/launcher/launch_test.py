@@ -39,7 +39,9 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
 
         for command in commands_list:
             LOGGER.info(f"*** Executing command on ec2 instance: {command}")
-            ret_obj = ec2_connection.run(command, echo=True, pty=True, warn=True)
+            ret_obj = ec2_connection.run(
+                command, echo=True, pty=True, warn=True, shell="/bin/bash", env={"LC_CTYPE": "en_US.utf8"}
+            )
 
             if ret_obj.return_code != 0:
                 LOGGER.error(f"*** Failed command: {command}")
@@ -112,7 +114,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
 
         command_return_value_map = run_commands_on_ec2_instance(ec2_connection, is_gpu)
 
-        if all([ret_val == 0 for ret_val in command_return_value_map.keys()]):
+        if not all([ret_val == 0 for ret_val in command_return_value_map.keys()]):
             raise ValueError(f"*** One of the commands executed on ec2 returned a non-zero value.")
         else:
             LOGGER.info(f"*** All commands executed successfully on ec2. command:return_value map is as follows:")
