@@ -98,11 +98,15 @@ def launch_instance(
         arguments_dict["UserData"] = user_data
     if iam_instance_profile_name:
         arguments_dict["IamInstanceProfile"] = {"Name": iam_instance_profile_name}
-    
+
+    LOGGER.info(f"Launching instance with name: {instance_name}, and key: {ec2_key_name}")
+
     response = client.run_instances(**arguments_dict)
 
     if not response or len(response["Instances"]) < 1:
         raise Exception("Unable to launch the instance. Did not return any response")
+    
+    LOGGER.info(f"Instance launched successfully.")
 
     return response["Instances"][0]
 
