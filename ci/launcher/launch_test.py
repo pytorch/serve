@@ -44,7 +44,12 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
             for command in commands_list:
                 LOGGER.info(f"*** Executing command on ec2 instance: {command}")
                 ret_obj = ec2_connection.run(
-                    command, echo=True, warn=True, pty=True, shell="/bin/bash", env={"LC_CTYPE": "en_US.utf8"}
+                    command,
+                    echo=True,
+                    warn=True,
+                    pty=True,
+                    shell="/bin/bash",
+                    env={"LC_CTYPE": "en_US.utf8", "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64"},
                 )
 
                 if ret_obj.return_code != 0:
