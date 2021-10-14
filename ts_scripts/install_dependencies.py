@@ -79,6 +79,9 @@ class Linux(Common):
         os.system(f"tar xzf libgit2-1.3.0.tar.gz")
         os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
         os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
+    
+    def install_maven(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y maven")
 
 
 class Windows(Common):
@@ -130,8 +133,9 @@ def install_dependencies(cuda_version=None):
     }
     system = os_map[platform.system()]()
 
-    if platform.system() == "Linux":
+    if platform.system() == "Linux" and args.environment == "dev":
         system.install_libgit2()
+        system.install_maven()
     
     # Sequence of installation to be maintained
     system.install_java()
