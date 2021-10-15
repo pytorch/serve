@@ -327,6 +327,7 @@ def get_ec2_fabric_connection(instance_id, instance_pem_file, region):
     conn = Connection(
         user=user,
         host=get_public_ip(instance_id, region),
+        inline_ssh_env=True,
         connect_kwargs={"key_filename": [instance_pem_file]},
     )
     return conn
