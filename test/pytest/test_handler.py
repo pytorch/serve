@@ -233,7 +233,7 @@ def test_huggingface_bert_batch_inference():
         ('url', 'https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar'),
         ('initial_workers', '1'),
         ('batch_size', str(batch_size)),
-        ('batch_delay', str(batch_delay))
+        ('max_batch_delay', str(batch_delay))
     )
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)

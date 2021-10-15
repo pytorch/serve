@@ -1065,9 +1065,59 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
 
-    @Test(
+@Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
+    public void testSuccessBatch() throws InterruptedException {
+        int batch_size = 4;
+        int max_batch_delay = 10000;
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.setHttpStatus(null);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+
+        TestUtils.registerModel(channel, "noop.mar", "noop", true, false, batch_size, max_batch_delay);
+        TestUtils.getLatch().await();
+
+        StatusResponse status =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+        Assert.assertEquals(
+                status.getStatus(),
+                "Model \"noop\" Version: 1.0 registered with 1 initial workers");
+
+        channel.close().sync();
+
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.setHttpStatus(null);
+        
+        for(int i = 0; i < batch_size ; i ++) {
+        DefaultFullHttpRequest req =
+        new DefaultFullHttpRequest(
+                HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+        // req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers()
+                .set(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.ACCEPTED);
+        }
+        channel.close().sync();
+    }
+
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testSuccessBatch"})
     public void testErrorBatch() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
