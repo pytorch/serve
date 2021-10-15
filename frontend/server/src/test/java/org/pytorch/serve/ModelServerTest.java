@@ -1069,8 +1069,8 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
     public void testSuccessBatch() throws InterruptedException {
-        int batch_size = 4;
-        int max_batch_delay = 10000;
+        int batchSize = 4;
+        int maxBatchDelay = 10000;
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1079,7 +1079,7 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
 
         TestUtils.registerModel(
-                channel, "noop.mar", "noop", true, false, batch_size, max_batch_delay);
+                channel, "noop.mar", "noop", true, false, batchSize, maxBatchDelay);
         TestUtils.getLatch().await();
 
         StatusResponse status =
