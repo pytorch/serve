@@ -1068,32 +1068,6 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
-    public void testSuccessBatch() throws InterruptedException {
-        int batchSize = 4;
-        int maxBatchDelay = 10000;
-        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        Assert.assertNotNull(channel);
-
-        TestUtils.setHttpStatus(null);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-
-        TestUtils.registerModel(
-                channel, "noop.mar", "noop", true, false, batchSize, maxBatchDelay);
-        TestUtils.getLatch().await();
-
-        StatusResponse status =
-                JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-        Assert.assertEquals(
-                status.getStatus(),
-                "Model \"noop\" Version: 1.0 registered with 1 initial workers");
-
-        channel.close().sync();
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testSuccessBatch"})
     public void testErrorBatch() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
