@@ -1089,30 +1089,6 @@ public class ModelServerTest {
                 "Model \"noop\" Version: 1.0 registered with 1 initial workers");
 
         channel.close().sync();
-
-        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
-        Assert.assertNotNull(channel);
-
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.setHttpStatus(null);
-
-        for (int i = 0; i < batchSize; i++) {
-            DefaultFullHttpRequest req =
-                    new DefaultFullHttpRequest(
-                            HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
-            // req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
-            HttpUtil.setContentLength(req, req.content().readableBytes());
-            req.headers()
-                    .set(
-                            HttpHeaderNames.CONTENT_TYPE,
-                            HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-            channel.writeAndFlush(req);
-
-            TestUtils.getLatch().await();
-            Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.ACCEPTED);
-        }
-        channel.close().sync();
     }
 
     @Test(
