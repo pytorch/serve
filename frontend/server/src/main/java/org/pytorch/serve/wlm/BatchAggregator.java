@@ -63,12 +63,13 @@ public class BatchAggregator {
                 // this is from initial load.
                 return;
             }
-
             for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
-                Job job = jobs.remove(jobId);
+                Job job = jobs.get(jobId);
+
                 if (job == null) {
-                    throw new IllegalStateException("Unexpected job: " + jobId);
+                    throw new IllegalStateException(
+                            "Unexpected job in sendResponse() with 200 status code: " + jobId);
                 }
                 job.response(
                         prediction.getResp(),
@@ -77,18 +78,19 @@ public class BatchAggregator {
                         prediction.getReasonPhrase(),
                         prediction.getHeaders());
             }
+
         } else {
-            for (String reqId : jobs.keySet()) {
-                Job j = jobs.remove(reqId);
-                if (j == null) {
-                    throw new IllegalStateException("Unexpected job: " + reqId);
+            for (Map.Entry<String, Job> j : jobs.entrySet()) {
+
+                if (j.getValue() == null) {
+                    throw new IllegalStateException(
+                            "Unexpected job in sendResponse() with non 200 status code: "
+                                    + j.getKey());
                 }
-                j.sendError(message.getCode(), message.getMessage());
-            }
-            if (!jobs.isEmpty()) {
-                throw new IllegalStateException("Not all jobs get response.");
+                j.getValue().sendError(message.getCode(), message.getMessage());
             }
         }
+        jobs.clear();
     }
 
     public void sendError(BaseModelRequest message, String error, int status) {
@@ -103,20 +105,20 @@ public class BatchAggregator {
                 String requestId = req.getRequestId();
                 Job job = jobs.remove(requestId);
                 if (job == null) {
-                    logger.error("Unexpected job: " + requestId);
+                    logger.error("Unexpected job in sendError(): " + requestId);
                 } else {
                     job.sendError(status, error);
                 }
             }
             if (!jobs.isEmpty()) {
                 jobs.clear();
-                logger.error("Not all jobs get response.");
+                logger.error("Not all jobs got an error response.");
             }
         } else {
             // Send the error message to all the jobs
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
                 String jobsId = j.getValue().getJobId();
-                Job job = jobs.remove(jobsId);
+                Job job = jobs.get(jobsId);
 
                 if (job.isControlCmd()) {
                     job.sendError(status, error);
@@ -127,5 +129,6 @@ public class BatchAggregator {
                 }
             }
         }
+        jobs.clear();
     }
 }
