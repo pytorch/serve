@@ -26,8 +26,10 @@ struct ModelConfig {
   // The maximum batch delay time TorchServe waits to receive batch_size number
   // of requests.
   uint32_t maxBatchDelayMSec;
-  // the timeout in second of a model's response.
+  // The timeout in second of a model's response.
   uint32_t responseTimeoutSec;
+  // The model's worker runtime type.
+  RuntimeType runtimeType;
 };
 
 // WorkflowSpec defined in
@@ -48,9 +50,8 @@ struct WorkflowSpec {
 };
 
 // Model can be either a single model or an ensemble model.
-// For a single model, a model object contains this model's configuration (ie. ModelConfig);
-// For an ensemble model, a model object not only contains its configuration (ie. ModelConfig),
-// but also contains its workflow (ie. WorkflowSpec).
+// For a single model, WorkflowSpec only contains this model's ModelConfig;
+// For an ensemble model, WorkflowSpec also contains its workflow (ie. submodels and dag).
 class Model {
   public:
   WorkflowSpec workflowSpec;
