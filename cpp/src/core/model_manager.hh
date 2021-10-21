@@ -17,6 +17,8 @@ class ModelManager {
   Status addJob(Job &job);
   
   private:
+  // mapModelNameVersion2Model is a global model table. 
+  // model name => model version => model 
   std::unordered_map<std::string,
                      std::unordered_map<std::string, std::unique_ptr<Model>>>
       mapModelNameVersion2Model;

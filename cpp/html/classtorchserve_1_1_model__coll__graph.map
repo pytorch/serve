@@ -1,0 +1,5 @@
+<map id="torchserve::Model" name="torchserve::Model">
+<area shape="rect" id="node1" title=" " alt="" coords="5,505,233,700"/>
+<area shape="rect" id="node2" href="$structtorchserve_1_1_workflow_spec.html" title=" " alt="" coords="31,263,207,443"/>
+<area shape="rect" id="node3" href="$structtorchserve_1_1_model_config.html" title=" " alt="" coords="13,5,225,200"/>
+</map>

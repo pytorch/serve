@@ -1,0 +1,23 @@
+\hypertarget{response_8hh_source}{}\doxysection{response.\+hh}
+\label{response_8hh_source}\index{src/core/response.hh@{src/core/response.hh}}
+\mbox{\hyperlink{response_8hh}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <unordered\_map>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <vector>}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespacetorchserve}{torchserve}} \{}
+\DoxyCodeLine{8   \textcolor{keyword}{using} \mbox{\hyperlink{namespacetorchserve_ab825626d948df4c553657676cf566636}{ResponseBatch}} = std::vector<std::shared\_ptr<Request>>;}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{keyword}{struct }\mbox{\hyperlink{structtorchserve_1_1_response}{Response}} \{}
+\DoxyCodeLine{11   std::string \mbox{\hyperlink{structtorchserve_1_1_response_a702b93d13b0f7254146593c29b4137a3}{requsetId}};}
+\DoxyCodeLine{12   int16\_t \mbox{\hyperlink{structtorchserve_1_1_response_aa24a49b8aa2db070ba8b6397d1ca8353}{statusCode}};}
+\DoxyCodeLine{13   std::string \mbox{\hyperlink{structtorchserve_1_1_response_a74ad26dec3f612d2cd51ddd4ec91c7c1}{statusPhase}};}
+\DoxyCodeLine{14   std::unordered\_map<std::string, std::string> \mbox{\hyperlink{structtorchserve_1_1_response_a5c7bc1c877cf814041793bc2624097f5}{headers}};}
+\DoxyCodeLine{15   std::vector<std::byte> \mbox{\hyperlink{structtorchserve_1_1_response_a4629f7a38f0f3ce944d1ab23ec833fd3}{value}};}
+\DoxyCodeLine{16 \};}
+\DoxyCodeLine{17 \}  \textcolor{comment}{// namespace torchserve}}
+
+\end{DoxyCode}

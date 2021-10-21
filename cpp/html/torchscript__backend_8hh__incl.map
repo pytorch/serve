@@ -1,0 +1,15 @@
+<map id="src/backend/torchscript/torchscript_backend.hh" name="src/backend/torchscript/torchscript_backend.hh">
+<area shape="rect" id="node1" title=" " alt="" coords="207,5,371,47"/>
+<area shape="rect" id="node2" href="$backend_8hh.html" title=" " alt="" coords="243,95,334,121"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,169,76,196"/>
+<area shape="rect" id="node4" title=" " alt="" coords="513,393,568,420"/>
+<area shape="rect" id="node5" href="$job_8hh.html" title=" " alt="" coords="711,244,821,271"/>
+<area shape="rect" id="node10" href="$model_8hh.html" title=" " alt="" coords="401,169,529,196"/>
+<area shape="rect" id="node6" title=" " alt="" coords="934,393,993,420"/>
+<area shape="rect" id="node7" href="$request_8hh.html" title=" " alt="" coords="730,319,866,345"/>
+<area shape="rect" id="node9" href="$response_8hh.html" title=" " alt="" coords="890,319,1037,345"/>
+<area shape="rect" id="node8" title=" " alt="" coords="740,393,856,420"/>
+<area shape="rect" id="node11" href="$model__archive_8hh.html" title=" " alt="" coords="375,244,554,271"/>
+<area shape="rect" id="node12" title=" " alt="" coords="202,244,351,271"/>
+<area shape="rect" id="node13" href="$status_8hh.html" title=" " alt="" coords="477,319,604,345"/>
+</map>

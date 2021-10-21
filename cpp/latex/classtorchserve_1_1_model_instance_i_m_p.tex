@@ -1,0 +1,95 @@
+\hypertarget{classtorchserve_1_1_model_instance_i_m_p}{}\doxysection{torchserve\+::Model\+Instance\+IMP Class Reference}
+\label{classtorchserve_1_1_model_instance_i_m_p}\index{torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}}
+
+
+{\ttfamily \#include $<$worker.\+hh$>$}
+
+
+
+Inheritance diagram for torchserve\+::Model\+Instance\+IMP\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{classtorchserve_1_1_model_instance_i_m_p__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for torchserve\+::Model\+Instance\+IMP\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{classtorchserve_1_1_model_instance_i_m_p__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_model_instance_i_m_p_af01626a70d21ee095b2a569e9e46e8dc}{Model\+Instance\+IMP}} (uint16\+\_\+t instance\+Id)
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_instance_i_m_p_a8b276e62c7dabaa68df6f36bbb746b6e}{create\+Instance}} (const \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} \&model, int gpu\+Id)
+\item 
+void \mbox{\hyperlink{classtorchserve_1_1_model_instance_i_m_p_a66c1b052cbe9e5376681cf0331610b5b}{predict}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_batch_job}{Batch\+Job}} $>$ \&job)
+\item 
+void \mbox{\hyperlink{classtorchserve_1_1_model_instance_i_m_p_a3fb71dba81d62820a40fd0cf2a1825aa}{warmup}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_backend_model}{Backend\+Model}} $>$ \mbox{\hyperlink{classtorchserve_1_1_model_instance_i_m_p_a0895e6cbcd162e71251107c9bbaa9d2a}{backend\+Model}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_model_instance_i_m_p_af01626a70d21ee095b2a569e9e46e8dc}\label{classtorchserve_1_1_model_instance_i_m_p_af01626a70d21ee095b2a569e9e46e8dc}} 
+\index{torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}!ModelInstanceIMP@{ModelInstanceIMP}}
+\index{ModelInstanceIMP@{ModelInstanceIMP}!torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}}
+\doxysubsubsection{\texorpdfstring{ModelInstanceIMP()}{ModelInstanceIMP()}}
+{\footnotesize\ttfamily torchserve\+::\+Model\+Instance\+IMP\+::\+Model\+Instance\+IMP (\begin{DoxyParamCaption}\item[{uint16\+\_\+t}]{instance\+Id }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_model_instance_i_m_p_a8b276e62c7dabaa68df6f36bbb746b6e}\label{classtorchserve_1_1_model_instance_i_m_p_a8b276e62c7dabaa68df6f36bbb746b6e}} 
+\index{torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}!createInstance@{createInstance}}
+\index{createInstance@{createInstance}!torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}}
+\doxysubsubsection{\texorpdfstring{createInstance()}{createInstance()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} torchserve\+::\+Model\+Instance\+IMP\+::create\+Instance (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} \&}]{model,  }\item[{int}]{gpu\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classtorchserve_1_1_model_instance_af70ed8f4ea207a0fe9dcf0864f16663b}{torchserve\+::\+Model\+Instance}}.
+
+\mbox{\Hypertarget{classtorchserve_1_1_model_instance_i_m_p_a66c1b052cbe9e5376681cf0331610b5b}\label{classtorchserve_1_1_model_instance_i_m_p_a66c1b052cbe9e5376681cf0331610b5b}} 
+\index{torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}!predict@{predict}}
+\index{predict@{predict}!torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}}
+\doxysubsubsection{\texorpdfstring{predict()}{predict()}}
+{\footnotesize\ttfamily void torchserve\+::\+Model\+Instance\+IMP\+::predict (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_batch_job}{Batch\+Job}} $>$ \&}]{job }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classtorchserve_1_1_model_instance_a557c2b288935eca4a61f6beda1b15c99}{torchserve\+::\+Model\+Instance}}.
+
+\mbox{\Hypertarget{classtorchserve_1_1_model_instance_i_m_p_a3fb71dba81d62820a40fd0cf2a1825aa}\label{classtorchserve_1_1_model_instance_i_m_p_a3fb71dba81d62820a40fd0cf2a1825aa}} 
+\index{torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}!warmup@{warmup}}
+\index{warmup@{warmup}!torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}}
+\doxysubsubsection{\texorpdfstring{warmup()}{warmup()}}
+{\footnotesize\ttfamily void torchserve\+::\+Model\+Instance\+IMP\+::warmup (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_model_instance_i_m_p_a0895e6cbcd162e71251107c9bbaa9d2a}\label{classtorchserve_1_1_model_instance_i_m_p_a0895e6cbcd162e71251107c9bbaa9d2a}} 
+\index{torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}!backendModel@{backendModel}}
+\index{backendModel@{backendModel}!torchserve::ModelInstanceIMP@{torchserve::ModelInstanceIMP}}
+\doxysubsubsection{\texorpdfstring{backendModel}{backendModel}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classtorchserve_1_1_backend_model}{Backend\+Model}}$>$ torchserve\+::\+Model\+Instance\+IMP\+::backend\+Model\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/core/\mbox{\hyperlink{worker_8hh}{worker.\+hh}}\end{DoxyCompactItemize}

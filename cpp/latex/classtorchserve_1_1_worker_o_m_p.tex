@@ -1,0 +1,96 @@
+\hypertarget{classtorchserve_1_1_worker_o_m_p}{}\doxysection{torchserve\+::Worker\+OMP Class Reference}
+\label{classtorchserve_1_1_worker_o_m_p}\index{torchserve::WorkerOMP@{torchserve::WorkerOMP}}
+
+
+{\ttfamily \#include $<$worker.\+hh$>$}
+
+
+
+Inheritance diagram for torchserve\+::Worker\+OMP\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=245pt]{classtorchserve_1_1_worker_o_m_p__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for torchserve\+::Worker\+OMP\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=245pt]{classtorchserve_1_1_worker_o_m_p__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_a68b788cdf3f3e7e0df95c7d77903eeeb}{Worker\+OMP}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_model_instance_o_m_p}{Model\+Instance\+OMP}} $>$ \&\mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_a67ead4336fe3cc624f985461bae47fc5}{model\+Instance}})
+\item 
+void \mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_aa3959d93bff244ab4c1413566574798c}{run}} (\mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \&job)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_model_instance_o_m_p}{Model\+Instance\+OMP}} $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_a67ead4336fe3cc624f985461bae47fc5}{model\+Instance}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_a37fbfb5e1584eff53c662d4abbebf7a2}{connect\+Backend}} (uint32\+\_\+t \mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_a8bba6a0c5e603ded1fd59846b09461f2}{port}})
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p_a8bba6a0c5e603ded1fd59846b09461f2}{port}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_worker_o_m_p_a68b788cdf3f3e7e0df95c7d77903eeeb}\label{classtorchserve_1_1_worker_o_m_p_a68b788cdf3f3e7e0df95c7d77903eeeb}} 
+\index{torchserve::WorkerOMP@{torchserve::WorkerOMP}!WorkerOMP@{WorkerOMP}}
+\index{WorkerOMP@{WorkerOMP}!torchserve::WorkerOMP@{torchserve::WorkerOMP}}
+\doxysubsubsection{\texorpdfstring{WorkerOMP()}{WorkerOMP()}}
+{\footnotesize\ttfamily torchserve\+::\+Worker\+OMP\+::\+Worker\+OMP (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_model_instance_o_m_p}{Model\+Instance\+OMP}} $>$ \&}]{model\+Instance }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_worker_o_m_p_a37fbfb5e1584eff53c662d4abbebf7a2}\label{classtorchserve_1_1_worker_o_m_p_a37fbfb5e1584eff53c662d4abbebf7a2}} 
+\index{torchserve::WorkerOMP@{torchserve::WorkerOMP}!connectBackend@{connectBackend}}
+\index{connectBackend@{connectBackend}!torchserve::WorkerOMP@{torchserve::WorkerOMP}}
+\doxysubsubsection{\texorpdfstring{connectBackend()}{connectBackend()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} torchserve\+::\+Worker\+OMP\+::connect\+Backend (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{port }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_o_m_p_aa3959d93bff244ab4c1413566574798c}\label{classtorchserve_1_1_worker_o_m_p_aa3959d93bff244ab4c1413566574798c}} 
+\index{torchserve::WorkerOMP@{torchserve::WorkerOMP}!run@{run}}
+\index{run@{run}!torchserve::WorkerOMP@{torchserve::WorkerOMP}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily void torchserve\+::\+Worker\+OMP\+::run (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \&}]{job }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classtorchserve_1_1_worker_aa0f90e9dafeb082d0b46e898ce929133}{torchserve\+::\+Worker}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_worker_o_m_p_a67ead4336fe3cc624f985461bae47fc5}\label{classtorchserve_1_1_worker_o_m_p_a67ead4336fe3cc624f985461bae47fc5}} 
+\index{torchserve::WorkerOMP@{torchserve::WorkerOMP}!modelInstance@{modelInstance}}
+\index{modelInstance@{modelInstance}!torchserve::WorkerOMP@{torchserve::WorkerOMP}}
+\doxysubsubsection{\texorpdfstring{modelInstance}{modelInstance}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classtorchserve_1_1_model_instance_o_m_p}{Model\+Instance\+OMP}}$>$ torchserve\+::\+Worker\+OMP\+::model\+Instance}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_o_m_p_a8bba6a0c5e603ded1fd59846b09461f2}\label{classtorchserve_1_1_worker_o_m_p_a8bba6a0c5e603ded1fd59846b09461f2}} 
+\index{torchserve::WorkerOMP@{torchserve::WorkerOMP}!port@{port}}
+\index{port@{port}!torchserve::WorkerOMP@{torchserve::WorkerOMP}}
+\doxysubsubsection{\texorpdfstring{port}{port}}
+{\footnotesize\ttfamily uint32\+\_\+t torchserve\+::\+Worker\+OMP\+::port\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/core/\mbox{\hyperlink{worker_8hh}{worker.\+hh}}\end{DoxyCompactItemize}

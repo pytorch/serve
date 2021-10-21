@@ -1,0 +1,107 @@
+\hypertarget{classtorchserve_1_1_job}{}\doxysection{torchserve\+::Job Class Reference}
+\label{classtorchserve_1_1_job}\index{torchserve::Job@{torchserve::Job}}
+
+
+{\ttfamily \#include $<$job.\+hh$>$}
+
+
+
+Inheritance diagram for torchserve\+::Job\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=338pt]{classtorchserve_1_1_job__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for torchserve\+::Job\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classtorchserve_1_1_job__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classtorchserve_1_1_job_a4e637525d0155dd6c17231fde11f0480}{send\+Response}} ()=0
+\item 
+virtual void \mbox{\hyperlink{classtorchserve_1_1_job_abe355a6abf06dd7b3fdc73a761845265}{send\+Error}} (int status, std\+::string error)=0
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}{Worker\+Commands}} \mbox{\hyperlink{classtorchserve_1_1_job_a641ae1e7c253ea060741ca1014e3484c}{job\+Cmd}}
+\item 
+std\+::string \mbox{\hyperlink{classtorchserve_1_1_job_ad2531be87c09ce219493c72644de2823}{job\+Id}}
+\item 
+\mbox{\hyperlink{structtorchserve_1_1_request}{Request}} \mbox{\hyperlink{classtorchserve_1_1_job_a6f3c8bbe8c84870b9c9e445cd76c37c2}{request}}
+\item 
+\mbox{\hyperlink{structtorchserve_1_1_response}{Response}} \mbox{\hyperlink{classtorchserve_1_1_job_a0e8158eab9cc8a25642a872976e8ffa5}{response}}
+\item 
+std\+::string \mbox{\hyperlink{classtorchserve_1_1_job_ac91e84e7ed716fdb05d3bc0e560360b0}{model\+Name}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_job_abe355a6abf06dd7b3fdc73a761845265}\label{classtorchserve_1_1_job_abe355a6abf06dd7b3fdc73a761845265}} 
+\index{torchserve::Job@{torchserve::Job}!sendError@{sendError}}
+\index{sendError@{sendError}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{sendError()}{sendError()}}
+{\footnotesize\ttfamily virtual void torchserve\+::\+Job\+::send\+Error (\begin{DoxyParamCaption}\item[{int}]{status,  }\item[{std\+::string}]{error }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classtorchserve_1_1_r_e_s_t_job_aa403f53826abd1a64040f3b1bec38961}{torchserve\+::\+RESTJob}}, and \mbox{\hyperlink{classtorchserve_1_1_g_r_p_c_job_a5b44cb261a72ee2d3848e855f91c4550}{torchserve\+::\+GRPCJob}}.
+
+\mbox{\Hypertarget{classtorchserve_1_1_job_a4e637525d0155dd6c17231fde11f0480}\label{classtorchserve_1_1_job_a4e637525d0155dd6c17231fde11f0480}} 
+\index{torchserve::Job@{torchserve::Job}!sendResponse@{sendResponse}}
+\index{sendResponse@{sendResponse}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{sendResponse()}{sendResponse()}}
+{\footnotesize\ttfamily virtual void torchserve\+::\+Job\+::send\+Response (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classtorchserve_1_1_r_e_s_t_job_a967bac5382b58f5ab1d30067b43be3e3}{torchserve\+::\+RESTJob}}, and \mbox{\hyperlink{classtorchserve_1_1_g_r_p_c_job_a0c718ad0d5ed2b41a51fe7b87038d437}{torchserve\+::\+GRPCJob}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_job_a641ae1e7c253ea060741ca1014e3484c}\label{classtorchserve_1_1_job_a641ae1e7c253ea060741ca1014e3484c}} 
+\index{torchserve::Job@{torchserve::Job}!jobCmd@{jobCmd}}
+\index{jobCmd@{jobCmd}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{jobCmd}{jobCmd}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}{Worker\+Commands}} torchserve\+::\+Job\+::job\+Cmd}
+
+\mbox{\Hypertarget{classtorchserve_1_1_job_ad2531be87c09ce219493c72644de2823}\label{classtorchserve_1_1_job_ad2531be87c09ce219493c72644de2823}} 
+\index{torchserve::Job@{torchserve::Job}!jobId@{jobId}}
+\index{jobId@{jobId}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{jobId}{jobId}}
+{\footnotesize\ttfamily std\+::string torchserve\+::\+Job\+::job\+Id}
+
+\mbox{\Hypertarget{classtorchserve_1_1_job_ac91e84e7ed716fdb05d3bc0e560360b0}\label{classtorchserve_1_1_job_ac91e84e7ed716fdb05d3bc0e560360b0}} 
+\index{torchserve::Job@{torchserve::Job}!modelName@{modelName}}
+\index{modelName@{modelName}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{modelName}{modelName}}
+{\footnotesize\ttfamily std\+::string torchserve\+::\+Job\+::model\+Name}
+
+\mbox{\Hypertarget{classtorchserve_1_1_job_a6f3c8bbe8c84870b9c9e445cd76c37c2}\label{classtorchserve_1_1_job_a6f3c8bbe8c84870b9c9e445cd76c37c2}} 
+\index{torchserve::Job@{torchserve::Job}!request@{request}}
+\index{request@{request}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{request}{request}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structtorchserve_1_1_request}{Request}} torchserve\+::\+Job\+::request}
+
+\mbox{\Hypertarget{classtorchserve_1_1_job_a0e8158eab9cc8a25642a872976e8ffa5}\label{classtorchserve_1_1_job_a0e8158eab9cc8a25642a872976e8ffa5}} 
+\index{torchserve::Job@{torchserve::Job}!response@{response}}
+\index{response@{response}!torchserve::Job@{torchserve::Job}}
+\doxysubsubsection{\texorpdfstring{response}{response}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structtorchserve_1_1_response}{Response}} torchserve\+::\+Job\+::response}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/core/\mbox{\hyperlink{job_8hh}{job.\+hh}}\end{DoxyCompactItemize}

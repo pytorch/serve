@@ -1,0 +1,143 @@
+\hypertarget{classtorchserve_1_1_worker_manager}{}\doxysection{torchserve\+::Worker\+Manager\texorpdfstring{$<$}{<} T1 \texorpdfstring{$>$}{>} Class Template Reference}
+\label{classtorchserve_1_1_worker_manager}\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+
+
+{\ttfamily \#include $<$worker\+Manager.\+hh$>$}
+
+
+
+Inheritance diagram for torchserve\+::Worker\+Manager\texorpdfstring{$<$}{<} T1 \texorpdfstring{$>$}{>}\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classtorchserve_1_1_worker_manager__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for torchserve\+::Worker\+Manager\texorpdfstring{$<$}{<} T1 \texorpdfstring{$>$}{>}\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classtorchserve_1_1_worker_manager__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_worker_manager_a4c15fdf265f85923903f3771ef4d25b7}{$\sim$\+Worker\+Manager}} ()
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_manager_ada718e5bfdf08fbec217ca523b738bed}{register\+Backend}} (const \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} \&model)
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_manager_a50de02de3dbd3544b782d00a704ecd3f}{create\+Model\+Instances}} (const \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} \&model)
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_manager_a537b156ab090470402c8d4acf597606b}{add\+Workers}} (int num\+Workers)
+\item 
+void \mbox{\hyperlink{classtorchserve_1_1_worker_manager_a8e032ecdc7bb4b8a87385663c9e703de}{enqueue}} (const std\+::unique\+\_\+ptr$<$ T1 $>$ \&job)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73}{Backend\+Type}}, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_backend}{Backend}} $>$ $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager_a1d39835df33475b30f95140bac163438}{backend\+Map}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_backend}{Backend}} $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager_abab8d301b90704b363b381c19e84a993}{backend}}
+\item 
+moodycamel\+::\+Blocking\+Concurrent\+Queue$<$ \mbox{\hyperlink{classtorchserve_1_1_batch_job}{Batch\+Job}} $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager_a5b28e32055a0a9c9c1cbd0b1568ceeb7}{batch\+Job\+Queue}}
+\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_model_instance}{Model\+Instance}} $>$ $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager_a9dc7433eab15a27cef954dda7dfb15d3}{model\+Instances}}
+\item 
+std\+::unique\+\_\+ptr$<$ folly\+::\+CPUThread\+Pool\+Executor $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager_acb3139f0f596dad2658c1eaf7b561dfd}{worker\+Thread\+Pool}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a4c15fdf265f85923903f3771ef4d25b7}\label{classtorchserve_1_1_worker_manager_a4c15fdf265f85923903f3771ef4d25b7}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!````~WorkerManager@{$\sim$WorkerManager}}
+\index{````~WorkerManager@{$\sim$WorkerManager}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$WorkerManager()}{~WorkerManager()}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+\mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::$\sim$\mbox{\hyperlink{classtorchserve_1_1_worker_manager}{Worker\+Manager}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a537b156ab090470402c8d4acf597606b}\label{classtorchserve_1_1_worker_manager_a537b156ab090470402c8d4acf597606b}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!addWorkers@{addWorkers}}
+\index{addWorkers@{addWorkers}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{addWorkers()}{addWorkers()}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::add\+Workers (\begin{DoxyParamCaption}\item[{int}]{num\+Workers }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a50de02de3dbd3544b782d00a704ecd3f}\label{classtorchserve_1_1_worker_manager_a50de02de3dbd3544b782d00a704ecd3f}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!createModelInstances@{createModelInstances}}
+\index{createModelInstances@{createModelInstances}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{createModelInstances()}{createModelInstances()}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::create\+Model\+Instances (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} \&}]{model }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a8e032ecdc7bb4b8a87385663c9e703de}\label{classtorchserve_1_1_worker_manager_a8e032ecdc7bb4b8a87385663c9e703de}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!enqueue@{enqueue}}
+\index{enqueue@{enqueue}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{enqueue()}{enqueue()}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+void \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::enqueue (\begin{DoxyParamCaption}\item[{const std\+::unique\+\_\+ptr$<$ T1 $>$ \&}]{job }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classtorchserve_1_1_scheduler_acb6eb92e251f3d8f0afe3d398f6108a5}{torchserve\+::\+Scheduler$<$ T1 $>$}}.
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_ada718e5bfdf08fbec217ca523b738bed}\label{classtorchserve_1_1_worker_manager_ada718e5bfdf08fbec217ca523b738bed}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!registerBackend@{registerBackend}}
+\index{registerBackend@{registerBackend}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{registerBackend()}{registerBackend()}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::register\+Backend (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} \&}]{model }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_abab8d301b90704b363b381c19e84a993}\label{classtorchserve_1_1_worker_manager_abab8d301b90704b363b381c19e84a993}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!backend@{backend}}
+\index{backend@{backend}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{backend}{backend}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classtorchserve_1_1_backend}{Backend}}$>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::backend\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a1d39835df33475b30f95140bac163438}\label{classtorchserve_1_1_worker_manager_a1d39835df33475b30f95140bac163438}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!backendMap@{backendMap}}
+\index{backendMap@{backendMap}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{backendMap}{backendMap}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+std\+::unordered\+\_\+map$<$\mbox{\hyperlink{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73}{Backend\+Type}}, std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classtorchserve_1_1_backend}{Backend}}$>$ $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::backend\+Map\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a5b28e32055a0a9c9c1cbd0b1568ceeb7}\label{classtorchserve_1_1_worker_manager_a5b28e32055a0a9c9c1cbd0b1568ceeb7}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!batchJobQueue@{batchJobQueue}}
+\index{batchJobQueue@{batchJobQueue}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{batchJobQueue}{batchJobQueue}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+moodycamel\+::\+Blocking\+Concurrent\+Queue$<$\mbox{\hyperlink{classtorchserve_1_1_batch_job}{Batch\+Job}}$>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::batch\+Job\+Queue\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_a9dc7433eab15a27cef954dda7dfb15d3}\label{classtorchserve_1_1_worker_manager_a9dc7433eab15a27cef954dda7dfb15d3}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!modelInstances@{modelInstances}}
+\index{modelInstances@{modelInstances}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{modelInstances}{modelInstances}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+std\+::vector$<$std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classtorchserve_1_1_model_instance}{Model\+Instance}}$>$ $>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::model\+Instances\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{classtorchserve_1_1_worker_manager_acb3139f0f596dad2658c1eaf7b561dfd}\label{classtorchserve_1_1_worker_manager_acb3139f0f596dad2658c1eaf7b561dfd}} 
+\index{torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}!workerThreadPool@{workerThreadPool}}
+\index{workerThreadPool@{workerThreadPool}!torchserve::WorkerManager$<$ T1 $>$@{torchserve::WorkerManager$<$ T1 $>$}}
+\doxysubsubsection{\texorpdfstring{workerThreadPool}{workerThreadPool}}
+{\footnotesize\ttfamily template$<$class T1 $>$ \\
+std\+::unique\+\_\+ptr$<$folly\+::\+CPUThread\+Pool\+Executor$>$ \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{torchserve\+::\+Worker\+Manager}}$<$ T1 $>$\+::worker\+Thread\+Pool\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/core/\mbox{\hyperlink{worker_manager_8hh}{worker\+Manager.\+hh}}\end{DoxyCompactItemize}
