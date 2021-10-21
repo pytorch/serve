@@ -1,9 +1,0 @@
-<map id="src/core/model_archive.hh" name="src/core/model_archive.hh">
-<area shape="rect" id="node1" title=" " alt="" coords="223,5,402,32"/>
-<area shape="rect" id="node2" href="$model_8hh.html" title=" " alt="" coords="249,80,377,107"/>
-<area shape="rect" id="node3" href="$backend_8hh.html" title=" " alt="" coords="43,155,209,181"/>
-<area shape="rect" id="node5" href="$worker_manager_8hh.html" title=" " alt="" coords="194,237,378,263"/>
-<area shape="rect" id="node6" href="$model__manager_8hh.html" title=" " alt="" coords="285,155,471,181"/>
-<area shape="rect" id="node7" href="$worker_8hh.html" title=" " alt="" coords="495,155,626,181"/>
-<area shape="rect" id="node4" href="$torchscript__backend_8hh.html" title=" " alt="" coords="5,229,169,271"/>
-</map>
