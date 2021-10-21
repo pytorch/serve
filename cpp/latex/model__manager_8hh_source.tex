@@ -1,0 +1,30 @@
+\hypertarget{model__manager_8hh_source}{}\doxysection{model\+\_\+manager.\+hh}
+\label{model__manager_8hh_source}\index{src/core/model\_manager.hh@{src/core/model\_manager.hh}}
+\mbox{\hyperlink{model__manager_8hh}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <deque>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <unordered\_map>}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{job_8hh}{src/core/job.hh}}"{}}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{model_8hh}{src/core/model.hh}}"{}}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{status_8hh}{src/core/status.hh}}"{}}}
+\DoxyCodeLine{10 }
+\DoxyCodeLine{11 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespacetorchserve}{torchserve}} \{}
+\DoxyCodeLine{12 \textcolor{keyword}{class }\mbox{\hyperlink{classtorchserve_1_1_model_manager}{ModelManager}} \{}
+\DoxyCodeLine{13   \textcolor{keyword}{public}:}
+\DoxyCodeLine{14   \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_a600f830b223d7062ffcdd16fe7c9eee7}{registerModel}}(\textcolor{keyword}{const} std::string \&url, \textcolor{keyword}{const} std::string \&defauleModelName, std::string \&versionId);}
+\DoxyCodeLine{15   \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_a524144a0e9f1c449a13396425279a714}{registerAndUpdateModel}}(\textcolor{keyword}{const} std::string \&url, \textcolor{keyword}{const} std::string \&defauleModelNam, std::string \&versionId), ;}
+\DoxyCodeLine{16   \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_adf6ca3b3282b3479f630d7ee96346bb2}{unregistgerModel}}(\textcolor{keyword}{const} std::string \&modelName, \textcolor{keyword}{const} std::string \&versionId);}
+\DoxyCodeLine{17   \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_adb5e0ecf07ecc6a40801e4b5d2fc4ee6}{addJob}}(\mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \&job);}
+\DoxyCodeLine{18   }
+\DoxyCodeLine{19   \textcolor{keyword}{private}:}
+\DoxyCodeLine{20   std::unordered\_map<std::string,}
+\DoxyCodeLine{21                      std::unordered\_map<std::string, std::unique\_ptr<Model>>>}
+\DoxyCodeLine{22       \mbox{\hyperlink{classtorchserve_1_1_model_manager_a66a8fc9d7dcca31bb5c75b80c1b55c3d}{mapModelNameVersion2Model}};}
+\DoxyCodeLine{23 \};}
+\DoxyCodeLine{24 \}  \textcolor{comment}{// namespace torchserve}}
+
+\end{DoxyCode}

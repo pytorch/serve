@@ -1,0 +1,175 @@
+\hypertarget{namespacetorchserve}{}\doxysection{torchserve Namespace Reference}
+\label{namespacetorchserve}\index{torchserve@{torchserve}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_backend}{Backend}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_backend_model}{Backend\+Model}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_batch_aggregator}{Batch\+Aggregator}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_batch_job}{Batch\+Job}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_g_r_p_c_job}{GRPCJob}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_job}{Job}}
+\item 
+struct \mbox{\hyperlink{structtorchserve_1_1_manifest}{Manifest}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_model}{Model}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_model_archive}{Model\+Archive}}
+\item 
+struct \mbox{\hyperlink{structtorchserve_1_1_model_config}{Model\+Config}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_model_instance}{Model\+Instance}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_model_instance_i_m_p}{Model\+Instance\+IMP}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_model_instance_o_m_p}{Model\+Instance\+OMP}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_model_manager}{Model\+Manager}}
+\item 
+struct \mbox{\hyperlink{structtorchserve_1_1_request}{Request}}
+\item 
+struct \mbox{\hyperlink{structtorchserve_1_1_response}{Response}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_r_e_s_t_job}{RESTJob}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_scheduler}{Scheduler}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_status}{Status}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_torchscript_backend}{Torchscript\+Backend}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_worker}{Worker}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_worker_i_m_p}{Worker\+IMP}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_worker_manager}{Worker\+Manager}}
+\item 
+class \mbox{\hyperlink{classtorchserve_1_1_worker_o_m_p}{Worker\+OMP}}
+\item 
+struct \mbox{\hyperlink{structtorchserve_1_1_workflow_spec}{Workflow\+Spec}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{namespacetorchserve_a45d02f03b9022627fa694a4d748962ed}{Request\+Batch}} = std\+::vector$<$ \mbox{\hyperlink{structtorchserve_1_1_request}{Request}} $>$
+\item 
+using \mbox{\hyperlink{namespacetorchserve_ab825626d948df4c553657676cf566636}{Response\+Batch}} = std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structtorchserve_1_1_request}{Request}} $>$ $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73}{Backend\+Type}} \{ \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a3544acc068b00ddaa99e7b89ac1031fc}{PYTHON}}
+, \mbox{\hyperlink{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73a9dd2cbe3ab237ba51b0422005d18fd9e}{TORCH}}
+ \}
+\item 
+enum \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}{Worker\+Commands}} \{ \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a5a338455e1e728b54efbe2b21b333ae4}{predict}}
+, \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a6b629060791383c4f3e0c9f2bbd68df8}{load}}
+, \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a97912f99a58cf5c9c9d747e82bc83b39}{unload}}
+, \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9ade3067b4dc005a27ecb1b02be41665a6}{stats}}
+ \}
+\item 
+enum \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43}{Runtime\+Type}} \{ \newline
+\mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a3544acc068b00ddaa99e7b89ac1031fc}{PYTHON}}
+, \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a432473054aef3bd50eae1c025425f823}{PYTHON2}}
+, \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a7eebc9b278e3708fdadab279ce52f8db}{PYTHON3}}
+, \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a71f28ce86f24baefe3118bff3f40e4f7}{CPP\+\_\+\+TORCH\+\_\+\+THREADS}}
+, \newline
+\mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a8a8f0287f10e0f1265cc14abdfecdb0e}{CPP\+\_\+\+TORCH\+\_\+\+IPC\+\_\+\+UDS}}
+, \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43afe7c07efbd6563c6c31b67e79384f537}{CPP\+\_\+\+TORCH\+\_\+\+IPC\+\_\+\+SHM}}
+ \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\Hypertarget{namespacetorchserve_a45d02f03b9022627fa694a4d748962ed}\label{namespacetorchserve_a45d02f03b9022627fa694a4d748962ed}} 
+\index{torchserve@{torchserve}!RequestBatch@{RequestBatch}}
+\index{RequestBatch@{RequestBatch}!torchserve@{torchserve}}
+\doxysubsubsection{\texorpdfstring{RequestBatch}{RequestBatch}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{namespacetorchserve_a45d02f03b9022627fa694a4d748962ed}{torchserve\+::\+Request\+Batch}} = typedef std\+::vector$<$\mbox{\hyperlink{structtorchserve_1_1_request}{Request}}$>$}
+
+\mbox{\Hypertarget{namespacetorchserve_ab825626d948df4c553657676cf566636}\label{namespacetorchserve_ab825626d948df4c553657676cf566636}} 
+\index{torchserve@{torchserve}!ResponseBatch@{ResponseBatch}}
+\index{ResponseBatch@{ResponseBatch}!torchserve@{torchserve}}
+\doxysubsubsection{\texorpdfstring{ResponseBatch}{ResponseBatch}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{namespacetorchserve_ab825626d948df4c553657676cf566636}{torchserve\+::\+Response\+Batch}} = typedef std\+::vector$<$std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{structtorchserve_1_1_request}{Request}}$>$ $>$}
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\Hypertarget{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73}\label{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73}} 
+\index{torchserve@{torchserve}!BackendType@{BackendType}}
+\index{BackendType@{BackendType}!torchserve@{torchserve}}
+\doxysubsubsection{\texorpdfstring{BackendType}{BackendType}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73}{torchserve\+::\+Backend\+Type}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PYTHON@{PYTHON}!torchserve@{torchserve}}\index{torchserve@{torchserve}!PYTHON@{PYTHON}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a3544acc068b00ddaa99e7b89ac1031fc}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a3544acc068b00ddaa99e7b89ac1031fc}} 
+PYTHON&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TORCH@{TORCH}!torchserve@{torchserve}}\index{torchserve@{torchserve}!TORCH@{TORCH}}}\mbox{\Hypertarget{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73a9dd2cbe3ab237ba51b0422005d18fd9e}\label{namespacetorchserve_af8eb3ad0ebada7f5090b0e5102c7ec73a9dd2cbe3ab237ba51b0422005d18fd9e}} 
+TORCH&\\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43}} 
+\index{torchserve@{torchserve}!RuntimeType@{RuntimeType}}
+\index{RuntimeType@{RuntimeType}!torchserve@{torchserve}}
+\doxysubsubsection{\texorpdfstring{RuntimeType}{RuntimeType}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43}{torchserve\+::\+Runtime\+Type}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PYTHON@{PYTHON}!torchserve@{torchserve}}\index{torchserve@{torchserve}!PYTHON@{PYTHON}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a3544acc068b00ddaa99e7b89ac1031fc}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a3544acc068b00ddaa99e7b89ac1031fc}} 
+PYTHON&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PYTHON2@{PYTHON2}!torchserve@{torchserve}}\index{torchserve@{torchserve}!PYTHON2@{PYTHON2}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a432473054aef3bd50eae1c025425f823}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a432473054aef3bd50eae1c025425f823}} 
+PYTHON2&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PYTHON3@{PYTHON3}!torchserve@{torchserve}}\index{torchserve@{torchserve}!PYTHON3@{PYTHON3}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a7eebc9b278e3708fdadab279ce52f8db}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a7eebc9b278e3708fdadab279ce52f8db}} 
+PYTHON3&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CPP\_TORCH\_THREADS@{CPP\_TORCH\_THREADS}!torchserve@{torchserve}}\index{torchserve@{torchserve}!CPP\_TORCH\_THREADS@{CPP\_TORCH\_THREADS}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a71f28ce86f24baefe3118bff3f40e4f7}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a71f28ce86f24baefe3118bff3f40e4f7}} 
+CPP\+\_\+\+TORCH\+\_\+\+THREADS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CPP\_TORCH\_IPC\_UDS@{CPP\_TORCH\_IPC\_UDS}!torchserve@{torchserve}}\index{torchserve@{torchserve}!CPP\_TORCH\_IPC\_UDS@{CPP\_TORCH\_IPC\_UDS}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a8a8f0287f10e0f1265cc14abdfecdb0e}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43a8a8f0287f10e0f1265cc14abdfecdb0e}} 
+CPP\+\_\+\+TORCH\+\_\+\+IPC\+\_\+\+UDS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CPP\_TORCH\_IPC\_SHM@{CPP\_TORCH\_IPC\_SHM}!torchserve@{torchserve}}\index{torchserve@{torchserve}!CPP\_TORCH\_IPC\_SHM@{CPP\_TORCH\_IPC\_SHM}}}\mbox{\Hypertarget{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43afe7c07efbd6563c6c31b67e79384f537}\label{namespacetorchserve_a14747c5a519f3deb57f31b32bdc45e43afe7c07efbd6563c6c31b67e79384f537}} 
+CPP\+\_\+\+TORCH\+\_\+\+IPC\+\_\+\+SHM&\\
+\hline
+
+\end{DoxyEnumFields}
+\mbox{\Hypertarget{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}\label{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}} 
+\index{torchserve@{torchserve}!WorkerCommands@{WorkerCommands}}
+\index{WorkerCommands@{WorkerCommands}!torchserve@{torchserve}}
+\doxysubsubsection{\texorpdfstring{WorkerCommands}{WorkerCommands}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}{torchserve\+::\+Worker\+Commands}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{predict@{predict}!torchserve@{torchserve}}\index{torchserve@{torchserve}!predict@{predict}}}\mbox{\Hypertarget{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a5a338455e1e728b54efbe2b21b333ae4}\label{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a5a338455e1e728b54efbe2b21b333ae4}} 
+predict&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{load@{load}!torchserve@{torchserve}}\index{torchserve@{torchserve}!load@{load}}}\mbox{\Hypertarget{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a6b629060791383c4f3e0c9f2bbd68df8}\label{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a6b629060791383c4f3e0c9f2bbd68df8}} 
+load&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{unload@{unload}!torchserve@{torchserve}}\index{torchserve@{torchserve}!unload@{unload}}}\mbox{\Hypertarget{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a97912f99a58cf5c9c9d747e82bc83b39}\label{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a97912f99a58cf5c9c9d747e82bc83b39}} 
+unload&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{stats@{stats}!torchserve@{torchserve}}\index{torchserve@{torchserve}!stats@{stats}}}\mbox{\Hypertarget{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9ade3067b4dc005a27ecb1b02be41665a6}\label{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9ade3067b4dc005a27ecb1b02be41665a6}} 
+stats&\\
+\hline
+
+\end{DoxyEnumFields}

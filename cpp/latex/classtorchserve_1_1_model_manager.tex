@@ -1,0 +1,73 @@
+\hypertarget{classtorchserve_1_1_model_manager}{}\doxysection{torchserve\+::Model\+Manager Class Reference}
+\label{classtorchserve_1_1_model_manager}\index{torchserve::ModelManager@{torchserve::ModelManager}}
+
+
+{\ttfamily \#include $<$model\+\_\+manager.\+hh$>$}
+
+
+
+Collaboration diagram for torchserve\+::Model\+Manager\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=256pt]{classtorchserve_1_1_model_manager__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_a600f830b223d7062ffcdd16fe7c9eee7}{register\+Model}} (const std\+::string \&url, const std\+::string \&defaule\+Model\+Name, std\+::string \&version\+Id)
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_a524144a0e9f1c449a13396425279a714}{register\+And\+Update\+Model}} (const std\+::string \&url, const std\+::string \&defaule\+Model\+Nam, std\+::string \&version\+Id)
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_adf6ca3b3282b3479f630d7ee96346bb2}{unregistger\+Model}} (const std\+::string \&model\+Name, const std\+::string \&version\+Id)
+\item 
+\mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_model_manager_adb5e0ecf07ecc6a40801e4b5d2fc4ee6}{add\+Job}} (\mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \&job)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::unordered\+\_\+map$<$ std\+::string, std\+::unordered\+\_\+map$<$ std\+::string, std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classtorchserve_1_1_model}{Model}} $>$ $>$ $>$ \mbox{\hyperlink{classtorchserve_1_1_model_manager_a66a8fc9d7dcca31bb5c75b80c1b55c3d}{map\+Model\+Name\+Version2\+Model}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_model_manager_adb5e0ecf07ecc6a40801e4b5d2fc4ee6}\label{classtorchserve_1_1_model_manager_adb5e0ecf07ecc6a40801e4b5d2fc4ee6}} 
+\index{torchserve::ModelManager@{torchserve::ModelManager}!addJob@{addJob}}
+\index{addJob@{addJob}!torchserve::ModelManager@{torchserve::ModelManager}}
+\doxysubsubsection{\texorpdfstring{addJob()}{addJob()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} torchserve\+::\+Model\+Manager\+::add\+Job (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \&}]{job }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classtorchserve_1_1_model_manager_a524144a0e9f1c449a13396425279a714}\label{classtorchserve_1_1_model_manager_a524144a0e9f1c449a13396425279a714}} 
+\index{torchserve::ModelManager@{torchserve::ModelManager}!registerAndUpdateModel@{registerAndUpdateModel}}
+\index{registerAndUpdateModel@{registerAndUpdateModel}!torchserve::ModelManager@{torchserve::ModelManager}}
+\doxysubsubsection{\texorpdfstring{registerAndUpdateModel()}{registerAndUpdateModel()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} torchserve\+::\+Model\+Manager\+::register\+And\+Update\+Model (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{url,  }\item[{const std\+::string \&}]{defaule\+Model\+Nam,  }\item[{std\+::string \&}]{version\+Id }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classtorchserve_1_1_model_manager_a600f830b223d7062ffcdd16fe7c9eee7}\label{classtorchserve_1_1_model_manager_a600f830b223d7062ffcdd16fe7c9eee7}} 
+\index{torchserve::ModelManager@{torchserve::ModelManager}!registerModel@{registerModel}}
+\index{registerModel@{registerModel}!torchserve::ModelManager@{torchserve::ModelManager}}
+\doxysubsubsection{\texorpdfstring{registerModel()}{registerModel()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} torchserve\+::\+Model\+Manager\+::register\+Model (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{url,  }\item[{const std\+::string \&}]{defaule\+Model\+Name,  }\item[{std\+::string \&}]{version\+Id }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classtorchserve_1_1_model_manager_adf6ca3b3282b3479f630d7ee96346bb2}\label{classtorchserve_1_1_model_manager_adf6ca3b3282b3479f630d7ee96346bb2}} 
+\index{torchserve::ModelManager@{torchserve::ModelManager}!unregistgerModel@{unregistgerModel}}
+\index{unregistgerModel@{unregistgerModel}!torchserve::ModelManager@{torchserve::ModelManager}}
+\doxysubsubsection{\texorpdfstring{unregistgerModel()}{unregistgerModel()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} \mbox{\hyperlink{classtorchserve_1_1_status}{Status}} torchserve\+::\+Model\+Manager\+::unregistger\+Model (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{model\+Name,  }\item[{const std\+::string \&}]{version\+Id }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtorchserve_1_1_model_manager_a66a8fc9d7dcca31bb5c75b80c1b55c3d}\label{classtorchserve_1_1_model_manager_a66a8fc9d7dcca31bb5c75b80c1b55c3d}} 
+\index{torchserve::ModelManager@{torchserve::ModelManager}!mapModelNameVersion2Model@{mapModelNameVersion2Model}}
+\index{mapModelNameVersion2Model@{mapModelNameVersion2Model}!torchserve::ModelManager@{torchserve::ModelManager}}
+\doxysubsubsection{\texorpdfstring{mapModelNameVersion2Model}{mapModelNameVersion2Model}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$std\+::string, std\+::unordered\+\_\+map$<$std\+::string, std\+::unique\+\_\+ptr$<$\mbox{\hyperlink{classtorchserve_1_1_model}{Model}}$>$ $>$ $>$ torchserve\+::\+Model\+Manager\+::map\+Model\+Name\+Version2\+Model\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/core/\mbox{\hyperlink{model__manager_8hh}{model\+\_\+manager.\+hh}}\end{DoxyCompactItemize}

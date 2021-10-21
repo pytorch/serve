@@ -1,0 +1,56 @@
+\hypertarget{job_8hh_source}{}\doxysection{job.\+hh}
+\label{job_8hh_source}\index{src/core/job.hh@{src/core/job.hh}}
+\mbox{\hyperlink{job_8hh}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <vector>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{request_8hh}{src/core/request.hh}}"{}}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{response_8hh}{src/core/response.hh}}"{}}}
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespacetorchserve}{torchserve}} \{}
+\DoxyCodeLine{9 \textcolor{keyword}{enum} \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}{WorkerCommands}} \{}
+\DoxyCodeLine{10   \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a5a338455e1e728b54efbe2b21b333ae4}{predict}},}
+\DoxyCodeLine{11   \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a6b629060791383c4f3e0c9f2bbd68df8}{load}},}
+\DoxyCodeLine{12   \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9a97912f99a58cf5c9c9d747e82bc83b39}{unload}},}
+\DoxyCodeLine{13   \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9ade3067b4dc005a27ecb1b02be41665a6}{stats}}}
+\DoxyCodeLine{14 \};}
+\DoxyCodeLine{15 }
+\DoxyCodeLine{16 \textcolor{comment}{// A job is a wrapper of an incoming request.}}
+\DoxyCodeLine{17 \textcolor{keyword}{class }\mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \{}
+\DoxyCodeLine{18   \textcolor{keyword}{public}:}
+\DoxyCodeLine{19   \mbox{\hyperlink{namespacetorchserve_a8d6d68aff4907605d1dcb24f9aaf19d9}{WorkerCommands}} \mbox{\hyperlink{classtorchserve_1_1_job_a641ae1e7c253ea060741ca1014e3484c}{jobCmd}};}
+\DoxyCodeLine{20   std::string \mbox{\hyperlink{classtorchserve_1_1_job_ad2531be87c09ce219493c72644de2823}{jobId}};}
+\DoxyCodeLine{21   \mbox{\hyperlink{structtorchserve_1_1_request}{Request}} \mbox{\hyperlink{classtorchserve_1_1_job_a6f3c8bbe8c84870b9c9e445cd76c37c2}{request}};}
+\DoxyCodeLine{22   \mbox{\hyperlink{structtorchserve_1_1_response}{Response}} \mbox{\hyperlink{classtorchserve_1_1_job_a0e8158eab9cc8a25642a872976e8ffa5}{response}};}
+\DoxyCodeLine{23   std::string \mbox{\hyperlink{classtorchserve_1_1_job_ac91e84e7ed716fdb05d3bc0e560360b0}{modelName}};  \textcolor{comment}{// one of the actor processing the request}}
+\DoxyCodeLine{24   }
+\DoxyCodeLine{25   \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_job_a4e637525d0155dd6c17231fde11f0480}{sendResponse}}() = 0;}
+\DoxyCodeLine{26   \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_job_abe355a6abf06dd7b3fdc73a761845265}{sendError}}(\textcolor{keywordtype}{int} status, std::string error) = 0;}
+\DoxyCodeLine{27 \};}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 \textcolor{comment}{// A RESTJob is the wrapper of an incoming request from HTTP.}}
+\DoxyCodeLine{30 \textcolor{keyword}{class }\mbox{\hyperlink{classtorchserve_1_1_r_e_s_t_job}{RESTJob}} : \textcolor{keyword}{public} \mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \{}
+\DoxyCodeLine{31  \textcolor{keyword}{public}:}
+\DoxyCodeLine{32   \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_r_e_s_t_job_a967bac5382b58f5ab1d30067b43be3e3}{sendResponse}}();}
+\DoxyCodeLine{33   \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_r_e_s_t_job_aa403f53826abd1a64040f3b1bec38961}{sendError}}(\textcolor{keywordtype}{int} status, std::string error);}
+\DoxyCodeLine{34 \};}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36 \textcolor{comment}{// A GRPCJob is the wrapper of an incoming request from GRPC.}}
+\DoxyCodeLine{37 \textcolor{keyword}{class }\mbox{\hyperlink{classtorchserve_1_1_g_r_p_c_job}{GRPCJob}} : \textcolor{keyword}{public} \mbox{\hyperlink{classtorchserve_1_1_job}{Job}} \{}
+\DoxyCodeLine{38  \textcolor{keyword}{public}:}
+\DoxyCodeLine{39   \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_g_r_p_c_job_a0c718ad0d5ed2b41a51fe7b87038d437}{sendResponse}}();}
+\DoxyCodeLine{40   \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_g_r_p_c_job_a5b44cb261a72ee2d3848e855f91c4550}{sendError}}(\textcolor{keywordtype}{int} status, std::string error);}
+\DoxyCodeLine{41 \};}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43 \textcolor{keyword}{class }\mbox{\hyperlink{classtorchserve_1_1_batch_job}{BatchJob}} \{}
+\DoxyCodeLine{44   \textcolor{keyword}{public}:}
+\DoxyCodeLine{45   std::vector<std::shard\_ptr<Job> > \mbox{\hyperlink{classtorchserve_1_1_batch_job_abe27deef74a754c31fcf0d14100b650e}{jobs}};}
+\DoxyCodeLine{46   \mbox{\hyperlink{namespacetorchserve_a45d02f03b9022627fa694a4d748962ed}{RequestBatch}} \mbox{\hyperlink{classtorchserve_1_1_batch_job_ad9daae79bce27ce039987772fa7a1fd4}{requestBatch}};}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48   \textcolor{keywordtype}{void} \mbox{\hyperlink{classtorchserve_1_1_batch_job_abe109baeb15c87f74d77b924d892ef48}{addJob}}(std::shard\_ptr<Job> \&job);}
+\DoxyCodeLine{49 \};}
+\DoxyCodeLine{50 \}  \textcolor{comment}{// namespace torchserve}}
+
+\end{DoxyCode}
