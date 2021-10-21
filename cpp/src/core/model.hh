@@ -47,9 +47,16 @@ struct WorkflowSpec {
   std::unordered_map<std::string, std::vector<std::string> > dag;
 };
 
+// Model can be either a single model or an ensemble model.
+// For a single model, a model object contains this model's configuration (ie. ModelConfig);
+// For an ensemble model, a model object not only contains its configuration (ie. ModelConfig),
+// but also contains its workflow (ie. WorkflowSpec).
 class Model {
   public:
   WorkflowSpec workflowSpec;
+  std::unique_ptr<Manifest> manifest;
+  // A chain of schedulers.
+  std::unique_ptr<Scheduler> schedulers;
 
   Model(const Manifest &manifest);
 
@@ -58,10 +65,5 @@ class Model {
                      bool isCleanup);
   // Add a job into the model's scheduler queue.
   void addJob(Job &job);
-  
-  private:
-  std::unique_ptr<Manifest> manifest;
-  // A chain of schedulers.
-  std::unique_ptr<Scheduler> schedulers;
 };
 }  // namespace torchserve
