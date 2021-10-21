@@ -1,6 +1,0 @@
-<map id="torchserve::Scheduler&lt; T1 &gt;" name="torchserve::Scheduler&lt; T1 &gt;">
-<area shape="rect" id="node1" title=" " alt="" coords="279,5,468,185"/>
-<area shape="rect" id="node2" href="$classtorchserve_1_1_batch_aggregator.html" title=" " alt="" coords="5,343,235,538"/>
-<area shape="rect" id="node3" href="$classtorchserve_1_1_batch_aggregator.html" title=" " alt="" coords="259,343,488,538"/>
-<area shape="rect" id="node4" href="$classtorchserve_1_1_worker_manager.html" title=" " alt="" coords="513,233,751,648"/>
-</map>
