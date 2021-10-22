@@ -1,5 +1,7 @@
 # TorchServe model snapshot
 
+__Note:__ Current snapshot does not support workflow.
+
 TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.
  
 A TorchServe's snapshot consists of following:
