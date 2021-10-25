@@ -124,10 +124,7 @@ class BuildPlugins(Command):
             rmtree(self.source_plugin_dir)
 
         try:
-            if self.plugins == "endpoints":
-                subprocess.check_call(build_plugins_command[platform.system()], shell=True)
-            else:
-                raise OSError("No such rule exists")
+            subprocess.check_call(build_plugins_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
 
