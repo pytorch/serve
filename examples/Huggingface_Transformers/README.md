@@ -198,7 +198,7 @@ For batch inference the main difference is that you need set the batch size whil
     ```
     mkdir model_store
     mv BERTSeqClassification.mar model_store/
-    torchserve --start --model-store model_store 
+    torchserve --start --model-store model_store --ncs
 
     curl -X POST "localhost:8081/models?model_name=BERTSeqClassification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
     ```
@@ -229,9 +229,9 @@ For batch inference the main difference is that you need set the batch size whil
 Now to run the batch inference following command can be used:
 
 ```
-curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt
-& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt
-& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt &
+curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification  -T ./Seq_classification_artifacts/sample_text1.txt
+& curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification  -T ./Seq_classification_artifacts/sample_text2.txt
+& curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification -T ./Seq_classification_artifacts/sample_text3.txt &
 ```
 
 ## More information
