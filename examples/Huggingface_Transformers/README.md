@@ -62,7 +62,7 @@ This produces all the required files for packaging using a huggingface transform
 
 There are few files that are used for model packaging and at the inference time. 
 * `index_to_name.json`: maps predictions to labels
-* `sample_text.txt`: input text for ifnerence
+* `sample_text.txt`: input text for inference
 * `vocab.txt`: by default will use the tokenizer from the pretrained model
 
 For custom vocabs, it is required to pass all other tokenizer related files such `tokenizer_config.json`, `special_tokens_map.json`, `config.json` and if available `merges.txt`. 
