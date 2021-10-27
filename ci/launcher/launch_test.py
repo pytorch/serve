@@ -4,6 +4,7 @@ import datetime
 import random
 import subprocess
 import os
+import time
 
 
 from botocore.config import Config
@@ -104,6 +105,8 @@ def launch_ec2_instance(region, instance_type, ami_id):
         ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
 
         ec2_connection.run(f"sudo apt update")
+
+        time.sleep(120)
 
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
