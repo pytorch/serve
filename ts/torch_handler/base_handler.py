@@ -8,6 +8,8 @@ import os
 import importlib.util
 import time
 import torch
+import datetime
+from torch.profiler import profile, record_function, ProfilerActivity
 
 from ..utils.util import list_classes_from_module, load_label_mapping
 
@@ -30,6 +32,9 @@ class BaseHandler(abc.ABC):
         self.map_location = None
         self.explain = False
         self.target = 0
+        self.profiler = None
+        self.profiler_args = {}
+        self.prof = None
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
@@ -194,17 +199,50 @@ class BaseHandler(abc.ABC):
         self.context = context
         metrics = self.context.metrics
 
-        data_preprocess = self.preprocess(data)
-
-        if not self._is_explain():
-            output = self.inference(data_preprocess)
-            output = self.postprocess(output)
+        if self.profiler:
+            output, self.prof = self.infer_with_profiler(data=data)
         else:
-            output = self.explain_handle(data_preprocess, data)
+            data_preprocess = self.preprocess(data)
+
+            if not self._is_explain():
+                output = self.inference(data_preprocess)
+                output = self.postprocess(output)
+            else:
+                output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return output
+
+    def infer_with_profiler(self, data):
+        # Setting the default profiler arguments to profile cpu usage and record shapes
+        # User can override this argument based on the requirement . Ex: Profiling Gpu
+        if not self.profiler_args:
+            self.profiler_args["activities"] = [ProfilerActivity.CPU]
+            self.profiler_args["record_shapes"] = True
+
+        if not hasattr(self.profiler_args, "on_trace_ready"):
+            result_path = os.path.join(os.getcwd(), "trace_" + datetime.datetime.now().strftime(
+                '%Y%m%d%H%M%S') + ".json")
+            self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(
+                os.path.join(result_path), worker_name='worker0')
+            print("\n\n Saving chrome trace to : ", result_path)
+
+        with profile(**self.profiler_args) as prof:
+            with record_function("preprocess"):
+                data_preprocess = self.preprocess(data)
+            if not self._is_explain():
+                with record_function("inference"):
+                    output = self.inference(data_preprocess)
+                with record_function("postprocess"):
+                    output = self.postprocess(output)
+            else:
+                with record_function("explain"):
+                    output = self.explain_handle(data_preprocess, data)
+
+        print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+        return output, prof
+
 
     def explain_handle(self, data_preprocess, raw_data):
         """Captum explanations handler
