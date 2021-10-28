@@ -7,9 +7,8 @@ phases:
     commands:
       - apt-get update
       - apt-get install sudo -y
-      - python ts_scripts/install_dependencies.py --environment=dev
+      - pip install -r ci/launcher/requirements.txt
 
   build:
     commands:
-      - python torchserve_sanity.py
-      - cd serving-sdk/ && mvn clean install -q && cd ../
+      - python ci/launcher/launch_test.py --instance-type c5.18xlarge
