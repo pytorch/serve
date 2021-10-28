@@ -25,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -125,6 +126,7 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
+    public static List<Integer> gpuIds = new ArrayList<>();
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -730,6 +732,9 @@ public final class ConfigManager {
             List<String> list = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
             if (list.isEmpty() || !"index".equals(list.get(0))) {
                 throw new AssertionError("Unexpected nvidia-smi response.");
+            }
+            for (String id : list) {
+                gpuIds.add(Integer.parseInt(id));
             }
             return list.size() - 1;
         } catch (IOException | InterruptedException e) {
