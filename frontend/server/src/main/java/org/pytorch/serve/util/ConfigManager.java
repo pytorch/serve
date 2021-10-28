@@ -736,7 +736,8 @@ public final class ConfigManager {
                 if (ret != 0) {
                     return 0;
                 }
-                List<String> list = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                List<String> list =
+                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
                 if (list.isEmpty() || !"index".equals(list.get(0))) {
                     throw new AssertionError("Unexpected nvidia-smi response.");
                 }
