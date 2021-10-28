@@ -27,7 +27,7 @@ Once the cluster and the PVCs are ready, we can generate MAR file.
 ## Copy Mar file from container to local path
 
 ```bash
-docker cp <container-id>:/workspace/serve/examples/Huggingface_Transformers/BERTSeqClassification.mar ./BERTSeqClassification.mar
+docker cp <container-id>:/workspace/serve/examples/FasterTransformer_HuggingFace_Bert/BERTSeqClassification.mar ./BERTSeqClassification.mar
 ```
 
 ## Create config.properties
@@ -164,6 +164,6 @@ Sample_text_captum_input.txt
 4. Run inference
 
 ```bash
-curl -X POST http://127.0.0.1:8080/predictions/bert -T Seq_classification_artifacts/sample_text_captum_input.txt
+curl -X POST http://127.0.0.1:8080/predictions/bert -T ../Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt
 
 ```

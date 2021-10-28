@@ -73,7 +73,7 @@ cd /workspace/FasterTransformer/build/
 # --data_type can be fp16 or fp32
 python pytorch/Bert_FT_trace.py --mode sequence_classification --model_name_or_path "/workspace//serve/examples/Huggingface_Transformers/Transformer_model" --tokenizer_name "bert-base-uncased" --batch_size 1 --data_type fp16 --model_type thsext
 
-cd - 
+cd /workspace/serve/examples/FasterTransformer_HuggingFace_Bert
 
 # make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript" and "FasterTransformer":true
 
