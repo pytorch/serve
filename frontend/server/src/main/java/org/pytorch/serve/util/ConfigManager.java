@@ -724,7 +724,7 @@ public final class ConfigManager {
     private static int getAvailableGpu() {
         try {
             String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
-            if (!visibleCuda.isEmpty()) {
+            if (visibleCuda != null && !visibleCuda.isEmpty()) {
                 String[] ids = visibleCuda.split(",");
                 for (String id : ids) {
                     gpuIds.add(Integer.parseInt(id));
