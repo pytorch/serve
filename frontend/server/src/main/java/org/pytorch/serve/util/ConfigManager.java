@@ -126,7 +126,7 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
-    public static List<Integer> gpuIds = new ArrayList<>();
+    private static List<Integer> gpuIds = new ArrayList<>();
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -827,6 +827,10 @@ public final class ConfigManager {
             }
         }
         return value;
+    }
+
+    public static List<Integer> getGpuIds() {
+        return gpuIds;
     }
 
     public static final class Arguments {
