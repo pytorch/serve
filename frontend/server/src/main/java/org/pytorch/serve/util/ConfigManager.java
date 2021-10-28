@@ -745,7 +745,7 @@ public final class ConfigManager {
                 }
             }
 
-            return gpuIds.size() - 1;
+            return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }
