@@ -27,7 +27,7 @@ mv pytorch_model.bin vocab.txt config.json Transformer_model/
 
 If you'd like to download a pretrained model without fine tuning we've provided a simple helper script which will do the above for you. All you need to do is change [setup.config.json](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/setup_config.json) to your liking and run
 
-`python Download_transformer.models.py`
+`python Download_Transformer_models.py`
 
 For Torchscript support, check out [torchscript.md](torchscript.md)
 
