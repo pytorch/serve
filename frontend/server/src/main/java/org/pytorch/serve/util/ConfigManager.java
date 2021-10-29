@@ -741,8 +741,8 @@ public final class ConfigManager {
                 if (list.isEmpty() || !"index".equals(list.get(0))) {
                     throw new AssertionError("Unexpected nvidia-smi response.");
                 }
-                for (String id : list) {
-                    gpuIds.add(Integer.parseInt(id));
+                for (int i = 1; i < list.size(); i++) {
+                    gpuIds.add(Integer.parseInt(list.get(i)));
                 }
             }
 
