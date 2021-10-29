@@ -23,13 +23,18 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.ConnectorType;
+import org.pytorch.serve.util.NettyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +42,17 @@ public final class TestUtils {
 
     static CountDownLatch latch;
     static HttpResponseStatus httpStatus;
+    static byte[] content;
     static String result;
     static HttpHeaders headers;
     private static Channel inferenceChannel;
     private static Channel managementChannel;
+    private static Channel metricsChannel;
+    private static String tsInferLatencyPattern =
+            "ts_inference_latency_microseconds\\{"
+                    + "uuid=\"[\\w]{8}(-[\\w]{4}){3}-[\\w]{12}\","
+                    + "model_name=\"%s\","
+                    + "model_version=\"%s\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 
@@ -84,6 +96,14 @@ public final class TestUtils {
         latch = newLatch;
     }
 
+    public static byte[] getContent() {
+        return content;
+    }
+
+    public static void setContent(byte[] newContent) {
+        content = newContent;
+    }
+
     public static String getResult() {
         return result;
     }
@@ -118,6 +138,20 @@ public final class TestUtils {
         }
     }
 
+    public static void unregisterWorkflow(Channel channel, String workflowName, boolean syncChannel)
+            throws InterruptedException {
+        String requestURL = "/workflows/" + workflowName;
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, requestURL);
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
     public static void registerModel(
             Channel channel,
             String url,
@@ -129,6 +163,54 @@ public final class TestUtils {
         if (withInitialWorkers) {
             requestURL += "&initial_workers=1&synchronous=true";
         }
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
+    public static void registerModel(
+            Channel channel,
+            String url,
+            String modelName,
+            boolean withInitialWorkers,
+            boolean syncChannel,
+            int batchSize,
+            int maxBatchDelay)
+            throws InterruptedException {
+        String requestURL =
+                "/models?url="
+                        + url
+                        + "&model_name="
+                        + modelName
+                        + "&runtime=python"
+                        + "&batch_size="
+                        + batchSize
+                        + "&max_batch_delay="
+                        + maxBatchDelay;
+        if (withInitialWorkers) {
+            requestURL += "&initial_workers=1&synchronous=true";
+        }
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
+    public static void registerWorkflow(
+            Channel channel, String url, String workflowName, boolean syncChannel)
+            throws InterruptedException {
+        String requestURL = "/workflows?url=" + url + "&workflow_name=" + workflowName;
 
         HttpRequest req =
                 new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
@@ -189,10 +271,27 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
+    public static void describeWorkflow(Channel channel, String workflowName) {
+        String requestURL = "/workflows/" + workflowName;
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestURL);
+        channel.writeAndFlush(req);
+    }
+
     public static void listModels(Channel channel) {
         HttpRequest req =
                 new DefaultFullHttpRequest(
                         HttpVersion.HTTP_1_1, HttpMethod.GET, "/models?limit=200&nextPageToken=X");
+        channel.writeAndFlush(req);
+    }
+
+    public static void listWorkflow(Channel channel) {
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.GET,
+                        "/workflows?limit=200&nextPageToken=X");
         channel.writeAndFlush(req);
     }
 
@@ -212,15 +311,15 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
-    public static Channel connect(boolean management, ConfigManager configManager) {
-        return connect(management, configManager, 120);
+    public static Channel connect(ConnectorType connectorType, ConfigManager configManager) {
+        return connect(connectorType, configManager, 240);
     }
 
     public static Channel connect(
-            boolean management, ConfigManager configManager, int readTimeOut) {
-        Logger logger = LoggerFactory.getLogger(ModelServerTest.class);
+            ConnectorType connectorType, ConfigManager configManager, int readTimeOut) {
+        Logger logger = LoggerFactory.getLogger(TestUtils.class);
 
-        final Connector connector = configManager.getListener(management);
+        final Connector connector = configManager.getListener(connectorType);
         try {
             Bootstrap b = new Bootstrap();
             final SslContext sslCtx =
@@ -256,40 +355,55 @@ public final class TestUtils {
 
     public static Channel getInferenceChannel(ConfigManager configManager)
             throws InterruptedException {
-        return getChannel(false, configManager);
+        return getChannel(ConnectorType.INFERENCE_CONNECTOR, configManager);
     }
 
     public static Channel getManagementChannel(ConfigManager configManager)
             throws InterruptedException {
-        return getChannel(true, configManager);
+        return getChannel(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
     }
 
-    private static Channel getChannel(boolean isManagementChannel, ConfigManager configManager)
+    public static Channel getMetricsChannel(ConfigManager configManager)
             throws InterruptedException {
-        if (isManagementChannel && managementChannel != null && managementChannel.isActive()) {
+        return getChannel(ConnectorType.METRICS_CONNECTOR, configManager);
+    }
+
+    private static Channel getChannel(ConnectorType connectorType, ConfigManager configManager)
+            throws InterruptedException {
+        if (ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)
+                && managementChannel != null
+                && managementChannel.isActive()) {
             return managementChannel;
-        } else if (!isManagementChannel
+        }
+        if (ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)
                 && inferenceChannel != null
                 && inferenceChannel.isActive()) {
             return inferenceChannel;
-        } else {
-            Channel channel = null;
-            if (channel == null) {
-                for (int i = 0; i < 5; ++i) {
-                    channel = TestUtils.connect(isManagementChannel, configManager);
-                    if (channel != null) {
-                        break;
-                    }
-                    Thread.sleep(100);
-                }
-            }
-            if (isManagementChannel) {
-                managementChannel = channel;
-            } else {
-                inferenceChannel = channel;
-            }
-            return channel;
         }
+        if (ConnectorType.METRICS_CONNECTOR.equals(connectorType)
+                && metricsChannel != null
+                && metricsChannel.isActive()) {
+            return metricsChannel;
+        }
+        Channel channel = null;
+        for (int i = 0; i < 5; ++i) {
+            channel = TestUtils.connect(connectorType, configManager);
+            if (channel != null) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                managementChannel = channel;
+                break;
+            case METRICS_CONNECTOR:
+                metricsChannel = channel;
+                break;
+            default:
+                inferenceChannel = channel;
+        }
+        return channel;
     }
 
     public static void closeChannels() throws InterruptedException {
@@ -299,6 +413,23 @@ public final class TestUtils {
         if (inferenceChannel != null) {
             inferenceChannel.closeFuture().sync();
         }
+        if (metricsChannel != null) {
+            metricsChannel.closeFuture().sync();
+        }
+    }
+
+    public static Pattern getTSInferLatencyMatcher(String modelName, String modelVersion) {
+        modelVersion = modelVersion == null ? "default" : modelVersion;
+        return Pattern.compile(
+                String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
+    }
+
+    public static void setConfiguration(ConfigManager configManager, String key, String val)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field f = configManager.getClass().getDeclaredField("prop");
+        f.setAccessible(true);
+        Properties p = (Properties) f.get(configManager);
+        p.setProperty(key, val);
     }
 
     @ChannelHandler.Sharable
@@ -307,7 +438,8 @@ public final class TestUtils {
         @Override
         public void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
             httpStatus = msg.status();
-            result = msg.content().toString(StandardCharsets.UTF_8);
+            content = NettyUtils.getBytes(msg.content());
+            result = new String(content, StandardCharsets.UTF_8);
             headers = msg.headers();
             latch.countDown();
         }

@@ -1,0 +1,48 @@
+[
+   {
+        "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/densenet_wf.war",
+        "workflow_name":"densenet",
+        "file":"../examples/image_classifier/kitten.jpg",
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "expected":{
+            "tiger_cat":0.4693359136581421,
+            "tabby":0.4633873701095581,
+            "Egyptian_cat":0.06456154584884644,
+            "lynx":0.001282821292988956,
+            "plastic_bag":0.00023323031200561672
+        },
+        "tolerance":5
+    },
+    {
+        "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/timeout-retry-test.war",
+        "workflow_name":"densenet",
+        "file":"../examples/image_classifier/kitten.jpg",
+        "status_code": 500,
+        "validator":"image_classification",
+        "expected":{
+            "tiger_cat":0.4693359136581421,
+            "tabby":0.4633873701095581,
+            "Egyptian_cat":0.06456154584884644,
+            "lynx":0.001282821292988956,
+            "plastic_bag":0.00023323031200561672
+        },
+        "tolerance":5
+    },
+    {
+        "workflow_url":"https://torchserve.s3.amazonaws.com/war_files/dog_breed_wf.war",
+        "workflow_name":"dog_breed_wf",
+        "file":"../examples/Workflows/dog_breed_classification/model_input/Dog2.jpg",
+        "content-type":"application/json",
+        "validator":"image_classification",
+        "synchronous":"true",
+        "expected":{
+            "Cardigan_welsh_corgi": 0.6281960606575012,
+            "Briard": 0.2746284306049347,
+            "Icelandic_sheepdog": 0.07453603297472,
+            "Tibetan_mastiff": 0.015545747242867947,
+            "Chow_chow": 0.002062038518488407
+        },
+        "tolerance":5
+    }
+]

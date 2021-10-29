@@ -18,16 +18,20 @@ import time
 import traceback
 from functools import reduce
 from urllib.request import urlretrieve
-
+import tempfile
+import platform
 import pandas as pd
 
-BENCHMARK_DIR = "/tmp/TSBenchmark/"
 
-OUT_DIR = os.path.join(BENCHMARK_DIR, 'out/')
-RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource/')
+PLATFORM = platform.system()
+TMP_DIR = tempfile.gettempdir()
+
+BENCHMARK_DIR = os.path.join(TMP_DIR, "TSBenchmark")
+OUT_DIR = os.path.join(BENCHMARK_DIR, 'out')
+RESOURCE_DIR = os.path.join(BENCHMARK_DIR, 'resource')
 
 RESOURCE_MAP = {
-    'kitten.jpg': 'https://s3.amazonaws.com/model-server/inputs/kitten.jpg'
+    'kitten.jpg': 'https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg'
 }
 
 # Listing out all the JMX files
@@ -48,12 +52,12 @@ MODEL_VGG = 'vgg11'
 MODEL_RESNET_152 = 'resnet-152-batch'
 
 MODEL_MAP = {
-    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
-    MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
-    MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
-    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.s3.amazonaws.com/mar_files/resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
+    MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
+    MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_ALEX_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/alexnet.mar', 'model_name': MODEL_ALEX_NET, 'input_filepath': 'kitten.jpg'}),
+    MODEL_VGG: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/vgg11.mar', 'model_name': MODEL_VGG, 'input_filepath': 'kitten.jpg'}),
+    MODEL_RESNET_152: (JMX_BATCH_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar', 'model_name': MODEL_RESNET_152, 'input_filepath': 'kitten.jpg'}),
 }
 
 
@@ -86,11 +90,150 @@ AGGREGATE_REPORT_CSV_LABELS_MAP = {
     'aggregate_report_error%': 'aggregate_report_error'
 }
 
+class Benchmarks:
+    """
+    Contains benchmarks to run
+    """
 
-CELLAR = '/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
-JMETER_VERSION = os.listdir(CELLAR)[0]
-CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
-JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
+    @staticmethod
+    def throughput():
+        """
+        Performs a simple single benchmark that measures the model throughput on inference tasks
+        """
+        plan, jmeter_args = parseModel()
+        return run_single_benchmark(plan, jmeter_args)
+
+    @staticmethod
+    def throughput_batch():
+        """
+        Performs a simple single benchmark that measures the model throughput on inference tasks
+        by using batch processing at TorchServe
+        """
+        plan, jmeter_args = parseModel()
+        return run_single_benchmark(plan, jmeter_args)
+
+    @staticmethod
+    def latency():
+        """
+        Performs a simple single benchmark that measures the model latency on inference tasks
+        """
+        plan, jmeter_args = parseModel()
+        return run_single_benchmark(plan, jmeter_args, threads=1)
+
+    @staticmethod
+    def ping():
+        """
+        Performs a simple ping benchmark that measures the throughput for a ping request to the frontend
+        """
+        return run_single_benchmark(JMX_PING_PLAN, dict(), threads=5000)
+
+    @staticmethod
+    def repeated_scale_calls():
+        """
+        Benchmarks number of concurrent inference requests
+        """
+        plan, jmeter_args = parseModel()
+        plan = JMX_CONCURRENT_SCALE_CALLS
+        jmeter_args['scale_up_workers'] = 16
+        jmeter_args['scale_down_workers'] = 2
+        return run_single_benchmark(plan, jmeter_args)
+
+    @staticmethod
+    def multiple_models():
+        """
+        Tests with 5 models
+        """
+        if not pargs.workers:
+            pargs.workers = "4"
+
+        plan = JMX_MULTIPLE_MODELS_LOAD_PLAN
+        jmeter_args = {
+            'url1': MODEL_MAP[MODEL_ALEX_NET][1]['url'],
+            'url2': MODEL_MAP[MODEL_DENSE_NET][1]['url'],
+            'url3': MODEL_MAP[MODEL_RESNET_18][1]['url'],
+            'url4': MODEL_MAP[MODEL_SQUEEZE_NET][1]['url'],
+            'url5': MODEL_MAP[MODEL_VGG][1]['url'],
+            'model1_name': MODEL_MAP[MODEL_ALEX_NET][1]['model_name'],
+            'model2_name': MODEL_MAP[MODEL_DENSE_NET][1]['model_name'],
+            'model3_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
+            'model4_name': MODEL_MAP[MODEL_SQUEEZE_NET][1]['model_name'],
+            'model5_name': MODEL_MAP[MODEL_VGG][1]['model_name'],
+            'data3': get_resource('kitten.jpg')
+        }
+        return run_single_benchmark(plan, jmeter_args)
+
+    @staticmethod
+    def concurrent_inference():
+        """
+        Benchmarks number of concurrent inference requests
+        """
+        plan, jmeter_args = parseModel()
+        return run_multi_benchmark('threads', range(1, 3*5+1, 3), plan, jmeter_args)
+
+
+def run_benchmark():
+    if hasattr(Benchmarks, benchmark_name):
+        print("Running benchmark {} with model {}".format(benchmark_name, benchmark_model))
+        res = getattr(Benchmarks, benchmark_name)()
+        pprint.pprint(res)
+        print('\n')
+    else:
+        raise Exception("No benchmark benchmark_named {}".format(benchmark_name))
+
+
+def modify_config_props_for_ts(pargs):
+    shutil.copyfile(CONFIG_PROP_TEMPLATE, CONFIG_PROP)
+    with open(CONFIG_PROP, 'a') as f:
+        f.write('\nnumber_of_netty_threads=32')
+        f.write('\njob_queue_size=1000')
+        if pargs.gpus:
+            f.write('\nnumber_of_gpu={}'.format(pargs.gpus[0]))
+
+
+benchmark_name_options = [f for f in dir(Benchmarks) if callable(getattr(Benchmarks, f)) and f[0] != '_']
+parser = argparse.ArgumentParser(prog='torchserve-benchmarks', description='Benchmark TorchServe')
+
+target = parser.add_mutually_exclusive_group(required=True)
+target.add_argument('name', nargs='?', type=str, choices=benchmark_name_options, help='The name of the benchmark to run')
+target.add_argument('-a', '--all', action='store_true', help='Run all benchmarks')
+target.add_argument('-s', '--suite', action='store_true', help='Run throughput and latency on a supplied model')
+
+model = parser.add_mutually_exclusive_group()
+model.add_argument('-m', '--model', nargs=1, type=str, dest='model', default=[MODEL_RESNET_18], choices=MODEL_MAP.keys(), help='A preloaded model to run.  It defaults to {}'.format(MODEL_RESNET_18))
+model.add_argument('-c', '--custom-model', nargs=1, type=str, dest='model', help='The path to a custom model to run.  The input argument must also be passed. Currently broken')
+
+parser.add_argument('-d', '--docker', nargs=1, type=str, default=None, help='Docker hub path to use')
+parser.add_argument('-i', '--input', nargs=1, type=str, default=None, help='The input to feed to the test')
+parser.add_argument('-g', '--gpus', nargs=1, type=int, default=None, help='Number of gpus.  Leave empty to run CPU only')
+
+parser.add_argument('-l', '--loops', nargs=1, type=int, default=[100], help='Number of loops to run')
+parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
+parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of TorchServe backend workers to use')
+
+parser.add_argument('-b', '--batch-size', nargs=1, type=int, default=2, help='Batch size to process togather on TorchServe')
+parser.add_argument('--batch-delay', nargs=1, type=int, default=5000, help='Max time in milliseconds TorchServe will wait for batch request processing')
+
+parser.add_argument('--ts', nargs=1, type=str, help='Target an already running instance of TorchServe instead of spinning up a docker container of TorchServe.  Specify the target with the format address:port (for http) or protocol://address:port')
+parser.add_argument('--management-port', dest='management', nargs=1, type=str, help='When targeting a running TorchServe instance, specify the management port')
+parser.add_argument('-v', '--verbose', action='store_true', help='Display all output')
+parser.add_argument('--options', nargs='*', default=[], help='Additional jmeter arguments.  It should follow the format of --options argname1 argval1 argname2 argval2 ...')
+parser.add_argument('--jmeter-path', dest='jmeter', nargs=1, type=str, help='Path to jmeter folder. Specify the path where jmeter is been installed (Eg. "C:\\Program Files\\apache-jmeter-5.3")')
+pargs = parser.parse_args()
+
+if PLATFORM == 'Windows':
+    if pargs.jmeter:    
+        CELLAR = pargs.jmeter[0]
+    else:
+        print('Please specify jmeter path [--jmeter-path JMETER] while running the script.(Eg. "C:\\Program Files\\apache-jmeter-5.3")')
+        exit(0)
+    CMDRUNNER = '"{}\\lib\\cmdrunner-2.2.jar"'.format(CELLAR)
+    JMETER = '{}\\bin\jmeter.bat'.format(CELLAR)
+else :
+    CELLAR = '/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
+    JMETER_VERSION = os.listdir(CELLAR)[0]
+    CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
+    JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
+
 TS_BASE = reduce(lambda val, func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
 JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')
 CONFIG_PROP = os.path.join(TS_BASE, 'benchmarks', 'config.properties')
@@ -99,10 +242,8 @@ CONFIG_PROP_TEMPLATE = os.path.join(TS_BASE, 'benchmarks', 'config_template.prop
 DOCKER_TS_BASE = "/serve"
 DOCKER_CONFIG_PROP = os.path.join(DOCKER_TS_BASE, 'benchmarks', 'config.properties')
 
-ALL_BENCHMARKS = list(itertools.product(('latency', 'throughput'), (MODEL_RESNET_18)))
-
-
 BENCHMARK_NAMES = ['latency', 'throughput']
+ALL_BENCHMARKS = list(itertools.product(BENCHMARK_NAMES, [MODEL_RESNET_18]))
 
 class ChDir:
     def __init__(self, path):
@@ -195,7 +336,7 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
             raise Exception("docker run command failed!! Please provide a valid docker image")
 
     management_port = int(pargs.management[0]) if pargs.management else port + 1
-    time.sleep(300)
+    time.sleep(30)
 
     try:
         # temp files
@@ -229,7 +370,10 @@ def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
         time.sleep(30)
         # run AggregateReport
         ag_call = 'java -jar {} --tool Reporter --generate-csv {} --input-jtl {} --plugin-type AggregateReport'.format(CMDRUNNER, outfile, tmpfile)
-        run_process(ag_call)
+        if PLATFORM == 'Windows':
+            run_process(ag_call, shell=True)
+        else:
+            run_process(ag_call)
 
         # Generate output graphs
         gLogfile = os.path.join(out_dir, 'graph_jmeter.log')
@@ -339,136 +483,7 @@ def decorate_metrics(data_frame, row_to_read):
             result[new_key] = value
     return result
 
-
-class Benchmarks:
-    """
-    Contains benchmarks to run
-    """
-
-    @staticmethod
-    def throughput():
-        """
-        Performs a simple single benchmark that measures the model throughput on inference tasks
-        """
-        plan, jmeter_args = parseModel()
-        return run_single_benchmark(plan, jmeter_args)
-
-    @staticmethod
-    def throughput_batch():
-        """
-        Performs a simple single benchmark that measures the model throughput on inference tasks
-        by using batch processing at TorchServe
-        """
-        plan, jmeter_args = parseModel()
-        return run_single_benchmark(plan, jmeter_args)
-
-    @staticmethod
-    def latency():
-        """
-        Performs a simple single benchmark that measures the model latency on inference tasks
-        """
-        plan, jmeter_args = parseModel()
-        return run_single_benchmark(plan, jmeter_args, threads=1)
-
-    @staticmethod
-    def ping():
-        """
-        Performs a simple ping benchmark that measures the throughput for a ping request to the frontend
-        """
-        return run_single_benchmark(JMX_PING_PLAN, dict(), threads=5000)
-
-    @staticmethod
-    def repeated_scale_calls():
-        """
-        Benchmarks number of concurrent inference requests
-        """
-        plan, jmeter_args = parseModel()
-        plan = JMX_CONCURRENT_SCALE_CALLS
-        jmeter_args['scale_up_workers'] = 16
-        jmeter_args['scale_down_workers'] = 2
-        return run_single_benchmark(plan, jmeter_args)
-
-    @staticmethod
-    def multiple_models():
-        """
-        Tests with 5 models
-        """
-        if not pargs.workers:
-            pargs.workers = "4"
-
-        plan = JMX_MULTIPLE_MODELS_LOAD_PLAN
-        jmeter_args = {
-            'url1': MODEL_MAP[MODEL_ALEX_NET][1]['url'],
-            'url2': MODEL_MAP[MODEL_DENSE_NET][1]['url'],
-            'url3': MODEL_MAP[MODEL_RESNET_18][1]['url'],
-            'url4': MODEL_MAP[MODEL_SQUEEZE_NET][1]['url'],
-            'url5': MODEL_MAP[MODEL_VGG][1]['url'],
-            'model1_name': MODEL_MAP[MODEL_ALEX_NET][1]['model_name'],
-            'model2_name': MODEL_MAP[MODEL_DENSE_NET][1]['model_name'],
-            'model3_name': MODEL_MAP[MODEL_RESNET_18][1]['model_name'],
-            'model4_name': MODEL_MAP[MODEL_SQUEEZE_NET][1]['model_name'],
-            'model5_name': MODEL_MAP[MODEL_VGG][1]['model_name'],
-            'data3': get_resource('kitten.jpg')
-        }
-        return run_single_benchmark(plan, jmeter_args)
-
-    @staticmethod
-    def concurrent_inference():
-        """
-        Benchmarks number of concurrent inference requests
-        """
-        plan, jmeter_args = parseModel()
-        return run_multi_benchmark('threads', range(1, 3*5+1, 3), plan, jmeter_args)
-
-
-def run_benchmark():
-    if hasattr(Benchmarks, benchmark_name):
-        print("Running benchmark {} with model {}".format(benchmark_name, benchmark_model))
-        res = getattr(Benchmarks, benchmark_name)()
-        pprint.pprint(res)
-        print('\n')
-    else:
-        raise Exception("No benchmark benchmark_named {}".format(benchmark_name))
-
-
-def modify_config_props_for_ts(pargs):
-    shutil.copyfile(CONFIG_PROP_TEMPLATE, CONFIG_PROP)
-    with open(CONFIG_PROP, 'a') as f:
-        f.write('\nnumber_of_netty_threads=32')
-        f.write('\njob_queue_size=1000')
-        if pargs.gpus:
-            f.write('\nnumber_of_gpu={}'.format(pargs.gpus[0]))
-
-
 if __name__ == '__main__':
-    benchmark_name_options = [f for f in dir(Benchmarks) if callable(getattr(Benchmarks, f)) and f[0] != '_']
-    parser = argparse.ArgumentParser(prog='torchserve-benchmarks', description='Benchmark TorchServe')
-
-    target = parser.add_mutually_exclusive_group(required=True)
-    target.add_argument('name', nargs='?', type=str, choices=benchmark_name_options, help='The name of the benchmark to run')
-    target.add_argument('-a', '--all', action='store_true', help='Run all benchmarks')
-    target.add_argument('-s', '--suite', action='store_true', help='Run throughput and latency on a supplied model')
-
-    model = parser.add_mutually_exclusive_group()
-    model.add_argument('-m', '--model', nargs=1, type=str, dest='model', default=[MODEL_RESNET_18], choices=MODEL_MAP.keys(), help='A preloaded model to run.  It defaults to {}'.format(MODEL_RESNET_18))
-    model.add_argument('-c', '--custom-model', nargs=1, type=str, dest='model', help='The path to a custom model to run.  The input argument must also be passed. Currently broken')
-
-    parser.add_argument('-d', '--docker', nargs=1, type=str, default=None, help='Docker hub path to use')
-    parser.add_argument('-i', '--input', nargs=1, type=str, default=None, help='The input to feed to the test')
-    parser.add_argument('-g', '--gpus', nargs=1, type=int, default=None, help='Number of gpus.  Leave empty to run CPU only')
-
-    parser.add_argument('-l', '--loops', nargs=1, type=int, default=[100], help='Number of loops to run')
-    parser.add_argument('-t', '--threads', nargs=1, type=int, default=None, help='Number of jmeter threads to run')
-    parser.add_argument('-w', '--workers', nargs=1, type=int, default=None, help='Number of TorchServe backend workers to use')
-
-    parser.add_argument('-b', '--batch-size', nargs=1, type=int, default=2, help='Batch size to process togather on TorchServe')
-    parser.add_argument('--batch-delay', nargs=1, type=int, default=5000, help='Max time in milliseconds TorchServe will wait for batch request processing')
-
-    parser.add_argument('--ts', nargs=1, type=str, help='Target an already running instance of TorchServe instead of spinning up a docker container of TorchServe.  Specify the target with the format address:port (for http) or protocol://address:port')
-    parser.add_argument('--management-port', dest='management', nargs=1, type=str, help='When targeting a running TorchServe instance, specify the management port')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Display all output')
-    parser.add_argument('--options', nargs='*', default=[], help='Additional jmeter arguments.  It should follow the format of --options argname1 argval1 argname2 argval2 ...')
-    pargs = parser.parse_args()
 
     if os.path.exists(OUT_DIR):
         if pargs.all:
@@ -478,7 +493,7 @@ if __name__ == '__main__':
         os.makedirs(OUT_DIR)
 
     modify_config_props_for_ts(pargs)
-
+    
     if pargs.suite:
         benchmark_model = pargs.model[0].lower()
         for benchmark_name in BENCHMARK_NAMES:

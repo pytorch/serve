@@ -33,7 +33,7 @@ Parameters:
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
   ModelPath:
-    Description: 'The location to download the model archive file from. e.g. https://torchserve.s3.amazonaws.com/mar_files/mnist.mar'
+    Description: 'The location to download the model archive file from. e.g. https://torchserve.pytorch.org/mar_files/mnist.mar'
     Type: String
     ConstraintDescription: Must be a valid url.
   SSHLocation:
@@ -209,11 +209,23 @@ Resources:
       PortRange:
         From: '8080'
         To: '8080'
-  InboundSSHPublicNetworkAclEntry:
+  InboundMetricsPublicNetworkAclEntry:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId: !Ref 'PublicNetworkAcl'
       RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: '0.0.0.0/0'
+      PortRange:
+        From: '8082'
+        To: '8082'
+  InboundSSHPublicNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+      RuleNumber: '103'
       Protocol: '6'
       RuleAction: allow
       Egress: 'false'
@@ -225,7 +237,7 @@ Resources:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId: !Ref 'PublicNetworkAcl'
-      RuleNumber: '103'
+      RuleNumber: '104'
       Protocol: '6'
       RuleAction: allow
       Egress: 'false'
@@ -269,6 +281,10 @@ Resources:
           FromPort: '8081'
           ToPort: '8081'
           CidrIp: !Ref 'ManagementLocation'
+        - IpProtocol: tcp
+          FromPort: '8082'
+          ToPort: '8082'
+          CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
@@ -349,6 +365,19 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: !Ref 'VPC'
+  ALBMetricsTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      HealthCheckPath: /ping
+      HealthCheckPort: 8080
+      HealthCheckProtocol: HTTP
+      Port: 8082
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref 'VPC'
   ALBManagementListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -367,6 +396,15 @@ Resources:
       LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
       Port: '8080'
       Protocol: HTTP
+  ALBMetricsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'ALBMetricsTargetGroup'
+      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
+      Port: '8082'
+      Protocol: HTTP
   TorchServeASG:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: GatewayToInternet
@@ -378,6 +416,7 @@ Resources:
       TargetGroupARNs:
         - !Ref 'ALBInferenceTargetGroup'
         - !Ref 'ALBManagementTargetGroup'
+        - !Ref 'ALBMetricsTargetGroup'
     CreationPolicy:
       ResourceSignal:
         Timeout: PT30M
@@ -432,6 +471,7 @@ Resources:
                content: !Sub |
                  inference_address=http://0.0.0.0:8080
                  management_address=http://0.0.0.0:8081
+                 metrics_address=http://0.0.0.0:8082
                  load_models=ALL
                  model_store=/mnt/efs/model_store
                mode: '000400'
@@ -599,3 +639,10 @@ Outputs:
       - - http://
         - !GetAtt 'ApplicationLoadBalancer.DNSName'
         - :8080
+  TorchServeMericsURL:
+    Description: Metrics URL for newly created TorchServe stack
+    Value: !Join
+      - ''
+      - - http://
+        - !GetAtt 'ApplicationLoadBalancer.DNSName'
+        - :8082

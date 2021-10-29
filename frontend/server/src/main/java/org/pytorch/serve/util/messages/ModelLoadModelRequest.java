@@ -11,6 +11,7 @@ public class ModelLoadModelRequest extends BaseModelRequest {
     private String modelPath;
 
     private String handler;
+    private String envelope;
     private int batchSize;
     private int gpuId;
 
@@ -19,6 +20,7 @@ public class ModelLoadModelRequest extends BaseModelRequest {
         this.gpuId = gpuId;
         modelPath = model.getModelDir().getAbsolutePath();
         handler = model.getModelArchive().getManifest().getModel().getHandler();
+        envelope = model.getModelArchive().getManifest().getModel().getEnvelope();
         batchSize = model.getBatchSize();
     }
 
@@ -28,6 +30,10 @@ public class ModelLoadModelRequest extends BaseModelRequest {
 
     public String getHandler() {
         return handler;
+    }
+
+    public String getEnvelope() {
+        return envelope;
     }
 
     public int getBatchSize() {

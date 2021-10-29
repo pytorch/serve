@@ -8,9 +8,10 @@ import logging
 import struct
 import sys
 import os
-
+import io
 from builtins import bytearray
 from builtins import bytes
+import torch
 
 int_size = 4
 END_OF_LIST = -1
@@ -114,6 +115,13 @@ def create_predict_response(ret, req_id_map, message, code, context=None):
                 buf = val.encode("utf-8")
                 msg += struct.pack('!i', len(buf))
                 msg += buf
+            elif isinstance(val, torch.Tensor):
+                buff = io.BytesIO()
+                torch.save(val, buff)
+                buff.seek(0)
+                val_bytes = buff.read()
+                msg += struct.pack('!i', len(val_bytes))
+                msg += val_bytes
             else:
                 try:
                     json_value = json.dumps(val, indent=2).encode("utf-8")
@@ -191,6 +199,9 @@ def _retrieve_load_msg(conn):
     gpu_id = _retrieve_int(conn)
     if gpu_id >= 0:
         msg["gpu"] = gpu_id
+
+    length = _retrieve_int(conn)
+    msg["envelope"] = _retrieve_buffer(conn, length)
 
     return msg
 

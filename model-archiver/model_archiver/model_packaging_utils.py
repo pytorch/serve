@@ -10,6 +10,7 @@ import re
 import zipfile
 import shutil
 import tarfile
+import tempfile
 from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
@@ -22,12 +23,13 @@ archiving_options = {
     "default": ".mar"
 }
 
+
 model_handlers = {
         'text_classifier': 'text',
         'image_classifier': 'vision',
         'object_detector': 'vision',
         'image_segmenter': 'vision'
-    }
+        }
 
 MODEL_SERVER_VERSION = '1.0'
 MODEL_ARCHIVE_VERSION = '1.0'
@@ -130,7 +132,7 @@ class ModelExportUtils(object):
         :param kwargs: key value pair of files to be copied in archive
         :return:
         """
-        model_path = '/tmp/{0}'.format(model_name)
+        model_path = os.path.join(tempfile.gettempdir(), model_name)
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
         ModelExportUtils.make_dir(model_path)
@@ -145,7 +147,18 @@ class ModelExportUtils(object):
 
                 if file_type == "extra_files":
                     for file in path.split(","):
-                        shutil.copy(file, model_path)
+                        if os.path.isfile(file):
+                            shutil.copy2(file, model_path)
+                        elif os.path.isdir(file) and file != model_path:
+                            for item in os.listdir(file):
+                                src = os.path.join(file, item)
+                                dst = os.path.join(model_path, item)
+                                if os.path.isfile(src):
+                                    shutil.copy2(src, dst)
+                                elif os.path.isdir(src):
+                                    shutil.copytree(src, dst, False, None)
+                        else:
+                            raise ValueError(f"Invalid extra file given {file}")
                 else:
                     shutil.copy(path, model_path)
 

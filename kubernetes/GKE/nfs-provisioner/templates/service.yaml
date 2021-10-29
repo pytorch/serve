@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nfs-provisioner.fullname" . }}
+  labels:
+    {{- include "nfs-provisioner.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.nfsPort }}
+      name: nfs
+    - port: {{ .Values.service.mountdPort }}
+      name: mountd
+    - port: {{ .Values.service.rpcbindPort }}
+      name: rcpbind
+  selector:
+    {{- include "nfs-provisioner.selectorLabels" . | nindent 4 }}

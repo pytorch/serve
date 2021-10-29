@@ -22,7 +22,7 @@ aws cloudformation create-stack \
 * Once the cloudformation stack creation is complete, you can get the **TorchServeManagementURL** and **TorchServeInferenceURL** of the instance from the cloudformation output tab on AWS console and test with the following commands
 
 ```
-> curl --insecure -X POST "<TorchServeManagementURL>/models?initial_workers=1&synchronous=false&url=https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+> curl --insecure -X POST "<TorchServeManagementURL>/models?initial_workers=1&synchronous=false&url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 {
   "status": "Processing worker updates..."
 }
@@ -37,14 +37,14 @@ aws cloudformation create-stack \
     "models": [
         {
             "modelName": "squeezenet1_1",
-            "modelUrl": "https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+            "modelUrl": "https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
         }
      ]
 }
 
-> curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+> curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-> curl --insecure "<TorchServeInferenceURL>/predictions/squeezenet1_1" -T kitten.jpg
+> curl --insecure "<TorchServeInferenceURL>/predictions/squeezenet1_1" -T kitten_small.jpg
 [
     {
         "tabby": 0.2752002477645874
@@ -62,6 +62,17 @@ aws cloudformation create-stack \
         "cougar": 0.0022544863168150187
     }
 ]
+
+> curl --insecure "<TorchServeMericsURL>/metrics"
+# HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+# TYPE ts_queue_latency_microseconds counter
+ts_queue_latency_microseconds{uuid="e275b494-3d54-45bd-a640-abca741a070b",model_name="squeezenet1_1",model_version="default",} 364.07800000000003
+# HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+# TYPE ts_inference_latency_microseconds counter
+ts_inference_latency_microseconds{uuid="e275b494-3d54-45bd-a640-abca741a070b",model_name="squeezenet1_1",model_version="default",} 128010.02100000001
+# HELP ts_inference_requests_total Total number of inference requests.
+# TYPE ts_inference_requests_total counter
+ts_inference_requests_total{uuid="e275b494-3d54-45bd-a640-abca741a070b",model_name="squeezenet1_1",model_version="default",} 4.0
 ```
 
 
@@ -94,7 +105,7 @@ aws cloudformation create-stack \
   --template-body file://ec2-asg.yaml \
   --capabilities CAPABILITY_IAM \
   --parameters ParameterKey=KeyName,ParameterValue=useastcfntemplate \
-               ParameterKey=ModelPath,ParameterValue="https://torchserve.s3.amazonaws.com/mar_files/squeezenet1_1.mar"
+               ParameterKey=ModelPath,ParameterValue="https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 ```
 
 * Once the cloudformation stack creation is complete, you can get the **TorchServeManagementURL** and **TorchServeInferenceURL** of the instance from the cloudformation output tab on AWS console and test with the following commands
@@ -115,9 +126,9 @@ aws cloudformation create-stack \
   ]
 }
 
-> curl -O https://s3.amazonaws.com/model-server/inputs/kitten.jpg
+> curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-> curl "<TorchServeInferenceURL>/predictions/squeezenet1_1" -T kitten.jpg
+> curl "<TorchServeInferenceURL>/predictions/squeezenet1_1" -T kitten_small.jpg
 [
     {
         "tabby": 0.2752002477645874
@@ -135,6 +146,16 @@ aws cloudformation create-stack \
         "cougar": 0.0022544863168150187
     }
 ]
+> curl "<TorchServeMericsURL>/metrics"
+# HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
+# TYPE ts_queue_latency_microseconds counter
+ts_queue_latency_microseconds{uuid="2b3a4b5b-5131-413a-a725-2abcae5d55ab",model_name="squeezenet1_1",model_version="default",} 932.164
+# HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
+# TYPE ts_inference_latency_microseconds counter
+ts_inference_latency_microseconds{uuid="2b3a4b5b-5131-413a-a725-2abcae5d55ab",model_name="squeezenet1_1",model_version="default",} 411702.625
+# HELP ts_inference_requests_total Total number of inference requests.
+# TYPE ts_inference_requests_total counter
+ts_inference_requests_total{uuid="2b3a4b5b-5131-413a-a725-2abcae5d55ab",model_name="squeezenet1_1",model_version="default",} 9.0
 ```
 
 ## CloudWatch Logging

@@ -1,0 +1,89 @@
+[
+  {
+    "model_name": "fastrcnn",
+    "version": "1.0",
+    "model_file": "examples/object_detector/fast-rcnn/model.py",
+    "serialized_file_remote": "fasterrcnn_resnet50_fpn_coco-258fb6c6.pth",
+    "handler": "object_detector",
+    "extra_files": "examples/object_detector/index_to_name.json"
+  },
+  {
+    "model_name": "alexnet",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/alexnet/model.py",
+    "serialized_file_remote": "alexnet-owt-7be5be79.pth",
+    "handler": "image_classifier",
+    "extra_files": "examples/image_classifier/index_to_name.json"
+  },
+  {
+    "model_name": "densenet161",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/densenet_161/model.py",
+    "serialized_file_remote": "densenet161-8d451a50.pth",
+    "handler": "image_classifier",
+    "extra_files": "examples/image_classifier/index_to_name.json"
+  },
+  {
+    "model_name": "mnist",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/mnist/mnist.py",
+    "serialized_file_local": "examples/image_classifier/mnist/mnist_cnn.pt",
+    "handler": "examples/image_classifier/mnist/mnist_handler.py"
+  },
+  {
+    "model_name": "resnet-152-batch",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/resnet_152_batch/model.py",
+    "serialized_file_remote": "resnet152-394f9c45.pth",
+    "handler": "image_classifier",
+    "extra_files": "examples/image_classifier/index_to_name.json"
+  },
+  {
+    "model_name": "resnet-18",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/resnet_18/model.py",
+    "serialized_file_remote": "resnet18-f37072fd.pth",
+    "handler": "image_classifier",
+    "extra_files": "examples/image_classifier/index_to_name.json"
+  },
+  {
+    "model_name": "squeezenet1_1",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/squeezenet/model.py",
+    "serialized_file_remote": "squeezenet1_1-b8a52dc0.pth",
+    "handler": "image_classifier",
+    "extra_files": "examples/image_classifier/index_to_name.json"
+  },
+  {
+    "model_name": "vgg16",
+    "version": "1.0",
+    "model_file": "examples/image_classifier/vgg_16/model.py",
+    "serialized_file_remote": "vgg16-397923af.pth",
+    "handler": "examples/image_classifier/vgg_16/vgg_handler.py",
+    "extra_files": "examples/image_classifier/index_to_name.json"
+  },
+  {
+    "model_name": "deeplabv3_resnet_101_eager",
+    "version": "1.0",
+    "model_file": "examples/image_segmenter/deeplabv3/model.py",
+    "serialized_file_remote": "deeplabv3_resnet101_coco-586e9e4e.pth",
+    "handler": "image_segmenter",
+    "extra_files": "examples/image_segmenter/deeplabv3/deeplabv3.py,examples/image_segmenter/deeplabv3/intermediate_layer_getter.py,examples/image_segmenter/deeplabv3/fcn.py"
+  },
+  {
+    "model_name": "fcn_resnet_101",
+    "version": "1.0",
+    "model_file": "examples/image_segmenter/fcn/model.py",
+    "serialized_file_remote": "fcn_resnet101_coco-7ecb50ca.pth",
+    "handler": "image_segmenter",
+    "extra_files": "examples/image_segmenter/fcn/fcn.py,examples/image_segmenter/fcn/intermediate_layer_getter.py"
+  },
+  {
+    "model_name": "maskrcnn",
+    "version": "1.0",
+    "model_file": "examples/object_detector/maskrcnn/model.py",
+    "serialized_file_remote": "maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth",
+    "handler": "object_detector",
+    "extra_files": "examples/object_detector/index_to_name.json"
+  }
+]

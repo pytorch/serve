@@ -1,4 +1,5 @@
-# TorchServe on Windows Subsystem for Linux (WSL) - Ubuntu 18.0.4
+# TorchServe on Windows Subsystem for Linux (WSL)
+* Ubuntu 18.0.4
 
 ## Contents of this Document
 
@@ -18,7 +19,7 @@
 1. Setup Ubuntu Environment
 
 ```bash
-wget -O - https://raw.githubusercontent.com/pytorch/serve/master/scripts/setup_wsl_ubuntu | bash
+wget -O - https://raw.githubusercontent.com/pytorch/serve/master/ts_scripts/setup_wsl_ubuntu | bash
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
@@ -29,7 +30,7 @@ source ~/.bashrc
 sudo apt-get install openjdk-11-jdk
 ```
 
-1. Install `TorchServe` and `Torch Model Archiver`
+1. Install Dependencies
 
 ```
 pip install torch torchtext torchvision sentencepiece psutil future
@@ -44,7 +45,10 @@ pip install torchserve torch-model-archiver
 ```
 git clone https://github.com/pytorch/serve.git
 cd serve
-./scripts/install_from_src_wsl
+
+./ts_scripts/setup_wsl_ubuntu
+export PATH=$HOME/.local/bin:$PATH
+python ./ts_scripts/install_from_src.py
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```

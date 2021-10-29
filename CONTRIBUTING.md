@@ -8,15 +8,27 @@ If you are interested in contributing to TorchServe, your contributions will fal
     - Search for your issue here: https://github.com/pytorch/serve/issues
     - Pick an issue and comment on the task that you want to work on this feature.
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
-      - For CPU or GPU-Cuda 10.2
-        ```bash
-        ./torchserve_sanity.sh
-        ```
-      - For GPU with Cuda 10.1
-        ```bash
-        ./torchserve_sanity.sh cuda101
-        ```
+        - Install dependencies (if not already installed)
+          For CPU
+          
+          ```bash
+          python ts_scripts/install_dependencies.py --environment=dev
+          ```
+          
+         For GPU
+           ```bash
+           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+           ```
+            > Supported cuda versions as cu111, cu102, cu101, cu92
+       
+        - Run sanity suite
+          ```bash
+          python torchserve_sanity.py
+          ```
+    - Run Regression test `python test/regression_tests.py`
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
+    - If you are updating an existing model make sure that performance hasn't degraded by running [benchmarks](https://github.com/pytorch/serve/tree/master/benchmarks) on the master branch and your branch and verify there is no performance regression 
+    - For large changes make sure to run the [automated benchmark suite](https://github.com/pytorch/serve/tree/master/test/benchmark) which will run the apache bench tests on several configurations of CUDA and EC2 instances
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
 Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve. Use this [template](pull_request_template.md) when creating a Pull Request.

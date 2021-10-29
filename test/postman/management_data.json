@@ -1,0 +1,548 @@
+[
+  {
+    "type": "register",
+    "test": "Register Model",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1"
+  },
+  {
+    "type": "register",
+    "test": "Register Model Mnist",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_mnist}}&model_name=mnist"
+  },
+  {
+    "type": "register",
+    "test": "Register Model Densenet161",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_densenet161}}&model_name=densenet161"
+  },
+  {
+    "type": "register",
+    "test": "Model Re-Registration Densenet161",
+    "METHOD": "POST",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar&model_name=densenet161",
+    "status_code": 500,
+    "grpc_status_code": 13
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Densenet161",
+    "METHOD": "DELETE",
+    "path": "models/densenet161"
+  },
+  {
+    "type": "register",
+    "test": "Register Model missing url",
+    "METHOD": "POST",
+    "path": "models",
+    "status_code": 400,
+    "grpc_status_code": 3
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Existing Mnist Model",
+    "METHOD": "DELETE",
+    "path": "models/mnist"
+  },
+  {
+    "type": "register",
+    "test": "Register Mnist Model with Invalid Handler",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_mnist}}&model_name=mnist&handler=invalidHandler"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model mnist",
+    "METHOD": "DELETE",
+    "path": "models/mnist"
+  },
+  {
+    "type": "register",
+    "test": "Register Mnist Model with Invalid Handler",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_mnist}}&model_name=mnist&handler=invalidHandler"
+  },
+  {
+    "type": "scale",
+    "test": "Scale Invalid Mnist Handler Model with Min Workers - Synchronous",
+    "METHOD": "PUT",
+    "path": "models/mnist?min_worker=1&synchronous=true",
+    "status_code": 500,
+    "grpc_status_code": 13
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model mnist",
+    "METHOD": "DELETE",
+    "path": "models/mnist"
+  },
+  {
+    "type": "describe",
+    "test": "Get Model - All Versions",
+    "METHOD": "GET",
+    "path": "models/squeezenet1_1/all"
+  },
+  {
+    "type": "describe",
+    "test": "Get Model with Version",
+    "METHOD": "GET",
+    "path": "models/squeezenet1_1/1.0"
+  },
+  {
+    "type": "describe",
+    "test": "Get Valid Model",
+    "METHOD": "GET",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "register",
+    "test": "Register Model invalid Runtime",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&runtime=python4",
+    "status_code": 400,
+    "grpc_status_code": 3
+  },
+  {
+    "type": "list",
+    "test": "List Models",
+    "METHOD": "GET",
+    "path": "models?limit=&next_page_token="
+  },
+  {
+    "type": "register",
+    "test": "Register Model",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1"
+  },
+  {
+    "type": "scale",
+    "test": "Scale Min Workers - Asynchronous",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1?min_worker=1",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Scale Min Workers - Synchronous",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1?min_worker=1&synchronous=true",
+    "status_code": 200
+  },
+  {
+    "type": "scale",
+    "test": "Scale Min Workers for a Version",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1/1.0?min_worker=1&synchronous=true",
+    "status_code": 200
+  },
+  {
+    "type": "scale",
+    "test": "Scale Min Workers for a Valid model but Invalid Version",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1/0.0?min_worker=1&synchronous=true",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "scale",
+    "test": "Scale Min Workers with GPU",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1?min_worker=1&number_gpu=1",
+    "status_code": 202
+  },
+  {
+    "type": "set_default",
+    "test": "Set Default Model Version",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1/1.0/set-default",
+    "status_code": 200
+  },
+  {
+    "type": "set_default",
+    "test": "Set Default Valid Model Invalid Version",
+    "METHOD": "PUT",
+    "path": "models/squeezenet1_1/0.0/set-default",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "set_default",
+    "test": "Set Default Invalid Model valid Version",
+    "METHOD": "PUT",
+    "path": "models/squeezenet0_1/1.0/set-default",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "register",
+    "test": "Register Model with Additional Params",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&handler=serve/ts/torch_handler/image_classifier.py:handle"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "register",
+    "test": "Register Model with Additional Params and response_timeout as 0",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&batch_size=3&initial_workers=3&response_timeout=0",
+    "status_code": 500,
+    "grpc_status_code": 13
+  },
+  {
+    "type": "register",
+    "test": "Register Model with response_timeout as 0",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&response_timeout=0"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "register",
+    "test": "Register Model with Batch Size",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_resnet-152-batch}}&model_name=resnet152&batch_size=2"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Resnet152",
+    "METHOD": "DELETE",
+    "path": "models/resnet152"
+  },
+  {
+    "type": "register",
+    "test": "Register Model with Non integer Batch Size",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_resnet-152-batch}}&model_name=resnet152&batch_size=dd&initial_workers=1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Resnet152",
+    "METHOD": "DELETE",
+    "path": "models/resnet152"
+  },
+  {
+    "type": "register",
+    "test": "Register Model with integer Batch Size but non integer max batch delay parameter",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_resnet-152-batch}}&model_name=resnet152&batch_size=2&initial_workers=1&max_batch_delay=junk"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Resnet152",
+    "METHOD": "DELETE",
+    "path": "models/resnet152"
+  },
+  {
+    "type": "register",
+    "test": "Register Squeezenet Model Negative initial workers",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&initial_workers=-1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1"
+  },
+  {
+    "type": "register",
+    "test": "Register Resnet Model Synchronous",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_resnet-18}}&model_name=resnet-18&synchronous=true"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Resnet-18",
+    "METHOD": "DELETE",
+    "path": "models/resnet-18"
+  },
+  {
+    "type": "register",
+    "test": "Register Model non boolean Synchronous value",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_resnet-18}}&model_name=resnet-18&synchronous=-1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Resnet-18",
+    "METHOD": "DELETE",
+    "path": "models/resnet-18"
+  },
+  {
+    "type": "register",
+    "test": "Register Resnet Model Asynchronous",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_resnet-18}}&model_name=resnet-18&synchronous=false",
+    "status_code": 200
+  },
+  {
+    "type": "list",
+    "test": "List with Limit",
+    "METHOD": "GET",
+    "path": "models?limit=1"
+  },
+  {
+    "type": "list",
+    "test": "List with \"Negative\" Limit Value",
+    "METHOD": "GET",
+    "path": "models?limit=-1"
+  },
+  {
+    "type": "list",
+    "test": "List with Pagination",
+    "METHOD": "GET",
+    "path": "models?limit=1&next_page_token=1"
+  },
+  {
+    "type": "list",
+    "test": "List with \"Negative\" Pagination",
+    "METHOD": "GET",
+    "path": "models?limit=1&next_page_token=-1"
+  },
+  {
+    "type": "scale",
+    "test": "Update GPU Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?number_gpu=10",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Update with \"Negative\" GPU Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?number_gpu=-1",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Scale up Workers -  Synchronous",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=1&max_worker=1&synchronous=true"
+  },
+  {
+    "type": "scale",
+    "test": "Scale up Workers - Asynchronous",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=1&max_worker=1&synchronous=false",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Update Timeout to -1",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?timeout=-1",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Update Timeout to 0",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?timeout=0",
+    "status_code": 202
+  },
+  {
+    "type": "register",
+    "test": "Register Model - Empty URL , Valid Model Name",
+    "METHOD": "post",
+    "path": "models?url=&model_name=resnet-18",
+    "status_code": 404,
+    "grpc_status_code": 3
+  },
+  {
+    "type": "scale",
+    "test": "Register Model - Invalid URL",
+    "METHOD": "POST",
+    "path": "models?url=https://torchserve.pytorch.org/mar_files/invalid-resnet-18.mar&model_name=invalid-resnet18",
+    "status_code": 400,
+    "grpc_status_code": 3
+  },
+  {
+    "type": "list",
+    "test": "List Model - Invalid Model",
+    "METHOD": "GET",
+    "path": "models/invalid_squeezenet1_1",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "describe",
+    "test": "List Model - Valid model name, Invalid Model version",
+    "METHOD": "GET",
+    "path": "models/squeezenet1_1/0.0",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "list",
+    "test": "List Models - Invalid Next Page Token(Outside registered models range)",
+    "METHOD": "GET",
+    "path": "models?next_page_token=12"
+  },
+  {
+    "type": "scale",
+    "test": "Scale Workers - Valid \"min_worker\" value, Invalid \"synchronous\"",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=1&synchronous=Nan",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Scale Workers - Invalid parameter values for both \"synchronous\" & \"min_worker\" params",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=nan&synchronous=nan",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Scale down workers by Calling Update Workers API with no parameters",
+    "METHOD": "PUT",
+    "path": "models/resnet-18",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Update Worker for an invalid/non-existent model",
+    "METHOD": "PUT",
+    "path": "models/resnet181?min_worker=1",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "scale",
+    "test": "Update Worker with Invalid Worker Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=2&max_worker=1",
+    "status_code": 400,
+    "grpc_status_code": 3
+  },
+  {
+    "type": "scale",
+    "test": "Update Worker with Positive Worker Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=1",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Update Worker with \"Zero\" Worker Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=0",
+    "status_code": 202
+  },
+  {
+    "type": "scale",
+    "test": "Scale worker by calling Update Worker API with negative min worker Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?min_worker=-1",
+    "status_code": 500,
+    "grpc_status_code": 13
+  },
+  {
+    "type": "scale",
+    "test": "Scale worker by calling Update Worker API with negative max worker Count",
+    "METHOD": "PUT",
+    "path": "models/resnet-18?max_worker=-1",
+    "status_code": 400,
+    "grpc_status_code": 3
+  },
+  {
+    "type": "set_default",
+    "test": "Update Version - Invalid Model",
+    "METHOD": "PUT",
+    "path": "models/invalid_squeezenet1_1/1.0/set-default",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model Resnet-18",
+    "METHOD": "DELETE",
+    "path": "models/resnet-18"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Valid Model name, but Invalid Model version",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1/0.0",
+    "status_code": 404,
+    "grpc_status_code": 5
+  },
+  {
+    "type": "register",
+    "test": "Register Model",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model with synchronous value as true",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1/?synchronous=true"
+  },
+  {
+    "type": "register",
+    "test": "Register Model",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model with synchronous value as non boolean",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1/?synchronous=nan"
+  },
+  {
+    "type": "register",
+    "test": "Register Model",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model with synchronous value as non boolean",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1/?timeout=true"
+  },
+  {
+    "type": "register",
+    "test": "Register Model",
+    "METHOD": "POST",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Model with non boolean synchronous value & non integer timeout value",
+    "METHOD": "DELETE",
+    "path": "models/squeezenet1_1/?timeout=true&synchronous=-1"
+  },
+  {
+    "type": "unregister",
+    "test": "UnRegister Invalid Model Name",
+    "METHOD": "DELETE",
+    "path": "models/invalid_squeezenet1_1",
+    "status_code": 404,
+    "grpc_status_code": 5
+  }
+]

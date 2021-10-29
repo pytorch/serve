@@ -1,0 +1,78 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: torchserve
+  labels:
+    app: torchserve
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8082'
+spec:
+  ports:
+  - name: preds
+    port: {{ .Values.torchserve.inference_port }}
+    targetPort: ts 
+  - name: mdl
+    port: {{ .Values.torchserve.management_port }}
+    targetPort: ts-management
+  - name: metrics
+    port: {{ .Values.torchserve.metrics_port }}
+    targetPort: ts-metrics
+  type: LoadBalancer
+  selector:
+    app: torchserve
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: torchserve
+  labels:
+    app: torchserve
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: torchserve
+  template:
+    metadata:
+      labels:
+        app: torchserve
+    spec:
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: model-store-claim
+      initContainers:
+      - name: volume-ownership
+        image: alpine:3
+        command:
+        - chown
+        - root:{{ .Values.securityContext.groupId }}
+        - {{ .Values.torchserve.pvd_mount }}
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: {{ .Values.torchserve.pvd_mount }}
+      containers:
+      - name: torchserve
+        image: {{ .Values.torchserve_image }}
+        args: ["torchserve", "--start",  "--model-store", "/home/model-server/shared/model-store/", "--ts-config", "/home/model-server/shared/config/config.properties"]
+        ports:
+        - name: ts
+          containerPort: {{ .Values.torchserve.inference_port }}
+        - name: ts-management
+          containerPort: {{ .Values.torchserve.management_port }}
+        - name: ts-metrics
+          containerPort: {{ .Values.torchserve.metrics_port }}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: {{ .Values.torchserve.pvd_mount }}
+            name: persistent-storage
+        resources:
+          limits:
+            cpu: {{ .Values.torchserve.n_cpu }}
+            memory: {{ .Values.torchserve.memory_limit }}
+            nvidia.com/gpu: {{ .Values.torchserve.n_gpu }}
+          requests:
+            cpu: {{ .Values.torchserve.n_cpu }}
+            memory: {{ .Values.torchserve.memory_request }}

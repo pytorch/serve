@@ -3,7 +3,7 @@ package org.pytorch.serve.wlm;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.pytorch.serve.archive.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.slf4j.Logger;
@@ -67,7 +67,11 @@ public final class ModelVersionedRefs {
     public void setDefaultVersion(String versionId) throws ModelVersionNotFoundException {
         Model model = this.modelsVersionMap.get(versionId);
         if (model == null) {
-            throw new ModelVersionNotFoundException("Can't set default to: " + versionId);
+            throw new ModelVersionNotFoundException(
+                    "Model version "
+                            + versionId
+                            + " does not exist for model "
+                            + this.getDefaultModel().getModelName());
         }
 
         logger.debug("Setting default version to {} for model {}", versionId, model.getModelName());

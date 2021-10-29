@@ -102,6 +102,9 @@ def start():
             if not args.model_store and props.get('model_store'):
                 args.model_store = props.get('model_store')
 
+        if args.plugins_path:
+            class_path += ":" + args.plugins_path + "/*" if "*" not in args.plugins_path else ":" + args.plugins_path
+
         cmd.append("-cp")
         cmd.append(class_path)
 
@@ -126,6 +129,17 @@ def start():
             print("Missing mandatory parameter --model-store")
             sys.exit(1)
 
+        if args.workflow_store:
+            if not os.path.isdir(args.workflow_store):
+                print("--workflow-store directory not found: {}".format(args.workflow_store))
+                sys.exit(1)
+
+            cmd.append("-w")
+            cmd.append(args.workflow_store)
+        else:
+            cmd.append("-w")
+            cmd.append(args.model_store)
+
         if args.no_config_snapshots:
             cmd.append("-ncs")
 
@@ -138,6 +152,7 @@ def start():
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
                         sys.exit(1)
+
 
         try:
             process = subprocess.Popen(cmd)

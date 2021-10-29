@@ -1,0 +1,19 @@
+---
+bert_inf1:
+    scripted_mode:
+        benchmark_engine: "ab"
+        compile_per_batch_size: True
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "/home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert/input"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "inferentia"

@@ -1,0 +1,39 @@
+---
+vgg16:
+    eager_mode:
+        benchmark_engine: "ab"
+        url: "https://torchserve.pytorch.org/mar_files/vgg16.mar" 
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/kitten.jpg"
+        requests: 1000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "docker"
+        processors:
+            - "cpu"
+            - "gpus": "all"
+    scripted_mode:
+        benchmark_engine: "ab"
+        url:  "https://torchserve.pytorch.org/mar_files/vgg16_scripted.mar"
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/kitten.jpg"
+        requests: 1000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "docker"
+        dockerhub_image:  "pytorch/torchserve:latest"
+        processors:
+            - "cpu"
+            - "gpus": "all"

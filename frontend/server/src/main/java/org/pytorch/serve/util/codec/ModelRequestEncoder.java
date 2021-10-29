@@ -43,10 +43,23 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
                 buf = handler.getBytes(StandardCharsets.UTF_8);
             }
 
+            // TODO: this might be a bug. If handler isn't specified, this
+            // will repeat the model path
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
             out.writeInt(request.getGpuId());
+
+            String envelope = request.getEnvelope();
+            if (envelope != null) {
+                buf = envelope.getBytes(StandardCharsets.UTF_8);
+            } else {
+                buf = new byte[0];
+            }
+
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
         } else if (msg instanceof ModelInferenceRequest) {
             out.writeByte('I');
             ModelInferenceRequest request = (ModelInferenceRequest) msg;

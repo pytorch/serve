@@ -1,6 +1,9 @@
 package:
   name: torchserve
-  version: "{{ environ.get('TORCH_MODEL_ARCHIVER_VERSION') }}"
+  version: "{{ environ.get('TORCHSERVE_VERSION') }}"
+
+source:
+  path: "{{ environ.get('TORCHSERVE_ROOT_DIR') }}"
 
 requirements:
   build:
@@ -14,9 +17,7 @@ requirements:
     - future
 
 build:
-  noarch: generic
-  script_env:
-    - TORCHSERVE_WHEEL
+  script: "{{ PYTHON }} -m pip install . -vv"
 
 about:
   home: https://github.com/pytorch/serve

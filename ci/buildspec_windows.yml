@@ -1,0 +1,13 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - python ts_scripts\install_dependencies.py --environment=dev
+
+  build:
+    commands:
+      - python torchserve_sanity.py
+      - cd serving-sdk\; mvn clean install -q; cd ..\

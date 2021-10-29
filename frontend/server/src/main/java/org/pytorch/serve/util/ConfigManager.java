@@ -1,5 +1,7 @@
 package org.pytorch.serve.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -7,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +32,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -41,7 +45,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
-import org.pytorch.serve.snapshot.SnapshotUtils;
+import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
+import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -51,6 +56,7 @@ public final class ConfigManager {
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
+    private static final String TS_METRICS_ADDRESS = "metrics_address";
     private static final String TS_LOAD_MODELS = "load_models";
     private static final String TS_BLACKLIST_ENV_VARS = "blacklist_env_vars";
     private static final String TS_DEFAULT_WORKERS_PER_MODEL = "default_workers_per_model";
@@ -73,11 +79,19 @@ public final class ConfigManager {
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
+    private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
     private static final String TS_MODEL_STORE = "model_store";
-    private static final String TS_SNAPSHOT_STORE = "snapshot_store";
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
+    private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
+    private static final String TS_METRICS_FORMAT = "metrics_format";
+    private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
+    private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
+    private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
+    private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -85,6 +99,7 @@ public final class ConfigManager {
     private static final String METRIC_TIME_INTERVAL = "metric_time_interval";
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
     private static final String MODEL_SNAPSHOT = "model_snapshot";
+    private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
 
     // Variables which are local
@@ -92,15 +107,24 @@ public final class ConfigManager {
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
 
+    public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
+
     public static final String PYTHON_EXECUTABLE = "python";
+
+    public static final Pattern ADDRESS_PATTERN =
+            Pattern.compile(
+                    "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
+                    Pattern.CASE_INSENSITIVE);
+    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
 
     private Pattern blacklistPattern;
     private Properties prop;
-    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private boolean snapshotDisabled;
 
     private static ConfigManager instance;
     private String hostName;
+    private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -119,34 +143,6 @@ public final class ConfigManager {
             System.setProperty("LOG_LOCATION", "logs");
         }
 
-        String snapshotStore = args.getSnapshotStore();
-        if (snapshotStore != null) {
-            prop.setProperty(TS_SNAPSHOT_STORE, snapshotStore);
-        }
-
-        String filePath = System.getenv("TS_CONFIG_FILE");
-        if (filePath == null) {
-            filePath = args.getTsConfigFile();
-            if (filePath == null) {
-                filePath = getLastSnapshot();
-                if (filePath == null) {
-                    filePath = System.getProperty("tsConfigFile", "config.properties");
-                }
-            }
-        }
-
-        File tsConfigFile = new File(filePath);
-        if (tsConfigFile.exists()) {
-            try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
-                prop.load(stream);
-                prop.put("tsConfigFile", filePath);
-            } catch (IOException e) {
-                throw new IllegalStateException("Unable to read configuration file", e);
-            }
-        }
-
-        resolveEnvVarVals(prop);
-
         String metricsLocation = System.getenv("METRICS_LOCATION");
         if (metricsLocation != null) {
             System.setProperty("METRICS_LOCATION", metricsLocation);
@@ -154,9 +150,43 @@ public final class ConfigManager {
             System.setProperty("METRICS_LOCATION", "logs");
         }
 
+        String filePath = System.getenv("TS_CONFIG_FILE");
+        Properties snapshotConfig = null;
+
+        if (filePath == null) {
+            filePath = args.getTsConfigFile();
+            if (filePath == null) {
+                snapshotConfig = getLastSnapshot();
+                if (snapshotConfig == null) {
+                    filePath = System.getProperty("tsConfigFile", "config.properties");
+                } else {
+                    prop.putAll(snapshotConfig);
+                }
+            }
+        }
+
+        if (filePath != null) {
+            File tsConfigFile = new File(filePath);
+            if (tsConfigFile.exists()) {
+                try (InputStream stream = Files.newInputStream(tsConfigFile.toPath())) {
+                    prop.load(stream);
+                    prop.put("tsConfigFile", filePath);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Unable to read configuration file", e);
+                }
+            }
+        }
+
+        resolveEnvVarVals(prop);
+
         String modelStore = args.getModelStore();
         if (modelStore != null) {
             prop.setProperty(TS_MODEL_STORE, modelStore);
+        }
+
+        String workflowStore = args.getWorkflowStore();
+        if (workflowStore != null) {
+            prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
         }
 
         String[] models = args.getModels();
@@ -191,6 +221,8 @@ public final class ConfigManager {
             // Environment variables have higher precedence over the config file variables
             setSystemVars();
         }
+
+        setModelConfig();
     }
 
     public static String readFile(String path) throws IOException {
@@ -256,14 +288,33 @@ public final class ConfigManager {
                 || Boolean.parseBoolean(prop.getProperty(TS_DEBUG, "false"));
     }
 
-    public Connector getListener(boolean management) {
+    public Connector getListener(ConnectorType connectorType) {
         String binding;
-        if (management) {
-            binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
-        } else {
-            binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                binding = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                binding = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                binding = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         }
-        return Connector.parse(binding, management);
+        return Connector.parse(binding, connectorType);
+    }
+
+    public int getGRPCPort(ConnectorType connectorType) {
+        String port;
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "7071");
+        } else {
+            port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
+        }
+        return Integer.parseInt(port);
+    }
+
+    public boolean isGRPCSSLEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_GRPC_SSL, "false"));
     }
 
     public boolean getPreferDirectBuffer() {
@@ -272,6 +323,14 @@ public final class ConfigManager {
 
     public boolean getInstallPyDepPerModel() {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
+    }
+
+    public String getMetricsFormat() {
+        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
+    }
+
+    public boolean isMetricApiEnable() {
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
 
     public int getNettyThreads() {
@@ -292,6 +351,10 @@ public final class ConfigManager {
 
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
+    }
+
+    public String getTsServiceEnvelope() {
+        return getProperty(TS_SERVICE_ENVELOPE, null);
     }
 
     public Properties getConfiguration() {
@@ -351,8 +414,8 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
-    public String getSnapshotStore() {
-        return prop.getProperty(TS_SNAPSHOT_STORE, "FS");
+    public String getWorkflowStore() {
+        return getCanonicalPath(prop.getProperty(TS_WORKFLOW_STORE));
     }
 
     public String getModelSnapshot() {
@@ -377,6 +440,14 @@ public final class ConfigManager {
 
     public String getCorsAllowedHeaders() {
         return prop.getProperty(TS_CORS_ALLOWED_HEADERS);
+    }
+
+    public String getPrivateKeyFile() {
+        return prop.getProperty(TS_PRIVATE_KEY_FILE);
+    }
+
+    public String getCertificateFile() {
+        return prop.getProperty(TS_CERTIFICATE_FILE);
     }
 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
@@ -466,12 +537,12 @@ public final class ConfigManager {
         }
     }
 
-    private String getLastSnapshot() {
+    private Properties getLastSnapshot() {
         if (isSnapshotDisabled()) {
             return null;
         }
-
-        return SnapshotUtils.getLastSnapshot(getSnapshotStore());
+        SnapshotSerializer serializer = SnapshotSerializerFactory.getSerializer();
+        return serializer.getLastSnapshot();
     }
 
     public String getProperty(String key, String def) {
@@ -508,9 +579,11 @@ public final class ConfigManager {
                 + "\nConfig file: "
                 + prop.getProperty("tsConfigFile", "N/A")
                 + "\nInference address: "
-                + getListener(false)
+                + getListener(ConnectorType.INFERENCE_CONNECTOR)
                 + "\nManagement address: "
-                + getListener(true)
+                + getListener(ConnectorType.MANAGEMENT_CONNECTOR)
+                + "\nMetrics address: "
+                + getListener(ConnectorType.METRICS_CONNECTOR)
                 + "\nModel Store: "
                 + (getModelStore() == null ? "N/A" : getModelStore())
                 + "\nInitial Models: "
@@ -533,8 +606,18 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
+                + "\nAllowed Urls: "
+                + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
-                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false");
+                + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
+                + "\nMetrics report format: "
+                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
+                + "\nEnable metrics API: "
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nWorkflow Store: "
+                + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nModel config: "
+                + prop.getProperty(MODEL_CONFIG, "N/A");
     }
 
     public boolean useNativeIo() {
@@ -654,8 +737,82 @@ public final class ConfigManager {
         }
     }
 
+    public List<String> getAllowedUrls() {
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "file://.*|http(s)?://.*");
+        return Arrays.asList(allowedURL.split(","));
+    }
+
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public boolean isSSLEnabled(ConnectorType connectorType) {
+        String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                address = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                address = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                break;
+        }
+        // String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS,
+        // "http://127.0.0.1:8080");
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(address);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid binding address: " + address);
+        }
+
+        String protocol = matcher.group(2);
+
+        return "https".equalsIgnoreCase(protocol);
+    }
+
+    public int getInitialWorkerPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
+    }
+
+    public void setInitialWorkerPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
+    }
+
+    private void setModelConfig() {
+        String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
+        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {}.getType();
+
+        if (modelConfigStr != null) {
+            this.modelConfig = JsonUtils.GSON.fromJson(modelConfigStr, type);
+        }
+    }
+
+    public int getJsonIntValue(String modelName, String version, String element, int defaultVal) {
+        int value = defaultVal;
+        if (this.modelConfig.containsKey(modelName)) {
+            Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
+            JsonObject jsonObject = versionModel.getOrDefault(version, null);
+
+            if (jsonObject != null && jsonObject.get(element) != null) {
+                try {
+                    value = jsonObject.get(element).getAsInt();
+                    if (value <= 0) {
+                        value = defaultVal;
+                    }
+                } catch (ClassCastException | IllegalStateException e) {
+                    Logger.getRootLogger()
+                            .error(
+                                    "Invalid value for model: "
+                                            + modelName
+                                            + ":"
+                                            + version
+                                            + ", parameter: "
+                                            + element);
+                    return defaultVal;
+                }
+            }
+        }
+        return value;
     }
 
     public static final class Arguments {
@@ -665,6 +822,7 @@ public final class ConfigManager {
         private String modelStore;
         private String[] models;
         private boolean snapshotDisabled;
+        private String workflowStore;
 
         public Arguments() {}
 
@@ -674,6 +832,7 @@ public final class ConfigManager {
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
+            workflowStore = cmd.getOptionValue("workflow-store");
         }
 
         public static Options getOptions() {
@@ -712,6 +871,13 @@ public final class ConfigManager {
                             .argName("NO-CONFIG-SNAPSHOT")
                             .desc("disable torchserve snapshot")
                             .build());
+            options.addOption(
+                    Option.builder("w")
+                            .longOpt("workflow-store")
+                            .hasArg()
+                            .argName("WORKFLOW-STORE")
+                            .desc("Workflow store location where workflow can be loaded.")
+                            .build());
             return options;
         }
 
@@ -729,6 +895,10 @@ public final class ConfigManager {
 
         public String getModelStore() {
             return modelStore;
+        }
+
+        public String getWorkflowStore() {
+            return workflowStore;
         }
 
         public void setModelStore(String modelStore) {
@@ -749,11 +919,6 @@ public final class ConfigManager {
 
         public void setSnapshotDisabled(boolean snapshotDisabled) {
             this.snapshotDisabled = snapshotDisabled;
-        }
-
-        public String getSnapshotStore() {
-            // TODO : remove hard-coding and add a new cmd param for snapshot store
-            return "FS";
         }
     }
 }

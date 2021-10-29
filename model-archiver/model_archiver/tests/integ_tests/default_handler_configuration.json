@@ -8,7 +8,7 @@
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
     "iterations": 1,
     "version": "1.0",
-    "export-path": "/tmp/model"
+    "export-path": "model"
   },
   {
     "name": "text_classifier_mar",
@@ -18,7 +18,7 @@
     "handler": "text_classifier",
     "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json,model_archiver/tests/integ_tests/resources/regular_model/source_vocab.pt",
     "iterations": 1,
-    "export-path": "/tmp/model",
+    "export-path": "model",
     "version": "1.0"
   }
 ]

@@ -1,0 +1,419 @@
+{
+	"info": {
+		"_postman_id": "09c6e24d-b09c-4ff6-868a-99705499a1ce",
+		"name": "kf_https_test_collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "HTTPS Inference API  Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad6d7412-e888-4166-bc12-6d372f0c112d",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-pred-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-pred-port}}"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Management API Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d4a9d9b8-979e-4915-aa1b-b0348e1fd92f",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Metrics API Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3391b6eb-517b-43a4-80ae-0c1e0ee50822",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-metric-port}}",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-metric-port}}"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Register Model - Mnist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "90a3b63b-1239-4546-97a3-c798fc9f5bda",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models?url={{mar_path_mnist}}&model_name=mnist&initial_workers=1&synchronous=true",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models"
+					],
+					"query": [
+						{
+							"key": "url",
+							"value": "{{mar_path_mnist}}"
+						},
+						{
+							"key": "model_name",
+							"value": "mnist"
+						},
+						{
+							"key": "initial_workers",
+							"value": "1"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Get Mnist Model Description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "30b54fd6-63fa-483f-a1a6-a18e6fc24fbe",
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/mnist",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"mnist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Scale up Workers -  Synchronous for Mnist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d8a02cbc-0b0a-46d7-90ad-99717532f678",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/mnist?min_worker=5&max_worker=5&synchronous=true",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"mnist"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "5"
+						},
+						{
+							"key": "max_worker",
+							"value": "5"
+						},
+						{
+							"key": "synchronous",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS Scale up Workers - Asynchronous for Mnist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea3c6bb2-601d-4ee8-aa8f-401efac1c290",
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/mnist?min_worker=6&max_worker=6&synchronous=false",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"mnist"
+					],
+					"query": [
+						{
+							"key": "min_worker",
+							"value": "6"
+						},
+						{
+							"key": "max_worker",
+							"value": "6"
+						},
+						{
+							"key": "synchronous",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS - Inference - Mnist_KF",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "31e8e9fb-1a2c-41b1-91c4-9d0012edd0bc",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../kubernetes/kfserving/kf_request_json/mnist.json"
+					},
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-pred-port}}/v1/models/mnist:predict",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-pred-port}}",
+					"path": [
+						"v1",
+						"models",
+						"mnist:predict"
+					]
+				},
+				"description": "Runs an inference test for Mnist model with kfserving envelope"
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS - Explanations - Mnist_KF ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "03983abd-8a05-46c8-b987-1a2347cdbc0a",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "../kubernetes/kfserving/kf_request_json/mnist.json"
+					},
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-pred-port}}/v1/models/mnist:explain",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-pred-port}}",
+					"path": [
+						"v1",
+						"models",
+						"mnist:explain"
+					]
+				},
+				"description": "Runs an inference test for Mnist model with kfserving envelope"
+			},
+			"response": []
+		},
+		{
+			"name": "HTTPS UnRegister Model Mnist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "96c80c26-585f-4db4-a9d3-f99e6abc58a9",
+						"exec": [
+							"pm.test(\"Successful DELETE request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://{{hostname}}:{{sec-mgmt-port}}/models/mnist",
+					"protocol": "https",
+					"host": [
+						"{{hostname}}"
+					],
+					"port": "{{sec-mgmt-port}}",
+					"path": [
+						"models",
+						"mnist"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -6,15 +6,19 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
-import org.pytorch.serve.http.ApiDescriptionRequestHandler;
+import org.pytorch.serve.http.ExtendedSSLHandler;
 import org.pytorch.serve.http.HttpRequestHandler;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
-import org.pytorch.serve.http.InferenceRequestHandler;
 import org.pytorch.serve.http.InvalidRequestHandler;
-import org.pytorch.serve.http.ManagementRequestHandler;
+import org.pytorch.serve.http.api.rest.ApiDescriptionRequestHandler;
+import org.pytorch.serve.http.api.rest.InferenceRequestHandler;
+import org.pytorch.serve.http.api.rest.ManagementRequestHandler;
+import org.pytorch.serve.http.api.rest.PrometheusMetricsRequestHandler;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
+import org.pytorch.serve.workflow.api.http.WorkflowInferenceRequestHandler;
+import org.pytorch.serve.workflow.api.http.WorkflowMgmtRequestHandler;
 
 /**
  * A special {@link io.netty.channel.ChannelInboundHandler} which offers an easy way to initialize a
@@ -47,25 +51,35 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
 
         int maxRequestSize = ConfigManager.getInstance().getMaxRequestSize();
         if (sslCtx != null) {
-            pipeline.addLast("ssl", sslCtx.newHandler(ch.alloc()));
+            pipeline.addLast("ssl", new ExtendedSSLHandler(sslCtx, connectorType));
         }
         pipeline.addLast("http", new HttpServerCodec());
         pipeline.addLast("aggregator", new HttpObjectAggregator(maxRequestSize));
 
         HttpRequestHandlerChain httpRequestHandlerChain = apiDescriptionRequestHandler;
-        if (ConnectorType.BOTH.equals(connectorType)
+        if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
                             new InferenceRequestHandler(
                                     PluginsManager.getInstance().getInferenceEndpoints()));
+            httpRequestHandlerChain =
+                    httpRequestHandlerChain.setNextHandler(new WorkflowInferenceRequestHandler());
         }
-        if (ConnectorType.BOTH.equals(connectorType)
+        if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
                             new ManagementRequestHandler(
                                     PluginsManager.getInstance().getManagementEndpoints()));
+            httpRequestHandlerChain =
+                    httpRequestHandlerChain.setNextHandler(new WorkflowMgmtRequestHandler());
+        }
+        if (ConfigManager.getInstance().isMetricApiEnable()
+                        && ConnectorType.ALL.equals(connectorType)
+                || ConnectorType.METRICS_CONNECTOR.equals(connectorType)) {
+            httpRequestHandlerChain =
+                    httpRequestHandlerChain.setNextHandler(new PrometheusMetricsRequestHandler());
         }
         httpRequestHandlerChain.setNextHandler(invalidRequestHandler);
         pipeline.addLast("handler", new HttpRequestHandler(apiDescriptionRequestHandler));

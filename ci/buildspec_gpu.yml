@@ -1,0 +1,14 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install sudo -y
+      - pip install -r ci/launcher/requirements.txt
+
+  build:
+    commands:
+      - python ci/launcher/launch_test.py --instance-type p3.2xlarge

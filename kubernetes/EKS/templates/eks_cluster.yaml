@@ -1,0 +1,23 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: "TorchserveCluster"
+  region: "us-west-2"
+
+managedNodeGroups:
+  - name: mg-1
+    # EKS Optimized AMIs - https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html
+    ami: ami-048af94822f84c9c1
+    instanceType: t3.xlarge
+    minSize: 1
+    desiredCapacity: 2
+    maxSize: 3
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      /etc/eks/bootstrap.sh <cluster-name> --container-runtime containerd
+
+cloudWatch:
+  clusterLogging:
+    enableTypes:
+      ["audit", "authenticator", "api", "controllerManager", "scheduler"]

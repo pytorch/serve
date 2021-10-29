@@ -1,9 +1,10 @@
 package org.pytorch.serve.openapi;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.prometheus.client.exporter.common.TextFormat;
 import java.util.ArrayList;
 import java.util.List;
-import org.pytorch.serve.archive.Manifest;
+import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
@@ -23,18 +24,23 @@ public final class OpenApiUtils {
         info.setVersion(config.getProperty("version", null));
         openApi.setInfo(info);
 
-        if (ConnectorType.BOTH.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {
+        if (ConnectorType.ALL.equals(type) || ConnectorType.INFERENCE_CONNECTOR.equals(type)) {
             listInferenceApis(openApi);
         }
-        if (ConnectorType.BOTH.equals(type) || ConnectorType.MANAGEMENT_CONNECTOR.equals(type)) {
+        if (ConnectorType.ALL.equals(type) || ConnectorType.MANAGEMENT_CONNECTOR.equals(type)) {
             listManagementApis(openApi);
         }
+        openApi.addPath("/metrics", getMetricsPath());
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
-
+    /**
+     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from
+     * kfserving v1 predictor
+     */
     private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
         openApi.addPath("/ping", getPingPath());
+        openApi.addPath("/v1/models/{model_name}:predict", getPredictionsPath(false));
         openApi.addPath("/predictions/{model_name}", getPredictionsPath(false));
         openApi.addPath("/predictions/{model_name}/{model_version}", getPredictionsPath(true));
         openApi.addPath("/api-description", getApiDescriptionPath("api-description", true));
@@ -58,6 +64,7 @@ public final class OpenApiUtils {
         openApi.setInfo(info);
 
         openApi.addPath("/prediction/" + modelName, getModelPath(modelName));
+        openApi.addPath("/v1/models/{model_name}:predict", getModelPath(modelName));
 
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
@@ -281,6 +288,12 @@ public final class OpenApiUtils {
                         "boolean",
                         "false",
                         "Decides whether creation of worker synchronous or not, default: false."));
+        operation.addParameter(
+                new QueryParameter(
+                        "s3_sse_kms",
+                        "boolean",
+                        "false",
+                        "Model mar file is S3 SSE KMS(server side encryption) enabled or not, default: false."));
 
         Manifest.RuntimeType[] types = Manifest.RuntimeType.values();
         List<String> runtimeTypes = new ArrayList<>(types.length);
@@ -497,6 +510,26 @@ public final class OpenApiUtils {
 
         Path path = new Path();
         path.setPost(operation);
+        return path;
+    }
+
+    private static Path getMetricsPath() {
+        Schema schema = new Schema("object");
+        schema.addProperty(
+                "# HELP", new Schema("string", "Help text for TorchServe metric."), true);
+        schema.addProperty("# TYPE", new Schema("string", "Type of TorchServe metric."), true);
+        schema.addProperty("metric", new Schema("string", "TorchServe application metric."), true);
+        MediaType mediaType = new MediaType(TextFormat.CONTENT_TYPE_004, schema);
+
+        Operation operation =
+                new Operation(
+                        "metrics", "Get TorchServe application metrics in prometheus format.");
+        operation.addParameter(new QueryParameter("name[]", "Names of metrics to filter"));
+        operation.addResponse(new Response("200", "TorchServe application metrics", mediaType));
+        operation.addResponse(new Response("500", "Internal Server Error", getErrorResponse()));
+
+        Path path = new Path();
+        path.setGet(operation);
         return path;
     }
 

@@ -1,0 +1,21 @@
+# Default values for torchserve helm chart.
+
+torchserve_image: pytorch/torchserve:latest-gpu
+
+namespace: torchserve
+
+torchserve:
+  management_port: 8081
+  inference_port: 8080
+  metrics_port: 8082
+  pvd_mount: /home/model-server/shared/
+  n_gpu: 1
+  n_cpu: 1
+  memory_limit: 4Gi
+  memory_request: 1Gi
+
+deployment:
+  replicas: 1
+
+persitant_volume:
+  size: 1Gi

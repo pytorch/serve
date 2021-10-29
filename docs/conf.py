@@ -44,7 +44,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinxcontrib.katex',
-    'recommonmark'
+    'recommonmark',
+    'sphinx_markdown_tables'
 
 ]
 
@@ -77,7 +78,7 @@ source_suffix = {
 
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
 project = 'PyTorch/Serve'
@@ -128,7 +129,7 @@ html_theme_path = [pytorch_sphinx_theme.get_html_theme_path()]
 #
 html_theme_options = {
     'pytorch_project': 'audio',
-    'collapse_navigation': False,
+    'collapse_navigation': True,
     'display_version': True,
     'logo_only': True,
 }
@@ -150,7 +151,7 @@ def setup(app):
 
     # In Sphinx 1.8 it was renamed to `add_css_file`, 1.7 and prior it is
     # `add_stylesheet` (deprecated in 1.8).
-    add_css = getattr(app, 'add_css_file', getattr(app, 'add_stylesheet'))
+    add_css = getattr(app, 'add_css_file')
     for css_file in html_css_files:
         add_css(css_file)
 
@@ -224,4 +225,3 @@ intersphinx_mapping = {
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'torch': ('https://pytorch.org/docs/stable/', None),
 }
-

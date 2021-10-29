@@ -1,6 +1,6 @@
 [
     {
-        "url":"https://torchserve.s3.amazonaws.com/mar_files/densenet161_scripted.mar",
+        "url":"https://torchserve.pytorch.org/mar_files/densenet161_scripted.mar",
         "model_name":"densenet161_scripted",
         "worker":1,
         "synchronous":"true",
@@ -14,6 +14,6 @@
             "lynx":0.0012828207109123468,
             "plastic_bag":0.0002332298900000751
         },
-        "tolerance":1
+        "tolerance":5
     }
 ]

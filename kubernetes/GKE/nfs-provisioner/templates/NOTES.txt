@@ -1,0 +1,47 @@
+1. Run the below command and get nfs server ip:
+kubectl get svc --namespace {{ .Release.Namespace }} {{ include "nfs-provisioner.fullname" . }} -o jsonpath='{.spec.clusterIP}'
+2. Create a PV, PVC and Pod with below yaml:
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    # FIXED: Use internal DNS name
+    server: <SERVER_IP>
+    path: "/"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: model-store-pod
+spec:
+  containers:
+    - name: model-store
+      image: ubuntu
+      command: [ "sleep" ]
+      args: [ "infinity" ]
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - name: {{ .Values.persistentVolume.name}}
+        mountPath: "/pv"
+  volumes:
+  - name: {{ .Values.persistentVolume.name}}
+    persistentVolumeClaim:
+      claimName: nfs
