@@ -9,6 +9,13 @@ import importlib.util
 import time
 import torch
 
+ipex_enabled = False
+try:
+    import intel_extension_for_pytorch as ipex
+    ipex_enabled = True
+except:
+    pass
+
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 logger = logging.getLogger(__name__)
@@ -33,7 +40,7 @@ class BaseHandler(abc.ABC):
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
-	   First try to load torchscript else load eager mode state_dict based model.
+          First try to load torchscript else load eager mode state_dict based model.
 
         Args:
             context (context): It is a JSON Object containing information
@@ -73,6 +80,14 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
+        data = torch.rand(1, 3, 224, 224)
+        if ipex_enabled:
+            data = data.to(memory_format=torch.channels_last)
+            self.model = self.model.to(memory_format=torch.channels_last)
+            self.model = ipex.optimize(self.model, dtype=torch.float32, level='O1')
+
+        self.model = torch.jit.trace(self.model, data)
+        self.model = torch.jit.freeze(self.model)
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
@@ -141,7 +156,10 @@ class BaseHandler(abc.ABC):
         Returns:
             tensor: Returns the tensor data of the input
         """
-        return torch.as_tensor(data, device=self.device)
+        t = torch.as_tensor(data, device=self.device)
+        if ipex_enabled:
+            t = t.to(memory_format=torch.channels_last)
+        return t
 
     def inference(self, data, *args, **kwargs):
         """
@@ -156,7 +174,15 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         marshalled_data = data.to(self.device)
+        print('input shape: {}'.format(marshalled_data.shape))
         with torch.no_grad():
+            for _ in range(100):
+                self.model(marshalled_data, *args, **kwargs)
+            t0 = time.time()
+            for _ in range(100):
+                self.model(marshalled_data, *args, **kwargs)
+            t1 = time.time()
+            print("inference took {:.5f}ms".format((t1-t0)/100*1000))
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
@@ -189,21 +215,21 @@ class BaseHandler(abc.ABC):
 
         # It can be used for pre or post processing if needed as additional request
         # information is available in context
-        start_time = time.time()
 
         self.context = context
         metrics = self.context.metrics
 
         data_preprocess = self.preprocess(data)
 
+        #output = self.inference(data_preprocess)
+        start_time = time.time()
         if not self._is_explain():
             output = self.inference(data_preprocess)
             output = self.postprocess(output)
         else:
             output = self.explain_handle(data_preprocess, data)
-
         stop_time = time.time()
-        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        metrics.add_time('HandlerTime', round((stop_time - start_time) / 100 * 1000, 2), None, 'ms')
         return output
 
     def explain_handle(self, data_preprocess, raw_data):

@@ -48,13 +48,19 @@ public class WorkerLifeCycle {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
-        String[] args = new String[6];
+        String[] args = new String[12];
         args[0] = EnvironmentUtils.getPythonRunTime(model);
-        args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
-        args[2] = "--sock-type";
-        args[3] = connector.getSocketType();
-        args[4] = connector.isUds() ? "--sock-name" : "--port";
-        args[5] = connector.getSocketPath();
+        args[1] = "-m";
+        args[2] = "intel_extension_for_pytorch.cpu.launch";
+        args[3] = "--ninstances";
+        args[4] = "1";
+        args[5] = "--ncore_per_instance";
+        args[6] = "22";
+        args[7] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
+        args[8] = "--sock-type";
+        args[9] = connector.getSocketType();
+        args[10] = connector.isUds() ? "--sock-name" : "--port";
+        args[11] = connector.getSocketPath();
 
         String[] envp =
                 EnvironmentUtils.getEnvString(
