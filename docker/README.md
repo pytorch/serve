@@ -33,7 +33,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`. Default `cu102`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`. Default `cu102`|
 |--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
 
 
@@ -47,7 +47,7 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`
+ - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`
 
   ```bash
   ./build_image.sh -g -cv cu102
@@ -76,6 +76,12 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ```
 
 
+- For creating GPU based image with cuda version 11.3:
+
+```bash
+./build_image.sh -bt dev -g -cv cu113
+```
+
 - For creating GPU based image with cuda version 11.1:
 
 ```bash
@@ -103,6 +109,10 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 - For creating GPU based image with a different branch:
 
 ```bash
+./build_image.sh -bt dev -g -cv cu113 -b my_branch
+```
+
+```bash
 ./build_image.sh -bt dev -g -cv cu111 -b my_branch
 ```
 
@@ -123,6 +133,10 @@ Creates a docker image for codebuild environment
 ```
 
 - For creating GPU based image with cuda version 11.1:
+
+```bash
+./build_image.sh -bt codebuild -g -cv cu113
+```
 
 ```bash
 ./build_image.sh -bt codebuild -g -cv cu111
