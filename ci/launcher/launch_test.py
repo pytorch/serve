@@ -74,7 +74,9 @@ def launch_ec2_instance(region, instance_type, ami_id):
     github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
     github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "local-start").strip()
     github_hookshot = github_hookshot.replace("/", "-")
-    github_pull_request_number = github_hookshot.split("-")[1]
+    
+    # Extract the PR number or use the last 6 characters of the commit id
+    github_pull_request_number = github_hookshot.split("-")[1] if "-" in github_hookshot else github_hookshot[-6:]
 
     ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=region)
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
