@@ -1020,7 +1020,11 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
         channel.close().sync();
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(channel, "memory_error", null, false);
+        TestUtils.getLatch().await();
+        channel.close().sync();
     }
 
     @Test(
