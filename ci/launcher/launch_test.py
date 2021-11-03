@@ -72,7 +72,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
     """
     github_repo = os.environ.get("CODEBUILD_SOURCE_REPO_URL", "https://github.com/pytorch/serve.git").strip()
     github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
-    github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "local-start").strip()
+    github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "job-local").strip()
     github_hookshot = github_hookshot.replace("/", "-")
     
     # Extract the PR number or use the last 6 characters of the commit id
