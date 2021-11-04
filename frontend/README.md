@@ -5,7 +5,14 @@ TorchServe REST API endpoint
 
 ### Building frontend
 
-You can build frontend using gradle:
+You can build the frontend using gradle:
+
+```sh
+$ cd frontend
+$ ./gradlew -p frontend clean assemble
+```
+
+And you can build and test the front by running
 
 ```sh
 $ cd frontend
