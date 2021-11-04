@@ -80,14 +80,9 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
-        data = torch.rand(1, 3, 224, 224)
         if ipex_enabled:
-            data = data.to(memory_format=torch.channels_last)
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model, dtype=torch.float32, level='O1')
-
-        self.model = torch.jit.trace(self.model, data)
-        self.model = torch.jit.freeze(self.model)
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
