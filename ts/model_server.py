@@ -73,7 +73,9 @@ def start():
 
             cmd.append("-Djava.io.tmpdir={}".format(tmp_dir))
 
-        ts_config = args.ts_config
+        ts_config = os.environ.get("TS_CONFIG_FILE")
+        if ts_config is None:
+            ts_config = args.ts_config
         ts_conf_file = None
         if ts_config:
             if not os.path.isfile(ts_config):
