@@ -402,7 +402,7 @@ public final class ApiUtils {
     public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
         String responseMessage = "Model \"" + modelName;
 
-        if (modelVersion == null) {
+        if (modelVersion != null) {
             responseMessage += "\" Version " + modelVersion;
         }
 
