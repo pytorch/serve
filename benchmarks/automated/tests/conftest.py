@@ -97,51 +97,6 @@ def get_model_config_paths():
     return model_config_paths
 
 
-@pytest.fixture(scope="function")
-def wf_dog_breed_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "wf_dog_breed.yaml")
-
-
-@pytest.fixture(scope="function")
-def wf_nmt_retranslation_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "wf_nmt_retranslation.yaml")
-
-
-@pytest.fixture(scope="function")
-def wf_nmt_dualtranslation_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "wf_nmt_dualtranslation.yaml")
-
-
-@pytest.fixture(scope="function")
-def bert_neuron_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "bert_neuron.yaml")
-
-
-@pytest.fixture(scope="function")
-def vgg11_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "vgg11.yaml")
-
-
-@pytest.fixture(scope="function")
-def vgg16_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "vgg16.yaml")
-
-
-@pytest.fixture(scope="function")
-def bert_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "bert.yaml")
-
-
-@pytest.fixture(scope="function")
-def mnist_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "mnist.yaml")
-
-
-@pytest.fixture(scope="function")
-def fastrcnn_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "fastrcnn.yaml")
-
-
 @pytest.fixture(scope="session")
 def region():
     return os.getenv("AWS_DEFAULT_REGION", DEFAULT_REGION)
