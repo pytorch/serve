@@ -38,6 +38,6 @@ def test_model_benchmark(
 
     benchmarkHandler = benchmark_utils.BenchmarkHandler(model_name, benchmark_execution_id, ec2_connection, is_local_execution)
 
-    benchmarkHandler.execute_docker_benchmark(
+    benchmarkHandler.execute_benchmark(
         test_config, ec2_instance_type, cuda_version_for_instance, docker_repo_tag_for_current_instance
     )
