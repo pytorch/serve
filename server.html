@@ -408,10 +408,8 @@ optional arguments:
 <p>There are no default required arguments to start the server</p>
 <ol>
 <li><p><strong>models</strong>: optional, &lt;model_name&gt;=&lt;model_path&gt; pairs.</p>
-<p>a) Model path can be mar file name in model store or URI (s3 link, or http link).
-s3 link: s3://S3_endpoint[:port]/…
-http link: http://hostname/path/to/resource</p>
-<p>b) to load all the models in model store set model value to “all”</p>
+<p>a) Model path can be a local mar file name or a remote http link to a mar file
+b) to load all the models in model store set model value to “all”</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --model-store /models --start --models all
 </pre></div>
 </div>
