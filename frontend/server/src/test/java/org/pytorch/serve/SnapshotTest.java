@@ -240,8 +240,12 @@ public class SnapshotTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.registerModel(managementChannel, "noop.mar", "noop_zero", false, false);
+        TestUtils.getLatch().await();
         waitForSnapshot(2000);
-        TestUtils.unregisterModel(managementChannel, "noop_zero", null, true);
+
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.unregisterModel(managementChannel, "noop_zero", null, false);
+        TestUtils.getLatch().await();
         validateSnapshot("snapshot9.cfg");
         waitForSnapshot();
     }

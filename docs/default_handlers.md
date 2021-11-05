@@ -30,7 +30,7 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 
 ## text_classifier
 
-* Description : Handles models trained on the ImageNet dataset.
+* Description : Handles models trained on the AG_NEWS dataset.
 * Input : text file
 * Output : Class of input text. (No batching supported)
 

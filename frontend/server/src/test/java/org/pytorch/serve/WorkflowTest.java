@@ -454,7 +454,7 @@ public class WorkflowTest {
         TestUtils.setLatch(new CountDownLatch(1));
         Assert.assertNotNull(channel);
 
-        TestUtils.unregisterWorkflow(channel, "pred-err", true);
+        TestUtils.unregisterWorkflow(channel, "pred-err", false);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
