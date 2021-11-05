@@ -165,11 +165,7 @@ public class WorkLoadManager {
             int gpuId = -1;
 
             if (maxGpu > 0) {
-                gpuId =
-                        ConfigManager.getGpuIds()
-                                .get(
-                                        gpuCounter.accumulateAndGet(
-                                                maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId));
+                gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
             }
 
             BatchAggregator aggregator = new BatchAggregator(model);
