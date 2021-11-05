@@ -50,7 +50,11 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
                     warn=True,
                     pty=True,
                     shell="/bin/bash",
-                    env={"LC_CTYPE": "en_US.utf8", "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64"},
+                    env={
+                        "LC_CTYPE": "en_US.utf8",
+                        "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
+                        "PYTHONIOENCODING": "utf8",
+                    },
                 )
 
                 if ret_obj.return_code != 0:
@@ -74,7 +78,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
     github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
     github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "job-local").strip()
     github_hookshot = github_hookshot.replace("/", "-")
-    
+
     # Extract the PR number or use the last 6 characters of the commit id
     github_pull_request_number = github_hookshot.split("-")[1] if "-" in github_hookshot else github_hookshot[-6:]
 
@@ -105,7 +109,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
 
         # Create a fabric connection to the ec2 instance.
         ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
-        
+
         LOGGER.info(f"Running update command. This could take a while.")
         ec2_connection.run(f"sudo apt update")
 
