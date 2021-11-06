@@ -55,6 +55,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
                         "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
                         "PYTHONIOENCODING": "utf8",
                     },
+                    encoding="utf8"
                 )
 
                 if ret_obj.return_code != 0:
