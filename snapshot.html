@@ -325,6 +325,7 @@
   <section id="torchserve-model-snapshot">
 <h1><span class="section-number">13. </span>TorchServe model snapshot<a class="headerlink" href="#torchserve-model-snapshot" title="Permalink to this headline">¶</a></h1>
 <p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart.</p>
+<p><strong>Note:</strong> Current snapshot does not support workflow.</p>
 <p>A TorchServe’s snapshot consists of following:</p>
 <ul class="simple">
 <li><p>Server configuration, which comprises: Which models are running, which versions of those models, and how many workers are active for each model.</p></li>
