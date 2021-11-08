@@ -181,7 +181,7 @@ class BenchmarkHandler:
                     time.sleep(3)
 
                     run(
-                        f"aws s3 cp --recursive /tmp/{self.model_name}/ {S3_BUCKET_BENCHMARK_ARTIFACTS}/{self.model_name}/{ec2_instance_type}/{mode}/{batch_size}"
+                        f"aws s3 cp --recursive /tmp/{self.model_name}/ {S3_BUCKET_BENCHMARK_ARTIFACTS}/{self.benchmark_execution_id}/{self.model_name}/{ec2_instance_type}/{mode}/{batch_size}"
                     )
 
                     run(f"rm -rf /tmp/{self.model_name}")
