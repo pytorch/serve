@@ -10,7 +10,7 @@ cd torchprep
 poetry install
 ```
 
-## Install from Pypi
+## Install from Pypi (Coming soon)
 
 ```sh
 pip install torchprep
@@ -50,3 +50,4 @@ poetry publish --build
 ## Coming soon
 * Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
 * Automated release with github actions
+* TensorRT and IPEX support
