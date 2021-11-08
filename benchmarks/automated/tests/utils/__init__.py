@@ -93,7 +93,7 @@ class YamlHandler(object):
 
     mandatory_docker_config_keys = ["docker_tag"]
 
-    optional_docker_config_keys = ["cuda_version"]
+    optional_docker_config_keys = ["cuda_version", "dockerhub_image"]
 
     valid_docker_config_keys = mandatory_docker_config_keys + optional_docker_config_keys
 
