@@ -33,7 +33,6 @@ vgg11:
         concurrency: 100
         backend_profiling: False
         exec_env: "docker"
-        dockerhub_image:  "pytorch/torchserve:latest"
         processors:
             - "cpu"
             - "gpus": "all"
