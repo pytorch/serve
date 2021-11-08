@@ -145,8 +145,8 @@ def install_dependencies(cuda_version=None):
     system.install_python_packages(cuda_version, requirements_file_path)
 
     if args.environment == "dev":
-        # system.install_nodejs()
-        # system.install_node_packages()
+        system.install_nodejs()
+        system.install_node_packages()
         system.install_wget()
     
 
