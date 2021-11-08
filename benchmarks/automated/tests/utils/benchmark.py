@@ -127,8 +127,7 @@ class BenchmarkHandler:
                         LOGGER.info(f"Running benchmark for model archive: {url}")
 
                     # Stop torchserve
-                    if exec_env != "docker":
-                        torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name=exec_env)
+                    torchserveHandler.stop_torchserve(exec_env=exec_env, virtual_env_name=exec_env)
 
                     # Generate bert inf model
                     if "neuron" in exec_env:
