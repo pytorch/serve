@@ -80,6 +80,7 @@ class BenchmarkHandler:
             for mode, mode_config in config.items():
                 mode_list.append(mode)
                 benchmark_engine = mode_config.get("benchmark_engine")
+                url = mode_config.get("url")
                 workers = mode_config.get("workers")
                 batch_delay = mode_config.get("batch_delay")
                 batch_sizes = mode_config.get("batch_size")
