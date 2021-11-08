@@ -121,8 +121,9 @@ class BenchmarkHandler:
                     torchserveHandler.setup_torchserve(virtual_env_name=exec_env)
 
                 for batch_size in batch_sizes:
-                    url = f"benchmark_{batch_size}.mar"
-                    LOGGER.info(f"Running benchmark for model archive: {url}")
+                    if "inferentia" in processors:
+                        url = f"benchmark_{batch_size}.mar"
+                        LOGGER.info(f"Running benchmark for model archive: {url}")
 
                     # Stop torchserve
                     if exec_env != "docker":
