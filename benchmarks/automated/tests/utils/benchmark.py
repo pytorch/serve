@@ -132,7 +132,7 @@ class BenchmarkHandler:
                     # Generate bert inf model
                     if "neuron" in exec_env:
                         neuron_utils.setup_neuron_mar_files(
-                            connection=self.connection, virtual_env_name="aws_neuron_pytorch_p36", batch_size=batch_size
+                            connection=self.connection, virtual_env_name=exec_env, batch_size=batch_size
                         )
 
                     # Start torchserve
