@@ -182,6 +182,7 @@ public class WorkerThread implements Runnable {
                 req = aggregator.getRequest(workerId, state);
 
                 long wtStartTime = System.currentTimeMillis();
+                logger.info("Flushing req. to backend at: " + wtStartTime);
                 backendChannel.writeAndFlush(req).sync();
 
                 long begin = System.currentTimeMillis();

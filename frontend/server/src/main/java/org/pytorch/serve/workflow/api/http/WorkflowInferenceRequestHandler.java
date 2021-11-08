@@ -18,6 +18,7 @@ import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -96,7 +97,8 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
         if (HttpPostRequestDecoder.isMultipart(req)
                 || HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(
                         contentType)) {
-            HttpDataFactory factory = new DefaultHttpDataFactory(6553500);
+            HttpDataFactory factory =
+                    new DefaultHttpDataFactory(ConfigManager.getInstance().getMaxRequestSize());
             HttpPostRequestDecoder form = new HttpPostRequestDecoder(factory, req);
             try {
                 while (form.hasNext()) {
