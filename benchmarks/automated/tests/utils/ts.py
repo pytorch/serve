@@ -190,8 +190,8 @@ class TorchServeHandler(object):
         Typically should be run after every benchmark configuration completes. 
         :param model_name: The name of the model to unregister
         """
-        run_out = self.connection.run(f'curl -X DELETE "http://localhost:8081/models/{model_name}/1.0"', warn=True)
-        LOGGER.info(f'curl -X DELETE "http://localhost:8081/models/{model_name}/1.0"')
+        run_out = self.connection.run(f'curl -X DELETE "http://localhost:8081/models/{model_name}/"', warn=True)
+        LOGGER.info(f'curl -X DELETE "http://localhost:8081/models/{model_name}/"')
         LOGGER.info(f"stdout: {run_out.stdout}")
 
         time.sleep(10)
