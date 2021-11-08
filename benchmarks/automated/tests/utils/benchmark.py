@@ -65,6 +65,12 @@ class BenchmarkHandler:
         batch_size_list = []
         processor_list = []
 
+        if self.is_local_execution:
+            ec2_instance_type = "local_execution"
+            LOGGER.info(f"*** Note: Executing benchmark on the current instance.")
+        else:
+            ec2_instance_type = ec2_instance_type
+
         ec2_instance_type = "local_execution" if self.is_local_execution else ec2_instance_type
         apacheBenchHandler = ab_utils.ApacheBenchHandler(model_name=self.model_name, connection=self.connection)
 
@@ -111,24 +117,30 @@ class BenchmarkHandler:
                 )
 
                 # Note: Assumes a DLAMI (conda-based) is being used
-                torchserveHandler.setup_torchserve(virtual_env_name="aws_neuron_pytorch_p36")
+                if exec_env != "docker":
+                    torchserveHandler.setup_torchserve(virtual_env_name=exec_env)
 
                 for batch_size in batch_sizes:
                     url = f"benchmark_{batch_size}.mar"
                     LOGGER.info(f"Running benchmark for model archive: {url}")
 
                     # Stop torchserve
-                    torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name="aws_neuron_pytorch_p36")
+                    if exec_env != "docker":
+                        torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name=exec_env)
 
                     # Generate bert inf model
-                    neuron_utils.setup_neuron_mar_files(
-                        connection=self.connection, virtual_env_name="aws_neuron_pytorch_p36", batch_size=batch_size
-                    )
+                    if "neuron" in exec_env:
+                        neuron_utils.setup_neuron_mar_files(
+                            connection=self.connection, virtual_env_name="aws_neuron_pytorch_p36", batch_size=batch_size
+                        )
 
                     # Start torchserve
-                    torchserveHandler.start_torchserve_local(
-                        virtual_env_name="aws_neuron_pytorch_p36", stop_torchserve=False
-                    )
+                    if exec_env != "docker":
+                        torchserveHandler.start_torchserve_local(
+                            virtual_env_name=exec_env, stop_torchserve=False
+                        )
+                    else:
+                        torchserveHandler.start_torchserve_docker()
 
                     # Register
                     torchserveHandler.register_model(
@@ -144,7 +156,10 @@ class BenchmarkHandler:
                     torchserveHandler.unregister_model()
 
                     # Stop torchserve
-                    torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name="aws_neuron_pytorch_p36")
+                    if exec_env != "docker":
+                        torchserveHandler.stop_torchserve()
+                    else:
+                        torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name=exec_env)
 
                     # Generate report (note: needs to happen after torchserve has stopped)
                     apacheBenchHandler.generate_report(
