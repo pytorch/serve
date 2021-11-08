@@ -152,6 +152,7 @@ def install_dependencies(cuda_version=None):
     system = os_map[platform.system()]()
 
     if platform.system() == "Linux" and args.environment == "dev":
+        system.install_wget()
         system.install_libgit2()
         system.install_maven()
 
