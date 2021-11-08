@@ -12,7 +12,6 @@ torchprep = "torchprep.main:app"
 python = "^3.9"
 typer = {extras = ["all"], version = "^0.4.0"}
 torch = "^1.9.1"
-transformers = "^4.11.3"
 tqdm = "^4.62.3"
 
 [tool.poetry.dev-dependencies]
