@@ -41,8 +41,7 @@ model_store=/mnt/models/model-store
 * Set service envelope environment variable
 
 The 
-```export TS_SERVICE_ENVELOPE=kfserving``` or ```TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between
-KFServing v1 and v2 protocols
+```export TS_SERVICE_ENVELOPE=kfserving``` or ```export TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between KFServing v1 and v2 protocols. This is set by the controller in KFServing cluster.
 
 * start Torchserve by invoking the below command:
 ```

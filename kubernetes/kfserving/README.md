@@ -38,9 +38,9 @@ DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:lates
 
 Individual Readmes for KFServing :
 
-* [BERT](./examples/Huggingface_readme.md)
-* [Text Classifier](./examples/text_classifier_readme.md)
-* [MNIST](./examples/mnist_readme.md)
+* [BERT](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/Huggingface_readme.md)
+* [Text Classifier](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/text_classifier_readme.md)
+* [MNIST](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/mnist_readme.md)
 
 Please follow the below steps to deploy Torchserve in Kubeflow Cluster as kfpredictor:
 
@@ -50,7 +50,7 @@ Run the below command inside the serve folder
 ```bash
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
-For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](./examples/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](./examples/text_classifier_readme.md#mar-file-creation). 
+For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation). 
 
 
 * Step - 2 : Create a config.properties file and place the contents like below:
@@ -292,7 +292,7 @@ The response is as below :
 }
 ```
 
-* For v2 protocol
+### For v2 protocol
 
 * The Curl Request to make a prediction as below :
 
@@ -408,7 +408,7 @@ For v2 protocol
 }
 ```
 
-For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](./examples/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](./examples/text_classifier_readme.md#mar-file-creation).
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
 
 
 ### Troubleshooting guide for KFServing :
