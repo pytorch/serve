@@ -82,7 +82,7 @@ class PredictionException(Exception):
     def __init__(self, message, error_code=500):
         self.message = message
         self.error_code = error_code
-        super(PredictionException, self).__init__(message)
+        super().__init__(message)
 
     def __str__(self):
         return "message : error_code".format(message=self.message, error_code=self.error_code)
