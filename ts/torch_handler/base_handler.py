@@ -40,7 +40,7 @@ class BaseHandler(abc.ABC):
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
-          First try to load torchscript else load eager mode state_dict based model.
+	   First try to load torchscript else load eager mode state_dict based model.
 
         Args:
             context (context): It is a JSON Object containing information
@@ -216,7 +216,7 @@ class BaseHandler(abc.ABC):
             output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
-        metrics.add_time('HandlerTime', round((stop_time - start_time) / 100 * 1000, 2), None, 'ms')
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return output
 
     def explain_handle(self, data_preprocess, raw_data):
