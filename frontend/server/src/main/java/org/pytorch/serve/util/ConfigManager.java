@@ -78,6 +78,7 @@ public final class ConfigManager {
     private static final String TS_PRIVATE_KEY_FILE = "private_key_file";
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
+    private static final String TS_LIMIT_MAX_IMAGE_PIXELS = "limit_max_image_pixels";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
@@ -604,6 +605,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nLimit Maximum Image Pixels: "
+                + prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nAllowed Urls: "
@@ -634,6 +637,10 @@ public final class ConfigManager {
 
     public int getMaxRequestSize() {
         return getIntProperty(TS_MAX_REQUEST_SIZE, 6553500);
+    }
+
+    public boolean isLimitMaxImagePixels() {
+        return Boolean.parseBoolean(prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true"));
     }
 
     public void setProperty(String key, String value) {

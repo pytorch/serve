@@ -42,6 +42,12 @@ Please note that the batch size, the initial worker and synchronous values can b
 
 ### The curl request for Inference is as below:
 
+The image file can be converted into string of bytes array by running
+  
+``` 
+python img2bytearray.py <imagefile>
+```
+
 When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```bash
  curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
@@ -91,6 +97,8 @@ The Explanation response is as below :
   ]
 }
 ```
+
+### Static batching:
 
 KFServing supports Static batching by adding new examples in the instances key of the request json
 But the batch size should still be set at 1, when we register the model. Explain doesn't support batching.

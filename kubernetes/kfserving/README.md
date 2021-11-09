@@ -30,12 +30,6 @@ Currently, KFServing supports the Inference API for all the existing models but 
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-Individual Readmes for KFServing :
-
-* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
-* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md)
-* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md)
-
 Please follow the below steps to deploy Torchserve in Kubeflow Cluster as kfpredictor:
 
 * Step - 1 : Create the .mar file for mnist by invoking the below command :
@@ -71,227 +65,42 @@ The below sequence of steps need to be executed in the Kubeflow cluster.
 
 * Step - 3 : Create PV, PVC and PV pods in KFServing
 
- You need to Create a volume in EC2 for EBS storage PV, PVC and PV pod. You can see below the examples of the pv.yaml, pvc.yaml and pv_pod.yaml.
+Follow the instructions in the link below for creating PV and copying the config files
 
-pv.yaml:
-
-```yaml
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: model-pv-volume
-  labels:
-    type: "amazonEBS"
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-      - ReadWriteOnce
-  awsElasticBlockStore:
-    volumeID: {volume-id} #vol-074ea8934f7080df5
-    fsType: ext4
-```
-
-```bash
-kubectl apply -f pv.yaml -n kfserving-test
-```
-
-pvc.yaml:
-
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: model-pv-claim
-  labels:
-    type: "amazonEBS"
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-```
-
-```bash
-kubectl apply -f pvc.yaml -n kfserving-test
-```
-
-pv_pod.yaml:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
- name: model-store-pod
-spec:
- volumes:
-   - name: model-store
-     persistentVolumeClaim:
-       claimName: model-pv-claim
- containers:
-   - name: model-store
-     image: ubuntu
-     command: [ "sleep" ]
-     args: [ "infinity" ]
-     volumeMounts:
-       - mountPath: "/pv/"
-         name: model-store
-```
-
-```bash
-kubectl apply -f pv_pod.yaml -n kfserving-test
-```
+[Steps for creating PVC](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
 
 
-* Step - 4 : Copy the Model Files and Config Properties.
- 
-First, create the model store and the config directory using the below command :
-```bash
-kubectl exec -t model-store-pod -c model-store -n kfserving-test -- mkdir /pv/model-store/
-kubectl exec -t model-store-pod -c model-store -n kfserving-test -- mkdir /pv/config/
-```
+* Step - 4 : Create the Inference Service
 
-Now, copy the .mar file that we created in the previous step and the config.properties with the commands below:
+Refer the following linn to create an inference service
 
-```bash
-kubectl cp mnist.mar model-store-pod:/pv/model-store/mnist.mar -c model-store -n kfserving-test 
-kubectl cp config.properties model-store-pod:/pv/config/config.properties -c model-store -n kfserving-test 
-```
+[Creating inference service](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
 
-* Step - 5 : Create the Inference Service
-
-CPU Deployment : For deployment in CPU the sample yaml file is shown as below 
-
-ts-sample.yaml 
-
-```yaml
-apiVersion: "serving.kubeflow.org/v1beta1"
-kind: "InferenceService"
-metadata:
-  name: "torch-pred"
-spec:
-  predictor:
-    pytorch:
-      storageUri: "pvc://model-pv-claim"
-```
-
-To deploy the Torchserve Inference Service in CPU use the below command :
-
-```bash
-kubectl apply -f ts-sample.yaml -n kfserving-test
-```
-
-* Step - 6 : Check if the Inference Service is up and running : 
-
-Use the below command for the check 
-```bash
-kubectl get inferenceservice torch-pred -n kfserving-test
-```
-
-This shows the service is ready for inference:
-```bash
-NAME         URL                                            READY   AGE
-torch-pred   http://torch-pred.kfserving-test.example.com   True    39m
-```
-
-* Step - 7 : Hit the Curl Request to make a prediction as below :
-
-Navigate to serve/kubernetes/kfserving/
-
-The image file can be converted into string of bytes array by running  
-``` 
-python img2bytearray.py <imagefile>
-```
-
-The JSON Input content is as below :
-
-```json
-{
-  "instances": [
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    }
-  ]
-}
-```
+* Step - 5 : Hit the Curl Request to make a prediction as below :
 
 ```bash
 DEPLOYMENT_NAME=torch-pred
 SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 
-curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:predict -d @./input.json
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:predict -d @<path-to-input-file>
 ```
 
-The response is as below :
 
-```json
-{
-  "predictions": [
-    2
-  ]
-}
-```
-
- * Step - 8 : Hit the Curl Request to make an explanation as below:
+ * Step - 6 : Hit the Curl Request to make an explanation as below:
 
 
 ```bash
-curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/mnist:explain -d @./input.json
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:explain -d @<path-to-input-file>
 ```
 
-The JSON Input content is as below :
+Refer the individual Readmes for KFServing :
 
-```json
-{
-  "instances": [
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    }
-    
-  ]
-}
-```
+* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
+* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md)
+* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md)
 
-The response is as below :
-```json
-{
-  "explanations": [
-    [
-      [
-        [
-          0.004570948731989492,
-          0.006216969640322402,
-          0.008197565423679522,
-          0.009563574612830427,
-          0.008999274832810742,
-          0.009673474804303854,
-          0.007599905146155397,
-          ,
-          ,
-        ]
-      ]
-    ]
-  ]
-}
-```
-
-KFServing supports Static batching by adding new examples in the instances key of the request json.
-But the batch size should still be set at 1, when we register the model. Explain doesn't support batching. 
-
-```json
-{
-  "instances": [
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    },
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    }
-  ]
-}
-```
+KFServing supports static batching for prediction - Refer the [link](mnist_readme.md#Static batching:) for an example
 
 For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
 
@@ -328,3 +137,18 @@ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -
 DEPLOYMENT_NAME=_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 ```
+
+## Autoscaling
+One of the main serverless inference features is to automatically scale the replicas of an `InferenceService` matching the incoming workload.
+KFServing by default enables [Knative Pod Autoscaler](https://knative.dev/docs/serving/autoscaling/) which watches traffic flow and scales up and down
+based on the configured metrics.
+
+[Autoscaling Example](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/autoscaling/README.md)
+
+## Canary Rollout
+Canary rollout is a deployment strategy when you release a new version of model to a small percent of the production traffic.
+
+[Canary Deployment](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/canary/README.md)
+
+## Monitoring
+[Expose metrics and setup grafana dashboards](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/metrics/README.md)
