@@ -44,7 +44,7 @@ Run the below command inside the serve folder
 ```bash
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
-For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation). 
+For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation). 
 
 
 * Step - 2 : Create a config.properties file and place the contents like below:
@@ -115,6 +115,25 @@ Refer the individual Readmes for KFServing :
 
 KFServing supports static batching for prediction - Refer the [link](mnist_readme.md#Static batching:) for an example
 
+For v1 protocol
+
+```json
+{
+  "inputs": [{
+    "name": "a5c32978-fe42-4af0-a1c6-7dded82d12aa",
+    "shape": [37],
+    "datatype": "INT64",
+    "data": [66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114, 101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32, 101, 99, 111, 110, 111, 109, 121]
+  },
+  {
+    "name": "a5c32978-fe42-4af0-a1c6-7dded82d12ab",
+    "shape": [37],
+    "datatype": "INT64",
+    "data": [66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114, 101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32, 101, 99, 111, 110, 111, 109, 121]
+  }]
+}
+```
+
 For v2 protocol
 
 ```json
@@ -134,7 +153,8 @@ For v2 protocol
 }
 ```
 
-For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/tree/master/kubernetes/kfserving/text_classifier_readme.md#mar-file-creation).
+
 
 
 ### Troubleshooting guide for KFServing :
