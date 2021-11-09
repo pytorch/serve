@@ -138,6 +138,48 @@ The final benchmark report will be available in markdown format as `report.md` i
  |--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 
  | AB | vgg11 | 100 | 1000 | 0 | 3.47 | 28765 | 29849 | 30488 | 28781.227 | 0.0 | 1576.24 | 1758.28 | 1758.28 | 2249.52 | 2249.34 | 25210.43 | 46.77 | 
 
+## Specifying benchmark and docker config.
+
+### The global benchmark config can be specified at `serve/benchmarks/automated/tests/suite/benchmark/config.yaml`
+| Field                         | Description                                                                                        | Possible value(s) \| type(s)   |
+|-------------------------------|----------------------------------------------------------------------------------------------------|--------------------------------|
+| aws_region                    | Specify the AWS region in which the benchmark executes                                             | us-west-2 (default)            |
+| iam_instance_profile          | The IAM role that will be attached to the ec2 instances that are spun up for the benchmark         | EC2Admin (default)             |
+| s3_bucket_benchmark_artifacts | S3 Bucket where the logs and results of the benchmark run are stored                               | s3://<bucket_name>             |
+| docker_default_dev_ecr_repo   | ECR repo where the container built for the current benchmark run is stored (if exec_env is docker) | torchserve-benchmark (default) |
+| default_docker_dev_ecr_tag    | Tag for the container image built to be used for benchmark                                         | dev-image                      |
+| ami_id                        | AMI-id to be used for the ec2 instances being used [Note: must be a ubuntu-based AMI]              | ami-00c5ebd9076702cbe          |
+
+### The global docker config can be specified at `serve/benchmarks/automated/tests/suite/benchmark/config.yaml`
+| Field           | Description                                                                                                                                                                                           | Possible value(s) \| type(s)                                |
+|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| gpu             | A dictionary of the following key:value pairs  docker_tag: <tag_value> cuda_version: <cuda_version>  The cuda version is used to build the container image with specified and supported cuda version. | docker_tag:"gpu-dev-image" cuda_version: "cu102"  (default) |
+| cpu             | Similar to the GPU specification above, but without the cuda_version                                                                                                                                  | docker_tag: "cpu-dev-image"  (default)                      |
+| dockerhub_image | Instead of building a docker image, simply specify an already-public image that is pullable using docker pull                                                                                         | pytorch/torchserve:latest (default)                         |
+
+## Adding a new model to be benchmarked
+Add a <model_name>.yaml file at the path `serve/benchmarks/automated/tests/suite/`. The model name of the *.yaml should be unique w.r.t rest of the models. The yaml file can have the following fields. 
+| Field             | Description                                                                                                 | Possible values/type                   |
+|-------------------|-------------------------------------------------------------------------------------------------------------|----------------------------------------|
+| benchmark_engine  | Apache-bench, or locust (yet to be added)                                                                   | "ab"                                   |
+| url               | a public link for the model                                                                                 | string                                 |
+| workers           | number of workers to be used with this model                                                                | int                                    |
+| batch_delay       | batch delay in ms for the model                                                                             | int                                    |
+| batch_size        | list of batch sizes to loop through for benchmarking                                                        | [list of ints]                         |
+| input             | the sample input for the model, specified as a url                                                          | string                                 |
+| requests          | Number of requests to be used in benchmark                                                                  | int                                    |
+| concurrency       | Number of users making an inference request                                                                 | int                                    |
+| backend_profiling | Whether you'd want to turn on backend profiling for the benchmark                                           | True/False                             |
+| exec_env          | Either 'docker', or a python virtual environment that is ALREADY available on the ec2 AMI to be used        | docker or <py_virtual_env>             |
+| processors        | Specify whether a CPU or a GPU processor should be used. Accordingly, a CPU or a GPU container will be used | "cpu" or "gpus":"<num_of_gpus_to_use>" |
+| instance_types    | Note: This is specified outside of model config. Any valid ec2 instance type may be used                    | e.g. ,"p3.8xlarge", "c4.4xlarge"       |
+
+In order to benchmark only this new model, specify the `--run-only` option.
+```
+python benchmarks/automated/run_benchmark.py --local-execution --run-only <model_name> --local-instance-type p3.8xlarge
+```
+`Note: The --run-only options runs all the models that contain the string specified as the argument`
+
 
 ## Features of the automation:
 1. To save time by *not* creating new instances for every benchmark run for local testing, use the '--do-not-terminate' flag. This will automatically create a file called 'instances.yaml' and write instance-related data into the file so that it may be re-used next time.
