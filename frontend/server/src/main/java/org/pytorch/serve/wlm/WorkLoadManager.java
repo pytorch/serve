@@ -161,7 +161,6 @@ public class WorkLoadManager {
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = configManager.getNumberOfGpu();
-        logger.info("maxGpu="+maxGpu);
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 

@@ -127,7 +127,6 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
-    private static List<Integer> gpuIds = new ArrayList<>();
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -730,6 +729,7 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
+            List<Integer> gpuIds = new ArrayList<>();
             String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
             if (visibleCuda != null && !visibleCuda.isEmpty()) {
                 String[] ids = visibleCuda.split(",");
@@ -835,10 +835,6 @@ public final class ConfigManager {
             }
         }
         return value;
-    }
-
-    public static List<Integer> getGpuIds() {
-        return gpuIds;
     }
 
     public static final class Arguments {
