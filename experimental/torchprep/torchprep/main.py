@@ -1,6 +1,6 @@
 import typer
 import torch
-from typing import List
+from typing import List, Union
 import time
 import os
 from enum import Enum
@@ -29,10 +29,6 @@ class Architecture(str, Enum):
 
 
 @app.command()
-def hello() -> None:
-    typer.echo(f"Hello torchprep")
-
-@app.command()
 def distill(model_path : Path, device : Device, parameter_scaling : int, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
     """
     Create a smaller student model by setting a distillation ratio and teach it how to behave exactly like your existing model
@@ -41,34 +37,57 @@ def distill(model_path : Path, device : Device, parameter_scaling : int, layer_s
     typer.echo("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
-def fuse(model_path : Path, device : Device = Device.cpu) -> torch.nn.Module:
+def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Requires Pytorch Nightly
     https://github.com/pytorch/pytorch/blob/master/torch/fx/experimental/optimization.py#L234
     """
     model = load_model(model_path, device)
-    optimized_model = torch.fx.experimental.optimization.optimize_for_inference(model)
+    profile = map(int,input_shape.split(','))
 
+    # TODO: Int valued tensors
+    input_tensor = torch.randn(*profile)
+    model = torch.jit.trace(model,input_tensor)
+    optimized_model = torch.jit.optimize_for_inference(model)
+
+    # TODO: RuntimeError: Tried to serialize object __torch__.torchvision.models.resnet.___torch_mangle_837.ResNet which does not have a __getstate__ method defined!
     torch.save(optimized_model, 'optimized_model.pt') 
     return optimized_model
-    typer.echo("coming soon")
 
 @app.command()
-def env_variables(model_path : Path, architecture : Architecture) -> None:
+def profile(model_path : Path, iterations : int = 100, device : Device = Device.cpu,
+ input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape"),
+  input_type : str = typer.Option(default=None, help="data type of input tensor float or int")) -> List[float]:
+    if iterations < 100:
+        typer.echo("Please set iterations > 100")
+        return 
+    model = load_model(model_path, device)
+    profile = map(int,input_shape.split(','))
+
+    # TODO: Int shaped tensors
+    input_tensor = torch.randn(*profile)
+
+    if device == Device.gpu:
+        model.to(torch.device("cuda"))
+        input_tensor.to(torch.device("cuda"))
+    return profile_model(model, input_tensor, iterations)
+
+@app.command()
+def env(device : Device = Device.cpu) -> None:
     """
     Set environment variables for optimized inference. Run this command on the machine where inference will happen!
     """
-    if architecture == Architecture.ipex:
+    if device == Device.cpu:
         os.environ["OMP_NUM_THREADS"] = 1
         os.environ["KMP_BLOCKTIME"] = 1
     else:
-        typer.echo(f"support for architecture {architecture} coming soon")
+        typer.echo(f"support for architecture {device} coming soon")
 
 
 @app.command()
 def quantize(model_path : Path, precision : Precision ,
- device : Device = Device.cpu, profile : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
+ device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
     # TODO: define model output path
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
@@ -94,8 +113,8 @@ def quantize(model_path : Path, precision : Precision ,
     print_size_of_model(model, label = "base model")
     print_size_of_model(quantized_model, label = "quantized_model")
     
-    if profile:
-        profile = map(int,profile.split(','))
+    if input_shape:
+        profile = map(int,input_shape.split(','))
         input_tensor = torch.randn(*profile)
         profile_model(model, input_tensor, label = "base model")
         profile_model(quantized_model, input_tensor, label = "quantized_model")
