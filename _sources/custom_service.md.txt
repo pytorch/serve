@@ -137,6 +137,33 @@ class ModelHandler(object):
 
 ### Advanced custom handlers
 
+#### Returning custom error codes
+
+To return a custom error code back to the user via custom handler with `module` level entry point.
+
+```python
+from ts.utils.util import PredictionException
+def handle(data, context):
+    # Some unexpected error - returning error code 513
+    raise PredictionException("Some Prediction Error", 513)
+```
+
+To return a custom error code back to the user via custom handler with `class` level entry point.
+
+```python
+from ts.torch_handler.base_handler import BaseHandler
+from ts.utils.util import PredictionException
+
+class ModelHandler(BaseHandler):
+    """
+    A custom model handler implementation.
+    """
+
+    def handle(self, data, context):
+        # Some unexpected error - returning error code 513
+        raise PredictionException("Some Prediction Error", 513)
+```
+
 #### Writing a custom handler from scratch for Prediction and Explanations Request
 
 *You should generally derive from BaseHandler and ONLY override methods whose behavior needs to change!* As you can see in the examples, most of the time you only need to override `preprocess` or `postprocess`
