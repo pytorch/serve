@@ -60,6 +60,7 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeInt(buf.length);
             out.writeBytes(buf);
 
+            out.writeBoolean(request.isLimitMaxImagePixels());
         } else if (msg instanceof ModelInferenceRequest) {
             out.writeByte('I');
             ModelInferenceRequest request = (ModelInferenceRequest) msg;

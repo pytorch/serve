@@ -11,8 +11,10 @@ import os
 import io
 from builtins import bytearray
 from builtins import bytes
+import time
 import torch
 
+bool_size = 1
 int_size = 4
 END_OF_LIST = -1
 LOAD_MSG = b'L'
@@ -32,6 +34,7 @@ def retrieve_msg(conn):
         msg = _retrieve_load_msg(conn)
     elif cmd == PREDICT_MSG:
         msg = _retrieve_inference_msg(conn)
+        logging.info("Backend received inference at: %d", time.time())
     else:
         raise ValueError("Invalid command: {}".format(cmd))
 
@@ -173,6 +176,9 @@ def _retrieve_int(conn):
     data = _retrieve_buffer(conn, int_size)
     return struct.unpack("!i", data)[0]
 
+def _retrieve_bool(conn):
+    data = _retrieve_buffer(conn, bool_size)
+    return struct.unpack("!?", data)[0]
 
 def _retrieve_load_msg(conn):
     """
@@ -184,6 +190,7 @@ def _retrieve_load_msg(conn):
     | int batch-size length |
     | int handler length | handler value |
     | int gpu id |
+    | bool limitMaxImagePixels |
 
     :param conn:
     :return:
@@ -202,6 +209,7 @@ def _retrieve_load_msg(conn):
 
     length = _retrieve_int(conn)
     msg["envelope"] = _retrieve_buffer(conn, length)
+    msg["limitMaxImagePixels"] = _retrieve_bool(conn)
 
     return msg
 
