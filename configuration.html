@@ -526,15 +526,23 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 <li><p><code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code>: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.</p></li>
 </ul>
 </section>
+<section id="nvidia-control-visibility">
+<h3><span class="section-number">5.3.11. </span>Nvidia control Visibility<a class="headerlink" href="#nvidia-control-visibility" title="Permalink to this headline">¶</a></h3>
+<p>Set nvidia environment variables. For example:</p>
+<ul class="simple">
+<li><p>export CUDA_DEVICE_ORDER=”PCI_BUS_ID”</p></li>
+<li><p>export CUDA_VISIBLE_DEVICES=”1,3”</p></li>
+</ul>
+</section>
 <section id="enable-metrics-api">
-<h3><span class="section-number">5.3.11. </span>Enable metrics api<a class="headerlink" href="#enable-metrics-api" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.3.12. </span>Enable metrics api<a class="headerlink" href="#enable-metrics-api" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus'</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">in</span> <span class="pre">conjunction</span> <span class="pre">with</span> </code>enable_metrics_api` option above.</p></li>
 </ul>
 </section>
 <section id="id1">
-<h3><span class="section-number">5.3.12. </span>Enable metrics api<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.3.13. </span>Enable metrics api<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_format</span></code> : Use this to specify metric report format . At present, the only supported and default value for this is <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>
@@ -542,7 +550,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 </ul>
 </section>
 <section id="config-model">
-<h3><span class="section-number">5.3.13. </span>Config model<a class="headerlink" href="#config-model" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.3.14. </span>Config model<a class="headerlink" href="#config-model" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">models</span></code>: Use this to set configuration of each model. The value is presented in json format.</p></li>
 </ul>
@@ -596,7 +604,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 </div>
 </section>
 <section id="other-properties">
-<h3><span class="section-number">5.3.14. </span>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.3.15. </span>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
 <p>Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_envvars_config</span></code>: Enable configuring TorchServe through environment variables. When this option is set to “true”, all the static configurations of TorchServe can come through environment variables as well. Default: false</p></li>
@@ -694,10 +702,11 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
 <li><a class="reference internal" href="#allow-model-specific-custom-python-packages">5.3.8. Allow model specific custom python packages.</a></li>
 <li><a class="reference internal" href="#restrict-backend-worker-to-access-environment-variables">5.3.9. Restrict backend worker to access environment variables</a></li>
 <li><a class="reference internal" href="#limit-gpu-usage">5.3.10. Limit GPU usage</a></li>
-<li><a class="reference internal" href="#enable-metrics-api">5.3.11. Enable metrics api</a></li>
-<li><a class="reference internal" href="#id1">5.3.12. Enable metrics api</a></li>
-<li><a class="reference internal" href="#config-model">5.3.13. Config model</a></li>
-<li><a class="reference internal" href="#other-properties">5.3.14. Other properties</a></li>
+<li><a class="reference internal" href="#nvidia-control-visibility">5.3.11. Nvidia control Visibility</a></li>
+<li><a class="reference internal" href="#enable-metrics-api">5.3.12. Enable metrics api</a></li>
+<li><a class="reference internal" href="#id1">5.3.13. Enable metrics api</a></li>
+<li><a class="reference internal" href="#config-model">5.3.14. Config model</a></li>
+<li><a class="reference internal" href="#other-properties">5.3.15. Other properties</a></li>
 </ul>
 </li>
 </ul>
