@@ -25,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -728,17 +729,31 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
-            Process process =
-                    Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-            int ret = process.waitFor();
-            if (ret != 0) {
-                return 0;
+            List<Integer> gpuIds = new ArrayList<>();
+            String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
+            if (visibleCuda != null && !visibleCuda.isEmpty()) {
+                String[] ids = visibleCuda.split(",");
+                for (String id : ids) {
+                    gpuIds.add(Integer.parseInt(id));
+                }
+            } else {
+                Process process =
+                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+                List<String> list =
+                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                if (list.isEmpty() || !"index".equals(list.get(0))) {
+                    throw new AssertionError("Unexpected nvidia-smi response.");
+                }
+                for (int i = 1; i < list.size(); i++) {
+                    gpuIds.add(Integer.parseInt(list.get(i)));
+                }
             }
-            List<String> list = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-            if (list.isEmpty() || !"index".equals(list.get(0))) {
-                throw new AssertionError("Unexpected nvidia-smi response.");
-            }
-            return list.size() - 1;
+
+            return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }
