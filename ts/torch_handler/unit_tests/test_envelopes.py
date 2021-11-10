@@ -23,8 +23,19 @@ def handle_fn():
     ctx = MockContext()
     handler = BaseHandler()
     handler.initialize(ctx)
-
     return handler.handle
+
+@pytest.fixture()
+def identity_model_context():
+    return MockContext(model_pt_file="identity_model.pt", model_file="identity_model.py")
+
+@pytest.fixture()
+def identity_handle_fn():
+    ctx =  MockContext(model_pt_file="identity_model.pt", model_file="identity_model.py")
+    handler = BaseHandler()
+    handler.initialize(ctx)
+    return handler.handle
+    
 
 def test_json(handle_fn, model_context):
     test_data = [{'body':{
@@ -45,6 +56,17 @@ def test_json_batch(handle_fn, model_context):
     envelope = JSONEnvelope(handle_fn)
     results = envelope.handle(test_data, model_context)
     assert(results == expected_result)
+
+def test_json_nan(identity_handle_fn, identity_model_context):
+    test_data = [{'body':{
+        'instances': [[2.0, float("NaN")], [5.0, 4.0]]
+    }}]
+    expected_result = ['{"predictions": [[2.0, null], [5.0, 4.0]]}']
+
+    envelope = JSONEnvelope(identity_handle_fn)
+    results = envelope.handle(test_data, identity_model_context)
+    assert(results == expected_result)
+
 
 def test_json_double_batch(handle_fn, model_context):
     """

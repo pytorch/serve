@@ -45,7 +45,6 @@ test_base_handler () {
   mv base_model.pt $TEST_DIR/models/tmp/model.pt
   cp $TEST_DIR/models/base_model.py $TEST_DIR/models/tmp/model.py
   python -m pytest $TEST_DIR/test_base_handler.py
-  python -m pytest $TEST_DIR/test_envelopes.py
   rm -rf $TEST_DIR/models/tmp
 }
 
@@ -54,6 +53,9 @@ test_envelope () {
   python $TEST_DIR/models/base_model.py
   mv base_model.pt $TEST_DIR/models/tmp/model.pt
   cp $TEST_DIR/models/base_model.py $TEST_DIR/models/tmp/model.py
+  python $TEST_DIR/models/identity_model.py
+  mv identity_model.pt $TEST_DIR/models/tmp/identity_model.pt
+  cp $TEST_DIR/models/identity_model.py $TEST_DIR/models/tmp/identity_model.py
   python -m pytest $TEST_DIR/test_envelopes.py
   rm -rf $TEST_DIR/models/tmp
 }

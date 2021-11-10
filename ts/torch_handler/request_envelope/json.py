@@ -2,7 +2,7 @@
 Uses JSON formatted inputs/outputs, following the structure outlined if __name__ == '__main__':
 https://www.tensorflow.org/tfx/serving/api_restmain()
 """
-import json
+import simplejson
 from itertools import chain
 from base64 import b64decode
 
@@ -70,4 +70,4 @@ class JSONEnvelope(BaseEnvelope):
         out_dict = {
             'predictions': output
         }
-        return json.dumps(out_dict)
+        return simplejson.dumps(out_dict, ignore_nan=True)

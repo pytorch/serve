@@ -2,6 +2,7 @@ future
 psutil
 wheel
 requests
+simplejson
 sentencepiece
 pillow==8.3.2
 captum
