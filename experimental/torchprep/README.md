@@ -2,6 +2,8 @@
 
 A CLI tool to prepare your Pytorch models for efficient inference. The only prerequisite is a model trained and saved with `torch.save(model_name, model_path)`. See `example.py` for an example.
 
+**Be warned**: `torchprep` is an experimental tool so expect bugs, deprecations and limitations. That said if you like and would like to improve it please open up a Github issue!
+
 ## Install from source
 
 
