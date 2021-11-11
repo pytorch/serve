@@ -2,15 +2,29 @@
 
 A CLI tool to prepare your Pytorch models for efficient inference. The only prerequisite is a model trained and saved with `torch.save(model_name, model_path)`. See `example.py` for an example.
 
-**Be warned**: `torchprep` is an experimental tool so expect bugs, deprecations and limitations. That said if you like and would like to improve it please open up a Github issue!
+**Be warned**: `torchprep` is an experimental tool so expect bugs, deprecations and limitations. That said if you like the project and would like to improve it please open up a Github issue!
 
 ## Install from source
 
+Create a virtual environment 
 
 ```sh
-python -m venv venv
+apt-get install python3-venv
+python3 -m venv venv
 source venv/bin/activate
+```
+
+Install `poetry`
+
+```sh
+sudo python3 -m pip install -U pip
+sudo python3 -m pip install -U setuptools
 pip install poetry
+```
+
+Install `torchprep`
+
+```sh
 cd torchprep
 poetry install
 ```
