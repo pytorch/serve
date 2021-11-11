@@ -4,6 +4,8 @@ A CLI tool to prepare your Pytorch models for efficient inference. The only prer
 
 ## Install from source
 
+In a fresh conda/pip environment
+
 ```sh
 pip install poetry
 cd torchprep
@@ -52,9 +54,10 @@ Options:
 
 Commands:
   distill        Create a smaller student model by setting a distillation...
+  prune          Zero out small model weights using l1 norm
   env-variables  Set environment variables for optimized inference.
   fuse           Supports optimizations including conv/bn fusion, dropout...
-  profile
+  profile        Create a smaller student model by setting a distillation ratio...
   quantize       Quantize a saved torch model to a lower precision float...
 ```
 

@@ -38,7 +38,7 @@ def distill(model_path : Path, device : Device, parameter_scaling : int, layer_s
 @app.command()
 def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
     """
-    Zero out small model weights using l1
+    Zero out small model weights using l1 norm
     """
     model = load_model(model_path, device)
     
