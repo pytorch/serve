@@ -1020,7 +1020,11 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INSUFFICIENT_STORAGE);
         channel.close().sync();
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        TestUtils.unregisterModel(channel, "memory_error", null, true);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.unregisterModel(channel, "memory_error", null, false);
+        TestUtils.getLatch().await();
+        channel.close().sync();
     }
 
     @Test(
@@ -1060,7 +1064,7 @@ public class ModelServerTest {
         TestUtils.setLatch(new CountDownLatch(1));
         Assert.assertNotNull(channel);
 
-        TestUtils.unregisterModel(channel, "pred-err", null, true);
+        TestUtils.unregisterModel(channel, "pred-err", null, false);
         TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
@@ -1068,6 +1072,51 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
+    public void testPredictionCustomErrorCode() throws InterruptedException {
+        // Load the model
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+
+        TestUtils.registerModel(
+                channel, "pred-custom-return-code.mar", "pred-custom-return-code", true, false);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        channel.close().sync();
+
+        // Test for prediction
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/predictions/pred-custom-return-code");
+        req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
+
+        channel.writeAndFlush(req);
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus().code(), 599);
+        channel.close().sync();
+
+        // Unload the model
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setHttpStatus(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        Assert.assertNotNull(channel);
+
+        TestUtils.unregisterModel(channel, "pred-custom-return-code", null, false);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionCustomErrorCode"})
     public void testErrorBatch() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1578,8 +1627,11 @@ public class ModelServerTest {
     public void testUnregisterModelVersionNotFound() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
 
-        TestUtils.unregisterModel(channel, "noopversioned", "1.3.1", true);
+        TestUtils.unregisterModel(channel, "noopversioned", "1.3.1", false);
+        TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
@@ -1593,18 +1645,26 @@ public class ModelServerTest {
     public void testUnregisterModelTimeout()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.setConfiguration(configManager, "unregister_model_timeout", "0");
 
-        TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
+        TestUtils.unregisterModel(channel, "noop_v1.0", null, false);
+        TestUtils.getLatch().await();
 
         ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.REQUEST_TIMEOUT.code());
         Assert.assertEquals(resp.getMessage(), "Timed out while cleaning resources: noop_v1.0");
 
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.setConfiguration(configManager, "unregister_model_timeout", "120");
 
-        TestUtils.unregisterModel(channel, "noop_v1.0", null, true);
+        TestUtils.unregisterModel(channel, "noop_v1.0", null, false);
+        TestUtils.getLatch().await();
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
     }
 
