@@ -19,6 +19,6 @@ if __name__ == "__main__":
     if not os.path.exists("models/"):
         os.makedirs("models")
     download_resnet()
-    # download_bert()
+    download_bert()
 
     
