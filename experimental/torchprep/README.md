@@ -4,9 +4,10 @@ A CLI tool to prepare your Pytorch models for efficient inference. The only prer
 
 ## Install from source
 
-In a fresh conda/pip environment
 
 ```sh
+python -m venv venv
+source activate venv
 pip install poetry
 cd torchprep
 poetry install
