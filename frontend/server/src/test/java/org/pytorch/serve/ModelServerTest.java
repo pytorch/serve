@@ -1072,6 +1072,51 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
+    public void testPredictionCustomErrorCode() throws InterruptedException {
+        // Load the model
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+
+        TestUtils.registerModel(
+                channel, "pred-custom-return-code.mar", "pred-custom-return-code", true, false);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        channel.close().sync();
+
+        // Test for prediction
+        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1,
+                        HttpMethod.POST,
+                        "/predictions/pred-custom-return-code");
+        req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
+
+        channel.writeAndFlush(req);
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus().code(), 599);
+        channel.close().sync();
+
+        // Unload the model
+        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        TestUtils.setHttpStatus(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        Assert.assertNotNull(channel);
+
+        TestUtils.unregisterModel(channel, "pred-custom-return-code", null, false);
+        TestUtils.getLatch().await();
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionCustomErrorCode"})
     public void testErrorBatch() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
