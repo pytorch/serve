@@ -7,7 +7,7 @@ A CLI tool to prepare your Pytorch models for efficient inference. The only prer
 
 ```sh
 python -m venv venv
-source activate venv
+source venv/bin/activate
 pip install poetry
 cd torchprep
 poetry install
@@ -32,7 +32,7 @@ torchprep quantize --help
 python example.py
 
 # quantize a cpu model with int8 on cpu and profile with a float tensor of shape [64,3,7,7]
-torchprep quantize models/resnet152.pt int8 --profile 64,3,7,7
+torchprep quantize models/resnet152.pt int8 --input-shape 64,3,7,7
 
 # profile a model for a 100 iterations
 torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shape 64,3,7,7
@@ -101,3 +101,4 @@ poetry publish --build
 * Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
 * Automated release with github actions
 * TensorRT and IPEX support
+* Get model input shape using fx instead of asking user for it
