@@ -6,4 +6,3 @@ gpu:
     cuda_version: "cu102"
 cpu:
     docker_tag: "cpu-dev-image"
-dockerhub_image: "pytorch/torchserve:latest"

@@ -35,6 +35,10 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     openjdk-11-jdk \
     curl \
     vim \
+    libssl-dev \
+    pkg-config \
+    cmake \
+    wget \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
