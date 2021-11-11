@@ -147,5 +147,8 @@ Note: For v4 type replace `&` characters in model url with its URL encoding char
 
 Relevant issues: [[#669](https://github.com/pytorch/serve/issues/669)]
 
+### Can I host a model on s3
+A mar file can be used either locally or be publicly available via http. An S3 URI starting with s3:// will not work but that very same file can be made public and available in the s3 console or aws cli to instead get a public object URL starting with https://
+
 ### How to set a model's batch size on SageMaker?  Key parameters for TorchServe performance tuning.
 [TorchServe performance tuning example](https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb)
