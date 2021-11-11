@@ -49,9 +49,10 @@ def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, he
     
     for name, module in model.named_modules():
         if isinstance(module, torch.nn.Conv2d) or isinstance(module, torch.nn.Linear) or isinstance(module, torch.nn.LSTM):
-            torch.nn.utils.prune.l1_unstructured(module, name, prune_amount)
+            torch.nn.utils.prune.l1_unstructured(module, "weight", prune_amount)
     
     torch.save(model, 'pruned_model.pt')
+    print("Saved prune model pruned_model.pt")
     return model
 
 
