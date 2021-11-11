@@ -91,13 +91,13 @@ def profile(model_path : Path, iterations : int = 100, device : Device = Device.
     return profile_model(model, input_tensor, iterations)
 
 @app.command()
-def env(device : Device = Device.cpu) -> None:
+def env(device : Device = Device.cpu, omp_num_threads : int = 1, kmp_blocktime : int = 1) -> None:
     """
     [Experimental]: Set environment variables for optimized inference. Run this command on the machine where inference will happen!
     """
     if device == Device.cpu:
-        os.environ["OMP_NUM_THREADS"] = 1
-        os.environ["KMP_BLOCKTIME"] = 1
+        os.environ["OMP_NUM_THREADS"] = omp_num_threads
+        os.environ["KMP_BLOCKTIME"] = kmp_blocktime
     else:
         typer.echo(f"support for architecture {device} coming soon")
 
@@ -106,6 +106,7 @@ def env(device : Device = Device.cpu) -> None:
 def quantize(model_path : Path, precision : Precision ,
  device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
     # TODO: define model output path
+    # TODO: Support multiple input tensors
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
     """
