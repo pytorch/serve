@@ -2,9 +2,9 @@
 Uses JSON formatted inputs/outputs, following the structure outlined if __name__ == '__main__':
 https://www.tensorflow.org/tfx/serving/api_restmain()
 """
-import simplejson
 from itertools import chain
 from base64 import b64decode
+import simplejson
 
 from .base import BaseEnvelope
 

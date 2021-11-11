@@ -35,7 +35,6 @@ def identity_handle_fn():
     handler = BaseHandler()
     handler.initialize(ctx)
     return handler.handle
-    
 
 def test_json(handle_fn, model_context):
     test_data = [{'body':{
