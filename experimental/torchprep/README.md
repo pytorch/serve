@@ -97,8 +97,10 @@ poetry publish --build
 ```
 
 ## Roadmap
-* More expressive input tensor shape schema for BERT and other examples
+* Support multiple input tensors
 * Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
 * Automated release with github actions
 * TensorRT and IPEX support
 * Get model input shape using fx instead of asking user for it
+* Refactor profiling, loading and saving into seperate functions
+* 

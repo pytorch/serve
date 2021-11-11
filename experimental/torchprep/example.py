@@ -1,12 +1,12 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torchvision
 import os
   
 
 def download_bert():
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-    model = AutoModelForMaskedLM.from_pretrained("bert-base-uncased")
+    model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
     torch.save(model, "models/bert.pt")
     
 

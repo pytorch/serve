@@ -21,6 +21,11 @@ class Device(str, Enum):
     cpu = "cpu"
     gpu = "gpu"
 
+class TensorType(str, Enum):
+    float = "float"
+    int   = "int"
+    long  = "long"
+
 class Architecture(str, Enum):
     ipex = "ipex"
     tensorrt = "tensorrt"
@@ -28,12 +33,12 @@ class Architecture(str, Enum):
 
 
 @app.command()
-def distill(model_path : Path, device : Device, parameter_scaling : int, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
+def distill(model_path : Path, device : Device = Device.cpu, parameter_scaling : int = 2, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
     """
     [Coming soon]: Create a smaller student model by setting a distillation ratio and teach it how to behave exactly like your existing model
     """
-    typer.echo(f"Coming soon")
-    typer.echo("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
+    print(f"Coming soon")
+    print("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
 def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
@@ -52,7 +57,7 @@ def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, he
 
 
 @app.command()
-def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
+def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g [64,3,7,7]"), input_type : TensorType = TensorType.float) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Works only for models that are scriptable
@@ -65,7 +70,8 @@ def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typ
     try:
         model = torch.jit.trace(model,input_shape)
     except Exception as e:
-        typer.echo(f"{model_path} is not torchscriptable")
+        print(f"{model_path} is not torchscriptable")
+        return
 
     optimized_model = torch.jit.optimize_for_inference(model)
 
@@ -75,18 +81,23 @@ def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typ
 @app.command()
 def profile(model_path : Path, iterations : int = 100, device : Device = Device.cpu,
  input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape"),
-  input_type : str = typer.Option(default=None, help="data type of input tensor float or int")) -> List[float]:
+  input_type : TensorType = TensorType.float) -> List[float]:
     """
     Profile model latency 
     """
     if iterations < 100:
-        typer.echo("Please set iterations > 100")
+        print("Please set iterations > 100")
         return 
     model = load_model(model_path, device)
     profile = map(int,input_shape.split(','))
 
-    # TODO: Int shaped tensors
-    input_tensor = torch.randn(*profile)
+    if input_type == TensorType.float:
+        input_tensor = torch.randn(*profile)
+    elif input_type == TensorType.int:
+        input_tensor = torch.randint(*profile)
+    else:
+        print(f"input_tensor type {input_type} is not supported")
+        return 
 
     if device == Device.gpu:
         model.to(torch.device("cuda"))
@@ -102,7 +113,7 @@ def env(device : Device = Device.cpu, omp_num_threads : int = 1, kmp_blocktime :
         os.environ["OMP_NUM_THREADS"] = omp_num_threads
         os.environ["KMP_BLOCKTIME"] = kmp_blocktime
     else:
-        typer.echo(f"support for architecture {device} coming soon")
+        print(f"support for architecture {device} coming soon")
 
 
 @app.command()
