@@ -39,7 +39,11 @@ torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shap
 
 # set omp threads to 1 to optimize cpu inference
 torchprep env --device cpu
+
+# Prune 30% of model weights
+torchprep prune models/resnet152.pt --prune_amount 0.3
 ```
+
 
 ### Available commands
 
@@ -63,6 +67,8 @@ Commands:
 ```
 
 ### Usage instructions for a command
+
+`torchprep <command> --help`
 
 ```
 Usage: torchprep quantize [OPTIONS] MODEL_PATH PRECISION:{int8|float16}
