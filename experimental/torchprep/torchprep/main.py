@@ -42,7 +42,7 @@ def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, he
     """
     model = load_model(model_path, device)
     
-    for name, module in model.named_parameters():
+    for name, module in model.named_modules():
         if isinstance(module, torch.nn.Conv2d) or isinstance(module, torch.nn.Linear) or isinstance(module, torch.nn.LSTM):
             torch.nn.utils.prune.l1_unstructured(module, name, prune_amount)
     
