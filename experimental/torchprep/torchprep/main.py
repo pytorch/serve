@@ -76,6 +76,9 @@ def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typ
 def profile(model_path : Path, iterations : int = 100, device : Device = Device.cpu,
  input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape"),
   input_type : str = typer.Option(default=None, help="data type of input tensor float or int")) -> List[float]:
+    """
+    Profile model latency 
+    """
     if iterations < 100:
         typer.echo("Please set iterations > 100")
         return 
