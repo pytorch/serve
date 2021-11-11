@@ -8,9 +8,8 @@ from pathlib import Path
 import math
 from tqdm import tqdm
 import torch.fx as fx
+import torch.nn.utils.prune
 
-
-# TODO: Make commands return a nn.Module instead of None so operations can be composed
 
 app = typer.Typer()
 
@@ -31,27 +30,45 @@ class Architecture(str, Enum):
 @app.command()
 def distill(model_path : Path, device : Device, parameter_scaling : int, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
     """
-    Create a smaller student model by setting a distillation ratio and teach it how to behave exactly like your existing model
+    [Coming soon]: Create a smaller student model by setting a distillation ratio and teach it how to behave exactly like your existing model
     """
     typer.echo(f"Coming soon")
     typer.echo("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
+def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
+    """
+    Zero out small model weights using l1
+    """
+    model = load_model(model_path, device)
+    
+    for name, module in model.named_parameters():
+        if isinstance(module, torch.nn.Conv2d) or isinstance(module, torch.nn.Linear) or isinstance(module, torch.nn.LSTM):
+            torch.nn.utils.prune.l1_unstructured(module, name, prune_amount)
+    
+    torch.save(model, 'pruned_model.pt')
+    return model
+
+
+
+@app.command()
 def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
-    Requires Pytorch Nightly
-    https://github.com/pytorch/pytorch/blob/master/torch/fx/experimental/optimization.py#L234
+    Works only for models that are scriptable
     """
     model = load_model(model_path, device)
-    profile = map(int,input_shape.split(','))
 
-    # TODO: Int valued tensors
-    input_tensor = torch.randn(*profile)
-    model = torch.jit.trace(model,input_tensor)
+    if input_shape:
+        profile = map(int,input_shape.split(','))
+        input_tensor = torch.randn(*profile)
+    try:
+        model = torch.jit.trace(model,input_shape)
+    except Exception as e:
+        typer.echo(f"{model_path} is not torchscriptable")
+
     optimized_model = torch.jit.optimize_for_inference(model)
 
-    # TODO: RuntimeError: Tried to serialize object __torch__.torchvision.models.resnet.___torch_mangle_837.ResNet which does not have a __getstate__ method defined!
     torch.save(optimized_model, 'optimized_model.pt') 
     return optimized_model
 
@@ -76,7 +93,7 @@ def profile(model_path : Path, iterations : int = 100, device : Device = Device.
 @app.command()
 def env(device : Device = Device.cpu) -> None:
     """
-    Set environment variables for optimized inference. Run this command on the machine where inference will happen!
+    [Experimental]: Set environment variables for optimized inference. Run this command on the machine where inference will happen!
     """
     if device == Device.cpu:
         os.environ["OMP_NUM_THREADS"] = 1
