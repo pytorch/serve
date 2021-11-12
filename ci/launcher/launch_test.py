@@ -4,6 +4,7 @@ import datetime
 import random
 import subprocess
 import os
+import time
 
 
 from botocore.config import Config
@@ -71,9 +72,11 @@ def launch_ec2_instance(region, instance_type, ami_id):
     """
     github_repo = os.environ.get("CODEBUILD_SOURCE_REPO_URL", "https://github.com/pytorch/serve.git").strip()
     github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
-    github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "local-start").strip()
+    github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "job-local").strip()
     github_hookshot = github_hookshot.replace("/", "-")
-    github_pull_request_number = github_hookshot.split("-")[1]
+    
+    # Extract the PR number or use the last 6 characters of the commit id
+    github_pull_request_number = github_hookshot.split("-")[1] if "-" in github_hookshot else github_hookshot[-6:]
 
     ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=region)
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
@@ -102,8 +105,12 @@ def launch_ec2_instance(region, instance_type, ami_id):
 
         # Create a fabric connection to the ec2 instance.
         ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
-
+        
+        LOGGER.info(f"Running update command. This could take a while.")
         ec2_connection.run(f"sudo apt update")
+
+        # Update command takes a while to run, and should ideally run uninterrupted
+        time.sleep(300)
 
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
