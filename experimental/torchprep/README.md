@@ -122,9 +122,13 @@ poetry publish --build
 ```
 
 ## Roadmap
+* Supporting add custom model names and output paths
 * Support multiple input tensors for models like BERT that expect a batch size and sequence length
+* Support multiple input tensor types
 * Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
 * Automated release with github actions
-* TensorRT and IPEX support
+* TensorRT, IPEX, AMP and autocast support
+* Training aware optimizations
 * Get model input shape using fx instead of asking user for it
 * Refactor profiling, loading and saving into seperate functions
+* More environment variable setting and a way to reverse environment variables (e.g: save current ones in user file)

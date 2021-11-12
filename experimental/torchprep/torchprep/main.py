@@ -19,12 +19,12 @@ class Precision(Enum):
 
 class Device(str, Enum):
     cpu = "cpu"
-    gpu = "gpu"
+    cuda = "cuda"
 
 class TensorType(str, Enum):
-    float = "float"
-    int   = "int"
-    long  = "long"
+    FLOAT = "float"
+    INT   = "int"
+    LONG  = "long"
 
 class Architecture(str, Enum):
     ipex = "ipex"
@@ -58,7 +58,7 @@ def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, he
 
 
 @app.command()
-def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7"), input_type : TensorType = TensorType.float) -> torch.nn.Module:
+def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Works only for models that are scriptable
@@ -81,8 +81,7 @@ def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typ
 
 @app.command()
 def profile(model_path : Path, iterations : int = 100, device : Device = Device.cpu,
- input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7"),
-  input_type : str = typer.Option(default=TensorType.float, help="type of tensor for profiling")) -> List[float]:
+ input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> List[float]:
     """
     Profile model latency 
     """
@@ -92,16 +91,9 @@ def profile(model_path : Path, iterations : int = 100, device : Device = Device.
     model = load_model(model_path, device)
     profile = map(int,input_shape.split(','))
 
-    if input_type == TensorType.float:
-        input_tensor = torch.randn(*profile)
-    elif input_type == TensorType.int:
-        input_tensor = torch.randint(*profile)
-    else:
-        print(f"input_tensor type {input_type} is not supported")
-        return 
+    input_tensor = torch.randn(*profile)
 
-    if device == Device.gpu:
-        model.to(torch.device("cuda"))
+    if device == Device.cuda:
         input_tensor.to(torch.device("cuda"))
     return profile_model(model, input_tensor, iterations)
 
@@ -119,17 +111,13 @@ def env(device : Device = Device.cpu, omp_num_threads : int = 1, kmp_blocktime :
 
 @app.command()
 def quantize(model_path : Path, precision : Precision ,
- device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7"),
- input_type : str = typer.Option(default=TensorType.float, help="type of tensor for profiling")) -> torch.nn.Module:
+ device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
     # TODO: define model output path
     # TODO: Support multiple input tensors
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
     """
     model = load_model(model_path, device)
-
-    if device == Device.gpu:
-        model.to(torch.device("cuda"))
 
     if device == Device.cpu:
         if precision == "int8":
@@ -140,7 +128,7 @@ def quantize(model_path : Path, precision : Precision ,
     model, {torch.nn.LSTM, torch.nn.Linear, torch.nn.Conv2d}, dtype=dtype
 )
     # TODO: Add AMP
-    if device == Device.gpu:
+    if device == Device.cuda:
         if precision == Precision.int8:
             print("int8 precision is not supported for GPUs, defaulting to float16")
         quantized_model = model.half()
@@ -152,15 +140,10 @@ def quantize(model_path : Path, precision : Precision ,
     
     if input_shape:
         profile = map(int,input_shape.split(','))
-        if input_type == TensorType.float:
-            input_tensor = torch.randn(*profile)
-        elif input_type == TensorType.int:
-            input_tensor = torch.randint(*profile)
-        else:
-            print(f"input_tensor type {input_type} is not supported")
-            return 
-        if device == Device.gpu:
-            input_tensor = torch.randn(*profile).to(torch.device("cuda"))
+        input_tensor = torch.randn(*profile)
+
+        if device == Device.cuda:
+            input_tensor.to(torch.device("cuda"))
         profile_model(model, input_tensor, label = "base model")
         profile_model(quantized_model, input_tensor, label = "quantized_model")
     
