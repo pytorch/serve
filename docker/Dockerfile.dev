@@ -30,6 +30,8 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     sudo \
     g++ \
     git \
+    libgit2 \
+    libgit2-dev \
     python3-dev \
     build-essential \
     openjdk-11-jdk \
