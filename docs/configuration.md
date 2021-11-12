@@ -203,6 +203,13 @@ By default, TorchServe uses all available GPUs for inference. Use `number_of_gpu
 
 * `number_of_gpu`: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.
 
+### Nvidia control Visibility
+
+Set nvidia environment variables. For example:
+
+* export CUDA_DEVICE_ORDER="PCI_BUS_ID"
+* export CUDA_VISIBLE_DEVICES="1,3"
+
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
 * `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus'
