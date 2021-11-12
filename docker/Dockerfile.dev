@@ -30,7 +30,6 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     sudo \
     g++ \
     git \
-    libgit2-dev \
     python3-dev \
     build-essential \
     openjdk-11-jdk \
@@ -45,6 +44,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
 RUN pip install -U pip setuptools
+RUN pip install pygit2
 
 # Build Dev Image
 FROM compile-image AS dev-image
