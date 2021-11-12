@@ -199,7 +199,8 @@ class BaseHandler(abc.ABC):
         self.context = context
         metrics = self.context.metrics
 
-        if self.profiler:
+        is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
+        if is_profiler_enabled:
             output, self.prof = self.infer_with_profiler(data=data)
         else:
             data_preprocess = self.preprocess(data)
@@ -221,11 +222,9 @@ class BaseHandler(abc.ABC):
             self.profiler_args["activities"] = [ProfilerActivity.CPU]
             self.profiler_args["record_shapes"] = True
 
-        if not hasattr(self.profiler_args, "on_trace_ready"):
-            result_path = os.path.join(os.getcwd(), "trace_" + datetime.datetime.now().strftime(
-                '%Y%m%d%H%M%S') + ".json")
-            self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(
-                os.path.join(result_path), worker_name='worker0')
+        if "on_trace_ready" not in self.profiler_args:
+            result_path = "/tmp/pytorch_profiler"
+            self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(result_path)
             print("\n\n Saving chrome trace to : ", result_path)
 
         with profile(**self.profiler_args) as prof:
