@@ -44,6 +44,9 @@ torchprep quantize --help
 ### Example
 
 ```sh
+# Install example dependencies
+pip install torchvision transformers
+
 # Download resnet example
 python example.py
 
@@ -57,7 +60,7 @@ torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shap
 torchprep env --device cpu
 
 # Prune 30% of model weights
-torchprep prune models/resnet152.pt --prune_amount 0.3
+torchprep prune models/resnet152.pt --prune-amount 0.3
 ```
 
 

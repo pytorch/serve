@@ -58,7 +58,7 @@ def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, he
 
 
 @app.command()
-def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g [64,3,7,7]"), input_type : TensorType = TensorType.float) -> torch.nn.Module:
+def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7"), input_type : TensorType = TensorType.float) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Works only for models that are scriptable
@@ -81,8 +81,8 @@ def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typ
 
 @app.command()
 def profile(model_path : Path, iterations : int = 100, device : Device = Device.cpu,
- input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape"),
-  input_type : TensorType = TensorType.float) -> List[float]:
+ input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7"),
+  input_type : str = typer.Option(default=TensorType.float, help="type of tensor for profiling")) -> List[float]:
     """
     Profile model latency 
     """
@@ -119,13 +119,17 @@ def env(device : Device = Device.cpu, omp_num_threads : int = 1, kmp_blocktime :
 
 @app.command()
 def quantize(model_path : Path, precision : Precision ,
- device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape")) -> torch.nn.Module:
+ device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7"),
+ input_type : str = typer.Option(default=TensorType.float, help="type of tensor for profiling")) -> torch.nn.Module:
     # TODO: define model output path
     # TODO: Support multiple input tensors
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
     """
     model = load_model(model_path, device)
+
+    if device == Device.gpu:
+        model.to(torch.device("cuda"))
 
     if device == Device.cpu:
         if precision == "int8":
@@ -148,7 +152,15 @@ def quantize(model_path : Path, precision : Precision ,
     
     if input_shape:
         profile = map(int,input_shape.split(','))
-        input_tensor = torch.randn(*profile)
+        if input_type == TensorType.float:
+            input_tensor = torch.randn(*profile)
+        elif input_type == TensorType.int:
+            input_tensor = torch.randint(*profile)
+        else:
+            print(f"input_tensor type {input_type} is not supported")
+            return 
+        if device == Device.gpu:
+            input_tensor = torch.randn(*profile).to(torch.device("cuda"))
         profile_model(model, input_tensor, label = "base model")
         profile_model(quantized_model, input_tensor, label = "quantized_model")
     
