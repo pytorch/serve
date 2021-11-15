@@ -227,11 +227,10 @@ For batch inference the main difference is that you need set the batch size whil
         }\
       }
       ```
-       ```
+      ```
       mkdir model_store
       mv BERTSeqClassification.mar model_store/
       torchserve --start --model-store model_store --ts-config config.properties --models BERTSeqClassification= BERTSeqClassification.mar
-
       ```
 
   Now to run the batch inference following command can be used:
