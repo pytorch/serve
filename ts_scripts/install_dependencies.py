@@ -73,6 +73,16 @@ class Linux(Common):
 
     def install_wget(self):
         os.system(f"{self.sudo_cmd}apt-get install -y wget")
+    
+    def install_libgit2(self):
+        os.system(f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz")
+        os.system(f"tar xzf libgit2-1.3.0.tar.gz")
+        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
+        os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
+    
+    def install_maven(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y maven")
+
 
 class Windows(Common):
     def __init__(self):
@@ -123,6 +133,10 @@ def install_dependencies(cuda_version=None):
     }
     system = os_map[platform.system()]()
 
+    if platform.system() == "Linux" and args.environment == "dev":
+        system.install_libgit2()
+        system.install_maven()
+    
     # Sequence of installation to be maintained
     system.install_java()
     requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
@@ -132,6 +146,7 @@ def install_dependencies(cuda_version=None):
         system.install_nodejs()
         system.install_node_packages()
         system.install_wget()
+    
 
 def get_brew_version():
     """Returns `brew --version` output. """
@@ -141,7 +156,7 @@ def get_brew_version():
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 
