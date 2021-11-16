@@ -1,4 +1,4 @@
-## Troubleshooting guide.
+## Troubleshooting Guide
 Refer to this section for common issues faced while deploying your Pytorch models using Torchserve and their corresponding troubleshooting steps.
 
 * [Deployment and config issues](#deployment-and-config-issues)
@@ -22,7 +22,7 @@ Relevant issues: [[#473](https://github.com/pytorch/serve/issues/473)]
 
 ####  Unable to send big files for inference request?
 The default max request size and response size is roughly 6.5 Mb. Hence any file size greater than 6.5mb cannot be uploaded.
-To resolve this update `max_request_size` and `max_response_size` in a config.properties file and start the torchserve with this config file.
+To resolve this update `max_request_size` and `max_response_size` in a config.properties file and start torchserve with this config file.
 ```
 $ cat config.properties
 max_request_size=<request size in bytes>
@@ -57,7 +57,7 @@ This gives a clear message that the model we are trying to register conflicts wi
 Relevant issues: [[#500](https://github.com/pytorch/serve/issues/500)]
 
 #### Register model: Failed with exception "DownloadModelException" & error code 400.
-Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publically.
+Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publicly.
 
 #### Register model: Failed with exception "ModelNotFoundException" & error code 404.
 In this case, Torchserve was unable to locate a given mar file in the model store directory. To resolve this check whether the given mar file exists in the model store. Check the mar file name in the POST request to register the model.
@@ -73,7 +73,7 @@ You can add your dependency files using `--extra-files` flag while creating a ma
 
 Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 
-#### How can I resolve model  specific python dependency?
+#### How can I resolve model specific python dependency?
 You can provide a requirements.txt while creating a mar file using "--requirements-file/ -r" flag. You can refer to the [waveglow text-to-speech-synthesizer](https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer) example
 
 -   [waveglow mar creation script](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh)

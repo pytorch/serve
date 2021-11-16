@@ -40,7 +40,11 @@ def test_snapshot_created_on_start_and_stop():
 def snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
     test_utils.delete_all_snapshots()
     test_utils.start_torchserve()
-    requests.post('http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/'
+    mar_path = "mar_path_{}".format(model_mar[0:-4])
+    if mar_path in test_utils.mar_file_table:
+        requests.post('http://127.0.0.1:8081/models?url=' + model_mar)
+    else:
+        requests.post('http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/'
                   + model_mar)
     time.sleep(10)
     test_utils.stop_torchserve()
@@ -160,7 +164,7 @@ def test_restart_torchserve_with_last_snapshot_with_model_mar_removed():
 
     # Start Torchserve with last generated snapshot file
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
-    test_utils.start_torchserve(snapshot_file=snapshot_cfg)
+    test_utils.start_torchserve(snapshot_file=snapshot_cfg, gen_mar=False)
     try:
         response = requests.get('http://127.0.0.1:8081/models/')
     except:
@@ -190,7 +194,7 @@ def test_replace_mar_file_with_dummy():
     replace_mar_file_with_dummy_mar_in_model_store(
         model_store=f"{test_utils.ROOT_DIR}/model_store", model_mar="densenet161.mar")
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[0]
-    test_utils.start_torchserve(snapshot_file=snapshot_cfg)
+    test_utils.start_torchserve(snapshot_file=snapshot_cfg, gen_mar=False)
     try:
         response = requests.get('http://127.0.0.1:8081/models/')
         assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
@@ -212,11 +216,11 @@ def test_restart_torchserve_with_one_of_model_mar_removed():
     test_utils.delete_model_store()
     test_utils.start_torchserve()
     requests.post(
-        'http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/densenet161.mar')
+        'http://127.0.0.1:8081/models?url=densenet161.mar')
     time.sleep(15)
     # 2nd model
     requests.post(
-        'http://127.0.0.1:8081/models?url=https://torchserve.pytorch.org/mar_files/mnist.mar')
+        'http://127.0.0.1:8081/models?url=mnist.mar')
     time.sleep(15)
     test_utils.stop_torchserve()
 
@@ -233,7 +237,7 @@ def test_restart_torchserve_with_one_of_model_mar_removed():
     # Start Torchserve with existing snapshot file containing reference to one of the model mar file
     # which is now missing from the model store
     snapshot_cfg = glob.glob('logs/config/*snap*.cfg')[1]
-    test_utils.start_torchserve(snapshot_file=snapshot_cfg)
+    test_utils.start_torchserve(snapshot_file=snapshot_cfg, gen_mar=False)
     try:
         response = requests.get('http://127.0.0.1:8081/models/')
     except:

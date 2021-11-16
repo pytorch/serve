@@ -1,5 +1,7 @@
 package org.pytorch.serve.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -7,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -29,6 +33,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -74,6 +79,7 @@ public final class ConfigManager {
     private static final String TS_PRIVATE_KEY_FILE = "private_key_file";
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
+    private static final String TS_LIMIT_MAX_IMAGE_PIXELS = "limit_max_image_pixels";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
@@ -87,6 +93,7 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -94,6 +101,7 @@ public final class ConfigManager {
     private static final String METRIC_TIME_INTERVAL = "metric_time_interval";
     private static final String ENABLE_ENVVARS_CONFIG = "enable_envvars_config";
     private static final String MODEL_SNAPSHOT = "model_snapshot";
+    private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
 
     // Variables which are local
@@ -105,13 +113,20 @@ public final class ConfigManager {
 
     public static final String PYTHON_EXECUTABLE = "python";
 
+    public static final Pattern ADDRESS_PATTERN =
+            Pattern.compile(
+                    "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
+                    Pattern.CASE_INSENSITIVE);
+    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private Pattern blacklistPattern;
     private Properties prop;
-    private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
+
     private boolean snapshotDisabled;
 
     private static ConfigManager instance;
     private String hostName;
+    private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -171,6 +186,11 @@ public final class ConfigManager {
             prop.setProperty(TS_MODEL_STORE, modelStore);
         }
 
+        String workflowStore = args.getWorkflowStore();
+        if (workflowStore != null) {
+            prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
+        }
+
         String[] models = args.getModels();
         if (models != null) {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
@@ -203,6 +223,8 @@ public final class ConfigManager {
             // Environment variables have higher precedence over the config file variables
             setSystemVars();
         }
+
+        setModelConfig();
     }
 
     public static String readFile(String path) throws IOException {
@@ -394,6 +416,10 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_MODEL_STORE));
     }
 
+    public String getWorkflowStore() {
+        return getCanonicalPath(prop.getProperty(TS_WORKFLOW_STORE));
+    }
+
     public String getModelSnapshot() {
         return prop.getProperty(MODEL_SNAPSHOT, null);
     }
@@ -580,6 +606,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nLimit Maximum Image Pixels: "
+                + prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nAllowed Urls: "
@@ -589,7 +617,11 @@ public final class ConfigManager {
                 + "\nMetrics report format: "
                 + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
-                + prop.getProperty(TS_ENABLE_METRICS_API, "true");
+                + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nWorkflow Store: "
+                + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nModel config: "
+                + prop.getProperty(MODEL_CONFIG, "N/A");
     }
 
     public boolean useNativeIo() {
@@ -606,6 +638,10 @@ public final class ConfigManager {
 
     public int getMaxRequestSize() {
         return getIntProperty(TS_MAX_REQUEST_SIZE, 6553500);
+    }
+
+    public boolean isLimitMaxImagePixels() {
+        return Boolean.parseBoolean(prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true"));
     }
 
     public void setProperty(String key, String value) {
@@ -693,17 +729,31 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
-            Process process =
-                    Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-            int ret = process.waitFor();
-            if (ret != 0) {
-                return 0;
+            List<Integer> gpuIds = new ArrayList<>();
+            String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
+            if (visibleCuda != null && !visibleCuda.isEmpty()) {
+                String[] ids = visibleCuda.split(",");
+                for (String id : ids) {
+                    gpuIds.add(Integer.parseInt(id));
+                }
+            } else {
+                Process process =
+                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+                List<String> list =
+                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                if (list.isEmpty() || !"index".equals(list.get(0))) {
+                    throw new AssertionError("Unexpected nvidia-smi response.");
+                }
+                for (int i = 1; i < list.size(); i++) {
+                    gpuIds.add(Integer.parseInt(list.get(i)));
+                }
             }
-            List<String> list = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-            if (list.isEmpty() || !"index".equals(list.get(0))) {
-                throw new AssertionError("Unexpected nvidia-smi response.");
-            }
-            return list.size() - 1;
+
+            return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }
@@ -718,12 +768,73 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public int getIniitialWorkerPort() {
+    public boolean isSSLEnabled(ConnectorType connectorType) {
+        String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
+        switch (connectorType) {
+            case MANAGEMENT_CONNECTOR:
+                address = prop.getProperty(TS_MANAGEMENT_ADDRESS, "http://127.0.0.1:8081");
+                break;
+            case METRICS_CONNECTOR:
+                address = prop.getProperty(TS_METRICS_ADDRESS, "http://127.0.0.1:8082");
+                break;
+            default:
+                break;
+        }
+        // String inferenceAddress = prop.getProperty(TS_INFERENCE_ADDRESS,
+        // "http://127.0.0.1:8080");
+        Matcher matcher = ConfigManager.ADDRESS_PATTERN.matcher(address);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid binding address: " + address);
+        }
+
+        String protocol = matcher.group(2);
+
+        return "https".equalsIgnoreCase(protocol);
+    }
+
+    public int getInitialWorkerPort() {
         return Integer.parseInt(prop.getProperty(TS_INITIAL_WORKER_PORT, "9000"));
     }
 
-    public void setIniitialWorkerPort(int initialPort) {
+    public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
+    }
+
+    private void setModelConfig() {
+        String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
+        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {}.getType();
+
+        if (modelConfigStr != null) {
+            this.modelConfig = JsonUtils.GSON.fromJson(modelConfigStr, type);
+        }
+    }
+
+    public int getJsonIntValue(String modelName, String version, String element, int defaultVal) {
+        int value = defaultVal;
+        if (this.modelConfig.containsKey(modelName)) {
+            Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
+            JsonObject jsonObject = versionModel.getOrDefault(version, null);
+
+            if (jsonObject != null && jsonObject.get(element) != null) {
+                try {
+                    value = jsonObject.get(element).getAsInt();
+                    if (value <= 0) {
+                        value = defaultVal;
+                    }
+                } catch (ClassCastException | IllegalStateException e) {
+                    Logger.getRootLogger()
+                            .error(
+                                    "Invalid value for model: "
+                                            + modelName
+                                            + ":"
+                                            + version
+                                            + ", parameter: "
+                                            + element);
+                    return defaultVal;
+                }
+            }
+        }
+        return value;
     }
 
     public static final class Arguments {
@@ -733,6 +844,7 @@ public final class ConfigManager {
         private String modelStore;
         private String[] models;
         private boolean snapshotDisabled;
+        private String workflowStore;
 
         public Arguments() {}
 
@@ -742,6 +854,7 @@ public final class ConfigManager {
             modelStore = cmd.getOptionValue("model-store");
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
+            workflowStore = cmd.getOptionValue("workflow-store");
         }
 
         public static Options getOptions() {
@@ -780,6 +893,13 @@ public final class ConfigManager {
                             .argName("NO-CONFIG-SNAPSHOT")
                             .desc("disable torchserve snapshot")
                             .build());
+            options.addOption(
+                    Option.builder("w")
+                            .longOpt("workflow-store")
+                            .hasArg()
+                            .argName("WORKFLOW-STORE")
+                            .desc("Workflow store location where workflow can be loaded.")
+                            .build());
             return options;
         }
 
@@ -797,6 +917,10 @@ public final class ConfigManager {
 
         public String getModelStore() {
             return modelStore;
+        }
+
+        public String getWorkflowStore() {
+            return workflowStore;
         }
 
         public void setModelStore(String modelStore) {

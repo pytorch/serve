@@ -12,6 +12,7 @@ import ts
 from ts.context import Context, RequestProcessor
 from ts.metrics.metrics_store import MetricsStore
 from ts.protocol.otf_message_handler import create_predict_response
+from ts.utils.util import PredictionException
 
 PREDICTION_METRIC = 'PredictionTime'
 logger = logging.getLogger(__name__)
@@ -22,8 +23,9 @@ class Service(object):
     Wrapper for custom entry_point
     """
 
-    def __init__(self, model_name, model_dir, manifest, entry_point, gpu, batch_size):
-        self._context = Context(model_name, model_dir, manifest, batch_size, gpu, ts.__version__)
+    def __init__(self, model_name, model_dir, manifest, entry_point, gpu, batch_size, limit_max_image_pixels=True):
+        self._context = Context(model_name, model_dir, manifest,
+                                batch_size, gpu, ts.__version__, limit_max_image_pixels)
         self._entry_point = entry_point
 
     @property
@@ -98,6 +100,9 @@ class Service(object):
         # noinspection PyBroadException
         try:
             ret = self._entry_point(input_batch, self.context)
+        except PredictionException as e:
+            logger.error("Prediction error", exc_info=True)
+            return create_predict_response(None, req_id_map, e.message, e.error_code)
         except MemoryError:
             logger.error("System out of memory", exc_info=True)
             return create_predict_response(None, req_id_map, "Out of resources", 507)

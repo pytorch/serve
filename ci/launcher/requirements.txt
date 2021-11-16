@@ -1,0 +1,3 @@
+fabric2==2.5.0
+boto3
+retrying

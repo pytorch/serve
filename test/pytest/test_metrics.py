@@ -18,7 +18,6 @@ def setup_module(module):
     response = requests.get("https://torchserve.pytorch.org/mar_files/densenet161.mar", allow_redirects=True)
     open(test_utils.MODEL_STORE + "/densenet161.mar", 'wb').write(response.content)
 
-
 def teardown_module(module):
     test_utils.torchserve_cleanup()
 

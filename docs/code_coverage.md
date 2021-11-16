@@ -1,3 +1,5 @@
+# Code Coverage
+
 ## To check branch stability run the sanity suite as follows
  - Install dependencies (if not already installed)
    For CPU:
@@ -8,9 +10,9 @@
    For GPU
     - Install dependencies (if not already installed)
    ```bash
-   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu110
+   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
    ```
-   > Supported cuda versions as cu110, cu102, cu101, cu92
+   > Supported cuda versions as cu113, cu111, cu102, cu101, cu92
    
  - Execute sanity suite
    ```bash

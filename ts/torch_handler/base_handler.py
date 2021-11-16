@@ -44,20 +44,19 @@ class BaseHandler(abc.ABC):
 
         """
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() else "cpu"
+        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu"
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available()
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else self.map_location
         )
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        serialized_file = self.manifest["model"]["serializedFile"]
-        model_pt_path = os.path.join(model_dir, serialized_file)
-
-        if not os.path.isfile(model_pt_path):
-            raise RuntimeError("Missing the model.pt file")
+        model_pt_path = None
+        if "serializedFile" in self.manifest["model"]:
+            serialized_file = self.manifest["model"]["serializedFile"]
+            model_pt_path = os.path.join(model_dir, serialized_file)
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
@@ -65,11 +64,14 @@ class BaseHandler(abc.ABC):
         if model_file:
             logger.debug("Loading eager model")
             self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model.to(self.device)
         else:
             logger.debug("Loading torchscript model")
+            if not os.path.isfile(model_pt_path):
+                raise RuntimeError("Missing the model.pt file")
+
             self.model = self._load_torchscript_model(model_pt_path)
 
-        self.model.to(self.device)
         self.model.eval()
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
@@ -89,7 +91,7 @@ class BaseHandler(abc.ABC):
         Returns:
             (NN Model Object) : Loads the model object.
         """
-        return torch.jit.load(model_pt_path, map_location=self.map_location)
+        return torch.jit.load(model_pt_path, map_location=self.device)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
@@ -122,9 +124,10 @@ class BaseHandler(abc.ABC):
             )
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path, map_location=self.map_location)
         model = model_class()
-        model.load_state_dict(state_dict)
+        if model_pt_path:
+            state_dict = torch.load(model_pt_path, map_location=self.device)
+            model.load_state_dict(state_dict)
         return model
 
     def preprocess(self, data):
@@ -196,7 +199,7 @@ class BaseHandler(abc.ABC):
         if not self._is_explain():
             output = self.inference(data_preprocess)
             output = self.postprocess(output)
-        else :
+        else:
             output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()

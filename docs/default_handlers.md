@@ -24,29 +24,31 @@ For more details see [examples](https://github.com/pytorch/serve/tree/master/exa
 * Input : RGB image
 * Output : Batch of lists of detected classes and bounding boxes respectively
 
-Note : For torchvision version lower than 0.6, the object_detector default handler runs on only default GPU device in GPU based environment.
+Note : We recommend running `torchvision>0.6` otherwise the object_detector default handler will only run on the default GPU device
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/object_detector)
 
 ## text_classifier
 
-* Description : Handles models trained on the ImageNet dataset.
+* Description : Handles models trained on the AG_NEWS dataset.
 * Input : text file
-* Output : Class of input text. NO BATCHING SUPPORTED!
+* Output : Class of input text. (No batching supported)
 
 For more details see [examples](https://github.com/pytorch/serve/tree/master/examples/text_classification)
 
-# Common features
+For a more comprehensive list of available handlers make sure to check out the [examples page](https://github.com/pytorch/serve/tree/master/examples)
 
-## index_to_name.json
+## Common features
+
+### index_to_name.json
 
 `image_classifier`, `text_classifier` and `object_detector` can all automatically map from numeric classes (0,1,2...) to friendly strings. To do this, simply include in your model archive a file, `index_to_name.json`, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:
 - [image_classifier](https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json)
 - [text_classifier](https://github.com/pytorch/serve/tree/master/examples/text_classification/index_to_name.json)
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json)
 
-# Contributing
-If you'd like to edit or create a new default_handler class, you need to take the following steps:
-1. Write a new class derived from BaseHandler. Add it as a separate file in `ts/torch_handler/`
-1. Update `model-archiver/model_packaging.py` to add in your classes name
-1. Run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.
+### Contributing
+We welcome new contributed handlers, if your usecase isn't covered by one of the existing default handlers please follow the below steps to contribute it
+1. Write a new class derived from [BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). Add it as a separate file in `ts/torch_handler/`
+2. Update `model-archiver/model_packaging.py` to add in your classes name
+3. Run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.

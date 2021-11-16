@@ -4,7 +4,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.util.ArrayList;
 import java.util.List;
-import org.pytorch.serve.archive.Manifest;
+import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
@@ -288,6 +288,12 @@ public final class OpenApiUtils {
                         "boolean",
                         "false",
                         "Decides whether creation of worker synchronous or not, default: false."));
+        operation.addParameter(
+                new QueryParameter(
+                        "s3_sse_kms",
+                        "boolean",
+                        "false",
+                        "Model mar file is S3 SSE KMS(server side encryption) enabled or not, default: false."));
 
         Manifest.RuntimeType[] types = Manifest.RuntimeType.values();
         List<String> runtimeTypes = new ArrayList<>(types.length);

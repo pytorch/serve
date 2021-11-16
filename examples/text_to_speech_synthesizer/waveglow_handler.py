@@ -51,7 +51,7 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
 
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        if not torch.cuda.is_available():
+        if not torch.cuda.is_available() or properties.get("gpu_id") is None :
             raise RuntimeError("This model is not supported on CPU machines.")
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")))
 
@@ -74,7 +74,9 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
 
     def preprocess(self, data):
         """
-         Scales, crops, and normalizes a PIL image for a MNIST model,
+         converts text to sequence of IDs using tacatron2 text_to_sequence
+         with english cleaners to transform text and standardize input
+         (ex: lowercasing, expanding abbreviations and numbers, etc.)
          returns an Numpy array
         """
         text = data[0].get("data")

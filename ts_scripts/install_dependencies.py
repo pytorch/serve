@@ -3,13 +3,12 @@ import platform
 import argparse
 import sys
 from pathlib import Path
-
+from print_env_info import run_and_parse_first_match
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_python_version
-
 
 class Common():
     def __init__(self):
@@ -53,6 +52,9 @@ class Common():
     def install_jmeter(self):
         pass
 
+    def install_wget(self):
+        pass
+
 
 class Linux(Common):
     def __init__(self):
@@ -69,26 +71,47 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
+    def install_wget(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y wget")
+    
+    def install_libgit2(self):
+        os.system(f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz")
+        os.system(f"tar xzf libgit2-1.3.0.tar.gz")
+        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
+        os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
+    
+    def install_maven(self):
+        os.system(f"{self.sudo_cmd}apt-get install -y maven")
+
 
 class Windows(Common):
     def __init__(self):
         super().__init__()
         self.sudo_cmd = ''
-    
+
     def install_java(self):
         pass
 
     def install_nodejs(self):
         pass
 
+    def install_wget(self):
+        pass
 
 class Darwin(Common):
     def __init__(self):
         super().__init__()
 
     def install_java(self):
+        out = get_brew_version()
+        if out == "N/A":
+            sys.exit("**Error: Homebrew not installed...")
+
         os.system("brew tap AdoptOpenJDK/openjdk")
-        os.system("brew cask install adoptopenjdk11")
+        if out >= "2.7":
+            os.system("brew install --cask adoptopenjdk11")
+        else:
+            os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
         os.system("brew unlink node")
@@ -97,6 +120,9 @@ class Darwin(Common):
 
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
+
+    def install_wget(self):
+        os.system("brew install wget")
 
 
 def install_dependencies(cuda_version=None):
@@ -107,6 +133,10 @@ def install_dependencies(cuda_version=None):
     }
     system = os_map[platform.system()]()
 
+    if platform.system() == "Linux" and args.environment == "dev":
+        system.install_libgit2()
+        system.install_maven()
+    
     # Sequence of installation to be maintained
     system.install_java()
     requirements_file_path = "requirements/" + ("production.txt" if args.environment == "prod" else "developer.txt")
@@ -115,12 +145,18 @@ def install_dependencies(cuda_version=None):
     if args.environment == "dev":
         system.install_nodejs()
         system.install_node_packages()
+        system.install_wget()
+    
 
+def get_brew_version():
+    """Returns `brew --version` output. """
+
+    return run_and_parse_first_match("brew --version", r'Homebrew (.*)')
 
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu110'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
 

@@ -7,7 +7,7 @@ phases:
     commands:
       - apt-get update
       - apt-get install sudo -y
-      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
+      - python ts_scripts/install_dependencies.py --cuda=cu102 --environment=dev
 
   build:
     commands:

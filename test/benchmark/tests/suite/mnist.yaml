@@ -1,0 +1,20 @@
+---
+mnist:
+    eager_mode:
+        benchmark_engine: "ab"
+        url: "https://torchserve.pytorch.org/mar_files/mnist_v2.mar"
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        requests: 1000
+        concurrency: 10
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/mnist/test_data/0.png"
+        backend_profiling: False
+        exec_env: "docker"
+        processors:
+            - "cpu"
+            - "gpus": "all"

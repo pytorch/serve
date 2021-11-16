@@ -12,11 +12,11 @@
 
 TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  [REST based APIs](rest_api.md) handle state prediction requests.
 
-For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the [examples](../examples) folder.
+For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the [examples](https://github.com/pytorch/serve/tree/master/examples) folder.
 
 ## Technical Details
 
-Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
+Now that you have a high level view of TorchServe, let's get a little into the weeds. TorchServe takes a Pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the [custom service](custom_service.md) documentation.
 
 To try out TorchServe serving now, you can load the custom MNIST model, with this example:
 
@@ -45,6 +45,7 @@ usage: torchserve [-h] [-v | --version]
                           [--stop]
                           [--ts-config TS_CONFIG]
                           [--model-store MODEL_STORE]
+                          [--workflow-store WORKFLOW_STORE]
                           [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
                           [--log-config LOG_CONFIG]
 
@@ -53,6 +54,8 @@ torchserve
 mandatory arguments:
   --model-store MODEL_STORE
                         Model store location where models can be loaded
+
+  
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -71,6 +74,8 @@ optional arguments:
                         Log4j configuration file for TorchServe
   --ncs, --no-config-snapshots         
                         Disable snapshot feature
+  --workflow-store WORKFLOW_STORE
+                        Workflow store location where workflow can be loaded. Defaults to model-store
 ```
 
 #### Arguments:
@@ -85,10 +90,7 @@ There are no default required arguments to start the server
 
 1. **models**: optional, <model_name>=<model_path> pairs.
 
-    a) Model path can be mar file name in model store or URI (s3 link, or http link).
-        s3 link: s3://S3_endpoint[:port]/...
-        http link: http://hostname/path/to/resource
-
+    a) Model path can be a local mar file name or a remote http link to a mar file
     b) to load all the models in model store set model value to "all"
 
 
@@ -102,7 +104,8 @@ There are no default required arguments to start the server
 
     e) For details on different ways to load models while starting TorchServe, refer [Serving Multiple Models with TorchServe](#serving-multiple-models-with-torchserve)
 
-1. **model-store**: optional, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
+1. **model-store**: mandatory, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
+1. **workflow-store**: mandatory, A location where default or local workflows are stored. The workflows available in workflow store can be registered in TorchServe via [register api call](workflow_management_api.md#register-a-workflow).
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
 1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
 1. **start**: optional, A more descriptive way to start the server.

@@ -73,7 +73,9 @@ def start():
 
             cmd.append("-Djava.io.tmpdir={}".format(tmp_dir))
 
-        ts_config = args.ts_config
+        ts_config = os.environ.get("TS_CONFIG_FILE")
+        if ts_config is None:
+            ts_config = args.ts_config
         ts_conf_file = None
         if ts_config:
             if not os.path.isfile(ts_config):
@@ -128,6 +130,17 @@ def start():
         else:
             print("Missing mandatory parameter --model-store")
             sys.exit(1)
+
+        if args.workflow_store:
+            if not os.path.isdir(args.workflow_store):
+                print("--workflow-store directory not found: {}".format(args.workflow_store))
+                sys.exit(1)
+
+            cmd.append("-w")
+            cmd.append(args.workflow_store)
+        else:
+            cmd.append("-w")
+            cmd.append(args.model_store)
 
         if args.no_config_snapshots:
             cmd.append("-ncs")

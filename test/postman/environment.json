@@ -46,6 +46,61 @@
 			"key": "sec-metric-port",
 			"value": "8445",
 			"enabled": true
+		},
+		{
+			"key": "mar_path_mnist",
+			"value": "mnist.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_vgg16",
+			"value": "vgg16.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_fastrcnn",
+			"value": "fastrcnn.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_alexnet",
+			"value": "alexnet.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_densenet161",
+			"value": "densenet161.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_resnet-152-batch",
+			"value": "resnet-152-batch.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_resnet-18",
+			"value": "resnet-18.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_squeezenet1_1",
+			"value": "squeezenet1_1.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_deeplabv3_resnet_101_eager",
+			"value": "deeplabv3_resnet_101_eager.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_fcn_resnet_101",
+			"value": "fcn_resnet_101.mar",
+			"enabled": true
+		},
+		{
+			"key": "mar_path_maskrcnn",
+			"value": "maskrcnn.mar",
+			"enabled": true
 		}
 	],
 	"_postman_variable_scope": "environment",

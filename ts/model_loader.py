@@ -34,7 +34,7 @@ class ModelLoader(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
         """
         Load model from file.
 
@@ -44,6 +44,7 @@ class ModelLoader(object):
         :param gpu_id:
         :param batch_size:
         :param envelope:
+        :param limit_max_image_pixels:
         :return: Model
         """
         # pylint: disable=unnecessary-pass
@@ -55,7 +56,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
         """
         Load TorchServe 1.0 model from file.
 
@@ -65,6 +66,7 @@ class TsModelLoader(ModelLoader):
         :param gpu_id:
         :param batch_size:
         :param envelope:
+        :param limit_max_image_pixels:
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
@@ -83,7 +85,13 @@ class TsModelLoader(ModelLoader):
             module = self._load_default_handler(handler)
 
         if module is None:
-            raise ValueError("Unable to load module {}, make sure it is added to python path".format(module_name))
+            raise ValueError("Unable to load module {}, make sure it is added to python path".format(handler))
+        if function_name is None:
+            function_name = "handle"
+
+        if hasattr(module, function_name):
+            entry_point = getattr(module, function_name)
+            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, limit_max_image_pixels)
 
         envelope_class = None
         if envelope is not None:
@@ -99,7 +107,7 @@ class TsModelLoader(ModelLoader):
             envelope_instance = envelope_class(entry_point)
             entry_point = envelope_instance.handle
 
-        service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size)
+        service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, limit_max_image_pixels)
         service.context.metrics = metrics
         initialize_fn(service.context)
 
