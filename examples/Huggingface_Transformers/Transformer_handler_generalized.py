@@ -183,7 +183,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
             if self.setup_config["save_mode"]=="pretrained":
-                outputs = self.model(input_batch)
+                outputs = self.model(input_ids_batch,attention_mask_batch)
                 answer_start_scores = outputs.start_logits
                 answer_end_scores = outputs.end_logits
             else:

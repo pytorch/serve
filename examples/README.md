@@ -120,4 +120,4 @@ The following example demonstrates how to create and serve a complex image class
 
 The following example demonstrates how to create and serve a complex neural machine translation workflow
 
-* [Neural machine Translation workflow](Workflows/nmt_tranformers_pipeline)
+* [Neural machine Translation workflow](Workflows/nmt_transformers_pipeline)

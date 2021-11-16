@@ -1,5 +1,7 @@
 # TorchServe gRPC API
 
+__Note__: Current TorchServe gRPC does not support workflow.
+
 TorchServe also supports [gRPC APIs](https://github.com/pytorch/serve/tree/master/frontend/server/src/main/resources/proto) for both inference and management calls.
 
 TorchServe provides following gRPCs apis
