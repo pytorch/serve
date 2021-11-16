@@ -4,6 +4,7 @@ import json
 import test_utils
 import numpy as np
 import ast 
+import pytest
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
@@ -248,7 +249,8 @@ def test_huggingface_bert_batch_inference():
     ## Assert that 2 responses are returned from the same batch
     assert response == 'Not AcceptedNot Accepted'
     test_utils.unregister_model('BERTSeqClassification')
-    
+
+@pytest.mark.skip(reason="MMF doesn't support PT 1.10 yet")
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
   
     test_utils.start_torchserve(snapshot_file = snapshot_file_tf)
