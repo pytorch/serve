@@ -100,7 +100,6 @@ class Linux(Common):
 
 
 
-
 class Windows(Common):
 
     def __init__(self):
@@ -164,7 +163,6 @@ def install_dependencies(cuda_version=None):
         system.install_node_packages()
         system.install_wget()
     
-
 
 
 def get_brew_version():

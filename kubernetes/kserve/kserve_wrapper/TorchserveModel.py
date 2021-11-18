@@ -80,8 +80,7 @@ class TorchserveModel(kserve.KFModel):
         )
 
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code,
-                                        reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)
 
     async def explain(self, request: Dict) -> Dict:
@@ -114,6 +113,5 @@ class TorchserveModel(kserve.KFModel):
             body=json.dumps(request),
         )
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code,
-                                        reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)

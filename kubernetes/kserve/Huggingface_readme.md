@@ -40,11 +40,16 @@ model_store=/mnt/models/model-store
 
 - Set service envelope environment variable
 
+<<<<<<<< HEAD:kubernetes/kserve/examples/Huggingface_readme.md
 The
 `export TS_SERVICE_ENVELOPE=kserve` or `TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
 KServe v1 and v2 protocols
 
 - start Torchserve by invoking the below command:
+========
+The 
+```export TS_SERVICE_ENVELOPE=kfserving``` or ```export TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between KFServing v1 and v2 protocols. This is set by the controller in KFServing cluster.
+>>>>>>>> upstream/master:kubernetes/kserve/Huggingface_readme.md
 
 ```
 torchserve --start --model-store model_store --ncs --models bert=BERTSeqClassification.mar
