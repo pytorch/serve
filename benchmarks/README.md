@@ -283,13 +283,13 @@ python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar 
 python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url explanations/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
 ```
 
-- KUBEFLOW SERVING PREDICTIONS
+- KSERVE SERVING PREDICTIONS
 
 ```
 python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:predict --input ../kubernetes/kserve/kf_request_json/mnist.json
 ```
 
-- KUBEFLOW SERVING EXPLANATIONS
+- KSERVE SERVING EXPLANATIONS
 
 ```
 python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:explain --input ../kubernetes/kserve/kf_request_json/mnist.json

@@ -1,7 +1,7 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
-  name: "kubeflow"
+  name: "kserve"
   region: "us-west-2"
 nodeGroups:
   - name: node-group-1

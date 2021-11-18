@@ -36,9 +36,11 @@ DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:lates
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-Please follow the below steps to deploy Torchserve in Kubeflow Cluster as kfpredictor:
+### Running Torchserve inference service in KServe cluster
 
-- Step - 1 : Create the .mar file for mnist by invoking the below command :
+Please follow the below steps to deploy Torchserve in KServe Cluster
+
+- Step - 1 : Create the .mar file for mnist by invoking the below command
 
 Run the below command inside the serve folder
 
@@ -52,7 +54,7 @@ For BERT and Text Classifier models, to generate a .mar file refer to the ".mar 
 
 ```bash
 inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8081
 metrics_address=http://0.0.0.0:8082
 grpc_inference_port=7070
 grpc_management_port=7071
@@ -73,37 +75,53 @@ When we make an Inference Request, in Torchserve it makes use of port 8080, wher
 
 Ensure that the KServe envelope is specified in the config file as shown above. The path of the model store should be mentioned as /mnt/models/model-store because KServe mounts the model store from that path.
 
-The below sequence of steps need to be executed in the Kubeflow cluster.
+The below sequence of steps need to be executed in the KServe cluster.
 
 - Step - 3 : Create PV, PVC and PV pods in KServe
 
 Follow the instructions in the link below for creating PV and copying the config files
 
-[Steps for creating PVC](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
+[Steps for creating PVC](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
 
 
 * Step - 4 : Create the Inference Service
 
 Refer the following linn to create an inference service
 
-[Creating inference service](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
-
-* Step - 5 : Hit the Curl Request to make a prediction as below :
+[Creating inference service](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
 
 ```bash
 DEPLOYMENT_NAME=torch-pred
 SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n KServe-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
-
-curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:predict -d @<path-to-input-file>
 ```
 
+* Step - 5 : Hit the Curl Request to make a prediction as below :
 
- * Step - 6 : Hit the Curl Request to make an explanation as below:
-
+For v1 protocol
 
 ```bash
-curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:explain -d @<path-to-input-file>
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>:predict -d @<path-to-input-file>
+```
+
+For v2 protocol
+
+```bash
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v2/models/<model-name>/infer -d @<path-to-input-file>
+```
+
+* Step - 6 : Hit the Curl Request to make an explanation as below:
+
+For v1 protocol
+
+```bash
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>:explain -d @<path-to-input-file>
+```
+
+For v2 protocol
+
+```bash
+curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v2/models/<model-name>/explain -d @<path-to-input-file>
 ```
 
 Refer the individual Readmes for KServe :
@@ -112,16 +130,15 @@ Refer the individual Readmes for KServe :
 * [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md)
 * [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md)
 
-KServe supports static batching for prediction - Refer the [Batch](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md#Static-batching) for an example
+KServe supports static batching for prediction - Refer the [mnist batching](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md#Static-batching) for an example
+
+Sample input JSON file for v1 and v2 protocols 
 
 For v1 protocol
 
 ```json
 {
   "instances": [
-    {
-      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
-    },
     {
       "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
     }
@@ -140,17 +157,11 @@ For v2 protocol
       "datatype": "INT64",
       "data": [
         66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114,
-        101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32,
-        101, 99, 111, 110, 111, 109, 121
-      ]
-    },
-    {
-      "name": "a5c32978-fe42-4af0-a1c6-7dded82d12ab",
-      "shape": [37],
-      "datatype": "INT64",
-      "data": [
-        66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114,
-        101, 112, 111, 114, 116, 101, 100, 32, 111, 110, 32, 116, 104, 101, 32,
+        101, 112, 111, 114, 116, 101, 100, 
+        .................
+        .................
+        .................
+        32, 111, 110, 32, 116, 104, 101, 32,
         101, 99, 111, 110, 111, 109, 121
       ]
     }
@@ -199,12 +210,12 @@ One of the main serverless inference features is to automatically scale the repl
 KServe by default enables [Knative Pod Autoscaler](https://knative.dev/docs/serving/autoscaling/) which watches traffic flow and scales up and down
 based on the configured metrics.
 
-[Autoscaling Example](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/autoscaling/README.md)
+[Autoscaling Example](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/autoscaling/README.md)
 
 ## Canary Rollout
 Canary rollout is a deployment strategy when you release a new version of model to a small percent of the production traffic.
 
-[Canary Deployment](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/canary/README.md)
+[Canary Deployment](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/canary/README.md)
 
 ## Monitoring
-[Expose metrics and setup grafana dashboards](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/metrics/README.md)
+[Expose metrics and setup grafana dashboards](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/metrics/README.md)

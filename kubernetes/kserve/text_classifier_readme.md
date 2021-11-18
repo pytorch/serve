@@ -1,4 +1,4 @@
-# Serve a Text Classification Model in KServe for Inference and Explanations:
+# Serve a Text Classification Model for Inference and Explanations with KServe:
 
 In this document, the .mar file creation, request & response on the KServe side and the KServe changes to the handler files for Text Classification model using Torchserve's default text handler.
 
@@ -34,24 +34,22 @@ job_queue_size=10
 model_store=model-store
 ```
 
-- Set service envelope environment variable
+* Set service envelope environment variable
 
 The
 `export TS_SERVICE_ENVELOPE=kserve` or `export TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
-KServe v1 and v2 protocols
+KServe v1 and v2 protocols. This is set by the controller in KServe cluster.
 
-- start Torchserve by invoking the below command:
+* start Torchserve by invoking the below command:
 
-```
+```bash
 torchserve --start --model-store model_store --ncs --models my_tc=my_text_classifier.mar
-
 ```
-
-## Model Register for KServe:
+## Register model
 
 Hit the below curl request to register the model
 
-```
+```bash
 curl -X POST "localhost:8081/models?model_name=my_tc&url=my_text_classifier.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 

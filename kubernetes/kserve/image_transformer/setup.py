@@ -1,4 +1,3 @@
-# Copyright 2019 kubeflow.org.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +18,6 @@ tests_require = ['pytest', 'pytest-tornasync', 'mypy']
 setup(
     name='image_transformer',
     version='0.1.0',
-    author_email='dsun20@bloomberg.net',
-    license='../../LICENSE.txt',
     url=
     'https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/transformer',
     description='Transformer',

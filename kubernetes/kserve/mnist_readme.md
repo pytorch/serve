@@ -1,4 +1,4 @@
-# Serve a MNIST Model for Inference on the KServe side:
+# Serve a MNIST Model for Inference with KServe
 
 In this document, the .mar file creation, request & response on the KServe side and the KServe changes to the handler files for Image Classification model using Torchserve's default vision handler.
 
@@ -13,32 +13,33 @@ torch-model-archiver --model-name mnist --version 1.0 --model-file serve/example
 To serve an Inference Request for Torchserve using the KServe Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
+
 ```
 inference_address=http://127.0.0.0:8085
 management_address=http://127.0.0.0:8081
 number_of_netty_threads=4
 enable_envvars_config=true
 job_queue_size=10
-model_store=model-store
+model_store=model_store
 ```
 
 * Set service envelope environment variable
 
-The 
-```export TS_SERVICE_ENVELOPE=kserve``` or ```TS_SERVICE_ENVELOPE=kservev2``` envvar is for choosing between
-KServe v1 and v2 protocols
+The
+`export TS_SERVICE_ENVELOPE=kserve` or `export TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
+KServe v1 and v2 protocols. This is set by the controller in KServe cluster.
 
 * start Torchserve by invoking the below command:
-```
+
+```bash
 torchserve --start --model-store model_store --ncs --models mnist=mnist.mar
-
 ```
 
-## Model Register for KServe:
+## Register model
 
 Hit the below curl request to register the model
 
-```
+```bash
 curl -X POST "localhost:8081/models?model_name=mnist&url=mnist.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
@@ -49,7 +50,7 @@ Please note that the batch size, the initial worker and synchronous values can b
 
 The image file can be converted into string of bytes array by running
   
-``` 
+```bash
 python img2bytearray.py <imagefile>
 ```
 

@@ -1,4 +1,4 @@
-# Serve a BERT Model for Inference and Explanations on the KServe side :
+# Serve a BERT Model for Inference and Explanations with KServe
 
 In this document, the .mar file creation, request & response on the KServe side and the KServe changes to the handler files for BERT Sequence Classification model using a custom handler.
 
@@ -12,7 +12,7 @@ This produces all the required files for packaging using a huggingface transform
 
 The .mar file creation command is as below:
 
-```
+```bash
 torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serialized-file serve/examples/Huggingface_Transformers/Transformer_model/pytorch_model.bin --handler serve/examples/Huggingface_Transformers/Transformer_model/Transformer_handler_generalized.py --extra-files "serve/examples/Huggingface_Transformers/Transformer_model/vocab.txt,serve/examples/Huggingface_Transformers/Transformer_model/config.json,serve/examples/Huggingface_Transformers/Transformer_model/setup_config.json,serve/examples/Huggingface_Transformers/Transformer_model/index_to_name.json"
 ```
 
@@ -23,9 +23,9 @@ To serve an Inference Request for Torchserve using the KServe Spec, follow the b
 - create a config.properties file and specify the details as shown:
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8081
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true
@@ -35,27 +35,26 @@ metrics_format=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
-model_store=/mnt/models/model-store
+model_store=model_store
 ```
 
-- Set service envelope environment variable
+* Set service envelope environment variable
 
 The
 `export TS_SERVICE_ENVELOPE=kserve` or `export TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
 KServe v1 and v2 protocols. This is set by the controller in KServe cluster.
 
-- start Torchserve by invoking the below command:
+* start Torchserve by invoking the below command:
 
-```
+```bash
 torchserve --start --model-store model_store --ncs --models bert=BERTSeqClassification.mar
-
 ```
 
-## Model Register for KServe:
+## Register model
 
 Hit the below curl request to register the model
 
-```
+```bash
   curl -X POST "localhost:8081/models?model_name=bert&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
 ```
 
@@ -67,8 +66,8 @@ Please note that the batch size, the initial worker and synchronous values can b
 
 When the curl request is made, ensure that the request is made inisde of the serve folder.
 
-```
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:predict
+```bash
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/bert.json http://127.0.0.1:8080/v1/models/bert:predict
 ```
 
 The Prediction response is as below :
@@ -84,7 +83,7 @@ The Prediction response is as below :
 Torchserve supports KServe Captum Explanations for Eager Models only.
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/bert.json http://127.0.0.1:8085/v1/models/bert:explain
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/bert.json http://127.0.0.1:8080/v1/models/bert:explain
 ```
 
 The Explanation response is as below :
