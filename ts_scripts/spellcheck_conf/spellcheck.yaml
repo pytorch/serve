@@ -1,8 +1,8 @@
 matrix:
 - name: Markdown
-  expect_match: false
   apsell:
-    mode: en
+    lang: en
+    d: en_US
   dictionary:
     wordlists:
     - ts_scripts/spellcheck_conf/wordlist.txt
