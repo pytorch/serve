@@ -11,3 +11,4 @@ protobuf
 grpcio-tools
 transformers==4.11.0
 pygit2
+pyspelling

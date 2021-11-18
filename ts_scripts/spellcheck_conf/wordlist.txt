@@ -1,0 +1,10 @@
+serve
+BERT
+bert
+torchserve
+prometheus
+resnet
+resnet-50
+api
+http
+addmorethingshere
