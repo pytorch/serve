@@ -1,6 +1,6 @@
-# Serve a MNIST Model for Inference on the KFServing side:
+# Serve a MNIST Model for Inference on the KServe side:
 
-In this document, the .mar file creation, request & response on the KFServing side and the KFServing changes to the handler files for Image Classification model using Torchserve's default vision handler.
+In this document, the .mar file creation, request & response on the KServe side and the KServe changes to the handler files for Image Classification model using Torchserve's default vision handler.
 
 ## .mar file creation
 
@@ -10,7 +10,7 @@ torch-model-archiver --model-name mnist --version 1.0 --model-file serve/example
 ```
 
 ## Starting Torchserve 
-To serve an Inference Request for Torchserve using the KFServing Spec, follow the below:
+To serve an Inference Request for Torchserve using the KServe Spec, follow the below:
 
 * create a config.properties file and specify the details as shown:
 ```
@@ -25,8 +25,8 @@ model_store=model-store
 * Set service envelope environment variable
 
 The 
-```export TS_SERVICE_ENVELOPE=kfserving``` or ```TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between
-KFServing v1 and v2 protocols
+```export TS_SERVICE_ENVELOPE=kserve``` or ```TS_SERVICE_ENVELOPE=kservev2``` envvar is for choosing between
+KServe v1 and v2 protocols
 
 * start Torchserve by invoking the below command:
 ```
@@ -34,7 +34,7 @@ torchserve --start --model-store model_store --ncs --models mnist=mnist.mar
 
 ```
 
-## Model Register for KFServing:
+## Model Register for KServe:
 
 Hit the below curl request to register the model
 
@@ -55,9 +55,9 @@ python img2bytearray.py <imagefile>
 
 When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
 ```
-The default Inference Port for Torchserve is 8080, while for KFServing it is 8085
+The default Inference Port for Torchserve is 8080, while for KServe it is 8085
 
 The Prediction response is as below :
 
@@ -72,10 +72,10 @@ The Prediction response is as below :
 
 ### The curl request for Explanation is as below:
 
-Torchserve supports KFServing Captum Explanations for Eager Models only.
+Torchserve supports KServe Captum Explanations for Eager Models only.
 
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
 ```
 
 The Explanation response is as below :
@@ -105,7 +105,7 @@ The Explanation response is as below :
 
 ### Static batching:
 
-KFServing supports Static batching by adding new examples in the instances key of the request json
+KServe supports Static batching by adding new examples in the instances key of the request json
 But the batch size should still be set at 1, when we register the model. Explain doesn't support batching.
 
 
@@ -139,11 +139,11 @@ The response is as below:
 }
 ```
 
-## The KFServing Changes in the handler files
+## The KServe Changes in the handler files
 
 
 * 1)  When you write a handler, always expect a plain Python list containing data ready to go into `preprocess`.
-The mnist request difference between the regular torchserve and kfserving is as below
+The mnist request difference between the regular torchserve and kserve is as below
 
 	### Regular torchserve request
 
@@ -158,7 +158,7 @@ The mnist request difference between the regular torchserve and kfserving is as 
 	]	
 	```
 
-	### KFServing Request:
+	### KServe Request:
 
 	```json
 	{
@@ -170,7 +170,7 @@ The mnist request difference between the regular torchserve and kfserving is as 
 	}
 	```
 
-	The KFServing request is unwrapped by the kfserving envelope in torchserve  and sent like a torchserve request. So effectively the values of  `instances`  key is sent to the handlers.
+	The KServe request is unwrapped by the kserve envelope in torchserve  and sent like a torchserve request. So effectively the values of  `instances`  key is sent to the handlers.
 
 
-* 2) Torchserve handles the input request for Image Classification tasks in the format of BytesArray. On the KFServing side, the predictor does not take the request as bytesarray (Image Transformer Functionality in KFServing converts the BytesArray into a JSON array) for details refer the Image Transformer section(step 5 and step 10) in the [End to End Transformer](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md). The code change is done to handle both BytesArray and JSON array Input Requests as a part of the pre-process method of [vision_handler.py](https://github.com/pytorch/serve/blob/master/ts/torch_handler/vision_handler.py).
+* 2) Torchserve handles the input request for Image Classification tasks in the format of BytesArray. On the KServe side, the predictor does not take the request as bytesarray (Image Transformer Functionality in KServe converts the BytesArray into a JSON array) for details refer the Image Transformer section(step 5 and step 10) in the [End to End Transformer](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md). The code change is done to handle both BytesArray and JSON array Input Requests as a part of the pre-process method of [vision_handler.py](https://github.com/pytorch/serve/blob/master/ts/torch_handler/vision_handler.py).

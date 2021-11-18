@@ -37,7 +37,7 @@ model_store=model-store
 - Set service envelope environment variable
 
 The
-`export TS_SERVICE_ENVELOPE=kserve` or `TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
+`export TS_SERVICE_ENVELOPE=kserve` or `export TS_SERVICE_ENVELOPE=kservev2` envvar is for choosing between
 KServe v1 and v2 protocols
 
 - start Torchserve by invoking the below command:

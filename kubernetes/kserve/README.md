@@ -46,7 +46,7 @@ Run the below command inside the serve folder
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
 
-For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](./examples/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](./examples/text_classifier_readme.md#mar-file-creation).
+For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md#mar-file-creation).
 
 - Step - 2 : Create a config.properties file and place the contents like below:
 
@@ -79,14 +79,14 @@ The below sequence of steps need to be executed in the Kubeflow cluster.
 
 Follow the instructions in the link below for creating PV and copying the config files
 
-[Steps for creating PVC](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
+[Steps for creating PVC](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/model-archiver/README.md)
 
 
 * Step - 4 : Create the Inference Service
 
 Refer the following linn to create an inference service
 
-[Creating inference service](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
+[Creating inference service](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md#create-the-inferenceservice)
 
 * Step - 5 : Hit the Curl Request to make a prediction as below :
 
@@ -106,13 +106,28 @@ curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v
 curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v1/models/<model-name>>:explain -d @<path-to-input-file>
 ```
 
-Refer the individual Readmes for KFServing :
+Refer the individual Readmes for KServe :
 
-* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md)
-* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md)
-* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md)
+* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md)
+* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md)
+* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md)
 
-KFServing supports static batching for prediction - Refer the [link](mnist_readme.md#Static batching:) for an example
+KServe supports static batching for prediction - Refer the [Batch](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md#Static-batching) for an example
+
+For v1 protocol
+
+```json
+{
+  "instances": [
+    {
+      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
+    },
+    {
+      "data": "iVBORw0eKGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAAw0lEQVR4nGNgGFggVVj4/y8Q2GOR83n+58/fP0DwcSqmpNN7oOTJw6f+/H2pjUU2JCSEk0EWqN0cl828e/FIxvz9/9cCh1zS5z9/G9mwyzl/+PNnKQ45nyNAr9ThMHQ/UG4tDofuB4bQIhz6fIBenMWJQ+7Vn7+zeLCbKXv6z59NOPQVgsIcW4QA9YFi6wNQLrKwsBebW/68DJ388Nun5XFocrqvIFH59+XhBAxThTfeB0r+vP/QHbuDCgr2JmOXoSsAAKK7bU3vISS4AAAAAElFTkSuQmCC"
+    }
+  ]
+}
+```
 
 For v2 protocol
 
@@ -143,7 +158,7 @@ For v2 protocol
 }
 ```
 
-For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](./examples/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](./examples/text_classifier_readme.md#mar-file-creation).
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md#mar-file-creation).
 
 ### Troubleshooting guide for KServe :
 
@@ -181,15 +196,15 @@ DEPLOYMENT_NAME=_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
 
 ## Autoscaling
 One of the main serverless inference features is to automatically scale the replicas of an `InferenceService` matching the incoming workload.
-KFServing by default enables [Knative Pod Autoscaler](https://knative.dev/docs/serving/autoscaling/) which watches traffic flow and scales up and down
+KServe by default enables [Knative Pod Autoscaler](https://knative.dev/docs/serving/autoscaling/) which watches traffic flow and scales up and down
 based on the configured metrics.
 
-[Autoscaling Example](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/autoscaling/README.md)
+[Autoscaling Example](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/autoscaling/README.md)
 
 ## Canary Rollout
 Canary rollout is a deployment strategy when you release a new version of model to a small percent of the production traffic.
 
-[Canary Deployment](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/canary/README.md)
+[Canary Deployment](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/canary/README.md)
 
 ## Monitoring
-[Expose metrics and setup grafana dashboards](https://github.com/kubeflow/kfserving/blob/master/docs/samples/v1beta1/torchserve/metrics/README.md)
+[Expose metrics and setup grafana dashboards](https://github.com/kubeflow/kserve/blob/master/docs/samples/v1beta1/torchserve/metrics/README.md)
