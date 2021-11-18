@@ -1,9 +1,9 @@
 """ The repository to serve the Torchserve Models in the KFServing side"""
 import logging
-import kfserving
-from kfserving.kfmodel_repository import KFModelRepository
+import kserve
+from kserve.kfmodel_repository import KFModelRepository
 
-logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
+logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 
 class TSModelRepository(KFModelRepository):
@@ -27,4 +27,3 @@ class TSModelRepository(KFModelRepository):
         self.inference_address = inference_address
         self.management_address = management_address
         self.model_dir = model_dir
-       
