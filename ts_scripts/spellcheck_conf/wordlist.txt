@@ -259,7 +259,6 @@ lig
 os
 param
 pred
-prediciton
 pth
 pyt
 serializedFile
@@ -375,7 +374,6 @@ ecd
 fbf
 macOS
 sse
-tranformers
 fairseq
 libs
 mv
@@ -486,9 +484,7 @@ VQA
 XCCUv
 Ysq
 csv
-currenly
 datasets
-enviroment
 facebook
 facebookresearch
 fbclid
@@ -505,7 +501,6 @@ uwLxwvvvr
 wpnNYEZEmWOQ
 zccSXqNt
 zzRl
-Classfication
 EmbeddingBag
 TextHandler
 overriden
@@ -520,7 +515,6 @@ bytedance
 cmake
 cp
 dn
-downlaod
 geforce
 libpyt
 nvcr
