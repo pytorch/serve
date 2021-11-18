@@ -3,11 +3,10 @@
 import json
 from typing import Dict
 import logging
-import kfserving
+import kserve
 import tornado.web
 
-logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
-
+logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
@@ -16,14 +15,15 @@ PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
-class TorchserveModel(kfserving.KFModel):
+class TorchserveModel(kserve.KFModel):
     """The torchserve side inference and explain end-points requests are handled to
     return a KFServing side response
 
     Args:
-        kfserving.KFModel(class object): The predict and explain methods are overriden by torchserve
+        kfserving.KFModel(class object): The predict and explain methods are overridden by torchserve
         side predict and explain http requests.
     """
+
     def __init__(self, name, inference_address, management_address, model_dir):
         """The Model Name, Inference Address, Management Address and the model directory
         are specified.
@@ -32,7 +32,7 @@ class TorchserveModel(kfserving.KFModel):
             name (str): Model Name
             inference_address (str): The Inference Address in which we hit the inference end point
             management_address (str): The Management Address in which we register the model.
-            model_dir (str): The location of the model artefacts.
+            model_dir (str): The location of the model artifacts.
         """
         super().__init__(name)
 

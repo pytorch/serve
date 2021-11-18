@@ -1,5 +1,3 @@
-
-
 # To build and upload a new version, follow the steps below.
 # Notes:
 # - this is a "Universal Wheels" package that is pure Python and supports both Python2 and Python3
@@ -15,7 +13,6 @@
 # If this is successful then push it to actual pypi
 
 # $ twine upload dist/*
-
 """
 Setup.py for the model server package
 """
@@ -35,12 +32,16 @@ import ts
 
 pkgs = find_packages(exclude=["ts_scripts", "test"])
 
-build_frontend_command = {"Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
-                          "Darwin": "frontend/gradlew -p frontend clean assemble",
-                          "Linux": "frontend/gradlew -p frontend clean assemble"}
-build_plugins_command = {'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
-                         'Darwin': 'plugins/gradlew -p plugins clean bS',
-                         'Linux': 'plugins/gradlew -p plugins clean bS'}
+build_frontend_command = {
+    "Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
+    "Darwin": "frontend/gradlew -p frontend clean assemble",
+    "Linux": "frontend/gradlew -p frontend clean assemble"
+}
+build_plugins_command = {
+    'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
+    'Darwin': 'plugins/gradlew -p plugins clean bS',
+    'Linux': 'plugins/gradlew -p plugins clean bS'
+}
 
 
 def pypi_description():
@@ -65,7 +66,8 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
     Class defined to run custom commands.
     """
     description = 'Build Model Server Frontend'
-    source_server_file = os.path.abspath('frontend/server/build/libs/server-1.0.jar')
+    source_server_file = os.path.abspath(
+        'frontend/server/build/libs/server-1.0.jar')
     dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
 
     # noinspection PyMethodMayBeStatic
@@ -87,7 +89,8 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
             os.remove(self.source_server_file)
 
         try:
-            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()],
+                                  shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -125,7 +128,8 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                subprocess.check_call(build_plugins_command[platform.system()], shell=True)
+                subprocess.check_call(build_plugins_command[platform.system()],
+                                      shell=True)
             else:
                 raise OSError("No such rule exists")
         except OSError:
@@ -142,7 +146,8 @@ if __name__ == '__main__':
     setup(
         name='torchserve',
         version=version,
-        description='TorchServe is a tool for serving neural net models for inference',
+        description=
+        'TorchServe is a tool for serving neural net models for inference',
         author='PyTorch Serving team',
         author_email='noreply@noreply.com',
         long_description=pypi_description(),
@@ -155,11 +160,6 @@ if __name__ == '__main__':
             'build_py': BuildPy,
         },
         install_requires=requirements,
-        entry_points={
-            'console_scripts': [
-                'torchserve=ts.model_server:start',
-            ]
-        },
+        entry_points={'console_scripts': ['torchserve=ts.model_server:start',]},
         include_package_data=True,
-        license='Apache License Version 2.0'
-    )
+        license='Apache License Version 2.0')
