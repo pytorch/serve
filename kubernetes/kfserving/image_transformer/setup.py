@@ -14,21 +14,17 @@
 
 from setuptools import setup, find_packages
 
-tests_require = [
-    'pytest',
-    'pytest-tornasync',
-    'mypy'
-]
+tests_require = ["pytest", "pytest-tornasync", "mypy"]
 
 setup(
-    name='image_transformer',
-    version='0.1.0',
-    author_email='dsun20@bloomberg.net',
-    license='../../LICENSE.txt',
-    url='https://github.com/kubeflow/kfserving/docs/sameples/transformer',
-    description='Transformer',
-    long_description=open('README.md').read(),
-    python_requires='>=3.6',
+    name="image_transformer",
+    version="0.1.0",
+    author_email="dsun20@bloomberg.net",
+    license="../../LICENSE.txt",
+    url="https://github.com/kubeflow/kfserving/docs/sameples/transformer",
+    description="Transformer",
+    long_description=open("README.md").read(),
+    python_requires=">=3.6",
     packages=find_packages("image_transformer"),
     install_requires=[
         "kfserving>=0.2.1",
@@ -39,8 +35,8 @@ setup(
         "numpy>=1.16.3",
         "kubernetes >= 9.0.0",
         "torchvision>=0.4.0",
-        "pillow==8.3.2"
+        "pillow==8.3.2",
     ],
     tests_require=tests_require,
-    extras_require={'test': tests_require}
+    extras_require={"test": tests_require},
 )

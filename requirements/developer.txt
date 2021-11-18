@@ -1,6 +1,9 @@
 -r common.txt
 mock
 pytest
+black
+flake8
+usort
 pylint==2.6.0
 pytest-mock
 pytest-cov

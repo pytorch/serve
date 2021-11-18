@@ -43,7 +43,9 @@ def run_test(test, cmd):
 
 
 def validate_archive_exists(test):
-    assert os.path.isfile(os.path.join(test.get("export-path"), test.get("workflow-name")+".war"))
+    assert os.path.isfile(
+        os.path.join(test.get("export-path"), test.get("workflow-name") + ".war")
+    )
 
 
 def validate_manifest_file(manifest, test):
@@ -55,14 +57,19 @@ def validate_manifest_file(manifest, test):
     """
     assert datetime.strptime(manifest.get("createdOn"), "%d/%m/%Y %H:%M:%S")
     assert manifest.get("workflow").get("workflowName") == test.get("workflow-name")
-    assert manifest.get("workflow").get("specFile") == test.get("spec-file").split("/")[-1]
+    assert (
+        manifest.get("workflow").get("specFile") == test.get("spec-file").split("/")[-1]
+    )
     assert manifest.get("workflow").get("handler") == test.get("handler").split("/")[-1]
     assert manifest.get("archiverVersion") == workflow_archiver.__version__
 
 
 def validate_war_archive(test):
     import zipfile
-    file_name = os.path.join(test.get("export-path"), test.get("workflow-name") + ".war")
+
+    file_name = os.path.join(
+        test.get("export-path"), test.get("workflow-name") + ".war"
+    )
     zf = zipfile.ZipFile(file_name, "r")
     manifest = json.loads(zf.open(MANIFEST_FILE).read())
     validate_manifest_file(manifest, test)
@@ -74,7 +81,7 @@ def validate(test):
 
 
 def build_cmd(test):
-    args = ['workflow-name', 'spec-file', 'handler', 'export-path']
+    args = ["workflow-name", "spec-file", "handler", "export-path"]
     cmd = ["torch-workflow-archiver"]
 
     for arg in args:

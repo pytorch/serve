@@ -14,9 +14,11 @@ class BaseEnvelope(ABC):
     Interface for all envelopes.
     Derive from this class, replacing the abstract methods
     """
+
     def __init__(self, handle_fn):
         self._handle_fn = handle_fn
         self.context = None
+
     def handle(self, data, context):
         """
         The Input Requests and Response are handled here.

@@ -20,6 +20,7 @@ TMP_DIR = "/tmp"
 
 from . import LOGGER
 
+
 class MarkdownTable:
     def __init__(self):
         self.table_content = ""
@@ -32,8 +33,12 @@ class MarkdownTable:
         column_2_rows = column_2_content.split("\n")
 
         for row_num in range(max(len(column_1_rows), len(column_2_rows))):
-            column_1_item = column_1_rows[row_num] if row_num < len(column_1_rows) else ""
-            column_2_item = column_2_rows[row_num] if row_num < len(column_2_rows) else ""
+            column_1_item = (
+                column_1_rows[row_num] if row_num < len(column_1_rows) else ""
+            )
+            column_2_item = (
+                column_2_rows[row_num] if row_num < len(column_2_rows) else ""
+            )
 
             self.table_content += f"\n| {column_1_item} | {column_2_item} |"
 
@@ -48,7 +53,7 @@ class MarkdownDocument:
 
     def __init__(self, title=""):
         self.markdown_content = f"### {title}"
-    
+
     def add_markdown_from_csv(self, file_path, delimiter):
         """
         :param file_path: path to the csv file
@@ -85,7 +90,6 @@ class MarkdownDocument:
 
         print("The markdown file has been created!!!")
 
-
     def add_code_block(self, content: str, newline=True):
         """
         Returns a string with markdown content
@@ -95,7 +99,9 @@ class MarkdownDocument:
         newline_modifier = "\n" if newline else ""
         backticks_modifier = "```" if newline else "`"
 
-        self.markdown_content += str(f"{newline_modifier}{backticks_modifier}\n{content}\n{backticks_modifier}{newline_modifier}")
+        self.markdown_content += str(
+            f"{newline_modifier}{backticks_modifier}\n{content}\n{backticks_modifier}{newline_modifier}"
+        )
 
     def add_paragraph(self, content: str, bold=False, italics=False, newline=True):
         """
@@ -107,7 +113,9 @@ class MarkdownDocument:
         italics_modifier = "*" if italics else ""
         newline_modifier = "\n" if newline else ""
 
-        self.markdown_content += str(f"{newline_modifier}{italics_modifier}{bold_modifier}{content}{bold_modifier}{italics_modifier}{newline_modifier}")
+        self.markdown_content += str(
+            f"{newline_modifier}{italics_modifier}{bold_modifier}{content}{bold_modifier}{italics_modifier}{newline_modifier}"
+        )
 
     def add_newline(self):
         """
@@ -119,10 +127,10 @@ class MarkdownDocument:
     def get_document(self):
         return self.markdown_content
 
+
 class Report:
     def __init__(self):
         self.tmp_report_dir = os.path.join("/tmp", "report")
-
 
     def download_benchmark_results_from_s3(self, s3_uri):
         """
@@ -136,7 +144,6 @@ class Report:
 
         run(f"aws s3 cp --recursive {s3_uri} {self.tmp_report_dir}")
 
-
     def generate_comprehensive_report(self):
         """
         Compile a markdown file with different csv files as input
@@ -145,10 +152,12 @@ class Report:
 
         for root, dirs, files in os.walk("/tmp/report/"):
             for name in files:
-                csv_files.append(os.path.join(root, name)) if "ab_report" in name else None
-        
+                csv_files.append(
+                    os.path.join(root, name)
+                ) if "ab_report" in name else None
+
         csv_files = sorted(csv_files)
-            
+
         markdownDocument = MarkdownDocument("Benchmark report")
         markdownDocument.add_newline()
 
@@ -161,14 +170,18 @@ class Report:
             mode = split_path[5]
             batch_size = split_path[6]
 
-            config_header = f"{model} | {mode} | {instance_type} | batch size {batch_size}"
+            config_header = (
+                f"{model} | {mode} | {instance_type} | batch size {batch_size}"
+            )
 
             markdownDocument.add_code_block(config_header, newline=True)
 
             print(f"Updating data from file: {report_path}")
             markdownDocument.add_markdown_from_csv(report_path, delimiter=" ")
-        
-        with open("report.md", "w") as f:
-            f.write(markdownDocument.get_document()) 
 
-        LOGGER.info(f"Benchmark report generated at: {os.path.join(os.getcwd(), 'report.md')}")
+        with open("report.md", "w") as f:
+            f.write(markdownDocument.get_document())
+
+        LOGGER.info(
+            f"Benchmark report generated at: {os.path.join(os.getcwd(), 'report.md')}"
+        )

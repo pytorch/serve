@@ -45,13 +45,17 @@ class TextHandler(BaseHandler, ABC):
         """
         super().initialize(context)
         self.initialized = False
-        source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
+        source_vocab = (
+            self.manifest["model"]["sourceVocab"]
+            if "sourceVocab" in self.manifest["model"]
+            else None
+        )
         if source_vocab:
             # Backward compatibility
             self.source_vocab = torch.load(source_vocab)
         else:
             self.source_vocab = torch.load(self.get_source_vocab_path(context))
-        #Captum initialization
+        # Captum initialization
         self.lig = LayerIntegratedGradients(self.model, self.model.embedding)
         self.initialized = True
 
@@ -63,8 +67,10 @@ class TextHandler(BaseHandler, ABC):
         if os.path.isfile(source_vocab_path):
             return source_vocab_path
         else:
-            raise Exception('Missing the source_vocab file. Refer default handler '
-                            'documentation for details on using text_handler.')
+            raise Exception(
+                "Missing the source_vocab file. Refer default handler "
+                "documentation for details on using text_handler."
+            )
 
     def _expand_contractions(self, text):
         """

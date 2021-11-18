@@ -31,12 +31,16 @@ LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 def build_docker_container(torchserve_branch="master"):
     LOGGER.info(f"Setting up docker image to be used")
 
-    docker_dev_image_config_path = os.path.join(os.getcwd(), "test", "benchmark", "tests", "suite", "docker", "docker.yaml")
+    docker_dev_image_config_path = os.path.join(
+        os.getcwd(), "test", "benchmark", "tests", "suite", "docker", "docker.yaml"
+    )
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
     YamlHandler.validate_docker_yaml(docker_config)
 
-    account_id = run("aws sts get-caller-identity --query Account --output text").stdout.strip()
+    account_id = run(
+        "aws sts get-caller-identity --query Account --output text"
+    ).stdout.strip()
 
     for processor, config in docker_config.items():
         docker_tag = None
@@ -46,7 +50,9 @@ def build_docker_container(torchserve_branch="master"):
                 cuda_version = config_value
             if config_key == "docker_tag":
                 docker_tag = config_value
-        dockerImageHandler = DockerImageHandler(docker_tag, cuda_version, torchserve_branch)
+        dockerImageHandler = DockerImageHandler(
+            docker_tag, cuda_version, torchserve_branch
+        )
         dockerImageHandler.build_image()
         dockerImageHandler.push_docker_image_to_ecr(
             account_id, DEFAULT_REGION, f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
@@ -72,30 +78,40 @@ def main():
     )
 
     parser.add_argument(
-        "--run-only", default=None, help="Runs the tests that contain the supplied keyword as a substring"
+        "--run-only",
+        default=None,
+        help="Runs the tests that contain the supplied keyword as a substring",
     )
 
     parser.add_argument(
         "--use-torchserve-branch",
         default="master",
-        help="Specify a specific torchserve branch to benchmark on, else uses 'master' by default"
+        help="Specify a specific torchserve branch to benchmark on, else uses 'master' by default",
     )
 
     parser.add_argument(
         "--skip-docker-build",
         action="store_true",
         default=False,
-        help="Use if you already have a docker image built and available locally and have specified it in docker.yaml"
+        help="Use if you already have a docker image built and available locally and have specified it in docker.yaml",
     )
 
     arguments = parser.parse_args()
-    do_not_terminate_string = "" if not arguments.do_not_terminate else "--do-not-terminate"
-    use_instances_arg_list = ["--use-instances", f"{arguments.use_instances}"] if arguments.use_instances else []
+    do_not_terminate_string = (
+        "" if not arguments.do_not_terminate else "--do-not-terminate"
+    )
+    use_instances_arg_list = (
+        ["--use-instances", f"{arguments.use_instances}"]
+        if arguments.use_instances
+        else []
+    )
     run_only_test = arguments.run_only
 
     if run_only_test:
         run_only_string = f"-k {run_only_test}"
-        LOGGER.info(f"Note: running only the tests that have the name '{run_only_test}'.")
+        LOGGER.info(
+            f"Note: running only the tests that have the name '{run_only_test}'."
+        )
     else:
         run_only_string = ""
 

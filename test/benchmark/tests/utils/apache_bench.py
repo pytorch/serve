@@ -18,7 +18,13 @@ from botocore.exceptions import ClientError
 from invoke import run, sudo
 from invoke.context import Context
 
-from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import (
+    DEFAULT_REGION,
+    IAM_INSTANCE_PROFILE,
+    AMI_ID,
+    LOGGER,
+    S3_BUCKET_BENCHMARK_ARTIFACTS,
+)
 
 TMP_DIR = "/home/ubuntu"
 LOCAL_TMP_DIR = "/tmp"
@@ -31,7 +37,9 @@ class ApacheBenchHandler(object):
         self.connection = invoke if not connection else connection
         self.local_tmp_dir = os.path.join(LOCAL_TMP_DIR, model_name)
         self.result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
-        self.ts_metric_log_file = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
+        self.ts_metric_log_file = os.path.join(
+            TMP_DIR, "benchmark/logs/model_metrics.log"
+        )
         self.inference_url = "http://127.0.0.1:8080"
         self.install_dependencies()
 
@@ -62,9 +70,13 @@ class ApacheBenchHandler(object):
             self.connection.run(f"wget {input_file}", warn=True)
             file_name = self.connection.run(f"basename {input_file}").stdout.strip()
             # Copy to the directory with other benchmark artifacts
-            self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
+            self.connection.run(
+                f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}"
+            )
         else:
-            self.connection.run(f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}")
+            self.connection.run(
+                f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}"
+            )
 
         # Run warmup
         apache_bench_warmup_command = f"ab -c {concurrency} {100} -k -p {TMP_DIR}/benchmark/input -T application/jpg {self.inference_url}/predictions/benchmark"
@@ -94,16 +106,24 @@ class ApacheBenchHandler(object):
         temp_uuid = uuid.uuid4()
 
         time.sleep(5)
-        
+
         # Upload to s3 and fetch back to local instance: more reliable than using self.connection.get()
-        connection.run(f"aws s3 cp {self.result_file} {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/result.txt")
+        connection.run(
+            f"aws s3 cp {self.result_file} {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/result.txt"
+        )
         time.sleep(2)
-        run(f"aws s3 cp {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/result.txt {result_file}")
+        run(
+            f"aws s3 cp {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/result.txt {result_file}"
+        )
 
         time.sleep(2)
-        connection.run(f"aws s3 cp {TS_SERVER_LOG} {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/benchmark_metric.log")
+        connection.run(
+            f"aws s3 cp {TS_SERVER_LOG} {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/benchmark_metric.log"
+        )
         time.sleep(2)
-        run(f"aws s3 cp {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/benchmark_metric.log {metric_log}")
+        run(
+            f"aws s3 cp {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/benchmark_metric.log {metric_log}"
+        )
 
         # Clean up right away
         run(f"aws s3 rm --recursive {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/")
@@ -144,13 +164,21 @@ class ApacheBenchHandler(object):
         artifacts["Model"] = self.model_name
         artifacts["Concurrency"] = concurrency
         artifacts["Requests"] = requests
-        artifacts["TS failed requests"] = self.extract_entity(data, "Failed requests:", -1)
-        artifacts["TS throughput"] = self.extract_entity(data, "Requests per second:", -3)
+        artifacts["TS failed requests"] = self.extract_entity(
+            data, "Failed requests:", -1
+        )
+        artifacts["TS throughput"] = self.extract_entity(
+            data, "Requests per second:", -3
+        )
         artifacts["TS latency P50"] = self.extract_entity(data, "50%", -1)
         artifacts["TS latency P90"] = self.extract_entity(data, "90%", -1)
         artifacts["TS latency P99"] = self.extract_entity(data, "99%", -1)
-        artifacts["TS latency mean"] = self.extract_entity(data, "Time per request:.*mean\)", -3)
-        artifacts["TS error rate"] = int(artifacts["TS failed requests"]) / int(requests) * 100
+        artifacts["TS latency mean"] = self.extract_entity(
+            data, "Time per request:.*mean\)", -3
+        )
+        artifacts["TS error rate"] = (
+            int(artifacts["TS failed requests"]) / int(requests) * 100
+        )
 
         with open(os.path.join(self.local_tmp_dir, "predict.txt")) as f:
             lines = f.readlines()

@@ -37,8 +37,11 @@ class IntermediateLayerGetter(nn.ModuleDict):
         >>>     [('feat1', torch.Size([1, 64, 56, 56])),
         >>>      ('feat2', torch.Size([1, 256, 14, 14]))]
     """
+
     def __init__(self, model, return_layers):
-        if not set(return_layers).issubset([name for name, _ in model.named_children()]):
+        if not set(return_layers).issubset(
+            [name for name, _ in model.named_children()]
+        ):
             raise ValueError("return_layers are not present in model")
 
         orig_return_layers = return_layers

@@ -43,20 +43,23 @@ def torchserve_sanity():
 
 def cleanup():
     ts.stop_torchserve()
-    rm_dir('model_store')
-    rm_dir('logs')
+    rm_dir("model_store")
+    rm_dir("logs")
 
     # clean up residual from model-archiver IT suite.
-    rm_dir('model-archiver/model_archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it')
-    rm_file('ts_scripts/*_pb2*.py', True)
+    rm_dir(
+        "model-archiver/model_archiver/htmlcov_ut model_archiver/model-archiver/htmlcov_it"
+    )
+    rm_file("ts_scripts/*_pb2*.py", True)
 
     # delete mar_gen_dir
     mg.delete_model_store_gen_dir()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from pygit2 import Repository
-    git_branch = Repository('.').head.shorthand
+
+    git_branch = Repository(".").head.shorthand
     build_hdr_printer.main(git_branch)
 
     torchserve_sanity()

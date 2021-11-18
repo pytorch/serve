@@ -29,7 +29,9 @@ from wrapper import AGNewsmodelWrapper
 logger = logging.getLogger(__name__)
 
 
-class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-attributes
+class NewsClassifierHandler(
+    BaseHandler
+):  # pylint: disable=too-many-instance-attributes
     """NewsClassifierHandler class.
 
     This handler takes a review / sentence and returns the label as
@@ -99,14 +101,12 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
 
         self.text = text  # pylint: disable=attribute-defined-outside-init
         self.tokenizer = (  # pylint: disable=attribute-defined-outside-init
-            BertTokenizer(
-                self.vocab_file
-            )
+            BertTokenizer(self.vocab_file)
         )
-        self.input_ids = torch.tensor(  # pylint: disable=attribute-defined-outside-init,not-callable
-            [
-                self.tokenizer.encode(self.text, add_special_tokens=True)
-            ]
+        self.input_ids = (
+            torch.tensor(  # pylint: disable=attribute-defined-outside-init,not-callable
+                [self.tokenizer.encode(self.text, add_special_tokens=True)]
+            )
         )  # pylint: disable=attribute-defined-outside-init
         return self.input_ids
 
@@ -120,8 +120,8 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
              output - predicted output
         """
         inputs = self.input_ids.to(self.device)
-        self.outputs = self.model.forward(  # pylint: disable=attribute-defined-outside-init
-            inputs
+        self.outputs = (
+            self.model.forward(inputs)  # pylint: disable=attribute-defined-outside-init
         )
         self.out = np.argmax(  # pylint: disable=attribute-defined-outside-init
             self.outputs.cpu().detach()
@@ -187,7 +187,9 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
         attributions = attributions / torch.norm(attributions)
         return attributions
 
-    def explain_handle(self, model_wraper, text, target=1):  # pylint: disable=too-many-locals,unused-argument,arguments-differ
+    def explain_handle(
+        self, model_wraper, text, target=1
+    ):  # pylint: disable=too-many-locals,unused-argument,arguments-differ
         """Captum explanations handler.
 
         Args:
@@ -200,13 +202,9 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
         tokenizer = BertTokenizer(self.vocab_file)
         model_wrapper.eval()
         model_wrapper.zero_grad()
-        input_ids = torch.tensor([
-            tokenizer.encode(self.text, add_special_tokens=True)
-        ])
+        input_ids = torch.tensor([tokenizer.encode(self.text, add_special_tokens=True)])
         input_ids = input_ids.to(self.device)
-        input_embedding_test = model_wrapper.model.bert_model.embeddings(
-            input_ids
-        )
+        input_embedding_test = model_wrapper.model.bert_model.embeddings(input_ids)
         preds = model_wrapper(input_embedding_test)
         out = np.argmax(preds.cpu().detach(), axis=1)
         out = out.item()

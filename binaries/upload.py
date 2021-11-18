@@ -31,7 +31,9 @@ def upload_pypi_packages():
 
     # Note: TWINE_USERNAME and TWINE_PASSWORD are expected to be set in the environment
     for dist_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
-        exit_code = os.system(f"twine upload {dist_path}/* --repository-url https://test.pypi.org/legacy/ --verbose")
+        exit_code = os.system(
+            f"twine upload {dist_path}/* --repository-url https://test.pypi.org/legacy/ --verbose"
+        )
         if exit_code != 0:
             print(f"twine upload for path {dist_path} failed")
 
@@ -52,7 +54,9 @@ def upload_conda_packages():
         for name in files:
             file_path = os.path.join(root, name)
             print(file_path)
-            if any(word in file_path for word in PACKAGES) and file_path.endswith("tar.bz2"):
+            if any(word in file_path for word in PACKAGES) and file_path.endswith(
+                "tar.bz2"
+            ):
                 print(f"Uploading to anaconda package: {name}")
                 anaconda_upload_command = f"anaconda -t {anaconda_token} upload --user {CONDA_USER} {file_path} --force"
 
@@ -62,7 +66,9 @@ def upload_conda_packages():
                     print(f"Anaconda package upload failed for pacakge {name}")
                     return exit_code
 
-    print(f"All packages uploaded to anaconda successfully under the channel {CONDA_USER}")
+    print(
+        f"All packages uploaded to anaconda successfully under the channel {CONDA_USER}"
+    )
 
 
 if __name__ == "__main__":
@@ -70,10 +76,16 @@ if __name__ == "__main__":
         description="Upload anaconda and pypi packages for torchserve and torch-model-archiver"
     )
     parser.add_argument(
-        "--upload-conda-packages", action="store_true", required=False, help="Specify whether to upload conda packages"
+        "--upload-conda-packages",
+        action="store_true",
+        required=False,
+        help="Specify whether to upload conda packages",
     )
     parser.add_argument(
-        "--upload-pypi-packages", action="store_true", required=False, help="Specify whether to upload pypi packages"
+        "--upload-pypi-packages",
+        action="store_true",
+        required=False,
+        help="Specify whether to upload pypi packages",
     )
     args = parser.parse_args()
 
@@ -82,9 +94,8 @@ if __name__ == "__main__":
 
     if args.upload_pypi_packages:
         upload_pypi_packages()
-    
+
     if any([args.upload_conda_packages, args.upload_pypi_packages]):
         print(f"Upload script complete")
     else:
         print(f"No packages uploaded")
-    

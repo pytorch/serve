@@ -1,5 +1,3 @@
-
-
 """`ModelService` defines an API for base model service.
 """
 # pylint: disable=W0223
@@ -18,10 +16,13 @@ class ModelService(object):
     functions used by model service. It is defined in a flexible manner to
     be easily extended to support different frameworks.
     """
+
     __metaclass__ = ABCMeta
 
     # noinspection PyUnusedLocal
-    def __init__(self, model_name, model_dir, manifest, gpu=None):  # pylint: disable=unused-argument
+    def __init__(
+        self, model_name, model_dir, manifest, gpu=None
+    ):  # pylint: disable=unused-argument
         self.ctx = None
         self._context = None
         self._signature = None
@@ -37,7 +38,9 @@ class ModelService(object):
         properties = context.system_properties
         model_dir = properties.get("model_dir")
 
-        signature_file_path = os.path.join(model_dir, context.manifest['Model']['Signature'])
+        signature_file_path = os.path.join(
+            model_dir, context.manifest["Model"]["Signature"]
+        )
         if not os.path.isfile(signature_file_path):
             raise ValueError("Signature file is not found.")
 
@@ -96,7 +99,7 @@ class ModelService(object):
         :return:
 
         """
-        input_type = self._signature['input_type']
+        input_type = self._signature["input_type"]
 
         input_data = []
         data_name = self._signature["inputs"][0]["data_name"]
@@ -149,8 +152,12 @@ class SingleNodeService(ModelService):
         data = self._postprocess(data)
         end_time = time.time()
 
-        logging.info("preprocess time: %.2f", (inference_start - preprocess_start) * 1000)
-        logging.info("inference time: %.2f", (postprocess_start - inference_start) * 1000)
+        logging.info(
+            "preprocess time: %.2f", (inference_start - preprocess_start) * 1000
+        )
+        logging.info(
+            "inference time: %.2f", (postprocess_start - inference_start) * 1000
+        )
         logging.info("postprocess time: %.2f", (end_time - postprocess_start) * 1000)
 
         return data

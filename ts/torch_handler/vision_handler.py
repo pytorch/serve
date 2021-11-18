@@ -16,12 +16,13 @@ class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
+
     def initialize(self, context):
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)
         self.initialized = True
         properties = context.system_properties
-        if not properties.get("limit_max_image_pixels") :
+        if not properties.get("limit_max_image_pixels"):
             Image.MAX_IMAGE_PIXELS = None
 
     def preprocess(self, data):

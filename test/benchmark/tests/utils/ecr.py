@@ -14,4 +14,3 @@ from invoke import run
 from invoke.context import Context
 
 from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER
-

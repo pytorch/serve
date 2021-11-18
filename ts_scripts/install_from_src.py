@@ -13,10 +13,12 @@ from ts_scripts.utils import check_python_version
 from ts_scripts.utils import is_conda_env
 
 
-def clean_slate(): 
+def clean_slate():
     print("## Uninstall existing torchserve and model archiver")
     if is_conda_env():
-        cmd = "conda uninstall -y torchserve torch-model-archiver workflow-model-archiver"
+        cmd = (
+            "conda uninstall -y torchserve torch-model-archiver workflow-model-archiver"
+        )
     else:
         cmd = "pip uninstall -y torchserve torch-model-archiver workflow-model-archiver"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
@@ -61,13 +63,14 @@ def install_from_src():
     clean_slate()
     install_torch_model_archiver()
     install_torch_workflow_archiver()
-    install_torchserve()    
+    install_torchserve()
     clean_up_build_residuals()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_python_version()
     from pygit2 import Repository
-    git_branch = Repository('.').head.shorthand
+
+    git_branch = Repository(".").head.shorthand
     build_hdr_printer.main(git_branch)
     install_from_src()

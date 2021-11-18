@@ -5,14 +5,22 @@ import subprocess
 
 conda_build_dir = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
-MINICONDA_DOWNLOAD_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh"
-CONDA_BINARY = os.popen("which conda").read().strip() if os.system(f"conda --version") == 0 else  f"$HOME/miniconda/condabin/conda"
+MINICONDA_DOWNLOAD_URL = (
+    "https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh"
+)
+CONDA_BINARY = (
+    os.popen("which conda").read().strip()
+    if os.system(f"conda --version") == 0
+    else f"$HOME/miniconda/condabin/conda"
+)
+
 
 def install_conda_build():
     """
     Install conda-build, required to create conda packages
     """
     os.system(f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y")
+
 
 def install_miniconda():
     """
@@ -22,7 +30,9 @@ def install_miniconda():
     # Check if conda binary already exists
     exit_code = os.system(f"conda --version")
     if exit_code == 0:
-        print(f"'conda' already present on the system. Proceeding without a fresh minconda installation.")
+        print(
+            f"'conda' already present on the system. Proceeding without a fresh minconda installation."
+        )
         return
 
     os.system(f"rm -rf $HOME/miniconda")
@@ -33,7 +43,9 @@ def install_miniconda():
     os.system(f"bash ~/miniconda.sh -f -b -p $HOME/miniconda")
     os.system(f"echo 'export PATH=$HOME/miniconda/bin:$PATH' >> ~/.bashrc")
     os.system(f"ln -s $HOME/miniconda/bin/activate $HOME/miniconda/condabin/activate")
-    os.system(f"ln -s $HOME/miniconda/bin/deactivate $HOME/miniconda/condabin/deactivate")
+    os.system(
+        f"ln -s $HOME/miniconda/bin/deactivate $HOME/miniconda/condabin/deactivate"
+    )
 
     os.system(f"{CONDA_BINARY} init")
 
@@ -49,11 +61,15 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
     print(f"## Using workflow archiver wheel: {wa_wheel_path}")
 
     with open(os.path.join(REPO_ROOT, "ts", "version.txt")) as ts_vf:
-        ts_version = ''.join(ts_vf.read().split())
-    with open(os.path.join(REPO_ROOT, "model-archiver", "model_archiver", "version.txt")) as ma_vf:
-        ma_version = ''.join(ma_vf.read().split())
-    with open(os.path.join(REPO_ROOT, "workflow-archiver", "workflow_archiver", "version.txt")) as wa_vf:
-        wa_version = ''.join(wa_vf.read().split())
+        ts_version = "".join(ts_vf.read().split())
+    with open(
+        os.path.join(REPO_ROOT, "model-archiver", "model_archiver", "version.txt")
+    ) as ma_vf:
+        ma_version = "".join(ma_vf.read().split())
+    with open(
+        os.path.join(REPO_ROOT, "workflow-archiver", "workflow_archiver", "version.txt")
+    ) as wa_vf:
+        wa_version = "".join(wa_vf.read().split())
 
     os.environ["TORCHSERVE_VERSION"] = ts_version
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
@@ -78,20 +94,36 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
             if exit_code != 0:
                 print("## Conda Build Failed !")
                 return exit_code
-    return 0 # Used for sys.exit(0) --> to indicate successful system exit
+    return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Conda Build for torchserve, torch-model-archiver and torch-workflow-archiver")
-    parser.add_argument("--ts-wheel", type=str, required=False, help="torchserve wheel path")
-    parser.add_argument("--ma-wheel", type=str, required=False, help="torch-model-archiver wheel path")
-    parser.add_argument("--wa-wheel", type=str, required=False, help="torch-workflow-archiver wheel path")
-    parser.add_argument("--install-conda-dependencies", action="store_true", required=False, help="specify to install miniconda and conda-build")
+    parser = argparse.ArgumentParser(
+        description="Conda Build for torchserve, torch-model-archiver and torch-workflow-archiver"
+    )
+    parser.add_argument(
+        "--ts-wheel", type=str, required=False, help="torchserve wheel path"
+    )
+    parser.add_argument(
+        "--ma-wheel", type=str, required=False, help="torch-model-archiver wheel path"
+    )
+    parser.add_argument(
+        "--wa-wheel",
+        type=str,
+        required=False,
+        help="torch-workflow-archiver wheel path",
+    )
+    parser.add_argument(
+        "--install-conda-dependencies",
+        action="store_true",
+        required=False,
+        help="specify to install miniconda and conda-build",
+    )
     args = parser.parse_args()
-    
+
     if args.install_conda_dependencies:
         install_miniconda()
         install_conda_build()
-        
+
     if all([args.ts_wheel, args.ma_wheel, args.wa_wheel]):
         conda_build(args.ts_wheel, args.ma_wheel, args.wa_wheel)

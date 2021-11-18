@@ -96,8 +96,9 @@ class KFservingv2Envelope(BaseEnvelope):
             logger.info("Bytes array is %s", body_list)
         if "id" in body_list:
             setattr(self.context, "input_request_id", body_list["id"])
-        data_list = list(
-            map(lambda inputs_list: inputs_list.get("inputs"), body_list))[0]
+        data_list = list(map(lambda inputs_list: inputs_list.get("inputs"), body_list))[
+            0
+        ]
         return data_list
 
     def format_output(self, data):
@@ -127,10 +128,10 @@ class KFservingv2Envelope(BaseEnvelope):
             delattr(self.context, "input_request_id")
         else:
             response["id"] = self.context.get_request_id(0)
-        response["model_name"] = self.context.manifest.get("model").get(
-            "modelName")
+        response["model_name"] = self.context.manifest.get("model").get("modelName")
         response["model_version"] = self.context.manifest.get("model").get(
-            "modelVersion")
+            "modelVersion"
+        )
         response["outputs"] = self._batch_to_json(data)
         return [response]
 
@@ -149,8 +150,11 @@ class KFservingv2Envelope(BaseEnvelope):
         """
         output_data = {}
         data_ndarray = np.array(data)
-        output_data["name"] = ("explain" if self.context.get_request_header(
-            0, "explain") == "True" else "predict")
+        output_data["name"] = (
+            "explain"
+            if self.context.get_request_header(0, "explain") == "True"
+            else "predict"
+        )
         output_data["shape"] = list(data_ndarray.shape)
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
         output_data["data"] = data_ndarray.flatten().tolist()

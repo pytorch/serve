@@ -65,8 +65,13 @@ def parse_config():
         management_address = DEFAULT_MANAGEMENT_ADDRESS
     if not model_store:
         model_store = DEFAULT_MODEL_STORE
-    logging.info("Wrapper : Model names %s, inference address %s, management address %s, model store %s", model_names,
-                 inference_address, management_address, model_store)
+    logging.info(
+        "Wrapper : Model names %s, inference address %s, management address %s, model store %s",
+        model_names,
+        inference_address,
+        management_address,
+        model_store,
+    )
 
     return model_names, inference_address, management_address, model_store
 
@@ -79,10 +84,14 @@ if __name__ == "__main__":
 
     for model_name in model_names:
 
-        model = TorchserveModel(model_name, inference_address, management_address, model_dir)
+        model = TorchserveModel(
+            model_name, inference_address, management_address, model_dir
+        )
         models.append(model)
     kserve.KFServer(
-        registered_models=TSModelRepository(inference_address, management_address, model_dir),
+        registered_models=TSModelRepository(
+            inference_address, management_address, model_dir
+        ),
         http_port=8080,
         grpc_port=7070,
     ).start(models)

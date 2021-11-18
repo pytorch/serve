@@ -1,5 +1,3 @@
-
-
 """
 This module does the following:
 Exports the model folder to generate a Model Archive file out of it in .mar format

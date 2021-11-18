@@ -1,5 +1,3 @@
-
-
 """
 Context object of incoming request
 """
@@ -11,7 +9,16 @@ class Context(object):
     Some fixed during load times and some
     """
 
-    def __init__(self, model_name, model_dir, manifest, batch_size, gpu, mms_version, limit_max_image_pixels=True):
+    def __init__(
+        self,
+        model_name,
+        model_dir,
+        manifest,
+        batch_size,
+        gpu,
+        mms_version,
+        limit_max_image_pixels=True,
+    ):
         self.model_name = model_name
         self.manifest = manifest
         self._system_properties = {
@@ -57,14 +64,16 @@ class Context(object):
         return self._request_processor[idx].get_request_properties()
 
     def set_response_content_type(self, idx, value):
-        self.set_response_header(idx, 'content-type', value)
+        self.set_response_header(idx, "content-type", value)
 
     def get_response_content_type(self, idx):
-        return self.get_response_headers(idx).get('content-type')
+        return self.get_response_headers(idx).get("content-type")
 
     def get_response_status(self, idx):
-        return self._request_processor[idx].get_response_status_code(), \
-               self._request_processor[idx].get_response_status_phrase()
+        return (
+            self._request_processor[idx].get_response_status_code(),
+            self._request_processor[idx].get_response_status_phrase(),
+        )
 
     def set_response_status(self, code=200, phrase="", idx=0):
         """
@@ -74,9 +83,11 @@ class Context(object):
         :param code:
         :return:
         """
-        if self._request_processor is not None and self._request_processor[idx] is not None:
-            self._request_processor[idx].report_status(code,
-                                                       reason_phrase=phrase)
+        if (
+            self._request_processor is not None
+            and self._request_processor[idx] is not None
+        ):
+            self._request_processor[idx].report_status(code, reason_phrase=phrase)
 
     def set_all_response_status(self, code=200, phrase=""):
         """

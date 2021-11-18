@@ -13,7 +13,13 @@ from urllib.parse import urlparse
 from invoke import run
 from invoke.context import Context
 
-from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import (
+    DEFAULT_REGION,
+    IAM_INSTANCE_PROFILE,
+    AMI_ID,
+    LOGGER,
+    S3_BUCKET_BENCHMARK_ARTIFACTS,
+)
 
 # Assumes the functions from this file execute on an Ubuntu ec2 instance
 ROOT_DIR = f"/home/ubuntu"
@@ -39,7 +45,9 @@ class TorchServeHandler(object):
         self.torchserve_docker_image = torchserve_docker_image
         self.backend_profiling = backend_profiling
         self.connection = invoke if not connection else connection
-        self.config_properties = os.path.join(TMP_DIR, "benchmark", "conf", "config.properties")
+        self.config_properties = os.path.join(
+            TMP_DIR, "benchmark", "conf", "config.properties"
+        )
 
         self.management_api = "http://127.0.0.1:8081"
         self.inference_api = "http://127.0.0.1:8080"
@@ -57,24 +65,40 @@ class TorchServeHandler(object):
         activation_command = ""
         self.connection.run(f"chmod +x -R /home/ubuntu/serve")
         if virtual_env_name:
-            activation_command = f"cd /home/ubuntu/serve && source activate {virtual_env_name} && "
+            activation_command = (
+                f"cd /home/ubuntu/serve && source activate {virtual_env_name} && "
+            )
 
-        if self.connection.run(f"{activation_command}torchserve --version", warn=True).return_code == 0:
+        if (
+            self.connection.run(
+                f"{activation_command}torchserve --version", warn=True
+            ).return_code
+            == 0
+        ):
             return
 
-        self.connection.run(f"{activation_command}python3 ./ts_scripts/install_dependencies.py --environment=dev", warn=True)
+        self.connection.run(
+            f"{activation_command}python3 ./ts_scripts/install_dependencies.py --environment=dev",
+            warn=True,
+        )
         self.connection.run(f"{activation_command}pip3 install pygit2", warn=True)
-        self.connection.run(f"{activation_command}python3 ./ts_scripts/install_from_src.py", warn=True)
+        self.connection.run(
+            f"{activation_command}python3 ./ts_scripts/install_from_src.py", warn=True
+        )
         self.connection.run(f"{activation_command}torchserve --version")
-
 
     def prepare_common_dependency(self):
         # Note: the following command cleans up any previous run logs, except any *.mar files generated to avoid re-creation
-        self.connection.run(f"find {os.path.join(TMP_DIR, 'benchmark')} ! -name '*.mar' -type f -exec rm -f {{}} +", warn=True)
+        self.connection.run(
+            f"find {os.path.join(TMP_DIR, 'benchmark')} ! -name '*.mar' -type f -exec rm -f {{}} +",
+            warn=True,
+        )
         # Recreate required folders
         self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'conf')}")
         self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'logs')}")
-        self.connection.run(f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'model_store')}")
+        self.connection.run(
+            f"mkdir -p {os.path.join(TMP_DIR, 'benchmark', 'model_store')}"
+        )
 
         # Use config from benchmarks/ folder
         self.connection.run(
@@ -82,7 +106,9 @@ class TorchServeHandler(object):
         )
 
     def getAPIS(self):
-        self.connection.get(self.config_properties, os.path.join(LOCAL_TMP_DIR, "config.properties"))
+        self.connection.get(
+            self.config_properties, os.path.join(LOCAL_TMP_DIR, "config.properties")
+        )
 
         with open(os.path.join(LOCAL_TMP_DIR, "config.properties")) as f:
             lines = f.readlines()
@@ -106,20 +132,26 @@ class TorchServeHandler(object):
 
         activation_command = ""
         if virtual_env_name:
-            activation_command = f"cd /home/ubuntu/serve && source activate {virtual_env_name} && "
+            activation_command = (
+                f"cd /home/ubuntu/serve && source activate {virtual_env_name} && "
+            )
         if self.backend_profiling:
             activation_command = f"{activation_command} && export TS_BENCHMARK=True && "
-        
+
         if stop_torchserve:
             LOGGER.info(f"Stop existing torchserve instance")
             self.connection.run(f"{activation_command}torchserve --stop", warn=True)
-        
-        self.connection.run(f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store/ --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log", warn=True)
+
+        self.connection.run(
+            f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store/ --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log",
+            warn=True,
+        )
         LOGGER.info(f"Started torchserve using command")
-        LOGGER.info(f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store/ --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log")
+        LOGGER.info(
+            f"{activation_command}torchserve --start --model-store /home/ubuntu/benchmark/model_store/ --ts-config {TMP_DIR}/benchmark/conf/config.properties > {TMP_DIR}/benchmark/logs/model_metrics.log"
+        )
 
         time.sleep(10)
-
 
     def start_torchserve_docker(self, stop_torchserve=True):
 
@@ -137,7 +169,9 @@ class TorchServeHandler(object):
             LOGGER.info(f"Removing existing TS container instance...")
             self.connection.run("docker rm -f ts")
 
-        LOGGER.info(f"Starting docker container on the instance from image: {self.torchserve_docker_image}")
+        LOGGER.info(
+            f"Starting docker container on the instance from image: {self.torchserve_docker_image}"
+        )
         docker_run_cmd = (
             f"docker run {backend_profiling} --name ts --user root -p {self.inference_port}:{self.inference_port} -p {self.management_port}:{self.management_port} "
             f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {self.torchserve_docker_image} "
@@ -151,7 +185,9 @@ class TorchServeHandler(object):
 
         time.sleep(8)
 
-    def register_model(self, url, workers, batch_delay, batch_size, model_name="benchmark"):
+    def register_model(
+        self, url, workers, batch_delay, batch_size, model_name="benchmark"
+    ):
         """
         Uses 'curl' on the connection to register model
         :param url: http url for the pre-trained model
@@ -160,7 +196,8 @@ class TorchServeHandler(object):
         :param batch_size: max number of requests allowed to be batched
         """
         run_out = self.connection.run(
-            f'curl -X POST "http://localhost:8081/models?url={url}&initial_workers={workers}&batch_delay={batch_delay}&batch_size={batch_size}&synchronous=true&model_name=benchmark"', warn=True
+            f'curl -X POST "http://localhost:8081/models?url={url}&initial_workers={workers}&batch_delay={batch_delay}&batch_size={batch_size}&synchronous=true&model_name=benchmark"',
+            warn=True,
         )
 
         LOGGER.info(
@@ -170,22 +207,25 @@ class TorchServeHandler(object):
         time.sleep(40)
 
         if run_out.return_code == 0:
-            LOGGER.error(f"Failed to register model {model_name} sourced from url: {url}")
+            LOGGER.error(
+                f"Failed to register model {model_name} sourced from url: {url}"
+            )
 
     def unregister_model(self, model_name="benchmark"):
         """
         Uses 'curl' on the connection to unregister the model. Assumes only a single version of the model is loaded.
-        Typically should be run after every benchmark configuration completes. 
+        Typically should be run after every benchmark configuration completes.
         :param model_name: The name of the model to unregister
         """
-        run_out = self.connection.run(f'curl -X DELETE "http://localhost:8081/models/{model_name}/1.0"', warn=True)
+        run_out = self.connection.run(
+            f'curl -X DELETE "http://localhost:8081/models/{model_name}/1.0"', warn=True
+        )
         LOGGER.info(f'curl -X DELETE "http://localhost:8081/models/{model_name}/1.0"')
         LOGGER.info(f"stdout: {run_out.stdout}")
 
         time.sleep(10)
         if run_out.return_code == 0:
             LOGGER.error(f"Failed to unregister model {model_name}")
-
 
     def stop_torchserve(self, exec_env="docker", virtual_env_name=None):
         """
@@ -204,7 +244,9 @@ class TorchServeHandler(object):
 
 
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
-    model_store = model_store if (model_store is not None) else f"{ROOT_DIR}/model_store/"
+    model_store = (
+        model_store if (model_store is not None) else f"{ROOT_DIR}/model_store/"
+    )
     if model_mar is not None:
         for f in glob.glob(os.path.join(model_store, model_mar + "*")):
             os.remove(f)

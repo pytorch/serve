@@ -6,7 +6,6 @@ import kfserving
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
 
-
 class TransformerModelRepository(KFModelRepository):
     """Stores the Image Transformer Models
 

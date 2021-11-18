@@ -35,12 +35,12 @@ pkgs = find_packages(exclude=["ts_scripts", "test"])
 build_frontend_command = {
     "Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
     "Darwin": "frontend/gradlew -p frontend clean assemble",
-    "Linux": "frontend/gradlew -p frontend clean assemble"
+    "Linux": "frontend/gradlew -p frontend clean assemble",
 }
 build_plugins_command = {
-    'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
-    'Darwin': 'plugins/gradlew -p plugins clean bS',
-    'Linux': 'plugins/gradlew -p plugins clean bS'
+    "Windows": ".\\plugins\\gradlew.bat -p plugins clean bS",
+    "Darwin": "plugins/gradlew -p plugins clean bS",
+    "Linux": "plugins/gradlew -p plugins clean bS",
 }
 
 
@@ -48,7 +48,7 @@ def pypi_description():
     """
     Imports the long description for the project page
     """
-    with open('PyPiDescription.rst') as df:
+    with open("PyPiDescription.rst") as df:
         return df.read()
 
 
@@ -58,17 +58,17 @@ def detect_model_server_version():
         sys.argv.remove("--release")
         return ts.__version__.strip()
 
-    return ts.__version__.strip() + 'b' + str(date.today()).replace('-', '')
+    return ts.__version__.strip() + "b" + str(date.today()).replace("-", "")
 
 
 class BuildFrontEnd(setuptools.command.build_py.build_py):
     """
     Class defined to run custom commands.
     """
-    description = 'Build Model Server Frontend'
-    source_server_file = os.path.abspath(
-        'frontend/server/build/libs/server-1.0.jar')
-    dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
+
+    description = "Build Model Server Frontend"
+    source_server_file = os.path.abspath("frontend/server/build/libs/server-1.0.jar")
+    dest_file_name = os.path.abspath("ts/frontend/model-server.jar")
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -76,7 +76,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         Actual method called to run the build command
         :return:
         """
-        front_end_bin_dir = os.path.abspath('.') + '/ts/frontend'
+        front_end_bin_dir = os.path.abspath(".") + "/ts/frontend"
         try:
             os.mkdir(front_end_bin_dir)
         except OSError as exc:
@@ -89,8 +89,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
             os.remove(self.source_server_file)
 
         try:
-            subprocess.check_call(build_frontend_command[platform.system()],
-                                  shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -103,15 +102,14 @@ class BuildPy(setuptools.command.build_py.build_py):
 
     def run(self):
         sys.stderr.flush()
-        self.run_command('build_frontend')
+        self.run_command("build_frontend")
         setuptools.command.build_py.build_py.run(self)
 
 
 class BuildPlugins(Command):
-    description = 'Build Model Server Plugins'
-    user_options = [('plugins=', 'p', 'Plugins installed')]
-    source_plugin_dir = \
-        os.path.abspath('plugins/build/plugins')
+    description = "Build Model Server Plugins"
+    user_options = [("plugins=", "p", "Plugins installed")]
+    source_plugin_dir = os.path.abspath("plugins/build/plugins")
 
     def initialize_options(self):
         self.plugins = None
@@ -128,38 +126,43 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                subprocess.check_call(build_plugins_command[platform.system()],
-                                      shell=True)
+                subprocess.check_call(
+                    build_plugins_command[platform.system()], shell=True
+                )
             else:
                 raise OSError("No such rule exists")
         except OSError:
             assert 0, "build failed"
 
-        self.run_command('build_py')
+        self.run_command("build_py")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     version = detect_model_server_version()
 
-    requirements = ['Pillow', 'psutil', 'future', 'packaging']
+    requirements = ["Pillow", "psutil", "future", "packaging"]
 
     setup(
-        name='torchserve',
+        name="torchserve",
         version=version,
-        description=
-        'TorchServe is a tool for serving neural net models for inference',
-        author='PyTorch Serving team',
-        author_email='noreply@noreply.com',
+        description="TorchServe is a tool for serving neural net models for inference",
+        author="PyTorch Serving team",
+        author_email="noreply@noreply.com",
         long_description=pypi_description(),
-        url='https://github.com/pytorch/serve.git',
-        keywords='TorchServe PyTorch Serving Deep Learning Inference AI',
+        url="https://github.com/pytorch/serve.git",
+        keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,
         cmdclass={
-            'build_frontend': BuildFrontEnd,
-            'build_plugins': BuildPlugins,
-            'build_py': BuildPy,
+            "build_frontend": BuildFrontEnd,
+            "build_plugins": BuildPlugins,
+            "build_py": BuildPy,
         },
         install_requires=requirements,
-        entry_points={'console_scripts': ['torchserve=ts.model_server:start',]},
+        entry_points={
+            "console_scripts": [
+                "torchserve=ts.model_server:start",
+            ]
+        },
         include_package_data=True,
-        license='Apache License Version 2.0')
+        license="Apache License Version 2.0",
+    )

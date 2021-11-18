@@ -29,7 +29,7 @@ def test_modelarchiver():
     # Execute integration tests
     print("## Started model archiver pytests - integration tests")
     it_dir = os.path.join("model_archiver", "tests", "integ_tests")
-    py_integ_cmd = f"python -m pytest {it_dir}" # ToDo - Report for Integration tests ?
+    py_integ_cmd = f"python -m pytest {it_dir}"  # ToDo - Report for Integration tests ?
     print(f"## In directory: {os.getcwd()} | Executing command: {py_integ_cmd}")
     py_integ_exit_code = os.system(py_integ_cmd)
 

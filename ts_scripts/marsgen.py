@@ -12,6 +12,7 @@ MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store_gen")
 os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
+
 def delete_model_store_gen_dir():
     print(f"## Deleting model_store_gen_dir: {MODEL_STORE_DIR}\n")
     mar_set.clear()
@@ -21,7 +22,10 @@ def delete_model_store_gen_dir():
         except OSError as e:
             print("Error: %s : %s" % (MODEL_STORE_DIR, e.strerror))
 
+
 mar_set = set()
+
+
 def gen_mar(model_store=None):
     print(f"## Starting gen_mar: {model_store}\n")
     if len(mar_set) == 0:
@@ -53,7 +57,9 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
     - "extra_files": the paths of extra files
     Note: To generate .pt file, "serialized_file_remote" and "gen_scripted_file_path" must be provided
     """
-    print(f"## Starting generate_mars, mar_config:{mar_config}, model_store_dir:{model_store_dir}\n")
+    print(
+        f"## Starting generate_mars, mar_config:{mar_config}, model_store_dir:{model_store_dir}\n"
+    )
     mar_set.clear()
     cwd = os.getcwd()
     os.chdir(REPO_ROOT)
@@ -63,15 +69,24 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
         for model in models:
             serialized_file_path = None
             if model.get("serialized_file_remote") and model["serialized_file_remote"]:
-                if model.get("gen_scripted_file_path") and model["gen_scripted_file_path"]:
+                if (
+                    model.get("gen_scripted_file_path")
+                    and model["gen_scripted_file_path"]
+                ):
                     subprocess.run(["python", model["gen_scripted_file_path"]])
                 else:
-                    serialized_model_file_url = \
-                        "https://download.pytorch.org/models/{}".format(model["serialized_file_remote"])
+                    serialized_model_file_url = (
+                        "https://download.pytorch.org/models/{}".format(
+                            model["serialized_file_remote"]
+                        )
+                    )
                     urllib.request.urlretrieve(
                         serialized_model_file_url,
-                        f'{model_store_dir}/{model["serialized_file_remote"]}')
-                serialized_file_path = os.path.join(model_store_dir, model["serialized_file_remote"])
+                        f'{model_store_dir}/{model["serialized_file_remote"]}',
+                    )
+                serialized_file_path = os.path.join(
+                    model_store_dir, model["serialized_file_remote"]
+                )
             elif model.get("serialized_file_local") and model["serialized_file_local"]:
                 serialized_file_path = model["serialized_file_local"]
 
@@ -99,9 +114,18 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
             if model.get("export_path") and model["export_path"]:
                 export_path = model["export_path"]
 
-            cmd = model_archiver_command_builder(model["model_name"], model["version"], model["model_file"],
-                                                 serialized_file_path, handler, extra_files,
-                                                 runtime, archive_format, requirements_file, export_path)
+            cmd = model_archiver_command_builder(
+                model["model_name"],
+                model["version"],
+                model["model_file"],
+                serialized_file_path,
+                handler,
+                extra_files,
+                runtime,
+                archive_format,
+                requirements_file,
+                export_path,
+            )
             print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
             try:
                 subprocess.check_call(cmd, shell=True)
@@ -109,19 +133,34 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
                 print("## {} is generated.\n".format(marfile))
                 mar_set.add(marfile)
             except subprocess.CalledProcessError as exc:
-                print("## {} creation failed !, error: {}\n".format(model["model_name"], exc))
+                print(
+                    "## {} creation failed !, error: {}\n".format(
+                        model["model_name"], exc
+                    )
+                )
 
-            if model.get("serialized_file_remote") and \
-                    model["serialized_file_remote"] and \
-                    os.path.exists(serialized_file_path):
+            if (
+                model.get("serialized_file_remote")
+                and model["serialized_file_remote"]
+                and os.path.exists(serialized_file_path)
+            ):
                 os.remove(serialized_file_path)
     os.chdir(cwd)
 
 
-def model_archiver_command_builder(model_name=None, version=None, model_file=None,
-                                   serialized_file=None, handler=None, extra_files=None,
-                                   runtime=None, archive_format=None, requirements_file=None,
-                                   export_path=None, force=True):
+def model_archiver_command_builder(
+    model_name=None,
+    version=None,
+    model_file=None,
+    serialized_file=None,
+    handler=None,
+    extra_files=None,
+    runtime=None,
+    archive_format=None,
+    requirements_file=None,
+    export_path=None,
+    force=True,
+):
     cmd = "torch-model-archiver"
 
     if model_name:
@@ -159,14 +198,21 @@ def model_archiver_command_builder(model_name=None, version=None, model_file=Non
 
     return cmd
 
+
 if __name__ == "__main__":
     # cmd:
     # python ts_scripts/marsgen.py
     # python ts_scripts/marsgen.py --config my_mar_config.json
 
     parser = argparse.ArgumentParser(description="Generate model mar files")
-    parser.add_argument('--config', default=MAR_CONFIG_FILE_PATH, help="mar file configuration json file")
-    parser.add_argument('--model-store', default=MODEL_STORE_DIR, help="model store dir")
+    parser.add_argument(
+        "--config",
+        default=MAR_CONFIG_FILE_PATH,
+        help="mar file configuration json file",
+    )
+    parser.add_argument(
+        "--model-store", default=MODEL_STORE_DIR, help="model store dir"
+    )
 
     args = parser.parse_args()
     generate_mars(args.config, MODEL_STORE_DIR)
