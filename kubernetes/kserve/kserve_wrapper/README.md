@@ -2,13 +2,13 @@
 
 The KServe wrapper folder contains three files :
 
-1. **main**.py
+1. __main__.py
 2. TorchserveModel.py
 3. TSModelRepository.py
 
 The KServe wrapper files were created to enable the Torchserve integration with KServe.
 
-1. the **main**.py file parses the model snapshot from the config.properties present in the KServe side and passes the parameters like inference address, management address and the model address to the KServe side to handle the input request and response.
+1. the __main__.py file parses the model snapshot from the config.properties present in the KServe side and passes the parameters like inference address, management address and the model address to the KServe side to handle the input request and response.
 
 2. The TorchserveModel.py file contains the methods to handle the request and response that comes from the Torchserve side and passes it on to the KServe side.
 
@@ -91,7 +91,13 @@ model_store=/mnt/models/model-store
 model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":5,"maxBatchDelay":200,"responseTimeout":60}}}}
 ```
 
-- Step 11: Run the below command to start the KFServer
+- Step 11: Start torchserve using config.properties in /mnt/models/config/
+
+```bash
+torchserve --start --ts-config /mnt/models/config/config.properties
+```
+
+- Step 12: Run the below command to start the KFServer
 
 ```bash
 python3 serve/kubernetes/kserve/kserve_wrapper/__main__.py
@@ -109,13 +115,7 @@ Output:
 [I 201211 18:29:29 kfserver:98] Will fork 1 workers
 ```
 
-- Step 12: Start torchserve using config.properties in /mnt/models/config/
-
-```bash
-torchserve --start --ts-config /mnt/models/config/config.properties
-```
-
-Please note that Model runs at 8085,KServe at 8080.The request first comes to the KServe Wrapper at 8080 in turn requests the torchserve at 8085. So our request should be made at 8080.
+Please note that Model runs at 8085, KServe at 8080.The request first comes to the KServe Wrapper at 8080 in turn requests the torchserve at 8085. So our request should be made at 8080.
 
 For v1 protocol
 

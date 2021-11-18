@@ -126,9 +126,8 @@ curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v
 
 Refer the individual Readmes for KServe :
 
-* [BERT](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md)
-* [Text Classifier](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md)
-* [MNIST](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md)
+* [BERT](https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/torchserve/bert#readme)
+* [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
 
 KServe supports static batching for prediction - Refer the [mnist batching](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md#Static-batching) for an example
 
@@ -169,7 +168,7 @@ For v2 protocol
 }
 ```
 
-For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md#request-and-response) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md#mar-file-creation).
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md#request-and-response).
 
 ### Troubleshooting guide for KServe :
 
