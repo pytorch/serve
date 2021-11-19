@@ -8,7 +8,6 @@ import os
 import importlib.util
 import time
 import torch
-import datetime
 from torch.profiler import profile, record_function, ProfilerActivity
 
 from ..utils.util import list_classes_from_module, load_label_mapping
@@ -32,9 +31,7 @@ class BaseHandler(abc.ABC):
         self.map_location = None
         self.explain = False
         self.target = 0
-        self.profiler = None
         self.profiler_args = {}
-        self.prof = None
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
@@ -201,7 +198,7 @@ class BaseHandler(abc.ABC):
 
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
-            output, self.prof = self.infer_with_profiler(data=data)
+            output, prof = self._infer_with_profiler(data=data)
         else:
             data_preprocess = self.preprocess(data)
 
@@ -215,7 +212,16 @@ class BaseHandler(abc.ABC):
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return output
 
-    def infer_with_profiler(self, data):
+    def _infer_with_profiler(self, data):
+        """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
+
+        Args:
+            data (list): The input data that needs to be made a prediction request on.
+
+        Returns:
+            output : Returns a list of dictionary with the predicted response.
+            prof: pytorch profiler object
+        """
         # Setting the default profiler arguments to profile cpu usage and record shapes
         # User can override this argument based on the requirement . Ex: Profiling Gpu
         if not self.profiler_args:
