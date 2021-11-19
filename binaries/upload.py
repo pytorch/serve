@@ -46,7 +46,7 @@ def upload_conda_packages():
     """
 
     # Identify *.tar.bz2 files to upload
-    anaconda_token = os.environ[CONDA_TOKEN_ENV_VARIABLE]
+    anaconda_token = os.getenv[CONDA_TOKEN_ENV_VARIABLE]
 
     for root, _, files in os.walk(CONDA_PACKAGES_PATH):
         for name in files:
