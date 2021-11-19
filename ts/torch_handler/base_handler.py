@@ -198,7 +198,7 @@ class BaseHandler(abc.ABC):
 
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
-            output, prof = self._infer_with_profiler(data=data)
+            output, _ = self._infer_with_profiler(data=data)
         else:
             data_preprocess = self.preprocess(data)
 
@@ -231,7 +231,7 @@ class BaseHandler(abc.ABC):
         if "on_trace_ready" not in self.profiler_args:
             result_path = "/tmp/pytorch_profiler"
             self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(result_path)
-            print("\n\n Saving chrome trace to : ", result_path)
+            logger.info("Saving chrome trace to : ", result_path)
 
         with profile(**self.profiler_args) as prof:
             with record_function("preprocess"):
@@ -245,7 +245,7 @@ class BaseHandler(abc.ABC):
                 with record_function("explain"):
                     output = self.explain_handle(data_preprocess, data)
 
-        print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+        logger.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
         return output, prof
 
 

@@ -1,3 +1,7 @@
+"""
+Tests for pytorch profiler integration
+"""
+# pylint: disable=W0613, W0621
 import glob
 import json
 import os
@@ -26,6 +30,10 @@ DEFAULT_OUTPUT_DIR = "/tmp/pytorch_profiler"
 
 @pytest.fixture
 def set_custom_handler(handler_name):
+    """
+    This method downloads resnet serialized file, creates mar file and sets up a custom handler
+    for running tests
+    """
     os.environ["ENABLE_TORCH_PROFILER"] = "true"
 
     if os.path.exists(DEFAULT_OUTPUT_DIR):
@@ -58,7 +66,7 @@ def set_custom_handler(handler_name):
     print(cmd)
     cmd = cmd.split(" ")
 
-    subprocess.run(cmd)
+    subprocess.run(cmd, check=True, timeout=1000)
 
     # Create config properties to enable env vars
     config_properties = os.path.join(test_utils.MODEL_STORE, "config.properties")
@@ -86,6 +94,9 @@ def set_custom_handler(handler_name):
     ["{}/test/pytest/{}".format(test_utils.CODEBUILD_WD, "resnet_custom.py"), "image_classifier"],
 )
 def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
+    """
+    Tests pytorch profiler integration with default and custom handler
+    """
     assert os.path.exists(data_file_resnet)
     data = open(data_file_resnet, "rb")
     response = requests.post("{}/predictions/resnet152".format(TF_INFERENCE_API), data)
@@ -101,6 +112,9 @@ def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
     ["{}/test/pytest/{}".format(test_utils.CODEBUILD_WD, "resnet_profiler_override.py")],
 )
 def test_profiler_arguments_override(set_custom_handler, handler_name):
+    """
+    Tests pytorch profiler integration when user overrides the profiler arguments
+    """
     CUSTOM_PATH = "/tmp/output"
     if os.path.exists(CUSTOM_PATH):
         shutil.rmtree(CUSTOM_PATH)
@@ -120,6 +134,9 @@ def test_profiler_arguments_override(set_custom_handler, handler_name):
     ["{}/test/pytest/{}".format(test_utils.CODEBUILD_WD, "resnet_profiler_override.py")],
 )
 def test_batch_input(set_custom_handler, handler_name):
+    """
+    Tests pytorch profiler integration with batch inference
+    """
     CUSTOM_PATH = "/tmp/output"
     if os.path.exists(CUSTOM_PATH):
         shutil.rmtree(CUSTOM_PATH)
@@ -127,7 +144,7 @@ def test_batch_input(set_custom_handler, handler_name):
 
     cmd = ["bash", "test/pytest/resnet_batch.sh"]
 
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True, timeout=1000)
 
     assert "tiger_cat" in proc.stdout.decode("utf-8")
     assert "Labrador_retriever" in proc.stdout.decode("utf-8")
