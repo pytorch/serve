@@ -22,6 +22,7 @@ data_file_resnet = os.path.join(
 data_file_resnet_dog = os.path.join(
     REPO_ROOT, "examples/image_classifier/resnet_152_batch/images/dog.jpg"
 )
+profiler_utils = os.path.join(REPO_ROOT, "test/pytest/profiler_utils")
 
 TF_INFERENCE_API = "http://127.0.0.1:8080"
 TF_MANAGEMENT_API = "http://127.0.0.1:8081"
@@ -91,7 +92,7 @@ def set_custom_handler(handler_name):
 
 @pytest.mark.parametrize(
     "handler_name",
-    ["{}/test/pytest/{}".format(test_utils.CODEBUILD_WD, "resnet_custom.py"), "image_classifier"],
+    [os.path.join(profiler_utils, "resnet_custom.py"), "image_classifier"],
 )
 def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
     """
@@ -109,7 +110,7 @@ def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
 
 @pytest.mark.parametrize(
     "handler_name",
-    ["{}/test/pytest/{}".format(test_utils.CODEBUILD_WD, "resnet_profiler_override.py")],
+    [os.path.join(profiler_utils, "resnet_profiler_override.py")],
 )
 def test_profiler_arguments_override(set_custom_handler, handler_name):
     """
@@ -131,7 +132,7 @@ def test_profiler_arguments_override(set_custom_handler, handler_name):
 
 @pytest.mark.parametrize(
     "handler_name",
-    ["{}/test/pytest/{}".format(test_utils.CODEBUILD_WD, "resnet_profiler_override.py")],
+    [os.path.join(profiler_utils, "resnet_profiler_override.py")],
 )
 def test_batch_input(set_custom_handler, handler_name):
     """
@@ -142,7 +143,7 @@ def test_batch_input(set_custom_handler, handler_name):
         shutil.rmtree(CUSTOM_PATH)
     assert os.path.exists(data_file_resnet)
 
-    cmd = ["bash", "test/pytest/resnet_batch.sh"]
+    cmd = ["bash", os.path.join(profiler_utils, "resnet_batch.sh")]
 
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True, timeout=1000)
 
