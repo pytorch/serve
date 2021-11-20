@@ -344,7 +344,7 @@
 <p>Now that you have a high level view of TorchServe, let’s get a little into the weeds. TorchServe takes a Pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the <a class="reference internal" href="custom_service.html"><span class="doc">custom service</span></a> documentation.</p>
 <p>To try out TorchServe serving now, you can load the custom MNIST model, with this example:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../examples/image_classifier/mnist">Digit recognition with MNIST</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist">Digit recognition with MNIST</a></p></li>
 </ul>
 <p>After this deep dive, you might also be interested in:</p>
 <ul class="simple">
@@ -356,7 +356,7 @@
 </section>
 <section id="model-files">
 <h2><span class="section-number">12.4. </span>Model Files<a class="headerlink" href="#model-files" title="Permalink to this headline">¶</a></h2>
-<p>The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they’re made. Long story short: it’s a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the <a class="reference external" href="../model-archiver/README">model-archiver documentation</a>.</p>
+<p>The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they’re made. Long story short: it’s a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver">model-archiver documentation</a>.</p>
 </section>
 <section id="command-line-interface">
 <h2><span class="section-number">12.5. </span>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
