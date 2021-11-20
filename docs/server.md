@@ -20,7 +20,7 @@ Now that you have a high level view of TorchServe, let's get a little into the w
 
 To try out TorchServe serving now, you can load the custom MNIST model, with this example:
 
-* [Digit recognition with MNIST](../examples/image_classifier/mnist)
+* [Digit recognition with MNIST](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist)
 
 After this deep dive, you might also be interested in:
 * [Logging](logging.md): logging options that are available
@@ -34,7 +34,7 @@ After this deep dive, you might also be interested in:
 
 ## Model Files
 
-The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
+The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](https://github.com/pytorch/serve/tree/master/model-archiver).
 
 ## Command Line Interface
 
