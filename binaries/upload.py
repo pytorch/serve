@@ -58,7 +58,8 @@ def upload_conda_packages():
                 "tar.bz2"
             ):
                 print(f"Uploading to anaconda package: {name}")
-                anaconda_upload_command = f"anaconda -t {anaconda_token} upload --user {CONDA_USER} {file_path} --force"
+                anaconda_upload_command = f"anaconda upload --user {CONDA_USER} {file_path} --force"
+                print(f"cmd={anaconda_upload_command}")
 
                 exit_code = os.system(anaconda_upload_command)
 
