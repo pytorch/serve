@@ -34,8 +34,8 @@ public final class OpenApiUtils {
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
     /**
-     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from
-     * kserve v1 predictor
+     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from kserve
+     * v1 protocol and /v2/models/{model_name}/infer is for kserve v2 protocol.
      */
     private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
