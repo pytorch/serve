@@ -2,6 +2,7 @@
 Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification
 """
+from ..utils.util import list_classes_from_module, load_label_mapping
 import abc
 import logging
 import os
@@ -9,7 +10,14 @@ import importlib.util
 import time
 import torch
 
-from ..utils.util import list_classes_from_module, load_label_mapping
+ipex_enabled = False
+if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
+    try:
+        import intel_extension_for_pytorch as ipex
+        ipex_enabled = True
+    except:
+        pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +41,7 @@ class BaseHandler(abc.ABC):
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
-	   First try to load torchscript else load eager mode state_dict based model.
+           First try to load torchscript else load eager mode state_dict based model.
 
         Args:
             context (context): It is a JSON Object containing information
@@ -44,7 +52,8 @@ class BaseHandler(abc.ABC):
 
         """
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu"
+        self.map_location = "cuda" if torch.cuda.is_available(
+        ) and properties.get("gpu_id") is not None else "cpu"
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
@@ -63,7 +72,8 @@ class BaseHandler(abc.ABC):
 
         if model_file:
             logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model = self._load_pickled_model(
+                model_dir, model_file, model_pt_path)
             self.model.to(self.device)
         else:
             logger.debug("Loading torchscript model")
@@ -73,6 +83,9 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
+        if ipex_enabled:
+            self.model = self.model.to(memory_format=torch.channels_last)
+            self.model = ipex.optimize(self.model)
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
@@ -203,7 +216,8 @@ class BaseHandler(abc.ABC):
             output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
-        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        metrics.add_time('HandlerTime', round(
+            (stop_time - start_time) * 1000, 2), None, 'ms')
         return output
 
     def explain_handle(self, data_preprocess, raw_data):

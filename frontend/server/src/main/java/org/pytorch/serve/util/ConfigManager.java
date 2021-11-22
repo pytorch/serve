@@ -67,6 +67,10 @@ public final class ConfigManager {
     private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+
+    // IPEX config option that can be set at config.properties
+    private static final String TS_IPEX_ENABLE = "ipex_enable";
+
     private static final String TS_ASYNC_LOGGING = "async_logging";
     private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
     private static final String TS_CORS_ALLOWED_METHODS = "cors_allowed_methods";
@@ -708,7 +712,7 @@ public final class ConfigManager {
         HashMap<String, String> config = new HashMap<>();
         // Append properties used by backend worker here
         config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
-
+        config.put("TS_IPEX_ENABLE", prop.getProperty(TS_IPEX_ENABLE, "false"));
         return config;
     }
 
