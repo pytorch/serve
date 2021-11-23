@@ -10,17 +10,15 @@ import importlib.util
 import time
 import torch
 
+logger = logging.getLogger(__name__)
+
 ipex_enabled = False
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
         ipex_enabled = True
     except:
-        pass
-
-
-logger = logging.getLogger(__name__)
-
+        logger.warning("IPEX was not installed. Please install IPEX if wanted.")
 
 class BaseHandler(abc.ABC):
     """
