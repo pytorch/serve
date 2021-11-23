@@ -90,12 +90,12 @@ class KServev2Envelope(BaseEnvelope):
         Extracts the data from the JSON object
         """
         # If the KF Transformer and Explainer sends in data as bytesarray
-        if isinstance(body_list, (bytes, bytearray)):
-            body_list = body_list.decode()
-            body_list = json.loads(body_list)
+        if isinstance(body_list[0], (bytes, bytearray)):
+            body_list = body_list[0].decode()
+            body_list = [json.loads(body_list)]
             logger.info("Bytes array is %s", body_list)
-        if "id" in body_list:
-            setattr(self.context, "input_request_id", body_list["id"])
+        if "id" in body_list[0]:
+            setattr(self.context, "input_request_id", body_list[0]["id"])
         data_list = list(
             map(lambda inputs_list: inputs_list.get("inputs"), body_list))[0]
         return data_list
