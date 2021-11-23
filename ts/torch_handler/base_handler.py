@@ -222,14 +222,22 @@ class BaseHandler(abc.ABC):
             output : Returns a list of dictionary with the predicted response.
             prof: pytorch profiler object
         """
-        # Setting the default profiler arguments to profile cpu usage and record shapes
-        # User can override this argument based on the requirement . Ex: Profiling Gpu
+        # Setting the default profiler arguments to profile cpu, gpu usage and record shapes
+        # User can override this argument based on the requirement
         if not self.profiler_args:
-            self.profiler_args["activities"] = [ProfilerActivity.CPU]
+            self.profiler_args["activities"] = [ProfilerActivity.CPU, ProfilerActivity.CUDA]
             self.profiler_args["record_shapes"] = True
 
         if "on_trace_ready" not in self.profiler_args:
             result_path = "/tmp/pytorch_profiler"
+            dir_name = ""
+            try:
+                model_name = self.manifest["model"]["modelName"]
+                dir_name = model_name
+            except KeyError:
+                logging.debug("Model name not found in config")
+
+            result_path = os.path.join(result_path, dir_name)
             self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(result_path)
             logger.info("Saving chrome trace to : ", result_path) # pylint: disable=logging-too-many-args
 
