@@ -8,5 +8,5 @@ class ResnetHandler(ImageClassifier):
         self.profiler_args = {
             "activities" : [ProfilerActivity.CPU],
             "record_shapes": True,
-            "on_trace_ready": tensorboard_trace_handler("/tmp/output")
+            "on_trace_ready": tensorboard_trace_handler("/tmp/output/resnet-152-batch")
         }

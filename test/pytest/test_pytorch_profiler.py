@@ -26,7 +26,7 @@ profiler_utils = os.path.join(REPO_ROOT, "test/pytest/profiler_utils")
 
 TF_INFERENCE_API = "http://127.0.0.1:8080"
 TF_MANAGEMENT_API = "http://127.0.0.1:8081"
-DEFAULT_OUTPUT_DIR = "/tmp/pytorch_profiler"
+DEFAULT_OUTPUT_DIR = "/tmp/pytorch_profiler/resnet-152-batch"
 
 
 @pytest.fixture
@@ -116,7 +116,7 @@ def test_profiler_arguments_override(set_custom_handler, handler_name):
     """
     Tests pytorch profiler integration when user overrides the profiler arguments
     """
-    CUSTOM_PATH = "/tmp/output"
+    CUSTOM_PATH = "/tmp/output/resnet-152-batch"
     if os.path.exists(CUSTOM_PATH):
         shutil.rmtree(CUSTOM_PATH)
     assert os.path.exists(data_file_resnet)
@@ -129,7 +129,6 @@ def test_profiler_arguments_override(set_custom_handler, handler_name):
     test_utils.torchserve_cleanup()
 
 
-
 @pytest.mark.parametrize(
     "handler_name",
     [os.path.join(profiler_utils, "resnet_profiler_override.py")],
@@ -138,7 +137,7 @@ def test_batch_input(set_custom_handler, handler_name):
     """
     Tests pytorch profiler integration with batch inference
     """
-    CUSTOM_PATH = "/tmp/output"
+    CUSTOM_PATH = "/tmp/output/resnet-152-batch"
     if os.path.exists(CUSTOM_PATH):
         shutil.rmtree(CUSTOM_PATH)
     assert os.path.exists(data_file_resnet)
