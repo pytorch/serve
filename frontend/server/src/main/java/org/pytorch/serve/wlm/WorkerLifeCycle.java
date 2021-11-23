@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -48,13 +49,13 @@ public class WorkerLifeCycle {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
-        String[] args = new String[6];
-        args[0] = EnvironmentUtils.getPythonRunTime(model);
-        args[1] = new File(workingDir, "ts/model_service_worker.py").getAbsolutePath();
-        args[2] = "--sock-type";
-        args[3] = connector.getSocketType();
-        args[4] = connector.isUds() ? "--sock-name" : "--port";
-        args[5] = connector.getSocketPath();
+        ArrayList<String> argl = new ArrayList<String>();
+        argl.add(EnvironmentUtils.getPythonRunTime(model));
+        argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
+        argl.add("--sock-type");
+        argl.add(connector.getSocketType());
+        argl.add(connector.isUds() ? "--sock-name" : "--port");
+        argl.add(connector.getSocketPath());
 
         String[] envp =
                 EnvironmentUtils.getEnvString(
@@ -64,6 +65,9 @@ public class WorkerLifeCycle {
 
         try {
             latch = new CountDownLatch(1);
+
+            String[] args = argl.toArray(new String[argl.size()]);
+            logger.debug("Worker cmdline: {}", argl.toString());
 
             synchronized (this) {
                 process = Runtime.getRuntime().exec(args, envp, modelPath);
