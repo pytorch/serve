@@ -29,6 +29,8 @@ If you installed using pip, then you need install Pyav :
 
 MMF currenly is using Transformers 3.4.0, in case you have other version installed in your enviroment, this would be the best instead of installing it directly, add the MMF Github and 'av', in the requirements.txt and pass it to the model archiver using -r flag. You can read more about serving models with thrid party dependencies [here](https://github.com/pytorch/serve/tree/master/docs/use_cases.md#serve-custom-models-with-third-party-dependency).
 
+***Note, MMF currenly does not support Pytorch 1.10, please make sure you are using Pytorch 1.9***
+
 #### Getting started on Serving
 
 To make the mar file, we will use model_archiver as follows.
