@@ -174,6 +174,39 @@ public final class TestUtils {
         }
     }
 
+    public static void registerModel(
+            Channel channel,
+            String url,
+            String modelName,
+            boolean withInitialWorkers,
+            boolean syncChannel,
+            int batchSize,
+            int maxBatchDelay)
+            throws InterruptedException {
+        String requestURL =
+                "/models?url="
+                        + url
+                        + "&model_name="
+                        + modelName
+                        + "&runtime=python"
+                        + "&batch_size="
+                        + batchSize
+                        + "&max_batch_delay="
+                        + maxBatchDelay;
+        if (withInitialWorkers) {
+            requestURL += "&initial_workers=1&synchronous=true";
+        }
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
     public static void registerWorkflow(
             Channel channel, String url, String workflowName, boolean syncChannel)
             throws InterruptedException {

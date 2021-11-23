@@ -25,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -78,6 +79,7 @@ public final class ConfigManager {
     private static final String TS_PRIVATE_KEY_FILE = "private_key_file";
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
+    private static final String TS_LIMIT_MAX_IMAGE_PIXELS = "limit_max_image_pixels";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
@@ -604,6 +606,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nLimit Maximum Image Pixels: "
+                + prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nAllowed Urls: "
@@ -634,6 +638,10 @@ public final class ConfigManager {
 
     public int getMaxRequestSize() {
         return getIntProperty(TS_MAX_REQUEST_SIZE, 6553500);
+    }
+
+    public boolean isLimitMaxImagePixels() {
+        return Boolean.parseBoolean(prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true"));
     }
 
     public void setProperty(String key, String value) {
@@ -721,17 +729,31 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
-            Process process =
-                    Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-            int ret = process.waitFor();
-            if (ret != 0) {
-                return 0;
+            List<Integer> gpuIds = new ArrayList<>();
+            String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
+            if (visibleCuda != null && !visibleCuda.isEmpty()) {
+                String[] ids = visibleCuda.split(",");
+                for (String id : ids) {
+                    gpuIds.add(Integer.parseInt(id));
+                }
+            } else {
+                Process process =
+                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+                List<String> list =
+                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                if (list.isEmpty() || !"index".equals(list.get(0))) {
+                    throw new AssertionError("Unexpected nvidia-smi response.");
+                }
+                for (int i = 1; i < list.size(); i++) {
+                    gpuIds.add(Integer.parseInt(list.get(i)));
+                }
             }
-            List<String> list = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-            if (list.isEmpty() || !"index".equals(list.get(0))) {
-                throw new AssertionError("Unexpected nvidia-smi response.");
-            }
-            return list.size() - 1;
+
+            return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }

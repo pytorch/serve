@@ -1,0 +1,9 @@
+apiVersion: "serving.kubeflow.org/v1beta1"
+kind: "InferenceService"
+metadata:
+ name: "torch-pred"
+spec:
+ predictor:
+   pytorch:
+     protocolVersion: v1
+     storageUri: "pvc://model-store-claim"

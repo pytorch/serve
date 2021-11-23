@@ -4,6 +4,7 @@ import json
 import test_utils
 import numpy as np
 import ast 
+import pytest
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
@@ -224,8 +225,32 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
 
     assert np.array(json.loads(response.content)['explanations']).shape == (1, 1, 28, 28)
     test_utils.unregister_model("mnist")
+
+def test_huggingface_bert_batch_inference():
+    batch_size = 2
+    batch_delay = 10000 # 10 seconds
+    params = (
+        ('model_name', 'BERTSeqClassification'),
+        ('url', 'https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar'),
+        ('initial_workers', '1'),
+        ('batch_size', str(batch_size)),
+        ('max_batch_delay', str(batch_delay))
+    )
+    test_utils.start_torchserve(no_config_snapshots=True)
+    test_utils.register_model_with_params(params)
+    input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
     
-    
+    # Make 2 curl requests in parallel with &
+    # curl --header \"X-Forwarded-For: 1.2.3.4\" won't work since you can't access local host anymore
+    response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
+    response = response.read()
+
+
+    ## Assert that 2 responses are returned from the same batch
+    assert response == 'Not AcceptedNot Accepted'
+    test_utils.unregister_model('BERTSeqClassification')
+
+@pytest.mark.skip(reason="MMF doesn't support PT 1.10 yet")
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
   
     test_utils.start_torchserve(snapshot_file = snapshot_file_tf)

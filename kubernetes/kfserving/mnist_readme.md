@@ -17,11 +17,16 @@ To serve an Inference Request for Torchserve using the KFServing Spec, follow th
 inference_address=http://127.0.0.0:8085
 management_address=http://127.0.0.0:8081
 number_of_netty_threads=4
-service_envelope=kfserving
+enable_envvars_config=true
 job_queue_size=10
 model_store=model-store
 ```
-The service_envelope=kfserving setting is needed when deploying models on KFServing
+
+* Set service envelope environment variable
+
+The 
+```export TS_SERVICE_ENVELOPE=kfserving``` or ```TS_SERVICE_ENVELOPE=kfservingv2``` envvar is for choosing between
+KFServing v1 and v2 protocols
 
 * start Torchserve by invoking the below command:
 ```
@@ -41,6 +46,12 @@ Please note that the batch size, the initial worker and synchronous values can b
 ## Request and Response
 
 ### The curl request for Inference is as below:
+
+The image file can be converted into string of bytes array by running
+  
+``` 
+python img2bytearray.py <imagefile>
+```
 
 When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```bash
@@ -91,6 +102,8 @@ The Explanation response is as below :
   ]
 }
 ```
+
+### Static batching:
 
 KFServing supports Static batching by adding new examples in the instances key of the request json
 But the batch size should still be set at 1, when we register the model. Explain doesn't support batching.
