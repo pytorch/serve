@@ -2,13 +2,15 @@
 Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification
 """
-from ..utils.util import list_classes_from_module, load_label_mapping
+
 import abc
 import logging
 import os
 import importlib.util
 import time
 import torch
+from ..utils.util import list_classes_from_module, load_label_mapping
+
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
         ipex_enabled = True
-    except:
+    except ImportError as error:
         logger.warning("IPEX was not installed. Please install IPEX if wanted.")
 
 class BaseHandler(abc.ABC):

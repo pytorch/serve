@@ -18,8 +18,8 @@ sys.path.append('ts/torch_handler/unit_tests/models/tmp')
 
 
 image_processing = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))
     ])
 
 @pytest.fixture()
