@@ -15,7 +15,7 @@ ARG BUILD_TYPE=dev
 FROM ${BASE_IMAGE} AS compile-image
 
 ARG BASE_IMAGE
-ARG BRANCH_NAME=kfseving-v2
+ARG BRANCH_NAME=master
 ARG MACHINE_TYPE=cpu
 ARG BRANCH_NAME_KF=master
 ENV PYTHONUNBUFFERED TRUE
@@ -49,7 +49,7 @@ FROM compile-image AS dev-image
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
-  && git clone https://github.com/jagadeeshi2i/serve.git \
+  && git clone https://github.com/pytorch/serve.git \
   && cd serve \
   && git checkout ${BRANCH_NAME} \
   && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
