@@ -28,12 +28,21 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 
 
-def build_docker_container(torchserve_branch="master", push_image=True):
+def build_docker_container(torchserve_branch="master", push_image=True, use_local_serve_folder=False):
     LOGGER.info(f"Setting up docker image to be used")
 
     docker_dev_image_config_path = os.path.join(
         os.getcwd(), "benchmarks", "automated", "tests", "suite", "docker", "docker.yaml"
     )
+
+    local_server_folder = os.getcwd()
+    if use_local_server_folder:
+        LOGGER.info(f"*** Using the local 'serve' folder closure when creating the container image.")
+
+        serve_folder_in_docker_context = os.path.join(os.getcwd(), docker, serve)
+        run(f"mkdir -p {serve_folder_in_docker_context}")
+
+        run(f"rsync -av --progress {local_serve_folder}/* {serve_folder_in_docker_context}/* --exlude docker")
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
     YamlHandler.validate_docker_yaml(docker_config)
@@ -43,13 +52,19 @@ def build_docker_container(torchserve_branch="master", push_image=True):
     for processor, config in docker_config.items():
         docker_tag = None
         cuda_version = None
+        dockerhub_image = None
         for config_key, config_value in config.items():
             if processor == "gpu" and config_key == "cuda_version":
                 cuda_version = config_value
+                if config_key == "dockerhub_image":
+                    dockerhub_image = config_value
             if config_key == "docker_tag":
                 docker_tag = config_value
         dockerImageHandler = DockerImageHandler(docker_tag, cuda_version, torchserve_branch)
-        dockerImageHandler.build_image()
+        if not dockerhub_image:
+            dockerImageHandler.build_image()
+        else:
+            dockerImageHandler.pull_docker_image(docker_repo_tag=dock)
         if push_image:
             dockerImageHandler.push_docker_image_to_ecr(
                 account_id, DEFAULT_REGION, f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
@@ -82,6 +97,13 @@ def main():
         "--use-torchserve-branch",
         default="master",
         help="Specify a specific torchserve branch to build a container to benchmark on, else uses 'master' by default",
+    )
+
+    parser.add_argument(
+        "--use-local-serve-folder",
+        action="store_true",
+        default=False,
+        help="Specify this option if you'd like to build a container image out of your current 'serve' folder."
     )
 
     parser.add_argument(
@@ -134,6 +156,7 @@ def main():
         local_instance_type_list = []
 
     torchserve_branch = arguments.use_torchserve_branch
+    use_local_serve_folder = arguments.use_local_serve_folder
 
     # Build docker containers as specified in docker.yaml
     if not arguments.skip_docker_build:

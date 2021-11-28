@@ -2,8 +2,9 @@
 # Note: the docker_tag of a GPU/cuda image MUST have the word "gpu", and that of a CPU image must have the word "cpu".
 # If a dockerhub_image key is specified, custom docker build will be SKIPPED.
 gpu:
+    dockerhub_image: "pytorch/torchserve:latest-gpu"
     docker_tag: "gpu-dev-image"
     cuda_version: "cu102"
 cpu:
+    dockerhub_image: "pytorch/torchserve:latest"
     docker_tag: "cpu-dev-image"
-dockerhub_image: "pytorch/torchserve:latest"
