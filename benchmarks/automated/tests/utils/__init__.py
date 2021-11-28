@@ -326,6 +326,22 @@ class DockerImageHandler(object):
         LOGGER.info(f"Dev image push to ECR successful.")
 
     @staticmethod
+    def pull_docker_image(docker_repo_tag, connection=None):
+        """
+        :param docker_repo_tag: typically the repo:tag of an image from dockerhub
+        :return None
+        """
+        if connection:
+            run_out = connection.run(f"docker pull {docker_repo_tag}")
+        else:
+            run_out = run(f"docker pull {docker_repo_tag}")
+        
+        assert run_out.return_code == 0, f"Docker pull failed for image: {docker_repo_tag}"
+
+        LOGGER.info(f"Docker image {docker_repo_tag} pulled succesfully.")
+        
+
+    @staticmethod
     def pull_docker_image_from_ecr(
         account_id, region, docker_repo_tag=f"{DEFAULT_DOCKER_DEV_ECR_REPO_TAG}", connection=None
     ):
@@ -374,13 +390,16 @@ class DockerImageHandler(object):
         for processor, config in docker_config.items():
             docker_tag = None
             cuda_version = None
+            dockerhub_image = None
             for config_key, config_value in config.items():
                 if processor == "gpu" and config_key == "cuda_version":
                     cuda_version = config_value
                 if config_key == "docker_tag":
                     docker_tag = config_value
+                if config_key == "dockerhub_image":
+                    docker_repo_tag = config_value
 
-            docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
+            docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}" if not docker_repo_tag else docker_repo_tag
 
             if ec2_instance_type[:2] in GPU_INSTANCES and "gpu" in docker_tag:
                 dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
