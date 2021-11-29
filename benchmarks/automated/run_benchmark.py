@@ -42,7 +42,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
 
         local_serve_folder = os.getcwd()
         tmp_local_serve_folder = os.path.join("/tmp", "serve")
-        serve_folder_in_docker_context = os.path.join(os.getcwd(), docker, serve)
+        serve_folder_in_docker_context = os.path.join(os.getcwd(), "docker", "serve")
         
         run(f"mkdir -p {tmp_local_serve_folder}")
         run(f"mkdir -p {serve_folder_in_docker_context}")
