@@ -1,13 +1,13 @@
 # syntax = docker/dockerfile:experimental
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
-# 
+#
 # NOTE: To build this you will need a docker version > 18.06 with
 #       experimental enabled and DOCKER_BUILDKIT=1
 #
 #       If you do not use buildkit you are not going to have a good time
 #
-#       For reference: 
+#       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 ARG BASE_IMAGE=ubuntu:18.04
@@ -57,22 +57,19 @@ RUN mkdir -p serve/
 COPY serve/ /serve/
 
 RUN if [ -z "$LOCAL_BENCHMARK_SERVE_FOLDER" ]; then \
-    cd serve \ 
+    cd serve \
     && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev --cuda $CUDA_VERSION; fi \
-    && python ts_scripts/install_from_src.py else \
+    && python ts_scripts/install_from_src.py; \
+    else \
     git clone https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
     && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
-    && python ts_scripts/install_from_src.py fi; 
+    && python ts_scripts/install_from_src.py; fi;
 
 
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
-    && git clone https://github.com/pytorch/serve.git \
-    && cd serve \
-    && git checkout ${BRANCH_NAME} \
-    && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
-    && python ts_scripts/install_from_src.py \
+    && cd /serve \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
