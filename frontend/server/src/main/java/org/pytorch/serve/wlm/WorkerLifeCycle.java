@@ -54,8 +54,8 @@ public class WorkerLifeCycle {
         if (configManager.isCPULauncherEnabled()) {
             argl.add("-m");
             argl.add("intel_extension_for_pytorch.cpu.launch");
-	    argl.add("----ninstance")
-	    argl.add("1")
+	    argl.add("----ninstance");
+	    argl.add("1");
             String largs = configManager.getCPULauncherArgs();
             if (largs != null && largs.length() > 1) {
                 String[] argarray = largs.split(" ");
