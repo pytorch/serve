@@ -285,11 +285,11 @@ class DockerImageHandler(object):
 
         if self.cuda_version:
             run_out = run(
-                f"./build_image.sh {use_local_serve_folder_arg} -b {self.branch} -bt dev -g -cv {self.cuda_version} -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
+                f"./build_image.sh {use_local_serve_folder_arg} -b {self.branch} -bt benchmark -g -cv {self.cuda_version} -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
             )
         else:
             run_out = run(
-                f"./build_image.sh {use_local_serve_folder_arg} -b {self.branch} -bt dev -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
+                f"./build_image.sh {use_local_serve_folder_arg} -b {self.branch} -bt benchmark -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
             )
 
         # Switch back to original directory
