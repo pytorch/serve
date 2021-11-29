@@ -169,7 +169,7 @@ def main():
     # Build docker containers as specified in docker.yaml
     if not arguments.skip_docker_build:
         push_image = False if arguments.local_execution else True
-        build_docker_container(torchserve_branch=torchserve_branch, push_image=push_image)
+        build_docker_container(torchserve_branch=torchserve_branch, push_image=push_image, use_local_serve_folder=use_local_serve_folder)
     else:
         LOGGER.warn(f"Skipping docker build.")
 
