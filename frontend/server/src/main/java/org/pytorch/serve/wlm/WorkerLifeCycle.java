@@ -51,6 +51,20 @@ public class WorkerLifeCycle {
 
         ArrayList<String> argl = new ArrayList<String>();
         argl.add(EnvironmentUtils.getPythonRunTime(model));
+        if (configManager.isCPULauncherEnabled()) {
+            argl.add("-m");
+            argl.add("intel_extension_for_pytorch.cpu.launch");
+	    argl.add("----ninstance")
+	    argl.add("1")
+            String largs = configManager.getCPULauncherArgs();
+            if (largs != null && largs.length() > 1) {
+                String[] argarray = largs.split(" ");
+                for (int i = 0; i < argarray.length; i++) {
+                    argl.add(argarray[i]);
+                }
+            }
+        }
+
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
         argl.add("--sock-type");
         argl.add(connector.getSocketType());
