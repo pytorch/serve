@@ -39,12 +39,12 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
     if use_local_serve_folder:
         LOGGER.info(f"*** Using the local 'serve' folder closure when creating the container image.")
 
-        run(f"mkdir -p {tmp_local_serve_folder}")
 
         local_serve_folder = os.getcwd()
         tmp_local_serve_folder = os.path.join("/tmp", "serve")
         serve_folder_in_docker_context = os.path.join(os.getcwd(), docker, serve)
         
+        run(f"mkdir -p {tmp_local_serve_folder}")
         run(f"mkdir -p {serve_folder_in_docker_context}")
 
         run(f"rsync -av --progress {local_serve_folder}/* {tmp_local_serve_folder}/*")
