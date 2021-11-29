@@ -122,8 +122,5 @@ cpu_launcher_args=--ncore_per_instance 28 --socket_id 0
 ### 2. Benchmarking with Launcher 
 The rest of the steps for benchmarking follows the same steps shown [here](https://github.com/pytorch/serve/tree/master/benchmarks).
 
-### 3. Visualizing launcher 
-Additionally, users can visualize the launcher running by running `htop`.
-
-https://user-images.githubusercontent.com/93151422/143813368-1d45d39d-e456-4268-adb2-ac1c6a7865fe.mp4
-
+CPU usage is shown as below. 
+![sample_launcher](https://user-images.githubusercontent.com/93151422/143912711-cacbd38b-4be9-430a-810b-e5d3a9be9732.gif)
