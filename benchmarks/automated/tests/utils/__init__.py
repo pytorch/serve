@@ -273,20 +273,23 @@ class DockerImageHandler(object):
         self.cuda_version = cuda_version
         self.branch = branch
 
-    def build_image(self, use_local_serve_folder=use_local_serve_folder):
+    def build_image(self, use_local_serve_folder=false):
         """
         Uses the build_image.sh script to build a docker container with the given parameters.
         """
         torch_serve_docker_directory = os.path.abspath(os.path.join(__file__, "../../../../../docker/"))
         current_working_directory = os.getcwd()
         os.chdir(torch_serve_docker_directory)
+
+        use_local_serve_folder_arg = "-lf" if use_local_serve_folder else ""
+
         if self.cuda_version:
             run_out = run(
-                f"./build_image.sh -b {self.branch} -bt dev -g -cv {self.cuda_version} -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
+                f"./build_image.sh {use_local_serve_folder_arg} -b {self.branch} -bt dev -g -cv {self.cuda_version} -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
             )
         else:
             run_out = run(
-                f"./build_image.sh -b {self.branch} -bt dev -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
+                f"./build_image.sh {use_local_serve_folder_arg} -b {self.branch} -bt dev -t {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
             )
 
         # Switch back to original directory
