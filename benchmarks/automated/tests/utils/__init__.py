@@ -273,7 +273,7 @@ class DockerImageHandler(object):
         self.cuda_version = cuda_version
         self.branch = branch
 
-    def build_image(self, use_local_serve_folder=false):
+    def build_image(self, use_local_serve_folder=False):
         """
         Uses the build_image.sh script to build a docker container with the given parameters.
         """
