@@ -64,15 +64,20 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
         for config_key, config_value in config.items():
             if processor == "gpu" and config_key == "cuda_version":
                 cuda_version = config_value
-                if config_key == "dockerhub_image":
-                    dockerhub_image = config_value
             if config_key == "docker_tag":
                 docker_tag = config_value
+            
+            if config_key == "dockerhub_image":
+                dockerhub_image = config_value
+
         dockerImageHandler = DockerImageHandler(docker_tag, cuda_version, torchserve_branch)
+
         if not dockerhub_image:
             dockerImageHandler.build_image(use_local_serve_folder=use_local_serve_folder)
         else:
-            dockerImageHandler.pull_docker_image(docker_repo_tag=dock)
+            # Image is pulled by process_docker_config in __init__.py
+            LOGGER.info(f"*** Note: dockerhub_image specified in docker.yaml. This container image will be used for benchmark.")
+
         if push_image:
             dockerImageHandler.push_docker_image_to_ecr(
                 account_id, DEFAULT_REGION, f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
