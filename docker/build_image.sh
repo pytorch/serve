@@ -98,7 +98,7 @@ fi
 if [ $BUILD_TYPE == "production" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
-elif [ $BUILD_TYPE == "benchmark"]
+elif [ $BUILD_TYPE == "benchmark" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
 else
