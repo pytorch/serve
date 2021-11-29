@@ -35,14 +35,22 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
         os.getcwd(), "benchmarks", "automated", "tests", "suite", "docker", "docker.yaml"
     )
 
-    local_server_folder = os.getcwd()
-    if use_local_server_folder:
+
+    if use_local_serve_folder:
         LOGGER.info(f"*** Using the local 'serve' folder closure when creating the container image.")
 
+        run(f"mkdir -p {tmp_local_serve_folder}")
+
+        local_serve_folder = os.getcwd()
+        tmp_local_serve_folder = os.path.join("/tmp", "serve")
         serve_folder_in_docker_context = os.path.join(os.getcwd(), docker, serve)
+        
         run(f"mkdir -p {serve_folder_in_docker_context}")
 
-        run(f"rsync -av --progress {local_serve_folder}/* {serve_folder_in_docker_context}/* --exlude docker")
+        run(f"rsync -av --progress {local_serve_folder}/* {tmp_local_serve_folder}/*")
+        run(f"rsync -av --progress {tmp_local_serve_folder}/* {serve_folder_in_docker_context}/*")
+
+        run(f"rm -rf {tmp_local_serve_folder}")
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
     YamlHandler.validate_docker_yaml(docker_config)
@@ -62,7 +70,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
                 docker_tag = config_value
         dockerImageHandler = DockerImageHandler(docker_tag, cuda_version, torchserve_branch)
         if not dockerhub_image:
-            dockerImageHandler.build_image()
+            dockerImageHandler.build_image(use_local_serve_folder=use_local_serve_folder)
         else:
             dockerImageHandler.pull_docker_image(docker_repo_tag=dock)
         if push_image:

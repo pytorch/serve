@@ -273,9 +273,9 @@ class DockerImageHandler(object):
         self.cuda_version = cuda_version
         self.branch = branch
 
-    def build_image(self):
+    def build_image(self, use_local_serve_folder=use_local_serve_folder):
         """
-        Uses the start_build.sh script to build a docker container with the given parameters.
+        Uses the build_image.sh script to build a docker container with the given parameters.
         """
         torch_serve_docker_directory = os.path.abspath(os.path.join(__file__, "../../../../../docker/"))
         current_working_directory = os.getcwd()
@@ -331,6 +331,9 @@ class DockerImageHandler(object):
         :param docker_repo_tag: typically the repo:tag of an image from dockerhub
         :return None
         """
+
+        LOGGER.info(f"*** Pulling dockerhub image for benchmarking")
+
         if connection:
             run_out = connection.run(f"docker pull {docker_repo_tag}")
         else:
@@ -338,7 +341,7 @@ class DockerImageHandler(object):
         
         assert run_out.return_code == 0, f"Docker pull failed for image: {docker_repo_tag}"
 
-        LOGGER.info(f"Docker image {docker_repo_tag} pulled succesfully.")
+        LOGGER.info(f"*** Docker image {docker_repo_tag} pulled succesfully.")
         
 
     @staticmethod

@@ -8,6 +8,7 @@ DOCKER_FILE="Dockerfile"
 BASE_IMAGE="ubuntu:18.04"
 CUSTOM_TAG=false
 CUDA_VERSION=""
+USE_LOCAL_SERVE_FOLDER=false
 
 for arg in "$@"
 do
@@ -20,6 +21,7 @@ do
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
+          echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           exit 0
           ;;
         -b|--branch_name)
@@ -48,6 +50,11 @@ do
         -t|--tag)
           DOCKER_TAG="$2"
           CUSTOM_TAG=true
+          shift
+          shift
+          ;;
+        -lf|--use-local-serve-folder)
+          USE_LOCAL_SERVE_FOLDER=true
           shift
           shift
           ;;
@@ -93,7 +100,7 @@ then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
 elif [ $BUILD_TYPE == "benchmark"]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile.benchmark --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
 else
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE .
 fi
