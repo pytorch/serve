@@ -47,8 +47,8 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
         run(f"mkdir -p {tmp_local_serve_folder}")
         run(f"mkdir -p {serve_folder_in_docker_context}")
 
-        run(f"rsync -av --progress {local_serve_folder}/* {tmp_local_serve_folder}/*")
-        run(f"rsync -av --progress {tmp_local_serve_folder}/* {serve_folder_in_docker_context}/*")
+        run(f"rsync -av --progress {local_serve_folder}/ {tmp_local_serve_folder}/")
+        run(f"rsync -av --progress {tmp_local_serve_folder}/ {serve_folder_in_docker_context}/")
 
         #run(f"rm -rf {tmp_local_serve_folder}")
 
