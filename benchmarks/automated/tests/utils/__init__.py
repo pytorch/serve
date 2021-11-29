@@ -143,9 +143,9 @@ class YamlHandler(object):
         for model, config in yaml_content.items():
             if model == "instance_types":
                 continue
-            
+
             for mode, mode_config in config.items():
-                
+
                 mode_list.append(mode)
                 for config, value in mode_config.items():
                     if config == "batch_size":
@@ -341,11 +341,10 @@ class DockerImageHandler(object):
             run_out = connection.run(f"docker pull {docker_repo_tag}")
         else:
             run_out = run(f"docker pull {docker_repo_tag}")
-        
+
         assert run_out.return_code == 0, f"Docker pull failed for image: {docker_repo_tag}"
 
         LOGGER.info(f"*** Docker image {docker_repo_tag} pulled succesfully.")
-        
 
     @staticmethod
     def pull_docker_image_from_ecr(
@@ -403,25 +402,32 @@ class DockerImageHandler(object):
                 if config_key == "docker_tag":
                     docker_tag = config_value
                 if config_key == "dockerhub_image":
-                    docker_repo_tag = config_value
+                    dockerhub_image = config_value
 
-            docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}" if not docker_repo_tag else docker_repo_tag
+            docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}" if not dockerhub_image else dockerhub_image
 
             if ec2_instance_type[:2] in GPU_INSTANCES and "gpu" in docker_tag:
                 dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
                 if not is_local_execution:
-                    dockerImageHandler.pull_docker_image_from_ecr(
-                        account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
-                    )
+                    if not dockerhub_image:
+                        dockerImageHandler.pull_docker_image_from_ecr(
+                            account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                        )
+                    else:
+                        dockerImageHandler.pull_docker_image(docker_repo_tag=docker_repo_tag)
+
                 docker_repo_tag_for_current_instance = docker_repo_tag
                 cuda_version_for_instance = cuda_version
                 break
             if ec2_instance_type[:2] not in GPU_INSTANCES and "cpu" in docker_tag:
                 dockerImageHandler = DockerImageHandler(docker_tag, cuda_version)
                 if not is_local_execution:
-                    dockerImageHandler.pull_docker_image_from_ecr(
-                        account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
-                    )
+                    if not dockerhub_image:
+                        dockerImageHandler.pull_docker_image_from_ecr(
+                            account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                        )
+                    else:
+                        dockerImageHandler.pull_docker_image(docker_repo_tag=docker_repo_tag)
                 docker_repo_tag_for_current_instance = docker_repo_tag
                 cuda_version_for_instance = None
                 break
