@@ -141,13 +141,14 @@ class TorchServeHandler(object):
         self.connection.run("nohup bash -c 'while true; do docker stats ts --format '{{.CPUPerc}}' --no-stream | sed 's/\%//g' | tee --append stats.txt; sleep 0.5; done &'")
 
     
-    def stop_recording_docker_stats(self, model_name):
+    def stop_recording_docker_stats(self, model_name, num_workers, batch_size):
         """
         Stops and cleans up docker stats, and preps for plotting
         """
         # Stops the nohup process that was recording stats
         self.connection.run("ps axl|grep -e '--no-stream'| grep -v color | awk '{print $3}' | xargs kill -9")
-        self.connection.run(f"cp nohup.out nohup.{model_name}")
+        self.connection.run(f"cp nohup.out nohup.{model_name}.{num_workers}.{batch_size}")
+        self.connection.run(f"rm nohup.out")
 
     def start_torchserve_docker(self, stop_torchserve=True):
 
