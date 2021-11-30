@@ -46,7 +46,7 @@ public class WorkerLifeCycle {
             int ret = process.waitFor();
             ipexInstalled = (ret == 0);
         } catch (IOException | InterruptedException e) {}
-        return ipexInstalled = (ret == 0);;
+        return ipexInstalled;
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
