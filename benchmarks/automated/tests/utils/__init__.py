@@ -420,7 +420,7 @@ class DockerImageHandler(object):
                         )
                     else:
                         dockerImageHandler.pull_docker_image(
-                            dockerhub_image=dockerhub_image, docker_repo_tag=docker_repo_tag
+                            dockerhub_image=dockerhub_image, docker_repo_tag=docker_repo_tag, connection=ec2_connection
                         )
 
                 docker_repo_tag_for_current_instance = docker_repo_tag
@@ -435,7 +435,7 @@ class DockerImageHandler(object):
                         )
                     else:
                         dockerImageHandler.pull_docker_image(
-                            dockerhub_image=dockerhub_image, docker_repo_tag=docker_repo_tag
+                            dockerhub_image=dockerhub_image, docker_repo_tag=docker_repo_tag, connection=ec2_connection
                         )
 
                 docker_repo_tag_for_current_instance = docker_repo_tag
