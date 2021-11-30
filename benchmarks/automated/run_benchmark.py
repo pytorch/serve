@@ -50,7 +50,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
         run(f"rsync -av --progress {local_serve_folder}/ {tmp_local_serve_folder}/")
         run(f"rsync -av --progress {tmp_local_serve_folder}/ {serve_folder_in_docker_context}/")
 
-        #run(f"rm -rf {tmp_local_serve_folder}")
+        run(f"rm -rf {tmp_local_serve_folder}")
 
     docker_config = YamlHandler.load_yaml(docker_dev_image_config_path)
     YamlHandler.validate_docker_yaml(docker_config)
@@ -77,6 +77,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
         else:
             # Image is pulled by process_docker_config in __init__.py
             LOGGER.info(f"*** Note: dockerhub_image specified in docker.yaml. This container image will be used for benchmark.")
+            dockerImageHandler.pull_docker_image(dockerhub_image, docker_tag=docker_tag)
 
         if push_image:
             dockerImageHandler.push_docker_image_to_ecr(
