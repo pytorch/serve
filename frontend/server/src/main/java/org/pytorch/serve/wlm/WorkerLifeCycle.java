@@ -52,10 +52,28 @@ public class WorkerLifeCycle {
         ArrayList<String> argl = new ArrayList<String>();
         argl.add(EnvironmentUtils.getPythonRunTime(model));
         if (configManager.isCPULauncherEnabled()) {
+
+            try {
+                Process process =
+                        Runtime.getRuntime()
+                                .exec(
+                                        new String[] {
+                                            "python", "-c", "import intel_extension_for_pytorch"
+                                        });
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    throw new WorkerInitializationException(
+                            "Failed to import intel_extension_for_pytorch");
+                }
+                return;
+            } catch (IOException | InterruptedException e) {
+                throw new WorkerInitializationException("Failed start worker process", e);
+            }
+
             argl.add("-m");
             argl.add("intel_extension_for_pytorch.cpu.launch");
-	    argl.add("----ninstance");
-	    argl.add("1");
+            argl.add("----ninstance");
+            argl.add("1");
             String largs = configManager.getCPULauncherArgs();
             if (largs != null && largs.length() > 1) {
                 String[] argarray = largs.split(" ");
