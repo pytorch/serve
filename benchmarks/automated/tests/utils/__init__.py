@@ -329,13 +329,15 @@ class DockerImageHandler(object):
         LOGGER.info(f"Dev image push to ECR successful.")
 
     @staticmethod
-    def pull_docker_image(dockerhub_image, docker_repo_tag, connection=None):
+    def pull_docker_image(dockerhub_image, docker_tag, connection=None):
         """
         :param dockerhub_image: typically the repo:tag of an image from dockerhub
         :return None
         """
 
         LOGGER.info(f"*** Pulling dockerhub image for benchmarking")
+
+        docker_repo_tag = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{docker_tag}"
 
         if connection:
             run_out = connection.run(f"docker pull {dockerhub_image}")
@@ -420,7 +422,7 @@ class DockerImageHandler(object):
                         )
                     else:
                         dockerImageHandler.pull_docker_image(
-                            dockerhub_image=dockerhub_image, docker_repo_tag=docker_repo_tag, connection=ec2_connection
+                            dockerhub_image=dockerhub_image, docker_tag=docker_tag, connection=ec2_connection
                         )
 
                 docker_repo_tag_for_current_instance = docker_repo_tag
@@ -435,7 +437,7 @@ class DockerImageHandler(object):
                         )
                     else:
                         dockerImageHandler.pull_docker_image(
-                            dockerhub_image=dockerhub_image, docker_repo_tag=docker_repo_tag, connection=ec2_connection
+                            dockerhub_image=dockerhub_image, docker_tag=docker_tag, connection=ec2_connection
                         )
 
                 docker_repo_tag_for_current_instance = docker_repo_tag
