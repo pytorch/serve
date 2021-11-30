@@ -143,6 +143,8 @@ class BenchmarkHandler:
                     else:
                         torchserveHandler.start_torchserve_docker()
 
+                    torchserveHandler.start_recording_docker_stats()
+
                     # Register
                     torchserveHandler.register_model(
                         url=url, workers=workers, batch_delay=batch_delay, batch_size=batch_size
@@ -155,6 +157,8 @@ class BenchmarkHandler:
 
                     # Unregister
                     torchserveHandler.unregister_model()
+
+                    torchserveHandler.stop_recording_docker_stats(model_name=self.model_name)
 
                     # Stop torchserve
                     if exec_env != "docker":
