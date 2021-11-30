@@ -352,6 +352,7 @@ class DockerImageHandler(object):
         assert run_out.return_code == 0, f"Docker pull failed for image: {dockerhub_image}"
 
         LOGGER.info(f"*** Docker image {dockerhub_image} pulled succesfully.")
+        LOGGER.info(f"*** Note: the pulled image '{dockerhub_image}' has been re-tagged to '{docker_repo_tag}' for ease of management.")
 
     @staticmethod
     def pull_docker_image_from_ecr(
@@ -386,6 +387,7 @@ class DockerImageHandler(object):
         assert run_out.return_code == 0, f"ECR docker push failed"
 
         LOGGER.info(f"Dev image pull from ECR successful.")
+        LOGGER.info(f"*** Note: the pulled image '{ecr_uri}' has been re-tagged to '{docker_repo_tag}' for ease of management.")
 
     @staticmethod
     def process_docker_config(ec2_connection, docker_dev_image_config_path, ec2_instance_type, is_local_execution):
