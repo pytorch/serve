@@ -39,13 +39,14 @@ public class WorkerLifeCycle {
         return process;
     }
     
-    public static int isIpexInstalled(){
+    public static boolean isIpexInstalled(){
+	boolean ipexInstalled = false;
         try{
             Process process = Runtime.getRuntime().exec(new String[] {"python", "-c", "import intel_extension_for_pytorch"});
             int ret = process.waitFor();
-            return ret;
+            ipexInstalled = (ret == 0);
         } catch (IOException | InterruptedException e) {}
-        return 1;
+        return ipexInstalled = (ret == 0);;
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
@@ -63,8 +64,8 @@ public class WorkerLifeCycle {
         
         
         if (configManager.isCPULauncherEnabled()) {
-            int ret = isIpexInstalled();
-            if (ret == 0) {
+            boolean ipexInstalled = isIpexInstalled();
+            if (ipexInstalled) {
               argl.add("-m");
               argl.add("intel_extension_for_pytorch.cpu.launch");
               argl.add("--ninstance");
