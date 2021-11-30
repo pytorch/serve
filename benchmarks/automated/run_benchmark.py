@@ -43,7 +43,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
         local_serve_folder = os.getcwd()
         tmp_local_serve_folder = os.path.join("/tmp", "serve")
         serve_folder_in_docker_context = os.path.join(os.getcwd(), "docker", "serve")
-        
+
         run(f"mkdir -p {tmp_local_serve_folder}")
         run(f"mkdir -p {serve_folder_in_docker_context}")
 
@@ -66,7 +66,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
                 cuda_version = config_value
             if config_key == "docker_tag":
                 docker_tag = config_value
-            
+
             if config_key == "dockerhub_image":
                 dockerhub_image = config_value
 
@@ -156,9 +156,11 @@ def main():
     run_only_test = arguments.run_only
 
     if run_only_test:
-        run_only_string_list = " and ".join([model for model in run_only_test])
+        LOGGER.info(f"run_only_test:{run_only_test}")
+        LOGGER.info(f"run_only_test type:{type(run_only_test)}")
+        run_only_string_list = " or ".join([model for model in run_only_test])
         run_only_string = f"-k {run_only_string_list}"
-        LOGGER.info(f"Note: running only the tests that have the name '{run_only_test}'.")
+        LOGGER.info(f"Note: running only the tests that have the name '{run_only_string_list}'.")
     else:
         run_only_string = ""
 
