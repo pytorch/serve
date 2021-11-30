@@ -103,7 +103,7 @@ def main():
     )
 
     parser.add_argument(
-        "--run-only", default=None, help="Runs the tests that contain the supplied keyword as a substring"
+        "--run-only", nargs="+", default=None, help="Runs the tests that contain the supplied keyword as a substring"
     )
 
     parser.add_argument(
@@ -156,7 +156,8 @@ def main():
     run_only_test = arguments.run_only
 
     if run_only_test:
-        run_only_string = f"-k {run_only_test}"
+        run_only_string_list = " and ".join([model for model in run_only_test])
+        run_only_string = f"-k {run_only_string_list}"
         LOGGER.info(f"Note: running only the tests that have the name '{run_only_test}'.")
     else:
         run_only_string = ""
