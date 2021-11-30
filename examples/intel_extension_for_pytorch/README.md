@@ -49,8 +49,9 @@ conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_affine)
 
 
 # calibration 
+n_iter = 100 
 with torch.no_grad():
-    for i in range(100):
+    for i in range(n_iter):
         with ipex.quantization.calibrate(conf):
             model(dummy_tensor, dummy_tensor, dummy_tensor)
 
@@ -77,12 +78,14 @@ from copy import deepcopy
 model = models.resnet50(pretrained=True)
 model = model.eval()
 
-dummy_tensor = torch.randn(1, 3, 224, 224).contiguous(memory_format=torch.channels_last)
+C, H, W = 3, 224, 224
+dummy_tensor = torch.randn(1, C, H, W).contiguous(memory_format=torch.channels_last)
 jit_inputs = (dummy_tensor)
 conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_symmetric)
 
+n_iter = 100 
 with torch.no_grad():
-	for i in range(100):
+	for i in range(n_iter):
 		with ipex.quantization.calibrate(conf):
 			model(dummy_tensor)
 
