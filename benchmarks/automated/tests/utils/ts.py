@@ -139,6 +139,7 @@ class TorchServeHandler(object):
         """
         LOGGER.info(f"Recording docker stats using nohup")
         self.connection.run("nohup bash -c 'while true; do docker stats ts --format '{{.CPUPerc}}' --no-stream | sed 's/\%//g' 2>&1; sleep 0.5; done >& nohup.out < nohup.out & '", pty=False)
+        time.sleep(3)
 
     
     def stop_recording_docker_stats(self, model_name, num_workers, batch_size):
