@@ -38,15 +38,19 @@ public class WorkerLifeCycle {
     public Process getProcess() {
         return process;
     }
-    
-    public static boolean isIpexInstalled(){
-	boolean ipexInstalled = false;
-        try{
-            Process process = Runtime.getRuntime().exec(new String[] {"python", "-c", "import intel_extension_for_pytorch"});
+
+    public static boolean isLauncherAvailable() {
+        boolean launcherAvailable  = false;
+        Process process;
+        try {
+            process = Runtime.getRuntime().exec(new String[] {"python", "-c", "import intel_extension_for_pytorch"});
             int ret = process.waitFor();
-            ipexInstalled = (ret == 0);
-        } catch (IOException | InterruptedException e) {}
-        return ipexInstalled;
+            
+            process = Runtime.getRuntime().exec("numactl");
+            launcherAvailable = (ret == 0);
+        } catch (IOException | InterruptedException e) {
+        }
+        return launcherAvailable;
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
@@ -61,25 +65,24 @@ public class WorkerLifeCycle {
 
         ArrayList<String> argl = new ArrayList<String>();
         argl.add(EnvironmentUtils.getPythonRunTime(model));
-        
-        
+
         if (configManager.isCPULauncherEnabled()) {
-            boolean ipexInstalled = isIpexInstalled();
+            boolean launcherAvailable  = isLauncherAvailable();
             if (ipexInstalled) {
-              argl.add("-m");
-              argl.add("intel_extension_for_pytorch.cpu.launch");
-              argl.add("--ninstance");
-              argl.add("1");
-              String largs = configManager.getCPULauncherArgs();
-              if (largs != null && largs.length() > 1) {
-                  String[] argarray = largs.split(" ");
-                  for (int i = 0; i < argarray.length; i++) {
-                      argl.add(argarray[i]);
-                  }
-              }
-            }
-            else{
-              logger.warn("CPU launcher is enabled but intel-extension-for-pytorch is not installed. Proceeding without launcher.");
+                argl.add("-m");
+                argl.add("intel_extension_for_pytorch.cpu.launch");
+                argl.add("--ninstance");
+                argl.add("1");
+                String largs = configManager.getCPULauncherArgs();
+                if (largs != null && largs.length() > 1) {
+                    String[] argarray = largs.split(" ");
+                    for (int i = 0; i < argarray.length; i++) {
+                        argl.add(argarray[i]);
+                    }
+                }
+            } else {
+                logger.warn(
+                        "CPU launcher is enabled but intel-extension-for-pytorch is not installed. Proceeding without launcher.");
             }
         }
 
