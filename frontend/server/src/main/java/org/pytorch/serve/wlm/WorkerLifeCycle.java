@@ -43,7 +43,7 @@ public class WorkerLifeCycle {
         boolean launcherAvailable  = false;
         Process process;
         try {
-            process = Runtime.getRuntime().exec(new String[] {"numactl", "--show", "python", "-c", "import intel_extension_for_pytorch"});
+            process = Runtime.getRuntime().exec(new String[] {"numactl", "--show", ";", "python", "-c", "import intel_extension_for_pytorch"});
             int ret = process.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
