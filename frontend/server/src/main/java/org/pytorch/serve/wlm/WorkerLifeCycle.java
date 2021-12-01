@@ -43,10 +43,8 @@ public class WorkerLifeCycle {
         boolean launcherAvailable  = false;
         Process process;
         try {
-            process = Runtime.getRuntime().exec(new String[] {"python", "-c", "import intel_extension_for_pytorch"});
+            process = Runtime.getRuntime().exec(new String[] {"numactl", "--show", "python", "-c", "import intel_extension_for_pytorch"});
             int ret = process.waitFor();
-            
-            process = Runtime.getRuntime().exec("numactl");
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
         }
@@ -68,7 +66,7 @@ public class WorkerLifeCycle {
 
         if (configManager.isCPULauncherEnabled()) {
             boolean launcherAvailable  = isLauncherAvailable();
-            if (ipexInstalled) {
+            if (launcherAvailable) {
                 argl.add("-m");
                 argl.add("intel_extension_for_pytorch.cpu.launch");
                 argl.add("--ninstance");
@@ -82,7 +80,7 @@ public class WorkerLifeCycle {
                 }
             } else {
                 logger.warn(
-                        "CPU launcher is enabled but intel-extension-for-pytorch is not installed. Proceeding without launcher.");
+                        "CPU launcher is enabled but intel-extension-for-pytorch or numactl is not installed. Proceeding without launcher.");
             }
         }
 
