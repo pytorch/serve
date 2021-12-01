@@ -18,7 +18,7 @@ After installation, all it needs to be done to use TorchServe with IPEX is to en
 ```
 ipex_enable=true
 ```
-Once IPEX is enabled, deploying IPEX exported model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). Torchserve with IPEX can deploy any model and do inference. 
+Once IPEX is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). Torchserve with IPEX can deploy any model and do inference. 
 
 ## Creating and Exporting INT8 model for IPEX
 Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. 
@@ -49,8 +49,9 @@ conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_affine)
 
 
 # calibration 
+n_iter = 100 
 with torch.no_grad():
-    for i in range(100):
+    for i in range(n_iter):
         with ipex.quantization.calibrate(conf):
             model(dummy_tensor, dummy_tensor, dummy_tensor)
 
@@ -77,12 +78,14 @@ from copy import deepcopy
 model = models.resnet50(pretrained=True)
 model = model.eval()
 
-dummy_tensor = torch.randn(1, 3, 224, 224).contiguous(memory_format=torch.channels_last)
+C, H, W = 3, 224, 224
+dummy_tensor = torch.randn(1, C, H, W).contiguous(memory_format=torch.channels_last)
 jit_inputs = (dummy_tensor)
 conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_symmetric)
 
+n_iter = 100 
 with torch.no_grad():
-	for i in range(100):
+	for i in range(n_iter):
 		with ipex.quantization.calibrate(conf):
 			model(dummy_tensor)
 
@@ -106,17 +109,18 @@ Registering and deploying the model follows the same steps shown [here](https://
 ## Benchmarking with Launcher 
 `intel_extension_for_pytorch.cpu.launch` launcher can be used with Torchserve official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware. 
 
-In this section, we provde an example of using launcher to benchmark on a single instance (worker), single socket, and using all physical cores on that socket. This is to avoid thread oversupscription while using all resources. 
+In this section, we provde an example of using launcher to benchmark on a single socket and using all physical cores on that socket. This is to avoid thread oversupscription while using all resources. 
 
 ### 1. Launcher configuration   
-All it needs to be done to use Torchserve with launcher is to set its configuration at `config.properties` in the benchmark directory. Note that the number of instance, `-- ninstance` is 1 by default. `--ncore_per_instance` can be set as appropriately by checking the number of cores per socket using `lscpu`. 
+All it needs to be done to use Torchserve with launcher is to set its configuration at `config.properties` in the benchmark directory. `ncore_per_instance` and other tunable configuration of launcher can be set as appropriately by checking the hardware configuration.  
 
-For a full list of tunable configuration of launcher, refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md)
+Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher.
 
+Add the following lines to `config.properties` in the benchmark directory. 
 ```
-ipex_enable = True
+ipex_enable=True
 cpu_launcher_enable=true
-cpu_launcher_args=--ncore_per_instance 28 --socket_id 0
+cpu_launcher_args=--socket_id 0 --ncore_per_instance 28 
 ```
 
 ### 2. Benchmarking with Launcher 
@@ -124,3 +128,6 @@ The rest of the steps for benchmarking follows the same steps shown [here](https
 
 CPU usage is shown as below. 
 ![sample_launcher](https://user-images.githubusercontent.com/93151422/143912711-cacbd38b-4be9-430a-810b-e5d3a9be9732.gif)
+
+### Note about number of worker
+We recommend using launcher with single worker only. 
