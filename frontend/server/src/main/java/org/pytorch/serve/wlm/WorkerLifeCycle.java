@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,11 +40,27 @@ public class WorkerLifeCycle {
         return process;
     }
 
-    public static boolean isLauncherAvailable() {
+    public static boolean isLauncherAvailable(String launcherArgs) {
         boolean launcherAvailable  = false;
-        Process process;
         try {
-            process = Runtime.getRuntime().exec(new String[] {"numactl", "--show", ";", "python", "-c", "import intel_extension_for_pytorch"});
+            List<String> cmdl = new ArrayList<String>();
+            cmdl.add("python");
+            cmdl.add("-m");
+            cmdl.add("intel_extension_for_pytorch.cpu.launch");
+            if (launcherArgs != null && launcherArgs.length() > 1){
+                String[] argarray = launcherArgs.split(" ");
+                for (int i = 0; i < argarray.length; i++) {
+                    cmdl.add(argarray[i]);
+                }
+            }
+            cmdl.add("--no_python");
+            String dummyCmd = "hostname";
+            cmdl.add(dummyCmd);
+
+            String[] cmd = new String[cmdl.size()];
+            cmd = cmdl.toArray(cmd);
+
+            Process process = Runtime.getRuntime().exec(cmd);
             int ret = process.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
@@ -65,13 +82,13 @@ public class WorkerLifeCycle {
         argl.add(EnvironmentUtils.getPythonRunTime(model));
 
         if (configManager.isCPULauncherEnabled()) {
-            boolean launcherAvailable  = isLauncherAvailable();
+            String largs = configManager.getCPULauncherArgs();
+            boolean launcherAvailable  = isLauncherAvailable(largs);
             if (launcherAvailable) {
                 argl.add("-m");
                 argl.add("intel_extension_for_pytorch.cpu.launch");
                 argl.add("--ninstance");
                 argl.add("1");
-                String largs = configManager.getCPULauncherArgs();
                 if (largs != null && largs.length() > 1) {
                     String[] argarray = largs.split(" ");
                     for (int i = 0; i < argarray.length; i++) {
@@ -80,7 +97,7 @@ public class WorkerLifeCycle {
                 }
             } else {
                 logger.warn(
-                        "CPU launcher is enabled but intel-extension-for-pytorch or numactl is not installed. Proceeding without launcher.");
+                        "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
             }
         }
 
