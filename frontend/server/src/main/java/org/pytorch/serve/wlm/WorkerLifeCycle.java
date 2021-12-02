@@ -38,14 +38,14 @@ public class WorkerLifeCycle {
     public Process getProcess() {
         return process;
     }
-    
-    public static ArrayList<String> launcherArgsToList(String launcherArgs){
+
+    public static ArrayList<String> launcherArgsToList(String launcherArgs) {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("intel_extension_for_pytorch.cpu.launch");
         arrlist.add("--ninstance");
         arrlist.add("1");
-        if (launcherArgs != null && launcherArgs.length() > 1){
+        if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
                 arrlist.add(argarray[i]);
@@ -55,7 +55,7 @@ public class WorkerLifeCycle {
     }
 
     public static boolean isLauncherAvailable(String launcherArgs) {
-        boolean launcherAvailable  = false;
+        boolean launcherAvailable = false;
         try {
             ArrayList<String> cmd = new ArrayList<String>();
             cmd.add("python");
@@ -91,7 +91,7 @@ public class WorkerLifeCycle {
 
         if (configManager.isCPULauncherEnabled()) {
             String largs = configManager.getCPULauncherArgs();
-            boolean launcherAvailable  = isLauncherAvailable(largs);
+            boolean launcherAvailable = isLauncherAvailable(largs);
             if (launcherAvailable) {
                 ArrayList<String> args = launcherArgsToList(largs);
                 argl.addAll(args);
