@@ -137,7 +137,8 @@ class TorchServeHandler(object):
         """
         Records docker stats for the container 'ts' using nohup, in the file nohup.out 
         """
-        LOGGER.info(f"Recording docker stats using nohup")
+        LOGGER.info("Recording benchmark stats")
+        self.connection.run("docker exec -d ub bash -c \"while true; do free |  grep -i mem | awk '{ tmp=(\$4)/(\$2) ; printf\"%0.2f\n\", tmp }' >> /tmp/benchmark/logs/free.out; sleep 3 ; done \"")
         self.connection.run("nohup bash -c 'while true; do docker stats ts --format '{{.CPUPerc}}' --no-stream | sed 's/\%//g' 2>&1; sleep 0.5; done >& nohup.out < nohup.out & '", pty=False)
         time.sleep(3)
 
@@ -146,6 +147,9 @@ class TorchServeHandler(object):
         """
         Stops and cleans up docker stats, and preps for plotting
         """
+        # Gathers the result of free command
+        self.connection.run(f"cp /home/ubuntu/benchmark/logs/free.out ./free.{model_name}.{num_workers}.{batch_size}", warn=True)
+
         # Stops the nohup process that was recording stats
         self.connection.run("ps axl|grep -e '--no-stream'| grep -v color | awk '{print $3}' | xargs kill -9", warn=True)
         self.connection.run(f"cp nohup.out nohup.{model_name}.{num_workers}.{batch_size}", warn=True)
