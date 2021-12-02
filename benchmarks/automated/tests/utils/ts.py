@@ -173,7 +173,7 @@ class TorchServeHandler(object):
         plt.xlabel(f"time")
         plt.ylabel(f"% utilized memory by torchserve")
         plt.title(f"{model_name} {mode_name} num_workers={num_workers} batch_size={batch_size}")
-        plt.savefig(f"free_plot.{model_name}.{num_workers}.{batch_size}.png")
+        plt.savefig(f"free_plot.{model_name}.{mode_name}.{num_workers}.{batch_size}.png")
         plt.clf()
 
     def start_torchserve_docker(self, stop_torchserve=True):
