@@ -138,7 +138,7 @@ class TorchServeHandler(object):
         Records docker stats for the container 'ts' using nohup, in the file nohup.out 
         """
         LOGGER.info("Recording benchmark stats")
-        self.connection.run("docker exec -d ts bash -c \"while true; do free |  grep -i mem | awk '{ tmp=(\$4)/(\$3) ; printf\\\"%0.2f\\n\\\", tmp }' >> /tmp/benchmark/logs/free.out; sleep 1 ; done \"",echo=True, warn=True, pty=False)
+        self.connection.run("docker exec -d ts bash -c \"while true; do free |  grep -i mem | awk '{ tmp=(\$4)/(\$2) ; printf\\\"%0.2f\\n\\\", tmp }' >> /tmp/benchmark/logs/free.out; sleep 1 ; done \"",echo=True, warn=True, pty=False)
         self.connection.run("nohup bash -c 'while true; do docker stats ts --format '{{.CPUPerc}}' --no-stream | sed 's/\%//g' 2>&1; sleep 0.5; done >& nohup.out < nohup.out & '", pty=False)
         time.sleep(3)
 
