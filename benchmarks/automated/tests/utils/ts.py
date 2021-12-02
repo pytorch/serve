@@ -138,7 +138,7 @@ class TorchServeHandler(object):
         Records docker stats for the container 'ts' using nohup, in the file nohup.out 
         """
         LOGGER.info("Recording benchmark stats")
-        self.connection.run("docker exec -d ts bash -c \"while true; do free |  grep -i mem | awk '{ tmp=(\$4)/(\$2) ; printf\"%0.2f\n\", tmp }' >> /tmp/benchmark/logs/free.out; sleep 3 ; done \"", warn=True, pty=False)
+        self.connection.run("docker exec -d ts bash -c \"while true; do free |  grep -i mem | awk '{ tmp=(\$4)/(\$3) ; printf\\\"%0.2f\\n\\\", tmp }' >> /tmp/benchmark/logs/free.out; sleep 1 ; done \"",echo=True, warn=True, pty=False)
         self.connection.run("nohup bash -c 'while true; do docker stats ts --format '{{.CPUPerc}}' --no-stream | sed 's/\%//g' 2>&1; sleep 0.5; done >& nohup.out < nohup.out & '", pty=False)
         time.sleep(3)
 
@@ -154,6 +154,26 @@ class TorchServeHandler(object):
         self.connection.run("ps axl|grep -e '--no-stream'| grep -v color | awk '{print $3}' | xargs kill -9", warn=True)
         self.connection.run(f"cp nohup.out nohup.{model_name}.{num_workers}.{batch_size}", warn=True)
         self.connection.run(f"rm nohup.out", warn=True)
+
+    def plot_stats_graph(self, model_name, num_workers, batch_size):
+        """
+        Plots the graphs for docker stats recorded (free, docker cpu utilization) etc.
+        """
+        import matplotlib.pyplot as plt
+
+        LOGGER.info(f"Generating graphs")
+
+        # plot graphs from the utility 'free'
+        with open(f"free.{model_name}.{num_workers}.{batch_size}") as f:
+            file_contents = [int(line.strip()) for line in f.readlines()]
+
+        y_data = file_contents
+
+        plt.plot(y_data)
+        plt.xlabel(f"time")
+        plt.ylabel(f"% utilized memory by torchserve")
+        plt.title(f"{model_name} num_workers={num_workers} batch_size={batch_size}")
+        plt.savefig(f"free_plot.{model_name}.{num_workers}.{batch_size}")
 
     def start_torchserve_docker(self, stop_torchserve=True):
 
