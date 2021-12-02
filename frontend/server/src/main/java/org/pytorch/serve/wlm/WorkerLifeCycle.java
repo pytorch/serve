@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,28 +38,37 @@ public class WorkerLifeCycle {
     public Process getProcess() {
         return process;
     }
+    
+    public static ArrayList<String> launcherArgsToList(String launcherArgs){
+        ArrayList<String> arrlist = new ArrayList<String>();
+        arrlist.add("-m");
+        arrlist.add("intel_extension_for_pytorch.cpu.launch");
+        arrlist.add("--ninstance");
+        arrlist.add("1");
+        if (launcherArgs != null && launcherArgs.length() > 1){
+            String[] argarray = launcherArgs.split(" ");
+            for (int i = 0; i < argarray.length; i++) {
+                arrlist.add(argarray[i]);
+            }
+        }
+        return arrlist;
+    }
 
     public static boolean isLauncherAvailable(String launcherArgs) {
         boolean launcherAvailable  = false;
         try {
-            List<String> cmdl = new ArrayList<String>();
-            cmdl.add("python");
-            cmdl.add("-m");
-            cmdl.add("intel_extension_for_pytorch.cpu.launch");
-            if (launcherArgs != null && launcherArgs.length() > 1){
-                String[] argarray = launcherArgs.split(" ");
-                for (int i = 0; i < argarray.length; i++) {
-                    cmdl.add(argarray[i]);
-                }
-            }
-            cmdl.add("--no_python");
+            ArrayList<String> cmd = new ArrayList<String>();
+            cmd.add("python");
+            ArrayList<String> args = launcherArgsToList(launcherArgs);
+            cmd.addAll(args);
+            cmd.add("--no_python");
             String dummyCmd = "hostname";
-            cmdl.add(dummyCmd);
+            cmd.add(dummyCmd);
 
-            String[] cmd = new String[cmdl.size()];
-            cmd = cmdl.toArray(cmd);
+            String[] cmd_ = new String[cmd.size()];
+            cmd_ = cmd.toArray(cmd_);
 
-            Process process = Runtime.getRuntime().exec(cmd);
+            Process process = Runtime.getRuntime().exec(cmd_);
             int ret = process.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
@@ -85,16 +93,8 @@ public class WorkerLifeCycle {
             String largs = configManager.getCPULauncherArgs();
             boolean launcherAvailable  = isLauncherAvailable(largs);
             if (launcherAvailable) {
-                argl.add("-m");
-                argl.add("intel_extension_for_pytorch.cpu.launch");
-                argl.add("--ninstance");
-                argl.add("1");
-                if (largs != null && largs.length() > 1) {
-                    String[] argarray = largs.split(" ");
-                    for (int i = 0; i < argarray.length; i++) {
-                        argl.add(argarray[i]);
-                    }
-                }
+                ArrayList<String> args = launcherArgsToList(largs);
+                argl.addAll(args);
             } else {
                 logger.warn(
                         "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
