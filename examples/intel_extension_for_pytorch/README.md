@@ -99,7 +99,7 @@ Once the serialized file ( `.pt`) is created, it can be used with `torch-model-a
 torch-model-archiver --model-name rn50_ipex_int8 --version 1.0 --serialized-file rn50_int8_jit.pt --handler image_classifier 
 ```
 ### 3. Start Torchserve to serve the model 
-Make sure to set `ipex_enable = True` in `config.properties`. Use the following command to start Torchserve with IPEX. 
+Make sure to set `ipex_enable=true` in `config.properties`. Use the following command to start Torchserve with IPEX. 
 ```
 torchserve --start --ncs --model-store model_store --ts-config config.properties
 ```
@@ -115,27 +115,24 @@ All it needs to be done to use Torchserve with launcher is to set its configurat
 
 Add the following lines in `config.properties` to use launcher with its default configuration. 
 ```
-ipex_enable=True
-cpu_launcher_enable=True
+ipex_enable=true
+cpu_launcher_enable=true
 ```
 
-Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa mode. To use launcher without numactl, add the following lines in `config.properties`.
+Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa node. To use launcher without numactl, add the following lines in `config.properties`.
 ```
-ipex_enable=True
-cpu_launcher_enable=True
+ipex_enable=true
+cpu_launcher_enable=true
 cpu_launcher_args=--disable_numactl
 ```
 
 Launcher by default uses only non-hyperthreaded cores if hyperthreading is present to avoid core compute resource sharing. To use launcher with all cores, both physical and logical, add the following lines in `config.properties`.  
 ```
-ipex_enable=True
-cpu_launcher_enable=True
+ipex_enable=true
+cpu_launcher_enable=true
 cpu_launcher_args=--use_logical_core
 ```
 Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher.
-
-### Note about number of worker
-We recommend using launcher with single worker only. 
 
 ## Benchmarking with Launcher 
 Launcher can be used with Torchserve official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
@@ -144,7 +141,7 @@ In this section we provide examples of benchmarking with launcher with its defau
 
 Add the following lines to `config.properties` in the benchmark directory to use launcher with its default setting. 
 ```
-ipex_enable=True
+ipex_enable=true
 cpu_launcher_enable=true
 ```
 
