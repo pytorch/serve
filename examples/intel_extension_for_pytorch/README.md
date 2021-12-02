@@ -119,14 +119,14 @@ ipex_enable=True
 cpu_launcher_enable=True
 ```
 
-Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa mode. To use launcher without numactl, use the following lines in `config.properties`.
+Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa mode. To use launcher without numactl, add the following lines in `config.properties`.
 ```
 ipex_enable=True
 cpu_launcher_enable=True
 cpu_launcher_args=--disable_numactl
 ```
 
-Launcher by default uses non-hyperthreaded cores only if hyperthreading is present to avoid core compute resource sharing. To use launcher with all cores, both physical and logical, use the following lines in `config.properties`.  
+Launcher by default uses only non-hyperthreaded cores if hyperthreading is present to avoid core compute resource sharing. To use launcher with all cores, both physical and logical, add the following lines in `config.properties`.  
 ```
 ipex_enable=True
 cpu_launcher_enable=True
