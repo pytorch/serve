@@ -165,7 +165,7 @@ class TorchServeHandler(object):
 
         # plot graphs from the utility 'free'
         with open(f"free.{model_name}.{num_workers}.{batch_size}") as f:
-            file_contents = [int(line.strip()) for line in f.readlines()]
+            file_contents = [long(line.strip()) for line in f.readlines()]
 
         y_data = file_contents
 
