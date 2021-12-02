@@ -7,6 +7,7 @@ Here we show how to use TorchServe with IPEX.
 * [Install Intel Extension for PyTorch](#install-intel-extension-for-pytorch)
 * [Serving model with Intel Extension for PyTorch](#serving-model-with-intel-extension-for-pytorch)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
+* [Torchserve with Launcher](#torchserve-with-launcher)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 
 
@@ -106,28 +107,76 @@ torchserve --start --ncs --model-store model_store --ts-config config.properties
 ### 4. Registering and Deploying model 
 Registering and deploying the model follows the same steps shown [here](https://pytorch.org/serve/use_cases.html). 
 
-## Benchmarking with Launcher 
-`intel_extension_for_pytorch.cpu.launch` launcher can be used with Torchserve official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware. 
+## Torchserve with Launcher
+Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) for details on performance tuning with launcher. 
 
-In this section, we provde an example of using launcher to benchmark on a single socket and using all physical cores on that socket. This is to avoid thread oversupscription while using all resources. 
+All it needs to be done to use Torchserve with launcher is to set its configuration in `config.properties`.
 
-### 1. Launcher configuration   
-All it needs to be done to use Torchserve with launcher is to set its configuration at `config.properties` in the benchmark directory. `ncore_per_instance` and other tunable configuration of launcher can be set as appropriately by checking the hardware configuration.  
 
-Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher.
-
-Add the following lines to `config.properties` in the benchmark directory. 
+Add the following lines in `config.properties` to use launcher with its default configuration. 
 ```
 ipex_enable=True
-cpu_launcher_enable=true
-cpu_launcher_args=--socket_id 0 --ncore_per_instance 28 
+cpu_launcher_enable=True
 ```
 
-### 2. Benchmarking with Launcher 
-The rest of the steps for benchmarking follows the same steps shown [here](https://github.com/pytorch/serve/tree/master/benchmarks).
+Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa mode. To use launcher without numactl, use the following lines in `config.properties`.
+```
+ipex_enable=True
+cpu_launcher_enable=True
+cpu_launcher_args=--disable_numactl
+```
 
-CPU usage is shown as below. 
-![sample_launcher](https://user-images.githubusercontent.com/93151422/143912711-cacbd38b-4be9-430a-810b-e5d3a9be9732.gif)
+Launcher by default uses non-hyperthreaded cores only if hyperthreading is present to avoid core compute resource sharing. To use launcher with all cores, both physical and logical, use the following lines in `config.properties`.  
+```
+ipex_enable=True
+cpu_launcher_enable=True
+cpu_launcher_args=--use_logical_core
+```
+Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher.
 
 ### Note about number of worker
 We recommend using launcher with single worker only. 
+
+## Benchmarking with Launcher 
+Launcher can be used with Torchserve official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
+
+In this section we provide examples of benchmarking with launcher with its default configuration.
+
+Add the following lines to `config.properties` in the benchmark directory to use launcher with its default setting. 
+```
+ipex_enable=True
+cpu_launcher_enable=true
+```
+
+The rest of the steps for benchmarking follows the same steps shown [here](https://github.com/pytorch/serve/tree/master/benchmarks).
+
+`model_log.log` contains information and command that were used for this execution launch. 
+
+
+CPU usage on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core is shown as below: 
+![launcher_default_2sockets](https://user-images.githubusercontent.com/93151422/144373537-07787510-039d-44c4-8cfd-6afeeb64ac78.gif)
+
+```
+$ cat logs/model_log.log
+2021-12-01 21:22:40,096 - __main__ - WARNING - Both TCMalloc and JeMalloc are not found in $CONDA_PREFIX/lib or $VIRTUAL_ENV/lib or /.local/lib/ or /usr/local/lib/ or /usr/local/lib64/ or /usr/lib or /usr/lib64 or /home/<user>/.local/lib/ so the LD_PRELOAD environment variable will not be set. This may drop the performance
+2021-12-01 21:22:40,096 - __main__ - INFO - OMP_NUM_THREADS=56
+2021-12-01 21:22:40,096 - __main__ - INFO - Using Intel OpenMP
+2021-12-01 21:22:40,096 - __main__ - INFO - KMP_AFFINITY=granularity=fine,compact,1,0
+2021-12-01 21:22:40,096 - __main__ - INFO - KMP_BLOCKTIME=1
+2021-12-01 21:22:40,096 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so
+2021-12-01 21:22:40,096 - __main__ - WARNING - Numa Aware: cores:[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55] in different NUMA node
+```
+
+CPU usage on a machine with Intel(R) Xeon(R) Platinum 8375C CPU, 1 socket, 2 cores per socket, 2 threads per socket is shown as below: 
+![launcher_default_1socket](https://user-images.githubusercontent.com/93151422/144372993-92b2ca96-f309-41e2-a5c8-bf2143815c93.gif)
+
+```
+$ cat logs/model_log.log
+2021-12-02 06:15:03,981 - __main__ - WARNING - Both TCMalloc and JeMalloc are not found in $CONDA_PREFIX/lib or $VIRTUAL_ENV/lib or /.local/lib/ or /usr/local/lib/ or /usr/local/lib64/ or /usr/lib or /usr/lib64 or /home/<user>/.local/lib/ so the LD_PRELOAD environment variable will not be set. This may drop the performance
+2021-12-02 06:15:03,981 - __main__ - INFO - OMP_NUM_THREADS=2
+2021-12-02 06:15:03,982 - __main__ - INFO - Using Intel OpenMP
+2021-12-02 06:15:03,982 - __main__ - INFO - KMP_AFFINITY=granularity=fine,compact,1,0
+2021-12-02 06:15:03,982 - __main__ - INFO - KMP_BLOCKTIME=1
+2021-12-02 06:15:03,982 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so
+
+```
