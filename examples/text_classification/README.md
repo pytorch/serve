@@ -52,7 +52,7 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 ### Captum Explanations
 
-The explain is called with the following request api http://127.0.0.1:8080/explanations/my_tc_explain
+The explain is called with the following request api `http://127.0.0.1:8080/explanations/my_tc_explain`
 
 Torchserve supports Captum Explanations for Eager models only.
 

@@ -24,7 +24,8 @@ def infer(stub, model_name, model_input):
 
     input_data = {'data': data}
     response = stub.Predictions(
-        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data))
+        inference_pb2.PredictionsRequest(model_name=model_name,
+                                         input=input_data))
 
     try:
         prediction = response.prediction.decode('utf-8')
@@ -40,7 +41,8 @@ def register(stub, model_name, mar_set_str):
     marfile = f"{model_name}.mar"
     print(f"## Check {marfile} in mar_set :", mar_set)
     if marfile not in mar_set:
-        marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(model_name)
+        marfile = "https://torchserve.s3.amazonaws.com/mar_files/{}.mar".format(
+            model_name)
 
     print(f"## Register marfile:{marfile}\n")
     params = {
@@ -50,7 +52,8 @@ def register(stub, model_name, mar_set_str):
         'model_name': model_name
     }
     try:
-        response = stub.RegisterModel(management_pb2.RegisterModelRequest(**params))
+        response = stub.RegisterModel(
+            management_pb2.RegisterModelRequest(**params))
         print(f"Model {model_name} registered successfully")
     except grpc.RpcError as e:
         print(f"Failed to register model {model_name}.")
@@ -60,7 +63,8 @@ def register(stub, model_name, mar_set_str):
 
 def unregister(stub, model_name):
     try:
-        response = stub.UnregisterModel(management_pb2.UnregisterModelRequest(model_name=model_name))
+        response = stub.UnregisterModel(
+            management_pb2.UnregisterModelRequest(model_name=model_name))
         print(f"Model {model_name} unregistered successfully")
     except grpc.RpcError as e:
         print(f"Failed to unregister model {model_name}.")
