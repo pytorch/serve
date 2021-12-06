@@ -55,8 +55,7 @@ class ArgParser(object):
                             action='store_true')
         parser.add_argument('--plugins-path', '--ppath',
                             dest='plugins_path',
-                            help='plugin jars to be included in torchserve class path',
-                            )
+                            help='plugin jars to be included in torchserve class path')
 
         return parser
 
