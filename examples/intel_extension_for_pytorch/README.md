@@ -3,13 +3,13 @@
 TorchServe can be used with Intel® Extension for PyTorch* (IPEX) to give performance boost on Intel hardware<sup>1</sup>. 
 Here we show how to use TorchServe with IPEX.
 
-<sup>1. While IPEX benefits all platforms, SkyLake and plaforms with AVX512 benefit the most. </sup>
+<sup>1. While IPEX benefits all platforms, plaforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document 
 * [Install Intel Extension for PyTorch](#install-intel-extension-for-pytorch)
 * [Serving model with Intel Extension for PyTorch](#serving-model-with-intel-extension-for-pytorch)
+* [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
-* [Torchserve with Launcher](#torchserve-with-launcher)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 
 
@@ -21,7 +21,50 @@ After installation, all it needs to be done to use TorchServe with IPEX is to en
 ```
 ipex_enable=true
 ```
-Once IPEX is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). Torchserve with IPEX can deploy any model and do inference. 
+Once IPEX is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). TorchServe with IPEX can deploy any model and do inference. 
+
+## TorchServe with Launcher
+Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher. 
+
+All it needs to be done to use TorchServe with launcher is to set its configuration in `config.properties`.
+
+Add the following lines in `config.properties` to use launcher with its default configuration. 
+```
+ipex_enable=true
+cpu_launcher_enable=true
+```
+
+Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa node. To use launcher without numactl, add the following lines in `config.properties`.
+```
+ipex_enable=true
+cpu_launcher_enable=true
+cpu_launcher_args=--disable_numactl
+```
+
+Launcher by default uses only non-hyperthreaded cores if hyperthreading is present to avoid core compute resource sharing. To use launcher with all cores, both physical and logical, add the following lines in `config.properties`.  
+```
+ipex_enable=true
+cpu_launcher_enable=true
+cpu_launcher_args=--use_logical_core
+```
+
+Below is an example of passing multiple args to `cpu_launcher_args`.
+```
+ipex_enable=true
+cpu_launcher_enable=true
+cpu_launcher_args=--use_logical_core --disable_numactl 
+```
+
+Some useful `cpu_launcher_args` to note are:
+1. Memory Allocator: [ PTMalloc `--use_default_allocator` | *TCMalloc `--enable_tcmalloc`* | JeMalloc `--enable_jemalloc`]
+   * PyTorch by defualt uses PTMalloc. TCMalloc/JeMalloc generally gives better performance.
+2. OpenMP library: [GNU OpenMP `--disable_iomp` | *Intel OpenMP*]
+   * PyTorch by default uses GNU OpenMP. Launcher by default uses Intel OpenMP. Intel OpenMP library generally gives better performance.
+3. Socket id: [`--socket_id`]
+   * Launcher by default uses all physical cores. Limit memory access to local memories on the Nth socket to avoid Non-Uniform Memory Access (NUMA).
+
+Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. 
+
 
 ## Creating and Exporting INT8 model for IPEX
 Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. 
@@ -128,8 +171,8 @@ Once the serialized file ( `.pt`) is created, it can be used with `torch-model-a
 ```
 torch-model-archiver --model-name rn50_ipex_int8 --version 1.0 --serialized-file rn50_int8_jit.pt --handler image_classifier 
 ```
-### 3. Start Torchserve to serve the model 
-Make sure to set `ipex_enable=true` in `config.properties`. Use the following command to start Torchserve with IPEX. 
+### 3. Start TorchServe to serve the model 
+Make sure to set `ipex_enable=true` in `config.properties`. Use the following command to start TorchServe with IPEX. 
 ```
 torchserve --start --ncs --model-store model_store --ts-config config.properties
 ```
@@ -137,53 +180,8 @@ torchserve --start --ncs --model-store model_store --ts-config config.properties
 ### 4. Registering and Deploying model 
 Registering and deploying the model follows the same steps shown [here](https://pytorch.org/serve/use_cases.html). 
 
-## Torchserve with Launcher
-Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher. 
-
-All it needs to be done to use Torchserve with launcher is to set its configuration in `config.properties`.
-
-
-Add the following lines in `config.properties` to use launcher with its default configuration. 
-```
-ipex_enable=true
-cpu_launcher_enable=true
-```
-
-Launcher by default uses `numactl` if its installed to ensure socket is pinned and thus memory is allocated from local numa node. To use launcher without numactl, add the following lines in `config.properties`.
-```
-ipex_enable=true
-cpu_launcher_enable=true
-cpu_launcher_args=--disable_numactl
-```
-
-Launcher by default uses only non-hyperthreaded cores if hyperthreading is present to avoid core compute resource sharing. To use launcher with all cores, both physical and logical, add the following lines in `config.properties`.  
-```
-ipex_enable=true
-cpu_launcher_enable=true
-cpu_launcher_args=--use_logical_core
-```
-
-Below is an example of passing multiple args to `cpu_launcher_args`.
-```
-ipex_enable=true
-cpu_launcher_enable=true
-cpu_launcher_args=--use_logical_core --disable_numactl 
-```
-
-Some useful `cpu_launcher_args` to note are:
-1. Memory Allocator: [ PTMalloc `--use_default_allocator` | *TCMalloc `--enable_tcmalloc`* | JeMalloc `--enable_jemalloc`]
-   * PyTorch by defualt uses PTMalloc. TCMalloc/JeMalloc generally gives better performance.
-2. OpenMP library: [GNU OpenMP `--disable_iomp` | *Intel OpenMP*]
-   * PyTorch by default uses GNU OpenMP. Launcher by default uses Intel OpenMP. Intel OpenMP library generally gives better performance.
-3. Socket id: [`--socket_id`]
-   * Launcher by default uses all physical cores. Limit memory access to local memories on the Nth socket to avoid Non-Uniform Memory Access (NUMA).
-
-
-
-Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. 
-
 ## Benchmarking with Launcher 
-Launcher can be used with Torchserve official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
+Launcher can be used with TorchServe official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
 
 In this section we provide examples of benchmarking with launcher with its default configuration.
 
