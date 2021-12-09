@@ -1,7 +1,9 @@
 # TorchServe with Intel® Extension for PyTorch*
 
-TorchServe can be used with Intel® Extension for PyTorch* (IPEX) to give performance boost on Intel hardware. 
+TorchServe can be used with Intel® Extension for PyTorch* (IPEX) to give performance boost on Intel hardware<sup>1</sup>. 
 Here we show how to use TorchServe with IPEX.
+
+<sup>1. While IPEX benefits all platforms, SkyLake and plaforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document 
 * [Install Intel Extension for PyTorch](#install-intel-extension-for-pytorch)
@@ -30,11 +32,10 @@ First create `.pt` serialized file using IPEX INT8 inference. Here we show two e
 #### BERT
 
 ```
-import intel_extension_for_pytorch as ipex
-from transformers import AutoModelForSequenceClassification, AutoConfig
-import transformers
-from datasets import load_dataset
 import torch
+import intel_extension_for_pytorch as ipex
+import transformers
+from transformers import AutoModelForSequenceClassification, AutoConfig
 
 # load the model 
 config = AutoConfig.from_pretrained(
@@ -43,24 +44,34 @@ model = AutoModelForSequenceClassification.from_pretrained(
     "bert-base-uncased", config=config)
 model = model.eval()
 
-max_length = 384 
-dummy_tensor = torch.ones((1, max_length), dtype=torch.long)
-jit_inputs = (dummy_tensor, dummy_tensor, dummy_tensor)
-conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_affine)
-
+# define dummy input tensor to use for the model's forward call to record operations in the model for tracing
+N, max_length = 1, 384 
+dummy_tensor = torch.ones((N, max_length), dtype=torch.long)
 
 # calibration 
-n_iter = 100 
+# ipex supports two quantization schemes to be used for activation: torch.per_tensor_affine and torch.per_tensor_symmetric
+# default qscheme is $torch.per_tensor_affine$
+conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_affine)
+n_iter = 100
 with torch.no_grad():
     for i in range(n_iter):
         with ipex.quantization.calibrate(conf):
             model(dummy_tensor, dummy_tensor, dummy_tensor)
 
-# optionally save the configuraiton for later use 
-conf.save(‘model_conf.json’, default_recipe=True)
+# optionally save the configuraiton for later use
+# save:
+# conf.save("model_conf.json")
+# load:
+# conf = ipex.quantization.QuantConf("model_conf.json")
 
 # conversion 
+jit_inputs = (dummy_tensor, dummy_tensor, dummy_tensor)
 model = ipex.quantization.convert(model, conf, jit_inputs)
+
+# enable fusion path work(need to run forward propagation twice)
+with torch.no_grad():
+    y = model(dummy_tensor,dummy_tensor,dummy_tensor)
+    y = model(dummy_tensor,dummy_tensor,dummy_tensor)
 
 # save to .pt 
 torch.jit.save(model, 'bert_int8_jit.pt')
@@ -69,30 +80,49 @@ torch.jit.save(model, 'bert_int8_jit.pt')
 #### ResNet50 
 
 ```
-import intel_extension_for_pytorch as ipex
-import torchvision.models as models
 import torch
 import torch.fx.experimental.optimization as optimization
-from copy import deepcopy
+import intel_extension_for_pytorch as ipex
+import torchvision.models as models
 
-
+# load the model
 model = models.resnet50(pretrained=True)
 model = model.eval()
+model = optimization.fuse(model)
 
-C, H, W = 3, 224, 224
-dummy_tensor = torch.randn(1, C, H, W).contiguous(memory_format=torch.channels_last)
-jit_inputs = (dummy_tensor)
+# define dummy input tensor to use for the model's forward call to record operations in the model for tracing
+N, C, H, W = 1, 3, 224, 224
+dummy_tensor = torch.randn(N, C, H, W).contiguous(memory_format=torch.channels_last)
+
+# calibration
+# ipex supports two quantization schemes to be used for activation: torch.per_tensor_affine and torch.per_tensor_symmetric
+# default qscheme is $torch.per_tensor_affine$
 conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_symmetric)
-
-n_iter = 100 
+n_iter = 100
 with torch.no_grad():
-	for i in range(n_iter):
-		with ipex.quantization.calibrate(conf):
-			model(dummy_tensor)
+    for i in range(n_iter):
+        with ipex.quantization.calibrate(conf):
+           model(dummy_tensor)
 
+# optionally save the configuraiton for later use
+# save:
+# conf.save("model_conf.json")
+# load:
+# conf = ipex.quantization.QuantConf("model_conf.json")
+
+# conversion
+jit_inputs = (dummy_tensor)
 model = ipex.quantization.convert(model, conf, jit_inputs)
+
+# enable fusion path work(need to run two iterations)
+with torch.no_grad():
+    y = model(dummy_tensor)
+    y = model(dummy_tensor)
+
+# save to .pt
 torch.jit.save(model, 'rn50_int8_jit.pt')
 ```
+
 ### 2. Creating a Model Archive 
 Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as ususal. Use the following command to package the model.  
 ```
@@ -108,7 +138,7 @@ torchserve --start --ncs --model-store model_store --ts-config config.properties
 Registering and deploying the model follows the same steps shown [here](https://pytorch.org/serve/use_cases.html). 
 
 ## Torchserve with Launcher
-Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) for details on performance tuning with launcher. 
+Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher. 
 
 All it needs to be done to use Torchserve with launcher is to set its configuration in `config.properties`.
 
@@ -132,7 +162,25 @@ ipex_enable=true
 cpu_launcher_enable=true
 cpu_launcher_args=--use_logical_core
 ```
-Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher.
+
+Below is an example of passing multiple args to `cpu_launcher_args`.
+```
+ipex_enable=true
+cpu_launcher_enable=true
+cpu_launcher_args=--use_logical_core --disable_numactl 
+```
+
+Some useful `cpu_launcher_args` to note are:
+1. Memory Allocator: [ PTMalloc `--use_default_allocator` | *TCMalloc `--enable_tcmalloc`* | JeMalloc `--enable_jemalloc`]
+   * PyTorch by defualt uses PTMalloc. TCMalloc/JeMalloc generally gives better performance.
+2. OpenMP library: [GNU OpenMP `--disable_iomp` | *Intel OpenMP*]
+   * PyTorch by default uses GNU OpenMP. Launcher by default uses Intel OpenMP. Intel OpenMP library generally gives better performance.
+3. Socket id: [`--socket_id`]
+   * Launcher by default uses all physical cores. Limit memory access to local memories on the Nth socket to avoid Non-Uniform Memory Access (NUMA).
+
+
+
+Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. 
 
 ## Benchmarking with Launcher 
 Launcher can be used with Torchserve official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
