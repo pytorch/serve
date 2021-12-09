@@ -93,7 +93,7 @@ dummy_tensor = torch.ones((N, max_length), dtype=torch.long)
 
 # calibration 
 # ipex supports two quantization schemes to be used for activation: torch.per_tensor_affine and torch.per_tensor_symmetric
-# default qscheme is $torch.per_tensor_affine$
+# default qscheme is torch.per_tensor_affine
 conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_affine)
 n_iter = 100
 with torch.no_grad():
@@ -139,7 +139,7 @@ dummy_tensor = torch.randn(N, C, H, W).contiguous(memory_format=torch.channels_l
 
 # calibration
 # ipex supports two quantization schemes to be used for activation: torch.per_tensor_affine and torch.per_tensor_symmetric
-# default qscheme is $torch.per_tensor_affine$
+# default qscheme is torch.per_tensor_affine
 conf = ipex.quantization.QuantConf(qscheme=torch.per_tensor_symmetric)
 n_iter = 100
 with torch.no_grad():
