@@ -64,6 +64,7 @@ public class WorkerLifeCycle {
             ArrayList<String> args = launcherArgsToList();
             cmd.addAll(args);
             cmd.add("--no_python");
+            // try launching dummy command to check launcher availability
             String dummyCmd = "hostname";
             cmd.add(dummyCmd);
 
