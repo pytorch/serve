@@ -29,6 +29,7 @@ public class WorkerLifeCycle {
     private Connector connector;
     private ReaderThread errReader;
     private ReaderThread outReader;
+    private String launcherArgs;
 
     public WorkerLifeCycle(ConfigManager configManager, Model model) {
         this.configManager = configManager;
@@ -39,7 +40,7 @@ public class WorkerLifeCycle {
         return process;
     }
 
-    public static ArrayList<String> launcherArgsToList(String launcherArgs) {
+    public ArrayList<String> launcherArgsToList() {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("intel_extension_for_pytorch.cpu.launch");
@@ -54,12 +55,13 @@ public class WorkerLifeCycle {
         return arrlist;
     }
 
-    public static boolean isLauncherAvailable(String launcherArgs) {
+    public boolean isLauncherAvailable()
+            throws WorkerInitializationException, InterruptedException {
         boolean launcherAvailable = false;
         try {
             ArrayList<String> cmd = new ArrayList<String>();
             cmd.add("python");
-            ArrayList<String> args = launcherArgsToList(launcherArgs);
+            ArrayList<String> args = launcherArgsToList();
             cmd.addAll(args);
             cmd.add("--no_python");
             String dummyCmd = "hostname";
@@ -72,6 +74,7 @@ public class WorkerLifeCycle {
             int ret = process.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
+            throw new WorkerInitializationException("Failed to start launcher", e);
         }
         return launcherAvailable;
     }
@@ -90,10 +93,10 @@ public class WorkerLifeCycle {
         argl.add(EnvironmentUtils.getPythonRunTime(model));
 
         if (configManager.isCPULauncherEnabled()) {
-            String largs = configManager.getCPULauncherArgs();
-            boolean launcherAvailable = isLauncherAvailable(largs);
+            launcherArgs = configManager.getCPULauncherArgs();
+            boolean launcherAvailable = isLauncherAvailable();
             if (launcherAvailable) {
-                ArrayList<String> args = launcherArgsToList(largs);
+                ArrayList<String> args = launcherArgsToList();
                 argl.addAll(args);
             } else {
                 logger.warn(
