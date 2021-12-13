@@ -34,6 +34,38 @@ Run the commands given in following steps from the parent directory of the root 
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
+# Profiling inference output
+
+To enable pytorch profiler, set the following environment variable.
+
+```
+export ENABLE_TORCH_PROFILER=true
+```
+
+Run the predictions again
+
+```
+curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
+```
+
+The profiler information is printed in the torchserve logs / console 
+
+![Profiler Stats](screenshots/mnist_profiler_stats.png)
+
+By default the pytorch profiler trace files are generated under "/tmp/pytorch_profiler/<model_name>" directory.
+
+And the trace files can be loaded in tensorboard using torch-tb-profiler. Check the following link for more information - https://github.com/pytorch/kineto/tree/main/tb_plugin 
+
+Install torch-tb-profiler and run the following command to view the results in UI
+
+```
+tensorboard --logdir /tmp/pytorch_profiler/mnist/
+```
+
+The pytorch profiler traces can be viewed as below
+
+![Pytorch Profiler UI](screenshots/mnist_trace.png)
+
 For captum Explanations on the Torchserve side, use the below curl request:
 ```bash
 curl http://127.0.0.1:8080/explanations/mnist -T examples/image_classifier/mnist/test_data/0.png
