@@ -42,6 +42,8 @@ To enable pytorch profiler, set the following environment variable.
 export ENABLE_TORCH_PROFILER=true
 ```
 
+Note: Ensure`enable_envvars_config` is set to `true` in torchserve config
+
 Run the predictions again
 
 ```
@@ -53,6 +55,8 @@ The profiler information is printed in the torchserve logs / console
 ![Profiler Stats](screenshots/mnist_profiler_stats.png)
 
 By default the pytorch profiler trace files are generated under "/tmp/pytorch_profiler/<model_name>" directory.
+
+The path can be overridden by setting `on_trace_ready` parameter in `profiler_args` - [Example here](../../../test/pytest/profiler_utils/resnet_profiler_override.py)
 
 And the trace files can be loaded in tensorboard using torch-tb-profiler. Check the following link for more information - https://github.com/pytorch/kineto/tree/main/tb_plugin 
 
