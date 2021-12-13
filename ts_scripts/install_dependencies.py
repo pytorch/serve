@@ -179,7 +179,7 @@ if __name__ == "__main__":
         description="Install various build and test dependencies of TorchServe")
     parser.add_argument('--cuda',
                         default=None,
-                        choices=['cu92', 'cu101', 'cu102', 'cu111'],
+                        choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'],
                         help="CUDA version for torch")
     parser.add_argument(
         '--environment',
