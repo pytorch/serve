@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
-    private static final org.apache.log4j.Logger loggerTsMetrics =
-            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final Logger loggerTsMetrics =
+            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
     private StreamObserver<PredictionResponse> predictionResponseObserver;
@@ -54,7 +54,7 @@ public class GRPCJob extends Job {
                 String.valueOf(
                         TimeUnit.MILLISECONDS.convert(
                                 getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-        loggerTsMetrics.info(
+        loggerTsMetrics.info("{}",
                 new Metric(
                         "QueueTime",
                         queueTime,

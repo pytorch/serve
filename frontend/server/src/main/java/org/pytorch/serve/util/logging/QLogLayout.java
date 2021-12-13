@@ -1,11 +1,22 @@
 package org.pytorch.serve.util.logging;
 
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggingEvent;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.config.Node;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 
+@Plugin(
+        name = "QLogLayout",
+        category = Node.CATEGORY,
+        elementType = Layout.ELEMENT_TYPE,
+        printObject = true)
 public class QLogLayout extends PatternLayout {
+    public QLogLayout() {
+        super(null, null, null);
+    }
 
     /**
      * Model server also supports query log formatting.
@@ -61,7 +72,7 @@ public class QLogLayout extends PatternLayout {
      * @return
      */
     @Override
-    public String format(LoggingEvent event) {
+    public String toSerializable(LoggingEvent event) {
         Object eventMessage = event.getMessage();
         String programName =
                 getStringOrDefault(System.getenv("MXNETMODELSERVER_PROGRAM"), "MXNetModelServer");
