@@ -21,10 +21,9 @@ class KFservingEnvelope(BaseEnvelope):
     """
 
     def parse_input(self, data):
-        logger.info("Parsing input in KFServing.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
         # selecting the first input from the list torchserve creates
-        logger.info("Parse input data_list %s", self._data_list)
+        logger.debug("Parse input data_list %s", self._data_list)
         data = self._data_list[0]
 
         # If the KF Transformer and Explainer sends in data as bytesarray
@@ -32,10 +31,10 @@ class KFservingEnvelope(BaseEnvelope):
 
             data = data.decode()
             data = json.loads(data)
-            logger.info("Bytes array is %s", data)
+            logger.debug("Bytes array is %s", data)
 
         self._inputs = data.get("instances")
-        logger.info("KFServing parsed inputs %s", self._inputs)
+        logger.debug("KFServing parsed inputs %s", self._inputs)
         return self._inputs
 
     def format_output(self, data):
@@ -49,7 +48,7 @@ class KFservingEnvelope(BaseEnvelope):
             (list): The response is returned as a list of predictions and explanations
         """
         response = {}
-        logger.info("The Response of KFServing %s", data)
+        logger.debug("The Response of KFServing %s", data)
         if not self._is_explain():
             response["predictions"] = data
         else:
