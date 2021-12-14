@@ -116,7 +116,6 @@ def launch_ec2_instance(region, instance_type, ami_id):
         # Update command takes a while to run, and should ideally run uninterrupted
         # Wait 8 min, kill apt process if it hasn't stopped till then
         time.sleep(480)
-        ec2_connection.run(f"sudo killall apt apt-get")
 
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
