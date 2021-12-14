@@ -68,6 +68,8 @@ public final class ConfigManager {
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
+    private static final String TS_CPU_LAUNCHER_ENABLE = "cpu_launcher_enable";
+    private static final String TS_CPU_LAUNCHER_ARGS = "cpu_launcher_args";
 
     private static final String TS_ASYNC_LOGGING = "async_logging";
     private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
@@ -335,6 +337,14 @@ public final class ConfigManager {
 
     public boolean isMetricApiEnable() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
+    }
+
+    public boolean isCPULauncherEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_CPU_LAUNCHER_ENABLE, "false"));
+    }
+
+    public String getCPULauncherArgs() {
+        return getProperty(TS_CPU_LAUNCHER_ARGS, null);
     }
 
     public int getNettyThreads() {
