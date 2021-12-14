@@ -802,14 +802,8 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    LoggerFactory.getLogger()
-                            .error(
-                                    "Invalid value for model: "
-                                            + modelName
-                                            + ":"
-                                            + version
-                                            + ", parameter: "
-                                            + element);
+                    LoggerFactory.getLogger().
+                            error("Invalid value for model: {}:{}, parameter: {}", modelName, version, element);
                     return defaultVal;
                 }
             }

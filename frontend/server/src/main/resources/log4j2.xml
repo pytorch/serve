@@ -59,7 +59,8 @@
 			<AppenderRef ref="ts_metrics"/>
 		</Logger>
 		<Root level="info">
-			<AppenderRef ref="console"/>
+			<AppenderRef ref="STDOUT"/>
+			<AppenderRef ref="ts_log"/>
 		</Root>
 	</Loggers>
 </Configuration>
