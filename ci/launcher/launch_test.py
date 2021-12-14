@@ -110,6 +110,12 @@ def launch_ec2_instance(region, instance_type, ami_id):
         # Create a fabric connection to the ec2 instance.
         ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
 
+        # Wait for a few minutes before running any command since ubuntu runs background updates.
+        time.sleep(300)
+
+        LOGGER.info(f"Running update command. This could take a while.")
+        ec2_connection.run(f"sudo apt update")
+
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
