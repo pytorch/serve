@@ -71,16 +71,16 @@ class KFservingv2Envelope(BaseEnvelope):
         }]
 
         """
-        logger.info("Parsing input in KFServing v2 format %s", data)
+        logger.debug("Parsing input in KFServing v2 format %s", data)
         inputs = self._batch_from_json(data)
-        logger.info("KFServingv2 parsed inputs %s", inputs)
+        logger.debug("KFServingv2 parsed inputs %s", inputs)
         return inputs
 
     def _batch_from_json(self, rows):
         """
         Joins the instances of a batch of JSON objects
         """
-        logger.info("Parse input data %s", rows)
+        logger.debug("Parse input data %s", rows)
         body_list = list(map(lambda body_list: body_list.get("body"), rows))
         data_list = self._from_json(body_list)
         return data_list
@@ -93,7 +93,7 @@ class KFservingv2Envelope(BaseEnvelope):
         if isinstance(body_list, (bytes, bytearray)):
             body_list = body_list.decode()
             body_list = json.loads(body_list)
-            logger.info("Bytes array is %s", body_list)
+            logger.debug("Bytes array is %s", body_list)
         if "id" in body_list:
             setattr(self.context, "input_request_id", body_list["id"])
         data_list = list(
@@ -120,7 +120,7 @@ class KFservingv2Envelope(BaseEnvelope):
         }
 
         """
-        logger.info("The Response of KFServing v2 format %s", data)
+        logger.debug("The Response of KFServing v2 format %s", data)
         response = {}
         if hasattr(self.context, "input_request_id"):
             response["id"] = getattr(self.context, "input_request_id")
