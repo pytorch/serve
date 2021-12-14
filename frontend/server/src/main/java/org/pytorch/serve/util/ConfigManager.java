@@ -680,7 +680,8 @@ public final class ConfigManager {
     }
 
     private void enableAsyncLogging() {
-        System.setProperty("log4j2.contextSelector",
+        System.setProperty(
+                "log4j2.contextSelector",
                 "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
     }
 
@@ -802,8 +803,12 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    LoggerFactory.getLogger().
-                            error("Invalid value for model: {}:{}, parameter: {}", modelName, version, element);
+                    LoggerFactory.getLogger(ConfigManager.class)
+                            .error(
+                                    "Invalid value for model: {}:{}, parameter: {}",
+                                    modelName,
+                                    version,
+                                    element);
                     return defaultVal;
                 }
             }

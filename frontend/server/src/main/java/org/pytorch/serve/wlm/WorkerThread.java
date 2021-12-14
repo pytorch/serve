@@ -220,7 +220,8 @@ public class WorkerThread implements Runnable {
                 req = null;
                 String workerThreadTime =
                         String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
-                loggerTsMetrics.info("{}",
+                loggerTsMetrics.info(
+                        "{}",
                         new Metric(
                                 "WorkerThreadTime",
                                 workerThreadTime,

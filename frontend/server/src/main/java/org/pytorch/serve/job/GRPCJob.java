@@ -54,7 +54,8 @@ public class GRPCJob extends Job {
                 String.valueOf(
                         TimeUnit.MILLISECONDS.convert(
                                 getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-        loggerTsMetrics.info("{}",
+        loggerTsMetrics.info(
+                "{}",
                 new Metric(
                         "QueueTime",
                         queueTime,

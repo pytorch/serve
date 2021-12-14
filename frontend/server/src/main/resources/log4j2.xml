@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
 	<Appenders>
-		<RollingFile name="access_log" fileName="${env:LOG_LOCATION:-logs}/access_log.log">
+		<RollingFile
+				name="access_log"
+				fileName="${env:LOG_LOCATION:-logs}/access_log.log"
+				filePattern="${env:LOG_LOCATION:-logs}/access_log.%d{dd-MMM}.log.gz">
 			<PatternLayout pattern="%d{ISO8601} - %m%n"/>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="100 MB"/>
-				<DefaultRolloverStrategy max="5"/>
+				<TimeBasedTriggeringPolicy/>
 			</Policies>
+			<DefaultRolloverStrategy max="5"/>
 		</RollingFile>
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
 		</Console>
-		<RollingFile name="model_log" fileName="${env:LOG_LOCATION:-logs}/model_log.log">
+		<RollingFile
+				name="model_log"
+				fileName="${env:LOG_LOCATION:-logs}/model_log.log"
+		        filePattern="${env:LOG_LOCATION:-logs}/model_log.%d{dd-MMM}.log.gz">
 			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="100 MB"/>
-				<DefaultRolloverStrategy max="5"/>
+				<TimeBasedTriggeringPolicy/>
 			</Policies>
+			<DefaultRolloverStrategy max="5"/>
 		</RollingFile>
-		<RollingFile name="model_metrics" fileName="${env:METRICS_LOCATION:-logs}/model_metrics.log">
+		<RollingFile name="model_metrics"
+					 fileName="${env:METRICS_LOCATION:-logs}/model_metrics.log"
+					 filePattern="${env:METRICS_LOCATION:-logs}/model_metrics.%d{dd-MMM}.log.gz">
 			<PatternLayout pattern="%d{ISO8601} - %m%n"/>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="100 MB"/>
-				<DefaultRolloverStrategy max="5"/>
+				<TimeBasedTriggeringPolicy/>
 			</Policies>
+			<DefaultRolloverStrategy max="5"/>
 		</RollingFile>
-		<RollingFile name="ts_log" fileName="${env:LOG_LOCATION:-logs}/ts_log.log">
+		<RollingFile
+				name="ts_log"
+				fileName="${env:LOG_LOCATION:-logs}/ts_log.log"
+				filePattern="${env:LOG_LOCATION:-logs}/ts_log.%d{dd-MMM}.log.gz">
 			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="100 MB"/>
-				<DefaultRolloverStrategy max="5"/>
+				<TimeBasedTriggeringPolicy/>
 			</Policies>
+			<DefaultRolloverStrategy max="5"/>
 		</RollingFile>
-		<RollingFile name="ts_metrics" fileName="${env:METRICS_LOCATION:-logs}/ts_metrics.log">
+		<RollingFile
+				name="ts_metrics"
+				fileName="${env:METRICS_LOCATION:-logs}/ts_metrics.log"
+		        filePattern="${env:METRICS_LOCATION:-logs}/ts_metrics.%d{dd-MMM}.log.gz">
 			<PatternLayout pattern="%d{ISO8601} - %m%n"/>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="100 MB"/>
-				<DefaultRolloverStrategy max="5"/>
+				<TimeBasedTriggeringPolicy/>
 			</Policies>
+			<DefaultRolloverStrategy max="5"/>
 		</RollingFile>
 	</Appenders>
 	<Loggers>

@@ -1,19 +1,19 @@
 package org.pytorch.serve.util.logging;
 
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Node;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.pytorch.serve.metrics.Dimension;
+import org.pytorch.serve.metrics.Metric;
 
 @Plugin(
         name = "QLogLayout",
         category = Node.CATEGORY,
         elementType = Layout.ELEMENT_TYPE,
         printObject = true)
-public class QLogLayout extends PatternLayout {
+public class QLogLayout extends AbstractStringLayout {
     public QLogLayout() {
         super(null, null, null);
     }
@@ -72,7 +72,7 @@ public class QLogLayout extends PatternLayout {
      * @return
      */
     @Override
-    public String toSerializable(LoggingEvent event) {
+    public String toSerializable(LogEvent event) {
         Object eventMessage = event.getMessage();
         String programName =
                 getStringOrDefault(System.getenv("MXNETMODELSERVER_PROGRAM"), "MXNetModelServer");
