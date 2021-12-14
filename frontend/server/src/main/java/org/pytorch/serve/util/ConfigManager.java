@@ -45,6 +45,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
+import org.slf4j.LoggerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -801,7 +802,7 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    org.apache.logging.log4j.LogManager.getRootLogger()
+                    LoggerFactory.getLogger()
                             .error(
                                     "Invalid value for model: "
                                             + modelName
