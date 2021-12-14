@@ -32,7 +32,7 @@ class KFservingEnvelope(BaseEnvelope):
 
             data = data.decode()
             data = json.loads(data)
-            logger.info("Bytes array is %s", data)
+            logger.debug("Bytes array is %s", data)
 
         self._inputs = data.get("instances")
         logger.debug("KFServing parsed inputs %s", self._inputs)
@@ -49,7 +49,7 @@ class KFservingEnvelope(BaseEnvelope):
             (list): The response is returned as a list of predictions and explanations
         """
         response = {}
-        logger.info("The Response of KFServing %s", data)
+        logger.debug("The Response of KFServing %s", data)
         if not self._is_explain():
             response["predictions"] = data
         else:
