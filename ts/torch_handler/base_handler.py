@@ -21,7 +21,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
         import intel_extension_for_pytorch as ipex
         ipex_enabled = True
     except ImportError as error:
-        logger.warning("IPEX was not installed. Please install IPEX if wanted.")
+        logger.warning("IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX.")
 
 class BaseHandler(abc.ABC):
     """
