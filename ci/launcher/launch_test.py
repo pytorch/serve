@@ -116,6 +116,9 @@ def launch_ec2_instance(region, instance_type, ami_id):
         LOGGER.info(f"Running update command. This could take a while.")
         ec2_connection.run(f"sudo apt update")
 
+        time.sleep(300)
+    
+
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
@@ -176,7 +179,7 @@ def main():
 
     parser.add_argument(
         "--ami-id",
-        default="ami-032e40ca6b0973cf2",
+        default="ami-0e6d6921c639b58c3",
         help="Specify an Ubuntu Base DLAMI only. This AMI type ships with nvidia drivers already setup. Using other AMIs might"
         "need non-trivial installations on the AMI. AMI-ids differ per aws region.",
     )
