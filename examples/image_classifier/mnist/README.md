@@ -25,30 +25,24 @@ Run the commands given in following steps from the parent directory of the root 
     torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
     ```
    
- * Step - 5: Register the model on TorchServe using the above model archive file and run digit recognition inference
+  Step 5 is optional. Perform this step to use pytorch profiler
+       
+  * Step - 5: To enable pytorch profiler, set the following environment variable.
+  
+        ```
+        export ENABLE_TORCH_PROFILER=true
+        ```
+   
+ * Step - 6: Register the model on TorchServe using the above model archive file and run digit recognition inference
    
     ```bash
     mkdir model_store
     mv mnist.mar model_store/
-    torchserve --start --model-store model_store --models mnist=mnist.mar
+    torchserve --start --model-store model_store --models mnist=mnist.mar --ts-config config.properties
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
 # Profiling inference output
-
-To enable pytorch profiler, set the following environment variable.
-
-```
-export ENABLE_TORCH_PROFILER=true
-```
-
-Note: Ensure`enable_envvars_config` is set to `true` in torchserve config
-
-Run the predictions again
-
-```
-curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
-```
 
 The profiler information is printed in the torchserve logs / console 
 
