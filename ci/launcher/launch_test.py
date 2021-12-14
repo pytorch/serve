@@ -54,7 +54,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
                         "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
                         "PYTHONIOENCODING": "utf8",
                     },
-                    encoding="utf8"
+                    encoding="utf8",
                 )
 
                 if ret_obj.return_code != 0:
@@ -117,14 +117,16 @@ def launch_ec2_instance(region, instance_type, ami_id):
         ec2_connection.run(f"sudo apt update")
 
         time.sleep(300)
-    
 
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
-            ec2_connection.run(
-                f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
-            )
+            if "pr" in github_pull_request_number:
+                ec2_connection.run(
+                    f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
+                )
+            else:
+                ec2_connection.run(f"cd serve && git fetch origin {github_pull_request_number}")
 
             ec2_connection.run(f"sudo apt-get install -y python3-venv")
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
