@@ -21,7 +21,6 @@ class KFservingEnvelope(BaseEnvelope):
     """
 
     def parse_input(self, data):
-        logger.info("Parsing input in KFServing.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
         # selecting the first input from the list torchserve creates
         logger.debug("Parse input data_list %s", self._data_list)
