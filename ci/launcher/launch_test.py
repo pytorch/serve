@@ -121,7 +121,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
-            if "pr" in github_pull_request_number:
+            if "pr" in github_hookshot:
                 ec2_connection.run(
                     f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
                 )
