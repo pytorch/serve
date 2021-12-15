@@ -19,7 +19,7 @@ Metrics are collected by default at:
 * System metrics - `log_directory/ts_metrics.log`
 * Custom metrics - `log directory/model_metrics.log`
 
-The location of log files and metric files can be configured i in the [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file
+The location of log files and metric files can be configured in the [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file
 
 ## System Metrics
 
@@ -45,13 +45,7 @@ CPUUtilization.Percent:0.0|#Level:Host|#hostname:my_machine_name
 MemoryUsed.Megabytes:13840.328125|#Level:Host|#hostname:my_machine_name   
 ```
 
-To enable metric logging in JSON format, modify the log formatter in [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md).
-
-To enable JSON formatting for metrics, change the following line in `log4j.properties`: 
-
-```properties
-log4j.appender.ts_metrics.layout = org.pytorch.serve.util.logging.JSONLayout
-```
+To enable metric logging in JSON format, modify the log formatter in [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md). 
 
 After you enable JSON log formatting, logs will look as follows:
 
@@ -316,4 +310,4 @@ for metric in metrics.store:
     logger.info("[METRICS]%s", str(metric))
 ```
 
-This custom metrics information is logged in the `model_metrics.log` file configured through [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) file.
+This custom metrics information is logged in the `model_metrics.log` file configured through [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file.
