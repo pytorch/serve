@@ -1,0 +1,1 @@
+curl http://127.0.0.1:8080/predictions/resnet152 -T examples/image_classifier/resnet_152_batch/images/kitten.jpg & curl http://127.0.0.1:8080/predictions/resnet152 -T examples/image_classifier/resnet_152_batch/images/dog.jpg
