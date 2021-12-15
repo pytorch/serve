@@ -107,7 +107,7 @@ There are no default required arguments to start the server
 1. **model-store**: mandatory, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **workflow-store**: mandatory, A location where default or local workflows are stored. The workflows available in workflow store can be registered in TorchServe via [register api call](workflow_management_api.md#register-a-workflow).
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
-1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
+1. **log-config**: optional, This parameter will override default log4j2.xml, present within the server.
 1. **start**: optional, A more descriptive way to start the server.
 1. **stop**: optional, Stop the server if it is already running.
 
