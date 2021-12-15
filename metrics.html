@@ -345,7 +345,7 @@ Metrics are collected by default at:</p>
 <li><p>System metrics - <code class="docutils literal notranslate"><span class="pre">log_directory/ts_metrics.log</span></code></p></li>
 <li><p>Custom metrics - <code class="docutils literal notranslate"><span class="pre">log</span> <span class="pre">directory/model_metrics.log</span></code></p></li>
 </ul>
-<p>The location of log files and metric files can be configured i in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file</p>
+<p>The location of log files and metric files can be configured in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file</p>
 </section>
 <section id="system-metrics">
 <h2><span class="section-number">9.3. </span>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this headline">¶</a></h2>
@@ -428,11 +428,7 @@ Metrics are collected by default at:</p>
 MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
 </pre></div>
 </div>
-<p>To enable metric logging in JSON format, modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a>. For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
-<p>To enable JSON formatting for metrics, change the following line in <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code>:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.appender.ts_metrics.layout</span> <span class="o">=</span> <span class="s">org.pytorch.serve.util.logging.JSONLayout</span>
-</pre></div>
-</div>
+<p>To enable metric logging in JSON format, modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a>. For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
 <p>After you enable JSON log formatting, logs will look as follows:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;MetricName&quot;</span><span class="p">:</span> <span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span>
@@ -659,7 +655,7 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[METRICS]</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>This custom metrics information is logged in the <code class="docutils literal notranslate"><span class="pre">model_metrics.log</span></code> file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> file.</p>
+<p>This custom metrics information is logged in the <code class="docutils literal notranslate"><span class="pre">model_metrics.log</span></code> file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file.</p>
 </section>
 </section>
 </section>

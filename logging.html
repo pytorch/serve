@@ -330,9 +330,9 @@ To further understand how to customize metrics or define custom logging layouts,
 <section id="prerequisites">
 <h2><span class="section-number">8.1. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Be familiar with log4j configuration properties.
+<li><p>Be familiar with log4j2 configuration.
 For information on how to configure log4j parameters, see <a class="reference external" href="https://logging.apache.org/log4j/2.x/manual/configuration.html">Logging Services</a>.</p></li>
-<li><p>Be familiar with the default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties">log4j.properties</a> used by TorchServe.</p></li>
+<li><p>Be familiar with the default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> used by TorchServe.</p></li>
 </ul>
 </section>
 <section id="types-of-logs">
@@ -345,15 +345,17 @@ For information on how to configure log4j parameters, see <a class="reference ex
 <section id="access-logs">
 <h3><span class="section-number">8.2.1. </span>Access Logs<a class="headerlink" href="#access-logs" title="Permalink to this headline">¶</a></h3>
 <p>These logs collect the access pattern to TorchServe. The configuration for access logs are as follows:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.logger.ACCESS_LOG</span> <span class="o">=</span> <span class="s">INFO, access_log</span>
-
-
-<span class="na">log4j.appender.access_log</span> <span class="o">=</span> <span class="s">org.apache.log4j.RollingFileAppender</span>
-<span class="na">log4j.appender.access_log.File</span> <span class="o">=</span> <span class="s">${LOG_LOCATION}/access_log.log</span>
-<span class="na">log4j.appender.access_log.MaxFileSize</span> <span class="o">=</span> <span class="s">100MB</span>
-<span class="na">log4j.appender.access_log.MaxBackupIndex</span> <span class="o">=</span> <span class="s">5</span>
-<span class="na">log4j.appender.access_log.layout</span> <span class="o">=</span> <span class="s">org.apache.log4j.PatternLayout</span>
-<span class="na">log4j.appender.access_log.layout.ConversionPattern</span> <span class="o">=</span> <span class="s">%d{ISO8601} - %m%n</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span>		<span class="nt">&lt;RollingFile</span>
+				<span class="na">name=</span><span class="s">&quot;access_log&quot;</span>
+				<span class="na">fileName=</span><span class="s">&quot;${env:LOG_LOCATION:-logs}/access_log.log&quot;</span>
+				<span class="na">filePattern=</span><span class="s">&quot;${env:LOG_LOCATION:-logs}/access_log.%d{dd-MMM}.log.gz&quot;</span><span class="nt">&gt;</span>
+			<span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">&quot;%d{ISO8601} - %m%n&quot;</span><span class="nt">/&gt;</span>
+			<span class="nt">&lt;Policies&gt;</span>
+				<span class="nt">&lt;SizeBasedTriggeringPolicy</span> <span class="na">size=</span><span class="s">&quot;100 MB&quot;</span><span class="nt">/&gt;</span>
+				<span class="nt">&lt;TimeBasedTriggeringPolicy/&gt;</span>
+			<span class="nt">&lt;/Policies&gt;</span>
+			<span class="nt">&lt;DefaultRolloverStrategy</span> <span class="na">max=</span><span class="s">&quot;5&quot;</span><span class="nt">/&gt;</span>
+		<span class="nt">&lt;/RollingFile&gt;</span>
 </pre></div>
 </div>
 <p>As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file.
@@ -368,15 +370,17 @@ When you load TorchServe with a model and run inference against the server, the 
 <h3><span class="section-number">8.2.2. </span>TorchServe Logs<a class="headerlink" href="#torchserve-logs" title="Permalink to this headline">¶</a></h3>
 <p>These logs collect all the logs from TorchServe and from the backend workers (the custom model code).
 The default configuration pertaining to TorchServe logs are as follows:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">log4j.logger.com.amazonaws.ml.ts</span> <span class="o">=</span> <span class="s">DEBUG, ts_log</span>
-
-
-<span class="na">log4j.appender.ts_log</span> <span class="o">=</span> <span class="s">org.apache.log4j.RollingFileAppender</span>
-<span class="na">log4j.appender.ts_log.File</span> <span class="o">=</span> <span class="s">${LOG_LOCATION}/ts_log.log</span>
-<span class="na">log4j.appender.ts_log.MaxFileSize</span> <span class="o">=</span> <span class="s">100MB</span>
-<span class="na">log4j.appender.ts_log.MaxBackupIndex</span> <span class="o">=</span> <span class="s">5</span>
-<span class="na">log4j.appender.ts_log.layout</span> <span class="o">=</span> <span class="s">org.apache.log4j.PatternLayout</span>
-<span class="na">log4j.appender.ts_log.layout.ConversionPattern</span> <span class="o">=</span> <span class="s">%d{ISO8601} [%-5p] %t %c - %m%n</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span>		<span class="nt">&lt;RollingFile</span>
+				<span class="na">name=</span><span class="s">&quot;ts_log&quot;</span>
+				<span class="na">fileName=</span><span class="s">&quot;${env:LOG_LOCATION:-logs}/ts_log.log&quot;</span>
+				<span class="na">filePattern=</span><span class="s">&quot;${env:LOG_LOCATION:-logs}/ts_log.%d{dd-MMM}.log.gz&quot;</span><span class="nt">&gt;</span>
+			<span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">&quot;%d{ISO8601} [%-5p] %t %c - %m%n&quot;</span><span class="nt">/&gt;</span>
+			<span class="nt">&lt;Policies&gt;</span>
+				<span class="nt">&lt;SizeBasedTriggeringPolicy</span> <span class="na">size=</span><span class="s">&quot;100 MB&quot;</span><span class="nt">/&gt;</span>
+				<span class="nt">&lt;TimeBasedTriggeringPolicy/&gt;</span>
+			<span class="nt">&lt;/Policies&gt;</span>
+			<span class="nt">&lt;DefaultRolloverStrategy</span> <span class="na">max=</span><span class="s">&quot;5&quot;</span><span class="nt">/&gt;</span>
+		<span class="nt">&lt;/RollingFile&gt;</span>
 </pre></div>
 </div>
 <p>This configuration by default dumps all the logs above <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level.</p>
@@ -406,11 +410,11 @@ e...
 </section>
 <section id="modify-the-behavior-of-the-logs">
 <h2><span class="section-number">8.4. </span>Modify the behavior of the logs<a class="headerlink" href="#modify-the-behavior-of-the-logs" title="Permalink to this headline">¶</a></h2>
-<p>To modify the default logging behavior, define a <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file. There are two ways of starting TorchServe with custom logs:</p>
+<p>To modify the default logging behavior, define a <code class="docutils literal notranslate"><span class="pre">log4j2.xml</span></code> file. There are two ways of starting TorchServe with custom logs:</p>
 <section id="provide-with-config-properties">
 <h3><span class="section-number">8.4.1. </span>Provide with config.properties<a class="headerlink" href="#provide-with-config-properties" title="Permalink to this headline">¶</a></h3>
-<p>After you define a custom <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> file, add the following to the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">vmargs</span><span class="o">=</span><span class="s">-Dlog4j.configuration=file:///path/to/custom/log4j.properties</span>
+<p>After you define a custom <code class="docutils literal notranslate"><span class="pre">log4j2.xml</span></code> file, add the following to the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">vmargs</span><span class="o">=</span><span class="s">-Dlog4j.configurationFile=file:///path/to/custom/log4j2.xml</span>
 </pre></div>
 </div>
 <p>Then start TorchServe as follows:</p>
@@ -418,7 +422,7 @@ e...
 </pre></div>
 </div>
 <p>Alternatively</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --start --log-config /path/to/custom/log4j.properties
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --start --log-config /path/to/custom/log4j2.xml
 </pre></div>
 </div>
 </section>
