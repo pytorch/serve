@@ -355,7 +355,7 @@ def test_api(collection):
         "increased_timeout_inference": trigger_incr_timeout_inference_tests,
         "https": trigger_https_tests,
         "https_kf": trigger_https_tests_kf,
-        "https_kfv2": trigger_https_tests_kfv2,
+        #"https_kfv2": trigger_https_tests_kfv2,
         "all": trigger_all
     }
 
