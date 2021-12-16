@@ -318,13 +318,13 @@ def trigger_all():
     exit_code6 = trigger_inference_tests_kf()
     exit_code7 = trigger_https_tests_kf()
     exit_code8 = trigger_inference_tests_kfv2()
-    exit_code9 = trigger_https_tests_kfv2()
+    #exit_code9 = trigger_https_tests_kfv2()
     exit_code10 = trigger_explanation_tests()
     exit_code11 = trigger_workflow_tests()
     exit_code12 = trigger_workflow_inference_tests()
     return 1 if any(code != 0 for code in [
         exit_code1, exit_code2, exit_code3, exit_code4, exit_code5, exit_code6,
-        exit_code7, exit_code8, exit_code9, exit_code10, exit_code11,
+        exit_code7, exit_code8, exit_code10, exit_code11,
         exit_code12
     ]) else 0
 
