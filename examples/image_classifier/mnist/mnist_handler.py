@@ -1,6 +1,6 @@
 from torchvision import transforms
 from ts.torch_handler.image_classifier import ImageClassifier
-import torch
+from torch.profiler import ProfilerActivity
 
 
 class MNISTDigitClassifier(ImageClassifier):
@@ -15,6 +15,14 @@ class MNISTDigitClassifier(ImageClassifier):
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
+
+    def __init__(self):
+        super(MNISTDigitClassifier, self).__init__()
+        self.profiler_args = {
+            "activities" : [ProfilerActivity.CPU],
+            "record_shapes": True,
+        }
+
 
     def postprocess(self, data):
         """The post process of MNIST converts the predicted output response to a label.
