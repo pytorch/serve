@@ -80,13 +80,13 @@ cd /workspace/serve/examples/FasterTransformer_HuggingFace_Bert
 
 # make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript" and "FasterTransformer":true
 
-# change the ../Huggingface_Transformers/setup_config.json
+# change the ../Huggingface_Transformers/setup_config.json as below
 {
  "model_name":"bert-base-uncased",
- "mode":"question_answering",
+ "mode":"sequence_classification",
  "do_lower_case":true,
  "num_labels":"0",
- "save_mode":"pretrained",
+ "save_mode":"torchscript",
  "max_length":"128",
  "captum_explanation":false,
  "embedding_name": "bert",
