@@ -110,13 +110,13 @@ curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ../Huggingface_Transform
 ```bash
 # Question answering
 
-# change the ../Huggingface_Transformers/setup_config.json
+# change the ../Huggingface_Transformers/setup_config.json as below
 {
  "model_name":"bert-base-uncased",
  "mode":"question_answering",
  "do_lower_case":true,
  "num_labels":"0",
- "save_mode":"pretrained",
+ "save_mode":"torchscript",
  "max_length":"128",
  "captum_explanation":false,
  "embedding_name": "bert",
