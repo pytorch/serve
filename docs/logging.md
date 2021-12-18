@@ -6,9 +6,9 @@ To further understand how to customize metrics or define custom logging layouts,
 
 ## Prerequisites
 
-* Be familiar with log4j configuration properties.
+* Be familiar with log4j2 configuration.
 For information on how to configure log4j parameters, see [Logging Services](https://logging.apache.org/log4j/2.x/manual/configuration.html).
-* Be familiar with the default [log4j.properties](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j.properties) used by TorchServe.
+* Be familiar with the default [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) used by TorchServe.
 
 ## Types of logs
 
@@ -21,16 +21,18 @@ TorchServe currently provides the following types of logs
 
 These logs collect the access pattern to TorchServe. The configuration for access logs are as follows:
 
-```properties
-log4j.logger.ACCESS_LOG = INFO, access_log
-
-
-log4j.appender.access_log = org.apache.log4j.RollingFileAppender
-log4j.appender.access_log.File = ${LOG_LOCATION}/access_log.log
-log4j.appender.access_log.MaxFileSize = 100MB
-log4j.appender.access_log.MaxBackupIndex = 5
-log4j.appender.access_log.layout = org.apache.log4j.PatternLayout
-log4j.appender.access_log.layout.ConversionPattern = %d{ISO8601} - %m%n
+```xml
+		<RollingFile
+				name="access_log"
+				fileName="${env:LOG_LOCATION:-logs}/access_log.log"
+				filePattern="${env:LOG_LOCATION:-logs}/access_log.%d{dd-MMM}.log.gz">
+			<PatternLayout pattern="%d{ISO8601} - %m%n"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
 ```
 
 As defined in the properties file, the access logs are collected in {LOG_LOCATION}/access_log.log file.
@@ -49,16 +51,18 @@ These logs are useful to determine the current performance of the model-server a
 These logs collect all the logs from TorchServe and from the backend workers (the custom model code).
 The default configuration pertaining to TorchServe logs are as follows:
 
-```properties
-log4j.logger.com.amazonaws.ml.ts = DEBUG, ts_log
-
-
-log4j.appender.ts_log = org.apache.log4j.RollingFileAppender
-log4j.appender.ts_log.File = ${LOG_LOCATION}/ts_log.log
-log4j.appender.ts_log.MaxFileSize = 100MB
-log4j.appender.ts_log.MaxBackupIndex = 5
-log4j.appender.ts_log.layout = org.apache.log4j.PatternLayout
-log4j.appender.ts_log.layout.ConversionPattern = %d{ISO8601} [%-5p] %t %c - %m%n
+```xml
+		<RollingFile
+				name="ts_log"
+				fileName="${env:LOG_LOCATION:-logs}/ts_log.log"
+				filePattern="${env:LOG_LOCATION:-logs}/ts_log.%d{dd-MMM}.log.gz">
+			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
 ```
 
 This configuration by default dumps all the logs above `DEBUG` level.
@@ -87,14 +91,14 @@ e...
 
 ## Modify the behavior of the logs
 
-To modify the default logging behavior, define a `log4j.properties` file. There are two ways of starting TorchServe with custom logs:
+To modify the default logging behavior, define a `log4j2.xml` file. There are two ways of starting TorchServe with custom logs:
 
 ### Provide with config.properties
 
- After you define a custom `log4j.properties` file, add the following to the `config.properties` file:
+ After you define a custom `log4j2.xml` file, add the following to the `config.properties` file:
 
 ```properties
-vmargs=-Dlog4j.configuration=file:///path/to/custom/log4j.properties
+vmargs=-Dlog4j.configurationFile=file:///path/to/custom/log4j2.xml
 ```
 
 Then start TorchServe as follows:
@@ -106,7 +110,7 @@ $ torchserve --start --ts-config /path/to/config.properties
 Alternatively
 
 ```bash
-$ torchserve --start --log-config /path/to/custom/log4j.properties
+$ torchserve --start --log-config /path/to/custom/log4j2.xml
 ```
 
 ## Enable asynchronous logging

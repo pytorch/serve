@@ -6,6 +6,8 @@ dependencies {
     implementation project(":archive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    implementation "com.lmax:disruptor:${lmax_disruptor_version}"
+    implementation "org.apache.logging.log4j:log4j-core:${slf4j_log4j_version}"
     testImplementation "org.testng:testng:${testng_version}"
 }
 
@@ -26,8 +28,10 @@ jar {
     exclude "META-INF//NOTICE*"
 }
 
-test.doFirst {
-    systemProperty "tsConfigFile", 'src/test/resources/config.properties'
-    systemProperty "METRICS_LOCATION","build/logs"
-    systemProperty "LOG_LOCATION","build/logs"
+test {
+    doFirst {
+        systemProperty "tsConfigFile", 'src/test/resources/config.properties'
+    }
+    environment "METRICS_LOCATION","build/logs"
+    environment "LOG_LOCATION","build/logs"
 }

@@ -19,37 +19,8 @@ def teardown_module(module):
     test_utils.torchserve_cleanup()
 
 
-def model_archiver_command_builder(model_name=None, version=None, model_file=None, serialized_file=None, handler=None, extra_files=None, force=False):
-    cmd = "torch-model-archiver"
-
-    if model_name:
-        cmd += " --model-name {0}".format(model_name)
-
-    if version:
-        cmd += " --version {0}".format(version)
-
-    if model_file:
-        cmd += " --model-file {0}".format(model_file)
-
-    if serialized_file:
-        cmd += " --serialized-file {0}".format(serialized_file)
-
-    if handler:
-        cmd += " --handler {0}".format(handler)
-
-    if extra_files:
-        cmd += " --extra-files {0}".format(extra_files)
-
-    if force:
-        cmd += " --force"
-
-    cmd += " --export-path {0}".format(test_utils.MODEL_STORE)
-
-    return cmd
-
-
 def create_resnet_archive(model_name="resnset-18", version="1.0", force=False):
-    cmd = model_archiver_command_builder(
+    cmd = test_utils.model_archiver_command_builder(
         model_name,
         version,
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
@@ -146,7 +117,7 @@ def test_model_archiver_to_regenerate_model_mar_with_force():
 
 
 def test_model_archiver_without_handler_flag():
-    cmd = model_archiver_command_builder(
+    cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
@@ -164,7 +135,7 @@ def test_model_archiver_without_handler_flag():
 
 
 def test_model_archiver_without_model_name_flag():
-    cmd = model_archiver_command_builder(
+    cmd = test_utils.model_archiver_command_builder(
         None,
         "1.0",
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
@@ -178,7 +149,7 @@ def test_model_archiver_without_model_name_flag():
 
 
 def test_model_archiver_without_model_file_flag():
-    cmd = model_archiver_command_builder(
+    cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
         None,
@@ -197,7 +168,7 @@ def test_model_archiver_without_model_file_flag():
 
 
 def test_model_archiver_without_serialized_flag():
-    cmd = model_archiver_command_builder(
+    cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
         "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
