@@ -24,7 +24,7 @@ class KServeEnvelope(BaseEnvelope):
         logger.info("Parsing input in kserve.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
         # selecting the first input from the list torchserve creates
-        logger.info("Parse input data_list %s", self._data_list)
+        logger.debug("Parse input data_list %s", self._data_list)
         data = self._data_list[0]
 
         # If the KF Transformer and Explainer sends in data as bytesarray
@@ -32,7 +32,7 @@ class KServeEnvelope(BaseEnvelope):
 
             data = data.decode()
             data = json.loads(data)
-            logger.info("Bytes array is %s", data)
+            logger.debug("Bytes array is %s", data)
 
         self._inputs = data.get("instances")
         logger.info("kserve parsed inputs %s", self._inputs)

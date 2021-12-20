@@ -80,7 +80,7 @@ class KServev2Envelope(BaseEnvelope):
         """
         Joins the instances of a batch of JSON objects
         """
-        logger.info("Parse input data %s", rows)
+        logger.debug("Parse input data %s", rows)
         body_list = list(map(lambda body_list: body_list.get("body"), rows))
         data_list = self._from_json(body_list)
         return data_list

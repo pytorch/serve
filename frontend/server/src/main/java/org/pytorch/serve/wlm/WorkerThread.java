@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
 public class WorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final org.apache.log4j.Logger loggerTsMetrics =
-            org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final Logger loggerTsMetrics =
+            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
     private Metric workerLoadTime;
 
@@ -221,6 +221,7 @@ public class WorkerThread implements Runnable {
                 String workerThreadTime =
                         String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
                 loggerTsMetrics.info(
+                        "{}",
                         new Metric(
                                 "WorkerThreadTime",
                                 workerThreadTime,
@@ -412,7 +413,7 @@ public class WorkerThread implements Runnable {
             workerLoadTime.setValue(String.valueOf(timeTaken));
             workerLoadTime.setTimestamp(
                     String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
-            loggerTsMetrics.info(workerLoadTime);
+            loggerTsMetrics.info("{}", workerLoadTime);
         }
     }
 
