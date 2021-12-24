@@ -46,7 +46,7 @@ The
 
 * start Torchserve by invoking the below command:
 ```
-torchserve --start --model-store model_store
+torchserve --start --ts-config /mnt/models/config/config.properties
 
 ```
 ## Start KFServing (Local testing)

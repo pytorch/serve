@@ -19,7 +19,8 @@ management_address=http://127.0.0.0:8081
 number_of_netty_threads=4
 enable_envvars_config=true
 job_queue_size=10
-model_store=model-store
+model_store=/mnt/models/model-store
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"defaultVersion":true,"marName":"mnist.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
 ```
 
 * Set service envelope environment variable
@@ -30,18 +31,17 @@ KFServing v1 and v2 protocols
 
 * start Torchserve by invoking the below command:
 ```
-torchserve --start --model-store model_store --ncs --models mnist=mnist.mar
+torchserve --start --ts-config /mnt/models/config/config.properties
 
 ```
 
-## Model Register for KFServing:
+## Start KFServing (Local testing)
 
-Hit the below curl request to register the model
+Run the following commmand in a separate terminal
 
 ```
-curl -X POST "localhost:8081/models?model_name=mnist&url=mnist.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
+python kfserving_wrapper/__main__.py
 ```
-Please note that the batch size, the initial worker and synchronous values can be changed at your discretion and they are optional.
 
 ## Request and Response
 
@@ -55,7 +55,7 @@ python img2bytearray.py <imagefile>
 
 When the curl request is made, ensure that the request is made inisde of the serve folder.
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
 ```
 The default Inference Port for Torchserve is 8080, while for KFServing it is 8085
 
@@ -75,7 +75,7 @@ The Prediction response is as below :
 Torchserve supports KFServing Captum Explanations for Eager Models only.
 
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8085/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
 ```
 
 The Explanation response is as below :
