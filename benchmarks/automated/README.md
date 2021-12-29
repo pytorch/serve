@@ -50,16 +50,12 @@ aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAcc
 aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --role-name EC2Admin
 aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess --role-name EC2Admin
 ```
--- s3_bucket_benchmark_artifacts :all temporary benchmarking artifacts including server logs will be stored in this bucket: <br>
+-- s3_bucket_benchmark_artifacts :all temporary benchmarking artifacts including server logs will be stored in this bucket. Note that this bucket must be in the same account, or the credentials being used should have read and write access to the bucket. <br>
 Use the following command to create a new S3 bucket if you don't have one you can use.
 ```
 aws s3api create-bucket --bucket <torchserve-benchmark> --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 ```
 -- default_docker_dev_ecr_repo :docker image used for benchmarking will be pushed to this repo <br>
-Use the following command to create a new ECR repo if you don't have one you can use.
-```
-aws ecr create-repository --repository-name torchserve-benchmark --region us-west-2
-```
 * If you're running this setup on an EC2 instance, please ensure that the instance's security group settings 'allow' inbound ssh port 22. Refer [docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules.html).
 
 *The following steps assume that the current working directory is serve/.*
