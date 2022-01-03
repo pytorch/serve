@@ -69,13 +69,12 @@ public class ConfigManagerTest {
 
         metrics.add(createMetric("TestMetric1", "12345"));
         metrics.add(createMetric("TestMetric2", "23478"));
-        org.apache.log4j.Logger logger =
-                org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-        logger.debug(metrics);
+        Logger logger = LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+        logger.debug("{}", metrics);
         Assert.assertTrue(new File("build/logs/ts_metrics.log").exists());
 
-        logger = org.apache.log4j.Logger.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
-        logger.debug(metrics);
+        logger = LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
+        logger.debug("{}", metrics);
         Assert.assertTrue(new File("build/logs/model_metrics.log").exists());
 
         Logger modelLogger = LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);

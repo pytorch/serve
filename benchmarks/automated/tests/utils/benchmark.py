@@ -162,7 +162,11 @@ class BenchmarkHandler:
                     if exec_env == "docker":
                         torchserveHandler.stop_recording_docker_stats(model_name=self.model_name, num_workers=workers, batch_size=batch_size)
                         torchserveHandler.stop_torchserve()
+<<<<<<< HEAD
                         torchserveHandler.plot_stats_graph(model_name=self.model_name, num_workers=workers, batch_size=batch_size)
+=======
+                        torchserveHandler.plot_stats_graph(model_name=self.model_name, mode_name = mode,num_workers=workers, batch_size=batch_size)
+>>>>>>> refactor_copy
                     else:
                         torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name=exec_env)
 

@@ -155,7 +155,11 @@ class TorchServeHandler(object):
         self.connection.run(f"cp nohup.out nohup.{model_name}.{num_workers}.{batch_size}", warn=True)
         self.connection.run(f"rm nohup.out", warn=True)
 
+<<<<<<< HEAD
     def plot_stats_graph(self, model_name, num_workers, batch_size):
+=======
+    def plot_stats_graph(self, model_name, mode_name, num_workers, batch_size):
+>>>>>>> refactor_copy
         """
         Plots the graphs for docker stats recorded (free, docker cpu utilization) etc.
         """
@@ -172,8 +176,14 @@ class TorchServeHandler(object):
         plt.plot(y_data)
         plt.xlabel(f"time")
         plt.ylabel(f"% utilized memory by torchserve")
+<<<<<<< HEAD
         plt.title(f"{model_name} num_workers={num_workers} batch_size={batch_size}")
         plt.savefig(f"free_plot.{model_name}.{num_workers}.{batch_size}.png")
+=======
+        plt.title(f"{model_name} {mode_name} num_workers={num_workers} batch_size={batch_size}")
+        plt.savefig(f"free_plot.{model_name}.{mode_name}.{num_workers}.{batch_size}.png")
+        plt.clf()
+>>>>>>> refactor_copy
 
     def start_torchserve_docker(self, stop_torchserve=True):
 
