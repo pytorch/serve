@@ -33,7 +33,7 @@ class ApacheBenchHandler(object):
         self.result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
         self.ts_metric_log_file = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
         self.inference_url = "http://127.0.0.1:8080"
-        #self.install_dependencies()
+        self.install_dependencies()
 
         self.metrics = {
             "predict.txt": "PredictionTime",
@@ -92,7 +92,6 @@ class ApacheBenchHandler(object):
 
     def clean_up(self):
         self.connection.run(f"rm -rf {os.path.join(TMP_DIR, 'benchmark')}")
-        #self.connection.run(f"rm -rf {os.path.join(LOCAL_TMP_DIR, 'workflow')}")
 
     def extract_metrics(self, connection=None):
         metric_log = f"{os.path.join(self.local_tmp_dir, 'benchmark_metric.log')}"
@@ -182,6 +181,3 @@ class ApacheBenchHandler(object):
     def generate_report(self, requests, concurrency, connection=None):
         self.extract_metrics(connection=connection)
         self.generate_csv_output(requests, concurrency, connection=connection)
-        # self.generate_latency_graph()
-        # self.generate_profile_graph()
-        pass
