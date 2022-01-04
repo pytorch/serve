@@ -6,6 +6,7 @@ dependencies {
     implementation project(":archive")
     implementation "commons-cli:commons-cli:${commons_cli_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    implementation "com.lmax:disruptor:${lmax_disruptor_version}"
     implementation "org.apache.logging.log4j:log4j-core:${slf4j_log4j_version}"
     testImplementation "org.testng:testng:${testng_version}"
 }
