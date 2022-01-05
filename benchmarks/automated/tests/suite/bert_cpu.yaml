@@ -2,7 +2,7 @@
 bert:
     scripted_mode:
         benchmark_engine: "ab"
-        url: "https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar" #for CPU: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_Torchscript_batch.mar
+        url: https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar # "https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar" #for CPU: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_Torchscript_batch.mar
         workers: 4
         batch_delay: 100
         batch_size:
@@ -18,3 +18,6 @@ bert:
         processors:
             - "cpu"
             - "gpus": "all"
+instance_types: #special keyword not recognized as a 'model', define instance types per yaml file.
+    - "p3.8xlarge"
+    - "c5.4xlarge"

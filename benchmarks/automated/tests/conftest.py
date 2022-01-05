@@ -1,4 +1,5 @@
 import datetime
+import invoke
 import logging
 import os
 import random
@@ -52,6 +53,23 @@ def pytest_addoption(parser):
         help="Use with caution: does not terminate instances, instead saves the list to a file in order to re-use",
     )
 
+    parser.addoption(
+        "--local-execution",
+        action="store_true",
+        default=False,
+        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore the instances specified in the model config *.yaml file."
+    )
+
+    parser.addoption(
+        "--local-instance-type",
+        default="c4.4xlarge",
+        help="Specify the current ec2 instance on which the benchmark executes. Note: default is c4.4xlarge or CPU mode. May not specify any other value than an ec2 instance type."
+    )
+
+
+@pytest.fixture(scope="session")
+def is_local_execution(request):
+    return request.config.getoption("--local-execution")
 
 @pytest.fixture(scope="session")
 def docker_dev_image_config_path(request):
@@ -67,47 +85,21 @@ def benchmark_execution_id(request):
     return execution_id
 
 
-@pytest.fixture(scope="function")
-def bert_neuron_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "bert_neuron.yaml")
-
-@pytest.fixture(scope="function")
-def vgg11_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "vgg11.yaml")
-
-
-@pytest.fixture(scope="function")
-def vgg16_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "vgg16.yaml")
-
-
-@pytest.fixture(scope="function")
-def bert_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "bert.yaml")
-
-
-@pytest.fixture(scope="function")
-def mnist_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "mnist.yaml")
-
-
-@pytest.fixture(scope="function")
-def fastrcnn_config_file_path(request):
-    return os.path.join(os.getcwd(), "tests", "suite", "fastrcnn.yaml")
+def get_model_config_paths():
+    model_configs_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "suite")
+    model_config_paths = []
+    for root, _, files in os.walk(model_configs_folder):
+        for name in files:
+            model_config_paths.append(os.path.join(root, name))
+        
+        # break, don't explore sub-directories
+        break
+    return model_config_paths
 
 
 @pytest.fixture(scope="session")
 def region():
     return os.getenv("AWS_DEFAULT_REGION", DEFAULT_REGION)
-
-
-@pytest.fixture(scope="session")
-def docker_client(region):
-    test_utils.run_subprocess_cmd(
-        f"$(aws ecr get-login --no-include-email --region {region})",
-        failure="Failed to log into ECR.",
-    )
-    return docker.from_env()
 
 
 @pytest.fixture(scope="session")
@@ -152,14 +144,22 @@ def ec2_instance(
     request,
     ec2_client,
     ec2_resource,
-    ec2_instance_type,
+    model_config_path_ec2_instance_tuple,
     ec2_key_name,
     ec2_instance_role_name,
     ec2_instance_ami,
     region,
+    is_local_execution
 ):
 
-    use_instances_flag = request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
+    if is_local_execution:
+        return None
+
+    (_, ec2_instance_type) = model_config_path_ec2_instance_tuple
+
+    use_instances_flag = (
+        request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
+    )
 
     if use_instances_flag:
         instances_file = request.config.getoption("--use-instances")
@@ -168,7 +168,9 @@ def ec2_instance(
         LOGGER.info(f"instances_dict: {instances_dict}")
         instances = instances_dict.get(request.node.name.split("[")[0], "")
         LOGGER.info(f"instances: {instances}")
-        assert instances != "", f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
+        assert (
+            instances != ""
+        ), f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
         instance_details = instances.get(ec2_instance_type, "")
         assert instance_details != "", f"Could not obtain details for instance type: {ec2_instance_type}"
         instance_id = instance_details.get("instance_id", "")
@@ -227,8 +229,12 @@ def ec2_instance(
         instances_dict = YamlHandler.load_yaml(instances_file)
         if not instances_dict:
             instances_dict = {}
-        
-        update_dictionary = {request.node.name.split("[")[0]: {ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}}}
+
+        update_dictionary = {
+            request.node.name.split("[")[0]: {
+                ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}
+            }
+        }
 
         instances_dict.update(update_dictionary)
 
@@ -250,6 +256,9 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
     :param region: Region where ec2 instance is launched
     :return: Fabric connection object
     """
+    if ec2_instance is None:
+        return invoke
+
     instance_id, instance_pem_file = ec2_instance
     ip_address = ec2_utils.get_public_ip(instance_id, region=region)
     LOGGER.info(f"Instance ip_address: {ip_address}")
@@ -270,3 +279,35 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
     request.addfinalizer(delete_s3_artifact_copy)
 
     return conn
+
+
+def pytest_generate_tests(metafunc):
+    """
+    Parameterize test function based on the number of ec2 instances supplied to be benchmarked
+    on in the config file
+    """
+    parameter_list = []
+    ids = []
+
+    model_config_paths = get_model_config_paths()
+
+    is_local_execution = metafunc.config.getoption('--local-execution')
+    local_instance_type = metafunc.config.getoption('--local-instance-type')
+
+    for model_config_path in model_config_paths:
+        model_name = model_config_path.split("/")[-1].split(".")[0]
+
+        model_yaml_content = YamlHandler.load_yaml(model_config_path)
+        YamlHandler.validate_model_yaml(model_yaml_content)
+        instance_types = None if is_local_execution else model_yaml_content.get("instance_types")
+
+        if instance_types:
+            for ec2_instance_type in instance_types:
+                parameter_list.append((model_config_path, ec2_instance_type))
+                ids.append(f"{model_name}-{ec2_instance_type}")
+        else:
+            parameter_list.append((model_config_path, local_instance_type))
+            ids.append(f"{model_name}-{local_instance_type}")
+
+    if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames: 
+        metafunc.parametrize("model_config_path_ec2_instance_tuple", parameter_list, ids=ids)
