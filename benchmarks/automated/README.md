@@ -142,7 +142,6 @@ The final benchmark report will be available in markdown format as `report.md` i
 
 
 ## Features of the automation:
-`Note: Use --do-not-termninate flag to keep the instances running, else, it will be terminated`.
 
 3. To run a test containing a specific string, use the `--run-only` flag. Note that the argument is 'string matched' i.e. if the test-name contains the supplied argument as a substring, the test will run. 
 ```
