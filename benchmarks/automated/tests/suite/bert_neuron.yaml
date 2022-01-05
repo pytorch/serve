@@ -10,10 +10,12 @@ bert_inf1:
             - 2
             - 4
             - 8
-        input: "/home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert/input"
+        input: "/home/ubuntu/serve/benchmarks/automated/tests/resources/neuron-bert/input"
         requests: 10000
         concurrency: 100
         backend_profiling: False
-        exec_env: "local"
+        exec_env: "aws_neuron_pytorch_p36"
         processors:
             - "inferentia"
+instance_types:
+    - "inf1.6xlarge"

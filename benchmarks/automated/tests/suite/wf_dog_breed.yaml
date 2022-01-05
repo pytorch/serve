@@ -1,0 +1,28 @@
+---
+dog_breed:
+    workflow:
+        benchmark_engine: "ab"
+        workflow_name: "dog_breed_wf"
+        models:
+          - "https://torchserve.pytorch.org/mar_files/cat_dog_classification.mar"
+          - "https://torchserve.pytorch.org/mar_files/dog_breed_classification.mar"
+        specfile: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Workflows/dog_breed_classification/workflow_dog_breed_classification.yaml"
+        workflow_handler: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Workflows/dog_breed_classification/workflow_dog_breed_classification_handler.py"
+        workers: 2
+        batch_delay: 100
+        retry_attempts: 5
+        timeout_ms: 300000
+        batch_size:
+            - 1
+            - 2
+        requests: 1000
+        concurrency: 10
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg"
+        backend_profiling: False
+        exec_env: "docker"
+        processors:
+            - "cpu"
+            - "gpus": "all"
+instance_types: #special keyword not recognized as a 'model', define instance types per yaml file.
+    - "p3.8xlarge"
+    - "c5.4xlarge"

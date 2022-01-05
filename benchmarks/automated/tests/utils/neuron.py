@@ -21,13 +21,13 @@ TORCHSERVE_DIR = os.path.join(ROOT_DIR, "serve")
 MODEL_STORE = os.path.join(TORCHSERVE_DIR, "model_store")
 LOCAL_TMP_DIR = "/tmp"
 TMP_DIR = "/home/ubuntu"
-NEURON_RESOURCES_FOLDER = os.path.join(TORCHSERVE_DIR, "test", "benchmark", "tests", "resources", "neuron-bert")
+NEURON_RESOURCES_FOLDER = os.path.join(TORCHSERVE_DIR, "benchmarks", "automated", "tests", "resources", "neuron-bert")
 
 def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size=1):
     activation_command = ""
     
     if virtual_env_name:
-        activation_command = f"cd /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert && source activate {virtual_env_name} && "
+        activation_command = f"cd /home/ubuntu/serve/benchmarks/automated/tests/resources/neuron-bert && source activate {virtual_env_name} && "
     
     # Note: change version here to make sure the torch version compatible with neuron is being used.
     connection.run(f"{activation_command}pip3 install -U --ignore-installed torch==1.7.1", warn=True)
@@ -43,7 +43,7 @@ def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size=1)
     LOGGER.info(f"run_out_archiver: {run_out_archiver.stdout}, run_out_return: {run_out_archiver.return_code}")
     
     LOGGER.info(f"Running copy command")
-    connection.run(f"cp /home/ubuntu/serve/test/benchmark/tests/resources/neuron-bert/benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store")
+    connection.run(f"cp /home/ubuntu/serve/benchmarks/automated/tests/resources/neuron-bert/benchmark_{batch_size}.mar /home/ubuntu/benchmark/model_store")
     run_out = connection.run(f"test -e /home/ubuntu/benchmark/model_store/benchmark_{batch_size}.mar")
     if run_out.return_code == 0:
         LOGGER.info(f"mar file available at location /home/ubuntu/benchmark/model_store/benchmark_{batch_size}.mar")
