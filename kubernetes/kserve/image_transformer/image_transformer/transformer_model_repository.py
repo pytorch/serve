@@ -1,12 +1,12 @@
 """ A respository of image transformer models """
 import logging
-from kserve.kfmodel_repository import KFModelRepository
+from kserve.model_repository import ModelRepository
 import kserve
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 
-class TransformerModelRepository(KFModelRepository):
+class TransformerModelRepository(ModelRepository):
     """Stores the Image Transformer Models
 
     Args:
