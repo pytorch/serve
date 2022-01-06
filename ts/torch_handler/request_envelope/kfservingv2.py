@@ -81,7 +81,7 @@ class KFservingv2Envelope(BaseEnvelope):
         Joins the instances of a batch of JSON objects
         """
         logger.debug("Parse input data %s", rows)
-        body_list = list(map(lambda body_list: body_list.get("body"), rows))
+        body_list = [body_list.get("body") for body_list in rows]
         data_list = self._from_json(body_list)
         return data_list
 
@@ -90,14 +90,12 @@ class KFservingv2Envelope(BaseEnvelope):
         Extracts the data from the JSON object
         """
         # If the KF Transformer and Explainer sends in data as bytesarray
-        if isinstance(body_list, (bytes, bytearray)):
-            body_list = body_list.decode()
-            body_list = json.loads(body_list)
+        if isinstance(body_list[0], (bytes, bytearray)):
+            body_list = [json.loads(body.decode()) for body in body_list]
             logger.debug("Bytes array is %s", body_list)
         if "id" in body_list:
             setattr(self.context, "input_request_id", body_list["id"])
-        data_list = list(
-            map(lambda inputs_list: inputs_list.get("inputs"), body_list))[0]
+        data_list = [inputs_list.get("inputs") for inputs_list in body_list][0]
         return data_list
 
     def format_output(self, data):
