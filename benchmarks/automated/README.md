@@ -10,17 +10,17 @@ Check out a sample vgg11 model config at the path: `tests/suite/vgg11.yaml`
 -- [AmazonEC2ContainerRegistryFullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess) <br>
 -- [AmazonEC2FullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonEC2FullAccess) <br>
 -- [AmazonS3FullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonS3FullAccess) <br>
--- [AmazonIAMFullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/AmazonIAMFullAccess) 
+-- [IAMFullAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/IAMFullAccess) 
 <br (or at the least iam:passrole).
 
 * [Create](https://docs.aws.amazon.com/cli/latest/reference/ecr/create-repository.html) an ECR repository with the name “torchserve-benchmark” in the us-west-2 region, e.g.
 ```
 aws ecr create-repository --repository-name torchserve-benchmark --region us-west-2
 ```
-If you'd like to use your own repo, edit the __init__.py under `serve/test/benchmark/tests/utils`
+If you'd like to use your own repo, edit the `config.yaml` file at `serve/benchmarks/automated/tests/suite/benchmark/config.yaml`
 * Ensure you have [docker](https://docs.docker.com/get-docker/) client set-up on your system - osx/ec2
-* Adjust the following global variables to your preference in the file `serve/test/benchmark/tests/utils/__init__.py` <br>
--- IAM_INSTANCE_PROFILE :this role is attached to all ec2 instances created as part of the benchmarking process. Create this as described [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#create-iam-role). Default role name is 'EC2Admin'.<br>
+* Adjust the following global variables to your preference in the file `serve/benchmarks/automated/tests/suite/benchmark/config.yaml` <br>
+-- iam_instance_profile :this role is attached to all ec2 instances created as part of the benchmarking process. Create this as described [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#create-iam-role). Default role name is 'EC2Admin'.<br>
 Use the following commands to create a new role if you don't have one you can use.
 1. Create the trust policy file `ec2-admin-trust-policy.json` and add the following content:
 ```
@@ -50,16 +50,12 @@ aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAcc
 aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --role-name EC2Admin
 aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess --role-name EC2Admin
 ```
--- S3_BUCKET_BENCHMARK_ARTIFACTS :all temporary benchmarking artifacts including server logs will be stored in this bucket: <br>
+-- s3_bucket_benchmark_artifacts :all temporary benchmarking artifacts including server logs will be stored in this bucket. Note that this bucket must be in the same account, or the credentials being used should have read and write access to the bucket. <br>
 Use the following command to create a new S3 bucket if you don't have one you can use.
 ```
-aws s3api create-bucket --bucket <torchserve-benchmark> --region us-west-2
+aws s3api create-bucket --bucket <torchserve-benchmark> --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 ```
--- DEFAULT_DOCKER_DEV_ECR_REPO :docker image used for benchmarking will be pushed to this repo <br>
-Use the following command to create a new ECR repo if you don't have one you can use.
-```
-aws ecr create-repository --bucket torchserve-benchmark --region us-west-2
-```
+-- default_docker_dev_ecr_repo :docker image used for benchmarking will be pushed to this repo <br>
 * If you're running this setup on an EC2 instance, please ensure that the instance's security group settings 'allow' inbound ssh port 22. Refer [docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules.html).
 
 *The following steps assume that the current working directory is serve/.*
@@ -80,20 +76,23 @@ pip install -r test/benchmark/requirements.txt
 ```
 aws sts get-caller-identity
 ```
-4. For each of the test files under `test/benchmark/tests/`, e.g., test_vgg11.py, set the list of instance types you want to test on:
+4. The automation scripts uses the ts-config from the following location: `benchmarks/config.properties`. Make changes to this file in the current local folder to use this across all the runs.
+5. The simplest way to run a benchmark is to spin-up the ec2 instance type of your choice (must be a DLAMI), and run the benchmark with `--local-execution`, this will run through the models located in `benchmarks/automated/tests/suite/`, and execute benchmarks against these on the current instance. 
+Start the benchmark run as follows (run this a pseudo shell such as tmux or screen, as this is a long-running script):
 ```
-INSTANCE_TYPES_TO_TEST = ["p3.8xlarge"]
+python benchmarks/automated/run_benchmark.py --local-execution
 ```
-5. The automation scripts uses the ts-config from the following location: `benchmarks/config.properties`. Make changes to this file in the current local folder to use this across all the runs.
-6. Finally, start the benchmark run as follows (run this a pseudo shell such as tmux or screen, as this is a long-running script):
+7. Another method is to execute the above command from your desktop terminal, **without** the argument `local-exeuction`. This will cause the instance types mentioned in the `<model>.yaml` files to be spun up. For each of the model config files under `benchmarks/automated/tests/suite/`, e.g., vgg11.yaml, set the list of instance types you want to test on:
 ```
-python test/benchmark/run_benchmark.py
+instance_types:
+  - c4.4xlarge
+  - p3.8xlarge"
 ```
-7. To start test for a particual model, modify the `pytest_args` list in run_benchmark.py to include `["-k", "vgg11"]`, if that particular model is vgg11
-8. For generating benchmarking report, modify the argument to function `generate_comprehensive_report()` to point to the s3 bucket uri for the benchmark run. Run the script as:
+Start the benchmark run as follows:
 ```
-python report.py
+python benchmarks/automated/run_benchmark.py --local-execution
 ```
+
 The final benchmark report will be available in markdown format as `report.md` in the `serve/` folder. 
 
 **Example report for vgg11 model**
@@ -143,36 +142,39 @@ The final benchmark report will be available in markdown format as `report.md` i
 
 
 ## Features of the automation:
-1. To save time by *not* creating new instances for every benchmark run for local testing, use the '--do-not-terminate' flag. This will automatically create a file called 'instances.yaml' and write instance-related data into the file so that it may be re-used next time.
-```
-python test/benchmark/run_benchmark.py --do-not-terminate
-```
-
-2. To re-use an instance already recorded in `instances.yaml`, use the '--use-instances' flag:
-```
-python test/benchmark/run_benchmark.py --use-instances <full_path_to>/instances.yaml --do-no-terminate
-```
-`Note: Use --do-not-termninate flag to keep re-using the instances, else, it will be terminated`.
 
 3. To run a test containing a specific string, use the `--run-only` flag. Note that the argument is 'string matched' i.e. if the test-name contains the supplied argument as a substring, the test will run. 
 ```
 # To run mnist test
-python test/benchmark/run_benchmark.py --run-only mnist
+python benchmarks/automated/run_benchmark.py --run-only mnist
 
 # To run fastrcnn test
-python test/benchmark/run_benchmark.py --run-only fastrcnn
+python benchmarks/automated/run_benchmark.py --run-only fastrcnn
 
-# To run bert_neuron and bert
-python test/benchmark/run_benchmark.py --run-only bert
+# To run bert_neuron and bert_cpu
+python benchmarks/automated/run_benchmark.py --run-only bert_cpu
 
 # To run vgg11 test
-python test/benchmark/run_benchmark.py --run-only vgg11
+python benchmarks/automated/run_benchmark.py --run-only vgg11
 
 # To run vgg16 test
-python test/benchmark/run_benchmark.py --run-only vgg16
+python benchmarks/automated/run_benchmark.py --run-only vgg16
+
+# To run multiple:
+python benchmarks/automated/run_benchmark.py --run-only vgg11 vgg16 bert_cpu
 ```
 
 4. You can benchmark a specifc branch of the torchserve github repo by specifying the flag `--use-torchserve-branch` e.g., 
 ```
-python test/benchmark/run_benchmark.py --use-torchserve-branch issue_1115
+python benchmarks/automated/run_benchmark.py --use-torchserve-branch issue_1115
+```
+
+5. Once the docker image is built, you may choose to not have it re-built by passing the argument `--skip-docker-build` e.g.,
+```
+python benchmarks/automated/run_benchmark.py --skip-docker-build
+```
+
+6. If you do not wish to benchmark on different instance types specified in the model config `*.yaml`, you may pass the argument `--local-execution`. In this case, the instance types specified in the model config `*.yaml` file are *ignored*. Also, in this case, all the model benchmarks will be performed *sequentially* in order to 
+```
+python benchmarks/automated/run_benchmarks.py --local-execution
 ```
