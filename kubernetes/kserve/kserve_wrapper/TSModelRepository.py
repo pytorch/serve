@@ -1,12 +1,12 @@
 """ The repository to serve the Torchserve Models in the kserve side"""
 import logging
 import kserve
-from kserve.kfmodel_repository import KFModelRepository
+from kserve.model_repository import ModelRepository
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 
-class TSModelRepository(KFModelRepository):
+class TSModelRepository(ModelRepository):
     """A repository of kserve KFModels
     Args:
         KFModelRepository (object): The parameters from the KFModelRepository is passed

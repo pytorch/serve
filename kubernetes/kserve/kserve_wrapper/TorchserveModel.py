@@ -15,7 +15,7 @@ PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
-class TorchserveModel(kserve.KFModel):
+class TorchserveModel(kserve.Model):
     """The torchserve side inference and explain end-points requests are handled to
     return a KServe side response
 

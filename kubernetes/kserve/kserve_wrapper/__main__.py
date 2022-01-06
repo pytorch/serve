@@ -2,6 +2,8 @@
 import json
 import logging
 import kserve
+from kserve.model_server import ModelServer
+
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
 
@@ -84,7 +86,7 @@ if __name__ == "__main__":
         model = TorchserveModel(model_name, inference_address,
                                 management_address, model_dir)
         models.append(model)
-    kserve.KFServer(
+    ModelServer(
         registered_models=TSModelRepository(inference_address,
                                             management_address, model_dir),
         http_port=8080,
