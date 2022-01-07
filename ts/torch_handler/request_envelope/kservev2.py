@@ -93,8 +93,8 @@ class KServev2Envelope(BaseEnvelope):
         if isinstance(body_list[0], (bytes, bytearray)):
             body_list = [json.loads(body.decode()) for body in body_list]
             logger.debug("Bytes array is %s", body_list)
-        if "id" in body_list:
-            setattr(self.context, "input_request_id", body_list["id"])
+        if "id" in body_list[0]:
+            setattr(self.context, "input_request_id", body_list[0]["id"])
         data_list = [inputs_list.get("inputs") for inputs_list in body_list][0]
         return data_list
 
