@@ -138,7 +138,8 @@ def test_batch_input(set_custom_handler, handler_name):
     Tests pytorch profiler integration with batch inference
     """
     CUSTOM_PATH = "/tmp/output/resnet-152-batch"
-    batch_input_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "profiler_utils", "resnet_batch.sh")
+    batch_input_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "profiler_utils",
+                                      "resnet_batch.sh")
     if os.path.exists(CUSTOM_PATH):
         shutil.rmtree(CUSTOM_PATH)
     assert os.path.exists(data_file_resnet)
