@@ -21,8 +21,10 @@ from .transformer_model_repository import TransformerModelRepository
 
 if version('kserve') >= '0.8.0':
     import kserve.model_server as model_server
+    from kserve.model_server import ModelServer
 else:
     import kserve.kfserver as model_server
+    from kserve.kfserver import KFServer as ModelServer
 
 DEFAULT_MODEL_NAME = "model"
 
@@ -73,7 +75,7 @@ if __name__ == "__main__":
         transformer = ImageTransformer(model_name,
                                        predictor_host=args.predictor_host)
         models.append(transformer)
-    model_server.ModelServer(
+    ModelServer(
         registered_models=TransformerModelRepository(args.predictor_host),
         http_port=8080,
     ).start(models=models)

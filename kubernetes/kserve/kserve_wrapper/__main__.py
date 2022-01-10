@@ -8,9 +8,9 @@ from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
 
 if version('kserve') >= '0.8.0':
-    import kserve.model_server as model_server
+    from kserve.model_server import ModelServer
 else:
-    import kserve.kfserver as model_server
+    from kserve.kfserver import KFServer as ModelServer
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         model = TorchserveModel(model_name, inference_address,
                                 management_address, model_dir)
         models.append(model)
-    model_server.ModelServer(
+    ModelServer(
         registered_models=TSModelRepository(inference_address,
                                             management_address, model_dir),
         http_port=8080,
