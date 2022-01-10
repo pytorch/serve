@@ -15,12 +15,18 @@
 import argparse
 import json
 import kserve
+from importlib.metadata import version
 from .image_transformer import ImageTransformer
 from .transformer_model_repository import TransformerModelRepository
 
+if version('kserve') >= '0.8.0':
+    import kserve.model_server as model_server
+else:
+    import kserve.kfserver as model_server
+
 DEFAULT_MODEL_NAME = "model"
 
-parser = argparse.ArgumentParser(parents=[kserve.model_server.parser])
+parser = argparse.ArgumentParser(parents=[model_server.parser])
 parser.add_argument("--predictor_host",
                     help="The URL for the model predict function",
                     required=True)
@@ -67,7 +73,7 @@ if __name__ == "__main__":
         transformer = ImageTransformer(model_name,
                                        predictor_host=args.predictor_host)
         models.append(transformer)
-    kserve.ModelServer(
+    model_server.ModelServer(
         registered_models=TransformerModelRepository(args.predictor_host),
         http_port=8080,
     ).start(models=models)
