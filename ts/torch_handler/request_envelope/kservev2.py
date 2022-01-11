@@ -71,9 +71,9 @@ class KServev2Envelope(BaseEnvelope):
         }]
 
         """
-        logger.info("Parsing input in KServe v2 format %s", data)
+        logger.debug("Parsing input in KServe v2 format %s", data)
         inputs = self._batch_from_json(data)
-        logger.info("KServev2 parsed inputs %s", inputs)
+        logger.debug("KServev2 parsed inputs %s", inputs)
         return inputs
 
     def _batch_from_json(self, rows):
@@ -118,7 +118,7 @@ class KServev2Envelope(BaseEnvelope):
         }
 
         """
-        logger.info("The Response of KServe v2 format %s", data)
+        logger.debug("The Response of KServe v2 format %s", data)
         response = {}
         if hasattr(self.context, "input_request_id"):
             response["id"] = getattr(self.context, "input_request_id")
