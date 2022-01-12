@@ -13,6 +13,7 @@ import pytest
 import requests
 
 import test_utils
+from concurrent import futures
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 data_file_mnist = os.path.join(REPO_ROOT, "examples/image_classifier/mnist/test_data/1.png")
@@ -137,19 +138,22 @@ def test_batch_input(set_custom_handler, handler_name):
     """
     Tests pytorch profiler integration with batch inference
     """
+
     CUSTOM_PATH = "/tmp/output/resnet-152-batch"
-    batch_input_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "profiler_utils",
-                                      "resnet_batch.sh")
+
     if os.path.exists(CUSTOM_PATH):
         shutil.rmtree(CUSTOM_PATH)
     assert os.path.exists(data_file_resnet)
 
-    cmd = ["bash", batch_input_script]
+    def invoke_batch_input():
+        data = open(data_file_resnet, "rb")
+        response = requests.post("{}/predictions/resnet152".format(TF_INFERENCE_API), data)
+        print(response.text)
 
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True, timeout=1000)
 
-    assert "tiger_cat" in proc.stdout.decode("utf-8")
-    assert "Labrador_retriever" in proc.stdout.decode("utf-8")
+    with futures.ThreadPoolExecutor(2) as executor:
+        for _ in range(2):
+            executor.submit(invoke_batch_input)
 
     assert len(glob.glob("{}/*.pt.trace.json".format(CUSTOM_PATH))) == 1
     test_utils.unregister_model("resnet152")
