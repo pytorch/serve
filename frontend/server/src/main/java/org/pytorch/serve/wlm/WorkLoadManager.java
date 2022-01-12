@@ -85,6 +85,16 @@ public class WorkLoadManager {
         return numWorking;
     }
 
+    public boolean isLauncherRestartWorkers(int currentWorkers) {
+        boolean isRestart;
+        if (configManager.isCPULauncherEnabled() && currentWorkers > 0) {
+            isRestart = true;
+        } else {
+            isRestart = false;
+        }
+        return isRestart;
+    }
+
     public CompletableFuture<Integer> modelChanged(
             Model model, boolean isStartup, boolean isCleanUp) {
         synchronized (model.getModelVersionName()) {
@@ -92,6 +102,7 @@ public class WorkLoadManager {
             CompletableFuture<Integer> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
+            int restartNumWorkers = minWorker;
             List<WorkerThread> threads;
             if (minWorker == 0) {
                 threads = workers.remove(model.getModelVersionName());
@@ -109,6 +120,17 @@ public class WorkLoadManager {
             }
 
             int currentWorkers = threads.size();
+            boolean isRestartWorkers = isLauncherRestartWorkers(currentWorkers);
+
+            if (isRestartWorkers) {
+                logger.warn(
+                        "removing {} current thread(s) prior to restarting {} thread(s)",
+                        currentWorkers,
+                        minWorker);
+                maxWorker = 0;
+                minWorker = 0;
+            }
+
             if (currentWorkers < minWorker) {
                 addThreads(threads, model, minWorker - currentWorkers, future);
             } else {
@@ -150,6 +172,12 @@ public class WorkLoadManager {
                 }
                 future.complete(HttpURLConnection.HTTP_OK);
             }
+
+            if (isRestartWorkers) {
+                logger.warn("restarting {} thread(s)", restartNumWorkers);
+                addThreads(threads, model, restartNumWorkers, future);
+            }
+
             if (!isStartup && !isSnapshotSaved && !isCleanUp && !model.isWorkflowModel()) {
                 SnapshotManager.getInstance().saveSnapshot();
             }

@@ -3,7 +3,7 @@
 TorchServe can be used with Intel® Extension for PyTorch* (IPEX) to give performance boost on Intel hardware<sup>1</sup>. 
 Here we show how to use TorchServe with IPEX.
 
-<sup>1. While IPEX benefits all platforms, plaforms with AVX512 benefit the most. </sup>
+<sup>1. While IPEX benefits all platforms, platforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document 
 * [Install Intel Extension for PyTorch](#install-intel-extension-for-pytorch)
@@ -11,6 +11,7 @@ Here we show how to use TorchServe with IPEX.
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
+* [Performance Boost with IPEX and Launcher](#performance-boost-with-ipex-and-launcher)
 
 
 ## Install Intel Extension for PyTorch 
@@ -65,6 +66,11 @@ Some useful `cpu_launcher_args` to note are:
 
 Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. 
 
+Some notable launcher configurations are:
+1. `--ninstances`: Number of instances for multi-instance inference/training.  
+2. `--instance_idx`: Launcher by default runs all `ninstances` when running multiple instances. Specifying `instance_idx` runs a single instance among `ninstances`. This is useful when running each instance independently. 
+
+Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for more details. 
 
 ## Creating and Exporting INT8 model for IPEX
 Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. 
@@ -222,4 +228,30 @@ $ cat logs/model_log.log
 2021-12-02 06:15:03,982 - __main__ - INFO - KMP_BLOCKTIME=1
 2021-12-02 06:15:03,982 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so
 
+```
+
+## Performance Boost with IPEX and Launcher
+
+![pdt_perf](https://github.com/min-jean-cho/frameworks.ai.pytorch.ipex-cpu-1/assets/93151422/a158ba6c-a151-4115-befb-39acb7545936)
+
+Above shows performance improvement of Torchserve with IPEX and launcher on ResNet50 and BERT-base-uncased. Torchserve official [apache-bench benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#benchmarking-with-apache-bench) on Amazon EC2 m6i.24xlarge was used to collect the results. Add the following lines in ```config.properties``` to reproduce the results. Notice that launcher is configured such that a single instance uses all physical cores on a single socket to avoid cross socket communication and core overlap. 
+
+```
+ipex_enable=true
+cpu_launcher_enable=true
+cpu_launcher_args=--socket_id 0 --ninstance 1 --enable_jemalloc
+```
+Use the following command to reproduce the results. 
+```
+python benchmark-ab.py --url {modelUrl} --input {inputPath} --concurrency 1 
+```
+
+For example, run the following command to reproduce latency performance of ResNet50 with data type of IPEX int8 and batch size of 1. 
+```
+python benchmark-ab.py --url 'file:///model_store/rn50_ipex_int8.mar' --concurrency 1
+```
+
+For example, run the following command to reproduce latency performance of BERT with data type of IPEX int8 and batch size of 1. 
+```
+python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```
