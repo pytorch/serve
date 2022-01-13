@@ -69,6 +69,12 @@ Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob
 Some notable launcher configurations are:
 1. `--ninstances`: Number of instances for multi-instance inference/training.  
 2. `--instance_idx`: Launcher by default runs all `ninstances` when running multiple instances. Specifying `instance_idx` runs a single instance among `ninstances`. This is useful when running each instance independently. 
+3. `--ncore_per_instance`: Number of cores per instance.
+
+When running multi-worker inference with Torchserve, launcher's `--ninstances`, `--instance_idx`, and `--ncore_per_instance` boost the performance of Torchserve.
+Launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which generally improves performance. 
+For example, assume running four workers (4 `ninstances`) on 16 cores (i.e., 4 `ncore_per_instance`). Launcher will bind worker 0 (`instance_idx` 0) to cores 0-3, worker 1 (`instance_idx` 1) to cores 4-7, worker 2 (`instance_idx` 2) to cores 8-11, and worker 3 (`instance_idx` 3) to cores 12-15.
+Note that core pinning is taken care internally by launcher such that users don't have to manually set `ninstances`, `instance_idx`, nor `ncore_per_instance` in `config.properties`.
 
 Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for more details. 
 
