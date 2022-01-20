@@ -21,7 +21,6 @@ class KServeEnvelope(BaseEnvelope):
     """
 
     def parse_input(self, data):
-        logger.info("Parsing input in kserve.py")
         self._data_list = [row.get("data") or row.get("body") for row in data]
         # selecting the first input from the list torchserve creates
         logger.debug("Parse input data_list %s", self._data_list)
@@ -35,7 +34,7 @@ class KServeEnvelope(BaseEnvelope):
             logger.debug("Bytes array is %s", data)
 
         self._inputs = data.get("instances")
-        logger.info("kserve parsed inputs %s", self._inputs)
+        logger.debug("kserve parsed inputs %s", self._inputs)
         return self._inputs
 
     def format_output(self, data):
@@ -49,7 +48,7 @@ class KServeEnvelope(BaseEnvelope):
             (list): The response is returned as a list of predictions and explanations
         """
         response = {}
-        logger.info("The Response of kserve %s", data)
+        logger.debug("The Response of kserve %s", data)
         if not self._is_explain():
             response["predictions"] = data
         else:
