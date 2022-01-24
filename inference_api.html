@@ -379,6 +379,16 @@ or:
 curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
 </pre></div>
 </div>
+<p>To get predictions from the loaded model which expects multiple inputs</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/predictions/squeezenet1_1 -F <span class="s1">&#39;data=@docs/images/dogs-before.jpg&#39;</span> -F <span class="s1">&#39;data=@docs/images/kitten_small.jpg&#39;</span>
+
+or:
+
+import requests
+
+<span class="nv">res</span> <span class="o">=</span> requests.post<span class="o">(</span><span class="s2">&quot;http://localhost:8080/predictions/squeezenet1_1&quot;</span>, <span class="nv">files</span><span class="o">={</span><span class="s1">&#39;data&#39;</span>: open<span class="o">(</span><span class="s1">&#39;docs/images/dogs-before.jpg&#39;</span>, <span class="s1">&#39;rb&#39;</span><span class="o">)</span>, <span class="s1">&#39;data&#39;</span>: open<span class="o">(</span><span class="s1">&#39;docs/images/kitten_small.jpg&#39;</span>, <span class="s1">&#39;rb&#39;</span><span class="o">)})</span>
+</pre></div>
+</div>
 <p>To get predictions from a specific version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}/{version}</span></code>:</p>
 <ul class="simple">
 <li><p>POST /predictions/{model_name}/{version}</p></li>
