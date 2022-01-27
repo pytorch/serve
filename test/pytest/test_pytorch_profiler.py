@@ -148,8 +148,8 @@ def test_batch_input(set_custom_handler, handler_name):
     def invoke_batch_input():
         data = open(data_file_resnet, "rb")
         response = requests.post("{}/predictions/resnet152".format(TF_INFERENCE_API), data)
-        print(response.text)
-
+        assert response.status_code == 200
+        assert "tiger_cat" in json.loads(response.content)
 
     with futures.ThreadPoolExecutor(2) as executor:
         for _ in range(2):
