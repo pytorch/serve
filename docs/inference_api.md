@@ -61,6 +61,16 @@ or:
 curl http://localhost:8080/predictions/resnet-18 -F "data=@kitten_small.jpg"
 ```
 
+To get predictions from the loaded model which expects multiple inputs
+```bash
+curl http://localhost:8080/predictions/squeezenet1_1 -F 'data=@docs/images/dogs-before.jpg' -F 'data=@docs/images/kitten_small.jpg'
+
+or:
+
+import requests
+
+res = requests.post("http://localhost:8080/predictions/squeezenet1_1", files={'data': open('docs/images/dogs-before.jpg', 'rb'), 'data': open('docs/images/kitten_small.jpg', 'rb')})
+```
 To get predictions from a specific version of each loaded model, make a REST call to `/predictions/{model_name}/{version}`:
 
 * POST /predictions/{model_name}/{version}
