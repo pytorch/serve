@@ -256,6 +256,7 @@ models={\
         "batchSize": 4,\
         "maxBatchDelay": 100,\
         "responseTimeout": 120\
+        "gpuCoint": 0\
     }\
   },\
   "vgg16": {\
@@ -267,6 +268,7 @@ models={\
         "batchSize": 8,\
         "maxBatchDelay": 100,\
         "responseTimeout": 120\
+        "gpuCount": 2\
     }\
   }\
 }
