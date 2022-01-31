@@ -242,6 +242,7 @@ maxBatchDelay: the maximum dalay in msec of a batch of a model
 responseTimeout: the timeout in msec of a model's response
 defaultVersion: the default version of a model
 marName: the mar file name of a model
+gpuCount: the number of GPUs needed by the model
 ```
 A model's configuration example 
 ```properties
