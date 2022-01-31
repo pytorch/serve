@@ -15,11 +15,13 @@ public class ModelLoadModelRequest extends BaseModelRequest {
     private String envelope;
     private int batchSize;
     private int gpuId;
+    private int gpuCount;
     private boolean limitMaxImagePixels;
 
     public ModelLoadModelRequest(Model model, int gpuId) {
         super(WorkerCommands.LOAD, model.getModelName());
         this.gpuId = gpuId;
+        this.gpuCount = model.getGpuCount();
         modelPath = model.getModelDir().getAbsolutePath();
         handler = model.getModelArchive().getManifest().getModel().getHandler();
         envelope = model.getModelArchive().getManifest().getModel().getEnvelope();
@@ -45,6 +47,10 @@ public class ModelLoadModelRequest extends BaseModelRequest {
 
     public int getGpuId() {
         return gpuId;
+    }
+
+    public int getGpuCount() {
+        return gpuCount;
     }
 
     public boolean isLimitMaxImagePixels() {

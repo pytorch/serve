@@ -62,6 +62,9 @@ class TorchModelServiceWorker(object):
             "modelPath" : "/path/to/model/file", string
             "modelName" : "name", string
             "gpu" : None if CPU else gpu_id, int
+            "gpuCount": gpu count, int
+            "rpcMasterAddress": rpc master address, string
+            "rpcMasterPort": rpc master port, int
             "handler" : service handler entry point if provided, string
             "envelope" : name of wrapper/unwrapper of request data if provided, string
             "batchSize" : batch size, int
@@ -87,12 +90,17 @@ class TorchModelServiceWorker(object):
             if "gpu" in load_model_request:
                 gpu = int(load_model_request["gpu"])
 
+            gpu_count = int(load_model_request["gpuCount"])
+            rpc_master_address = load_model_request["rpcMasterAddress"].decode("utf-8")
+            rpc_master_port = int(load_model_request["rpcMasterPort"])
+
             limit_max_image_pixels = True
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu,
+            service = model_loader.load(model_name, model_dir, handler, gpu, gpu_count,
+                                        rpc_master_address, rpc_master_port,
                                         batch_size, envelope, limit_max_image_pixels)
 
             logging.debug("Model %s loaded.", model_name)

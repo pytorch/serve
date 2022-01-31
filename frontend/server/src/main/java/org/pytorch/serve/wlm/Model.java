@@ -28,6 +28,7 @@ public class Model {
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
+    public static final String GPU_COUNT = "gpuCount";
 
     private static final Logger logger = LoggerFactory.getLogger(Model.class);
 
@@ -36,6 +37,7 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int gpuCount;
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
@@ -71,6 +73,7 @@ public class Model {
         modelInfo.addProperty(MAX_WORKERS, getMaxWorkers());
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
+        modelInfo.addProperty(GPU_COUNT, getGpuCount());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
 
         return modelInfo;
@@ -82,6 +85,7 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        gpuCount = modelInfo.get(GPU_COUNT).getAsInt();
     }
 
     public String getModelName() {
@@ -109,6 +113,13 @@ public class Model {
     }
 
     public int getMinWorkers() {
+        if (this.gpuCount > 1 && this.minWorkers != 1) {
+            this.minWorkers = 1;
+            logger.info(
+                    "Overwrite minWorkers: {} with 1 b/c gpuCount: {}",
+                    this.minWorkers,
+                    this.gpuCount);
+        }
         return minWorkers;
     }
 
@@ -117,6 +128,13 @@ public class Model {
     }
 
     public int getMaxWorkers() {
+        if (this.gpuCount > 1 && this.maxWorkers != 1) {
+            this.maxWorkers = 1;
+            logger.info(
+                    "Overwrite maxWorkers: {} with 1 b/c gpuCount: {}",
+                    this.maxWorkers,
+                    this.gpuCount);
+        }
         return maxWorkers;
     }
 
@@ -236,5 +254,19 @@ public class Model {
 
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public int getGpuCount() {
+        return gpuCount;
+    }
+
+    public void setGpuCount(int gpuCount) {
+        int maxGpu = ConfigManager.getInstance().getNumberOfGpu();
+        if (gpuCount > maxGpu) {
+            logger.info("gpuCount: {} > maxGpu: {}, set gpuCount: {}", gpuCount, maxGpu, maxGpu);
+            this.gpuCount = maxGpu;
+        } else {
+            this.gpuCount = gpuCount;
+        }
     }
 }

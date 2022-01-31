@@ -34,7 +34,8 @@ class ModelLoader(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
+    def load(self, model_name, model_dir, handler, gpu_id, gpu_count,
+             rpc_master_address, rpc_master_port, batch_size, envelope=None, limit_max_image_pixels=True):
         """
         Load model from file.
 
@@ -42,6 +43,9 @@ class ModelLoader(object):
         :param model_dir:
         :param handler:
         :param gpu_id:
+        :param gpu_count:
+        :param rpc_master_address:
+        :param rpc_master_port:
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
@@ -56,7 +60,8 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
+    def load(self, model_name, model_dir, handler, gpu_id, gpu_count,
+             rpc_master_address, rpc_master_port, batch_size, envelope=None, limit_max_image_pixels=True):
         """
         Load TorchServe 1.0 model from file.
 
@@ -64,6 +69,9 @@ class TsModelLoader(ModelLoader):
         :param model_dir:
         :param handler:
         :param gpu_id:
+        :param gpu_count:
+        :param rpc_master_address:
+        :param rpc_master_port:
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
@@ -91,7 +99,8 @@ class TsModelLoader(ModelLoader):
 
         if hasattr(module, function_name):
             entry_point = getattr(module, function_name)
-            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, limit_max_image_pixels)
+            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, gpu_count,
+                              rpc_master_address, rpc_master_port, batch_size, limit_max_image_pixels)
 
         envelope_class = None
         if envelope is not None:
@@ -107,7 +116,8 @@ class TsModelLoader(ModelLoader):
             envelope_instance = envelope_class(entry_point)
             entry_point = envelope_instance.handle
 
-        service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, limit_max_image_pixels)
+        service = Service(model_name, model_dir, manifest, entry_point, gpu_id, gpu_count,
+                          rpc_master_address, rpc_master_port, batch_size, limit_max_image_pixels)
         service.context.metrics = metrics
         initialize_fn(service.context)
 

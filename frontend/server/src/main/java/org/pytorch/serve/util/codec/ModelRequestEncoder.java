@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -49,6 +50,13 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeBytes(buf);
 
             out.writeInt(request.getGpuId());
+            out.writeInt(request.getGpuCount());
+
+            buf = ConfigManager.getInstance().getRpcMassterAddr().getBytes(StandardCharsets.UTF_8);
+            out.writeInt(buf.length);
+            out.writeBytes(buf);
+
+            out.writeInt(ConfigManager.getInstance().getRpcMassterPort());
 
             String envelope = request.getEnvelope();
             if (envelope != null) {

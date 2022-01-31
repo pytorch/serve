@@ -27,6 +27,8 @@ def socket_patches(mocker):
         b"\x00\x00\x00\x01",
         b"\x00\x00\x00\x07", b"handler",
         b"\x00\x00\x00\x01",
+        b"\x00\x00\x00\x09", b"localhost",
+        b"\x00\x00\x00\x08",
         b"\x00\x00\x00\x08", b"envelope",
     ]
     return mock_patch
@@ -39,9 +41,8 @@ def model_service_worker(socket_patches):
     else:
         model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, port_num=9999)
     model_service_worker.sock = socket_patches.socket
-    model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
+    model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 0, "localhost", 5678, 1)
     return model_service_worker
-
 
 # noinspection PyClassHasNoInit
 @pytest.mark.skipif(sys.platform.startswith("win"), reason='Skipping linux/darwin specific test cases')
@@ -122,7 +123,8 @@ class TestRunServer:
 
 # noinspection PyClassHasNoInit
 class TestLoadModel:
-    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+    data = {'modelPath': b'mpath', 'modelName': b'name',
+            'gpuCount' : 0, 'rpcMasterAddress': b'localhost', 'rpcMasterPort': 5678, 'handler': b'handled'}
 
     @pytest.fixture()
     def patches(self, mocker):
@@ -149,7 +151,8 @@ class TestLoadModel:
 
 # noinspection PyClassHasNoInit
 class TestHandleConnection:
-    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+    data = {'modelPath': b'mpath', 'modelName': b'name',
+            'gpuCount' : 0, 'rpcMasterAddress': b'localhost', 'rpcMasterPort': 5678, 'handler': b'handled'}
 
     @pytest.fixture()
     def patches(self, mocker):

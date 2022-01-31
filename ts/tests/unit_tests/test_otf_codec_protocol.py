@@ -34,6 +34,9 @@ class TestOtfCodecHandler:
     def test_retrieve_msg_load_gpu(self, socket_patches):
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler", "gpu": 1,
+                    "gpuCount" : 1,
+                    "rpcMasterAddress": b"localhost",
+                    "rpcMasterPort": 8,
                     "envelope": b"envelope",
                     "limitMaxImagePixels": True}
 
@@ -44,6 +47,9 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x01",
             b"\x00\x00\x00\x07", b"handler",
             b"\x00\x00\x00\x01",
+            b"\x00\x00\x00\x01",
+            b"\x00\x00\x00\x09", b"localhost",
+            b"\x00\x00\x00\x08",
             b"\x00\x00\x00\x08", b"envelope",
             b"\x01"
         ]
@@ -55,6 +61,9 @@ class TestOtfCodecHandler:
     def test_retrieve_msg_load_no_gpu(self, socket_patches):
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler",
+                    "gpuCount": 0,
+                    "rpcMasterAddress": b"localhost",
+                    "rpcMasterPort": 8,
                     "envelope": b"envelope",
                     "limitMaxImagePixels": True}
 
@@ -65,6 +74,9 @@ class TestOtfCodecHandler:
             b"\x00\x00\x00\x01",
             b"\x00\x00\x00\x07", b"handler",
             b"\xFF\xFF\xFF\xFF",
+            b"\x00\x00\x00\x00",
+            b"\x00\x00\x00\x09", b"localhost",
+            b"\x00\x00\x00\x08",
             b"\x00\x00\x00\x08", b"envelope",
             b"\x01"
         ]

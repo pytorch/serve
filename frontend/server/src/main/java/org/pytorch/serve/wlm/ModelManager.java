@@ -273,6 +273,12 @@ public final class ModelManager {
                         archive.getModelVersion(),
                         Model.MAX_BATCH_DELAY,
                         maxBatchDelay));
+        model.setGpuCount(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.GPU_COUNT,
+                        ConfigManager.getInstance().getNumberOfGpu() > 0 ? 1 : 0));
         model.setResponseTimeout(
                 configManager.getJsonIntValue(
                         archive.getModelName(),

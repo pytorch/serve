@@ -98,6 +98,8 @@ public final class ConfigManager {
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
+    private static final String TS_DISTRIBUTED_RPC_MASTER_ADDR = "rpc_master_add";
+    private static final String TS_DISTRIBUTED_RPC_MASTER_PORT = "rpc_master_port";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -632,6 +634,10 @@ public final class ConfigManager {
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nRPC master address: "
+                + getRpcMassterAddr()
+                + "\nRPC master port: "
+                + getRpcMassterPort()
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A");
     }
@@ -824,6 +830,14 @@ public final class ConfigManager {
             }
         }
         return value;
+    }
+
+    public String getRpcMassterAddr() {
+        return prop.getProperty(TS_DISTRIBUTED_RPC_MASTER_ADDR, "localhost");
+    }
+
+    public int getRpcMassterPort() {
+        return getIntProperty(TS_DISTRIBUTED_RPC_MASTER_PORT, 5678);
     }
 
     public static final class Arguments {

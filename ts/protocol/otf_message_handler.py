@@ -190,6 +190,9 @@ def _retrieve_load_msg(conn):
     | int batch-size length |
     | int handler length | handler value |
     | int gpu id |
+    | int gpuCount |
+    | int rpc-master-address length | rpc_master_address value |
+    | int rpc-master-port |
     | bool limitMaxImagePixels |
 
     :param conn:
@@ -206,6 +209,12 @@ def _retrieve_load_msg(conn):
     gpu_id = _retrieve_int(conn)
     if gpu_id >= 0:
         msg["gpu"] = gpu_id
+
+    gpu_count = _retrieve_int(conn)
+    msg["gpuCount"] = gpu_count
+    length = _retrieve_int(conn)
+    msg["rpcMasterAddress"] = _retrieve_buffer(conn, length)
+    msg["rpcMasterPort"] = _retrieve_int(conn)
 
     length = _retrieve_int(conn)
     msg["envelope"] = _retrieve_buffer(conn, length)

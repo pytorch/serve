@@ -24,7 +24,8 @@ class TestService:
     def service(self, mocker):
         service = object.__new__(Service)
         service._entry_point = mocker.MagicMock(return_value=['prediction'])
-        service._context = Context(self.model_name, self.model_dir, self.manifest, 1, 0, '1.0')
+        service._context = Context(self.model_name, self.model_dir, self.manifest, 1, 0,
+                                   0, 'localhost', 5678, '1.0')
         return service
 
     def test_predict(self, service, mocker):
