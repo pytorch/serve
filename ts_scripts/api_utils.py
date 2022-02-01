@@ -11,7 +11,7 @@ from ts_scripts import tsutils as ts
 TEST_DIR = os.path.join("test")
 MODEL_STORE_DIR = os.path.join("model_store")
 
-# Contains separate collection and respecive tests for both kfserving and torchserve execution
+# Contains separate collection and respecive tests for both kserve and torchserve execution
 
 ### Torchserve
 ARTIFACTS_MANAGEMENT_DIR = os.path.join("artifacts", "management")
@@ -38,7 +38,7 @@ POSTMAN_WORKFLOW_INFERENCE_DATA_FILE = os.path.join(
 POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE = os.path.join(
     "postman", "increased_timeout_inference.json")
 
-#only one management collection for both kfserving and torchserve
+#only one management collection for both KServe and torchserve
 POSTMAN_COLLECTION_MANAGEMENT = os.path.join(
     "postman", "management_api_test_collection.json")
 POSTMAN_COLLECTION_INFERENCE = os.path.join(
@@ -52,7 +52,7 @@ POSTMAN_COLLECTION_EXPLANATION = os.path.join(
 
 POSTMAN_COLLECTION_HTTPS = os.path.join("postman", "https_test_collection.json")
 
-### KFServing v1 protocol
+### KServe v1 protocol
 ARTIFACTS_MANAGEMENT_DIR_KF = os.path.join("artifacts", "management_kf")
 ARTIFACTS_INFERENCE_DIR_KF = os.path.join("artifacts", "inference_kf")
 ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR_KF = os.path.join(
@@ -72,7 +72,7 @@ POSTMAN_COLLECTION_INFERENCE_KF = os.path.join("postman",
 POSTMAN_COLLECTION_HTTPS_KF = os.path.join("postman",
                                            "kf_https_test_collection.json")
 
-### KFServing v2 protocol
+### KServe v2 protocol
 ARTIFACTS_INFERENCE_DIR_KFV2 = os.path.join("artifacts", "inference_kfv2")
 ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR_KFV2 = os.path.join(
     "artifacts", "increased_timeout_inference_kfv2")
@@ -215,12 +215,12 @@ def trigger_https_tests():
     return EXIT_CODE
 
 
-## KFserving tests starts here
+## KServe tests starts here
 def trigger_management_tests_kf():
     """ Return exit code of newman execution of management collection """
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kfserving")
+    config_file.write("service_envelope=kserve")
     config_file.close()
 
     ts.start_torchserve(ncs=True,
@@ -241,7 +241,7 @@ def trigger_inference_tests_kf():
     """ Return exit code of newman execution of inference collection """
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kfserving")
+    config_file.write("service_envelope=kserve")
     config_file.close()
 
     ts.start_torchserve(ncs=True,
@@ -277,7 +277,7 @@ def trigger_inference_tests_kfv2():
     """ Return exit code of newman execution of inference collection """
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kfservingv2")
+    config_file.write("service_envelope=kservev2")
     config_file.close()
 
     ts.start_torchserve(ncs=True,

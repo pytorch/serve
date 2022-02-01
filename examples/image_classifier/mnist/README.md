@@ -99,8 +99,8 @@ in the initialize function for the captum to work.(It is initialized in the base
 
 4. If the custom handler overrides handle function of base handler, the explain_handle function should be called to get captum insights.
 
-### Running KFServing
+### Running KServe
 
-Refer the [MNIST Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/mnist_readme.md) to run it locally.
+Refer the [MNIST Readme for KServe](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/kserve_wrapper/README.md) to run it locally.
 
-Refer the [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
+Refer the [End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md) to run it in the cluster.
