@@ -14,6 +14,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,6 +201,10 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
+            // Dont batch describe request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                return;
+            }
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {
                 j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
@@ -207,6 +212,12 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
+                // Dont batch describe request job
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    // Add the job back into the jobsQueue
+                    jobsQueue.addFirst(j);
+                    break;
+                }
                 maxDelay -= end - begin;
                 begin = end;
                 jobsRepo.put(j.getJobId(), j);

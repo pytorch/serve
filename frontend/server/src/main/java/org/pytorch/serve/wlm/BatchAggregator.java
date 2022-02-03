@@ -4,11 +4,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
+import org.pytorch.serve.util.messages.ModelDescribeRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,9 @@ public class BatchAggregator {
                     throw new IllegalStateException(
                             "Received more than 1 control command. "
                                     + "Control messages should be processed/retrieved one at a time.");
+                }
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    return new ModelDescribeRequest(model.getModelName());
                 }
                 RequestInput input = j.getPayload();
                 int gpuId = -1;
@@ -97,6 +102,9 @@ public class BatchAggregator {
         if (message instanceof ModelLoadModelRequest) {
             logger.warn("Load model failed: {}, error: {}", message.getModelName(), error);
             return;
+        } else if (message instanceof ModelDescribeRequest) {
+            Job job = jobs.get(jobId);
+
         }
 
         if (message != null) {

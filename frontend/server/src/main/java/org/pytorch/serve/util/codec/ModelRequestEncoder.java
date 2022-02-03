@@ -68,6 +68,8 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
                 encodeRequest(input, out);
             }
             out.writeInt(-1); // End of List
+        } else {
+            out.writeByte('D');
         }
     }
 
