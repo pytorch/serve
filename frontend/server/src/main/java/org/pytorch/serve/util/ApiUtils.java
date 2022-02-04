@@ -415,4 +415,11 @@ public final class ApiUtils {
                 "\" has no worker to serve inference request. Please use scale workers API to add workers.";
         return responseMessage;
     }
+    public static String getDescribeErrorResponseMessage(String modelName) {
+        String responseMessage = "Model \"" + modelName;
+
+        responseMessage +=
+                "\" has no worker to serve describe request. Please use scale workers API to add workers.";
+        return responseMessage;
+    }
 }

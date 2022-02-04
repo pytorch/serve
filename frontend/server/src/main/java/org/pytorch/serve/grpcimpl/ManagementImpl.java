@@ -2,6 +2,8 @@ package org.pytorch.serve.grpcimpl;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
@@ -18,27 +20,54 @@ import org.pytorch.serve.grpc.management.UnregisterModelRequest;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.job.GRPCJob;
+import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.JsonUtils;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
+import org.pytorch.serve.wlm.ModelManager;
 
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
 
     @Override
     public void describeModel(
             DescribeModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
-
+        String requestId = UUID.randomUUID().toString();
+        RequestInput input = new RequestInput(requestId);
         String modelName = request.getModelName();
         String modelVersion = request.getModelVersion();
 
-        String resp;
-        try {
-            resp =
-                    JsonUtils.GSON_PRETTY.toJson(
-                            ApiUtils.getModelDescription(modelName, modelVersion));
-            sendResponse(responseObserver, resp);
-        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-            sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
+        if (modelVersion.equals("all")) {
+            String resp;
+            try {
+                resp =
+                        JsonUtils.GSON_PRETTY.toJson(
+                                ApiUtils.getModelDescription(modelName, modelVersion));
+                sendResponse(responseObserver, resp);
+            } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+                sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
+            }
+        } else {
+            Job job =
+                    new GRPCJob(
+                            responseObserver,
+                            modelName,
+                            modelVersion,
+                            input);
+
+            try {
+                if (!ModelManager.getInstance().addJob(job)) {
+                    String responseMessage =
+                            ApiUtils.getDescribeErrorResponseMessage(modelName);
+                    InternalServerException e = new InternalServerException(responseMessage);
+                    sendException(
+                            responseObserver, e, "InternalServerException.()");
+                }
+            } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+                sendErrorResponse(responseObserver, Status.INTERNAL, e);
+            }
         }
     }
 
@@ -161,7 +190,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                         .asRuntimeException());
     }
 
-    private void sendErrorResponse(
+    public static void sendErrorResponse(
             StreamObserver<ManagementResponse> responseObserver, Status status, Exception e) {
         responseObserver.onError(
                 status.withDescription(e.getMessage())

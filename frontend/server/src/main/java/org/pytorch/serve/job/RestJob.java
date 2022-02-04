@@ -47,6 +47,11 @@ public class RestJob extends Job {
             int statusCode,
             String statusPhrase,
             Map<String, String> responseHeaders) {
+        /*
+        ArrayList<DescribeModelResponse> resp =
+                ApiUtils.getModelDescription(modelName, modelVersion);
+        NettyUtils.sendJsonResponse(ctx, resp);
+        */
         long inferTime = System.nanoTime() - getBegin();
         HttpResponseStatus status =
                 (statusPhrase == null)
@@ -113,10 +118,12 @@ public class RestJob extends Job {
             responsePromise.completeExceptionally(new InternalServerException(error));
         }
 
-        logger.debug(
-                "Waiting time ns: {}, Inference time ns: {}",
-                getScheduled() - getBegin(),
-                System.nanoTime() - getBegin());
+        if (this.getCmd() == WorkerCommands.PREDICT) {
+            logger.debug(
+                    "Waiting time ns: {}, Inference time ns: {}",
+                    getScheduled() - getBegin(),
+                    System.nanoTime() - getBegin());
+        }
     }
 
     public CompletableFuture<byte[]> getResponsePromise() {
