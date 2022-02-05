@@ -37,6 +37,7 @@ TMP_DIR = default_ab_params['report_location']
 execution_params = default_ab_params.copy()
 result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
 metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
+warm_up_lines = None
 
 
 def json_provider(file_path, cmd_name):
@@ -135,6 +136,9 @@ def warm_up():
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
     execute(ab_cmd, wait=True)
+
+    global warm_up_lines
+    warm_up_lines = sum(1 for _ in open(metric_log))
 
 
 def run_benchmark():
@@ -290,6 +294,10 @@ metrics = {"predict.txt": "PredictionTime",
 def extract_metrics():
     with open(metric_log) as f:
         lines = f.readlines()
+
+    if warm_up_lines:
+        click.secho(f'Dropping {warm_up_lines} warmup lines from log', fg='green')
+        lines = lines[warm_up_lines:]
 
     for k, v in metrics.items():
         all_lines = []
