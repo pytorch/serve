@@ -19,6 +19,7 @@ from invoke import run, sudo
 from invoke.context import Context
 
 from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import cloudwatch as cloudwatch_utils
 
 TMP_DIR = "/home/ubuntu"
 LOCAL_TMP_DIR = "/tmp"
@@ -34,6 +35,8 @@ class ApacheBenchHandler(object):
         self.ts_metric_log_file = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
         self.inference_url = "http://127.0.0.1:8080"
         self.install_dependencies()
+
+        self.cloudwatchMetricsHandler = cloudwatch_utils.CloudWatchMetricsHandler()
 
         self.metrics = {
             "predict.txt": "PredictionTime",
@@ -178,6 +181,12 @@ class ApacheBenchHandler(object):
 
         return artifacts
 
+    def push_benchmark_metrics(self, artifacts):
+        self.cloudwatchMetricsHandler.push_benchmark_metrics(self.model_name, "Milliseconds", artifacts)
+
     def generate_report(self, requests, concurrency, connection=None):
         self.extract_metrics(connection=connection)
-        self.generate_csv_output(requests, concurrency, connection=connection)
+        artifacts = self.generate_csv_output(requests, concurrency, connection=connection)
+
+        # Push metrics to cloudwatch
+        self.push_benchmark_metrics(artifacts)
