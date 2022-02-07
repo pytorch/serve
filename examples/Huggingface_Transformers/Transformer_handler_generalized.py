@@ -27,7 +27,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
     def initialize(self, ctx):
         """In this initialize function, the BERT model is loaded and
-        the Layer Integrated Gradients Algorithmfor Captum Explanations
+        the Layer Integrated Gradients Algorithm for Captum Explanations
         is initialized here.
         Args:
             ctx (context): It is a JSON Object containing information
@@ -183,7 +183,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
             if self.setup_config["save_mode"]=="pretrained":
-                outputs = self.model(input_batch)
+                outputs = self.model(input_ids_batch,attention_mask_batch)
                 answer_start_scores = outputs.start_logits
                 answer_end_scores = outputs.end_logits
             else:

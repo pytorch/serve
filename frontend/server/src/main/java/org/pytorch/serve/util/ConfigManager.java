@@ -25,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -42,11 +43,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.AsyncAppender;
-import org.apache.log4j.Logger;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
+import org.slf4j.LoggerFactory;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -66,6 +65,12 @@ public final class ConfigManager {
     private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+
+    // IPEX config option that can be set at config.properties
+    private static final String TS_IPEX_ENABLE = "ipex_enable";
+    private static final String TS_CPU_LAUNCHER_ENABLE = "cpu_launcher_enable";
+    private static final String TS_CPU_LAUNCHER_ARGS = "cpu_launcher_args";
+
     private static final String TS_ASYNC_LOGGING = "async_logging";
     private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
     private static final String TS_CORS_ALLOWED_METHODS = "cors_allowed_methods";
@@ -78,6 +83,7 @@ public final class ConfigManager {
     private static final String TS_PRIVATE_KEY_FILE = "private_key_file";
     private static final String TS_MAX_REQUEST_SIZE = "max_request_size";
     private static final String TS_MAX_RESPONSE_SIZE = "max_response_size";
+    private static final String TS_LIMIT_MAX_IMAGE_PIXELS = "limit_max_image_pixels";
     private static final String TS_DEFAULT_SERVICE_HANDLER = "default_service_handler";
     private static final String TS_SERVICE_ENVELOPE = "service_envelope";
     private static final String TS_MODEL_SERVER_HOME = "model_server_home";
@@ -331,6 +337,14 @@ public final class ConfigManager {
 
     public boolean isMetricApiEnable() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
+    }
+
+    public boolean isCPULauncherEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_CPU_LAUNCHER_ENABLE, "false"));
+    }
+
+    public String getCPULauncherArgs() {
+        return getProperty(TS_CPU_LAUNCHER_ARGS, null);
     }
 
     public int getNettyThreads() {
@@ -604,6 +618,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_MAX_RESPONSE_SIZE, "6553500")
                 + "\nMaximum Request Size: "
                 + prop.getProperty(TS_MAX_REQUEST_SIZE, "6553500")
+                + "\nLimit Maximum Image Pixels: "
+                + prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true")
                 + "\nPrefer direct buffer: "
                 + prop.getProperty(TS_PREFER_DIRECT_BUFFER, "false")
                 + "\nAllowed Urls: "
@@ -634,6 +650,10 @@ public final class ConfigManager {
 
     public int getMaxRequestSize() {
         return getIntProperty(TS_MAX_REQUEST_SIZE, 6553500);
+    }
+
+    public boolean isLimitMaxImagePixels() {
+        return Boolean.parseBoolean(prop.getProperty(TS_LIMIT_MAX_IMAGE_PIXELS, "true"));
     }
 
     public void setProperty(String key, String value) {
@@ -670,37 +690,16 @@ public final class ConfigManager {
     }
 
     private void enableAsyncLogging() {
-        enableAsyncLogging(Logger.getRootLogger());
-        enableAsyncLogging(Logger.getLogger(MODEL_METRICS_LOGGER));
-        enableAsyncLogging(Logger.getLogger(MODEL_LOGGER));
-        enableAsyncLogging(Logger.getLogger(MODEL_SERVER_METRICS_LOGGER));
-        enableAsyncLogging(Logger.getLogger("ACCESS_LOG"));
-        enableAsyncLogging(Logger.getLogger("org.pytorch.serve"));
-    }
-
-    private void enableAsyncLogging(Logger logger) {
-        AsyncAppender asyncAppender = new AsyncAppender();
-
-        @SuppressWarnings("unchecked")
-        Enumeration<Appender> en = logger.getAllAppenders();
-        while (en.hasMoreElements()) {
-            Appender appender = en.nextElement();
-            if (appender instanceof AsyncAppender) {
-                // already async
-                return;
-            }
-
-            logger.removeAppender(appender);
-            asyncAppender.addAppender(appender);
-        }
-        logger.addAppender(asyncAppender);
+        System.setProperty(
+                "log4j2.contextSelector",
+                "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
     }
 
     public HashMap<String, String> getBackendConfiguration() {
         HashMap<String, String> config = new HashMap<>();
         // Append properties used by backend worker here
         config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
-
+        config.put("TS_IPEX_ENABLE", prop.getProperty(TS_IPEX_ENABLE, "false"));
         return config;
     }
 
@@ -721,17 +720,31 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
-            Process process =
-                    Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-            int ret = process.waitFor();
-            if (ret != 0) {
-                return 0;
+            List<Integer> gpuIds = new ArrayList<>();
+            String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
+            if (visibleCuda != null && !visibleCuda.isEmpty()) {
+                String[] ids = visibleCuda.split(",");
+                for (String id : ids) {
+                    gpuIds.add(Integer.parseInt(id));
+                }
+            } else {
+                Process process =
+                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+                List<String> list =
+                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                if (list.isEmpty() || !"index".equals(list.get(0))) {
+                    throw new AssertionError("Unexpected nvidia-smi response.");
+                }
+                for (int i = 1; i < list.size(); i++) {
+                    gpuIds.add(Integer.parseInt(list.get(i)));
+                }
             }
-            List<String> list = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-            if (list.isEmpty() || !"index".equals(list.get(0))) {
-                throw new AssertionError("Unexpected nvidia-smi response.");
-            }
-            return list.size() - 1;
+
+            return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }
@@ -800,14 +813,12 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
-                    Logger.getRootLogger()
+                    LoggerFactory.getLogger(ConfigManager.class)
                             .error(
-                                    "Invalid value for model: "
-                                            + modelName
-                                            + ":"
-                                            + version
-                                            + ", parameter: "
-                                            + element);
+                                    "Invalid value for model: {}:{}, parameter: {}",
+                                    modelName,
+                                    version,
+                                    element);
                     return defaultVal;
                 }
             }

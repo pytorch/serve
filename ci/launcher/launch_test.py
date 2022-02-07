@@ -48,9 +48,13 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
                     command,
                     echo=True,
                     warn=True,
-                    pty=True,
                     shell="/bin/bash",
-                    env={"LC_CTYPE": "en_US.utf8", "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64"},
+                    env={
+                        "LC_CTYPE": "en_US.utf8",
+                        "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
+                        "PYTHONIOENCODING": "utf8",
+                    },
+                    encoding="utf8",
                 )
 
                 if ret_obj.return_code != 0:
@@ -72,9 +76,11 @@ def launch_ec2_instance(region, instance_type, ami_id):
     """
     github_repo = os.environ.get("CODEBUILD_SOURCE_REPO_URL", "https://github.com/pytorch/serve.git").strip()
     github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
-    github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "local-start").strip()
+    github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "job-local").strip()
     github_hookshot = github_hookshot.replace("/", "-")
-    github_pull_request_number = github_hookshot.split("-")[1]
+
+    # Extract the PR number or use the last 6 characters of the commit id
+    github_pull_request_number = github_hookshot.split("-")[1] if "-" in github_hookshot else github_hookshot[-6:]
 
     ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=region)
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
@@ -103,19 +109,24 @@ def launch_ec2_instance(region, instance_type, ami_id):
 
         # Create a fabric connection to the ec2 instance.
         ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
-        
+
+        # Wait for a few minutes before running any command since ubuntu runs background updates.
+        time.sleep(300)
+
         LOGGER.info(f"Running update command. This could take a while.")
         ec2_connection.run(f"sudo apt update")
 
-        # Update command takes a while to run, and should ideally run uninterrupted
         time.sleep(300)
 
         with ec2_connection.cd("/home/ubuntu"):
             LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
             ec2_connection.run(f"git clone {github_repo}")
-            ec2_connection.run(
-                f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
-            )
+            if "pr" in github_hookshot:
+                ec2_connection.run(
+                    f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
+                )
+            else:
+                ec2_connection.run(f"cd serve && git fetch origin {github_pull_request_number}")
 
             ec2_connection.run(f"sudo apt-get install -y python3-venv")
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
@@ -170,7 +181,7 @@ def main():
 
     parser.add_argument(
         "--ami-id",
-        default="ami-032e40ca6b0973cf2",
+        default="ami-0e6d6921c639b58c3",
         help="Specify an Ubuntu Base DLAMI only. This AMI type ships with nvidia drivers already setup. Using other AMIs might"
         "need non-trivial installations on the AMI. AMI-ids differ per aws region.",
     )

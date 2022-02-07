@@ -156,7 +156,7 @@ def test_async_logging():
     async_config_file = test_utils.ROOT_DIR + 'async-log-config.properties'
     with open(async_config_file, "w+") as f:
         f.write("async_logging=true")
-        f.write("service_envelope=kfserving")
+        f.write("service_envelope=kserve")
     test_utils.start_torchserve(snapshot_file=async_config_file)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
@@ -173,7 +173,7 @@ def test_async_logging_non_boolean():
     async_config_file = test_utils.ROOT_DIR + 'async-log-config.properties'
     with open(async_config_file, "w+") as f:
         f.write("async_logging=2")
-        f.write("service_envelope=kfserving")
+        f.write("service_envelope=kserve")
     test_utils.start_torchserve(snapshot_file=async_config_file)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1

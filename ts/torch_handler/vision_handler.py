@@ -20,6 +20,9 @@ class VisionHandler(BaseHandler, ABC):
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)
         self.initialized = True
+        properties = context.system_properties
+        if not properties.get("limit_max_image_pixels"):
+            Image.MAX_IMAGE_PIXELS = None
 
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor

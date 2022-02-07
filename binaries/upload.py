@@ -46,7 +46,7 @@ def upload_conda_packages():
     """
 
     # Identify *.tar.bz2 files to upload
-    anaconda_token = os.environ[CONDA_TOKEN_ENV_VARIABLE]
+    anaconda_token = os.getenv(CONDA_TOKEN_ENV_VARIABLE)
 
     for root, _, files in os.walk(CONDA_PACKAGES_PATH):
         for name in files:
@@ -55,6 +55,7 @@ def upload_conda_packages():
             if any(word in file_path for word in PACKAGES) and file_path.endswith("tar.bz2"):
                 print(f"Uploading to anaconda package: {name}")
                 anaconda_upload_command = f"anaconda -t {anaconda_token} upload --user {CONDA_USER} {file_path} --force"
+                print(f"cmd={anaconda_upload_command}")
 
                 exit_code = os.system(anaconda_upload_command)
 

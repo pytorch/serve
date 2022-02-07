@@ -63,7 +63,7 @@ def start():
                 print("--log-config file not found: {}".format(log_config))
                 sys.exit(1)
 
-            cmd.append("-Dlog4j.configuration=file://{}".format(log_config))
+            cmd.append("-Dlog4j.configurationFile=file://{}".format(log_config))
 
         tmp_dir = os.environ.get("TEMP")
         if tmp_dir:
@@ -73,7 +73,9 @@ def start():
 
             cmd.append("-Djava.io.tmpdir={}".format(tmp_dir))
 
-        ts_config = args.ts_config
+        ts_config = os.environ.get("TS_CONFIG_FILE")
+        if ts_config is None:
+            ts_config = args.ts_config
         ts_conf_file = None
         if ts_config:
             if not os.path.isfile(ts_config):
@@ -92,7 +94,7 @@ def start():
                 arg_list = vm_args.split()
                 if args.log_config:
                     for word in arg_list[:]:
-                        if word.startswith("-Dlog4j.configuration="):
+                        if word.startswith("-Dlog4j.configurationFile="):
                             arg_list.remove(word)
                 cmd.extend(arg_list)
             plugins = props.get("plugins_path", None)
