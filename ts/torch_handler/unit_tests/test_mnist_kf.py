@@ -10,7 +10,7 @@ import io
 import pytest
 from PIL import Image
 import torchvision.transforms as transforms
-from ts.torch_handler.request_envelope.kfserving import KFservingEnvelope
+from ts.torch_handler.request_envelope.kserve import KServeEnvelope
 from examples.image_classifier.mnist.mnist_handler import MNISTDigitClassifier as MNISTClassifier
 from .test_utils.mock_context import MockContext
 
@@ -48,7 +48,7 @@ def test_initialize_kf(model_setup):
     model_context, _ = model_setup
     handler = MNISTClassifier()
     handler.initialize(model_context)
-    envelope = KFservingEnvelope(handler.handle)
+    envelope = KServeEnvelope(handler.handle)
     assert(True)
     return envelope
 

@@ -32,7 +32,7 @@ Customize TorchServe behavior by using the following command line arguments when
 * **--ts-config** TorchServe loads the specified configuration file if `TS_CONFIG_FILE` environment variable is not set
 * **--model-store** Overrides the `model_store` property in config.properties file
 * **--models** Overrides the `load_models` property in config.properties
-* **--log-config** Overrides the default log4j.properties
+* **--log-config** Overrides the default log4j2.xml
 * **--foreground** Runs TorchServe in the foreground. If this option is
                         disabled, TorchServe runs in the background
 

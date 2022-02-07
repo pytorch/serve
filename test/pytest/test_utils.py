@@ -93,3 +93,32 @@ def crate_mar_file_table():
         for item in env['values']:
             if item['key'].startswith('mar_path_'):
                 mar_file_table[item['key']] = item['value']
+
+
+def model_archiver_command_builder(model_name=None, version=None, model_file=None, serialized_file=None, handler=None, extra_files=None, force=False):
+    cmd = "torch-model-archiver"
+
+    if model_name:
+        cmd += " --model-name {0}".format(model_name)
+
+    if version:
+        cmd += " --version {0}".format(version)
+
+    if model_file:
+        cmd += " --model-file {0}".format(model_file)
+
+    if serialized_file:
+        cmd += " --serialized-file {0}".format(serialized_file)
+
+    if handler:
+        cmd += " --handler {0}".format(handler)
+
+    if extra_files:
+        cmd += " --extra-files {0}".format(extra_files)
+
+    if force:
+        cmd += " --force"
+
+    cmd += " --export-path {0}".format(MODEL_STORE)
+
+    return cmd
