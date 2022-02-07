@@ -83,12 +83,20 @@ def get_system_state(instance_id, region=DEFAULT_REGION):
     client = boto3.Session(region_name=region).client("ec2")
     response = client.describe_instance_status(InstanceIds=[instance_id])
     if not response:
-        raise Exception("Unable to launch the instance. Did not return any reservations object")
+        raise Exception(
+            "Unable to launch the instance. Did not return any reservations object"
+        )
     instance_status_list = response["InstanceStatuses"]
     if not instance_status_list:
-        raise Exception("Unable to launch the instance. Did not return any reservations object")
+        raise Exception(
+            "Unable to launch the instance. Did not return any reservations object"
+        )
     if len(instance_status_list) < 1:
-        raise Exception("The instance id seems to be incorrect {}. Reservations seems to be empty".format(instance_id))
+        raise Exception(
+            "The instance id seems to be incorrect {}. Reservations seems to be empty".format(
+                instance_id
+            )
+        )
 
     instance_status = instance_status_list[0]
     return (
@@ -98,7 +106,9 @@ def get_system_state(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=96, wait_fixed=10000)
-def check_system_state(instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION):
+def check_system_state(
+    instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION
+):
     """
     Compares the system state (Health Checks).
     Retries 96 times with 10 seconds gap between retries

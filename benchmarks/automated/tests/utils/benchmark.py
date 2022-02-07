@@ -16,7 +16,13 @@ from urllib.parse import urlparse
 from invoke import run
 from invoke.context import Context
 
-from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import (
+    DEFAULT_REGION,
+    IAM_INSTANCE_PROFILE,
+    AMI_ID,
+    LOGGER,
+    S3_BUCKET_BENCHMARK_ARTIFACTS,
+)
 
 from . import apache_bench as ab_utils
 from . import ts as ts_utils
@@ -24,16 +30,23 @@ from . import neuron as neuron_utils
 
 
 class BenchmarkHandler:
-    def __init__(self, model_name, benchmark_execution_id, connection=None, is_local_execution=False, benchmark_type="docker"):
+    def __init__(
+        self,
+        model_name,
+        benchmark_execution_id,
+        connection=None,
+        is_local_execution=False,
+        benchmark_type="docker",
+    ):
         """
         :param model_name: Name of the model to be benchmarked
-        :param benchmark_execution_id: execution id that is shared across all the tests running 
+        :param benchmark_execution_id: execution id that is shared across all the tests running
                                         in the current suite
         :param connection: fabric/invoke connection for local or remote execution
         :param is_local_execution: boolean that specifies if the benchmark suite is already running on the
                                     instance against which it should benchmark
         :param benchmark_type: this specifies if torchserve should be setup and used in 'virtual_env', supplied 'docker'
-                                image, or if a 'workflow' is being benchmarked. Note: 
+                                image, or if a 'workflow' is being benchmarked. Note:
         """
         self.model_name = model_name
         self.benchmark_execution_id = benchmark_execution_id
@@ -71,8 +84,12 @@ class BenchmarkHandler:
         else:
             ec2_instance_type = ec2_instance_type
 
-        ec2_instance_type = "local_execution" if self.is_local_execution else ec2_instance_type
-        apacheBenchHandler = ab_utils.ApacheBenchHandler(model_name=self.model_name, connection=self.connection)
+        ec2_instance_type = (
+            "local_execution" if self.is_local_execution else ec2_instance_type
+        )
+        apacheBenchHandler = ab_utils.ApacheBenchHandler(
+            model_name=self.model_name, connection=self.connection
+        )
 
         for model, config in test_config.items():
             if model == "instance_types":
@@ -127,12 +144,16 @@ class BenchmarkHandler:
                         LOGGER.info(f"Running benchmark for model archive: {url}")
 
                     # Stop torchserve
-                    torchserveHandler.stop_torchserve(exec_env=exec_env, virtual_env_name=exec_env)
+                    torchserveHandler.stop_torchserve(
+                        exec_env=exec_env, virtual_env_name=exec_env
+                    )
 
                     # Generate bert inf model
                     if "neuron" in exec_env:
                         neuron_utils.setup_neuron_mar_files(
-                            connection=self.connection, virtual_env_name=exec_env, batch_size=batch_size
+                            connection=self.connection,
+                            virtual_env_name=exec_env,
+                            batch_size=batch_size,
                         )
 
                     # Start torchserve
@@ -146,36 +167,55 @@ class BenchmarkHandler:
 
                     # Register
                     torchserveHandler.register_model(
-                        url=url, workers=workers, batch_delay=batch_delay, batch_size=batch_size
+                        url=url,
+                        workers=workers,
+                        batch_delay=batch_delay,
+                        batch_size=batch_size,
                     )
 
                     # Run benchmark
                     apacheBenchHandler.run_apache_bench(
-                        requests=requests, concurrency=concurrency, input_file=input_file
+                        requests=requests,
+                        concurrency=concurrency,
+                        input_file=input_file,
                     )
 
                     # Unregister
                     torchserveHandler.unregister_model()
 
-
                     # Stop torchserve
                     if exec_env == "docker":
-                        torchserveHandler.stop_recording_docker_stats(model_name=self.model_name, num_workers=workers, batch_size=batch_size)
+                        torchserveHandler.stop_recording_docker_stats(
+                            model_name=self.model_name,
+                            num_workers=workers,
+                            batch_size=batch_size,
+                        )
                         torchserveHandler.stop_torchserve()
-                        torchserveHandler.plot_stats_graph(model_name=self.model_name, mode_name = mode,num_workers=workers, batch_size=batch_size)
+                        torchserveHandler.plot_stats_graph(
+                            model_name=self.model_name,
+                            mode_name=mode,
+                            num_workers=workers,
+                            batch_size=batch_size,
+                        )
                     else:
-                        torchserveHandler.stop_torchserve(exec_env="local", virtual_env_name=exec_env)
+                        torchserveHandler.stop_torchserve(
+                            exec_env="local", virtual_env_name=exec_env
+                        )
 
                     # Generate report (note: needs to happen after torchserve has stopped)
                     apacheBenchHandler.generate_report(
-                        requests=requests, concurrency=concurrency, connection=self.connection
+                        requests=requests,
+                        concurrency=concurrency,
+                        connection=self.connection,
                     )
 
                     # Move artifacts into a common folder.
                     remote_artifact_folder = f"/home/ubuntu/{self.benchmark_execution_id}/{self.model_name}/{ec2_instance_type}/{mode}/{batch_size}"
 
                     self.connection.run(f"mkdir -p {remote_artifact_folder}")
-                    self.connection.run(f"cp -R /home/ubuntu/benchmark/* {remote_artifact_folder}")
+                    self.connection.run(
+                        f"cp -R /home/ubuntu/benchmark/* {remote_artifact_folder}"
+                    )
 
                     # Upload artifacts to s3 bucket
                     self.connection.run(

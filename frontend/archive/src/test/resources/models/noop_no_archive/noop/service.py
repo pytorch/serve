@@ -1,5 +1,3 @@
-
-
 """
 NoopService defines a no operational model handler.
 """
@@ -84,13 +82,21 @@ class NoopService(object):
 
             context.set_response_content_type(0, "text/plain")
 
-            content_type = context.request_processor[0].get_request_property("Content-Type")
+            content_type = context.request_processor[0].get_request_property(
+                "Content-Type"
+            )
             logging.debug("content_type: {}".format(content_type))
 
             metrics = context.metrics
-            metrics.add_time("PreprocessTime", round((inference_start - preprocess_start) * 1000, 2))
-            metrics.add_time("InferenceTime", round((postprocess_start - inference_start) * 1000, 2))
-            metrics.add_time("PostprocessTime", round((end_time - postprocess_start) * 1000, 2))
+            metrics.add_time(
+                "PreprocessTime", round((inference_start - preprocess_start) * 1000, 2)
+            )
+            metrics.add_time(
+                "InferenceTime", round((postprocess_start - inference_start) * 1000, 2)
+            )
+            metrics.add_time(
+                "PostprocessTime", round((end_time - postprocess_start) * 1000, 2)
+            )
             return data
         except Exception as e:
             logging.error(e, exc_info=True)

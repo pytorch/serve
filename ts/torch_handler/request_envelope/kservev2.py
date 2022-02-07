@@ -87,7 +87,9 @@ class KServev2Envelope(BaseEnvelope):
         Joins the instances of a batch of JSON objects
         """
         logger.debug("Parse input data %s", rows)
-        body_list = [body_list.get("data") or body_list.get("body") for body_list in rows]
+        body_list = [
+            body_list.get("data") or body_list.get("body") for body_list in rows
+        ]
         data_list = self._from_json(body_list)
         return data_list
 
@@ -131,10 +133,10 @@ class KServev2Envelope(BaseEnvelope):
             delattr(self.context, "input_request_id")
         else:
             response["id"] = self.context.get_request_id(0)
-        response["model_name"] = self.context.manifest.get("model").get(
-            "modelName")
+        response["model_name"] = self.context.manifest.get("model").get("modelName")
         response["model_version"] = self.context.manifest.get("model").get(
-            "modelVersion")
+            "modelVersion"
+        )
         response["outputs"] = self._batch_to_json(data)
         return [response]
 
@@ -153,8 +155,11 @@ class KServev2Envelope(BaseEnvelope):
         """
         output_data = {}
         data_ndarray = np.array(data)
-        output_data["name"] = ("explain" if self.context.get_request_header(
-            0, "explain") == "True" else "predict")
+        output_data["name"] = (
+            "explain"
+            if self.context.get_request_header(0, "explain") == "True"
+            else "predict"
+        )
         output_data["shape"] = list(data_ndarray.shape)
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
         output_data["data"] = data_ndarray.flatten().tolist()

@@ -13,8 +13,8 @@ class MNISTDigitClassifier(ImageClassifier):
     """
 
     image_processing = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.1307,), (0.3081,))])
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+    )
 
     def preprocess(self, data):
         """
@@ -28,8 +28,8 @@ class MNISTDigitClassifier(ImageClassifier):
             tensor: Returns the tensor data of the input
         """
         metrics = self.context.metrics
-        input = data[0].get('body')
-        metrics.add_size('SizeOfImage', len(input) / 1024, None, 'kB')
+        input = data[0].get("body")
+        metrics.add_size("SizeOfImage", len(input) / 1024, None, "kB")
         return ImageClassifier.preprocess(self, data)
 
     def postprocess(self, data):

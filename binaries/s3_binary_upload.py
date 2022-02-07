@@ -18,7 +18,9 @@ WA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver", "dist"))[
 
 
 class S3BinaryUploader:
-    def __init__(self, s3_bucket: str, is_dryrun: bool = False, is_nightly: bool = False):
+    def __init__(
+        self, s3_bucket: str, is_dryrun: bool = False, is_nightly: bool = False
+    ):
         """
         Initialize the uploader with s3_bucket, and s3_backup_bucket
         """
@@ -42,7 +44,11 @@ class S3BinaryUploader:
 
         try:
             ret_code = subprocess.run(
-                s3_command, check=True, stdout=subprocess.PIPE, universal_newlines=True, shell=True
+                s3_command,
+                check=True,
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
+                shell=True,
             )
         except subprocess.CalledProcessError as e:
             LOGGER.info(f"S3 upload command failed: {s3_command}. Exception: {e}")
@@ -52,16 +58,20 @@ class S3BinaryUploader:
     def s3_upload_default_binaries(self):
         """
         Uploads the *.whl files provided in the standard directory structure of the pytorch 'serve' directory,
-        assuming that the *.whl files are available in the 'dist' folder of the 
+        assuming that the *.whl files are available in the 'dist' folder of the
         """
         for local_folder_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
             self.s3_upload_local_folder(local_folder_path)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="argument parser for s3_binary_upload.py")
+    parser = argparse.ArgumentParser(
+        description="argument parser for s3_binary_upload.py"
+    )
     parser.add_argument(
-        "--s3-bucket", required=True, help="Specify the s3 bucket to which the binaries will be uploaded"
+        "--s3-bucket",
+        required=True,
+        help="Specify the s3 bucket to which the binaries will be uploaded",
     )
     parser.add_argument(
         "--dry-run",
@@ -94,4 +104,3 @@ if __name__ == "__main__":
         s3BinaryUploader.s3_upload_default_binaries()
 
     args = parser.parse_args()
-

@@ -40,7 +40,9 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
     with ec2_connection.cd(f"/home/ubuntu/serve"):
         ec2_connection.run(f"python3 -m venv {virtual_env_name}")
         with ec2_connection.prefix(f"source {virtual_env_name}/bin/activate"):
-            commands_list = GPU_INSTANCE_COMMANDS_LIST if is_gpu else CPU_INSTANCE_COMMANDS_LIST
+            commands_list = (
+                GPU_INSTANCE_COMMANDS_LIST if is_gpu else CPU_INSTANCE_COMMANDS_LIST
+            )
 
             for command in commands_list:
                 LOGGER.info(f"*** Executing command on ec2 instance: {command}")
@@ -74,15 +76,25 @@ def launch_ec2_instance(region, instance_type, ami_id):
     Spins up an ec2 instance, clones the current Github Pull Request commit id on the instance, and runs sanity test on it.
     Prints the output of the command executed.
     """
-    github_repo = os.environ.get("CODEBUILD_SOURCE_REPO_URL", "https://github.com/pytorch/serve.git").strip()
-    github_pr_commit_id = os.environ.get("CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD").strip()
+    github_repo = os.environ.get(
+        "CODEBUILD_SOURCE_REPO_URL", "https://github.com/pytorch/serve.git"
+    ).strip()
+    github_pr_commit_id = os.environ.get(
+        "CODEBUILD_RESOLVED_SOURCE_VERSION", "HEAD"
+    ).strip()
     github_hookshot = os.environ.get("CODEBUILD_SOURCE_VERSION", "job-local").strip()
     github_hookshot = github_hookshot.replace("/", "-")
 
     # Extract the PR number or use the last 6 characters of the commit id
-    github_pull_request_number = github_hookshot.split("-")[1] if "-" in github_hookshot else github_hookshot[-6:]
+    github_pull_request_number = (
+        github_hookshot.split("-")[1]
+        if "-" in github_hookshot
+        else github_hookshot[-6:]
+    )
 
-    ec2_client = boto3.client("ec2", config=Config(retries={"max_attempts": 10}), region_name=region)
+    ec2_client = boto3.client(
+        "ec2", config=Config(retries={"max_attempts": 10}), region_name=region
+    )
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
     ec2_key_name = f"{github_hookshot}-ec2-instance-{random.randint(1, 1000)}"
 
@@ -104,11 +116,15 @@ def launch_ec2_instance(region, instance_type, ami_id):
 
         LOGGER.info(f"*** Waiting on instance checks to complete...")
         ec2_utils.check_instance_state(instance_id, state="running", region=region)
-        ec2_utils.check_system_state(instance_id, system_status="ok", instance_status="ok", region=region)
+        ec2_utils.check_system_state(
+            instance_id, system_status="ok", instance_status="ok", region=region
+        )
         LOGGER.info(f"*** Instance checks complete. Running commands on instance.")
 
         # Create a fabric connection to the ec2 instance.
-        ec2_connection = ec2_utils.get_ec2_fabric_connection(instance_id, key_file, region)
+        ec2_connection = ec2_utils.get_ec2_fabric_connection(
+            instance_id, key_file, region
+        )
 
         # Wait for a few minutes before running any command since ubuntu runs background updates.
         time.sleep(300)
@@ -119,23 +135,29 @@ def launch_ec2_instance(region, instance_type, ami_id):
         time.sleep(300)
 
         with ec2_connection.cd("/home/ubuntu"):
-            LOGGER.info(f"*** Cloning the PR related to {github_hookshot} on the ec2 instance.")
+            LOGGER.info(
+                f"*** Cloning the PR related to {github_hookshot} on the ec2 instance."
+            )
             ec2_connection.run(f"git clone {github_repo}")
             if "pr" in github_hookshot:
                 ec2_connection.run(
                     f"cd serve && git fetch origin pull/{github_pull_request_number}/head:pull && git checkout pull"
                 )
             else:
-                ec2_connection.run(f"cd serve && git fetch origin {github_pull_request_number}")
+                ec2_connection.run(
+                    f"cd serve && git fetch origin {github_pull_request_number}"
+                )
 
             ec2_connection.run(f"sudo apt-get install -y python3-venv")
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
             # This will NOT fail for other AMI where default python is python3
             ec2_connection.run(
-                f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip", warn=True
+                f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip",
+                warn=True,
             )
             ec2_connection.run(
-                f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1", warn=True
+                f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1",
+                warn=True,
             )
 
         is_gpu = True if instance_type[:2] in GPU_INSTANCES else False
@@ -143,9 +165,13 @@ def launch_ec2_instance(region, instance_type, ami_id):
         command_return_value_map = run_commands_on_ec2_instance(ec2_connection, is_gpu)
 
         if any(command_return_value_map.values()):
-            raise ValueError(f"*** One of the commands executed on ec2 returned a non-zero value.")
+            raise ValueError(
+                f"*** One of the commands executed on ec2 returned a non-zero value."
+            )
         else:
-            LOGGER.info(f"*** All commands executed successfully on ec2. command:return_value map is as follows:")
+            LOGGER.info(
+                f"*** All commands executed successfully on ec2. command:return_value map is as follows:"
+            )
             LOGGER.info(command_return_value_map)
 
     except ValueError as e:
@@ -157,7 +183,9 @@ def launch_ec2_instance(region, instance_type, ami_id):
         LOGGER.error(f"*** Exception occured. {e}")
         raise e
     finally:
-        LOGGER.warning(f"*** Terminating instance-id: {instance_id} with name: {ec2_key_name}")
+        LOGGER.warning(
+            f"*** Terminating instance-id: {instance_id} with name: {ec2_key_name}"
+        )
         ec2_utils.terminate_instance(instance_id, region)
         LOGGER.warning(f"*** Destroying ssh key_pair: {ec2_key_name}")
         ec2_utils.destroy_ssh_keypair(ec2_client, ec2_key_name)

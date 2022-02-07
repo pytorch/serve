@@ -12,7 +12,7 @@ from botocore.exceptions import ClientError
 from invoke import run
 from invoke.context import Context
 
-from . import DEFAULT_REGION, LOGGER 
+from . import DEFAULT_REGION, LOGGER
 
 EC2_INSTANCE_ROLE_NAME = "ec2InstanceCIRole"
 
@@ -99,20 +99,24 @@ def launch_instance(
     if iam_instance_profile_name:
         arguments_dict["IamInstanceProfile"] = {"Name": iam_instance_profile_name}
 
-    LOGGER.info(f"Launching instance with name: {instance_name}, and key: {ec2_key_name}")
+    LOGGER.info(
+        f"Launching instance with name: {instance_name}, and key: {ec2_key_name}"
+    )
 
     response = client.run_instances(**arguments_dict)
 
     if not response or len(response["Instances"]) < 1:
         raise Exception("Unable to launch the instance. Did not return any response")
-    
+
     LOGGER.info(f"Instance launched successfully.")
 
     return response["Instances"][0]
 
 
 def get_ec2_client(region):
-    return boto3.client("ec2", region_name=region, config=Config(retries={"max_attempts": 10}))
+    return boto3.client(
+        "ec2", region_name=region, config=Config(retries={"max_attempts": 10})
+    )
 
 
 def get_instance_from_id(instance_id, region=DEFAULT_REGION):
@@ -157,7 +161,9 @@ def get_public_ip_from_private_dns(private_dns, region=DEFAULT_REGION):
     :return: <str> IP Address of instance with matching private DNS
     """
     client = boto3.Session(region_name=region).client("ec2")
-    response = client.describe_instances(Filters={"Name": "private-dns-name", "Value": [private_dns]})
+    response = client.describe_instances(
+        Filters={"Name": "private-dns-name", "Value": [private_dns]}
+    )
     return response.get("Reservations")[0].get("Instances")[0].get("PublicIpAddress")
 
 
@@ -240,7 +246,9 @@ def get_system_state(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=96, wait_fixed=10000)
-def check_system_state(instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION):
+def check_system_state(
+    instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION
+):
     """
     Compares the system state (Health Checks).
     Retries 96 times with 10 seconds gap between retries
@@ -335,5 +343,7 @@ def get_ec2_fabric_connection(instance_id, instance_pem_file, region):
 
 def get_ec2_instance_tags(instance_id, region=DEFAULT_REGION, ec2_client=None):
     ec2_client = ec2_client or get_ec2_client(region)
-    response = ec2_client.describe_tags(Filters=[{"Name": "resource-id", "Values": [instance_id]}])
+    response = ec2_client.describe_tags(
+        Filters=[{"Name": "resource-id", "Values": [instance_id]}]
+    )
     return {tag["Key"]: tag["Value"] for tag in response.get("Tags")}

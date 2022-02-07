@@ -1,5 +1,3 @@
-
-
 """
 This module does the following:
 Exports the workflow folder to generate a Workflow Archive file out of it in .war format

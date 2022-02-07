@@ -7,12 +7,12 @@ from pathlib import Path
 
 def download_save(url, path=None, filename=None):
     if not filename:
-        filename = url.split('/')[-1]
+        filename = url.split("/")[-1]
     if path:
         filename = os.path.join(path, filename)
     print(f"Downloading from url : {url}")
     resp = requests.get(url)
-    with open(filename, 'wb') as f:
+    with open(filename, "wb") as f:
         print(f"Saving data to file : {filename}")
         f.write(resp.content)
 

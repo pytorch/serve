@@ -1,5 +1,3 @@
-
-
 """
 Helper utils for Workflow Archiver tool
 """
@@ -15,8 +13,8 @@ from .workflow_archiver_error import WorkflowArchiverError
 from .manifest_components.manifest import Manifest
 from .manifest_components.workflow import Workflow
 
-MANIFEST_FILE_NAME = 'MANIFEST.json'
-WAR_INF = 'WAR-INF'
+MANIFEST_FILE_NAME = "MANIFEST.json"
+WAR_INF = "WAR-INF"
 
 
 class WorkflowExportUtils(object):
@@ -27,7 +25,7 @@ class WorkflowExportUtils(object):
 
     @staticmethod
     def get_archive_export_path(export_file_path, workflow_name):
-        return os.path.join(export_file_path, f'{workflow_name}.war')
+        return os.path.join(export_file_path, f"{workflow_name}.war")
 
     @staticmethod
     def check_war_already_exists(workflow_name, export_file_path, overwrite):
@@ -41,23 +39,30 @@ class WorkflowExportUtils(object):
         if export_file_path is None:
             export_file_path = os.getcwd()
 
-        export_file = WorkflowExportUtils.get_archive_export_path(export_file_path, workflow_name)
+        export_file = WorkflowExportUtils.get_archive_export_path(
+            export_file_path, workflow_name
+        )
 
         if os.path.exists(export_file):
             if overwrite:
                 logging.warning("Overwriting %s ...", export_file)
             else:
-                raise WorkflowArchiverError("{0} already exists.\n"
-                                            "Please specify --force/-f option to overwrite the workflow archive "
-                                            "output file.\n"
-                                            "See -h/--help for more details.".format(export_file))
+                raise WorkflowArchiverError(
+                    "{0} already exists.\n"
+                    "Please specify --force/-f option to overwrite the workflow archive "
+                    "output file.\n"
+                    "See -h/--help for more details.".format(export_file)
+                )
 
         return export_file_path
 
     @staticmethod
     def generate_workflow(workflow_args):
-        workflow = Workflow(workflow_name=workflow_args.workflow_name, spec_file=workflow_args.spec_file,
-                            handler=workflow_args.handler)
+        workflow = Workflow(
+            workflow_name=workflow_args.workflow_name,
+            spec_file=workflow_args.spec_file,
+            handler=workflow_args.handler,
+        )
         return workflow
 
     @staticmethod
@@ -113,18 +118,25 @@ class WorkflowExportUtils(object):
         :param manifest:
         :return:
         """
-        war_path = WorkflowExportUtils.get_archive_export_path(export_file, workflow_name)
+        war_path = WorkflowExportUtils.get_archive_export_path(
+            export_file, workflow_name
+        )
         try:
-            with zipfile.ZipFile(war_path, 'w', zipfile.ZIP_DEFLATED) as z:
+            with zipfile.ZipFile(war_path, "w", zipfile.ZIP_DEFLATED) as z:
                 WorkflowExportUtils.archive_dir(workflow_path, z)
                 # Write the manifest here now as a json
                 z.writestr(os.path.join(WAR_INF, MANIFEST_FILE_NAME), manifest)
         except IOError:
-            logging.error("Failed to save the workflow-archive to workflow-path \"%s\". "
-                          "Check the file permissions and retry.", export_file)
+            logging.error(
+                'Failed to save the workflow-archive to workflow-path "%s". '
+                "Check the file permissions and retry.",
+                export_file,
+            )
             raise
         except Exception as e:
-            logging.error("Failed to convert %s to the workflow-archive.", workflow_name)
+            logging.error(
+                "Failed to convert %s to the workflow-archive.", workflow_name
+            )
             raise e
 
     @staticmethod
@@ -136,11 +148,15 @@ class WorkflowExportUtils(object):
         :param dst:
         :return:
         """
-        unwanted_dirs = {'__MACOSX', '__pycache__'}
+        unwanted_dirs = {"__MACOSX", "__pycache__"}
 
         for root, directories, files in os.walk(path):
             # Filter directories
-            directories[:] = [d for d in directories if WorkflowExportUtils.directory_filter(d, unwanted_dirs)]
+            directories[:] = [
+                d
+                for d in directories
+                if WorkflowExportUtils.directory_filter(d, unwanted_dirs)
+            ]
             for f in files:
                 file_path = os.path.join(root, f)
                 dst.write(file_path, os.path.relpath(file_path, path))
@@ -155,7 +171,7 @@ class WorkflowExportUtils(object):
         """
         if directory in unwanted_dirs:
             return False
-        if directory.startswith('.'):
+        if directory.startswith("."):
             return False
 
         return True
@@ -168,11 +184,11 @@ class WorkflowExportUtils(object):
         :param files_to_exclude:
         :return:
         """
-        files_to_exclude.add('MANIFEST.json')
+        files_to_exclude.add("MANIFEST.json")
         if current_file in files_to_exclude:
             return False
 
-        elif current_file.endswith(('.pyc', '.DS_Store', '.war')):
+        elif current_file.endswith((".pyc", ".DS_Store", ".war")):
             return False
 
         return True
@@ -185,14 +201,18 @@ class WorkflowExportUtils(object):
         :param workflow_name:
         :return:
         """
-        if not re.match(r'^[A-Za-z0-9][A-Za-z0-9_\-.]*$', workflow_name):
-            raise WorkflowArchiverError("Workflow name contains special characters.\n"
-                                        "The allowed regular expression filter for workflow "
-                                        "name is: ^[A-Za-z0-9][A-Za-z0-9_\\-.]*$")
+        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9_\-.]*$", workflow_name):
+            raise WorkflowArchiverError(
+                "Workflow name contains special characters.\n"
+                "The allowed regular expression filter for workflow "
+                "name is: ^[A-Za-z0-9][A-Za-z0-9_\\-.]*$"
+            )
 
     @staticmethod
     def validate_inputs(workflow_name, export_path):
         WorkflowExportUtils.check_workflow_name_regex_or_exit(workflow_name)
         if not os.path.isdir(os.path.abspath(export_path)):
-            raise WorkflowArchiverError("Given export-path {} is not a directory. "
-                                        "Point to a valid export-path directory.".format(export_path))
+            raise WorkflowArchiverError(
+                "Given export-path {} is not a directory. "
+                "Point to a valid export-path directory.".format(export_path)
+            )

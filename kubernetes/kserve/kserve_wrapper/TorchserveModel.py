@@ -7,7 +7,7 @@ from importlib.metadata import version
 import kserve
 import tornado.web
 
-if version('kserve') >= '0.8.0':
+if version("kserve") >= "0.8.0":
     from kserve.model import Model as Model
 else:
     from kserve.kfmodel import KFModel as Model

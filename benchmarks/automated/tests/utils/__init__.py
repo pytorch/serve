@@ -68,7 +68,14 @@ class YamlHandler(object):
         "workers",
     ]
 
-    workflow_config_keys = ["workflow_name", "models", "specfile", "workflow_handler", "retry_attempts", "timeout_ms"]
+    workflow_config_keys = [
+        "workflow_name",
+        "models",
+        "specfile",
+        "workflow_handler",
+        "retry_attempts",
+        "timeout_ms",
+    ]
 
     optional_config_keys = [
         "url",
@@ -79,7 +86,9 @@ class YamlHandler(object):
         "on_instance",
     ]
 
-    valid_config_keys = mandatory_config_keys + optional_config_keys + workflow_config_keys
+    valid_config_keys = (
+        mandatory_config_keys + optional_config_keys + workflow_config_keys
+    )
 
     mutually_exclusive_docker_config_keys = ["dockerhub_image", "docker_dev_image"]
 
@@ -95,7 +104,9 @@ class YamlHandler(object):
 
     optional_docker_config_keys = ["cuda_version", "dockerhub_image"]
 
-    valid_docker_config_keys = mandatory_docker_config_keys + optional_docker_config_keys
+    valid_docker_config_keys = (
+        mandatory_docker_config_keys + optional_docker_config_keys
+    )
 
     mandatory_benchmark_config_keys = [
         "aws_region",
@@ -158,22 +169,28 @@ class YamlHandler(object):
                     type(batch_size_list[0]) == list
                 ), f"Batch sizes should be part of a list. Check config for '{mode}' under model '{model}'."
 
-                invalid_config_keys = set(config_list).difference(YamlHandler.valid_config_keys)
+                invalid_config_keys = set(config_list).difference(
+                    YamlHandler.valid_config_keys
+                )
                 assert (
                     len(invalid_config_keys) == 0
                 ), f"Invalid key(s) detected: {invalid_config_keys}. Config keys must be either of {YamlHandler.valid_config_keys}. Check config for '{mode}' under model '{model}'."
 
-                missing_config_keys = set(YamlHandler.mandatory_config_keys).difference(config_list)
+                missing_config_keys = set(YamlHandler.mandatory_config_keys).difference(
+                    config_list
+                )
                 assert (
                     len(missing_config_keys) == 0
                 ), f"Config key(s) missing: {missing_config_keys}. All of the following keys are required: {YamlHandler.mandatory_config_keys}. Check config for '{mode}' under model '{model}'."
 
                 assert not all(
-                    key in config_list for key in YamlHandler.mutually_exclusive_docker_config_keys
+                    key in config_list
+                    for key in YamlHandler.mutually_exclusive_docker_config_keys
                 ), f"Either of the keys {YamlHandler.mutually_exclusive_docker_config_keys} maybe present in config, but not both. Check config for '{mode}' under model '{model}'."
 
                 assert not all(
-                    key in config_list for key in YamlHandler.mutually_exclusive_instance_config_keys
+                    key in config_list
+                    for key in YamlHandler.mutually_exclusive_instance_config_keys
                 ), f"Either of the keys {YamlHandler.mutually_exclusive_instance_config_keys} maybe present in config, but not both. Check config for '{mode}' under model '{model}'."
 
                 config_list.clear()
@@ -200,12 +217,16 @@ class YamlHandler(object):
             for config_key, config_value in docker_config.items():
                 docker_config_list.append(config_key)
 
-            invalid_config_keys = set(docker_config_list).difference(YamlHandler.valid_docker_config_keys)
+            invalid_config_keys = set(docker_config_list).difference(
+                YamlHandler.valid_docker_config_keys
+            )
             assert (
                 len(invalid_config_keys) == 0
             ), f"Invalid config key(s) detected: {invalid_config_keys}. Config keys must be either of {YamlHandler.valid_docker_config_keys}. Check config for '{processor}''."
 
-            missing_config_keys = set(YamlHandler.mandatory_docker_config_keys).difference(docker_config_list)
+            missing_config_keys = set(
+                YamlHandler.mandatory_docker_config_keys
+            ).difference(docker_config_list)
             assert (
                 len(missing_config_keys) == 0
             ), f"Config key(s) missing: {missing_config_keys}. All of the following keys are required: {YamlHandler.mandatory_docker_config_keys}. Check config for '{processor}'."
@@ -215,7 +236,9 @@ class YamlHandler(object):
                     "cuda_version" in docker_config_list
                 ), f"cuda_version missing under processor 'gpu'. cuda_version must be of format cuXYZ e.g.cu102, cu111 etc."
 
-        invalid_processor_keys = set(processor_list).difference(YamlHandler.valid_docker_processors)
+        invalid_processor_keys = set(processor_list).difference(
+            YamlHandler.valid_docker_processors
+        )
         assert (
             len(invalid_processor_keys) == 0
         ), f"Invalid processor key found, must be either of {YamlHandler.valid_docker_processors}"
@@ -230,12 +253,16 @@ class YamlHandler(object):
         for config_key, _ in yaml_content.items():
             config_key_list.append(config_key)
 
-        missing_config_keys = set(YamlHandler.mandatory_benchmark_config_keys).difference(config_key_list)
+        missing_config_keys = set(
+            YamlHandler.mandatory_benchmark_config_keys
+        ).difference(config_key_list)
         assert (
             len(missing_config_keys) == 0
         ), f"Config key(s) missing: {missing_config_keys}. All of the following keys are required: {YamlHandler.mandatory_benchmark_config_keys}. Check config for benchmark.yaml."
 
-        invalid_config_keys = set(config_key_list).difference(YamlHandler.mandatory_benchmark_config_keys)
+        invalid_config_keys = set(config_key_list).difference(
+            YamlHandler.mandatory_benchmark_config_keys
+        )
         assert (
             len(invalid_config_keys) == 0
         ), f"Invalid config key(s) detected: {invalid_config_keys}. Config keys must be either of {YamlHandler.valid_docker_config_keys}. Check config for benchmark.yaml."
@@ -247,7 +274,11 @@ LOGGER.addHandler(logging.StreamHandler(sys.stderr))
 
 
 benchmark_config_path = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "suite", "benchmark", "config.yaml"
+    os.path.dirname(os.path.abspath(__file__)),
+    "..",
+    "suite",
+    "benchmark",
+    "config.yaml",
 )
 benchmarkConfig = BenchmarkConfig(benchmark_config_path)
 
@@ -259,7 +290,9 @@ DEFAULT_DOCKER_DEV_ECR_REPO = benchmarkConfig.docker_default_dev_ecr_repo
 DEFAULT_DOCKER_DEV_ECR_TAG = benchmarkConfig.default_docker_dev_ecr_tag
 AMI_ID = benchmarkConfig.ami_id
 
-DEFAULT_DOCKER_DEV_ECR_REPO_TAG = f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{DEFAULT_DOCKER_DEV_ECR_TAG}"
+DEFAULT_DOCKER_DEV_ECR_REPO_TAG = (
+    f"{DEFAULT_DOCKER_DEV_ECR_REPO}:{DEFAULT_DOCKER_DEV_ECR_TAG}"
+)
 ECR_REPOSITORY_URL = "{}.dkr.ecr.{}.amazonaws.com/{}"
 
 GPU_INSTANCES = ["p2", "p3", "p4", "g2", "g3", "g4"]
@@ -277,7 +310,9 @@ class DockerImageHandler(object):
         """
         Uses the build_image.sh script to build a docker container with the given parameters.
         """
-        torch_serve_docker_directory = os.path.abspath(os.path.join(__file__, "../../../../../docker/"))
+        torch_serve_docker_directory = os.path.abspath(
+            os.path.join(__file__, "../../../../../docker/")
+        )
         current_working_directory = os.getcwd()
         os.chdir(torch_serve_docker_directory)
 
@@ -294,11 +329,16 @@ class DockerImageHandler(object):
 
         # Switch back to original directory
         os.chdir(current_working_directory)
-        LOGGER.info(f"Dev image build successful:  {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}")
+        LOGGER.info(
+            f"Dev image build successful:  {DEFAULT_DOCKER_DEV_ECR_REPO}:{self.docker_tag}"
+        )
 
     @staticmethod
     def push_docker_image_to_ecr(
-        account_id, region, docker_repo_tag=f"{DEFAULT_DOCKER_DEV_ECR_REPO_TAG}", connection=None
+        account_id,
+        region,
+        docker_repo_tag=f"{DEFAULT_DOCKER_DEV_ECR_REPO_TAG}",
+        connection=None,
     ):
         """
         :param account_id: aws account id to which the dev image must be pushed
@@ -317,7 +357,9 @@ class DockerImageHandler(object):
             run_out = connection.run(ecr_login_command)
         else:
             run_out = run(ecr_login_command)
-        assert run_out.return_code == 0, f"ECR login failed when pushing dev image to ECR"
+        assert (
+            run_out.return_code == 0
+        ), f"ECR login failed when pushing dev image to ECR"
 
         if connection:
             run_out = connection.run(f"docker push {ecr_uri}")
@@ -349,14 +391,21 @@ class DockerImageHandler(object):
 
             run(f"docker tag {dockerhub_image} {docker_repo_tag}")
 
-        assert run_out.return_code == 0, f"Docker pull failed for image: {dockerhub_image}"
+        assert (
+            run_out.return_code == 0
+        ), f"Docker pull failed for image: {dockerhub_image}"
 
         LOGGER.info(f"*** Docker image {dockerhub_image} pulled succesfully.")
-        LOGGER.info(f"*** Note: the pulled image '{dockerhub_image}' has been re-tagged to '{docker_repo_tag}' for ease of management.")
+        LOGGER.info(
+            f"*** Note: the pulled image '{dockerhub_image}' has been re-tagged to '{docker_repo_tag}' for ease of management."
+        )
 
     @staticmethod
     def pull_docker_image_from_ecr(
-        account_id, region, docker_repo_tag=f"{DEFAULT_DOCKER_DEV_ECR_REPO_TAG}", connection=None
+        account_id,
+        region,
+        docker_repo_tag=f"{DEFAULT_DOCKER_DEV_ECR_REPO_TAG}",
+        connection=None,
     ):
         """
         :param account_id: aws account id from which the dev image must be pulled
@@ -372,7 +421,9 @@ class DockerImageHandler(object):
             run_out = connection.run(ecr_login_command)
         else:
             run_out = run(ecr_login_command)
-        assert run_out.return_code == 0, f"ECR login failed when pushing dev image to ECR"
+        assert (
+            run_out.return_code == 0
+        ), f"ECR login failed when pushing dev image to ECR"
 
         if connection:
             run_out = connection.run(f"docker pull {ecr_uri}")
@@ -387,10 +438,17 @@ class DockerImageHandler(object):
         assert run_out.return_code == 0, f"ECR docker push failed"
 
         LOGGER.info(f"Dev image pull from ECR successful.")
-        LOGGER.info(f"*** Note: the pulled image '{ecr_uri}' has been re-tagged to '{docker_repo_tag}' for ease of management.")
+        LOGGER.info(
+            f"*** Note: the pulled image '{ecr_uri}' has been re-tagged to '{docker_repo_tag}' for ease of management."
+        )
 
     @staticmethod
-    def process_docker_config(ec2_connection, docker_dev_image_config_path, ec2_instance_type, is_local_execution):
+    def process_docker_config(
+        ec2_connection,
+        docker_dev_image_config_path,
+        ec2_instance_type,
+        is_local_execution,
+    ):
         """
         :param docker_dev_config_path: path of the config file that describes docker config properties
         :return cuda_version_for_instance: return the cuda version based on the instance type provided
@@ -399,7 +457,9 @@ class DockerImageHandler(object):
 
         docker_repo_tag_for_current_instance = ""
         cuda_version_for_instance = ""
-        account_id = run("aws sts get-caller-identity --query Account --output text").stdout.strip()
+        account_id = run(
+            "aws sts get-caller-identity --query Account --output text"
+        ).stdout.strip()
 
         for processor, config in docker_config.items():
             docker_tag = None
@@ -420,11 +480,16 @@ class DockerImageHandler(object):
                 if not is_local_execution:
                     if not dockerhub_image:
                         dockerImageHandler.pull_docker_image_from_ecr(
-                            account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                            account_id,
+                            DEFAULT_REGION,
+                            docker_repo_tag,
+                            connection=ec2_connection,
                         )
                     else:
                         dockerImageHandler.pull_docker_image(
-                            dockerhub_image=dockerhub_image, docker_tag=docker_tag, connection=ec2_connection
+                            dockerhub_image=dockerhub_image,
+                            docker_tag=docker_tag,
+                            connection=ec2_connection,
                         )
 
                 docker_repo_tag_for_current_instance = docker_repo_tag
@@ -435,11 +500,16 @@ class DockerImageHandler(object):
                 if not is_local_execution:
                     if not dockerhub_image:
                         dockerImageHandler.pull_docker_image_from_ecr(
-                            account_id, DEFAULT_REGION, docker_repo_tag, connection=ec2_connection
+                            account_id,
+                            DEFAULT_REGION,
+                            docker_repo_tag,
+                            connection=ec2_connection,
                         )
                     else:
                         dockerImageHandler.pull_docker_image(
-                            dockerhub_image=dockerhub_image, docker_tag=docker_tag, connection=ec2_connection
+                            dockerhub_image=dockerhub_image,
+                            docker_tag=docker_tag,
+                            connection=ec2_connection,
                         )
 
                 docker_repo_tag_for_current_instance = docker_repo_tag

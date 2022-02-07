@@ -12,7 +12,13 @@ from botocore.exceptions import ClientError
 from invoke import run
 from invoke.context import Context
 
-from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import (
+    DEFAULT_REGION,
+    IAM_INSTANCE_PROFILE,
+    AMI_ID,
+    LOGGER,
+    S3_BUCKET_BENCHMARK_ARTIFACTS,
+)
 
 
 def upload_folder_to_s3(folder_path, s3_uri, connection=None):
@@ -70,7 +76,9 @@ class ArtifactsHandler(object):
         :param ec2_connection: A fabric connection that is used to upload the parent 'serve' folder to the instance's root folder
         :return None
         """
-        torch_serve_directory = os.path.abspath(os.path.join(__file__, "../../../../../"))
+        torch_serve_directory = os.path.abspath(
+            os.path.join(__file__, "../../../../../")
+        )
 
         s3_uri = os.path.join(S3_BUCKET_BENCHMARK_ARTIFACTS, s3_temp_folder)
 
@@ -79,7 +87,9 @@ class ArtifactsHandler(object):
         # Note: assumes that an ubuntu (DLAMI) instance is being used.
         mkdir_return = ec2_connection.run("mkdir -p /home/ubuntu/serve")
 
-        download_return = download_folder_from_s3(s3_uri, "/home/ubuntu/serve", connection=ec2_connection)
+        download_return = download_folder_from_s3(
+            s3_uri, "/home/ubuntu/serve", connection=ec2_connection
+        )
 
         assert not all(
             [upload_return, mkdir_return.return_code, download_return]

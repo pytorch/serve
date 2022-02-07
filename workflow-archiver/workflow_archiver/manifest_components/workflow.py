@@ -18,11 +18,11 @@ class Workflow(object):
     def __to_dict__(self):
         workflow_dict = dict()
 
-        workflow_dict['workflowName'] = self.workflow_name
+        workflow_dict["workflowName"] = self.workflow_name
 
-        workflow_dict['specFile'] = self.spec_file
+        workflow_dict["specFile"] = self.spec_file
 
-        workflow_dict['handler'] = self.handler
+        workflow_dict["handler"] = self.handler
 
         return workflow_dict
 

@@ -1,5 +1,3 @@
-
-
 """
 Collect process memory usage metrics  here
 Pass a json, collection of pids and gpuID

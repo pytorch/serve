@@ -29,14 +29,14 @@ class Manifest(object):
     def __to_dict__(self):
         manifest_dict = dict()
 
-        manifest_dict['createdOn'] = self.creation_time
+        manifest_dict["createdOn"] = self.creation_time
 
-        manifest_dict['runtime'] = self.runtime.value
+        manifest_dict["runtime"] = self.runtime.value
 
-        manifest_dict['model'] = self.model.__to_dict__()
+        manifest_dict["model"] = self.model.__to_dict__()
 
         if self.archiver_version is not None:
-            manifest_dict['archiverVersion'] = self.archiver_version
+            manifest_dict["archiverVersion"] = self.archiver_version
 
         return manifest_dict
 

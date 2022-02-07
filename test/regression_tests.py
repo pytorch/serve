@@ -20,7 +20,7 @@ print("Current date and time : " + now.strftime("%Y-%m-%d %H:%M:%S"))
 
 check_python_version()
 
-git_branch = Repository('.').head.shorthand
+git_branch = Repository(".").head.shorthand
 build_hdr_printer.main(git_branch)
 
 # Install from source
@@ -32,7 +32,7 @@ mg.generate_mars()
 # Run newman api tests
 test_api(
     "all"
-)  #"all" > management, inference, increased_timeout_inference, https collections
+)  # "all" > management, inference, increased_timeout_inference, https collections
 
 # Run regression tests
 test_regression()

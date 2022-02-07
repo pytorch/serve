@@ -57,19 +57,20 @@ def pytest_addoption(parser):
         "--local-execution",
         action="store_true",
         default=False,
-        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore the instances specified in the model config *.yaml file."
+        help="Specify when you want to execute benchmarks on the current instance. Note: this will execute the model benchmarks sequentially, and will ignore the instances specified in the model config *.yaml file.",
     )
 
     parser.addoption(
         "--local-instance-type",
         default="c4.4xlarge",
-        help="Specify the current ec2 instance on which the benchmark executes. Note: default is c4.4xlarge or CPU mode. May not specify any other value than an ec2 instance type."
+        help="Specify the current ec2 instance on which the benchmark executes. Note: default is c4.4xlarge or CPU mode. May not specify any other value than an ec2 instance type.",
     )
 
 
 @pytest.fixture(scope="session")
 def is_local_execution(request):
     return request.config.getoption("--local-execution")
+
 
 @pytest.fixture(scope="session")
 def docker_dev_image_config_path(request):
@@ -86,12 +87,14 @@ def benchmark_execution_id(request):
 
 
 def get_model_config_paths():
-    model_configs_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "suite")
+    model_configs_folder = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "suite"
+    )
     model_config_paths = []
     for root, _, files in os.walk(model_configs_folder):
         for name in files:
             model_config_paths.append(os.path.join(root, name))
-        
+
         # break, don't explore sub-directories
         break
     return model_config_paths
@@ -115,12 +118,16 @@ def ec2_key_name(request):
 
 @pytest.fixture(scope="session")
 def ec2_client(region):
-    return boto3.client("ec2", region_name=region, config=Config(retries={"max_attempts": 10}))
+    return boto3.client(
+        "ec2", region_name=region, config=Config(retries={"max_attempts": 10})
+    )
 
 
 @pytest.fixture(scope="session")
 def ec2_resource(region):
-    return boto3.resource("ec2", region_name=region, config=Config(retries={"max_attempts": 10}))
+    return boto3.resource(
+        "ec2", region_name=region, config=Config(retries={"max_attempts": 10})
+    )
 
 
 @pytest.fixture(scope="function")
@@ -149,7 +156,7 @@ def ec2_instance(
     ec2_instance_role_name,
     ec2_instance_ami,
     region,
-    is_local_execution
+    is_local_execution,
 ):
 
     if is_local_execution:
@@ -158,7 +165,9 @@ def ec2_instance(
     (_, ec2_instance_type) = model_config_path_ec2_instance_tuple
 
     use_instances_flag = (
-        request.config.getoption("--use-instances") if request.config.getoption("--use-instances") else None
+        request.config.getoption("--use-instances")
+        if request.config.getoption("--use-instances")
+        else None
     )
 
     if use_instances_flag:
@@ -172,13 +181,17 @@ def ec2_instance(
             instances != ""
         ), f"Could not find instance details corresponding to test: {request.node.name.split('[')[0]}"
         instance_details = instances.get(ec2_instance_type, "")
-        assert instance_details != "", f"Could not obtain details for instance type: {ec2_instance_type}"
+        assert (
+            instance_details != ""
+        ), f"Could not obtain details for instance type: {ec2_instance_type}"
         instance_id = instance_details.get("instance_id", "")
         assert instance_id != "", f"Missing instance_id"
         key_filename = instance_details.get("key_filename", "")
         assert key_filename != "", f"Missing key_filename"
 
-        LOGGER.info(f"For test: {request.node.name}; Using instance_id: {instance_id} and key_filename: {key_filename}")
+        LOGGER.info(
+            f"For test: {request.node.name}; Using instance_id: {instance_id} and key_filename: {key_filename}"
+        )
 
         return instance_id, key_filename
 
@@ -190,18 +203,25 @@ def ec2_instance(
         "InstanceType": ec2_instance_type,
         "IamInstanceProfile": {"Name": ec2_instance_role_name},
         "TagSpecifications": [
-            {"ResourceType": "instance", "Tags": [{"Key": "Name", "Value": f"TS Benchmark {ec2_key_name}"}]},
+            {
+                "ResourceType": "instance",
+                "Tags": [{"Key": "Name", "Value": f"TS Benchmark {ec2_key_name}"}],
+            },
         ],
         "MaxCount": 1,
         "MinCount": 1,
-        "BlockDeviceMappings": [{"DeviceName": "/dev/sda1", "Ebs": {"VolumeSize": 220}}],
+        "BlockDeviceMappings": [
+            {"DeviceName": "/dev/sda1", "Ebs": {"VolumeSize": 220}}
+        ],
     }
 
     try:
         instances = ec2_resource.create_instances(**params)
     except ClientError as e:
         if e.response["Error"]["Code"] == "InsufficientInstanceCapacity":
-            LOGGER.warning(f"Failed to launch {ec2_instance_type} in {region} because of insufficient capacity")
+            LOGGER.warning(
+                f"Failed to launch {ec2_instance_type} in {region} because of insufficient capacity"
+            )
         raise
     instance_id = instances[0].id
 
@@ -232,7 +252,10 @@ def ec2_instance(
 
         update_dictionary = {
             request.node.name.split("[")[0]: {
-                ec2_instance_type: {"instance_id": instance_id, "key_filename": key_filename}
+                ec2_instance_type: {
+                    "instance_id": instance_id,
+                    "key_filename": key_filename,
+                }
             }
         }
 
@@ -241,7 +264,9 @@ def ec2_instance(
         YamlHandler.write_yaml(instances_file, instances_dict)
 
     ec2_utils.check_instance_state(instance_id, state="running", region=region)
-    ec2_utils.check_system_state(instance_id, system_status="ok", instance_status="ok", region=region)
+    ec2_utils.check_system_state(
+        instance_id, system_status="ok", instance_status="ok", region=region
+    )
 
     return instance_id, key_filename
 
@@ -264,7 +289,9 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
     LOGGER.info(f"Instance ip_address: {ip_address}")
     user = ec2_utils.get_instance_user(instance_id, region=region)
     LOGGER.info(f"Connecting to {user}@{ip_address}")
-    conn = Connection(user=user, host=ip_address, connect_kwargs={"key_filename": [instance_pem_file]})
+    conn = Connection(
+        user=user, host=ip_address, connect_kwargs={"key_filename": [instance_pem_file]}
+    )
 
     random.seed(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}")
     unique_id = random.randint(1, 100000)
@@ -291,15 +318,17 @@ def pytest_generate_tests(metafunc):
 
     model_config_paths = get_model_config_paths()
 
-    is_local_execution = metafunc.config.getoption('--local-execution')
-    local_instance_type = metafunc.config.getoption('--local-instance-type')
+    is_local_execution = metafunc.config.getoption("--local-execution")
+    local_instance_type = metafunc.config.getoption("--local-instance-type")
 
     for model_config_path in model_config_paths:
         model_name = model_config_path.split("/")[-1].split(".")[0]
 
         model_yaml_content = YamlHandler.load_yaml(model_config_path)
         YamlHandler.validate_model_yaml(model_yaml_content)
-        instance_types = None if is_local_execution else model_yaml_content.get("instance_types")
+        instance_types = (
+            None if is_local_execution else model_yaml_content.get("instance_types")
+        )
 
         if instance_types:
             for ec2_instance_type in instance_types:
@@ -309,5 +338,7 @@ def pytest_generate_tests(metafunc):
             parameter_list.append((model_config_path, local_instance_type))
             ids.append(f"{model_name}-{local_instance_type}")
 
-    if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames: 
-        metafunc.parametrize("model_config_path_ec2_instance_tuple", parameter_list, ids=ids)
+    if "model_config_path_ec2_instance_tuple" in metafunc.fixturenames:
+        metafunc.parametrize(
+            "model_config_path_ec2_instance_tuple", parameter_list, ids=ids
+        )

@@ -16,6 +16,7 @@ class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
+
     def initialize(self, context):
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)

@@ -1,5 +1,3 @@
-
-
 """
 Metrics collection module
 """
@@ -23,7 +21,9 @@ class MetricsStore(object):
         self.model_name = model_name
         self.cache = {}
 
-    def _add_or_update(self, name, value, req_id, unit, metrics_method=None, dimensions=None):
+    def _add_or_update(
+        self, name, value, req_id, unit, metrics_method=None, dimensions=None
+    ):
         """
         Add a metric key value pair
 
@@ -55,7 +55,7 @@ class MetricsStore(object):
 
         # Cache the metric with an unique key for update
         dim_str = [name, unit, str(req_id)] + [str(d) for d in dimensions]
-        dim_str = '-'.join(dim_str)
+        dim_str = "-".join(dim_str)
         if dim_str not in self.cache:
             metric = Metric(name, value, unit, dimensions, req_id, metrics_method)
             self.store.append(metric)
@@ -76,7 +76,7 @@ class MetricsStore(object):
         # check if request id for the metric is given, if so use it else have a list of all.
         req_id = self.request_ids
         if isinstance(req_id, dict):
-            req_id = ','.join(self.request_ids.values())
+            req_id = ",".join(self.request_ids.values())
         if idx is not None and self.request_ids is not None and idx in self.request_ids:
             req_id = self.request_ids[idx]
         return req_id
@@ -96,11 +96,11 @@ class MetricsStore(object):
         dimensions: list
             list of dimensions for the metric
         """
-        unit = 'count'
+        unit = "count"
         req_id = self._get_req(idx)
-        self._add_or_update(name, value, req_id, unit, 'counter', dimensions)
+        self._add_or_update(name, value, req_id, unit, "counter", dimensions)
 
-    def add_time(self, name, value, idx=None, unit='ms', dimensions=None):
+    def add_time(self, name, value, idx=None, unit="ms", dimensions=None):
         """
         Add a time based metric like latency, default unit is 'ms'
 
@@ -117,12 +117,12 @@ class MetricsStore(object):
         dimensions: list
             list of dimensions for the metric
         """
-        if unit not in ['ms', 's']:
+        if unit not in ["ms", "s"]:
             raise ValueError("the unit for a timed metric should be one of ['ms', 's']")
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, dimensions)
 
-    def add_size(self, name, value, idx=None, unit='MB', dimensions=None):
+    def add_size(self, name, value, idx=None, unit="MB", dimensions=None):
         """
         Add a size based metric
 
@@ -139,8 +139,10 @@ class MetricsStore(object):
         dimensions: list
             list of dimensions for the metric
         """
-        if unit not in ['MB', 'kB', 'GB', 'B']:
-            raise ValueError("The unit for size based metric is one of ['MB','kB', 'GB', 'B']")
+        if unit not in ["MB", "kB", "GB", "B"]:
+            raise ValueError(
+                "The unit for size based metric is one of ['MB','kB', 'GB', 'B']"
+            )
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, dimensions)
 
@@ -159,7 +161,7 @@ class MetricsStore(object):
         dimensions: list
             list of dimensions for the metric
         """
-        unit = 'percent'
+        unit = "percent"
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, dimensions)
 
@@ -175,7 +177,7 @@ class MetricsStore(object):
         dimensions: list
             list of dimensions for the metric
         """
-        unit = ''
+        unit = ""
 
         # noinspection PyTypeChecker
         self._add_or_update(name, value, None, unit, dimensions)

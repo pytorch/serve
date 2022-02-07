@@ -37,4 +37,3 @@ class TextSentiment(nn.Module):
                 into the individual sequences.
         """
         return self.fc(self.embedding(text, offsets))
-
