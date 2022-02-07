@@ -52,7 +52,7 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 ### Captum Explanations
 
-The explain is called with the following request api http://127.0.0.1:8080/explanations/my_tc_explain
+The explain is called with the following request api `http://127.0.0.1:8080/explanations/my_tc_explain`
 
 Torchserve supports Captum Explanations for Eager models only.
 
@@ -76,9 +76,6 @@ in the initialize function for the captum to work.
 NOTE:
 The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
 
+### Running KServe
 
-### Running KFServing
-
-Refer the [Text Classifier Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md) to run it locally.
-
-Refer the [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
+Refer the [End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md) to run it in the cluster.

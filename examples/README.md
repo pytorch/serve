@@ -96,7 +96,7 @@ The following example demonstrates how to create and serve a pretrained DCGAN mo
 
 The following example demonstrates how to create and serve a neural translation model using fairseq
 
-* [Neural machine translation ](examples/nmt_transformer)
+* [Neural machine translation ](nmt_transformer)
 
 ## Serving Wavegolw text to speech synthesizer
 

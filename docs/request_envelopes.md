@@ -3,7 +3,7 @@
 Many model serving systems provide a signature for request bodies. Examples include:
 
 - [Seldon](https://docs.seldon.io/projects/seldon-core/en/v1.1.0/graph/protocols.html)
-- [KFServing](https://github.com/kubeflow/kfserving/tree/master/docs)
+- [KServe](https://kserve.github.io/website/)
 - [Google Cloud AI Platform](https://cloud.google.com/ai-platform/prediction/docs/online-predict)
 
 Data scientists use these multi-framework systems to manage deployments of many different models, possibly written in different languages and frameworks. The platforms offer additional analytics on top of model serving, including skew detection, explanations and A/B testing. These platforms need a well-structured signature in order to both standardize calls across different frameworks and to understand the input data. To simplify support for many frameworks, though, these platforms will simply pass the request body along to the underlying model server.
