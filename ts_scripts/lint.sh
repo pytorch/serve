@@ -52,7 +52,7 @@ then
     do
         echo "Checking $file"
         usort format "$file"
-        black "$file" -q
+        black "$file" -q -l 120
         flake8 "$file" || LINT_ERRORS=1
     done
 else
