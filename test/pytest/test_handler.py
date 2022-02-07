@@ -9,7 +9,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
 data_file_mnist = os.path.join(REPO_ROOT, 'examples/image_classifier/mnist/test_data/1.png')
-input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kfserving/kf_request_json/mnist.json")
+input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kserve/kf_request_json/mnist.json")
 input_json_mmf = os.path.join(REPO_ROOT, "examples/MMF-activity-recognition/372CC.info.json")
 
 def getAPIS(snapshot_file):
@@ -173,9 +173,9 @@ def test_mnist_model_register_and_inference_on_valid_model_explain():
     test_utils.unregister_model("mnist")
 
 
-def test_kfserving_mnist_model_register_and_inference_on_valid_model():
+def test_kserve_mnist_model_register_and_inference_on_valid_model():
     """
-    Validates that snapshot.cfg is created when management apis are invoked for kfserving.
+    Validates that snapshot.cfg is created when management apis are invoked for kserve.
     """
     test_utils.start_torchserve(snapshot_file = snapshot_file_kf)
     test_utils.register_model('mnist', 'mnist.mar')
@@ -191,7 +191,8 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model():
     test_utils.unregister_model("mnist")
 
 
-def test_kfserving_mnist_model_register_scale_inference_with_non_existent_handler():
+def test_kserve_mnist_model_register_scale_inference_with_non_existent_handler(
+):
     response = mnist_model_register_using_non_existent_handler_then_scale_up()
     mnist_list = json.loads(response.content)
     assert len(mnist_list[0]['workers']) > 1
@@ -210,9 +211,9 @@ def test_kfserving_mnist_model_register_scale_inference_with_non_existent_handle
                           "despite passing non existent handler"
 
 
-def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
+def test_kserve_mnist_model_register_and_inference_on_valid_model_explain():
     """
-    Validates the kfserving model explanations.
+    Validates the kserve model explanations.
     """
     test_utils.start_torchserve(snapshot_file = snapshot_file_kf)
     test_utils.register_model('mnist', 'mnist.mar')

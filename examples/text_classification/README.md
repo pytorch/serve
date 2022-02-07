@@ -76,9 +76,6 @@ in the initialize function for the captum to work.
 NOTE:
 The current default model for text classification uses EmbeddingBag which Computes sums or means of ‘bags’ of embeddings, without instantiating the intermediate embedding, so it returns the captum explanations on a sentence embedding level and not on a word embedding level.
 
+### Running KServe
 
-### Running KFServing
-
-Refer the [Text Classifier Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/text_classifier_readme.md) to run it locally.
-
-Refer the [End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
+Refer the [End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md) to run it in the cluster.
