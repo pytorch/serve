@@ -17,10 +17,16 @@ import base64
 import json
 import logging
 from typing import List, Dict
+from importlib.metadata import version
 import tornado
 from PIL import Image
 import torchvision.transforms as transforms
 import kserve
+
+if version('kserve') >= '0.8.0':
+    from kserve.model import Model as Model
+else:
+    from kserve.kfmodel import KFModel as Model
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -49,12 +55,12 @@ def image_transform(instance):
     return instance
 
 
-class ImageTransformer(kserve.KFModel):
+class ImageTransformer(Model):
     """ A class object for the data handling activities of Image Classification
     Task and returns a KServe compatible response.
 
     Args:
-        kserve (class object): The KFModel class from the KServe
+        kserve (class object): The Model class from the KServe
         modeule is passed here.
     """
 

@@ -1,9 +1,16 @@
 """ KServe wrapper to handler inference in the kserve_predictor """
 import json
 import logging
+from importlib.metadata import version
 import kserve
+
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
+
+if version('kserve') >= '0.8.0':
+    from kserve.model_server import ModelServer
+else:
+    from kserve.kfserver import KFServer as ModelServer
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -84,7 +91,7 @@ if __name__ == "__main__":
         model = TorchserveModel(model_name, inference_address,
                                 management_address, model_dir)
         models.append(model)
-    kserve.KFServer(
+    ModelServer(
         registered_models=TSModelRepository(inference_address,
                                             management_address, model_dir),
         http_port=8080,
