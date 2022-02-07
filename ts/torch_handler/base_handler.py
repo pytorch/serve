@@ -38,6 +38,7 @@ class BaseHandler(abc.ABC):
         self.manifest = None
         self.map_location = None
         self.explain = False
+        self.describe = False
         self.target = 0
         self.profiler_args = {}
 
@@ -213,13 +214,16 @@ class BaseHandler(abc.ABC):
         if is_profiler_enabled:
             output, _ = self._infer_with_profiler(data=data)
         else:
-            data_preprocess = self.preprocess(data)
-
-            if not self._is_explain():
-                output = self.inference(data_preprocess)
-                output = self.postprocess(output)
+            if self._is_describe():
+                output = self.describe_handle()
             else:
-                output = self.explain_handle(data_preprocess, data)
+                data_preprocess = self.preprocess(data)
+
+                if not self._is_explain():
+                    output = self.inference(data_preprocess)
+                    output = self.postprocess(output)
+                else:
+                    output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round(
@@ -303,3 +307,22 @@ class BaseHandler(abc.ABC):
                 self.explain = True
                 return True
         return False
+
+    def _is_describe(self):
+        if self.context and self.context.get_request_header(0, "describe"):
+            if self.context.get_request_header(0, "describe") == "True":
+                self.describe = True
+                return True
+        return False
+
+    def describe_handle(self):
+        """Customized describe handler
+
+        Returns:
+            dict : A dictionary response with the explanations response.
+        """
+        output_describe = None
+
+        logger.info("Collect customized metadata")
+
+        return output_describe

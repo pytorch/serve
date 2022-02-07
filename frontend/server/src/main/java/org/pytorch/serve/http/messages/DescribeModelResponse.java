@@ -1,5 +1,6 @@
 package org.pytorch.serve.http.messages;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +21,7 @@ public class DescribeModelResponse {
 
     private List<Worker> workers;
     private Metrics metrics;
+    private String customizedMetadata;
 
     public DescribeModelResponse() {
         workers = new ArrayList<>();
@@ -146,6 +148,14 @@ public class DescribeModelResponse {
 
     public void setMetrics(Metrics metrics) {
         this.metrics = metrics;
+    }
+
+    public void setCustomizedMetadata(byte[] customizedMetadata) {
+        this.customizedMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
+    }
+
+    public String getCustomizedMetadata() {
+        return customizedMetadata;
     }
 
     public static final class Worker {

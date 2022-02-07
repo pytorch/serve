@@ -433,7 +433,7 @@ public class ModelServer {
                 && ((Endpoint) a).endpointType().equals(type);
     }
 
-    private HashMap<String, ModelServerEndpoint> registerEndpoints(EndpointTypes type) {
+    private HashMap<String, ModelServerEndpoint> ModelServerEndpoint(EndpointTypes type) {
         ServiceLoader<ModelServerEndpoint> loader = ServiceLoader.load(ModelServerEndpoint.class);
         HashMap<String, ModelServerEndpoint> ep = new HashMap<>();
         for (ModelServerEndpoint mep : loader) {

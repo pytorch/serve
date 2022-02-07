@@ -201,7 +201,7 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
-            // Dont batch describe request job
+            // describe request job batch size always is 1
             if (j.getCmd() == WorkerCommands.DESCRIBE) {
                 return;
             }
@@ -212,7 +212,7 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
-                // Dont batch describe request job
+                // describe request job batch size always is 1
                 if (j.getCmd() == WorkerCommands.DESCRIBE) {
                     // Add the job back into the jobsQueue
                     jobsQueue.addFirst(j);

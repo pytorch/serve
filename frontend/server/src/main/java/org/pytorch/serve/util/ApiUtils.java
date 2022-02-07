@@ -383,11 +383,6 @@ public final class ApiUtils {
             String gpuUsage = worker.getGpuUsage();
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
-        RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.DESCRIBE);
-        if (!ModelManager.getInstance().addJob(job)) {
-            String responseMessage = getInferenceErrorResponseMessage(modelName, version);
-            throw new ServiceUnavailableException(responseMessage);
-        }
 
         return resp;
     }
@@ -415,6 +410,7 @@ public final class ApiUtils {
                 "\" has no worker to serve inference request. Please use scale workers API to add workers.";
         return responseMessage;
     }
+
     public static String getDescribeErrorResponseMessage(String modelName) {
         String responseMessage = "Model \"" + modelName;
 

@@ -215,7 +215,8 @@ public class WorkerThread implements Runnable {
                         break;
                     case DESCRIBE:
                         if (reply == null) {
-                            aggregator.sendError(req,
+                            aggregator.sendError(
+                                    req,
                                     "Failed to get customized model matadata.",
                                     HttpURLConnection.HTTP_INTERNAL_ERROR);
                         }

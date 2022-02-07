@@ -3,11 +3,9 @@ package org.pytorch.serve.job;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.grpc.inference.PredictionResponse;
@@ -63,7 +61,8 @@ public class GRPCJob extends Job {
 
         ByteString output = ByteString.copyFrom(body);
         if (this.getCmd() == WorkerCommands.PREDICT) {
-            PredictionResponse reply = PredictionResponse.newBuilder().setPrediction(output).build();
+            PredictionResponse reply =
+                    PredictionResponse.newBuilder().setPrediction(output).build();
             predictionResponseObserver.onNext(reply);
             predictionResponseObserver.onCompleted();
 
@@ -85,18 +84,13 @@ public class GRPCJob extends Job {
                             DIMENSION));
         } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
             try {
-                String resp = JsonUtils.GSON_PRETTY.toJson(
-                                ApiUtils.getModelDescription(
-                                        this.getModelName(),
-                                        this.getModelVersion()));
-                ArrayList<DescribeModelResponse> respList = ApiUtils.getModelDescription(
-                        this.getModelName(),
-                        this.getModelVersion());
-                respList.get(0).
-                ManagementResponse reply = output.isEmpty() ?
-                        ManagementResponse.newBuilder().setMsg(resp).build() :
-                        ManagementResponse.newBuilder().setMsg(resp).setMsgBytes(output).build();
-
+                ArrayList<DescribeModelResponse> respList =
+                        ApiUtils.getModelDescription(this.getModelName(), this.getModelVersion());
+                if (!output.isEmpty() && respList != null && respList.size() == 1) {
+                    respList.get(0).setCustomizedMetadata(body);
+                }
+                String resp = JsonUtils.GSON_PRETTY.toJson(respList);
+                ManagementResponse reply = ManagementResponse.newBuilder().setMsg(resp).build();
                 managementResponseObserver.onNext(reply);
                 managementResponseObserver.onCompleted();
             } catch (ModelNotFoundException | ModelVersionNotFoundException e) {

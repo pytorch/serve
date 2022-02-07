@@ -2,7 +2,6 @@ package org.pytorch.serve.grpcimpl;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
@@ -26,7 +25,6 @@ import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.ModelManager;
 
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
@@ -38,8 +36,9 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
         RequestInput input = new RequestInput(requestId);
         String modelName = request.getModelName();
         String modelVersion = request.getModelVersion();
+        boolean customized = request.getCustomized();
 
-        if (modelVersion.equals("all")) {
+        if ("all".equals(modelVersion) || !customized) {
             String resp;
             try {
                 resp =
@@ -50,20 +49,14 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                 sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
             }
         } else {
-            Job job =
-                    new GRPCJob(
-                            responseObserver,
-                            modelName,
-                            modelVersion,
-                            input);
+            input.updateHeaders("describe", "true");
+            Job job = new GRPCJob(responseObserver, modelName, modelVersion, input);
 
             try {
                 if (!ModelManager.getInstance().addJob(job)) {
-                    String responseMessage =
-                            ApiUtils.getDescribeErrorResponseMessage(modelName);
+                    String responseMessage = ApiUtils.getDescribeErrorResponseMessage(modelName);
                     InternalServerException e = new InternalServerException(responseMessage);
-                    sendException(
-                            responseObserver, e, "InternalServerException.()");
+                    sendException(responseObserver, e, "InternalServerException.()");
                 }
             } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
                 sendErrorResponse(responseObserver, Status.INTERNAL, e);
