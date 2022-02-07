@@ -1,3 +1,0 @@
-kfserving
-transformers
-captum

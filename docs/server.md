@@ -20,7 +20,7 @@ Now that you have a high level view of TorchServe, let's get a little into the w
 
 To try out TorchServe serving now, you can load the custom MNIST model, with this example:
 
-* [Digit recognition with MNIST](../examples/image_classifier/mnist)
+* [Digit recognition with MNIST](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist)
 
 After this deep dive, you might also be interested in:
 * [Logging](logging.md): logging options that are available
@@ -34,7 +34,7 @@ After this deep dive, you might also be interested in:
 
 ## Model Files
 
-The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](../model-archiver/README.md).
+The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they're made. Long story short: it's a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the [model-archiver documentation](https://github.com/pytorch/serve/tree/master/model-archiver).
 
 ## Command Line Interface
 
@@ -107,7 +107,7 @@ There are no default required arguments to start the server
 1. **model-store**: mandatory, A location where default or local models are stored. The models available in model store can be registered in TorchServe via [register api call](management_api.md#register-a-model) or via models parameter while starting TorchServe.
 1. **workflow-store**: mandatory, A location where default or local workflows are stored. The workflows available in workflow store can be registered in TorchServe via [register api call](workflow_management_api.md#register-a-workflow).
 1. **ts-config**: optional, provide a [configuration](configuration.md) file in config.properties format.
-1. **log-config**: optional, This parameter will override default log4j.properties, present within the server.
+1. **log-config**: optional, This parameter will override default log4j2.xml, present within the server.
 1. **start**: optional, A more descriptive way to start the server.
 1. **stop**: optional, Stop the server if it is already running.
 

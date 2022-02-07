@@ -10,4 +10,4 @@ grpcio
 protobuf
 grpcio-tools
 transformers==4.11.0
-pygit2
+pygit2==1.6.1

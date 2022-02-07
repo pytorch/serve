@@ -8,6 +8,10 @@ REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
 MINICONDA_DOWNLOAD_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh"
 CONDA_BINARY = os.popen("which conda").read().strip() if os.system(f"conda --version") == 0 else  f"$HOME/miniconda/condabin/conda"
 
+if os.name == "nt":
+    #Assumes miniconda is installed in windows
+    CONDA_BINARY = "conda"
+
 def install_conda_build():
     """
     Install conda-build, required to create conda packages
@@ -23,6 +27,9 @@ def install_miniconda():
     exit_code = os.system(f"conda --version")
     if exit_code == 0:
         print(f"'conda' already present on the system. Proceeding without a fresh minconda installation.")
+        return
+    if os.name == "nt":
+        print("Identified as Windows system. Please install miniconda using this URL: https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe")
         return
 
     os.system(f"rm -rf $HOME/miniconda")

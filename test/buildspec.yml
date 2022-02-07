@@ -7,13 +7,13 @@ phases:
     commands:
       - apt-get update
       - apt-get install sudo -y
-      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
+      - python ts_scripts/install_dependencies.py --environment=dev
 
   build:
     commands:
-      - python test/regression_tests.py 2>&1 | tee /tmp/test_exec.log
+      - /bin/bash -c "set -eo pipefail; python test/regression_tests.py 2>&1 | tee /tmp/test_exec.log"
 
 artifacts:
   files:
     - /tmp/test_exec.log
-  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 
+  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d)

@@ -2,17 +2,26 @@
 Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification
 """
+
 import abc
 import logging
 import os
 import importlib.util
 import time
 import torch
-
+from torch.profiler import profile, record_function, ProfilerActivity
 from ..utils.util import list_classes_from_module, load_label_mapping
+
 
 logger = logging.getLogger(__name__)
 
+ipex_enabled = False
+if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
+    try:
+        import intel_extension_for_pytorch as ipex
+        ipex_enabled = True
+    except ImportError as error:
+        logger.warning("IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX.")
 
 class BaseHandler(abc.ABC):
     """
@@ -30,10 +39,11 @@ class BaseHandler(abc.ABC):
         self.map_location = None
         self.explain = False
         self.target = 0
+        self.profiler_args = {}
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
-	   First try to load torchscript else load eager mode state_dict based model.
+           First try to load torchscript else load eager mode state_dict based model.
 
         Args:
             context (context): It is a JSON Object containing information
@@ -44,7 +54,8 @@ class BaseHandler(abc.ABC):
 
         """
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu"
+        self.map_location = "cuda" if torch.cuda.is_available(
+        ) and properties.get("gpu_id") is not None else "cpu"
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
@@ -63,7 +74,8 @@ class BaseHandler(abc.ABC):
 
         if model_file:
             logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model = self._load_pickled_model(
+                model_dir, model_file, model_pt_path)
             self.model.to(self.device)
         else:
             logger.debug("Loading torchscript model")
@@ -73,6 +85,9 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
+        if ipex_enabled:
+            self.model = self.model.to(memory_format=torch.channels_last)
+            self.model = ipex.optimize(self.model)
 
         logger.debug('Model file %s loaded successfully', model_pt_path)
 
@@ -194,17 +209,67 @@ class BaseHandler(abc.ABC):
         self.context = context
         metrics = self.context.metrics
 
-        data_preprocess = self.preprocess(data)
-
-        if not self._is_explain():
-            output = self.inference(data_preprocess)
-            output = self.postprocess(output)
+        is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
+        if is_profiler_enabled:
+            output, _ = self._infer_with_profiler(data=data)
         else:
-            output = self.explain_handle(data_preprocess, data)
+            data_preprocess = self.preprocess(data)
+
+            if not self._is_explain():
+                output = self.inference(data_preprocess)
+                output = self.postprocess(output)
+            else:
+                output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
-        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        metrics.add_time('HandlerTime', round(
+            (stop_time - start_time) * 1000, 2), None, 'ms')
         return output
+
+    def _infer_with_profiler(self, data):
+        """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
+
+        Args:
+            data (list): The input data that needs to be made a prediction request on.
+
+        Returns:
+            output : Returns a list of dictionary with the predicted response.
+            prof: pytorch profiler object
+        """
+        # Setting the default profiler arguments to profile cpu, gpu usage and record shapes
+        # User can override this argument based on the requirement
+        if not self.profiler_args:
+            self.profiler_args["activities"] = [ProfilerActivity.CPU, ProfilerActivity.CUDA]
+            self.profiler_args["record_shapes"] = True
+
+        if "on_trace_ready" not in self.profiler_args:
+            result_path = "/tmp/pytorch_profiler"
+            dir_name = ""
+            try:
+                model_name = self.manifest["model"]["modelName"]
+                dir_name = model_name
+            except KeyError:
+                logging.debug("Model name not found in config")
+
+            result_path = os.path.join(result_path, dir_name)
+            self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(result_path)
+            logger.info("Saving chrome trace to : ", result_path) # pylint: disable=logging-too-many-args
+
+        with profile(**self.profiler_args) as prof:
+            with record_function("preprocess"):
+                data_preprocess = self.preprocess(data)
+            if not self._is_explain():
+                with record_function("inference"):
+                    output = self.inference(data_preprocess)
+                with record_function("postprocess"):
+                    output = self.postprocess(output)
+            else:
+                with record_function("explain"):
+                    output = self.explain_handle(data_preprocess, data)
+
+        logger.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+        return output, prof
+
 
     def explain_handle(self, data_preprocess, raw_data):
         """Captum explanations handler
