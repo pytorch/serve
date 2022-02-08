@@ -30,6 +30,10 @@ _NumpyToDatatype = {value: key for key, value in _DatatypeToNumpy.items()}
 # NOTE: numpy has more types than v2 protocol
 _NumpyToDatatype["object"] = "BYTES"
 
+# Adding support for unicode string
+# Ref: https://numpy.org/doc/stable/reference/arrays.dtypes.html
+_NumpyToDatatype["U"] = "BYTES"
+
 
 def _to_dtype(datatype: str) -> "np.dtype":
     dtype = _DatatypeToNumpy[datatype]
@@ -38,6 +42,8 @@ def _to_dtype(datatype: str) -> "np.dtype":
 
 def _to_datatype(dtype: np.dtype) -> str:
     as_str = str(dtype)
+    if as_str not in _NumpyToDatatype:
+        as_str = getattr(dtype, "kind")
     datatype = _NumpyToDatatype[as_str]
 
     return datatype
