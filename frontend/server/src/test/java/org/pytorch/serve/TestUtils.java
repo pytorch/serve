@@ -260,7 +260,8 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
-    public static void describeModel(Channel channel, String modelName, String version, boolean customized) {
+    public static void describeModel(
+            Channel channel, String modelName, String version, boolean customized) {
         String requestURL = "/models/" + modelName;
         if (version != null) {
             requestURL += "/" + version;

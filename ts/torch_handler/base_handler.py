@@ -38,7 +38,6 @@ class BaseHandler(abc.ABC):
         self.manifest = None
         self.map_location = None
         self.explain = False
-        self.describe = False
         self.target = 0
         self.profiler_args = {}
 
@@ -215,7 +214,7 @@ class BaseHandler(abc.ABC):
             output, _ = self._infer_with_profiler(data=data)
         else:
             if self._is_describe():
-                output = self.describe_handle()
+                output = [self.describe_handle()]
             else:
                 data_preprocess = self.preprocess(data)
 
@@ -311,7 +310,6 @@ class BaseHandler(abc.ABC):
     def _is_describe(self):
         if self.context and self.context.get_request_header(0, "describe"):
             if self.context.get_request_header(0, "describe") == "True":
-                self.describe = True
                 return True
         return False
 
@@ -319,7 +317,7 @@ class BaseHandler(abc.ABC):
         """Customized describe handler
 
         Returns:
-            dict : A dictionary response with the explanations response.
+            dict : A dictionary response.
         """
         output_describe = None
 

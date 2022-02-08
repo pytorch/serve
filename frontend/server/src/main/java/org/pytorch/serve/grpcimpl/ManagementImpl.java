@@ -49,7 +49,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                 sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
             }
         } else {
-            input.updateHeaders("describe", "true");
+            input.updateHeaders("describe", "True");
             Job job = new GRPCJob(responseObserver, modelName, modelVersion, input);
 
             try {

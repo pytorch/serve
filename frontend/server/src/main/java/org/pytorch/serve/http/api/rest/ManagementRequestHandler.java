@@ -149,7 +149,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             for (Map.Entry<String, String> entry : req.headers().entries()) {
                 input.updateHeaders(entry.getKey(), entry.getValue());
             }
-            input.updateHeaders("describe", "true");
+            input.updateHeaders("describe", "True");
             RestJob job = new RestJob(ctx, modelName, modelVersion, WorkerCommands.DESCRIBE, input);
             if (!ModelManager.getInstance().addJob(job)) {
                 String responseMessage = ApiUtils.getDescribeErrorResponseMessage(modelName);
