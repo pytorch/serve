@@ -30,7 +30,6 @@
   apis
 
 .. toctree::
-  :maxdepth: 0
   :caption: Developer APIs:
   
   api/dev_api
