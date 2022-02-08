@@ -25,6 +25,12 @@
 
 .. toctree::
   :maxdepth: 0
-  :caption: APIs
+  :caption: Service APIs:
   
   apis
+
+.. toctree::
+  :maxdepth: 0
+  :caption: Developer APIs:
+  
+  api/dev_api
