@@ -50,10 +50,10 @@ def launch_instance(
     ami_id,
     instance_type,
     ec2_key_name=None,
-    region="us-west-2",
+    region: str="us-west-2",
     user_data=None,
     iam_instance_profile_name=None,
-    instance_name="",
+    instance_name: str="",
 ):
     """
     Launch an instance
@@ -115,7 +115,7 @@ def get_ec2_client(region):
     return boto3.client("ec2", region_name=region, config=Config(retries={"max_attempts": 10}))
 
 
-def get_instance_from_id(instance_id, region=DEFAULT_REGION):
+def get_instance_from_id(instance_id, region: str=DEFAULT_REGION):
     """
     Get instance information using instance ID
     :param instance_id: Instance ID to be queried
@@ -135,7 +135,7 @@ def get_instance_from_id(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=16, wait_fixed=60000)
-def get_public_ip(instance_id, region=DEFAULT_REGION):
+def get_public_ip(instance_id, region: str=DEFAULT_REGION):
     """
     Get Public IP of instance using instance ID
     :param instance_id: Instance ID to be queried
@@ -149,7 +149,7 @@ def get_public_ip(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=16, wait_fixed=60000)
-def get_public_ip_from_private_dns(private_dns, region=DEFAULT_REGION):
+def get_public_ip_from_private_dns(private_dns, region: str=DEFAULT_REGION):
     """
     Get Public IP of instance using private DNS
     :param private_dns:
@@ -162,7 +162,7 @@ def get_public_ip_from_private_dns(private_dns, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=16, wait_fixed=60000)
-def get_instance_user(instance_id, region=DEFAULT_REGION):
+def get_instance_user(instance_id, region: str=DEFAULT_REGION) -> str:
     """
     Get "ubuntu" or "ec2-user" based on AMI used to launch instance
     :param instance_id: Instance ID to be queried
@@ -175,7 +175,7 @@ def get_instance_user(instance_id, region=DEFAULT_REGION):
     return user
 
 
-def get_instance_state(instance_id, region=DEFAULT_REGION):
+def get_instance_state(instance_id, region: str=DEFAULT_REGION):
     """
     Get state of instance using instance ID
     :param instance_id: Instance ID to be queried
@@ -187,7 +187,7 @@ def get_instance_state(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=16, wait_fixed=60000)
-def check_instance_state(instance_id, state="running", region=DEFAULT_REGION):
+def check_instance_state(instance_id, state: str="running", region: str=DEFAULT_REGION):
     """
     Compares the instance state with the state argument.
     Retries 8 times with 120 seconds gap between retries.
@@ -202,7 +202,7 @@ def check_instance_state(instance_id, state="running", region=DEFAULT_REGION):
     return instance_state
 
 
-def get_system_state(instance_id, region=DEFAULT_REGION):
+def get_system_state(instance_id, region: str=DEFAULT_REGION):
     """
     Returns health checks state for instances
     :param instance_id: Instance ID to be queried
@@ -240,7 +240,7 @@ def get_system_state(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=96, wait_fixed=10000)
-def check_system_state(instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION):
+def check_system_state(instance_id, system_status: str="ok", instance_status: str="ok", region: str=DEFAULT_REGION):
     """
     Compares the system state (Health Checks).
     Retries 96 times with 10 seconds gap between retries
@@ -261,7 +261,7 @@ def check_system_state(instance_id, system_status="ok", instance_status="ok", re
     return instance_state
 
 
-def terminate_instance(instance_id, region=DEFAULT_REGION):
+def terminate_instance(instance_id, region: str=DEFAULT_REGION) -> None:
     """
     Terminate EC2 instances with matching instance ID
     :param instance_id: Instance ID to be terminated
@@ -280,7 +280,7 @@ def terminate_instance(instance_id, region=DEFAULT_REGION):
         raise Exception("Failed to terminate instance. Unknown error.")
 
 
-def get_instance_type_details(instance_type, region=DEFAULT_REGION):
+def get_instance_type_details(instance_type, region: str=DEFAULT_REGION):
     """
     Get instance type details for a given instance type
     :param instance_type: Instance type to be queried
@@ -299,7 +299,7 @@ def get_instance_type_details(instance_type, region=DEFAULT_REGION):
     return response["InstanceTypes"][0]
 
 
-def get_instance_details(instance_id, region=DEFAULT_REGION):
+def get_instance_details(instance_id, region: str=DEFAULT_REGION):
     """
     Get instance details for instance with given instance ID
     :param instance_id: Instance ID to be queried
@@ -333,7 +333,7 @@ def get_ec2_fabric_connection(instance_id, instance_pem_file, region):
     return conn
 
 
-def get_ec2_instance_tags(instance_id, region=DEFAULT_REGION, ec2_client=None):
+def get_ec2_instance_tags(instance_id, region: str=DEFAULT_REGION, ec2_client=None):
     ec2_client = ec2_client or get_ec2_client(region)
     response = ec2_client.describe_tags(Filters=[{"Name": "resource-id", "Values": [instance_id]}])
     return {tag["Key"]: tag["Value"] for tag in response.get("Tags")}

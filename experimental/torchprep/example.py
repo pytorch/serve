@@ -4,13 +4,13 @@ import torchvision
 import os
   
 
-def download_bert():
+def download_bert() -> None:
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
     model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
     torch.save(model, "models/bert.pt")
     
 
-def download_resnet():
+def download_resnet() -> None:
     model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet152', pretrained=True)
     torch.save(model, "models/resnet152.pt")
 

@@ -21,15 +21,15 @@ from ts.service import emit_metrics
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
-BENCHMARK = os.getenv('TS_BENCHMARK')
-BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
+BENCHMARK: bool = os.getenv('TS_BENCHMARK')
+BENCHMARK: bool = BENCHMARK in ['True', 'true', 'TRUE']
 
 
 class TorchModelServiceWorker(object):
     """
     Backend worker to handle Model Server's python service code
     """
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
+    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None) -> None:
         self.sock_type = s_type
         if s_type == "unix":
             if s_name is None:

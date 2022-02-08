@@ -1,0 +1,3 @@
+class JSONEnvelope:
+    def _to_json(self, output) -> str: ...
+

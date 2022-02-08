@@ -2,6 +2,6 @@ from torchvision.models.vgg import VGG, make_layers, cfgs
 
 
 class ImageClassifier(VGG):
-    def __init__(self):
+    def __init__(self) -> None:
         super(ImageClassifier, self).__init__(make_layers(cfgs['D'], False), **{'init_weights': False})
 

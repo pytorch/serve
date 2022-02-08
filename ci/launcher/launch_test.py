@@ -67,7 +67,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
     return command_result_map
 
 
-def launch_ec2_instance(region, instance_type, ami_id):
+def launch_ec2_instance(region, instance_type, ami_id) -> None:
     """
     Note: This function relies on CODEBUILD environment variables. If this function is used outside of CODEBUILD,
     modify the function accordingly.
@@ -163,7 +163,7 @@ def launch_ec2_instance(region, instance_type, ami_id):
         ec2_utils.destroy_ssh_keypair(ec2_client, ec2_key_name)
 
 
-def main():
+def main() -> None:
 
     parser = argparse.ArgumentParser()
 

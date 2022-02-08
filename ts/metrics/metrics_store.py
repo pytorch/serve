@@ -14,7 +14,7 @@ class MetricsStore(object):
     Class for creating, modifying different metrics. And keep them in a dictionary
     """
 
-    def __init__(self, request_ids, model_name):
+    def __init__(self, request_ids, model_name) -> None:
         """
         Initialize metrics map,model name and request map
         """
@@ -23,7 +23,7 @@ class MetricsStore(object):
         self.model_name = model_name
         self.cache = {}
 
-    def _add_or_update(self, name, value, req_id, unit, metrics_method=None, dimensions=None):
+    def _add_or_update(self, name, value, req_id, unit, metrics_method=None, dimensions=None) -> None:
         """
         Add a metric key value pair
 
@@ -81,7 +81,7 @@ class MetricsStore(object):
             req_id = self.request_ids[idx]
         return req_id
 
-    def add_counter(self, name, value, idx=None, dimensions=None):
+    def add_counter(self, name, value, idx=None, dimensions=None) -> None:
         """
         Add a counter metric or increment an existing counter metric
 
@@ -100,7 +100,7 @@ class MetricsStore(object):
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, 'counter', dimensions)
 
-    def add_time(self, name, value, idx=None, unit='ms', dimensions=None):
+    def add_time(self, name, value, idx=None, unit: str='ms', dimensions=None) -> None:
         """
         Add a time based metric like latency, default unit is 'ms'
 
@@ -122,7 +122,7 @@ class MetricsStore(object):
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, dimensions)
 
-    def add_size(self, name, value, idx=None, unit='MB', dimensions=None):
+    def add_size(self, name, value, idx=None, unit: str='MB', dimensions=None) -> None:
         """
         Add a size based metric
 
@@ -144,7 +144,7 @@ class MetricsStore(object):
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, dimensions)
 
-    def add_percent(self, name, value, idx=None, dimensions=None):
+    def add_percent(self, name, value, idx=None, dimensions=None) -> None:
         """
         Add a percentage based metric
 
@@ -163,7 +163,7 @@ class MetricsStore(object):
         req_id = self._get_req(idx)
         self._add_or_update(name, value, req_id, unit, dimensions)
 
-    def add_error(self, name, value, dimensions=None):
+    def add_error(self, name, value, dimensions=None) -> None:
         """
         Add a Error Metric
         Parameters
@@ -180,7 +180,7 @@ class MetricsStore(object):
         # noinspection PyTypeChecker
         self._add_or_update(name, value, None, unit, dimensions)
 
-    def add_metric(self, name, value, unit, idx=None, dimensions=None):
+    def add_metric(self, name, value, unit, idx=None, dimensions=None) -> None:
         """
         Add a metric which is generic with custom metrics
 

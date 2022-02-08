@@ -4,7 +4,7 @@ import os
 import ts
 
 
-def test_ts_version():
+def test_ts_version() -> None:
     with open(os.path.join("ts", "version.txt")) as f:
         __version__ = f.readline().strip()
 

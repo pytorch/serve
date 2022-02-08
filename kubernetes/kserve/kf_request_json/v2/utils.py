@@ -1,5 +1,8 @@
 import numpy as np
 from PIL import Image
+from _typeshed import SupportsRead
+from pathlib import Path
+from typing import Dict, Union
 
 _DatatypeToNumpy = {
     "BOOL": "bool",
@@ -17,7 +20,7 @@ _DatatypeToNumpy = {
     "BYTES": "byte",
 }
 
-_NumpyToDatatype = {value: key for key, value in _DatatypeToNumpy.items()}
+_NumpyToDatatype: Dict[str, str] = {value: key for key, value in _DatatypeToNumpy.items()}
 
 # NOTE: numpy has more types than v2 protocol
 _NumpyToDatatype["object"] = "BYTES"
@@ -33,7 +36,7 @@ def _to_datatype(dtype: np.dtype) -> str:
     return datatype
 
 
-def check_image_with_pil(path):
+def check_image_with_pil(path: Union[SupportsRead[bytes], bytes, Path, str]) -> bool:
     """
     Check if input file is an image
     """

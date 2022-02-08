@@ -11,7 +11,7 @@ from model_archiver.model_archiver_error import ModelArchiverError
 
 
 # noinspection PyClassHasNoInit
-def _validate_mar(patches):
+def _validate_mar(patches) -> None:
     if platform.system() == "Windows":
         patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-model.mar")
     else:

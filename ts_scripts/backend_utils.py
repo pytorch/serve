@@ -2,7 +2,7 @@ import os
 import sys
 
 
-def test_torchserve():
+def test_torchserve() -> None:
     # Lint Test
     print("## Started torchserve linting")
     ts_dir = os.path.join("ts", ".")

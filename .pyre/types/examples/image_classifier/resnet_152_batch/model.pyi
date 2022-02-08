@@ -1,0 +1,3 @@
+class ResNet152ImageClassifier:
+    def __init__(self) -> None: ...
+

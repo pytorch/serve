@@ -20,7 +20,7 @@ class Metric(object):
     """
 
     def __init__(self, name, value,
-                 unit, dimensions, request_id=None, metric_method=None):
+                 unit, dimensions, request_id=None, metric_method=None) -> None:
         """
         Constructor for Metric class
 
@@ -51,7 +51,7 @@ class Metric(object):
         self.dimensions = dimensions
         self.request_id = request_id
 
-    def update(self, value):
+    def update(self, value) -> None:
         """
         Update function for Metric class
 
@@ -66,7 +66,7 @@ class Metric(object):
         else:
             self.value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         dims = ",".join([str(d) for d in self.dimensions])
         if self.request_id:
             return "{}.{}:{}|#{}|#hostname:{},{},{}".format(

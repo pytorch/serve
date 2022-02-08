@@ -31,7 +31,7 @@ DEFAULT_OUTPUT_DIR = "/tmp/pytorch_profiler/resnet-152-batch"
 
 
 @pytest.fixture
-def set_custom_handler(handler_name):
+def set_custom_handler(handler_name) -> None:
     """
     This method downloads resnet serialized file, creates mar file and sets up a custom handler
     for running tests
@@ -95,7 +95,7 @@ def set_custom_handler(handler_name):
     "handler_name",
     [os.path.join(profiler_utils, "resnet_custom.py"), "image_classifier"],
 )
-def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
+def test_profiler_default_and_custom_handler(set_custom_handler, handler_name) -> None:
     """
     Tests pytorch profiler integration with default and custom handler
     """
@@ -113,7 +113,7 @@ def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
     "handler_name",
     [os.path.join(profiler_utils, "resnet_profiler_override.py")],
 )
-def test_profiler_arguments_override(set_custom_handler, handler_name):
+def test_profiler_arguments_override(set_custom_handler, handler_name) -> None:
     """
     Tests pytorch profiler integration when user overrides the profiler arguments
     """
@@ -134,7 +134,7 @@ def test_profiler_arguments_override(set_custom_handler, handler_name):
     "handler_name",
     [os.path.join(profiler_utils, "resnet_profiler_override.py")],
 )
-def test_batch_input(set_custom_handler, handler_name):
+def test_batch_input(set_custom_handler, handler_name) -> None:
     """
     Tests pytorch profiler integration with batch inference
     """

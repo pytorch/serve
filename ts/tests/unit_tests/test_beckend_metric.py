@@ -7,7 +7,7 @@ from ts.metrics.metrics_store import MetricsStore
 from ts.service import emit_metrics
 
 
-def get_model_key(name, unit, req_id, model_name):
+def get_model_key(name, unit, req_id, model_name) -> str:
     dimensions = list()
     dimensions.append(Dimension("ModelName", model_name))
     dimensions.append(Dimension("Level", "Model"))
@@ -15,14 +15,14 @@ def get_model_key(name, unit, req_id, model_name):
     return '-'.join(dim_str)
 
 
-def get_error_key(name, unit):
+def get_error_key(name, unit) -> str:
     dimensions = list()
     dimensions.append(Dimension("Level", "Error"))
     dim_str = [name, unit, 'None'] + [str(d) for d in dimensions]
     return '-'.join(dim_str)
 
 
-def test_metrics(caplog):
+def test_metrics(caplog) -> None:
     """
     Test if metric classes methods behave as expected
     Also checks global metric service methods

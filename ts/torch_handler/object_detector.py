@@ -18,7 +18,7 @@ class ObjectDetector(VisionHandler):
     image_processing = transforms.Compose([transforms.ToTensor()])
     threshold = 0.5
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         super().initialize(context)
 
         properties = context.system_properties

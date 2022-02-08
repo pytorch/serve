@@ -175,7 +175,7 @@ def profile_model(model :torch.nn.Module, input_tensor, label : str = "model", i
     print(f"Max p99 latency for {label} is: {max_latency} ms")
     return [avg, min_latency, max_latency]
 
-def load_model(model_path: str, device="cpu") -> torch.nn.Module:
+def load_model(model_path: str, device: str="cpu") -> torch.nn.Module:
     map_location = torch.device(device)
     model = torch.load(model_path, map_location=map_location)
     return model

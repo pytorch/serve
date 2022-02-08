@@ -1,0 +1,3 @@
+class WorkflowArchiverError:
+    def __init__(self, message) -> None: ...
+

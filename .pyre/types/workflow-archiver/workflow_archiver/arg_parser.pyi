@@ -1,0 +1,3 @@
+class ArgParser:
+    def workflow_archiver_args_parser() -> argparse.ArgumentParser: ...
+

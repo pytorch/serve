@@ -11,11 +11,11 @@ class MockContext():
     Mock class to replicate the context passed into model initialize
     """
     def __init__(self,
-                 model_pt_file='model.pt',
-                 model_dir='ts/torch_handler/unit_tests/models/tmp',
-                 model_file='model.py',
-                 gpu_id='0',
-                 model_name="mnist"):
+                 model_pt_file: str='model.pt',
+                 model_dir: str='ts/torch_handler/unit_tests/models/tmp',
+                 model_file: str='model.py',
+                 gpu_id: str='0',
+                 model_name: str="mnist") -> None:
         self.manifest = {
             'model': {
                 'serializedFile': model_pt_file,
@@ -35,7 +35,7 @@ class MockContext():
         self.explain = False
         self.metrics = MetricsStore(uuid.uuid4(), model_name)
 
-    def get_request_header(self, idx, exp):
+    def get_request_header(self, idx, exp) -> bool:
         if idx and exp:
             if self.explain:
                 return True

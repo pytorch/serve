@@ -3,6 +3,9 @@ mock
 pytest
 pylint==2.6.0
 pytest-mock
+black
+flake8
+usort
 pytest-cov
 nvgpu; sys_platform != 'win32'
 nvgpu==0.8.0; sys_platform == 'win32'

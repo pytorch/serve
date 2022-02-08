@@ -1,4 +1,6 @@
 import transformers
+from io import TextIOWrapper
+
 from pathlib import Path
 import os
 import json
@@ -13,7 +15,7 @@ print('Transformers version',transformers.__version__)
 set_seed(1)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case,max_length,torchscript):
+def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_case,max_length,torchscript) -> None:
     print("Download model and tokenizer", pretrained_model_name)
     #loading pre-trained model and tokenizer
     if mode== "sequence_classification":
@@ -57,7 +59,7 @@ def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_
 if __name__== "__main__":
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, 'setup_config.json')
-    f = open(filename)
+    f: TextIOWrapper = open(filename)
     settings = json.load(f)
     mode = settings["mode"]
     model_name = settings["model_name"]

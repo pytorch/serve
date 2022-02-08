@@ -13,19 +13,21 @@ from transformers import (
 )
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
+from _ast import AST
+from typing import Any, Dict, List, Union
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 logger.info("Transformers version %s",transformers.__version__)
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(TransformersSeqClassifierHandler, self).__init__()
         self.initialized = False
 
-    def initialize(self, ctx):
+    def initialize(self, ctx) -> None:
         """In this initialize function, the BERT model is loaded and
         the Layer Integrated Gradients Algorithm for Captum Explanations
         is initialized here.
@@ -231,7 +233,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         """
         return inference_output
 
-    def get_insights(self, input_batch, text, target):
+    def get_insights(self, input_batch, text: Union[AST, str], target) -> List[Dict[str, Any]]:
         """This function initialize and calls the layer integrated gradient to get word importance
         of the input text if captum explanation has been selected through setup_config
         Args:
@@ -306,7 +308,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         return [response]
 
 
-def construct_input_ref(text, tokenizer, device, mode):
+def construct_input_ref(text: Union[AST, str], tokenizer, device, mode):
     """For a given text, this function creates token id, reference id and
     attention mask based on encode which is faster for captum insights
     Args:
@@ -345,7 +347,7 @@ def construct_input_ref(text, tokenizer, device, mode):
     return input_ids, ref_input_ids, attention_mask
 
 
-def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None):
+def captum_sequence_forward(inputs, attention_mask=None, position: int=0, model=None):
     """This function is used to get the predictions from the model and this function 
     can be used independent of the type of the BERT Task. 
     Args:

@@ -4,21 +4,22 @@ import os
 import test_gRPC_utils
 import test_utils
 from urllib import parse
+from urllib.parse import SplitResult
 
 
 management_data_json = "/../postman/management_data.json"
 
 
-def setup_module(module):
+def setup_module(module) -> None:
     test_utils.torchserve_cleanup()
     test_utils.start_torchserve()
 
 
-def teardown_module(module):
+def teardown_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
-def __get_parsed_url(path):
+def __get_parsed_url(path) -> SplitResult:
     return parse.urlsplit(path)
 
 
@@ -82,7 +83,7 @@ def __get_list_params(parsed_url):
     return __get_path_query_params(parsed_url)
 
 
-def test_management_apis():
+def test_management_apis() -> None:
     api_mapping = {
         "register": "RegisterModel",
         "unregister": "UnregisterModel",

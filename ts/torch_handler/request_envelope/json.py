@@ -63,7 +63,7 @@ class JSONEnvelope(BaseEnvelope):
             cursor = cursor_end
         return outputs
 
-    def _to_json(self, output):
+    def _to_json(self, output) -> str:
         """
         Converts the output of the model back into compatible JSON
         """

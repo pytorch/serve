@@ -7,15 +7,15 @@ import json
 import test_utils
 
 
-def setup_module(module):
+def setup_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
-def teardown_module(module):
+def teardown_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
-def replace_mar_file_with_dummy_mar_in_model_store(model_store=None, model_mar=None):
+def replace_mar_file_with_dummy_mar_in_model_store(model_store=None, model_mar=None) -> None:
     model_store = model_store if (model_store != None) else f"{test_utils.ROOT_DIR}/model_store/"
     if model_mar != None:
         myfilepath = model_store + "/" + model_mar
@@ -25,7 +25,7 @@ def replace_mar_file_with_dummy_mar_in_model_store(model_store=None, model_mar=N
                 f.write("junk data")
 
 
-def test_snapshot_created_on_start_and_stop():
+def test_snapshot_created_on_start_and_stop() -> None:
     """
     Validates that startup .cfg & shutdown.cfg are created upon start & stop.
     """
@@ -37,7 +37,7 @@ def test_snapshot_created_on_start_and_stop():
         assert len(glob.glob('logs/config/*shutdown.cfg')) == 1
 
 
-def snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
+def snapshot_created_on_management_api_invoke(model_mar: str="densenet161.mar") -> None:
     test_utils.delete_all_snapshots()
     test_utils.start_torchserve()
     mar_path = "mar_path_{}".format(model_mar[0:-4])
@@ -50,7 +50,7 @@ def snapshot_created_on_management_api_invoke(model_mar="densenet161.mar"):
     test_utils.stop_torchserve()
 
 
-def test_snapshot_created_on_management_api_invoke():
+def test_snapshot_created_on_management_api_invoke() -> None:
     """
     Validates that snapshot.cfg is created when management apis are invoked.
     """
@@ -58,7 +58,7 @@ def test_snapshot_created_on_management_api_invoke():
     assert len(glob.glob('logs/config/*snap*.cfg')) == 1
 
 
-def test_start_from_snapshot():
+def test_start_from_snapshot() -> None:
     """
     Validates if we can restore state from snapshot.
     """
@@ -69,7 +69,7 @@ def test_start_from_snapshot():
     test_utils.stop_torchserve()
 
 
-def test_start_from_latest():
+def test_start_from_latest() -> None:
     """
     Validates if latest snapshot file is picked if we dont pass snapshot arg explicitly.
     """
@@ -79,7 +79,7 @@ def test_start_from_latest():
     test_utils.stop_torchserve()
 
 
-def test_start_from_read_only_snapshot():
+def test_start_from_read_only_snapshot() -> None:
     """
     Validates if we can start and restore Torchserve state using a read-only snapshot.
     """
@@ -96,7 +96,7 @@ def test_start_from_read_only_snapshot():
         assert True, "Successfully started and restored Torchserve state using a Read Only Snapshot"
 
 
-def test_no_config_snapshots_cli_option():
+def test_no_config_snapshots_cli_option() -> None:
     """
     Validates that --no-config-snapshots works as expected.
     """
@@ -108,7 +108,7 @@ def test_no_config_snapshots_cli_option():
     assert len(glob.glob('logs/config/*.cfg')) == 0
 
 
-def test_start_from_default():
+def test_start_from_default() -> None:
     """
     Validates that Default config is used if we dont use a config explicitly.
     """
@@ -118,7 +118,7 @@ def test_start_from_default():
     assert len(json.loads(response.content)['models']) == 0
 
 
-def test_start_from_non_existing_snapshot():
+def test_start_from_non_existing_snapshot() -> None:
     """
     Validates that Torchserve should fail to start when we pass a non-existent snapshot
      as an input snapshot while starting Torchserve.
@@ -134,7 +134,7 @@ def test_start_from_non_existing_snapshot():
                       "using Non Existing Snapshot File!!"
 
 
-def test_torchserve_init_with_non_existent_model_store():
+def test_torchserve_init_with_non_existent_model_store() -> None:
     """Validates that Torchserve fails to start if the model store directory is non existent """
 
     test_utils.start_torchserve(model_store="/invalid_model_store", snapshot_file=None, no_config_snapshots=True)
@@ -150,7 +150,7 @@ def test_torchserve_init_with_non_existent_model_store():
         test_utils.delete_all_snapshots()
 
 
-def test_restart_torchserve_with_last_snapshot_with_model_mar_removed():
+def test_restart_torchserve_with_last_snapshot_with_model_mar_removed() -> None:
     """Validates that torchserve will fail to start in the following scenario:
         1) We use a snapshot file to start torchserve. The snapshot contains reference to "A" model file
         2) The "A" model mar file is accidentally deleted from the model store"""
@@ -176,7 +176,7 @@ def test_restart_torchserve_with_last_snapshot_with_model_mar_removed():
         test_utils.delete_all_snapshots()
 
 
-def test_replace_mar_file_with_dummy():
+def test_replace_mar_file_with_dummy() -> None:
     """Validates that torchserve will fail to start in the following scenario:
         1) We use a snapshot file to start torchserve. The snapshot contains reference to "A" model file
         2) "A" model file gets corrupted or is replaced by some dummy mar file with same name"""
@@ -207,7 +207,7 @@ def test_replace_mar_file_with_dummy():
         test_utils.delete_model_store()
 
 
-def test_restart_torchserve_with_one_of_model_mar_removed():
+def test_restart_torchserve_with_one_of_model_mar_removed() -> None:
     """Validates that torchserve will fail to start in the following scenario:
         1) We use a snapshot file to start torchserve. The snapshot contains reference to few model files
         2) One of these model mar files are accidentally deleted from the model store"""

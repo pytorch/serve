@@ -14,12 +14,13 @@ from ts.model_loader import TsModelLoader
 from ts.model_loader import ModelLoaderFactory
 from ts.model_service.model_service import SingleNodeService
 from ts.utils.util import list_classes_from_module
+from ts.tests.unit_tests.test_model_loader.TestLoadModels.patches import Patches
 
 
 # noinspection PyClassHasNoInit
 # @pytest.mark.skip(reason="Disabling it currently until the PR #467 gets merged")
 class TestModelFactory:
-    def test_model_loader_factory(self):
+    def test_model_loader_factory(self) -> None:
         model_loader = ModelLoaderFactory.get_model_loader()
 
         assert isinstance(model_loader, TsModelLoader)
@@ -28,14 +29,14 @@ class TestModelFactory:
 # noinspection PyClassHasNoInit
 class TestListModels:
 
-    def test_list_models_legacy(self):
+    def test_list_models_legacy(self) -> None:
         sys.path.append(os.path.abspath('ts/tests/unit_tests/model_service/dummy_model'))
         module = importlib.import_module('dummy_model_service')
         classes = list_classes_from_module(module, SingleNodeService)
         assert len(classes) == 1
         assert issubclass(classes[0], SingleNodeService)
 
-    def test_list_models(self):
+    def test_list_models(self) -> None:
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         module = importlib.import_module('dummy_class_model_service')
         classes = list_classes_from_module(module)
@@ -52,7 +53,7 @@ class TestLoadModels:
                     '"Signature":"signature.json","Model-Name":"testmodel"}}'
 
     @pytest.fixture()
-    def patches(self, mocker):
+    def patches(self, mocker) -> Patches:
         Patches = namedtuple('Patches', ['mock_open', 'os_path', "is_file", "open_signature"])
         patches = Patches(
             mocker.patch('ts.model_loader.open'),
@@ -62,7 +63,7 @@ class TestLoadModels:
         )
         return patches
 
-    def test_load_class_model(self, patches):
+    def test_load_class_model(self, patches) -> None:
         patches.mock_open.side_effect = [mock.mock_open(read_data=self.mock_manifest).return_value]
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
@@ -72,7 +73,7 @@ class TestLoadModels:
 
         assert inspect.ismethod(service._entry_point)
 
-    def test_load_func_model(self, patches):
+    def test_load_func_model(self, patches) -> None:
         patches.mock_open.side_effect = [mock.mock_open(read_data=self.mock_manifest).return_value]
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
@@ -83,7 +84,7 @@ class TestLoadModels:
         assert isinstance(service._entry_point, types.FunctionType)
         assert service._entry_point.__name__ == 'infer'
 
-    def test_load_func_model_with_error(self, patches):
+    def test_load_func_model_with_error(self, patches) -> None:
         patches.mock_open.side_effect = [mock.mock_open(read_data=self.mock_manifest).return_value]
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))
         patches.os_path.return_value = True
@@ -92,7 +93,7 @@ class TestLoadModels:
         with pytest.raises(ValueError, match=r"Expected only one class .*"):
             model_loader.load(self.model_name, self.model_dir, handler, 0, 1)
 
-    def test_load_model_with_error(self, patches):
+    def test_load_model_with_error(self, patches) -> None:
         patches.mock_open.side_effect = [
             mock.mock_open(read_data='{"test" : "h"}').return_value]
         sys.path.append(os.path.abspath('ts/tests/unit_tests/test_utils/'))

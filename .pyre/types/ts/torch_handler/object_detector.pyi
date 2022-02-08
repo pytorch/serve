@@ -1,0 +1,3 @@
+class ObjectDetector:
+    def initialize(self, context) -> None: ...
+

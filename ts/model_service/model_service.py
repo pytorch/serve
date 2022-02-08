@@ -21,12 +21,12 @@ class ModelService(object):
     __metaclass__ = ABCMeta
 
     # noinspection PyUnusedLocal
-    def __init__(self, model_name, model_dir, manifest, gpu=None):  # pylint: disable=unused-argument
+    def __init__(self, model_name, model_dir, manifest, gpu=None) -> None:  # pylint: disable=unused-argument
         self.ctx = None
         self._context = None
         self._signature = None
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         """
         Internal initialize ModelService.
 

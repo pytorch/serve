@@ -1,0 +1,3 @@
+class ResnetHandler:
+    def __init__(self) -> None: ...
+

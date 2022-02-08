@@ -30,7 +30,7 @@ class TorchserveModel(Model):
         side predict and explain http requests.
     """
 
-    def __init__(self, name, inference_address, management_address, model_dir):
+    def __init__(self, name, inference_address, management_address, model_dir) -> None:
         """The Model Name, Inference Address, Management Address and the model directory
         are specified.
 

@@ -6,7 +6,7 @@ import json
 import logging
 from .base import BaseEnvelope
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class KServeEnvelope(BaseEnvelope):
@@ -55,7 +55,7 @@ class KServeEnvelope(BaseEnvelope):
             response["explanations"] = data
         return [response]
 
-    def _is_explain(self):
+    def _is_explain(self) -> bool:
         if self.context and self.context.get_request_header(0, "explain"):
             if self.context.get_request_header(0, "explain") == "True":
                 return True

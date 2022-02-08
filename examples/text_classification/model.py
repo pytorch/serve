@@ -17,13 +17,13 @@ to process a sequence of tensors.
 
 
 class TextSentiment(nn.Module):
-    def __init__(self, vocab_size=1308843, embed_dim=32, num_class=4):
+    def __init__(self, vocab_size: int=1308843, embed_dim: int=32, num_class: int=4) -> None:
         super(TextSentiment, self).__init__()
         self.embedding = nn.EmbeddingBag(vocab_size, embed_dim, sparse=True)
         self.fc = nn.Linear(embed_dim, num_class)
         self.init_weights()
 
-    def init_weights(self):
+    def init_weights(self) -> None:
         initrange = 0.5
         self.embedding.weight.data.uniform_(-initrange, initrange)
         self.fc.weight.data.uniform_(-initrange, initrange)

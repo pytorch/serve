@@ -6,7 +6,7 @@ import logging
 import argparse
 
 ## Enable logging so we can see any important warnings
-logger = logging.getLogger('Neuron')
+logger: logging.Logger = logging.getLogger('Neuron')
 logger.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser()
@@ -17,7 +17,7 @@ action="store",
 help="Supply a .yaml file with test_name, instance_id, and key_filename to re-use already-running instances",
 )
 
-arguments = parser.parse_args()
+arguments: argparse.Namespace = parser.parse_args()
 
 batch_size = int(arguments.batch_size)
 

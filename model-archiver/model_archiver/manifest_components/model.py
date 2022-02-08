@@ -10,7 +10,7 @@ class Model(object):
     """
 
     def __init__(self, model_name, serialized_file, handler, model_file=None, model_version=None,
-                 extensions=None, requirements_file=None):
+                 extensions=None, requirements_file=None) -> None:
 
         self.model_name = model_name
         self.serialized_file = None
@@ -54,8 +54,8 @@ class Model(object):
 
         return model_dict
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps(self.model_dict)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return json.dumps(self.model_dict)

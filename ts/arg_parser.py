@@ -15,7 +15,7 @@ class ArgParser(object):
     TODO : Add readme url
     """
     @staticmethod
-    def ts_parser():
+    def ts_parser() -> argparse.ArgumentParser:
         """
         Argument parser for torchserve start service
         """
@@ -60,7 +60,7 @@ class ArgParser(object):
         return parser
 
     @staticmethod
-    def model_service_worker_args():
+    def model_service_worker_args() -> argparse.ArgumentParser:
         """
         ArgParser for backend worker. Takes the socket name and socket type.
         :return:

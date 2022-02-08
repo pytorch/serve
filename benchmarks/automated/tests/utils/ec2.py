@@ -56,7 +56,7 @@ def get_instance_state(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=16, wait_fixed=60000)
-def check_instance_state(instance_id, state="running", region=DEFAULT_REGION):
+def check_instance_state(instance_id, state: str="running", region=DEFAULT_REGION):
     """
     Compares the instance state with the state argument.
     Retries 8 times with 120 seconds gap between retries.
@@ -98,7 +98,7 @@ def get_system_state(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=96, wait_fixed=10000)
-def check_system_state(instance_id, system_status="ok", instance_status="ok", region=DEFAULT_REGION):
+def check_system_state(instance_id, system_status: str="ok", instance_status: str="ok", region=DEFAULT_REGION):
     """
     Compares the system state (Health Checks).
     Retries 96 times with 10 seconds gap between retries
@@ -148,7 +148,7 @@ def get_public_ip(instance_id, region=DEFAULT_REGION):
 
 
 @retry(stop_max_attempt_number=16, wait_fixed=60000)
-def get_instance_user(instance_id, region=DEFAULT_REGION):
+def get_instance_user(instance_id, region=DEFAULT_REGION) -> str:
     """
     Get "ubuntu" or "ec2-user" based on AMI used to launch instance
     :param instance_id: Instance ID to be queried

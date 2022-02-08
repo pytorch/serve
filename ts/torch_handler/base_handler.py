@@ -13,7 +13,7 @@ from torch.profiler import profile, record_function, ProfilerActivity
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 ipex_enabled = False
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
@@ -29,7 +29,7 @@ class BaseHandler(abc.ABC):
     Also, provides handle method per torch serve custom model specification
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = None
         self.mapping = None
         self.device = None
@@ -41,7 +41,7 @@ class BaseHandler(abc.ABC):
         self.target = 0
         self.profiler_args = {}
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         """Initialize function loads the model.pt file and initialized the model object.
            First try to load torchscript else load eager mode state_dict based model.
 
@@ -297,7 +297,7 @@ class BaseHandler(abc.ABC):
         output_explain = self.get_insights(data_preprocess, inputs, target)
         return output_explain
 
-    def _is_explain(self):
+    def _is_explain(self) -> bool:
         if self.context and self.context.get_request_header(0, "explain"):
             if self.context.get_request_header(0, "explain") == "True":
                 self.explain = True

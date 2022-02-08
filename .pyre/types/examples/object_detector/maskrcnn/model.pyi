@@ -1,0 +1,3 @@
+class MASKRCNNObjectDetector:
+    def __init__(self, num_classes: int = 91, **kwargs) -> None: ...
+

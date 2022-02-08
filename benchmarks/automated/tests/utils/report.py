@@ -21,13 +21,13 @@ TMP_DIR = "/tmp"
 from . import LOGGER
 
 class MarkdownTable:
-    def __init__(self):
+    def __init__(self) -> None:
         self.table_content = ""
 
-    def create_two_column_table(self, header_1: str, header_2: str):
+    def create_two_column_table(self, header_1: str, header_2: str) -> None:
         self.table_content += f"| {header_1} | {header_2} |\n | --- | --- |"
 
-    def add_row_to_two_column_table(self, column_1_content: str, column_2_content: str):
+    def add_row_to_two_column_table(self, column_1_content: str, column_2_content: str) -> None:
         column_1_rows = column_1_content.split("\n")
         column_2_rows = column_2_content.split("\n")
 
@@ -37,7 +37,7 @@ class MarkdownTable:
 
             self.table_content += f"\n| {column_1_item} | {column_2_item} |"
 
-    def get_table(self):
+    def get_table(self) -> str:
         return self.table_content
 
 
@@ -46,10 +46,10 @@ class MarkdownDocument:
     Basic methods to handle markdown content
     """
 
-    def __init__(self, title=""):
+    def __init__(self, title: str="") -> None:
         self.markdown_content = f"### {title}"
     
-    def add_markdown_from_csv(self, file_path, delimiter):
+    def add_markdown_from_csv(self, file_path, delimiter) -> None:
         """
         :param file_path: path to the csv file
         :param delimiter: spaces or tabs
@@ -86,7 +86,7 @@ class MarkdownDocument:
         print("The markdown file has been created!!!")
 
 
-    def add_code_block(self, content: str, newline=True):
+    def add_code_block(self, content: str, newline: bool=True) -> None:
         """
         Returns a string with markdown content
         :param content:str
@@ -97,7 +97,7 @@ class MarkdownDocument:
 
         self.markdown_content += str(f"{newline_modifier}{backticks_modifier}\n{content}\n{backticks_modifier}{newline_modifier}")
 
-    def add_paragraph(self, content: str, bold=False, italics=False, newline=True):
+    def add_paragraph(self, content: str, bold: bool=False, italics: bool=False, newline: bool=True) -> None:
         """
         Returns a string with markdown content
         :param content:str
@@ -109,22 +109,22 @@ class MarkdownDocument:
 
         self.markdown_content += str(f"{newline_modifier}{italics_modifier}{bold_modifier}{content}{bold_modifier}{italics_modifier}{newline_modifier}")
 
-    def add_newline(self):
+    def add_newline(self) -> None:
         """
         Simply add a newline to markdown content
         :return:
         """
         self.markdown_content += "\n"
 
-    def get_document(self):
+    def get_document(self) -> str:
         return self.markdown_content
 
 class Report:
-    def __init__(self):
+    def __init__(self) -> None:
         self.tmp_report_dir = os.path.join("/tmp", "report")
 
 
-    def download_benchmark_results_from_s3(self, s3_uri):
+    def download_benchmark_results_from_s3(self, s3_uri) -> None:
         """
         Download benchmark results of various runs from s3
         """
@@ -137,7 +137,7 @@ class Report:
         run(f"aws s3 cp --recursive {s3_uri} {self.tmp_report_dir}")
 
 
-    def generate_comprehensive_report(self):
+    def generate_comprehensive_report(self) -> None:
         """
         Compile a markdown file with different csv files as input
         """

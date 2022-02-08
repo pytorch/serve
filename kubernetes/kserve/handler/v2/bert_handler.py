@@ -25,8 +25,9 @@ from transformers import BertTokenizer
 from ts.torch_handler.base_handler import BaseHandler
 from bert_train import BertNewsClassifier
 from wrapper import AGNewsmodelWrapper
+from typing import Any, Dict, List
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-attributes
@@ -36,7 +37,7 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
     either world / sports / business /sci-tech.
     """
 
-    def __init__(self):  # pylint: disable=super-init-not-called
+    def __init__(self) -> None:  # pylint: disable=super-init-not-called
         self.model = None
         self.mapping = None
         self.device = None
@@ -44,7 +45,7 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
         self.class_mapping_file = None
         self.vocab_file = None
 
-    def initialize(self, ctx):  # pylint: disable=arguments-differ
+    def initialize(self, ctx) -> None:  # pylint: disable=arguments-differ
         """First try to load torchscript else load eager mode state_dict based
         model.
 
@@ -149,7 +150,7 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
         attr_class,
         delta,
         vis_data_records,
-    ):
+    ) -> None:
         """Adds attribution to visualizer."""
         attributions = attributions.sum(dim=2).squeeze(0)
         attributions = attributions / torch.norm(attributions)
@@ -187,7 +188,7 @@ class NewsClassifierHandler(BaseHandler):  # pylint: disable=too-many-instance-a
         attributions = attributions / torch.norm(attributions)
         return attributions
 
-    def explain_handle(self, model_wraper, text, target=1):  # pylint: disable=too-many-locals,unused-argument,arguments-differ
+    def explain_handle(self, model_wraper, text, target: int=1) -> List[Dict[str, Any]]:  # pylint: disable=too-many-locals,unused-argument,arguments-differ
         """Captum explanations handler.
 
         Args:

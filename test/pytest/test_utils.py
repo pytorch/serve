@@ -12,12 +12,13 @@ import tempfile
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 sys.path.append(REPO_ROOT)
 from ts_scripts import marsgen as mg
+from requests.models import Response
 
 ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
-def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True):
+def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots: bool=False, gen_mar: bool=True) -> None:
     stop_torchserve()
     crate_mar_file_table()
     cmd = ["torchserve", "--start"]
@@ -34,25 +35,25 @@ def start_torchserve(model_store=None, snapshot_file=None, no_config_snapshots=F
     time.sleep(10)
 
 
-def stop_torchserve():
+def stop_torchserve() -> None:
     subprocess.run(["torchserve", "--stop"])
     time.sleep(10)
 
 
-def delete_all_snapshots():
+def delete_all_snapshots() -> None:
     for f in glob.glob('logs/config/*'):
         os.remove(f)
     assert len(glob.glob('logs/config/*')) == 0
 
 
-def delete_model_store(model_store=None):
+def delete_model_store(model_store=None) -> None:
     """Removes all model mar files from model store"""
     model_store = model_store if model_store else MODEL_STORE
     for f in glob.glob(model_store + "/*.mar"):
         os.remove(f)
 
 
-def torchserve_cleanup():
+def torchserve_cleanup() -> None:
     stop_torchserve()
     delete_model_store()
     delete_all_snapshots()
@@ -68,17 +69,17 @@ def register_model(model_name, url):
     return register_model_with_params(params)
 
 
-def register_model_with_params(params):
+def register_model_with_params(params) -> Response:
     response = requests.post('http://localhost:8081/models', params=params)
     return response
 
 
-def unregister_model(model_name):
+def unregister_model(model_name) -> Response:
     response = requests.delete('http://localhost:8081/models/{}'.format(model_name))
     return response
 
 
-def delete_mar_file_from_model_store(model_store=None, model_mar=None):
+def delete_mar_file_from_model_store(model_store=None, model_mar=None) -> None:
     model_store = model_store if (model_store is not None) else f"{ROOT_DIR}/model_store/"
     if model_mar is not None:
         for f in glob.glob(path.join(model_store, model_mar + "*")):
@@ -86,7 +87,7 @@ def delete_mar_file_from_model_store(model_store=None, model_mar=None):
 
 environment_json = "/../postman/environment.json"
 mar_file_table = {}
-def crate_mar_file_table():
+def crate_mar_file_table() -> None:
     if not mar_file_table:
         with open(os.path.dirname(__file__) + environment_json, 'rb') as f:
             env = json.loads(f.read())
@@ -95,7 +96,7 @@ def crate_mar_file_table():
                 mar_file_table[item['key']] = item['value']
 
 
-def model_archiver_command_builder(model_name=None, version=None, model_file=None, serialized_file=None, handler=None, extra_files=None, force=False):
+def model_archiver_command_builder(model_name=None, version=None, model_file=None, serialized_file=None, handler=None, extra_files=None, force: bool=False) -> str:
     cmd = "torch-model-archiver"
 
     if model_name:

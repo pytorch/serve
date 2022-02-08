@@ -5,6 +5,9 @@ import test_utils
 import numpy as np
 import ast 
 import pytest
+from requests.models import Response
+from typing import Optional, Tuple
+
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
@@ -12,7 +15,7 @@ data_file_mnist = os.path.join(REPO_ROOT, 'examples/image_classifier/mnist/test_
 input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kserve/kf_request_json/mnist.json")
 input_json_mmf = os.path.join(REPO_ROOT, "examples/MMF-activity-recognition/372CC.info.json")
 
-def getAPIS(snapshot_file):
+def getAPIS(snapshot_file) -> Tuple[str, str]:
     MANAGEMENT_API = "http://127.0.0.1:8081"
     INFERENCE_API = "http://127.0.0.1:8080"
     
@@ -31,16 +34,16 @@ def getAPIS(snapshot_file):
 KF_MANAGEMENT_API, KF_INFERENCE_API = getAPIS(snapshot_file_kf)
 TF_MANAGEMENT_API, TF_INFERENCE_API = getAPIS(snapshot_file_tf)
 
-def setup_module(module):
+def setup_module(module) -> None:
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
     open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
 
-def teardown_module(module):
+def teardown_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
-def mnist_model_register_using_non_existent_handler_then_scale_up(synchronous=False):
+def mnist_model_register_using_non_existent_handler_then_scale_up(synchronous: bool=False) -> Response:
     """
     Validates that snapshot.cfg is created when management apis are invoked.
     """
@@ -59,7 +62,7 @@ def mnist_model_register_using_non_existent_handler_then_scale_up(synchronous=Fa
     return response
 
 
-def mnist_model_register_and_scale_using_non_existent_handler_synchronous():
+def mnist_model_register_and_scale_using_non_existent_handler_synchronous() -> None:
     # Register & Scale model
     response = mnist_model_register_using_non_existent_handler_then_scale_up(synchronous=True)
     mnist_list = json.loads(response.content)
@@ -71,7 +74,7 @@ def mnist_model_register_and_scale_using_non_existent_handler_synchronous():
         test_utils.unregister_model("mnist")
 
 
-def mnist_model_register_and_scale_using_non_existent_handler_asynchronous():
+def mnist_model_register_and_scale_using_non_existent_handler_asynchronous() -> None:
     # Register & Scale model
     response = mnist_model_register_using_non_existent_handler_then_scale_up()
     mnist_list = json.loads(response.content)
@@ -83,7 +86,7 @@ def mnist_model_register_and_scale_using_non_existent_handler_asynchronous():
         test_utils.unregister_model("mnist")
 
 
-def run_inference_using_url_with_data(purl=None, pfiles=None, ptimeout=120):
+def run_inference_using_url_with_data(purl=None, pfiles=None, ptimeout: int=120) -> Optional[Response]:
     if purl is None and pfiles is None:
         return
     try:
@@ -93,7 +96,7 @@ def run_inference_using_url_with_data(purl=None, pfiles=None, ptimeout=120):
     else:
         return response
 
-def run_inference_using_url_with_data_json(purl=None, json_input=None, ptimeout=120):
+def run_inference_using_url_with_data_json(purl=None, json_input=None, ptimeout: int=120) -> Optional[Response]:
     if purl is None and pfiles is None:
         return
     try:
@@ -104,7 +107,7 @@ def run_inference_using_url_with_data_json(purl=None, json_input=None, ptimeout=
         return response
 
 
-def test_mnist_model_register_and_inference_on_valid_model():
+def test_mnist_model_register_and_inference_on_valid_model() -> None:
     """
     Validates that snapshot.cfg is created when management apis are invoked.
     """
@@ -120,7 +123,7 @@ def test_mnist_model_register_and_inference_on_valid_model():
     test_utils.unregister_model("mnist")
 
 
-def test_mnist_model_register_using_non_existent_handler_with_nonzero_workers():
+def test_mnist_model_register_using_non_existent_handler_with_nonzero_workers() -> None:
     """
     Validates that a model cannot be registered with a non existent handler if
     the initial number of workers is greater than zero.
@@ -139,7 +142,7 @@ def test_mnist_model_register_using_non_existent_handler_with_nonzero_workers():
     test_utils.unregister_model("mnist")
 
 
-def test_mnist_model_register_scale_inference_with_non_existent_handler():
+def test_mnist_model_register_scale_inference_with_non_existent_handler() -> None:
     response = mnist_model_register_using_non_existent_handler_then_scale_up()
     mnist_list = json.loads(response.content)
     assert len(mnist_list[0]['workers']) > 1
@@ -157,7 +160,7 @@ def test_mnist_model_register_scale_inference_with_non_existent_handler():
                           "despite passing non existent handler"
 
 
-def test_mnist_model_register_and_inference_on_valid_model_explain():
+def test_mnist_model_register_and_inference_on_valid_model_explain() -> None:
     """
     Validates that snapshot.cfg is created when management apis are invoked.
     """
@@ -173,7 +176,7 @@ def test_mnist_model_register_and_inference_on_valid_model_explain():
     test_utils.unregister_model("mnist")
 
 
-def test_kserve_mnist_model_register_and_inference_on_valid_model():
+def test_kserve_mnist_model_register_and_inference_on_valid_model() -> None:
     """
     Validates that snapshot.cfg is created when management apis are invoked for kserve.
     """
@@ -192,7 +195,7 @@ def test_kserve_mnist_model_register_and_inference_on_valid_model():
 
 
 def test_kserve_mnist_model_register_scale_inference_with_non_existent_handler(
-):
+) -> None:
     response = mnist_model_register_using_non_existent_handler_then_scale_up()
     mnist_list = json.loads(response.content)
     assert len(mnist_list[0]['workers']) > 1
@@ -211,7 +214,7 @@ def test_kserve_mnist_model_register_scale_inference_with_non_existent_handler(
                           "despite passing non existent handler"
 
 
-def test_kserve_mnist_model_register_and_inference_on_valid_model_explain():
+def test_kserve_mnist_model_register_and_inference_on_valid_model_explain() -> None:
     """
     Validates the kserve model explanations.
     """
@@ -227,7 +230,7 @@ def test_kserve_mnist_model_register_and_inference_on_valid_model_explain():
     assert np.array(json.loads(response.content)['explanations']).shape == (1, 1, 28, 28)
     test_utils.unregister_model("mnist")
 
-def test_huggingface_bert_batch_inference():
+def test_huggingface_bert_batch_inference() -> None:
     batch_size = 2
     batch_delay = 10000 # 10 seconds
     params = (
@@ -252,7 +255,7 @@ def test_huggingface_bert_batch_inference():
     test_utils.unregister_model('BERTSeqClassification')
 
 @pytest.mark.skip(reason="MMF doesn't support PT 1.10 yet")
-def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
+def test_MMF_activity_recognition_model_register_and_inference_on_valid_model() -> None:
   
     test_utils.start_torchserve(snapshot_file = snapshot_file_tf)
     test_utils.register_model('MMF_activity_recognition_v2', 'https://torchserve.pytorch.org/mar_files/MMF_activity_recognition_v2.mar')

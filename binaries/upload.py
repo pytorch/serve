@@ -2,6 +2,7 @@
 import argparse
 import glob
 import os
+from typing import Optional
 
 
 # The following environment variables are expected to be populated in the shell environment
@@ -23,7 +24,7 @@ WA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver", "dist"))[
 PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
 
 
-def upload_pypi_packages():
+def upload_pypi_packages() -> None:
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
     """
@@ -40,7 +41,7 @@ def upload_pypi_packages():
     )
 
 
-def upload_conda_packages():
+def upload_conda_packages() -> Optional[int]:
     """
     Takes a list of path values and uploads them to anaconda.org using conda upload, using token stored in environment variable
     """
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--upload-pypi-packages", action="store_true", required=False, help="Specify whether to upload pypi packages"
     )
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     if args.upload_conda_packages:
         upload_conda_packages()

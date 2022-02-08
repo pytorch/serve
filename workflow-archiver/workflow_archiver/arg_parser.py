@@ -16,7 +16,7 @@ class ArgParser(object):
     """
 
     @staticmethod
-    def workflow_archiver_args_parser():
+    def workflow_archiver_args_parser() -> argparse.ArgumentParser:
 
         """ Argument parser for torch-workflow-archiver
         """

@@ -20,7 +20,7 @@ class TransformerModelRepository(ModelRepository):
         kserve is passed here.
     """
 
-    def __init__(self, predictor_host: str):
+    def __init__(self, predictor_host: str) -> None:
         """Initialize the Transformer Model Repository class object
 
         Args:

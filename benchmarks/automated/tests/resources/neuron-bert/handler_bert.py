@@ -11,17 +11,17 @@ from ts.torch_handler.base_handler import BaseHandler
 # one core per worker
 os.environ['NEURONCORE_GROUP_SIZES'] = '1'
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 class BertEmbeddingHandler(BaseHandler, ABC):
     """
     Handler class for Bert Embedding computations.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super(BertEmbeddingHandler, self).__init__()
         self.initialized = False
 
-    def initialize(self, ctx):
+    def initialize(self, ctx) -> None:
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         self.device = 'cpu'

@@ -10,7 +10,7 @@ sys.path.append(REPO_ROOT)
 ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
 
 
-def generate_densenet_test_model_archive():
+def generate_densenet_test_model_archive() -> int:
     print("## Started densenet mar creation")
     model_store_dir = os.path.join(ROOT_DIR, "model_store")
     model_name = "densenet161_v1"
@@ -43,7 +43,7 @@ def generate_densenet_test_model_archive():
     return sys_exit_code
 
 
-def run_pytest():
+def run_pytest() -> int:
     print("## Started regression pytests")
     os.chdir(os.path.join(REPO_ROOT, "test", "pytest"))
     cmd = "python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/" \
@@ -60,7 +60,7 @@ def run_pytest():
     return status
 
 
-def test_regression():
+def test_regression() -> None:
     print("## Started regression tests")
     # generate_densenet_test_model_archive $MODEL_STORE
     model_creation_exit_code = generate_densenet_test_model_archive()

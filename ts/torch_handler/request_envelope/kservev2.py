@@ -6,8 +6,9 @@ import json
 import logging
 import numpy as np
 from .base import BaseEnvelope
+from typing import Any, Dict, List
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 _DatatypeToNumpy = {
     "BOOL": "bool",
@@ -25,7 +26,7 @@ _DatatypeToNumpy = {
     "BYTES": "byte",
 }
 
-_NumpyToDatatype = {value: key for key, value in _DatatypeToNumpy.items()}
+_NumpyToDatatype: Dict[str, str] = {value: key for key, value in _DatatypeToNumpy.items()}
 
 # NOTE: numpy has more types than v2 protocol
 _NumpyToDatatype["object"] = "BYTES"
@@ -104,7 +105,7 @@ class KServev2Envelope(BaseEnvelope):
         data_list = [inputs_list.get("inputs") for inputs_list in body_list][0]
         return data_list
 
-    def format_output(self, data):
+    def format_output(self, data) -> List[Dict[str, Any]]:
         """Translates Torchserve output KServe v2 response format.
 
         Parameters:
@@ -147,7 +148,7 @@ class KServev2Envelope(BaseEnvelope):
             output.append(self._to_json(item))
         return output
 
-    def _to_json(self, data):
+    def _to_json(self, data) -> Dict[str, Any]:
         """
         Constructs JSON object from data
         """

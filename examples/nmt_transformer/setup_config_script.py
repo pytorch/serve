@@ -1,7 +1,7 @@
 import sys
 import json
 
-model_name = sys.argv[1]
+model_name: str = sys.argv[1]
 
 data = {}
 

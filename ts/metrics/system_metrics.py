@@ -14,42 +14,42 @@ system_metrics = []
 dimension = [Dimension('Level', 'Host')]
 
 
-def cpu_utilization():
+def cpu_utilization() -> None:
     data = psutil.cpu_percent()
     system_metrics.append(Metric('CPUUtilization', data, 'percent', dimension))
 
 
-def memory_used():
+def memory_used() -> None:
     data = psutil.virtual_memory().used / (1024 * 1024)  # in MB
     system_metrics.append(Metric('MemoryUsed', data, 'MB', dimension))
 
 
-def memory_available():
+def memory_available() -> None:
     data = psutil.virtual_memory().available / (1024 * 1024)  # in MB
     system_metrics.append(Metric('MemoryAvailable', data, 'MB', dimension))
 
 
-def memory_utilization():
+def memory_utilization() -> None:
     data = psutil.virtual_memory().percent
     system_metrics.append(Metric('MemoryUtilization', data, 'percent', dimension))
 
 
-def disk_used():
+def disk_used() -> None:
     data = psutil.disk_usage('/').used / (1024 * 1024 * 1024)  # in GB
     system_metrics.append(Metric('DiskUsage', data, 'GB', dimension))
 
 
-def disk_utilization():
+def disk_utilization() -> None:
     data = psutil.disk_usage('/').percent
     system_metrics.append(Metric('DiskUtilization', data, 'percent', dimension))
 
 
-def disk_available():
+def disk_available() -> None:
     data = psutil.disk_usage('/').free / (1024 * 1024 * 1024)  # in GB
     system_metrics.append(Metric('DiskAvailable', data, 'GB', dimension))
 
 
-def collect_all(mod):
+def collect_all(mod) -> None:
     """
     Collect all system metrics.
 

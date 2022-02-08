@@ -1,7 +1,8 @@
 import json
 import base64
+from typing import List
 
-def pre_processing(data, context):
+def pre_processing(data, context) -> List[str]:
     '''
     Empty node as a starting node since the DAG doesn't support multiple start nodes
     '''

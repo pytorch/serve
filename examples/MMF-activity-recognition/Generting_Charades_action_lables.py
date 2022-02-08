@@ -8,7 +8,7 @@ os.system('wget https://ai2-public-datasets.s3-us-west-2.amazonaws.com/charades/
 os.system('unzip Charades_v1_480.zip')
 os.system('unzip Charades.zip')
 
-def make_charades_df(csv_path, video_dir, classes_file):
+def make_charades_df(csv_path, video_dir, classes_file) -> None:
     # load the csv
     df = pd.read_csv(csv_path)
 

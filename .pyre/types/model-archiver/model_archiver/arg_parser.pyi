@@ -1,0 +1,3 @@
+class ArgParser:
+    def export_model_args_parser() -> argparse.ArgumentParser: ...
+

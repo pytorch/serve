@@ -23,7 +23,7 @@ LOCAL_TMP_DIR = "/tmp"
 TMP_DIR = "/home/ubuntu"
 NEURON_RESOURCES_FOLDER = os.path.join(TORCHSERVE_DIR, "benchmarks", "automated", "tests", "resources", "neuron-bert")
 
-def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size=1):
+def setup_neuron_mar_files(connection=None, virtual_env_name=None, batch_size: int=1) -> None:
     activation_command = ""
     
     if virtual_env_name:

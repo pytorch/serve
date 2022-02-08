@@ -18,6 +18,9 @@ import kserve
 from importlib.metadata import version
 from .image_transformer import ImageTransformer
 from .transformer_model_repository import TransformerModelRepository
+from typing import List
+args: argparse.Namespace
+_: List[str]
 
 if version('kserve') >= '0.8.0':
     import kserve.model_server as model_server
@@ -38,7 +41,7 @@ args, _ = parser.parse_known_args()
 CONFIG_PATH = "/mnt/models/config/config.properties"
 
 
-def parse_config():
+def parse_config() -> List[str]:
     separator = "="
     keys = {}
 

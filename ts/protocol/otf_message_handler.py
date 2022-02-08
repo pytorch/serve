@@ -13,6 +13,7 @@ from builtins import bytearray
 from builtins import bytes
 import time
 import torch
+from typing import Any, Dict, Optional
 
 bool_size = 1
 int_size = 4
@@ -41,7 +42,7 @@ def retrieve_msg(conn):
     return cmd, msg
 
 
-def encode_response_headers(resp_hdr_map):
+def encode_response_headers(resp_hdr_map) -> bytearray:
     msg = bytearray()
     msg += struct.pack('!i', len(resp_hdr_map))
     for k, v in resp_hdr_map.items():
@@ -138,7 +139,7 @@ def create_predict_response(ret, req_id_map, message, code, context=None):
     return msg
 
 
-def create_load_model_response(code, message):
+def create_load_model_response(code, message) -> bytearray:
     """
     Create load model response.
 
@@ -157,7 +158,7 @@ def create_load_model_response(code, message):
     return msg
 
 
-def _retrieve_buffer(conn, length):
+def _retrieve_buffer(conn, length) -> bytearray:
     data = bytearray()
 
     while length > 0:
@@ -180,7 +181,7 @@ def _retrieve_bool(conn):
     data = _retrieve_buffer(conn, bool_size)
     return struct.unpack("!?", data)[0]
 
-def _retrieve_load_msg(conn):
+def _retrieve_load_msg(conn) -> Dict[str, Any]:
     """
     MSG Frame Format:
 
@@ -267,7 +268,7 @@ def _retrieve_request(conn):
     return request
 
 
-def _retrieve_reqest_header(conn):
+def _retrieve_reqest_header(conn) -> Optional[Dict[str, Any]]:
     """
     MSG Frame Format:
 
@@ -288,7 +289,7 @@ def _retrieve_reqest_header(conn):
     return header
 
 
-def _retrieve_input_data(conn):
+def _retrieve_input_data(conn) -> Optional[Dict[str, Any]]:
     """
     MSG Frame Format:
 

@@ -2,23 +2,24 @@ import os
 import sys
 import argparse
 import subprocess
+from typing import Optional
 
 conda_build_dir = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
 MINICONDA_DOWNLOAD_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh"
-CONDA_BINARY = os.popen("which conda").read().strip() if os.system(f"conda --version") == 0 else  f"$HOME/miniconda/condabin/conda"
+CONDA_BINARY: str = os.popen("which conda").read().strip() if os.system(f"conda --version") == 0 else  f"$HOME/miniconda/condabin/conda"
 
 if os.name == "nt":
     #Assumes miniconda is installed in windows
-    CONDA_BINARY = "conda"
+    CONDA_BINARY: str = "conda"
 
-def install_conda_build():
+def install_conda_build() -> None:
     """
     Install conda-build, required to create conda packages
     """
     os.system(f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y")
 
-def install_miniconda():
+def install_miniconda() -> Optional[int]:
     """
     Installs miniconda, a slimmer anaconda installation to build conda packages
     """
@@ -45,7 +46,7 @@ def install_miniconda():
     os.system(f"{CONDA_BINARY} init")
 
 
-def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
+def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path) -> int:
     """
     Build conda packages for different python versions
     """
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     parser.add_argument("--ma-wheel", type=str, required=False, help="torch-model-archiver wheel path")
     parser.add_argument("--wa-wheel", type=str, required=False, help="torch-workflow-archiver wheel path")
     parser.add_argument("--install-conda-dependencies", action="store_true", required=False, help="specify to install miniconda and conda-build")
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     
     if args.install_conda_dependencies:
         install_miniconda()

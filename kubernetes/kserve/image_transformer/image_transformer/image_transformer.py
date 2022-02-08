@@ -37,7 +37,7 @@ image_processing = transforms.Compose(
      transforms.Normalize((0.1307,), (0.3081,))])
 
 
-def image_transform(instance):
+def image_transform(instance: object) -> object:
     """converts the input image of Bytes Array into Tensor
 
     Args:
@@ -64,7 +64,7 @@ class ImageTransformer(Model):
         modeule is passed here.
     """
 
-    def __init__(self, name: str, predictor_host: str):
+    def __init__(self, name: str, predictor_host: str) -> None:
         """Initialize the model name, predictor host and the explainer host
 
         Args:

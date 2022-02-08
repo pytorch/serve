@@ -2,10 +2,10 @@ from torchvision.models.densenet import DenseNet
 
 
 class ImageClassifier(DenseNet):
-    def __init__(self):
+    def __init__(self) -> None:
         super(ImageClassifier, self).__init__(48, (6, 12, 36, 24), 96)
 
-    def load_state_dict(self, state_dict, strict=True):
+    def load_state_dict(self, state_dict, strict: bool=True):
         # '.'s are no longer allowed in module names, but previous _DenseLayer
         # has keys 'norm.1', 'relu.1', 'conv.1', 'norm.2', 'relu.2', 'conv.2'.
         # They are also in the checkpoints in model_urls. This pattern is used

@@ -19,6 +19,7 @@ from invoke import run, sudo
 from invoke.context import Context
 
 from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from typing import Dict, Pattern
 
 TMP_DIR = "/home/ubuntu"
 LOCAL_TMP_DIR = "/tmp"
@@ -26,7 +27,7 @@ TS_SERVER_LOG = f"/home/ubuntu/benchmark/logs/model_metrics.log"
 
 
 class ApacheBenchHandler(object):
-    def __init__(self, model_name="benchmark", connection=None):
+    def __init__(self, model_name: str="benchmark", connection=None) -> None:
         self.model_name = model_name
         self.connection = invoke if not connection else connection
         self.local_tmp_dir = os.path.join(LOCAL_TMP_DIR, model_name)
@@ -50,7 +51,7 @@ class ApacheBenchHandler(object):
         run_out = self.connection.sudo(f"apt install -y apache2-utils", pty=True)
         return run_out.return_code
 
-    def run_apache_bench(self, requests, concurrency, input_file, is_workflow=False, workflow_name=None):
+    def run_apache_bench(self, requests, concurrency, input_file, is_workflow: bool=False, workflow_name=None) -> None:
         """
         :param requests: number of requests to perform
         :param concurrency: number of virtual users making the request
@@ -90,10 +91,10 @@ class ApacheBenchHandler(object):
         if run_out.return_code != 0:
             LOGGER.error(f"apache bench command failed.")
 
-    def clean_up(self):
+    def clean_up(self) -> None:
         self.connection.run(f"rm -rf {os.path.join(TMP_DIR, 'benchmark')}")
 
-    def extract_metrics(self, connection=None):
+    def extract_metrics(self, connection=None) -> None:
         metric_log = f"{os.path.join(self.local_tmp_dir, 'benchmark_metric.log')}"
         result_file = f"{os.path.join(self.local_tmp_dir, 'result.txt')}"
 
@@ -130,13 +131,13 @@ class ApacheBenchHandler(object):
                 all_lines = map(lambda x: x + "\n", all_lines)
                 outf.writelines(all_lines)
 
-    def extract_entity(self, data, pattern, index, delim=" "):
+    def extract_entity(self, data, pattern: Pattern[str], index, delim: str=" "):
         pattern = re.compile(pattern)
         for line in data:
             if pattern.search(line):
                 return line.split(delim)[index].strip()
 
-    def generate_csv_output(self, requests, concurrency, connection=None):
+    def generate_csv_output(self, requests, concurrency, connection=None) -> Dict[str, str]:
         LOGGER.info("*Generating CSV output...")
 
         batched_requests = requests / concurrency
@@ -178,6 +179,6 @@ class ApacheBenchHandler(object):
 
         return artifacts
 
-    def generate_report(self, requests, concurrency, connection=None):
+    def generate_report(self, requests, concurrency, connection=None) -> None:
         self.extract_metrics(connection=connection)
         self.generate_csv_output(requests, concurrency, connection=connection)

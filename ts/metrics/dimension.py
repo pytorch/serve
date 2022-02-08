@@ -9,7 +9,7 @@ class Dimension(object):
     """
     Dimension class defining key value pair
     """
-    def __init__(self, name, value):
+    def __init__(self, name, value) -> None:
         """
         Constructor for Dimension class
 
@@ -23,7 +23,7 @@ class Dimension(object):
         self.name = name
         self.value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return a string value
         :return:

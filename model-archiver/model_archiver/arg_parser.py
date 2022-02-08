@@ -17,7 +17,7 @@ class ArgParser(object):
     """
 
     @staticmethod
-    def export_model_args_parser():
+    def export_model_args_parser() -> argparse.ArgumentParser:
 
         """ Argument parser for torch-model-export
         """

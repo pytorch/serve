@@ -21,7 +21,7 @@ def run(command):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('jmeter_path', help='Path to install jmeter (Eg. "C:\\Program Files")')
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     JMETER_INSTALL_PATH = args.jmeter_path
     JMETER_HOME = os.path.join(JMETER_INSTALL_PATH, "apache-jmeter-5.3")
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     rm_file("JMeterPlugins-Standard-1.4.0.zip")
     rm_dir("lib")
 
-    cmd = 'java -cp "{}\\apache-jmeter-5.3\\lib\\ext\\jmeter-plugins-manager-1.3.jar" org.jmeterplugins.repository.PluginManagerCMDInstaller'.format(JMETER_INSTALL_PATH)
+    cmd: str = 'java -cp "{}\\apache-jmeter-5.3\\lib\\ext\\jmeter-plugins-manager-1.3.jar" org.jmeterplugins.repository.PluginManagerCMDInstaller'.format(JMETER_INSTALL_PATH)
     rc, out, _ = run(cmd)
     if rc != 0:
         print("Command execution failed : ", cmd)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         print(out)
 
     print("Installing Plugins..")
-    cmd_plugins = '"{}\\apache-jmeter-5.3\\bin\\PluginsManagerCMD.bat" install jpgc-synthesis=2.1 jpgc-filterresults=2.1 jpgc-mergeresults=2.1 jpgc-cmd=2.1 jpgc-perfmon=2.1'.format(JMETER_INSTALL_PATH)
+    cmd_plugins: str = '"{}\\apache-jmeter-5.3\\bin\\PluginsManagerCMD.bat" install jpgc-synthesis=2.1 jpgc-filterresults=2.1 jpgc-mergeresults=2.1 jpgc-cmd=2.1 jpgc-perfmon=2.1'.format(JMETER_INSTALL_PATH)
     rc, out, _ = run(cmd_plugins)
     if rc != 0:
         print("Command execution failed : ", cmd_plugins)

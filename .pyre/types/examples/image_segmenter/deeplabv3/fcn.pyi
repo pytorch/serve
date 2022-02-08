@@ -1,0 +1,3 @@
+class FCNHead:
+    def __init__(self, in_channels, channels) -> None: ...
+

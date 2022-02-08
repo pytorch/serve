@@ -7,13 +7,14 @@ import zipfile
 from waveglow_model import WaveGlow
 from scipy.io.wavfile import write, read
 from ts.torch_handler.base_handler import BaseHandler
+from typing import List
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class WaveGlowSpeechSynthesizer(BaseHandler):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.waveglow_model = None
         self.tacotron2_model = None
         self.mapping = None
@@ -35,7 +36,7 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
             new_state_dict[new_key] = value
         return new_state_dict
 
-    def _load_tacotron2_model(self, model_dir):
+    def _load_tacotron2_model(self, model_dir) -> None:
         from PyTorch.SpeechSynthesis.Tacotron2.tacotron2 import model as tacotron2
         from PyTorch.SpeechSynthesis.Tacotron2.tacotron2.text import text_to_sequence
         tacotron2_checkpoint = torch.load(os.path.join(model_dir, 'nvidia_tacotron2pyt_fp32_20190427.pth'))
@@ -46,7 +47,7 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
         self.tacotron2_model.text_to_sequence = text_to_sequence
         self.tacotron2_model.to(self.device)
 
-    def initialize(self, ctx):
+    def initialize(self, ctx) -> None:
         """First try to load torchscript else load eager mode state_dict based model"""
 
         properties = ctx.system_properties
@@ -96,7 +97,7 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
 
             return audio
 
-    def postprocess(self, inference_output):
+    def postprocess(self, inference_output) -> List[bytes]:
         audio_numpy = inference_output[0].data.cpu().numpy()
         path = "/tmp/{}.wav".format(uuid.uuid4().hex)
         write(path, 22050, audio_numpy)

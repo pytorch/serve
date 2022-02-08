@@ -65,7 +65,7 @@ def delete_folder_from_s3(s3_folder, connection=None):
 
 class ArtifactsHandler(object):
     @staticmethod
-    def upload_torchserve_folder_to_instance(ec2_connection, s3_temp_folder):
+    def upload_torchserve_folder_to_instance(ec2_connection, s3_temp_folder) -> None:
         """
         :param ec2_connection: A fabric connection that is used to upload the parent 'serve' folder to the instance's root folder
         :return None
@@ -86,7 +86,7 @@ class ArtifactsHandler(object):
         ), f"Error uploading 'serve' folder to ec2_instance."
 
     @staticmethod
-    def cleanup_temp_s3_folder(s3_temp_folder):
+    def cleanup_temp_s3_folder(s3_temp_folder) -> None:
         """
         :param s3_temp_folder: last key of the s3 bucket whose folder needs to be cleaned up
         :return None

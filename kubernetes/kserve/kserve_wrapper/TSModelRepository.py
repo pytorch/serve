@@ -17,7 +17,7 @@ class TSModelRepository(ModelRepository):
         as inputs to the TSModel Repository.
     """
     def __init__(self, inference_address: str, management_address: str,
-                 model_dir: str):
+                 model_dir: str) -> None:
         """The Inference Address, Management Address and the Model Directory from the kserve
         side is initialized here.
 

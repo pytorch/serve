@@ -23,6 +23,7 @@
 import torch
 
 import pytorch_sphinx_theme
+from typing import Dict, List, Tuple
 
 # -- General configuration ------------------------------------------------
 
@@ -141,7 +142,7 @@ html_logo = '_static/img/pytorch-logo-dark.svg'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-def setup(app):
+def setup(app) -> None:
     # NOTE: in Sphinx 1.8+ `html_css_files` is an official configuration value
     # and can be moved outside of this function (and the setup(app) function
     # can be deleted).
@@ -185,7 +186,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
+latex_documents: List[Tuple[str, ...]] = [
     (master_doc, 'pytorch.tex', 'Torchserve Documentation',
      'Torch Contributors', 'manual'),
 ]
@@ -195,7 +196,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
+man_pages: List[Tuple[str, str, str, List[str], int]] = [
     (master_doc, 'Torchserve', 'Torchserve Documentation',
      [author], 1)
 ]
@@ -206,7 +207,7 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
+texinfo_documents: List[Tuple[str, ...]] = [
     (
         master_doc,
         "Torchserve",
@@ -220,7 +221,7 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {
+intersphinx_mapping: Dict[str, Tuple[str, None]] = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'torch': ('https://pytorch.org/docs/stable/', None),

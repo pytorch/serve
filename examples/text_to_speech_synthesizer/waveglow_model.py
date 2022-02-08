@@ -46,7 +46,7 @@ class Invertible1x1Conv(torch.nn.Module):
     inverse
     """
 
-    def __init__(self, c):
+    def __init__(self, c) -> None:
         super(Invertible1x1Conv, self).__init__()
         self.conv = torch.nn.Conv1d(c, c, kernel_size=1, stride=1, padding=0,
                                     bias=False)
@@ -60,7 +60,7 @@ class Invertible1x1Conv(torch.nn.Module):
         W = W.view(c, c, 1)
         self.conv.weight.data = W
 
-    def forward(self, z, reverse=False):
+    def forward(self, z, reverse: bool=False):
         # shape
         batch_size, group_size, n_of_groups = z.size()
 
@@ -90,8 +90,8 @@ class WN(torch.nn.Module):
     also no dilation size reset.  The dilation only doubles on each layer
     """
 
-    def __init__(self, n_in_channels, n_mel_channels, n_layers, n_channels,
-                 kernel_size):
+    def __init__(self, n_in_channels: int, n_mel_channels, n_layers, n_channels,
+                 kernel_size) -> None:
         super(WN, self).__init__()
         assert(kernel_size % 2 == 1)
         assert(n_channels % 2 == 0)
@@ -160,7 +160,7 @@ class WN(torch.nn.Module):
 
 class WaveGlow(torch.nn.Module):
     def __init__(self, n_mel_channels, n_flows, n_group, n_early_every,
-                 n_early_size, WN_config):
+                 n_early_size, WN_config) -> None:
         super(WaveGlow, self).__init__()
 
         self.upsample = torch.nn.ConvTranspose1d(n_mel_channels,
@@ -232,7 +232,7 @@ class WaveGlow(torch.nn.Module):
         output_audio.append(audio)
         return torch.cat(output_audio, 1), log_s_list, log_det_W_list
 
-    def infer(self, spect, sigma=1.0):
+    def infer(self, spect, sigma: float=1.0):
 
         spect = self.upsample(spect)
         # trim conv artifacts. maybe pad spec to kernel multiple

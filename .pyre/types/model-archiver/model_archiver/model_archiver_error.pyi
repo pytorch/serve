@@ -1,0 +1,3 @@
+class ModelArchiverError:
+    def __init__(self, message) -> None: ...
+

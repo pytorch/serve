@@ -1,0 +1,3 @@
+class TorchserveModel:
+    def __init__(self, name, inference_address, management_address, model_dir) -> None: ...
+

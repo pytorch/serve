@@ -15,6 +15,7 @@ from builtins import str
 from ts.metrics.metrics_store import MetricsStore
 from ts.service import Service
 from .utils.util import list_classes_from_module
+from types import ModuleType
 
 
 class ModelLoaderFactory(object):
@@ -23,7 +24,7 @@ class ModelLoaderFactory(object):
     """
 
     @staticmethod
-    def get_model_loader():
+    def get_model_loader() -> TsModelLoader:
         return TsModelLoader()
 
 
@@ -34,7 +35,7 @@ class ModelLoader(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels: bool=True):
         """
         Load model from file.
 
@@ -56,7 +57,7 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
+    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels: bool=True) -> Service:
         """
         Load TorchServe 1.0 model from file.
 
@@ -123,7 +124,7 @@ class TsModelLoader(ModelLoader):
         module = importlib.import_module(module_name)
         return module, function_name
 
-    def _load_default_handler(self, handler):
+    def _load_default_handler(self, handler) -> ModuleType:
         module_name = ".{0}".format(handler)
         module = importlib.import_module(module_name, 'ts.torch_handler')
         return module

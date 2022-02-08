@@ -11,7 +11,7 @@ from .model_packaging_utils import ModelExportUtils
 from .model_archiver_error import ModelArchiverError
 
 
-def package_model(args, manifest):
+def package_model(args, manifest) -> None:
     """
     Internal helper for the exporting model command line interface.
     """
@@ -44,7 +44,7 @@ def package_model(args, manifest):
         sys.exit(1)
 
 
-def generate_model_archive():
+def generate_model_archive() -> None:
     """
     Generate a model archive file
     :return:

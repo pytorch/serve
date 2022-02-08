@@ -16,7 +16,7 @@ class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)
         self.initialized = True
@@ -55,6 +55,6 @@ class VisionHandler(BaseHandler, ABC):
 
         return torch.stack(images).to(self.device)
 
-    def get_insights(self, tensor_data, _, target=0):
+    def get_insights(self, tensor_data, _, target: int=0):
         print("input shape", tensor_data.shape)
         return self.ig.attribute(tensor_data, target=target, n_steps=15).tolist()

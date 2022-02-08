@@ -19,7 +19,7 @@ from torchvision.io import (
     read_video_timestamps,
     read_video
 )
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 from mmf.common.sample import Sample, SampleList
 from mmf.utils.env import set_seed, setup_imports
@@ -35,11 +35,11 @@ class MMFHandler(BaseHandler):
     """
     Transformers handler class for  MMFTransformerWithVideoAudio model.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super(MMFHandler, self).__init__()
         self.initialized = False
 
-    def initialize(self, ctx):
+    def initialize(self, ctx) -> None:
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")

@@ -10,12 +10,12 @@ import test_utils
 inference_data_json = "/../postman/inference_data.json"
 
 
-def setup_module(module):
+def setup_module(module) -> None:
     test_utils.torchserve_cleanup()
     test_utils.start_torchserve()
 
 
-def teardown_module(module):
+def teardown_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
@@ -41,7 +41,7 @@ def __infer(stub, model_name, model_input):
     return prediction
 
 
-def test_inference_apis():
+def test_inference_apis() -> None:
     with open(os.path.dirname(__file__) + inference_data_json, 'rb') as f:
         test_data = json.loads(f.read())
 

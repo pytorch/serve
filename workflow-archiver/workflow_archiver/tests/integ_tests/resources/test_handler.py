@@ -1,2 +1,2 @@
-def my_handler(data, context):
+def my_handler(data, context) -> None:
     pass

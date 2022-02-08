@@ -29,7 +29,7 @@ import workflow_archiver
 pkgs = find_packages()
 
 
-def pypi_description():
+def pypi_description() -> str:
     """Imports the long description for the project page"""
     with open('PyPiDescription.rst') as df:
         return df.read()

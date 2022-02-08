@@ -4,6 +4,7 @@ import inference_pb2_grpc
 import management_pb2
 import management_pb2_grpc
 import sys
+from typing import List
 
 
 def get_inference_stub():
@@ -18,7 +19,7 @@ def get_management_stub():
     return stub
 
 
-def infer(stub, model_name, model_input):
+def infer(stub, model_name, model_input) -> None:
     with open(model_input, 'rb') as f:
         data = f.read()
 
@@ -34,7 +35,7 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
-def register(stub, model_name, mar_set_str):
+def register(stub, model_name, mar_set_str) -> None:
     mar_set = set()
     if mar_set_str:
         mar_set = set(mar_set_str.split(','))
@@ -61,7 +62,7 @@ def register(stub, model_name, mar_set_str):
         exit(1)
 
 
-def unregister(stub, model_name):
+def unregister(stub, model_name) -> None:
     try:
         response = stub.UnregisterModel(
             management_pb2.UnregisterModelRequest(model_name=model_name))
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     # 1-> api name [infer, register, unregister]
     # 2-> model name
     # 3-> model input for prediction
-    args = sys.argv[1:]
+    args: List[str] = sys.argv[1:]
     if args[0] == "infer":
         infer(get_inference_stub(), args[1], args[2])
     else:

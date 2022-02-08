@@ -14,12 +14,13 @@ from torchtext.data.utils import get_tokenizer
 from captum.attr import LayerIntegratedGradients
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
+from typing import Pattern
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-CLEANUP_REGEX = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
-CONTRACTIONS_PATTERN = re.compile(
+CLEANUP_REGEX: Pattern[str] = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
+CONTRACTIONS_PATTERN: Pattern[str] = re.compile(
     "({})".format("|".join(CONTRACTION_MAP.keys())),
     flags=re.IGNORECASE | re.DOTALL,
 )
@@ -31,7 +32,7 @@ class TextHandler(BaseHandler, ABC):
     Contains various text based utility methods
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.source_vocab = None
         self.tokenizer = get_tokenizer("basic_english")
@@ -39,7 +40,7 @@ class TextHandler(BaseHandler, ABC):
         self.lig = None
         self.initialized = None
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         """
         Loads the model and Initializes the necessary artifacts
         """
@@ -66,7 +67,7 @@ class TextHandler(BaseHandler, ABC):
             raise Exception('Missing the source_vocab file. Refer default handler '
                             'documentation for details on using text_handler.')
 
-    def _expand_contractions(self, text):
+    def _expand_contractions(self, text) -> str:
         """
         Expands the contracted words in the text
         """
@@ -86,7 +87,7 @@ class TextHandler(BaseHandler, ABC):
         text = re.sub("'", "", text)
         return text
 
-    def _remove_accented_characters(self, text):
+    def _remove_accented_characters(self, text) -> str:
         """
         Removes remove_accented_characters
         """

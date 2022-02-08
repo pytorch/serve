@@ -1,0 +1,3 @@
+class DeepLabV3ImageSegmenter:
+    def __init__(self, num_classes: int = 21, **kwargs) -> None: ...
+

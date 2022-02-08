@@ -7,7 +7,7 @@ import json
 import itertools
 import logging
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 def list_classes_from_module(module, parent_class=None):
     """
@@ -79,10 +79,10 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     return results
 
 class PredictionException(Exception):
-    def __init__(self, message, error_code=500):
+    def __init__(self, message, error_code: int=500) -> None:
         self.message = message
         self.error_code = error_code
         super().__init__(message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "message : error_code".format(message=self.message, error_code=self.error_code)

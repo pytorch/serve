@@ -1,7 +1,7 @@
 import logging
 import sys
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 LOGGER.addHandler(logging.StreamHandler(sys.stderr))
 

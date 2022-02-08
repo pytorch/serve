@@ -10,7 +10,7 @@ from .workflow_packaging_utils import WorkflowExportUtils
 from .workflow_archiver_error import WorkflowArchiverError
 
 
-def package_workflow(args, manifest):
+def package_workflow(args, manifest) -> None:
     """
     Internal helper for the exporting workflow command line interface.
     """
@@ -43,7 +43,7 @@ def package_workflow(args, manifest):
         WorkflowExportUtils.clean_temp_files(temp_files)
 
 
-def generate_workflow_archive():
+def generate_workflow_archive() -> None:
     """
     Generate a workflow archive file
     :return:

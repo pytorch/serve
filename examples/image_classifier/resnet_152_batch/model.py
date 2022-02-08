@@ -2,5 +2,5 @@ from torchvision.models.resnet import ResNet, Bottleneck
 
 
 class ResNet152ImageClassifier(ResNet):
-    def __init__(self):
+    def __init__(self) -> None:
         super(ResNet152ImageClassifier, self).__init__(Bottleneck, [3, 8, 36, 3])

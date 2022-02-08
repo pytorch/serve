@@ -4,6 +4,7 @@ import sys
 import time
 import requests
 from ts_scripts import marsgen as mg
+from requests.models import Response
 
 torchserve_command = {
     "Windows": "torchserve.exe",
@@ -25,8 +26,8 @@ torch_workflow_archiver_command = {
 
 
 def start_torchserve(
-        ncs=False, model_store="model_store", workflow_store="",
-        models="", config_file="", log_file="", wait_for=10, gen_mar=True):
+        ncs: bool=False, model_store: str="model_store", workflow_store: str="",
+        models: str="", config_file: str="", log_file: str="", wait_for: int=10, gen_mar: bool=True) -> bool:
     if gen_mar:
         mg.gen_mar(model_store)
     print("## Starting TorchServe")
@@ -53,7 +54,7 @@ def start_torchserve(
         return False
 
 
-def stop_torchserve(wait_for=10):
+def stop_torchserve(wait_for: int=10) -> bool:
     print("## Stopping TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --stop"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
@@ -68,7 +69,7 @@ def stop_torchserve(wait_for=10):
 
 
 # Takes model name and mar name from model zoo as input
-def register_model(model_name, protocol="http", host="localhost", port="8081"):
+def register_model(model_name, protocol: str="http", host: str="localhost", port: str="8081") -> Response:
     print(f"## Registering {model_name} model")
     model_zoo_url = "https://torchserve.s3.amazonaws.com"
     marfile = f"{model_name}.mar"
@@ -86,7 +87,7 @@ def register_model(model_name, protocol="http", host="localhost", port="8081"):
     return response
 
 
-def run_inference(model_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
+def run_inference(model_name, file_name, protocol: str="http", host: str="localhost", port: str="8080", timeout: int=120) -> Response:
     print(f"## Running inference on {model_name} model")
     url = f"{protocol}://{host}:{port}/predictions/{model_name}"
     files = {"data": (file_name, open(file_name, "rb"))}
@@ -94,14 +95,14 @@ def run_inference(model_name, file_name, protocol="http", host="localhost", port
     return response
 
 
-def unregister_model(model_name, protocol="http", host="localhost", port="8081"):
+def unregister_model(model_name, protocol: str="http", host: str="localhost", port: str="8081") -> Response:
     print(f"## Unregistering {model_name} model")
     url = f"{protocol}://{host}:{port}/models/{model_name}"
     response = requests.delete(url, verify=False)
     return response
 
 
-def generate_grpc_client_stubs():
+def generate_grpc_client_stubs() -> None:
     print("## Started generating gRPC clinet stubs")
     cmd = "python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts " \
           "--grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto " \
@@ -112,7 +113,7 @@ def generate_grpc_client_stubs():
         sys.exit(1)
 
 
-def register_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
+def register_workflow(workflow_name, protocol: str="http", host: str="localhost", port: str="8081") -> Response:
     print(f"## Registering {workflow_name} workflow")
     model_zoo_url = "https://torchserve.s3.amazonaws.com"
     params = (
@@ -123,14 +124,14 @@ def register_workflow(workflow_name, protocol="http", host="localhost", port="80
     return response
 
 
-def unregister_workflow(workflow_name, protocol="http", host="localhost", port="8081"):
+def unregister_workflow(workflow_name, protocol: str="http", host: str="localhost", port: str="8081") -> Response:
     print(f"## Unregistering {workflow_name} workflow")
     url = f"{protocol}://{host}:{port}/workflows/{workflow_name}"
     response = requests.delete(url, verify=False)
     return response
 
 
-def workflow_prediction(workflow_name, file_name, protocol="http", host="localhost", port="8080", timeout=120):
+def workflow_prediction(workflow_name, file_name, protocol: str="http", host: str="localhost", port: str="8080", timeout: int=120) -> Response:
     print(f"## Running inference on {workflow_name} workflow")
     url = f"{protocol}://{host}:{port}/wfpredict/{workflow_name}"
     files = {"data": (file_name, open(file_name, "rb"))}

@@ -26,7 +26,7 @@ def get_cpu_usage(pid):
     return mem_utilization
 
 
-def check_process_mem_usage(stdin):
+def check_process_mem_usage(stdin) -> None:
     """
 
     Return

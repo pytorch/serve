@@ -21,7 +21,7 @@ from tests.utils import (
 
 def test_model_benchmark(
     ec2_connection, model_config_path_ec2_instance_tuple, docker_dev_image_config_path, benchmark_execution_id, is_local_execution
-):
+) -> None:
     (model_config_file_path, ec2_instance_type) = model_config_path_ec2_instance_tuple
 
     test_config = YamlHandler.load_yaml(model_config_file_path)

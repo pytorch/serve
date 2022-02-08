@@ -11,8 +11,9 @@ from torchtext.data.utils import ngrams_iterator
 from captum.attr import TokenReferenceBase
 from .text_handler import TextHandler
 from ..utils.util import map_class_to_label
+from typing import Any, Dict, List
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 class TextClassifier(TextHandler):
     """
@@ -97,7 +98,7 @@ class TextClassifier(TextHandler):
         data = data.tolist()
         return map_class_to_label(data, self.mapping)
 
-    def get_insights(self, text_preprocess, _, target=0):
+    def get_insights(self, text_preprocess, _, target: int=0) -> List[Dict[str, Any]]:
         """Calculates the captum insights
 
         Args:

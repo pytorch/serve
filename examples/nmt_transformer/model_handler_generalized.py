@@ -4,18 +4,19 @@ import torch
 import json
 import os
 import logging
+from typing import List
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 class LanguageTranslationHandler(BaseHandler):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._context = None
         self.initialized = False
         self.model = None
         self.device = None
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         self._context = context
         self.initialized = True
         self.manifest = context.manifest
@@ -56,7 +57,7 @@ class LanguageTranslationHandler(BaseHandler):
             textInput.append(decoded_text)
         return textInput
 
-    def inference(self, data, *args, **kwargs):
+    def inference(self, data, *args, **kwargs) -> List[str]:
         inference_output = []
         with torch.no_grad():
             translation = self.model.translate(data, beam=5)

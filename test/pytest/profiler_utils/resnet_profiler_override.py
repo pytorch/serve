@@ -3,7 +3,7 @@ from torch.profiler import ProfilerActivity, tensorboard_trace_handler
 
 
 class ResnetHandler(ImageClassifier):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.profiler_args = {
             "activities" : [ProfilerActivity.CPU],

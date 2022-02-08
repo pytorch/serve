@@ -23,7 +23,7 @@ def _create_data_with_sp_transform(sp_generator, data_path):
     return data, set(labels)
 
 
-def setup_datasets(dataset_name, root='.data', vocab_size=20000, include_unk=False):
+def setup_datasets(dataset_name, root: str='.data', vocab_size: int=20000, include_unk: bool=False):
     dataset_tar = download_from_url(URLS[dataset_name], root=root)
     extracted_files = extract_archive(dataset_tar)
 

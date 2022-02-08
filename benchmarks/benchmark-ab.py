@@ -14,6 +14,7 @@ import requests
 import tempfile
 import os
 from urllib.parse import urlparse
+from typing import Dict, Optional, Pattern, Union
 
 default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.mar",
                      'gpus': '',
@@ -31,8 +32,8 @@ default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.
                      'config_properties': 'config.properties',
                      'inference_model_url': 'predictions/benchmark'
                      }
-TMP_DIR = tempfile.gettempdir()
-execution_params = default_ab_params.copy()
+TMP_DIR: str = tempfile.gettempdir()
+execution_params: Dict[str, Union[int, str]] = default_ab_params.copy()
 result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
 metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
 
@@ -70,7 +71,7 @@ def json_provider(file_path, cmd_name):
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
-              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url):
+              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url) -> None:
     input_params = {'url': url,
                     'gpus': gpus,
                     'exec_env': exec_env,
@@ -109,7 +110,7 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
     generate_report()
 
 
-def check_torchserve_health():
+def check_torchserve_health() -> Optional[bool]:
     attempts = 3
     retry = 0
     click.secho("*Testing system health...", fg='green')
@@ -124,7 +125,7 @@ def check_torchserve_health():
             time.sleep(3)
     failure_exit("Could not connect to Tochserve instance at " + execution_params['inference_url'])
 
-def warm_up():
+def warm_up() -> None:
     register_model()
 
     click.secho("\n\nExecuting warm-up ...", fg='green')
@@ -134,7 +135,7 @@ def warm_up():
     execute(ab_cmd, wait=True)
 
 
-def run_benchmark():
+def run_benchmark() -> None:
     click.secho("\n\nExecuting inference perfromance tests ...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
@@ -145,7 +146,7 @@ def run_benchmark():
     stop_torchserve()
 
 
-def register_model():
+def register_model() -> None:
     click.secho("*Registering model...", fg='green')
     url = execution_params['management_url'] + "/models"
     data = {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
@@ -157,7 +158,7 @@ def register_model():
     click.secho(resp.text)
 
 
-def unregister_model():
+def unregister_model() -> None:
     click.secho("*Unregistering model ...", fg='green')
     resp = requests.delete(execution_params['management_url'] + "/models/benchmark")
     if not resp.status_code == 200:
@@ -165,7 +166,7 @@ def unregister_model():
     click.secho(resp.text)
 
 
-def execute(command, wait=False, stdout=None, stderr=None, shell=True):
+def execute(command, wait: bool=False, stdout=None, stderr=None, shell: bool=True):
     print(command)
     cmd = Popen(command, shell=shell, close_fds=True, stdout=stdout, stderr=stderr, universal_newlines=True)
     if wait:
@@ -178,7 +179,7 @@ def execute_return_stdout(cmd):
     return proc.communicate()[0].strip()
 
 
-def local_torserve_start():
+def local_torserve_start() -> None:
     click.secho("*Terminating any existing Torchserve instance ...", fg='green')
     execute("torchserve --stop", wait=True)
     click.secho("*Setting up model store...", fg='green')
@@ -189,7 +190,7 @@ def local_torserve_start():
     time.sleep(3)
 
 
-def docker_torchserve_start():
+def docker_torchserve_start() -> None:
     prepare_docker_dependency()
     enable_gpu = ''
     if execution_params['image']:
@@ -223,17 +224,17 @@ def docker_torchserve_start():
     time.sleep(5)
 
 
-def prepare_local_dependency():
+def prepare_local_dependency() -> None:
     shutil.rmtree(os.path.join(TMP_DIR, 'model_store/'), ignore_errors=True)
     os.makedirs(os.path.join(TMP_DIR, "model_store/"), exist_ok=True)
     prepare_common_dependency()
 
 
-def prepare_docker_dependency():
+def prepare_docker_dependency() -> None:
     prepare_common_dependency()
 
 
-def prepare_common_dependency():
+def prepare_common_dependency() -> None:
     input = execution_params['input']
     shutil.rmtree(os.path.join(TMP_DIR, "benchmark"), ignore_errors=True)
     os.makedirs(os.path.join(TMP_DIR, "benchmark/conf"), exist_ok=True)
@@ -244,7 +245,7 @@ def prepare_common_dependency():
 
 
 
-def getAPIS():
+def getAPIS() -> None:
     MANAGEMENT_API = "http://127.0.0.1:8081"
     INFERENCE_API = "http://127.0.0.1:8080"
     
@@ -262,14 +263,14 @@ def getAPIS():
     execution_params['config_properties_name'] = execution_params['config_properties'].strip().split("/")[-1]
 
 
-def update_exec_params(input_param):
+def update_exec_params(input_param) -> None:
     for k, v in input_param.items():
         if default_ab_params[k] != input_param[k]:
             execution_params[k] = input_param[k]
     getAPIS()
 
             
-def generate_report():
+def generate_report() -> None:
     click.secho("\n\nGenerating Reports...", fg='green')
     extract_metrics()
     generate_csv_output()
@@ -284,7 +285,7 @@ metrics = {"predict.txt": "PredictionTime",
            "worker_thread.txt": "WorkerThreadTime"}
 
 
-def extract_metrics():
+def extract_metrics() -> None:
     with open(metric_log) as f:
         lines = f.readlines()
 
@@ -302,7 +303,7 @@ def extract_metrics():
             outf.writelines(all_lines)
 
 
-def generate_csv_output():
+def generate_csv_output() -> Dict[str, str]:
     click.secho("*Generating CSV output...", fg='green')
     batched_requests = execution_params['requests'] / execution_params['batch_size']
     line50 = int(batched_requests / 2)
@@ -342,14 +343,14 @@ def generate_csv_output():
     return artifacts
 
 
-def extract_entity(data, pattern, index, delim=" "):
+def extract_entity(data, pattern: Pattern[str], index, delim: str=" "):
     pattern = re.compile(pattern)
     for line in data:
         if pattern.search(line):
             return line.split(delim)[index].strip()
 
 
-def generate_latency_graph():
+def generate_latency_graph() -> None:
     click.secho("*Preparing graphs...", fg='green')
     df = pd.read_csv(os.path.join(TMP_DIR, 'benchmark/predict.txt'), header=None, names=['latency'])
     iteration = df.index
@@ -363,7 +364,7 @@ def generate_latency_graph():
     plt.savefig(f"{TMP_DIR}/benchmark/predict_latency.png")
 
 
-def generate_profile_graph():
+def generate_profile_graph() -> None:
     click.secho("*Preparing Profile graphs...", fg='green')
 
     plot_data = {}
@@ -421,7 +422,7 @@ def generate_profile_graph():
     plt.savefig("api-profile1.png", bbox_inches='tight')
 
 
-def stop_torchserve():
+def stop_torchserve() -> None:
     if execution_params['exec_env'] == 'local':
         click.secho("*Terminating Torchserve instance...", fg='green')
         execute("torchserve --stop", wait=True)
@@ -432,32 +433,32 @@ def stop_torchserve():
 
 
 # Test plans (soak, vgg11_1000r_10c,  vgg11_10000r_100c,...)
-def soak():
+def soak() -> None:
     execution_params['requests'] = 100000
 
     execution_params['concurrency'] = 10
 
 
-def vgg11_1000r_10c():
+def vgg11_1000r_10c() -> None:
     execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/vgg11.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
 
 
-def vgg11_10000r_100c():
+def vgg11_10000r_100c() -> None:
     execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/vgg11.mar'
     execution_params['requests'] = 10000
     execution_params['concurrency'] = 100
 
 
-def resnet152_batch():
+def resnet152_batch() -> None:
     execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
     execution_params['batch_size'] = 4
 
 
-def resnet152_batch_docker():
+def resnet152_batch_docker() -> None:
     execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
@@ -465,7 +466,7 @@ def resnet152_batch_docker():
     execution_params['exec_env'] = 'docker'
 
 
-def custom():
+def custom() -> None:
     pass
 
 
@@ -479,7 +480,7 @@ update_plan_params = {
 }
 
 
-def failure_exit(msg):
+def failure_exit(msg) -> None:
     import sys
     click.secho(f"{msg}", fg='red')
     click.secho(f"Test suite terminated due to above failure", fg='red')

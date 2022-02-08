@@ -11,7 +11,7 @@ import ts_scripts.print_env_info as build_hdr_printer
 from ts_scripts import marsgen as mg
 
 
-def torchserve_sanity():
+def torchserve_sanity() -> None:
     try:
         # Test frontend gradle
         test_frontend()
@@ -41,7 +41,7 @@ def torchserve_sanity():
         cleanup()
 
 
-def cleanup():
+def cleanup() -> None:
     ts.stop_torchserve()
     rm_dir('model_store')
     rm_dir('logs')

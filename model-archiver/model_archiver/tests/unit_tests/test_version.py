@@ -4,7 +4,7 @@ import os
 import model_archiver
 
 
-def test_model_export_tool_version():
+def test_model_export_tool_version() -> None:
     """
     Test the model archive version
     :return:

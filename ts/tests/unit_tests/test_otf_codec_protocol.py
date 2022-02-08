@@ -13,10 +13,11 @@ import pytest
 
 import ts.protocol.otf_message_handler as codec
 from builtins import bytes
+from ts.tests.unit_tests.test_otf_codec_protocol.socket_patches import Patches
 
 
 @pytest.fixture()
-def socket_patches(mocker):
+def socket_patches(mocker) -> Patches:
     Patches = namedtuple('Patches', ['socket'])
     mock_patch = Patches(mocker.patch('socket.socket'))
     mock_patch.socket.recv.return_value = b'1'
@@ -26,12 +27,12 @@ def socket_patches(mocker):
 # noinspection PyClassHasNoInit
 class TestOtfCodecHandler:
 
-    def test_retrieve_msg_unknown(self, socket_patches):
+    def test_retrieve_msg_unknown(self, socket_patches) -> None:
         socket_patches.socket.recv.side_effect = [b"U", b"\x00\x00\x00\x03"]
         with pytest.raises(ValueError, match=r"Invalid command: .*"):
             codec.retrieve_msg(socket_patches.socket)
 
-    def test_retrieve_msg_load_gpu(self, socket_patches):
+    def test_retrieve_msg_load_gpu(self, socket_patches) -> None:
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler", "gpu": 1,
                     "envelope": b"envelope",
@@ -52,7 +53,7 @@ class TestOtfCodecHandler:
         assert cmd == b"L"
         assert ret == expected
 
-    def test_retrieve_msg_load_no_gpu(self, socket_patches):
+    def test_retrieve_msg_load_no_gpu(self, socket_patches) -> None:
         expected = {"modelName": b"model_name", "modelPath": b"model_path",
                     "batchSize": 1, "handler": b"handler",
                     "envelope": b"envelope",
@@ -73,7 +74,7 @@ class TestOtfCodecHandler:
         assert cmd == b"L"
         assert ret == expected
 
-    def test_retrieve_msg_predict(self, socket_patches):
+    def test_retrieve_msg_predict(self, socket_patches) -> None:
         expected = [{
             "requestId": b"request_id", "headers": [], "parameters": [
                 {"name": "input_name",
@@ -98,7 +99,7 @@ class TestOtfCodecHandler:
         assert cmd == b'I'
         assert ret == expected
 
-    def test_retrieve_msg_predict_text(self, socket_patches):
+    def test_retrieve_msg_predict_text(self, socket_patches) -> None:
         expected = [{
             "requestId": b"request_id", "headers": [], "parameters": [
                 {"name": "input_name",
@@ -123,7 +124,7 @@ class TestOtfCodecHandler:
         assert cmd == b'I'
         assert ret == expected
 
-    def test_retrieve_msg_predict_binary(self, socket_patches):
+    def test_retrieve_msg_predict_binary(self, socket_patches) -> None:
         expected = [{
             "requestId": b"request_id", "headers": [], "parameters": [
                 {"name": "input_name",
@@ -148,17 +149,17 @@ class TestOtfCodecHandler:
         assert cmd == b'I'
         assert ret == expected
 
-    def test_create_load_model_response(self):
+    def test_create_load_model_response(self) -> None:
         msg = codec.create_load_model_response(200, "model_loaded")
 
         assert msg == b'\x00\x00\x00\xc8\x00\x00\x00\x0cmodel_loaded\xff\xff\xff\xff'
 
-    def test_create_predict_response(self):
+    def test_create_predict_response(self) -> None:
         msg = codec.create_predict_response(["OK"], {0: "request_id"}, "success", 200)
         assert msg == b'\x00\x00\x00\xc8\x00\x00\x00\x07success\x00\x00\x00\nrequest_id\x00\x00\x00\x00\x00\x00' \
                       b'\x00\xc8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02OK\xff\xff\xff\xff'
 
-    def test_create_predict_response_with_error(self):
+    def test_create_predict_response_with_error(self) -> None:
         msg = codec.create_predict_response(None, {0: "request_id"}, "failed", 200)
 
         assert msg == b'\x00\x00\x00\xc8\x00\x00\x00\x06failed\x00\x00\x00\nrequest_id\x00\x00\x00\x00\x00\x00\x00' \

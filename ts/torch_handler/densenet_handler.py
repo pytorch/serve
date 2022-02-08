@@ -9,7 +9,7 @@ import time
 import io
 import torch
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DenseNetHandler:
@@ -18,7 +18,7 @@ class DenseNetHandler:
     and returns the name of object in that image.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = None
         self.device = None
         self.initialized = False
@@ -26,7 +26,7 @@ class DenseNetHandler:
         self.manifest = None
         self.map_location = None
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         """First try to load torchscript else load eager mode state_dict based model"""
 
         properties = context.system_properties

@@ -1,0 +1,3 @@
+class DogBreedClassifier:
+    def postprocess(self, data) -> typing.List[str]: ...
+

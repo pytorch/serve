@@ -16,7 +16,7 @@ class MNISTDigitClassifier(ImageClassifier):
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(MNISTDigitClassifier, self).__init__()
         self.profiler_args = {
             "activities" : [ProfilerActivity.CPU],

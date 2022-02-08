@@ -1,4 +1,5 @@
 import json
+from typing import Any, Dict, List, Optional
 
 def pre_processing(data, context):
     '''
@@ -10,7 +11,7 @@ def pre_processing(data, context):
     return None
 
 
-def aggregate_func(data, context):
+def aggregate_func(data, context) -> Optional[List[Dict[str, Any]]]:
     '''
     Changes the output keys obtained from the individual model
     to be more appropriate for the workflow output

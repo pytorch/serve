@@ -6,7 +6,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 
-def test_modelarchiver():
+def test_modelarchiver() -> None:
     os.chdir("model-archiver")
 
     # Lint test

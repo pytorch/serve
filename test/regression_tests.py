@@ -15,7 +15,7 @@ from ts_scripts import marsgen as mg
 
 import datetime
 
-now = datetime.datetime.now()
+now: datetime.datetime = datetime.datetime.now()
 print("Current date and time : " + now.strftime("%Y-%m-%d %H:%M:%S"))
 
 check_python_version()

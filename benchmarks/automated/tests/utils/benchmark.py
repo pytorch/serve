@@ -24,7 +24,7 @@ from . import neuron as neuron_utils
 
 
 class BenchmarkHandler:
-    def __init__(self, model_name, benchmark_execution_id, connection=None, is_local_execution=False, benchmark_type="docker"):
+    def __init__(self, model_name, benchmark_execution_id, connection=None, is_local_execution: bool=False, benchmark_type: str="docker") -> None:
         """
         :param model_name: Name of the model to be benchmarked
         :param benchmark_execution_id: execution id that is shared across all the tests running 
@@ -47,12 +47,12 @@ class BenchmarkHandler:
     def execute_benchmark(
         self,
         test_config,
-        ec2_instance_type,
+        ec2_instance_type: str,
         cuda_version_for_instance,
         docker_repo_tag_for_current_instance,
-        exec_env="docker",
-        local_virutal_env="python3",
-    ):
+        exec_env: str="docker",
+        local_virutal_env: str="python3",
+    ) -> None:
         """
         :param test_config: config for the specific model to be benchmarked
         :param ec2_instance_type: instance type to be run on, determines whether cpu or gpu dockerfile is used

@@ -1,0 +1,3 @@
+class FCNImageSegmenter:
+    def __init__(self, num_classes: int = 21, **kwargs) -> None: ...
+

@@ -1,0 +1,3 @@
+class TransformerModelRepository:
+    def __init__(self, predictor_host) -> None: ...
+

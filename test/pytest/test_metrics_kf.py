@@ -9,29 +9,30 @@ import glob
 import requests
 import json
 import test_utils
+from typing import Union
 
 NUM_STARTUP_CFG = 0
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file = os.path.join(REPO_ROOT,"test/config_kf.properties")
 
-def setup_module(module):
+def setup_module(module) -> None:
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
     open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
 
 
-def teardown_module(module):
+def teardown_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
-def logs_created(no_config_snapshots=False):
+def logs_created(no_config_snapshots: bool=False) -> None:
     
     test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
     assert len(glob.glob('logs/ts_log.log')) == 1
 
-def validate_metrics_created(no_config_snapshots=False):
+def validate_metrics_created(no_config_snapshots: bool=False) -> None:
     test_utils.delete_all_snapshots()
     global NUM_STARTUP_CFG
     # Reset NUM_STARTUP_CFG as we are deleting snapshots in the previous step
@@ -44,7 +45,7 @@ def validate_metrics_created(no_config_snapshots=False):
     assert len(glob.glob('logs/ts_metrics.log')) == 1
 
 
-def run_log_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=False):
+def run_log_location_var(custom_path: Union[os.PathLike[bytes], os.PathLike[str], bytes, int, str]=test_utils.ROOT_DIR, no_config_snapshots: bool=False) -> None:
     test_utils.delete_all_snapshots()
     test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
 
@@ -55,13 +56,13 @@ def run_log_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=Fa
         assert len(glob.glob(custom_path + '/ts_log.log')) == 1
 
 
-def test_logs_created():
+def test_logs_created() -> None:
     logs_created()
     global NUM_STARTUP_CFG
     NUM_STARTUP_CFG = len(glob.glob('logs/config/*startup.cfg'))
 
 
-def test_logs_startup_cfg_created_snapshot_enabled():
+def test_logs_startup_cfg_created_snapshot_enabled() -> None:
     """
     Validates that access logs are getting created correctly.
     """
@@ -71,7 +72,7 @@ def test_logs_startup_cfg_created_snapshot_enabled():
     NUM_STARTUP_CFG += 1
 
 
-def test_logs_startup_cfg_created_snapshot_disabled():
+def test_logs_startup_cfg_created_snapshot_disabled() -> None:
     """
     Validates that access logs are getting created correctly.
     """
@@ -80,7 +81,7 @@ def test_logs_startup_cfg_created_snapshot_disabled():
     assert len(glob.glob('logs/config/*startup.cfg')) == NUM_STARTUP_CFG
 
 
-def test_metrics_startup_cfg_created_snapshot_enabled():
+def test_metrics_startup_cfg_created_snapshot_enabled() -> None:
     """
     Validates that model metrics is getting created with snapshot enabled.
     """
@@ -88,7 +89,7 @@ def test_metrics_startup_cfg_created_snapshot_enabled():
     assert len(glob.glob('logs/config/*startup.cfg')) == NUM_STARTUP_CFG
 
 
-def test_metrics_startup_cfg_created_snapshot_disabled():
+def test_metrics_startup_cfg_created_snapshot_disabled() -> None:
     """
     Validates that model metrics is getting created with snapshot disabled.
     """
@@ -96,7 +97,7 @@ def test_metrics_startup_cfg_created_snapshot_disabled():
     assert len(glob.glob('logs/config/*startup.cfg')) == 0
 
 
-def test_log_location_var_snapshot_disabled():
+def test_log_location_var_snapshot_disabled() -> None:
     """
     Validates that non metrics logs get saved in directory configured via LOG_LOCATION
     environment variable.
@@ -115,7 +116,7 @@ def test_log_location_var_snapshot_disabled():
     test_utils.delete_all_snapshots()
 
 
-def test_log_location_var_snapshot_enabled():
+def test_log_location_var_snapshot_enabled() -> None:
     """
     Validates that non metrics logs get saved in directory configured via LOG_LOCATION
     environment variable.
@@ -146,7 +147,7 @@ def test_log_location_var_snapshot_enabled():
     test_utils.delete_all_snapshots()
 
 
-def test_async_logging():
+def test_async_logging() -> None:
     """Validates that we can use async_logging flag while starting Torchserve"""
     # Need to stop torchserve as we need to check if log files get generated with 'aysnc_logging' flag
     test_utils.stop_torchserve()
@@ -163,7 +164,7 @@ def test_async_logging():
     assert len(glob.glob('logs/ts_log.log')) == 1
 
 
-def test_async_logging_non_boolean():
+def test_async_logging_non_boolean() -> None:
     '''Validates that Torchserve uses default value for async_logging flag
     if we assign a non boolean value to this flag'''
     test_utils.stop_torchserve()
@@ -181,7 +182,7 @@ def test_async_logging_non_boolean():
     test_utils.stop_torchserve()
 
 
-def run_metrics_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=False):
+def run_metrics_location_var(custom_path: Union[os.PathLike[bytes], os.PathLike[str], bytes, int, str]=test_utils.ROOT_DIR, no_config_snapshots: bool=False) -> None:
     test_utils.delete_all_snapshots()
     test_utils.start_torchserve(snapshot_file=snapshot_file, no_config_snapshots=no_config_snapshots)
 
@@ -190,7 +191,7 @@ def run_metrics_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshot
         assert len(glob.glob(custom_path + '/model_metrics.log')) == 1
 
 
-def test_metrics_location_var_snapshot_disabled():
+def test_metrics_location_var_snapshot_disabled() -> None:
     """
     Validates that metrics related logs get saved in directory configured via METRICS_LOCATION
     environment variable.
@@ -210,7 +211,7 @@ def test_metrics_location_var_snapshot_disabled():
     test_utils.delete_all_snapshots()
 
 
-def test_metrics_location_var_snapshot_enabled():
+def test_metrics_location_var_snapshot_enabled() -> None:
     """
     Validates that metrics related logs get saved in directory configured via METRICS_LOCATION
     environment variable.
@@ -234,7 +235,7 @@ def test_metrics_location_var_snapshot_enabled():
         os.remove(f)
 
 
-def test_log_location_and_metric_location_vars_snapshot_enabled():
+def test_log_location_and_metric_location_vars_snapshot_enabled() -> None:
     """
     Validates that metrics & non metrics related logs get saved in directory configured as per
      METRICS_LOCATION & LOG_LOCATION environment variables with snaphsot enabled.
@@ -261,7 +262,7 @@ def test_log_location_and_metric_location_vars_snapshot_enabled():
     shutil.rmtree(path.join(test_utils.ROOT_DIR, 'config'))
 
 
-def test_log_location_var_snapshot_disabled_custom_path_read_only():
+def test_log_location_var_snapshot_disabled_custom_path_read_only() -> None:
     """
     Validates that we should not be able to create non metrics related logs if the directory configured
     via 'LOG_LOCATION' is a read only directory.
@@ -285,7 +286,7 @@ def test_log_location_var_snapshot_disabled_custom_path_read_only():
         del os.environ['LOG_LOCATION']
 
 
-def test_metrics_location_var_snapshot_enabled_rdonly_dir():
+def test_metrics_location_var_snapshot_enabled_rdonly_dir() -> None:
     """
     Validates that we should not be able to create metrics related logs if the directory configured
     via 'METRICS_LOCATION' is a read only directory.

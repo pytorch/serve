@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 LOGGER.addHandler(logging.StreamHandler(sys.stderr))
 
@@ -18,7 +18,7 @@ WA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver", "dist"))[
 
 
 class S3BinaryUploader:
-    def __init__(self, s3_bucket: str, is_dryrun: bool = False, is_nightly: bool = False):
+    def __init__(self, s3_bucket: str, is_dryrun: bool = False, is_nightly: bool = False) -> None:
         """
         Initialize the uploader with s3_bucket, and s3_backup_bucket
         """
@@ -31,7 +31,7 @@ class S3BinaryUploader:
 
         self.channel = "nightly" if is_nightly else ""
 
-    def s3_upload_local_folder(self, local_folder_path: str):
+    def s3_upload_local_folder(self, local_folder_path: str) -> None:
         """
         Uploads the  *.whl files provided in a local folder to s3 bucket
         :params
@@ -49,7 +49,7 @@ class S3BinaryUploader:
 
         LOGGER.info(f"S3 upload using command: {s3_command}")
 
-    def s3_upload_default_binaries(self):
+    def s3_upload_default_binaries(self) -> None:
         """
         Uploads the *.whl files provided in the standard directory structure of the pytorch 'serve' directory,
         assuming that the *.whl files are available in the 'dist' folder of the 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         help="Specify a path to a folder with *.whl files, else default path to *.whl files will be used",
     )
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     s3BinaryUploader = S3BinaryUploader(args.s3_bucket, args.dry_run, args.nightly)
 
@@ -93,5 +93,5 @@ if __name__ == "__main__":
     else:
         s3BinaryUploader.s3_upload_default_binaries()
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 

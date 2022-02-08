@@ -6,7 +6,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 
-def test_workflow_archiver():
+def test_workflow_archiver() -> None:
     os.chdir("workflow-archiver")
 
     # Lint test

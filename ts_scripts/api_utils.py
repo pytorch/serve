@@ -7,6 +7,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts import tsutils as ts
+from typing import Union
 
 TEST_DIR = os.path.join("test")
 MODEL_STORE_DIR = os.path.join("model_store")
@@ -92,19 +93,19 @@ POSTMAN_COLLECTION_HTTPS_KFV2 = os.path.join("postman",
 REPORT_FILE = os.path.join("report.html")
 
 
-def cleanup_model_store():
+def cleanup_model_store() -> None:
     # rm -rf $MODEL_STORE_DIR / *
     for f in glob.glob(os.path.join(MODEL_STORE_DIR, "*")):
         os.remove(f)
 
 
-def move_logs(log_file, artifact_dir):
+def move_logs(log_file: Union[os.PathLike[bytes], os.PathLike[str], bytes, str], artifact_dir) -> None:
     logs_dir = os.path.join("logs")
     os.rename(log_file, os.path.join(logs_dir, log_file))  # mv file logs/
     os.rename(logs_dir, os.path.join(artifact_dir, logs_dir))  # mv logs/ dir
 
 
-def trigger_management_tests():
+def trigger_management_tests() -> int:
     """ Return exit code of newman execution of management collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -118,7 +119,7 @@ def trigger_management_tests():
     return EXIT_CODE
 
 
-def trigger_inference_tests():
+def trigger_inference_tests() -> int:
     """ Return exit code of newman execution of inference collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -132,7 +133,7 @@ def trigger_inference_tests():
     return EXIT_CODE
 
 
-def trigger_workflow_tests():
+def trigger_workflow_tests() -> int:
     """ Return exit code of newman execution of workflow collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -147,7 +148,7 @@ def trigger_workflow_tests():
     return EXIT_CODE
 
 
-def trigger_workflow_inference_tests():
+def trigger_workflow_inference_tests() -> int:
     """ Return exit code of newman execution of workflow inference collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -162,7 +163,7 @@ def trigger_workflow_inference_tests():
     return EXIT_CODE
 
 
-def trigger_explanation_tests():
+def trigger_explanation_tests() -> int:
     """ Return exit code of newman execution of inference collection """
 
     ts.start_torchserve(ncs=True,
@@ -177,7 +178,7 @@ def trigger_explanation_tests():
     return EXIT_CODE
 
 
-def trigger_incr_timeout_inference_tests():
+def trigger_incr_timeout_inference_tests() -> int:
     """ Return exit code of newman execution of increased timeout inference collection """
 
     # Configuration with increased timeout
@@ -200,7 +201,7 @@ def trigger_incr_timeout_inference_tests():
     return EXIT_CODE
 
 
-def trigger_https_tests():
+def trigger_https_tests() -> int:
     """ Return exit code of newman execution of https collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -216,7 +217,7 @@ def trigger_https_tests():
 
 
 ## KServe tests starts here
-def trigger_management_tests_kf():
+def trigger_management_tests_kf() -> int:
     """ Return exit code of newman execution of management collection """
 
     config_file = open("config.properties", "w")
@@ -237,7 +238,7 @@ def trigger_management_tests_kf():
     return EXIT_CODE
 
 
-def trigger_inference_tests_kf():
+def trigger_inference_tests_kf() -> int:
     """ Return exit code of newman execution of inference collection """
 
     config_file = open("config.properties", "w")
@@ -258,7 +259,7 @@ def trigger_inference_tests_kf():
     return EXIT_CODE
 
 
-def trigger_https_tests_kf():
+def trigger_https_tests_kf() -> int:
     """ Return exit code of newman execution of https collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -273,7 +274,7 @@ def trigger_https_tests_kf():
     return EXIT_CODE
 
 
-def trigger_inference_tests_kfv2():
+def trigger_inference_tests_kfv2() -> int:
     """ Return exit code of newman execution of inference collection """
 
     config_file = open("config.properties", "w")
@@ -294,7 +295,7 @@ def trigger_inference_tests_kfv2():
     return EXIT_CODE
 
 
-def trigger_https_tests_kfv2():
+def trigger_https_tests_kfv2() -> int:
     """ Return exit code of newman execution of https collection """
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
@@ -309,7 +310,7 @@ def trigger_https_tests_kfv2():
     return EXIT_CODE
 
 
-def trigger_all():
+def trigger_all() -> int:
     exit_code1 = trigger_management_tests()
     exit_code2 = trigger_inference_tests()
     exit_code3 = trigger_incr_timeout_inference_tests()
@@ -329,7 +330,7 @@ def trigger_all():
     ]) else 0
 
 
-def test_api(collection):
+def test_api(collection: str) -> None:
     os.chdir(TEST_DIR)
     ALL_DIRS = [
         MODEL_STORE_DIR, ARTIFACTS_MANAGEMENT_DIR, ARTIFACTS_INFERENCE_DIR,

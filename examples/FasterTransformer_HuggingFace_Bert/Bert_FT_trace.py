@@ -22,15 +22,15 @@ from transformers import glue_output_modes as output_modes
 from transformers import glue_processors as processors
 
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def set_seed(args):
+def set_seed(args) -> None:
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

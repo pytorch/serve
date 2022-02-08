@@ -1,5 +1,6 @@
 from ts.torch_handler.image_classifier import ImageClassifier
 import json
+from typing import List
 
 class DogBreedClassifier(ImageClassifier):
     def preprocess(self, data):
@@ -20,7 +21,7 @@ class DogBreedClassifier(ImageClassifier):
         if data is not None:
             return ImageClassifier.inference(self, data, *args, **kwargs)
 
-    def postprocess(self, data):
+    def postprocess(self, data) -> List[str]:
        response = ["It's a cat!"] * len(self.is_dogs)
        if data is None:
            return response

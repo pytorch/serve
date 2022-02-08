@@ -1,0 +1,3 @@
+class BaseEnvelope:
+    def __init__(self, handle_fn) -> None: ...
+

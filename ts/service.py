@@ -15,7 +15,7 @@ from ts.protocol.otf_message_handler import create_predict_response
 from ts.utils.util import PredictionException
 
 PREDICTION_METRIC = 'PredictionTime'
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Service(object):
@@ -23,13 +23,13 @@ class Service(object):
     Wrapper for custom entry_point
     """
 
-    def __init__(self, model_name, model_dir, manifest, entry_point, gpu, batch_size, limit_max_image_pixels=True):
+    def __init__(self, model_name, model_dir, manifest, entry_point, gpu, batch_size, limit_max_image_pixels: bool=True) -> None:
         self._context = Context(model_name, model_dir, manifest,
                                 batch_size, gpu, ts.__version__, limit_max_image_pixels)
         self._entry_point = entry_point
 
     @property
-    def context(self):
+    def context(self) -> Context:
         return self._context
 
     @staticmethod
@@ -125,7 +125,7 @@ class Service(object):
         return create_predict_response(ret, req_id_map, "Prediction success", 200, context=self.context)
 
 
-def emit_metrics(metrics):
+def emit_metrics(metrics) -> None:
     """
     Emit the metrics in the provided Dictionary
 

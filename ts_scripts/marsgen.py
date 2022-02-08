@@ -12,7 +12,7 @@ MODEL_STORE_DIR = os.path.join(REPO_ROOT, "model_store_gen")
 os.makedirs(MODEL_STORE_DIR, exist_ok=True)
 MAR_CONFIG_FILE_PATH = os.path.join(REPO_ROOT, "ts_scripts", "mar_config.json")
 
-def delete_model_store_gen_dir():
+def delete_model_store_gen_dir() -> None:
     print(f"## Deleting model_store_gen_dir: {MODEL_STORE_DIR}\n")
     mar_set.clear()
     if os.path.exists(MODEL_STORE_DIR):
@@ -22,7 +22,7 @@ def delete_model_store_gen_dir():
             print("Error: %s : %s" % (MODEL_STORE_DIR, e.strerror))
 
 mar_set = set()
-def gen_mar(model_store=None):
+def gen_mar(model_store=None) -> None:
     print(f"## Starting gen_mar: {model_store}\n")
     if len(mar_set) == 0:
         generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR)
@@ -39,7 +39,7 @@ def gen_mar(model_store=None):
                 print(f"## Symlink {src}, {dst} successfully.")
 
 
-def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
+def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR) -> None:
     """
     By default generate_mars reads ts_scripts/mar_config.json and outputs mar files in dir model_store_gen
     - mar_config.json defines a list of models' mar file parameters. They are:
@@ -121,7 +121,7 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
 def model_archiver_command_builder(model_name=None, version=None, model_file=None,
                                    serialized_file=None, handler=None, extra_files=None,
                                    runtime=None, archive_format=None, requirements_file=None,
-                                   export_path=None, force=True):
+                                   export_path=None, force: bool=True) -> str:
     cmd = "torch-model-archiver"
 
     if model_name:
@@ -168,5 +168,5 @@ if __name__ == "__main__":
     parser.add_argument('--config', default=MAR_CONFIG_FILE_PATH, help="mar file configuration json file")
     parser.add_argument('--model-store', default=MODEL_STORE_DIR, help="model store dir")
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     generate_mars(args.config, MODEL_STORE_DIR)

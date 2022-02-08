@@ -1,5 +1,6 @@
 from ts.torch_handler.image_classifier import ImageClassifier
 import base64
+from typing import List
 
 labels = ['cat', 'dog']
 
@@ -15,7 +16,7 @@ class CatDogClassifier(ImageClassifier):
             b64_data.append({"body": base64.b64decode(input_data)})
         return ImageClassifier.preprocess(self, b64_data)
 
-    def postprocess(self, predictions):
+    def postprocess(self, predictions) -> List[str]:
         response = []
         for prediction in predictions:
             prediction = prediction.argmax()

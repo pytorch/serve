@@ -29,14 +29,14 @@ TMP_DIR = "/home/ubuntu"
 class TorchServeHandler(object):
     def __init__(
         self,
-        exec_env="docker",
-        cuda_version="cu102",
+        exec_env: str="docker",
+        cuda_version: str="cu102",
         gpus=None,
         torchserve_docker_image=None,
         backend_profiling=None,
         connection=None,
-        is_local_execution=False
-    ):
+        is_local_execution: bool=False
+    ) -> None:
         self.exec_env = exec_env
         self.cuda_version = cuda_version
         self.gpus = gpus
@@ -56,7 +56,7 @@ class TorchServeHandler(object):
         # Install torch-model-archiver and torch-workflow-archiver
         self.connection.run(f"pip3 install torch-model-archiver torch-workflow-archiver")
 
-    def setup_torchserve(self, virtual_env_name=None):
+    def setup_torchserve(self, virtual_env_name=None) -> None:
         """
         Set up torchserve dependencies, and install torchserve
         """
@@ -75,7 +75,7 @@ class TorchServeHandler(object):
         self.connection.run(f"{activation_command}pip3 install torch-model-archiver torch-workflow-archiver")
 
 
-    def prepare_common_dependency(self):
+    def prepare_common_dependency(self) -> None:
         # Note: the following command cleans up any previous run logs, except any *.mar files generated to avoid re-creation
         self.connection.run(f"find {os.path.join(TMP_DIR, 'benchmark')} ! -name '*.mar' -type f -exec rm -f {{}} +", warn=True)
         # Recreate required folders
@@ -90,7 +90,7 @@ class TorchServeHandler(object):
         )
 
 
-    def getAPIS(self):
+    def getAPIS(self) -> None:
         if self.is_local_execution:
             self.connection.run(f"cp {self.config_properties} {os.path.join(LOCAL_TMP_DIR, 'config.properties')}")
         else:
@@ -111,7 +111,7 @@ class TorchServeHandler(object):
         self.management_port = urlparse(management_api).port
         self.inference_api = urlparse(inference_api).port
 
-    def start_torchserve_local(self, virtual_env_name=None, stop_torchserve=True):
+    def start_torchserve_local(self, virtual_env_name=None, stop_torchserve: bool=True) -> None:
 
         self.prepare_common_dependency()
         self.getAPIS()
@@ -133,7 +133,7 @@ class TorchServeHandler(object):
         time.sleep(10)
 
     
-    def start_recording_docker_stats(self):
+    def start_recording_docker_stats(self) -> None:
         """
         Records docker stats for the container 'ts' using nohup, in the file nohup.out 
         """
@@ -143,7 +143,7 @@ class TorchServeHandler(object):
         time.sleep(3)
 
     
-    def stop_recording_docker_stats(self, model_name, num_workers, batch_size):
+    def stop_recording_docker_stats(self, model_name, num_workers, batch_size) -> None:
         """
         Stops and cleans up docker stats, and preps for plotting
         """
@@ -155,7 +155,7 @@ class TorchServeHandler(object):
         self.connection.run(f"cp nohup.out nohup.{model_name}.{num_workers}.{batch_size}", warn=True)
         self.connection.run(f"rm nohup.out", warn=True)
 
-    def plot_stats_graph(self, model_name, mode_name, num_workers, batch_size):
+    def plot_stats_graph(self, model_name, mode_name, num_workers, batch_size) -> None:
         """
         Plots the graphs for docker stats recorded (free, docker cpu utilization) etc.
         """
@@ -176,7 +176,7 @@ class TorchServeHandler(object):
         plt.savefig(f"free_plot.{model_name}.{mode_name}.{num_workers}.{batch_size}.png")
         plt.clf()
 
-    def start_torchserve_docker(self, stop_torchserve=True):
+    def start_torchserve_docker(self, stop_torchserve: bool=True) -> None:
 
         self.prepare_common_dependency()
         self.getAPIS()
@@ -206,7 +206,7 @@ class TorchServeHandler(object):
 
         time.sleep(8)
 
-    def register_model(self, url, workers, batch_delay, batch_size, model_name="benchmark"):
+    def register_model(self, url, workers, batch_delay, batch_size, model_name: str="benchmark") -> None:
         """
         Uses 'curl' on the connection to register model
         :param url: http url for the pre-trained model
@@ -227,7 +227,7 @@ class TorchServeHandler(object):
         if run_out.return_code != 0:
             LOGGER.error(f"Failed to register model {model_name} sourced from url: {url}")
 
-    def unregister_model(self, model_name="benchmark"):
+    def unregister_model(self, model_name: str="benchmark") -> None:
         """
         Uses 'curl' on the connection to unregister the model. Assumes only a single version of the model is loaded.
         Typically should be run after every benchmark configuration completes. 
@@ -242,7 +242,7 @@ class TorchServeHandler(object):
             LOGGER.error(f"Failed to unregister model {model_name}")
 
 
-    def register_workflow(self, url):
+    def register_workflow(self, url) -> None:
         """
         Register an ensemble model i.e. workflow
         :param url: workflow_name of the workflow archive
@@ -253,7 +253,7 @@ class TorchServeHandler(object):
 
         time.sleep(40)
 
-    def unregister_workflow(self, workflow_name):
+    def unregister_workflow(self, workflow_name) -> None:
         """
         Deletes a workflow from the server
         :param workflow_name: name of the workflow archive
@@ -263,7 +263,7 @@ class TorchServeHandler(object):
         LOGGER.info(f'curl -X DELETE "http://localhost:8081/workflows/{workflow_name}"')
 
 
-    def stop_torchserve(self, exec_env="docker", virtual_env_name=None):
+    def stop_torchserve(self, exec_env: str="docker", virtual_env_name=None) -> None:
         """
         Stops torchserve depending on the exec_env
         :param exec_env: either 'local' or 'docker'
@@ -278,7 +278,7 @@ class TorchServeHandler(object):
 
         time.sleep(5)
     
-    def create_and_update_workflow_archive(self, workflow_name, spec_file_name, handler_file_name, batch_size, workers, batch_delay, retry_attempts, timeout_ms):
+    def create_and_update_workflow_archive(self, workflow_name, spec_file_name, handler_file_name, batch_size, workers, batch_delay, retry_attempts, timeout_ms) -> None:
         """
         Creates the first workflow archive based on the information passed, sourced from the user-provided specfile.
         Note: the archive is created on the ec2 instance, but the specfile is modified on the current instance from which
@@ -336,7 +336,7 @@ class TorchServeHandler(object):
         LOGGER.info(f"Updated workflow archive at location: /home/ubuntu/benchmark/wf_store/{workflow_name}.war")
         
     
-    def download_workflow_artifacts(self, workflow_name, model_urls, specfile_url, workflow_handler_url):
+    def download_workflow_artifacts(self, workflow_name, model_urls, specfile_url, workflow_handler_url) -> None:
         """
         Sets up the workflow archive in the workflow store that torchserve uses. Download the artifacts into a 
         temporary folder
@@ -354,7 +354,7 @@ class TorchServeHandler(object):
         LOGGER.info(f"Downloaded workflow artifacts in the folder: {self.tmp_wf_dir}")
     
 
-def delete_mar_file_from_model_store(model_store=None, model_mar=None):
+def delete_mar_file_from_model_store(model_store=None, model_mar=None) -> None:
     model_store = model_store if (model_store is not None) else f"{ROOT_DIR}/model_store/"
     if model_mar is not None:
         for f in glob.glob(os.path.join(model_store, model_mar + "*")):

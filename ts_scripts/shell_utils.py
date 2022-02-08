@@ -3,9 +3,10 @@ import os
 import shutil
 import glob
 from pathlib import Path
+from typing import Optional, Union
 
 
-def download_save(url, path=None, filename=None):
+def download_save(url: Union[bytes, str], path=None, filename=None) -> None:
     if not filename:
         filename = url.split('/')[-1]
     if path:
@@ -17,7 +18,7 @@ def download_save(url, path=None, filename=None):
         f.write(resp.content)
 
 
-def rm_file(path, regex=False):
+def rm_file(path: Union[os.PathLike[bytes], os.PathLike[str], bytes, str], regex: bool=False) -> None:
     if regex:
         file_list = glob.glob(path, recursive=True)
     else:
@@ -29,13 +30,13 @@ def rm_file(path, regex=False):
             os.remove(path)
 
 
-def rm_dir(path):
+def rm_dir(path: Union[os.PathLike[str], bytes, str]) -> None:
     path = Path(path)
     if os.path.exists(path):
         print(f"Deleting directory : {path}")
         shutil.rmtree(path)
 
 
-def unzip(filename, destination, arc_type):
+def unzip(filename: Union[os.PathLike[str], str], destination: Union[None, os.PathLike[str], str], arc_type: Optional[str]) -> None:
     shutil.unpack_archive(filename, destination, arc_type)
     print("Archive file unpacked successfully.")

@@ -1,0 +1,3 @@
+class IntermediateLayerGetter:
+    def __init__(self, model, return_layers) -> None: ...
+

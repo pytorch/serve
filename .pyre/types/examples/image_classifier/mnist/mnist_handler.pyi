@@ -1,0 +1,3 @@
+class MNISTDigitClassifier:
+    def __init__(self) -> None: ...
+

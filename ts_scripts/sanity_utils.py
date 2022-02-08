@@ -13,7 +13,7 @@ from ts_scripts.tsutils import generate_grpc_client_stubs
 from ts_scripts import utils
 
 
-def run_markdown_link_checker():
+def run_markdown_link_checker() -> bool:
     print("## Started markdown link checker")
     result = True
     for mdfile in glob.glob("**/*.md", recursive=True):
@@ -26,7 +26,7 @@ def run_markdown_link_checker():
     return result
 
 
-def validate_model_on_gpu():
+def validate_model_on_gpu() -> bool:
     # A quick \ crude way of checking if model is loaded in GPU
     # Assumption is -
     # 1. GPUs on test setup are only utlizied by torchserve
@@ -39,7 +39,7 @@ def validate_model_on_gpu():
     return model_loaded
 
 
-def test_sanity():
+def test_sanity() -> None:
     generate_grpc_client_stubs()
 
     print("## Started sanity tests")
@@ -193,7 +193,7 @@ def test_sanity():
        print("##WARNING : Broken links in docs.")
 
 
-def test_workflow_sanity():
+def test_workflow_sanity() -> None:
     current_path = os.getcwd()
     ts_log_file = os.path.join("logs", "ts_console.log")
     os.makedirs("model_store", exist_ok=True)

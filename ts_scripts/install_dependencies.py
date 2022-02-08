@@ -13,17 +13,17 @@ from ts_scripts.utils import check_python_version
 
 class Common():
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
         self.sudo_cmd = 'sudo '
 
-    def install_java(self):
+    def install_java(self) -> None:
         pass
 
-    def install_nodejs(self):
+    def install_nodejs(self) -> None:
         pass
 
-    def install_torch_packages(self, cuda_version):
+    def install_torch_packages(self, cuda_version) -> None:
         if cuda_version:
             if platform.system() == "Darwin":
                 print(
@@ -44,7 +44,7 @@ class Common():
                 f"pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
-    def install_python_packages(self, cuda_version, requirements_file_path):
+    def install_python_packages(self, cuda_version, requirements_file_path) -> None:
         if os.system("conda") == 0:
             # conda install command should run before the pip install commands
             # as it may reinstall the packages with different versions
@@ -56,28 +56,28 @@ class Common():
         os.system("pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package
 
-    def install_node_packages(self):
+    def install_node_packages(self) -> None:
         os.system(
             f"{self.sudo_cmd}npm install -g newman newman-reporter-htmlextra markdown-link-check"
         )
 
-    def install_jmeter(self):
+    def install_jmeter(self) -> None:
         pass
 
-    def install_wget(self):
+    def install_wget(self) -> None:
         pass
 
 
 class Linux(Common):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         os.system(f"{self.sudo_cmd}apt-get update")
 
-    def install_java(self):
+    def install_java(self) -> None:
         os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
-    def install_nodejs(self):
+    def install_nodejs(self) -> None:
         python_path = Path(sys.executable).resolve()
         os.system(
             f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
@@ -86,10 +86,10 @@ class Linux(Common):
         os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
         os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
 
-    def install_wget(self):
+    def install_wget(self) -> None:
         os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
-    def install_libgit2(self):
+    def install_libgit2(self) -> None:
         os.system(
             f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz"
         )
@@ -99,32 +99,32 @@ class Linux(Common):
         )
         os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
 
-    def install_maven(self):
+    def install_maven(self) -> None:
         os.system(f"{self.sudo_cmd}apt-get install -y maven")
 
 
 class Windows(Common):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.sudo_cmd = ''
 
-    def install_java(self):
+    def install_java(self) -> None:
         pass
 
-    def install_nodejs(self):
+    def install_nodejs(self) -> None:
         pass
 
-    def install_wget(self):
+    def install_wget(self) -> None:
         pass
 
 
 class Darwin(Common):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
-    def install_java(self):
+    def install_java(self) -> None:
         out = get_brew_version()
         if out == "N/A":
             sys.exit("**Error: Homebrew not installed...")
@@ -135,19 +135,19 @@ class Darwin(Common):
         else:
             os.system("brew cask install adoptopenjdk11")
 
-    def install_nodejs(self):
+    def install_nodejs(self) -> None:
         os.system("brew unlink node")
         os.system("brew install node@14")
         os.system("brew link --overwrite node@14")
 
-    def install_node_packages(self):
+    def install_node_packages(self) -> None:
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
-    def install_wget(self):
+    def install_wget(self) -> None:
         os.system("brew install wget")
 
 
-def install_dependencies(cuda_version=None):
+def install_dependencies(cuda_version=None) -> None:
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
     system = os_map[platform.system()]()
 
@@ -189,6 +189,6 @@ if __name__ == "__main__":
         "environment(production or developer) on which dependencies will be installed"
     )
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)

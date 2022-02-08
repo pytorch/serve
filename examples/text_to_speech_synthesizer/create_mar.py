@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 
-TMP_DIR = tempfile.gettempdir()
+TMP_DIR: str = tempfile.gettempdir()
 rm_file("torchhub.zip")
 rm_dir(os.path.join(TMP_DIR, "DeepLearningExamples-torchhub"))
 rm_dir("PyTorch")

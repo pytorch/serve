@@ -5,11 +5,12 @@ import os
 import shutil
 import subprocess
 import workflow_archiver
+from typing import Union
 
 MANIFEST_FILE = "WAR-INF/MANIFEST.json"
 
 
-def create_file_path(path):
+def create_file_path(path: Union[os.PathLike[bytes], os.PathLike[str], bytes, str]) -> None:
     try:
         os.makedirs(path)
     except OSError as exc:
@@ -19,7 +20,7 @@ def create_file_path(path):
             raise
 
 
-def delete_file_path(path):
+def delete_file_path(path: Union[os.PathLike[bytes], os.PathLike[str], bytes, str]) -> None:
     try:
         if os.path.isfile(path):
             os.remove(path)
@@ -29,7 +30,7 @@ def delete_file_path(path):
         pass
 
 
-def run_test(test, cmd):
+def run_test(test, cmd) -> int:
     it = test.get("iterations") if test.get("iterations") is not None else 1
     for i in range(it):
         try:
@@ -42,11 +43,11 @@ def run_test(test, cmd):
     return 1
 
 
-def validate_archive_exists(test):
+def validate_archive_exists(test) -> None:
     assert os.path.isfile(os.path.join(test.get("export-path"), test.get("workflow-name")+".war"))
 
 
-def validate_manifest_file(manifest, test):
+def validate_manifest_file(manifest, test) -> None:
     """
     Validate the MANIFEST file
     :param manifest:
@@ -60,7 +61,7 @@ def validate_manifest_file(manifest, test):
     assert manifest.get("archiverVersion") == workflow_archiver.__version__
 
 
-def validate_war_archive(test):
+def validate_war_archive(test) -> None:
     import zipfile
     file_name = os.path.join(test.get("export-path"), test.get("workflow-name") + ".war")
     zf = zipfile.ZipFile(file_name, "r")
@@ -68,12 +69,12 @@ def validate_war_archive(test):
     validate_manifest_file(manifest, test)
 
 
-def validate(test):
+def validate(test) -> None:
     validate_archive_exists(test)
     validate_war_archive(test)
 
 
-def build_cmd(test):
+def build_cmd(test) -> str:
     args = ['workflow-name', 'spec-file', 'handler', 'export-path']
     cmd = ["torch-workflow-archiver"]
 
@@ -84,7 +85,7 @@ def build_cmd(test):
     return " ".join(cmd)
 
 
-def test_workflow_archiver():
+def test_workflow_archiver() -> None:
     with open("workflow_archiver/tests/integ_tests/configuration.json", "r") as f:
         tests = json.loads(f.read())
         for test in tests:

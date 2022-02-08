@@ -54,7 +54,7 @@ npm_env =  {
     "npm_pkg_version": []
 }
 
-def get_nvidia_smi():
+def get_nvidia_smi() -> str:
     # Note: nvidia-smi is currently available only on Windows and Linux
     smi = 'nvidia-smi'
     if get_platform() == 'win32':
@@ -130,7 +130,7 @@ def get_java_version():
     return out
 
 
-def get_platform():
+def get_platform() -> str:
     if sys.platform.startswith('linux'):
         return 'linux'
     elif sys.platform.startswith('win32'):
@@ -257,21 +257,21 @@ def get_cudnn_version():
     return 'Probably one of the following:\n{}'.format(result)
 
 
-def get_torchserve_version():
+def get_torchserve_version() -> str:
     # fetch the torchserve version from version.txt file
     with open(f"{os.path.dirname(os.path.abspath(__file__))}/../ts/version.txt", 'r') as file:
         version = file.readline().rstrip()
     return version
 
 
-def get_torch_model_archiver():
+def get_torch_model_archiver() -> str:
     # fetch the torch-model-archiver version from version.txt file
     with open(f"{os.path.dirname(os.path.abspath(__file__))}/../model-archiver/model_archiver/version.txt", 'r') as file:
         version = file.readline().rstrip()
     return version
 
 
-def populate_torchserve_env(torch_pkg):
+def populate_torchserve_env(torch_pkg) -> None:
     for pkg in torch_pkg:
         if pkg.split("==")[0] == "torch":
             torchserve_env["torch"] = pkg
@@ -290,7 +290,7 @@ def populate_torchserve_env(torch_pkg):
         torchserve_env["torch_model_archiver"] = "torch-model-archiver==" + get_torch_model_archiver()
 
 
-def populate_python_env(pip_version, pip_list_output):
+def populate_python_env(pip_version, pip_list_output) -> None:
     python_env["python_version"] = f'{sys.version_info[0]}.{sys.version_info[1]} ' \
                                    f'({sys.maxsize.bit_length() + 1}-bit runtime)'
     python_env["python_executable_path"] = sys.executable
@@ -298,18 +298,18 @@ def populate_python_env(pip_version, pip_list_output):
     python_env["pip_packages"] = pip_list_output
 
 
-def populate_java_env():
+def populate_java_env() -> None:
     java_env["java_version"] = get_java_version()
 
 
-def populate_os_env():
+def populate_os_env() -> None:
     os_info["os"] = get_os()
     os_info["gcc_version"] = get_gcc_version()
     os_info["clang_version"] = get_clang_version()
     os_info["cmake_version"] = get_cmake_version()
 
 
-def populate_cuda_env(cuda_available_str):
+def populate_cuda_env(cuda_available_str) -> None:
     cuda_env["is_cuda_available"] = cuda_available_str
     cuda_env["cuda_runtime_version"] = get_running_cuda_version()
     cuda_env["nvidia_gpu_models"] = get_nvidia_gpu_info()
@@ -317,10 +317,10 @@ def populate_cuda_env(cuda_available_str):
     cuda_env["cudnn_version"] = get_cudnn_version()
 
 
-def populate_npm_env():
+def populate_npm_env() -> None:
     npm_env["npm_pkg_version"] = get_npm_packages()
 
-def populate_env_info():
+def populate_env_info() -> None:
     # torchserve packages
     _, torch_list_output = get_pip_packages("torch")
     if torch_list_output is not None:
@@ -343,7 +343,7 @@ def populate_env_info():
     if get_platform() == 'darwin':
         populate_npm_env()
 
-env_info_fmt = """
+env_info_fmt: str = """
 ------------------------------------------------------------------------------------------
 Environment headers
 ------------------------------------------------------------------------------------------
@@ -403,7 +403,7 @@ def get_pretty_env_info(branch_name):
     return env_info_fmt.format(**env_dict)
 
 
-def main(branch_name):
+def main(branch_name) -> None:
     global torchserve_branch
     torchserve_branch = branch_name
     output = get_pretty_env_info(branch_name)
@@ -412,7 +412,7 @@ def main(branch_name):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        torchserve_branch = sys.argv[1]
+        torchserve_branch: str = sys.argv[1]
     else:
-        torchserve_branch = "" 
+        torchserve_branch: str = "" 
     main(torchserve_branch)

@@ -10,7 +10,7 @@ class DeepLabV3ImageSegmenter(DeepLabV3):
     NN definition for deeplabv3_resnet101 i.e. DeepLabV3 with resnet 101 as backend
     """
 
-    def __init__(self, num_classes=21, **kwargs):
+    def __init__(self, num_classes: int=21, **kwargs) -> None:
         backbone = resnet.resnet101(pretrained=True,
                                     replace_stride_with_dilation=[False, True, True])
         return_layers = {'layer4': 'out'}

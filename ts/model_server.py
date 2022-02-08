@@ -13,9 +13,10 @@ import platform
 import psutil
 from ts.version import __version__
 from ts.arg_parser import ArgParser
+from typing import Dict
 
 
-def start():
+def start() -> None:
     """
     This is the entry point for model server
     :return:
@@ -170,7 +171,7 @@ def start():
                 print("start java frontend failed:", sys.exc_info())
 
 
-def load_properties(file_path):
+def load_properties(file_path) -> Dict[str, str]:
     """
     Read properties file into map.
     """

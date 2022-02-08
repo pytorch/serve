@@ -3,5 +3,5 @@ This is a dummy source fiile
 """
 
 
-def handle():
+def handle() -> str:
     return "Dummy model"

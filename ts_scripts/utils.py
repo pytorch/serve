@@ -6,17 +6,17 @@ nvidia_smi_cmd = {'Windows': 'nvidia-smi.exe',
                          'Darwin': 'nvidia-smi',
                          'Linux': 'nvidia-smi'}
 
-def is_gpu_instance():
+def is_gpu_instance() -> bool:
     return True if os.system(nvidia_smi_cmd[platform.system()]) == 0 else False
 
-def is_conda_build_env():
+def is_conda_build_env() -> bool:
     return True if os.system("conda-build") == 0 else False
 
-def is_conda_env():
+def is_conda_env() -> bool:
     return True if os.system("conda") == 0 else False
 
 
-def check_python_version():
+def check_python_version() -> None:
     req_version = (3, 6)
     cur_version = sys.version_info
 

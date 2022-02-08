@@ -2,7 +2,7 @@ import os
 import sys
 
 
-def test_frontend():
+def test_frontend() -> None:
     print("## Started frontend build and tests")
     frontend_gradlew_path = os.path.join("frontend", "gradlew")
     frontend_gradlew_cmd = f"{frontend_gradlew_path} -p frontend clean build"

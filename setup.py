@@ -44,7 +44,7 @@ build_plugins_command = {
 }
 
 
-def pypi_description():
+def pypi_description() -> str:
     """
     Imports the long description for the project page
     """
@@ -71,7 +71,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
     dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
 
     # noinspection PyMethodMayBeStatic
-    def run(self):
+    def run(self) -> None:
         """
         Actual method called to run the build command
         :return:
@@ -101,7 +101,7 @@ class BuildPy(setuptools.command.build_py.build_py):
     Class to invoke the custom command defined above.
     """
 
-    def run(self):
+    def run(self) -> None:
         sys.stderr.flush()
         self.run_command('build_frontend')
         setuptools.command.build_py.build_py.run(self)
@@ -113,16 +113,16 @@ class BuildPlugins(Command):
     source_plugin_dir = \
         os.path.abspath('plugins/build/plugins')
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.plugins = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         if self.plugins is None:
             print("No plugin option provided. Defaulting to 'default'")
             self.plugins = "default"
 
     # noinspection PyMethodMayBeStatic
-    def run(self):
+    def run(self) -> None:
         if os.path.isdir(self.source_plugin_dir):
             rmtree(self.source_plugin_dir)
 

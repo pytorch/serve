@@ -10,7 +10,7 @@ from workflow_archiver.workflow_archiver_error import WorkflowArchiverError
 
 
 # noinspection PyClassHasNoInit
-def _validate_war(patches):
+def _validate_war(patches) -> None:
     if platform.system() == "Windows":
         patches.path_exists.assert_called_once_with("/Users/dummyUser\\some-workflow.war")
     else:

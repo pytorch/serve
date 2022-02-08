@@ -21,10 +21,11 @@ from urllib.request import urlretrieve
 import tempfile
 import platform
 import pandas as pd
+from typing import Dict, List, Tuple, Union
 
 
-PLATFORM = platform.system()
-TMP_DIR = tempfile.gettempdir()
+PLATFORM: str = platform.system()
+TMP_DIR: str = tempfile.gettempdir()
 
 BENCHMARK_DIR = os.path.join(TMP_DIR, "TSBenchmark")
 OUT_DIR = os.path.join(BENCHMARK_DIR, 'out')
@@ -51,7 +52,7 @@ MODEL_ALEX_NET = 'alexnet'
 MODEL_VGG = 'vgg11'
 MODEL_RESNET_152 = 'resnet-152-batch'
 
-MODEL_MAP = {
+MODEL_MAP: Dict[str, Tuple[str, Dict[str, str]]] = {
     MODEL_SQUEEZE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar', 'model_name': MODEL_SQUEEZE_NET, 'input_filepath': 'kitten.jpg'}),
     MODEL_RESNET_18: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/resnet-18.mar', 'model_name': MODEL_RESNET_18, 'input_filepath': 'kitten.jpg'}),
     MODEL_DENSE_NET: (JMX_IMAGE_INPUT_MODEL_PLAN, {'url': 'https://torchserve.pytorch.org/mar_files/densenet161.mar', 'model_name': MODEL_DENSE_NET, 'input_filepath': 'kitten.jpg'}),
@@ -62,7 +63,7 @@ MODEL_MAP = {
 
 
 # Mapping of which row is relevant for a given JMX Test Plan
-EXPERIMENT_RESULTS_MAP = {
+EXPERIMENT_RESULTS_MAP: Dict[str, List[str]] = {
     JMX_IMAGE_INPUT_MODEL_PLAN: ['Inference Request'],
     JMX_BATCH_IMAGE_INPUT_MODEL_PLAN: ['Batch Inference Request'],
     JMX_PING_PLAN: ['Ping Request'],
@@ -171,7 +172,7 @@ class Benchmarks:
         return run_multi_benchmark('threads', range(1, 3*5+1, 3), plan, jmeter_args)
 
 
-def run_benchmark():
+def run_benchmark() -> None:
     if hasattr(Benchmarks, benchmark_name):
         print("Running benchmark {} with model {}".format(benchmark_name, benchmark_model))
         res = getattr(Benchmarks, benchmark_name)()
@@ -181,7 +182,7 @@ def run_benchmark():
         raise Exception("No benchmark benchmark_named {}".format(benchmark_name))
 
 
-def modify_config_props_for_ts(pargs):
+def modify_config_props_for_ts(pargs) -> None:
     shutil.copyfile(CONFIG_PROP_TEMPLATE, CONFIG_PROP)
     with open(CONFIG_PROP, 'a') as f:
         f.write('\nnumber_of_netty_threads=32')
@@ -190,15 +191,15 @@ def modify_config_props_for_ts(pargs):
             f.write('\nnumber_of_gpu={}'.format(pargs.gpus[0]))
 
 
-benchmark_name_options = [f for f in dir(Benchmarks) if callable(getattr(Benchmarks, f)) and f[0] != '_']
+benchmark_name_options: List[str] = [f for f in dir(Benchmarks) if callable(getattr(Benchmarks, f)) and f[0] != '_']
 parser = argparse.ArgumentParser(prog='torchserve-benchmarks', description='Benchmark TorchServe')
 
-target = parser.add_mutually_exclusive_group(required=True)
+target: argparse._MutuallyExclusiveGroup = parser.add_mutually_exclusive_group(required=True)
 target.add_argument('name', nargs='?', type=str, choices=benchmark_name_options, help='The name of the benchmark to run')
 target.add_argument('-a', '--all', action='store_true', help='Run all benchmarks')
 target.add_argument('-s', '--suite', action='store_true', help='Run throughput and latency on a supplied model')
 
-model = parser.add_mutually_exclusive_group()
+model: argparse._MutuallyExclusiveGroup = parser.add_mutually_exclusive_group()
 model.add_argument('-m', '--model', nargs=1, type=str, dest='model', default=[MODEL_RESNET_18], choices=MODEL_MAP.keys(), help='A preloaded model to run.  It defaults to {}'.format(MODEL_RESNET_18))
 model.add_argument('-c', '--custom-model', nargs=1, type=str, dest='model', help='The path to a custom model to run.  The input argument must also be passed. Currently broken')
 
@@ -218,7 +219,7 @@ parser.add_argument('--management-port', dest='management', nargs=1, type=str, h
 parser.add_argument('-v', '--verbose', action='store_true', help='Display all output')
 parser.add_argument('--options', nargs='*', default=[], help='Additional jmeter arguments.  It should follow the format of --options argname1 argval1 argname2 argval2 ...')
 parser.add_argument('--jmeter-path', dest='jmeter', nargs=1, type=str, help='Path to jmeter folder. Specify the path where jmeter is been installed (Eg. "C:\\Program Files\\apache-jmeter-5.3")')
-pargs = parser.parse_args()
+pargs: argparse.Namespace = parser.parse_args()
 
 if PLATFORM == 'Windows':
     if pargs.jmeter:    
@@ -226,13 +227,13 @@ if PLATFORM == 'Windows':
     else:
         print('Please specify jmeter path [--jmeter-path JMETER] while running the script.(Eg. "C:\\Program Files\\apache-jmeter-5.3")')
         exit(0)
-    CMDRUNNER = '"{}\\lib\\cmdrunner-2.2.jar"'.format(CELLAR)
-    JMETER = '{}\\bin\jmeter.bat'.format(CELLAR)
+    CMDRUNNER: str = '"{}\\lib\\cmdrunner-2.2.jar"'.format(CELLAR)
+    JMETER: str = '{}\\bin\jmeter.bat'.format(CELLAR)
 else :
     CELLAR = '/home/linuxbrew/.linuxbrew/Homebrew/Cellar/jmeter/' if 'linux' in sys.platform else '/usr/local/Cellar/jmeter'
-    JMETER_VERSION = os.listdir(CELLAR)[0]
-    CMDRUNNER = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
-    JMETER = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
+    JMETER_VERSION: str = os.listdir(CELLAR)[0]
+    CMDRUNNER: str = '{}/{}/libexec/lib/cmdrunner-2.2.jar'.format(CELLAR, JMETER_VERSION)
+    JMETER: str = '{}/{}/libexec/bin/jmeter'.format(CELLAR, JMETER_VERSION)
 
 TS_BASE = reduce(lambda val, func: func(val), (os.path.abspath(__file__),) + (os.path.dirname,) * 2)
 JMX_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jmx')
@@ -246,14 +247,14 @@ BENCHMARK_NAMES = ['latency', 'throughput']
 ALL_BENCHMARKS = list(itertools.product(BENCHMARK_NAMES, [MODEL_RESNET_18]))
 
 class ChDir:
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         self.curPath = os.getcwd()
         self.path = path
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         os.chdir(self.path)
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         os.chdir(self.curPath)
 
 
@@ -261,7 +262,7 @@ def basename(path):
     return os.path.splitext(os.path.basename(path))[0]
 
 
-def get_resource(name):
+def get_resource(name: str):
     url = RESOURCE_MAP[name]
     path = os.path.join(RESOURCE_DIR, name)
     if not os.path.exists(path):
@@ -272,7 +273,7 @@ def get_resource(name):
     return path
 
 
-def run_process(cmd, wait=True, **kwargs):
+def run_process(cmd, wait: bool=True, **kwargs):
     output = None if pargs.verbose else subprocess.DEVNULL
     if pargs.verbose:
         print(' '.join(cmd) if isinstance(cmd, list) else cmd)
@@ -288,7 +289,7 @@ def run_process(cmd, wait=True, **kwargs):
     return p
 
 
-def run_single_benchmark(jmx, jmeter_args=dict(), threads=100, out_dir=None):
+def run_single_benchmark(jmx, jmeter_args=dict(), threads: int=100, out_dir: Union[os.PathLike[bytes], os.PathLike[str], bytes, str]=None):
     if out_dir is None:
         out_dir = os.path.join(OUT_DIR, benchmark_name, basename(benchmark_model))
     if os.path.exists(out_dir):

@@ -9,17 +9,17 @@ import test_utils
 MODEL_SFILE_NAME = 'resnet18-f37072fd.pth'
 
 
-def setup_module(module):
+def setup_module(module) -> None:
     test_utils.torchserve_cleanup()
     response = requests.get('https://download.pytorch.org/models/' + MODEL_SFILE_NAME, allow_redirects=True)
     open(test_utils.MODEL_STORE + "/" + MODEL_SFILE_NAME, 'wb').write(response.content)
 
 
-def teardown_module(module):
+def teardown_module(module) -> None:
     test_utils.torchserve_cleanup()
 
 
-def create_resnet_archive(model_name="resnset-18", version="1.0", force=False):
+def create_resnet_archive(model_name: str="resnset-18", version: str="1.0", force: bool=False) -> int:
     cmd = test_utils.model_archiver_command_builder(
         model_name,
         version,
@@ -35,13 +35,13 @@ def create_resnet_archive(model_name="resnset-18", version="1.0", force=False):
     return subprocess.run(cmd).returncode
 
 
-def clean_mar_file(mar_name):
+def clean_mar_file(mar_name) -> None:
     path = "{}{}".format(test_utils.MODEL_STORE, mar_name)
     if os.path.exists(path):
         os.remove(path)
 
 
-def test_multiple_model_versions_registration():
+def test_multiple_model_versions_registration() -> None:
     # Download resnet-18 model
 
     create_resnet_archive("resnet-18", "1.0")
@@ -61,7 +61,7 @@ def test_multiple_model_versions_registration():
     assert len(json.loads(response.content)) == 2
 
 
-def test_duplicate_model_registration_using_local_url_followed_by_http_url():
+def test_duplicate_model_registration_using_local_url_followed_by_http_url() -> None:
     # Registration through local mar url is already complete in previous test case.
     # Now try to register same model using http url in this next step
     response = test_utils.register_model("resnet18", "https://torchserve.pytorch.org/mar_files/resnet-18.mar")
@@ -76,7 +76,7 @@ def test_duplicate_model_registration_using_local_url_followed_by_http_url():
         assert False, "Something is not right!! Successfully re-registered existing model "
 
 
-def test_duplicate_model_registration_using_http_url_followed_by_local_url():
+def test_duplicate_model_registration_using_http_url_followed_by_local_url() -> None:
     # Register using http url
     clean_mar_file("resnet-18.mar")
     response = test_utils.register_model("resnet18", "https://torchserve.pytorch.org/mar_files/resnet-18.mar")
@@ -94,7 +94,7 @@ def test_duplicate_model_registration_using_http_url_followed_by_local_url():
         assert False, "Something is not right!! Successfully re-registered existing model "
 
 
-def test_model_archiver_to_regenerate_model_mar_without_force():
+def test_model_archiver_to_regenerate_model_mar_without_force() -> None:
     clean_mar_file("resnet-18.mar")
     response = create_resnet_archive("resnet-18", "1.0")
     response = create_resnet_archive("resnet-18", "1.0")
@@ -105,7 +105,7 @@ def test_model_archiver_to_regenerate_model_mar_without_force():
             os.remove(f)
 
 
-def test_model_archiver_to_regenerate_model_mar_with_force():
+def test_model_archiver_to_regenerate_model_mar_with_force() -> None:
     clean_mar_file("resnet-18.mar")
     response = create_resnet_archive("resnet-18", "1.0")
     response = create_resnet_archive("resnet-18", "1.0", force=True)
@@ -116,7 +116,7 @@ def test_model_archiver_to_regenerate_model_mar_with_force():
             os.remove(f)
 
 
-def test_model_archiver_without_handler_flag():
+def test_model_archiver_without_handler_flag() -> None:
     cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
@@ -134,7 +134,7 @@ def test_model_archiver_without_handler_flag():
             os.remove(f)
 
 
-def test_model_archiver_without_model_name_flag():
+def test_model_archiver_without_model_name_flag() -> None:
     cmd = test_utils.model_archiver_command_builder(
         None,
         "1.0",
@@ -148,7 +148,7 @@ def test_model_archiver_without_model_name_flag():
                                                           "No model_name specified"
 
 
-def test_model_archiver_without_model_file_flag():
+def test_model_archiver_without_model_file_flag() -> None:
     cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
@@ -167,7 +167,7 @@ def test_model_archiver_without_model_file_flag():
             os.remove(f)
 
 
-def test_model_archiver_without_serialized_flag():
+def test_model_archiver_without_serialized_flag() -> None:
     cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",

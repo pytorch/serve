@@ -5,6 +5,7 @@ NoopService defines a no operational model handler.
 """
 import logging
 import time
+from typing import List
 
 
 class NoopService(object):
@@ -14,11 +15,11 @@ class NoopService(object):
     Extend from BaseModelHandler is optional
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._context = None
         self.initialized = False
 
-    def initialize(self, context):
+    def initialize(self, context) -> None:
         """
         Initialize model. This will be called during model loading time
 
@@ -49,7 +50,7 @@ class NoopService(object):
         return model_input
 
     @staticmethod
-    def postprocess(model_output):
+    def postprocess(model_output) -> List[str]:
         return ["OK"] * len(model_output)
 
     def handle(self, data, context):

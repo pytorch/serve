@@ -9,7 +9,7 @@ class Units(object):
     Define a unit of elements
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.units = {
             'ms': "Milliseconds",
             's': 'Seconds',

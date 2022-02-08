@@ -28,7 +28,7 @@ XFORMED_FILE = '.circleci/xformed.yml'
 XFORMED_JOB_NAME = 'ts_xformed_job'
 
 
-def create_processed_config(cci_config_file, processed_file):
+def create_processed_config(cci_config_file, processed_file) -> None:
     """ Create processed YAML using circleci cli's 'config process' command """
     process_config_cmd = 'circleci config process {} > {}'.format(cci_config_file, processed_file)
     print("Executing command : ", process_config_cmd)
@@ -120,7 +120,7 @@ def create_transformed_job(jobs, processed_cfg):
     return xformed_job
 
 
-def create_transformed_config(xformed_jb, processed_cfg, xformed_jb_name, xformed_file):
+def create_transformed_config(xformed_jb, processed_cfg, xformed_jb_name, xformed_file) -> None:
     """ Create a duplicate config(transformed) with the
     newly introduced job as the only job in config """
     xformed_config = copy.deepcopy(processed_cfg)
@@ -154,7 +154,7 @@ def execute_job(jbs_to_exec, processed_cfg, xformed_job_name, xformed_file):
     return result_dict
 
 
-def print_result(res):
+def print_result(res) -> None:
     """ Print job execution details """
     for exectr, retcode in res.items():
         colorcode, status = ('\033[0;37;42m', 'successful') if retcode == 0 \
@@ -162,7 +162,7 @@ def print_result(res):
         print("{} Job execution {} using {} executor \x1b[0m".format(colorcode, status, exectr))
 
 
-def cleanup(processed_file, xformed_file):
+def cleanup(processed_file, xformed_file) -> None:
     """ Clean up, remove the processed and transformed YAML files """
     cleanup_cmd = 'rm {} {}'.format(processed_file, xformed_file)
     print('Executing command : ', cleanup_cmd)
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     parser.add_argument('workflow', type=str, help='Workflow name from config.yml')
     parser.add_argument('-j', '--job', type=str, help='Job name from config.yml')
     parser.add_argument('-e', '--executor', type=str, help='Executor name from config.yml')
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     workflow = args.workflow
     job = args.job

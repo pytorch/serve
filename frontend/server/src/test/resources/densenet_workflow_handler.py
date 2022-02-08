@@ -10,7 +10,7 @@ import json
 
 from torchvision import transforms
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 topk = 5
 # These are the standard Imagenet dimensions

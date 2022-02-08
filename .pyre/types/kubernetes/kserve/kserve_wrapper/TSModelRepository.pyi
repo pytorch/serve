@@ -1,0 +1,3 @@
+class TSModelRepository:
+    def __init__(self, inference_address, management_address, model_dir) -> None: ...
+

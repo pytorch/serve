@@ -7,7 +7,7 @@ class Workflow(object):
     Workflow is a part of the manifest.json. It defines the properties of the workflow such as name, handler file etc.
     """
 
-    def __init__(self, workflow_name, spec_file, handler):
+    def __init__(self, workflow_name, spec_file, handler) -> None:
 
         self.workflow_name = workflow_name
         self.spec_file = spec_file.split("/")[-1]
@@ -26,8 +26,8 @@ class Workflow(object):
 
         return workflow_dict
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps(self.workflow_dict)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return json.dumps(self.workflow_dict)

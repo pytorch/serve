@@ -31,7 +31,7 @@ from tests.utils import (
 from tests.utils.s3 import ArtifactsHandler
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     parser.addoption(
         "--execution-id",
         default="123456789",
@@ -108,7 +108,7 @@ def ecr_client(region):
 
 
 @pytest.fixture(scope="function")
-def ec2_key_name(request):
+def ec2_key_name(request) -> str:
     random.seed(datetime.datetime.now())
     return f"{request.fixturename.replace('_', '-')}-{random.randrange(1, 10000, 3)}"
 
@@ -281,7 +281,7 @@ def ec2_connection(request, ec2_instance, ec2_instance_type, region):
     return conn
 
 
-def pytest_generate_tests(metafunc):
+def pytest_generate_tests(metafunc) -> None:
     """
     Parameterize test function based on the number of ec2 instances supplied to be benchmarked
     on in the config file

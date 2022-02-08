@@ -26,10 +26,10 @@ class ImageClassifier(VisionHandler):
                              std=[0.229, 0.224, 0.225])
     ])
 
-    def set_max_result_classes(self, topk):
+    def set_max_result_classes(self, topk: int) -> None:
         self.topk = topk
 
-    def get_max_result_classes(self):
+    def get_max_result_classes(self) -> int:
         return self.topk
 
     def postprocess(self, data):

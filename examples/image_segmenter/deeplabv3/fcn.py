@@ -2,7 +2,7 @@ from torch import nn
 
 
 class FCNHead(nn.Sequential):
-    def __init__(self, in_channels, channels):
+    def __init__(self, in_channels, channels) -> None:
         inter_channels = in_channels // 4
         layers = [
             nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),

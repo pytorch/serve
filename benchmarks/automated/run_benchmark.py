@@ -23,12 +23,12 @@ from tests.utils import (
     DockerImageHandler,
 )
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 
 
-def build_docker_container(torchserve_branch="master", push_image=True, use_local_serve_folder=False):
+def build_docker_container(torchserve_branch: str="master", push_image: bool=True, use_local_serve_folder: bool=False) -> None:
     LOGGER.info(f"Setting up docker image to be used")
 
     docker_dev_image_config_path = os.path.join(
@@ -87,7 +87,7 @@ def build_docker_container(torchserve_branch="master", push_image=True, use_loca
             LOGGER.warn(f"Docker image will not be pushed to ECR repo in local execution.")
 
 
-def main():
+def main() -> None:
 
     parser = argparse.ArgumentParser()
 

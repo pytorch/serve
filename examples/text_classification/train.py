@@ -35,7 +35,7 @@ def yield_tokens(data_iter, ngrams):
     for _, text in data_iter:
         yield ngrams_iterator(tokenizer(text), ngrams)
 
-def train(dataloader, model, optimizer, criterion, epoch):
+def train(dataloader, model, optimizer, criterion, epoch) -> None:
     model.train()
     total_acc, total_count = 0, 0
     log_interval = 500
@@ -99,7 +99,7 @@ if __name__ == "__main__":
                         help='path for saving model')
     parser.add_argument('--logging-level', default='WARNING',
                         help='logging level (default=WARNING)')
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     num_epochs = args.num_epochs
     embed_dim = args.embed_dim
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     def text_pipeline(x): return vocab(list(ngrams_iterator(tokenizer(x), ngrams)))
     def label_pipeline(x): return int(x) - 1
     train_iter = DATASETS[args.dataset](root='.data', split='train')
-    num_class = len(set([label for (label, _) in train_iter]))
+    num_class: int = len(set([label for (label, _) in train_iter]))
     model = TextSentiment(len(vocab), embed_dim, num_class).to(device)
 
     criterion = torch.nn.CrossEntropyLoss().to(device)

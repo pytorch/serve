@@ -14,10 +14,14 @@ from mock import Mock
 
 from ts.model_service_worker import TorchModelServiceWorker
 from ts.service import Service
+from ts.tests.unit_tests.test_model_service_worker.TestHandleConnection.patches import Patches
+from ts.tests.unit_tests.test_model_service_worker.TestInit.patches import Patches
+from ts.tests.unit_tests.test_model_service_worker.TestLoadModel.patches import Patches
+from ts.tests.unit_tests.test_model_service_worker.socket_patches import Patches
 
 
 @pytest.fixture()
-def socket_patches(mocker):
+def socket_patches(mocker) -> Patches:
     Patches = namedtuple('Patches', ['socket'])
     mock_patch = Patches(mocker.patch('socket.socket'))
     mock_patch.socket.recv.side_effect = [
@@ -33,7 +37,7 @@ def socket_patches(mocker):
 
 
 @pytest.fixture()
-def model_service_worker(socket_patches):
+def model_service_worker(socket_patches) -> TorchModelServiceWorker:
     if not sys.platform.startswith("win"):
         model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None)
     else:
@@ -48,11 +52,11 @@ def model_service_worker(socket_patches):
 class TestInit:
     socket_name = "sampleSocketName"
 
-    def test_missing_socket_name(self):
+    def test_missing_socket_name(self) -> None:
         with pytest.raises(ValueError, match="Incomplete data provided.*"):
             TorchModelServiceWorker()
 
-    def test_socket_in_use(self, mocker):
+    def test_socket_in_use(self, mocker) -> None:
         remove = mocker.patch('os.remove')
         path_exists = mocker.patch('os.path.exists')
         remove.side_effect = OSError()
@@ -62,7 +66,7 @@ class TestInit:
             TorchModelServiceWorker('unix', self.socket_name)
 
     @pytest.fixture()
-    def patches(self, mocker):
+    def patches(self, mocker) -> Patches:
         Patches = namedtuple('Patches', ['remove', 'socket'])
         patches = Patches(
             mocker.patch('os.remove'),
@@ -70,7 +74,7 @@ class TestInit:
         )
         return patches
 
-    def test_success(self, patches):
+    def test_success(self, patches) -> None:
         TorchModelServiceWorker('unix', self.socket_name)
         patches.remove.assert_called_once_with(self.socket_name)
         patches.socket.assert_called_once_with(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -80,7 +84,7 @@ class TestInit:
 class TestRunServer:
     accept_result = (mock.MagicMock(), None)
 
-    def test_with_socket_bind_error(self, socket_patches, model_service_worker):
+    def test_with_socket_bind_error(self, socket_patches, model_service_worker) -> None:
         bind_exception = socket.error("binding error")
         socket_patches.socket.bind.side_effect = bind_exception
         with pytest.raises(Exception):
@@ -89,7 +93,7 @@ class TestRunServer:
         socket_patches.socket.bind.assert_called()
         socket_patches.socket.listen.assert_not_called()
 
-    def test_with_timeout(self, socket_patches, model_service_worker):
+    def test_with_timeout(self, socket_patches, model_service_worker) -> None:
         exception = socket.timeout("Some Exception")
         socket_patches.socket.accept.side_effect = exception
 
@@ -99,7 +103,7 @@ class TestRunServer:
         socket_patches.socket.listen.assert_called()
         socket_patches.socket.accept.assert_called()
 
-    def test_with_run_server_debug(self, socket_patches, model_service_worker, mocker):
+    def test_with_run_server_debug(self, socket_patches, model_service_worker, mocker) -> None:
         exception = Exception("Some Exception")
         socket_patches.socket.accept.side_effect = exception
         mocker.patch('ts.model_service_worker.DEBUG', True)
@@ -112,7 +116,7 @@ class TestRunServer:
         socket_patches.socket.listen.assert_called()
         socket_patches.socket.accept.assert_called()
 
-    def test_success(self, model_service_worker):
+    def test_success(self, model_service_worker) -> None:
         model_service_worker.sock.accept.return_value = self.accept_result
         model_service_worker.sock.recv.return_value = b""
         with pytest.raises(SystemExit):
@@ -125,12 +129,12 @@ class TestLoadModel:
     data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
 
     @pytest.fixture()
-    def patches(self, mocker):
+    def patches(self, mocker) -> Patches:
         Patches = namedtuple('Patches', ['loader'])
         patches = Patches(mocker.patch('ts.model_service_worker.ModelLoaderFactory'))
         return patches
 
-    def test_load_model(self, patches, model_service_worker):
+    def test_load_model(self, patches, model_service_worker) -> None:
         patches.loader.get_model_loader.return_value = Mock()
         model_service_worker.load_model(self.data)
         patches.loader.get_model_loader.assert_called()
@@ -138,7 +142,7 @@ class TestLoadModel:
     # noinspection PyUnusedLocal
     @pytest.mark.parametrize('batch_size', [(None, None), ('1', 1)])
     @pytest.mark.parametrize('gpu', [(None, None), ('2', 2)])
-    def test_optional_args(self, patches, model_service_worker, batch_size, gpu):
+    def test_optional_args(self, patches, model_service_worker, batch_size, gpu) -> None:
         data = self.data.copy()
         if batch_size[0]:
             data['batchSize'] = batch_size[0]
@@ -152,14 +156,14 @@ class TestHandleConnection:
     data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
 
     @pytest.fixture()
-    def patches(self, mocker):
+    def patches(self, mocker) -> Patches:
         Patches = namedtuple("Patches", ["retrieve_msg"])
         patches = Patches(
             mocker.patch("ts.model_service_worker.retrieve_msg")
         )
         return patches
 
-    def test_handle_connection(self, patches, model_service_worker):
+    def test_handle_connection(self, patches, model_service_worker) -> None:
         patches.retrieve_msg.side_effect = [(b"L", ""), (b"I", ""), (b"U", "")]
         model_service_worker.load_model = Mock()
         service = Mock()

@@ -10,7 +10,7 @@ class Manifest(object):
     The main manifest object which gets written into the workflow archive as MANIFEST.json
     """
 
-    def __init__(self, workflow):
+    def __init__(self, workflow) -> None:
 
         self.creation_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.workflow = workflow
@@ -29,8 +29,8 @@ class Manifest(object):
 
         return manifest_dict
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps(self.manifest_dict, indent=2)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return json.dumps(self.manifest_dict, indent=2)

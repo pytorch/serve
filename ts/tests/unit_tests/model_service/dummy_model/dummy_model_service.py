@@ -16,19 +16,19 @@ This file is a dummy file for the purpose of unit-testing test_service_manager.p
 
 
 class DummyNodeService(SingleNodeService):
-    def _inference(self, data):
+    def _inference(self, data) -> None:
         pass
 
-    def signature(self):
+    def signature(self) -> None:
         pass
 
-    def ping(self):
+    def ping(self) -> None:
         pass
 
-    def inference(self):
+    def inference(self) -> None:
         pass
 
 
 class SomeOtherClass:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
