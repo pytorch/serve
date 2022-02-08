@@ -1,5 +1,5 @@
 .. toctree::
-  :caption: APIs:
+  :caption: Service APIs:
   
   grpc_api
   inference_api

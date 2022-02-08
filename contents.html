@@ -240,7 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">16. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">17. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">APIs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -249,6 +249,16 @@
 <li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">serve</a></li>
 </ul>
 
             
@@ -344,7 +354,7 @@
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">APIs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="grpc_api.html#python-client-example-for-grpc-apis">Python client example for gRPC APIs</a></li>
@@ -403,6 +413,332 @@
 <li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#describe-workflow">Describe workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#unregister-a-workflow">Unregister a workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflow_management_api.html#list-workflows">List workflows</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.dimension">ts.metrics.dimension module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric">ts.metrics.metric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric_collector">ts.metrics.metric_collector module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric_encoder">ts.metrics.metric_encoder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metrics_store">ts.metrics.metrics_store module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.process_memory_metric">ts.metrics.process_memory_metric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.system_metrics">ts.metrics.system_metrics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.unit">ts.metrics.unit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.model_service.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.model_service.html#module-ts.model_service.model_service">ts.model_service.model_service module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.model_service.html#module-ts.model_service">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.protocol.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.protocol.html#module-ts.protocol.otf_message_handler">ts.protocol.otf_message_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.protocol.html#module-ts.protocol">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html">ts.torch_handler.unit_tests package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html">ts.torch_handler.unit_tests.models package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#submodules">Submodules</a></li>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#module-ts.torch_handler.unit_tests.models.base_model">ts.torch_handler.unit_tests.models.base_model module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#module-ts.torch_handler.unit_tests.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html">ts.torch_handler.unit_tests.test_utils package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#module-ts.torch_handler.unit_tests.test_utils.mock_context">ts.torch_handler.unit_tests.test_utils.mock_context module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#module-ts.torch_handler.unit_tests.test_utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-base-handler-module">ts.torch_handler.unit_tests.test_base_handler module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-envelopes-module">ts.torch_handler.unit_tests.test_envelopes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-classifier-module">ts.torch_handler.unit_tests.test_image_classifier module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-segmenter-module">ts.torch_handler.unit_tests.test_image_segmenter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-mnist-kf-module">ts.torch_handler.unit_tests.test_mnist_kf module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-object-detector-module">ts.torch_handler.unit_tests.test_object_detector module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#module-ts.torch_handler.unit_tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.base_handler">ts.torch_handler.base_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.contractions">ts.torch_handler.contractions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.densenet_handler">ts.torch_handler.densenet_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-image-classifier-module">ts.torch_handler.image_classifier module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-image-segmenter-module">ts.torch_handler.image_segmenter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-object-detector-module">ts.torch_handler.object_detector module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-text-classifier-module">ts.torch_handler.text_classifier module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-text-handler-module">ts.torch_handler.text_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-vision-handler-module">ts.torch_handler.vision_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.utils.html">ts.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.utils.html#module-ts.utils.timeit_decorator">ts.utils.timeit_decorator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.utils.html#module-ts.utils.util">ts.utils.util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.utils.html#module-ts.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.arg_parser">ts.arg_parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.context">ts.context module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.model_loader">ts.model_loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.model_server">ts.model_server module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.model_service_worker">ts.model_service_worker module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.service">ts.service module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts.version">ts.version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html#module-ts">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html">ts.torch_handler.unit_tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html">ts.torch_handler.unit_tests.models package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#module-ts.torch_handler.unit_tests.models.base_model">ts.torch_handler.unit_tests.models.base_model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#module-ts.torch_handler.unit_tests.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html">ts.torch_handler.unit_tests.test_utils package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#module-ts.torch_handler.unit_tests.test_utils.mock_context">ts.torch_handler.unit_tests.test_utils.mock_context module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#module-ts.torch_handler.unit_tests.test_utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-base-handler-module">ts.torch_handler.unit_tests.test_base_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-envelopes-module">ts.torch_handler.unit_tests.test_envelopes module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-classifier-module">ts.torch_handler.unit_tests.test_image_classifier module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-segmenter-module">ts.torch_handler.unit_tests.test_image_segmenter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-mnist-kf-module">ts.torch_handler.unit_tests.test_mnist_kf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-object-detector-module">ts.torch_handler.unit_tests.test_object_detector module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#module-ts.torch_handler.unit_tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.base_handler">ts.torch_handler.base_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.contractions">ts.torch_handler.contractions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.densenet_handler">ts.torch_handler.densenet_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-image-classifier-module">ts.torch_handler.image_classifier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-image-segmenter-module">ts.torch_handler.image_segmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-object-detector-module">ts.torch_handler.object_detector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-text-classifier-module">ts.torch_handler.text_classifier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-text-handler-module">ts.torch_handler.text_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-vision-handler-module">ts.torch_handler.vision_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.dimension">ts.metrics.dimension module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric">ts.metrics.metric module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric_collector">ts.metrics.metric_collector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric_encoder">ts.metrics.metric_encoder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metrics_store">ts.metrics.metrics_store module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.process_memory_metric">ts.metrics.process_memory_metric module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.system_metrics">ts.metrics.system_metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.unit">ts.metrics.unit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.model_service.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.model_service.html#module-ts.model_service.model_service">ts.model_service.model_service module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.model_service.html#module-ts.model_service">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.protocol.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.protocol.html#module-ts.protocol.otf_message_handler">ts.protocol.otf_message_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.protocol.html#module-ts.protocol">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">serve</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/run_circleci_tests.html">run_circleci_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/setup.html">setup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/test.html">test package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/test.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/test.html#test-regression-tests-module">test.regression_tests module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/test.html#module-test">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/torchserve_sanity.html">torchserve_sanity module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts.html">ts package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.dimension">ts.metrics.dimension module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric">ts.metrics.metric module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric_collector">ts.metrics.metric_collector module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metric_encoder">ts.metrics.metric_encoder module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.metrics_store">ts.metrics.metrics_store module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.process_memory_metric">ts.metrics.process_memory_metric module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.system_metrics">ts.metrics.system_metrics module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics.unit">ts.metrics.unit module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.metrics.html#module-ts.metrics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.model_service.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.model_service.html#module-ts.model_service.model_service">ts.model_service.model_service module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.model_service.html#module-ts.model_service">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.protocol.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.protocol.html#module-ts.protocol.otf_message_handler">ts.protocol.otf_message_handler module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.protocol.html#module-ts.protocol">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#submodules">Submodules</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html">ts.torch_handler.unit_tests package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html">ts.torch_handler.unit_tests.models package</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#submodules">Submodules</a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#module-ts.torch_handler.unit_tests.models.base_model">ts.torch_handler.unit_tests.models.base_model module</a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/ts.torch_handler.unit_tests.models.html#module-ts.torch_handler.unit_tests.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l8"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html">ts.torch_handler.unit_tests.test_utils package</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#module-ts.torch_handler.unit_tests.test_utils.mock_context">ts.torch_handler.unit_tests.test_utils.mock_context module</a></li>
+<li class="toctree-l9"><a class="reference internal" href="api/ts.torch_handler.unit_tests.test_utils.html#module-ts.torch_handler.unit_tests.test_utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#submodules">Submodules</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-base-handler-module">ts.torch_handler.unit_tests.test_base_handler module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-envelopes-module">ts.torch_handler.unit_tests.test_envelopes module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-classifier-module">ts.torch_handler.unit_tests.test_image_classifier module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-segmenter-module">ts.torch_handler.unit_tests.test_image_segmenter module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-mnist-kf-module">ts.torch_handler.unit_tests.test_mnist_kf module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-object-detector-module">ts.torch_handler.unit_tests.test_object_detector module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="api/ts.torch_handler.unit_tests.html#module-ts.torch_handler.unit_tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.base_handler">ts.torch_handler.base_handler module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.contractions">ts.torch_handler.contractions module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler.densenet_handler">ts.torch_handler.densenet_handler module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-image-classifier-module">ts.torch_handler.image_classifier module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-image-segmenter-module">ts.torch_handler.image_segmenter module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-object-detector-module">ts.torch_handler.object_detector module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-text-classifier-module">ts.torch_handler.text_classifier module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-text-handler-module">ts.torch_handler.text_handler module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#ts-torch-handler-vision-handler-module">ts.torch_handler.vision_handler module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.torch_handler.html#module-ts.torch_handler">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/ts.utils.html">ts.utils package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.utils.html#module-ts.utils.timeit_decorator">ts.utils.timeit_decorator module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.utils.html#module-ts.utils.util">ts.utils.util module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/ts.utils.html#module-ts.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.arg_parser">ts.arg_parser module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.context">ts.context module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.model_loader">ts.model_loader module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.model_server">ts.model_server module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.model_service_worker">ts.model_service_worker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.service">ts.service module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts.version">ts.version module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts.html#module-ts">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ts_scripts.html">ts_scripts package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-api-utils-module">ts_scripts.api_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-backend-utils-module">ts_scripts.backend_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-frontend-utils-module">ts_scripts.frontend_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-install-dependencies-module">ts_scripts.install_dependencies module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-install-from-src-module">ts_scripts.install_from_src module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-marsgen-module">ts_scripts.marsgen module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-modelarchiver-utils-module">ts_scripts.modelarchiver_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-print-env-info-module">ts_scripts.print_env_info module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-regression-utils-module">ts_scripts.regression_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-sanity-utils-module">ts_scripts.sanity_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-shell-utils-module">ts_scripts.shell_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-torchserve-grpc-client-module">ts_scripts.torchserve_grpc_client module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-tsutils-module">ts_scripts.tsutils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-utils-module">ts_scripts.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-validate-model-on-gpu-module">ts_scripts.validate_model_on_gpu module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#ts-scripts-workflow-archiver-utils-module">ts_scripts.workflow_archiver_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ts_scripts.html#module-contents">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

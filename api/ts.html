@@ -1,0 +1,1150 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ts package &mdash; PyTorch/Serve master documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ts.metrics package" href="ts.metrics.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="dev_api.html" />
+  <!-- Google Analytics -->
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
+                  <span class="dropdown-title">TorchElastic</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+                <div class="version">
+                  master 
+                </div>
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">1. TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Troubleshooting.html">2. Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_coverage.html">4. Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">5. Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../custom_service.html">6. Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../default_handlers.html">7. TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">8. Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metrics.html">9. TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">10. Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../request_envelopes.html">11. Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server.html">12. Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../snapshot.html">13. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchserve_on_win_native.html">14. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchserve_on_wsl.html">15. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">16. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">17. TorchServe Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow_management_api.html">Management API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">serve</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../contents.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="dev_api.html">&lt;no title&gt;</a> &gt;</li>
+        
+      <li>ts package</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/ts.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="ts-package">
+<h1>ts package<a class="headerlink" href="#ts-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ts.metrics.html">ts.metrics package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.dimension">ts.metrics.dimension module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metric">ts.metrics.metric module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metric_collector">ts.metrics.metric_collector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metric_encoder">ts.metrics.metric_encoder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metrics_store">ts.metrics.metrics_store module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.process_memory_metric">ts.metrics.process_memory_metric module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.system_metrics">ts.metrics.system_metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.unit">ts.metrics.unit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.metrics.html#module-ts.metrics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ts.model_service.html">ts.model_service package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ts.model_service.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.model_service.html#module-ts.model_service.model_service">ts.model_service.model_service module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.model_service.html#module-ts.model_service">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ts.protocol.html">ts.protocol package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ts.protocol.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.protocol.html#module-ts.protocol.otf_message_handler">ts.protocol.otf_message_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.protocol.html#module-ts.protocol">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.html">ts.torch_handler package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ts.torch_handler.unit_tests.html">ts.torch_handler.unit_tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-base-handler-module">ts.torch_handler.unit_tests.test_base_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-envelopes-module">ts.torch_handler.unit_tests.test_envelopes module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-classifier-module">ts.torch_handler.unit_tests.test_image_classifier module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-image-segmenter-module">ts.torch_handler.unit_tests.test_image_segmenter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-mnist-kf-module">ts.torch_handler.unit_tests.test_mnist_kf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#ts-torch-handler-unit-tests-test-object-detector-module">ts.torch_handler.unit_tests.test_object_detector module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.unit_tests.html#module-ts.torch_handler.unit_tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.base_handler">ts.torch_handler.base_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.contractions">ts.torch_handler.contractions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.densenet_handler">ts.torch_handler.densenet_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-image-classifier-module">ts.torch_handler.image_classifier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-image-segmenter-module">ts.torch_handler.image_segmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-object-detector-module">ts.torch_handler.object_detector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-text-classifier-module">ts.torch_handler.text_classifier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-text-handler-module">ts.torch_handler.text_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-vision-handler-module">ts.torch_handler.vision_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ts.utils.html">ts.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ts.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.utils.html#module-ts.utils.timeit_decorator">ts.utils.timeit_decorator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.utils.html#module-ts.utils.util">ts.utils.util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.utils.html#module-ts.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-ts.arg_parser">
+<span id="ts-arg-parser-module"></span><h2>ts.arg_parser module<a class="headerlink" href="#module-ts.arg_parser" title="Permalink to this headline">¶</a></h2>
+<p>This module parses the arguments given through the torchserve command-line. This is used by model-server
+at runtime.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.arg_parser.ArgParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.arg_parser.</span></span><span class="sig-name descname"><span class="pre">ArgParser</span></span><a class="reference internal" href="../_modules/ts/arg_parser.html#ArgParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.arg_parser.ArgParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Argument parser for torchserve and torchserve-export commands
+TODO : Add readme url</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.arg_parser.ArgParser.extract_args">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/arg_parser.html#ArgParser.extract_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.arg_parser.ArgParser.extract_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.arg_parser.ArgParser.model_service_worker_args">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_service_worker_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/arg_parser.html#ArgParser.model_service_worker_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.arg_parser.ArgParser.model_service_worker_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>ArgParser for backend worker. Takes the socket name and socket type.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.arg_parser.ArgParser.ts_parser">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ts_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/arg_parser.html#ArgParser.ts_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.arg_parser.ArgParser.ts_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Argument parser for torchserve start service</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ts.context">
+<span id="ts-context-module"></span><h2>ts.context module<a class="headerlink" href="#module-ts.context" title="Permalink to this headline">¶</a></h2>
+<p>Context object of incoming request</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.context.Context">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.context.</span></span><span class="sig-name descname"><span class="pre">Context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mms_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_max_image_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Context stores model relevant worker information
+Some fixed during load times and some</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.get_all_request_header">
+<span class="sig-name descname"><span class="pre">get_all_request_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.get_all_request_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.get_all_request_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.get_request_header">
+<span class="sig-name descname"><span class="pre">get_request_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.get_request_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.get_request_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.get_request_id">
+<span class="sig-name descname"><span class="pre">get_request_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.get_request_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.get_request_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.get_response_content_type">
+<span class="sig-name descname"><span class="pre">get_response_content_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.get_response_content_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.get_response_content_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.get_response_headers">
+<span class="sig-name descname"><span class="pre">get_response_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.get_response_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.get_response_headers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.get_response_status">
+<span class="sig-name descname"><span class="pre">get_response_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.get_response_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.get_response_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ts.context.Context.metrics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#ts.context.Context.metrics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ts.context.Context.request_processor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request_processor</span></span><a class="headerlink" href="#ts.context.Context.request_processor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.set_all_response_status">
+<span class="sig-name descname"><span class="pre">set_all_response_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phrase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.set_all_response_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.set_all_response_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the status code of individual requests
+:param phrase:
+:param code:
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.set_response_content_type">
+<span class="sig-name descname"><span class="pre">set_response_content_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.set_response_content_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.set_response_content_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.set_response_header">
+<span class="sig-name descname"><span class="pre">set_response_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.set_response_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.set_response_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.Context.set_response_status">
+<span class="sig-name descname"><span class="pre">set_response_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phrase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#Context.set_response_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.Context.set_response_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the status code of individual requests
+:param phrase:
+:param idx: The index data in the list(data) that is sent to the handle() method
+:param code:
+:return:</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ts.context.Context.system_properties">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">system_properties</span></span><a class="headerlink" href="#ts.context.Context.system_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.context.</span></span><span class="sig-name descname"><span class="pre">RequestProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request_header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Request processor</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.add_response_property">
+<span class="sig-name descname"><span class="pre">add_response_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.add_response_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.add_response_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.get_request_properties">
+<span class="sig-name descname"><span class="pre">get_request_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.get_request_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.get_request_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.get_request_property">
+<span class="sig-name descname"><span class="pre">get_request_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.get_request_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.get_request_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.get_response_header">
+<span class="sig-name descname"><span class="pre">get_response_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.get_response_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.get_response_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.get_response_headers">
+<span class="sig-name descname"><span class="pre">get_response_headers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.get_response_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.get_response_headers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.get_response_status_code">
+<span class="sig-name descname"><span class="pre">get_response_status_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.get_response_status_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.get_response_status_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.get_response_status_phrase">
+<span class="sig-name descname"><span class="pre">get_response_status_phrase</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.get_response_status_phrase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.get_response_status_phrase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.context.RequestProcessor.report_status">
+<span class="sig-name descname"><span class="pre">report_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason_phrase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/context.html#RequestProcessor.report_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.context.RequestProcessor.report_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ts.model_loader">
+<span id="ts-model-loader-module"></span><h2>ts.model_loader module<a class="headerlink" href="#module-ts.model_loader" title="Permalink to this headline">¶</a></h2>
+<p>Model loader.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.model_loader.ModelLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.model_loader.</span></span><span class="sig-name descname"><span class="pre">ModelLoader</span></span><a class="reference internal" href="../_modules/ts/model_loader.html#ModelLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.ModelLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base Model Loader class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.model_loader.ModelLoader.load">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_max_image_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_loader.html#ModelLoader.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.ModelLoader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load model from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – </p></li>
+<li><p><strong>model_dir</strong> – </p></li>
+<li><p><strong>handler</strong> – </p></li>
+<li><p><strong>gpu_id</strong> – </p></li>
+<li><p><strong>batch_size</strong> – </p></li>
+<li><p><strong>envelope</strong> – </p></li>
+<li><p><strong>limit_max_image_pixels</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.model_loader.ModelLoaderFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.model_loader.</span></span><span class="sig-name descname"><span class="pre">ModelLoaderFactory</span></span><a class="reference internal" href="../_modules/ts/model_loader.html#ModelLoaderFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.ModelLoaderFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.model_loader.ModelLoaderFactory.get_model_loader">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_model_loader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_loader.html#ModelLoaderFactory.get_model_loader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.ModelLoaderFactory.get_model_loader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.model_loader.TsModelLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.model_loader.</span></span><span class="sig-name descname"><span class="pre">TsModelLoader</span></span><a class="reference internal" href="../_modules/ts/model_loader.html#TsModelLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.TsModelLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ts.model_loader.ModelLoader" title="ts.model_loader.ModelLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ts.model_loader.ModelLoader</span></code></a></p>
+<p>TorchServe 1.0 Model Loader</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.model_loader.TsModelLoader.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_max_image_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_loader.html#TsModelLoader.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.TsModelLoader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load TorchServe 1.0 model from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – </p></li>
+<li><p><strong>model_dir</strong> – </p></li>
+<li><p><strong>handler</strong> – </p></li>
+<li><p><strong>gpu_id</strong> – </p></li>
+<li><p><strong>batch_size</strong> – </p></li>
+<li><p><strong>envelope</strong> – </p></li>
+<li><p><strong>limit_max_image_pixels</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ts.model_server">
+<span id="ts-model-server-module"></span><h2>ts.model_server module<a class="headerlink" href="#module-ts.model_server" title="Permalink to this headline">¶</a></h2>
+<p>File to define the entry point to Model Server</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ts.model_server.load_properties">
+<span class="sig-prename descclassname"><span class="pre">ts.model_server.</span></span><span class="sig-name descname"><span class="pre">load_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_server.html#load_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_server.load_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read properties file into map.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ts.model_server.start">
+<span class="sig-prename descclassname"><span class="pre">ts.model_server.</span></span><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_server.html#start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_server.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the entry point for model server
+:return:</p>
+</dd></dl>
+
+</section>
+<section id="module-ts.model_service_worker">
+<span id="ts-model-service-worker-module"></span><h2>ts.model_service_worker module<a class="headerlink" href="#module-ts.model_service_worker" title="Permalink to this headline">¶</a></h2>
+<p>ModelServiceWorker is the worker that is started by the MMS front-end.
+Communication message format: binary encoding</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.model_service_worker.TorchModelServiceWorker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.model_service_worker.</span></span><span class="sig-name descname"><span class="pre">TorchModelServiceWorker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_service_worker.html#TorchModelServiceWorker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_service_worker.TorchModelServiceWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Backend worker to handle Model Server’s python service code</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.model_service_worker.TorchModelServiceWorker.handle_connection">
+<span class="sig-name descname"><span class="pre">handle_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cl_socket</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_service_worker.html#TorchModelServiceWorker.handle_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_service_worker.TorchModelServiceWorker.handle_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle socket connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cl_socket</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.model_service_worker.TorchModelServiceWorker.load_model">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_model_request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_service_worker.html#TorchModelServiceWorker.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_service_worker.TorchModelServiceWorker.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expected command
+{</p>
+<blockquote>
+<div><p>“command” : “load”, string
+“modelPath” : “/path/to/model/file”, string
+“modelName” : “name”, string
+“gpu” : None if CPU else gpu_id, int
+“handler” : service handler entry point if provided, string
+“envelope” : name of wrapper/unwrapper of request data if provided, string
+“batchSize” : batch size, int
+“limitMaxImagePixels”: limit pillow image max_image_pixels, bool</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>load_model_request</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.model_service_worker.TorchModelServiceWorker.run_server">
+<span class="sig-name descname"><span class="pre">run_server</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_service_worker.html#TorchModelServiceWorker.run_server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_service_worker.TorchModelServiceWorker.run_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the backend worker process and listen on a socket
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ts.service">
+<span id="ts-service-module"></span><h2>ts.service module<a class="headerlink" href="#module-ts.service" title="Permalink to this headline">¶</a></h2>
+<p>CustomService class definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.service.Service">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.service.</span></span><span class="sig-name descname"><span class="pre">Service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_max_image_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/service.html#Service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.service.Service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Wrapper for custom entry_point</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ts.service.Service.context">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><a class="headerlink" href="#ts.service.Service.context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.service.Service.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/service.html#Service.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.service.Service.predict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>PREDICT COMMAND = {</dt><dd><p>“command”: “predict”,
+“batch”: [ REQUEST_INPUT ]</p>
+</dd>
+</dl>
+<p>}
+:param batch: list of request
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.service.Service.retrieve_data_for_inference">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">retrieve_data_for_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/service.html#Service.retrieve_data_for_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.service.Service.retrieve_data_for_inference" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>REQUEST_INPUT = {</dt><dd><p>“requestId” : “111-222-3333”,
+“parameters” : [ PARAMETER ]</p>
+</dd>
+</dl>
+<p>}</p>
+<dl class="simple">
+<dt>PARAMETER = {</dt><dd><p>“name” : parameter name
+“contentType”: “http-content-types”,
+“value”: “val1”</p>
+</dd>
+</dl>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ts.service.emit_metrics">
+<span class="sig-prename descclassname"><span class="pre">ts.service.</span></span><span class="sig-name descname"><span class="pre">emit_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/service.html#emit_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.service.emit_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit the metrics in the provided Dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> (<em>A dictionary of all</em>) – </p></li>
+<li><p><strong>metrics</strong> – </p></li>
+<li><p><strong>metric_name</strong> (<em>when key is</em>) – </p></li>
+<li><p><strong>object</strong> (<em>value is a metric</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ts.version">
+<span id="ts-version-module"></span><h2>ts.version module<a class="headerlink" href="#module-ts.version" title="Permalink to this headline">¶</a></h2>
+<p>This is the current version of TorchServe</p>
+</section>
+<section id="module-ts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts" title="Permalink to this headline">¶</a></h2>
+<p>This module does the following:
+a. Starts model-server.
+b. Creates end-points based on the configured models.
+c. Exposes standard “ping” and “api-description” endpoints.
+d. Waits for servicing inference requests.</p>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ts.metrics.html" class="btn btn-neutral float-right" title="ts.metrics package" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="dev_api.html" class="btn btn-neutral" title="&lt;no title&gt;" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, PyTorch Serve Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">ts package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ts.arg_parser">ts.arg_parser module</a></li>
+<li><a class="reference internal" href="#module-ts.context">ts.context module</a></li>
+<li><a class="reference internal" href="#module-ts.model_loader">ts.model_loader module</a></li>
+<li><a class="reference internal" href="#module-ts.model_server">ts.model_server module</a></li>
+<li><a class="reference internal" href="#module-ts.model_service_worker">ts.model_service_worker module</a></li>
+<li><a class="reference internal" href="#module-ts.service">ts.service module</a></li>
+<li><a class="reference internal" href="#module-ts.version">ts.version module</a></li>
+<li><a class="reference internal" href="#module-ts">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="../_static/katex_autorenderer.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
