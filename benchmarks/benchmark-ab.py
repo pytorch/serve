@@ -37,7 +37,6 @@ TMP_DIR = default_ab_params['report_location']
 execution_params = default_ab_params.copy()
 result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
 metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
-warm_up_lines = None
 
 
 def json_provider(file_path, cmd_name):
@@ -108,9 +107,9 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
         docker_torchserve_start()
 
     check_torchserve_health()
-    warm_up()
+    warm_up_lines = warm_up()
     run_benchmark()
-    generate_report()
+    generate_report(warm_up_lines=warm_up_lines)
 
 
 def check_torchserve_health():
@@ -137,8 +136,9 @@ def warm_up():
     
     execute(ab_cmd, wait=True)
 
-    global warm_up_lines
     warm_up_lines = sum(1 for _ in open(metric_log))
+
+    return warm_up_lines
 
 
 def run_benchmark():
@@ -276,9 +276,9 @@ def update_exec_params(input_param):
     getAPIS()
 
             
-def generate_report():
+def generate_report(warm_up_lines=None):
     click.secho("\n\nGenerating Reports...", fg='green')
-    extract_metrics()
+    extract_metrics(warm_up_lines=warm_up_lines)
     generate_csv_output()
     generate_latency_graph()
     generate_profile_graph()
@@ -291,7 +291,7 @@ metrics = {"predict.txt": "PredictionTime",
            "worker_thread.txt": "WorkerThreadTime"}
 
 
-def extract_metrics():
+def extract_metrics(warm_up_lines=None):
     with open(metric_log) as f:
         lines = f.readlines()
 
