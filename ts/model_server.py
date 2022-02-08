@@ -63,7 +63,7 @@ def start():
                 print("--log-config file not found: {}".format(log_config))
                 sys.exit(1)
 
-            cmd.append("-Dlog4j.configuration=file://{}".format(log_config))
+            cmd.append("-Dlog4j.configurationFile=file://{}".format(log_config))
 
         tmp_dir = os.environ.get("TEMP")
         if tmp_dir:
@@ -94,7 +94,7 @@ def start():
                 arg_list = vm_args.split()
                 if args.log_config:
                     for word in arg_list[:]:
-                        if word.startswith("-Dlog4j.configuration="):
+                        if word.startswith("-Dlog4j.configurationFile="):
                             arg_list.remove(word)
                 cmd.extend(arg_list)
             plugins = props.get("plugins_path", None)

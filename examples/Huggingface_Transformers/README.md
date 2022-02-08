@@ -254,8 +254,7 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
-### Running KFServing 
+### Running KServe
 
-[BERT Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) to run it locally.
-[End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
-
+[BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/bert/README.md).
+[End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md).

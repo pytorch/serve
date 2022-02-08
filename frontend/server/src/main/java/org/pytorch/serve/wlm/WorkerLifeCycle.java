@@ -29,6 +29,7 @@ public class WorkerLifeCycle {
     private Connector connector;
     private ReaderThread errReader;
     private ReaderThread outReader;
+    private String launcherArgs;
 
     public WorkerLifeCycle(ConfigManager configManager, Model model) {
         this.configManager = configManager;
@@ -37,6 +38,46 @@ public class WorkerLifeCycle {
 
     public Process getProcess() {
         return process;
+    }
+
+    public ArrayList<String> launcherArgsToList() {
+        ArrayList<String> arrlist = new ArrayList<String>();
+        arrlist.add("-m");
+        arrlist.add("intel_extension_for_pytorch.cpu.launch");
+        arrlist.add("--ninstance");
+        arrlist.add("1");
+        if (launcherArgs != null && launcherArgs.length() > 1) {
+            String[] argarray = launcherArgs.split(" ");
+            for (int i = 0; i < argarray.length; i++) {
+                arrlist.add(argarray[i]);
+            }
+        }
+        return arrlist;
+    }
+
+    public boolean isLauncherAvailable()
+            throws WorkerInitializationException, InterruptedException {
+        boolean launcherAvailable = false;
+        try {
+            ArrayList<String> cmd = new ArrayList<String>();
+            cmd.add("python");
+            ArrayList<String> args = launcherArgsToList();
+            cmd.addAll(args);
+            cmd.add("--no_python");
+            // try launching dummy command to check launcher availability
+            String dummyCmd = "hostname";
+            cmd.add(dummyCmd);
+
+            String[] cmd_ = new String[cmd.size()];
+            cmd_ = cmd.toArray(cmd_);
+
+            Process process = Runtime.getRuntime().exec(cmd_);
+            int ret = process.waitFor();
+            launcherAvailable = (ret == 0);
+        } catch (IOException | InterruptedException e) {
+            throw new WorkerInitializationException("Failed to start launcher", e);
+        }
+        return launcherAvailable;
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
@@ -51,6 +92,19 @@ public class WorkerLifeCycle {
 
         ArrayList<String> argl = new ArrayList<String>();
         argl.add(EnvironmentUtils.getPythonRunTime(model));
+
+        if (configManager.isCPULauncherEnabled()) {
+            launcherArgs = configManager.getCPULauncherArgs();
+            boolean launcherAvailable = isLauncherAvailable();
+            if (launcherAvailable) {
+                ArrayList<String> args = launcherArgsToList();
+                argl.addAll(args);
+            } else {
+                logger.warn(
+                        "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
+            }
+        }
+
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
         argl.add("--sock-type");
         argl.add(connector.getSocketType());

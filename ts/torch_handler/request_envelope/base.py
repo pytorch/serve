@@ -3,7 +3,7 @@ Base class for all RequestEnvelope.
 
 A request envelope reformats the inputs/outputs of a call to a handler.
 It translates from formats specific to a model orchestrator like Seldon or
-KFServing to a set of flat Python items, and vice versa.
+KServe to a set of flat Python items, and vice versa.
 """
 
 from abc import ABC, abstractmethod
