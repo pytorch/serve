@@ -209,7 +209,7 @@ def main():
 
     parser.add_argument(
         "--ami-id",
-        default="ami-0e6d6921c639b58c3",
+        default="ami-0bc4efd197db7d3ad",
         help="Specify an Ubuntu Base DLAMI only. This AMI type ships with nvidia drivers already setup. Using other AMIs might"
         "need non-trivial installations on the AMI. AMI-ids differ per aws region.",
     )
