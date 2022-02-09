@@ -29,9 +29,11 @@ default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.
                      'docker_runtime': '',
                      'backend_profiling': False,
                      'config_properties': 'config.properties',
-                     'inference_model_url': 'predictions/benchmark'
+                     'inference_model_url': 'predictions/benchmark',
+                     'report_location': tempfile.gettempdir()
                      }
-TMP_DIR = tempfile.gettempdir()
+                     
+TMP_DIR = default_ab_params['report_location']
 execution_params = default_ab_params.copy()
 result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
 metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
@@ -40,7 +42,6 @@ metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
 def json_provider(file_path, cmd_name):
     with open(file_path) as config_data:
         return json.load(config_data)
-
 
 @click.command()
 @click.argument('test_plan', default='custom')
@@ -70,7 +71,7 @@ def json_provider(file_path, cmd_name):
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
-              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url):
+              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url, report_location):
     input_params = {'url': url,
                     'gpus': gpus,
                     'exec_env': exec_env,
@@ -85,12 +86,14 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
                     'docker_runtime': docker_runtime,
                     'backend_profiling': backend_profiling,
                     'config_properties': config_properties,
-                    'inference_model_url': inference_model_url
+                    'inference_model_url': inference_model_url,
+                    'report_location': report_location
                     }
 
     # set ab params
     update_plan_params[test_plan]()
     update_exec_params(input_params)
+
     click.secho("Starting AB benchmark suite...", fg='green')
     click.secho(f"\n\nConfigured execution parameters are:", fg='green')
     click.secho(f"{execution_params}", fg="blue")
@@ -122,7 +125,7 @@ def check_torchserve_health():
         except Exception as e:
             retry += 1
             time.sleep(3)
-    failure_exit("Could not connect to Tochserve instance at " + execution_params['inference_url'])
+    failure_exit("Could not connect to Torchserve instance at " + execution_params['inference_url'])
 
 def warm_up():
     register_model()
@@ -135,7 +138,7 @@ def warm_up():
 
 
 def run_benchmark():
-    click.secho("\n\nExecuting inference perfromance tests ...", fg='green')
+    click.secho("\n\nExecuting inference performance tests ...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
@@ -208,8 +211,8 @@ def docker_torchserve_start():
     if execution_params['backend_profiling']:
         backend_profiling = '-e TS_BENCHMARK=True'
 
-    # delete existing ts conatiner instance
-    click.secho("*Removing existing ts conatiner instance...", fg='green')
+    # delete existing ts container instance
+    click.secho("*Removing existing ts container instance...", fg='green')
     execute('docker rm -f ts', wait=True)
 
     click.secho(f"*Starting docker container of image {docker_image} ...", fg='green')
@@ -308,10 +311,17 @@ def generate_csv_output():
     line50 = int(batched_requests / 2)
     line90 = int(batched_requests * 9 / 10)
     line99 = int(batched_requests * 99 / 100)
+
+    click.secho(f"Saving benchmark results to {execution_params['report_location']}")
+
     artifacts = {}
-    with open(f'{TMP_DIR}/benchmark/result.txt') as f:
+    with open(f"{execution_params['report_location']}/benchmark/result.txt") as f:
         data = f.readlines()
+
     artifacts['Benchmark'] = "AB"
+    artifacts['Batch size'] = execution_params['batch_size']
+    artifacts['Batch delay'] = execution_params['batch_delay']
+    artifacts['Workers'] = execution_params['workers']
     artifacts['Model'] = execution_params['url']
     artifacts['Concurrency'] = execution_params['concurrency']
     artifacts['Requests'] = execution_params['requests']
@@ -323,7 +333,7 @@ def generate_csv_output():
     artifacts['TS latency mean'] = extract_entity(data, 'Time per request:.*mean\)', -3)
     artifacts['TS error rate'] = int(artifacts['TS failed requests']) / execution_params['requests'] * 100
 
-    with open(os.path.join(TMP_DIR, 'benchmark/predict.txt')) as f:
+    with open(os.path.join(execution_params['report_location'], 'benchmark/predict.txt')) as f:
         lines = f.readlines()
         lines.sort(key=float)
         artifacts['Model_p50'] = lines[line50].strip()
@@ -331,10 +341,10 @@ def generate_csv_output():
         artifacts['Model_p99'] = lines[line99].strip()
 
     for m in metrics:
-        df = pd.read_csv(f"{TMP_DIR}/benchmark/{m}", header=None, names=['data'])
+        df = pd.read_csv(f"{execution_params['report_location']}/benchmark/{m}", header=None, names=['data'])
         artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
 
-    with open(os.path.join(TMP_DIR, 'benchmark/ab_report.csv'), 'w') as csv_file:
+    with open(os.path.join(execution_params['report_location'], 'benchmark/ab_report.csv'), 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
         csvwriter.writerow(artifacts.keys())
         csvwriter.writerow(artifacts.values())
@@ -351,7 +361,7 @@ def extract_entity(data, pattern, index, delim=" "):
 
 def generate_latency_graph():
     click.secho("*Preparing graphs...", fg='green')
-    df = pd.read_csv(os.path.join(TMP_DIR, 'benchmark/predict.txt'), header=None, names=['latency'])
+    df = pd.read_csv(os.path.join(execution_params['report_location'], 'benchmark/predict.txt'), header=None, names=['latency'])
     iteration = df.index
     latency = df.latency
     a4_dims = (11.7, 8.27)
@@ -360,7 +370,7 @@ def generate_latency_graph():
     plt.ylabel('Prediction time')
     plt.title('Prediction latency')
     plt.bar(iteration, latency)
-    plt.savefig(f"{TMP_DIR}/benchmark/predict_latency.png")
+    plt.savefig(f"{execution_params['report_location']}/benchmark/predict_latency.png")
 
 
 def generate_profile_graph():
@@ -368,7 +378,7 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f'{TMP_DIR}/benchmark/{m}', header=None)
+        df = pd.read_csv(f"{execution_params['report_location']}/benchmark/{m}", header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
@@ -434,7 +444,6 @@ def stop_torchserve():
 # Test plans (soak, vgg11_1000r_10c,  vgg11_10000r_100c,...)
 def soak():
     execution_params['requests'] = 100000
-
     execution_params['concurrency'] = 10
 
 
@@ -464,6 +473,15 @@ def resnet152_batch_docker():
     execution_params['batch_size'] = 4
     execution_params['exec_env'] = 'docker'
 
+def bert_batch():
+    execution_params['url'] = 'https://bert-mar-file.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar'
+    execution_params['requests'] = 1000
+    execution_params['concurrency'] = 10
+    execution_params['batch_size'] = 4
+    execution_params['input'] = '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt'
+
+def workflow_nmt():
+    pass
 
 def custom():
     pass
@@ -475,6 +493,8 @@ update_plan_params = {
     "vgg11_10000r_100c": vgg11_10000r_100c,
     "resnet152_batch": resnet152_batch,
     "resnet152_batch_docker": resnet152_batch_docker,
+    "bert_batch": bert_batch,
+    "workflow_nmt": workflow_nmt,
     "custom": custom
 }
 
