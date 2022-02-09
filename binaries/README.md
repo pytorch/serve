@@ -100,3 +100,39 @@
    ```
    python s3_binary_upload.py --s3-bucket <s3_bucket> --s3-backup-bucket <s3_backup_bucket> --nightly
    ```
+
+## Uploading packages to production torchserve account
+### pypi
+Binaries should show up here: https://pypi.org/project/torchserve/
+
+You need to be on the list of maintainers to run the below.
+
+`twine upload <path/to.wheel>`
+
+
+### conda
+Binaries should show up here: https://anaconda.org/pytorch/torchserve
+
+
+```
+# Authenticate with pytorchbot credentials
+anaconda login
+
+# Upload binaries
+anaconda upload -u pytorch <path/to/.bz2>
+```
+
+## docker
+Binaries should show up here: https://hub.docker.com/r/pytorch/torchserve
+
+Change the staging org to your personal docker or test docker account https://github.com/pytorch/serve/blob/master/docker/promote-docker.sh#L8
+
+```
+# authenticate to docker with pytorchbot credentials
+docker login
+
+# upload docker image
+./docker/promote-docker.sh
+```
+
+If everything looks good make sure to `export $DRY_RUN=disabled` or remove that line from the code
