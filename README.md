@@ -3,56 +3,16 @@
 TorchServe is a flexible and easy to use tool for serving PyTorch models in production.
 
 **For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
-
-<!-- ## Contents of this Document
-
-* [Install TorchServe](#install-torchserve-and-torch-model-archiver)
-* [Install TorchServe on Windows](docs/torchserve_on_win_native.md)
-* [Install TorchServe on Windows Subsystem for Linux](docs/torchserve_on_wsl.md)
-* [Serve a Model](#serve-a-model)
-* [Serve a Workflow](docs/workflows.md)
-* [Quick start with docker](#quick-start-with-docker)
-* [Highlighted Examples](#highlighted-examples)
-* [Featured Community Projects](#featured-community-projects)
-* [Contributing](#contributing) -->
-
 ## Why TorchServe
 
-Add lots of links clearly
+Add lots of links
 
-* Multi model management 
+* Multi model management with optimized worker to model allocation
 * Default way to serve PyTorch models in Kubeflow, Sagemaker, Vertex AI
 * Large coverage for model optimization runtimes like Torchscript, ORT, IPEX, TensorRT, FasterTransformer
-* Easy to use and expressive model handler based design
-
-
-### Install TorchServe for development
-
-If you plan to develop with TorchServe and change some source code, you must install it from source code.
-
-Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
-
-Run the following script from the top of the source directory.
-
-NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
-
-#### For Debian Based Systems/ MacOS
-
-```
-python ./ts_scripts/install_dependencies.py --environment=dev
-python ./ts_scripts/install_from_src.py
-```
-
-Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
-
-#### For Windows
-
-Refer to the documentation [here](docs/torchserve_on_win_native.md).
-
-For information about the model archiver, see [detailed documentation](model-archiver/README.md).
-
-
-
+* Easy to use, extensible and expressive model handler based design 
+* Support for dynamic batching
+* Support for workflows to chain models
 
 ## Quick Start with Docker
 Refer to [torchserve docker](docker/README.md) for details.
