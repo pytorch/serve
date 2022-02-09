@@ -3,7 +3,7 @@
 import json
 from typing import Dict
 import logging
-from importlib.metadata import version
+from importlib_metadata import version
 import kserve
 import tornado.web
 

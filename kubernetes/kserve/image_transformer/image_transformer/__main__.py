@@ -15,7 +15,7 @@
 import argparse
 import json
 import kserve
-from importlib.metadata import version
+from importlib_metadata import version
 from .image_transformer import ImageTransformer
 from .transformer_model_repository import TransformerModelRepository
 

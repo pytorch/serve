@@ -1,6 +1,6 @@
 """ A respository of image transformer models """
 import logging
-from importlib.metadata import version
+from importlib_metadata import version
 import kserve
 
 if version('kserve') >= '0.8.0':

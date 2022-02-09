@@ -1,7 +1,7 @@
 """ KServe wrapper to handler inference in the kserve_predictor """
 import json
 import logging
-from importlib.metadata import version
+from importlib_metadata import version
 import kserve
 
 from TorchserveModel import TorchserveModel
