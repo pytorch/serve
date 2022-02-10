@@ -13,4 +13,89 @@ TorchServe was designed a multi model inferencing framework. A production grade 
 * **Model Store**: This is a directory in which all the loadable models exist.
 
 ## Main code
-Elaborate on this thread https://github.com/pytorch/serve/issues/1258
+
+Frontend means the Java part of the code (potentially C++)
+
+And backend is the Python code (most Pytorch specific stuff)
+
+### Backend (Python)
+
+https://github.com/pytorch/serve/blob/master/ts/arg_parser.py#L64
+
+* Arg parser controls config/not workflow and can also setup a model service worker with a custom socket
+
+
+https://github.com/pytorch/serve/blob/master/ts/context.py
+
+* Context object of incoming request - keeps model relevant worker information 
+
+https://github.com/pytorch/serve/blob/master/ts/model_server.py
+
+* model server open up pid and start torchserve by using the arg parser
+* If stopping it they use psutil.Process(pid).terminate()
+* loads config.properties
+
+https://github.com/pytorch/serve/blob/master/ts/model_loader.py
+
+* Model loader
+* Uses manifest file to find handler and envelope and starts the service 
+* Loads either default handler or custom handler
+* Request envelopes which make it easier to interact with other systems like Seldon, KFserving, Google cloud AI platform
+
+### Frontend (Java)
+
+
+`../gradlew startServer`
+
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkerStateListener.java
+
+* Takes care of closing workers 
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkerState.java
+
+* Just an enum of worker states
+
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkLoadManager.java
+
+* Get number of running workers
+* Number of workers which is just a concurrent hashmap, bakendgroup, ports etc are all here
+* Add worker threads by submitting them to a threadpool Executor Service (create a pool of threads and assign tasks or worker threads to it)
+
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/BatchAggregator.java
+
+* Batch aggregator
+* Puts requests and responses in a list
+
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java
+
+* Keeps track of workers, batch size, timeout, version and mar name
+* Encoding the model state in a JSON and then pulling properties from it
+
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/job/Job.java
+
+* Keeps track of jobs which are either inference or management requests
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/ts/metrics/system_metrics.py
+
+* Many metrics are just added using psutil package in Python
+
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/ModelManager.java
+
+* Model registration calling https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/util/ApiUtils.java#L108
+* Install model dependencies
+* create model archive
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/util/ConfigManager.java#L324
+
+* All configs managed here
+
+https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkerThread.java#L41
+
+* Get GPU usage
+* Worker thread has model, aggregator, listener, eventloop, port etc and then a run function which connects it to a request
