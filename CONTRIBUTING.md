@@ -34,3 +34,29 @@ If you are interested in contributing to TorchServe, your contributions will fal
 Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve. Use this [template](pull_request_template.md) when creating a Pull Request.
 
 For more non-technical guidance about how to contribute to PyTorch, see the Contributing Guide.
+
+### Install TorchServe for development
+
+If you plan to develop with TorchServe and change some source code, you must install it from source code.
+
+Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
+
+Run the following script from the top of the source directory.
+
+NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
+
+#### For Debian Based Systems/ MacOS
+
+```
+python ./ts_scripts/install_dependencies.py --environment=dev
+python ./ts_scripts/install_from_src.py
+```
+
+Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
+
+#### For Windows
+
+Refer to the documentation [here](docs/torchserve_on_win_native.md).
+
+For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+
