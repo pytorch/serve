@@ -7,9 +7,6 @@ bert:
         batch_delay: 100
         batch_size:
             - 1
-            - 2
-            - 4
-            - 8
         input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
         requests: 10000
         concurrency: 100
