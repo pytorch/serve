@@ -17,7 +17,7 @@ import base64
 import json
 import logging
 from typing import List, Dict
-from importlib_metadata import version
+from importlib.metadata import version
 import tornado
 from PIL import Image
 import torchvision.transforms as transforms

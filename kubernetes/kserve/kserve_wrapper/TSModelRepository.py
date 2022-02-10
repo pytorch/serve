@@ -1,6 +1,6 @@
 """ The repository to serve the Torchserve Models in the kserve side"""
 import logging
-from importlib_metadata import version
+from importlib.metadata import version
 import kserve
 
 if version('kserve') >= '0.8.0':
