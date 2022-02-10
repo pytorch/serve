@@ -102,6 +102,9 @@
    ```
 
 ## Uploading packages to production torchserve account
+
+As a first step binaries and docker containers need to be available in some staging environment. In that scenario the binaries can just be `wget`'d and then uploaded using the instructions below and the docker staging environment just needs a 1 line code change in https://github.com/pytorch/serve/blob/master/docker/promote-docker.sh#L8
+
 ### pypi
 Binaries should show up here: https://pypi.org/project/torchserve/
 
