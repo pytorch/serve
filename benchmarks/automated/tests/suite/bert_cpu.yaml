@@ -7,6 +7,9 @@ bert:
         batch_delay: 100
         batch_size:
             - 1
+            - 2
+            - 4
+            - 8
         input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
         requests: 10000
         concurrency: 100
@@ -16,5 +19,4 @@ bert:
             - "cpu"
             - "gpus": "all"
 instance_types: #special keyword not recognized as a 'model', define instance types per yaml file.
-    - "p3.8xlarge"
-    - "c5.4xlarge"
+    - "m6i.4xlarge"
