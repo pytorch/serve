@@ -11,3 +11,6 @@ TorchServe was designed a multi model inferencing framework. A production grade 
 * **Model**: Models could be a `script_module` (JIT saved models) or `eager_mode_models`. These models can provide custom pre- and post-processing of data along with any other model artifacts such as state_dicts. Models can be loaded from cloud storage or from local hosts.
 * **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
 * **Model Store**: This is a directory in which all the loadable models exist.
+
+## Main code
+Elaborate on this thread https://github.com/pytorch/serve/issues/1258
