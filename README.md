@@ -22,6 +22,7 @@ Add lots of links
   * [TensorRT](https://github.com/pytorch/serve/issues/1243)
   * [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
 * Easy to use, extensible and expressive model handler based design 
+* [Metrics API](docs/metrics.md): out of box support for system level metrics with Prometheus exports, custom metrics and PyTorch profiler support
 
 **For full documentation, see [Model Server for PyTorch Documentation](docs/README.md).**
 
@@ -43,17 +44,9 @@ Refer to [torchserve docker](docker/README.md) for details.
   - [Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline)
 
 For [more examples](examples/README.md)
-## Learn More
 
-* [Full documentation on TorchServe](docs/README.md)
-* [Model Management API](docs/management_api.md)
-* [Inference API](docs/inference_api.md)
-* [Metrics API](docs/metrics.md)
-* [Package models for use with TorchServe](model-archiver/README.md)
-* [Deploying TorchServe with Kubernetes](kubernetes/README.md)
-* [TorchServe Workflows](examples/Workflows/README.md)
-* [TorchServe model zoo for pre-trained and pre-packaged models-archives](docs/model_zoo.md)
-* [Developer APIs](https://pytorch.org/serve/api/ts.html)
+## Learn More
+* [Developer APIs](https://pytorch.org/serve)
 
 ## Contributing
 
