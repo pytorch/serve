@@ -38,6 +38,11 @@ pip install torchserve torch-model-archiver
 [Getting started guide](docs/getting_started.md)
 
 ### 🐳 Quick Start with Docker
+
+```
+docker pull pytorch/torchserve
+```
+
 Refer to [torchserve docker](docker/README.md) for details.
 
 ## 🏆 Highlighted Examples
@@ -46,10 +51,10 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [Dual Neural Machine Translation](examples/Workflows/nmt_tranformers_pipeline) for a complex workflow DAG
 
 For [more examples](examples/README.md)
-## 🤓 Learn More
 
-## Learn More
-* [Developer APIs](https://pytorch.org/serve)
+## 🤓 Learn More
+https://pytorch.org/serve
+
 
 ## 🫂 Contributing
 
