@@ -290,14 +290,8 @@ or
 `GET /models/{model_name}?customized=true`
 
 Use the Describe Model API to get detail runtime status and customized metadata of a version of a model:
-* Implement function _is_describe and describe_handle. Eg.
+* Implement function describe_handle. Eg.
 ```
-    def _is_describe(self):
-        if self.context and self.context.get_request_header(0, "describe"):
-            if self.context.get_request_header(0, "describe") == "True":
-                return True
-        return False
-
     def describe_handle(self):
         """Customized describe handler
         Returns:
@@ -309,6 +303,16 @@ Use the Describe Model API to get detail runtime status and customized metadata 
 
         return output_describe
 ```
+
+* Implement function _is_describe if handler is inherited from BaseHandler.
+```
+    def _is_describe(self):
+        if self.context and self.context.get_request_header(0, "describe"):
+            if self.context.get_request_header(0, "describe") == "True":
+                return True
+        return False
+```
+
 * Call function _is_describe and describe_handle in handle. Eg.
 ```
 def handle(self, data, context):
@@ -349,7 +353,7 @@ def handle(self, data, context):
             (stop_time - start_time) * 1000, 2), None, 'ms')
         return output
 ```
-ts/torch_handler/base_handler.py implements the above functions. Here is an example.
+* By default, ts/torch_handler/base_handler.py implements the above functions. Here is an example. "customizedMetadata" shows the metadata from user's model. These metadata can be decoded into a dictionary.
 ```bash
 curl http://localhost:8081/models/noop-customized/1.0?customized=true
 [
@@ -377,6 +381,12 @@ curl http://localhost:8081/models/noop-customized/1.0?customized=true
         "customizedMetadata": "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}"
      }
 ]
+```
+* Decode customizedMetadata on client side.
+```
+d=json.loads('{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}')
+print(d)
+{'data1': '1', 'data2': '2'}
 ```
 
 ## Unregister a model
