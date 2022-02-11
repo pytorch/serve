@@ -30,7 +30,7 @@ Add lots of links
 * [Performance Guide](docs/performance_guide.md): For tips and tricks to optimize, benchmark and profile PyTorch and TorchServe performance
 * [TorchServe internals](docs/internals.md): How TorchServe was built
 
-### 🏁 Quick start with TorchServe
+### 🚀 Quick start with TorchServe
 ```
 pip install torchserve torch-model-archiver
 ```
@@ -71,7 +71,7 @@ To file a bug or request a feature, please file a GitHub issue. For filing pull 
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
-## Disclaimer 
+## ⚖️ Disclaimer 
 This repository is jointly operated and maintained by Amazon, Meta and a number of individual contributors listed in the [CONTRIBUTORS](https://github.com/pytorch/serve/graphs/contributors) file. For questions directed at Meta, please send an email to opensource@fb.com. For questions directed at Amazon, please send an email to torchserve@amazon.com. For all other questions, please open up an issue in this repository [here](https://github.com/pytorch/serve/issues).
 
 *TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*
