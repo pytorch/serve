@@ -7,7 +7,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 ### 🚀 Quick start with TorchServe
 ```
-pip install torchserve torch-model-archiver
+pip install torchserve torch-model-archiver torch-workflow-archiver
 ```
 
 [Getting started guide](docs/getting_started.md)
@@ -34,13 +34,13 @@ Refer to [torchserve docker](docker/README.md) for details.
   * [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch)
   * [TensorRT](https://github.com/pytorch/serve/issues/1243)
   * [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
-* Easy to use, extensible and expressive [model handler based design](https://github.com/pytorch/serve/tree/master/examples/) 
+* [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
+* [Expressive handlers](CONTRIBUTING.md): An expressive handler architecture that makes it trivial to support inferencing for your usecase with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
 * [Metrics API](docs/metrics.md): out of box support for system level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics and PyTorch profiler support
 
 
 ## 🤔 How does TorchServe work
 * [Model Server for PyTorch Documentation](docs/README.md): Full documentation
-* [Performance Guide](docs/performance_guide.md): For tips and tricks to optimize, benchmark and profile PyTorch and TorchServe performance
 * [TorchServe internals](docs/internals.md): How TorchServe was built
 * [Contributing guide](CONTRIBUTING.md): How to contribute to TorchServe
 
