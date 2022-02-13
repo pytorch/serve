@@ -52,8 +52,6 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                         benchmark_config["input"] = value
                     elif key == "processors":
                         processors = value
-                        print(processors)
-
 
                 benchmark_configs = []
                 for batch_size in batch_size_list:
@@ -62,15 +60,12 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
 
                 for bConfig in benchmark_configs:
                     for i in range(len(processors)):
-                        print(processors[i])
                         if type(processors[i]) is str:
-                            print("process is str")
                             benchmark_config_file = '{}/{}/{}_b{}.json'\
                                 .format(output_dir, processors[i], model_name, bConfig["batch_size"])
                             with open(benchmark_config_file, "w") as outfile:
                                 json.dump(bConfig, outfile, indent=4)
                         elif type(processors[i]) is dict:
-                            print("process is dict {}".format(processors[i]))
                             bConfig["gpus"] = processors[i]["gpus"]
                             benchmark_config_file = '{}/gpu/{}_b{}_g{}.json'\
                                 .format(output_dir, model_name, bConfig["batch_size"], processors[i]["gpus"])
