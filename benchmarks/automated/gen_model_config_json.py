@@ -37,7 +37,6 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                 for key, value in mode_config.items():
                     if key == "batch_size":
                         batch_size_list = value
-                        print(batch_size_list)
                     elif key == "url":
                         benchmark_config["url"] = value
                     elif key == "requests":
