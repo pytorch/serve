@@ -26,6 +26,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [TorchServe Workflows](examples/Workflows/README.md): deploy complex DAGs with multiple interdependent models
 * Default way to serve PyTorch models in
   * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/)
+  * [MLflow](https://github.com/mlflow/mlflow-torchserve)
   * [Sagemaker](https://aws.amazon.com/blogs/machine-learning/serving-pytorch-models-in-production-with-the-amazon-sagemaker-native-torchserve-integration/)
   * [Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
 * Export your model for optimized inference
