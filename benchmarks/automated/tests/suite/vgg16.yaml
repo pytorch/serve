@@ -28,7 +28,7 @@ vgg16:
             - 2
             - 4
             - 8
-        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/image_classifier/kitten.jpg"
+        input: "/home/ubuntu/serve/examples/image_classifier/kitten.jpg"
         requests: 1000
         concurrency: 100
         backend_profiling: False
