@@ -18,9 +18,9 @@ nmt_dual_translation:
             - 2
             - 4
             - 8
-        requests: 1000
+        requests: 10000
         concurrency: 10
-        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Workflows/nmt_transformers_pipeline/model_input/sample.txt"
+        input: "/home/ubuntu/serve/examples/Workflows/nmt_transformers_pipeline/model_input/sample.txt"
         backend_profiling: False
         exec_env: "docker"
         processors:

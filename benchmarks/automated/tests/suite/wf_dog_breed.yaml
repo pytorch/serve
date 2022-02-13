@@ -15,9 +15,9 @@ dog_breed:
         batch_size:
             - 1
             - 2
-        requests: 1000
+        requests: 10000
         concurrency: 10
-        input: "https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg"
+        input: "/home/ubuntu/serve/docs/images/kitten_small.jpg"
         backend_profiling: False
         exec_env: "docker"
         processors:
