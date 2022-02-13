@@ -10,7 +10,7 @@ bert_inf1:
             - 2
             - 4
             - 8
-        input: "/home/ubuntu/serve/benchmarks/automated/tests/resources/neuron-bert/input"
+        input: "./benchmarks/automated/tests/resources/neuron-bert/input"
         requests: 10000
         concurrency: 100
         backend_profiling: False

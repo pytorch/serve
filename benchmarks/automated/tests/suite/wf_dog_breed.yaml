@@ -17,7 +17,7 @@ dog_breed:
             - 2
         requests: 10000
         concurrency: 10
-        input: "/home/ubuntu/serve/docs/images/kitten_small.jpg"
+        input: "./docs/images/kitten_small.jpg"
         backend_profiling: False
         exec_env: "docker"
         processors:

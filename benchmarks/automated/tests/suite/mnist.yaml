@@ -12,7 +12,7 @@ mnist:
             - 8
         requests: 10000
         concurrency: 10
-        input: "/home/ubuntu/serve/examples/image_classifier/mnist/test_data/0.png"
+        input: "./examples/image_classifier/mnist/test_data/0.png"
         backend_profiling: False
         exec_env: "docker"
         processors:

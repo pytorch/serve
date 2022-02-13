@@ -28,7 +28,7 @@ vgg11:
             - 2
             - 4
             - 8
-        input: "/home/ubuntu/serve/examples/image_classifier/kitten.jpg"
+        input: "./examples/image_classifier/kitten.jpg"
         requests: 1000
         concurrency: 100
         backend_profiling: False
