@@ -7,7 +7,7 @@ phases:
     commands:
       - apt-get update
       - apt-get install sudo -y
-      - git clone https://www.github.com/nskool/serve.git
+      - git clone https://www.github.com/pytorch/serve.git
       - cd serve
       - git checkout cw_metrics
       - pip install -r benchmarks/automated/requirements.txt
