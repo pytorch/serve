@@ -53,7 +53,7 @@ def pypi_description():
 
 def get_nightly_version():
     today = date.today()
-    return f"{today.year}.{today.month}.{today.day}"
+    return today.strftime("%Y.%m.%d")
 
 def detect_model_server_version():
     sys.path.append(os.path.abspath("ts"))
