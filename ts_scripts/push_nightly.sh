@@ -13,4 +13,4 @@ fi
 python3 -m twine upload \
     --username __token__ \
     --password "$PYPI_TOKEN" \
-    dist/torchx_nightly-*
+    dist/torchserve_nightly-*
