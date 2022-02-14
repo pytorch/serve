@@ -1,7 +1,3 @@
-## Call setup.py with pytorch credentials
-## Ignore tests
-# Where is this pushed and under what name?
-
 name: Push Nightly
 
 on:
