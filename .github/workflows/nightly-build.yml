@@ -19,10 +19,13 @@ jobs:
       - name: Install dependencies
         run: |
           set -eux
-          pip install -e .
           pip install twine
-#       - name: Run tests
-#         run: python -m unittest discover --verbose --start-directory . --pattern "*_test.py"
+          apt-get update
+          apt-get install sudo -y
+          python ts_scripts/install_dependencies.py --cuda=cu102 --environment=dev
+          pip install -e .
+
+
       - name: Push nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
