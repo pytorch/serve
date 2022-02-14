@@ -149,7 +149,7 @@ class ApacheBenchHandler(object):
             data = f.readlines()
         artifacts["Benchmark"] = "AB"
         artifacts["Batch Size"] = batch_size
-        artifacts["Mode"] = mode
+        artifacts["Mode"] = mode # This is the pytorch mode i.e. eager or scripted, as specified in <model>.yaml
         artifacts["Model"] = self.model_name
         artifacts["Concurrency"] = concurrency
         artifacts["Requests"] = requests
@@ -188,6 +188,8 @@ class ApacheBenchHandler(object):
 
         artifacts["instance_type"] = curr_instance_type
 
+        # 'BENCHMARK_CONTEXT' is set internally at AWS for certain benchmark jobs.
+        # When it's not available, 'DevTest' is used.
         dashboard_context = os.getenv("BENCHMARK_CONTEXT", "DevTest")
 
         cloudwatchMetricsHandler = cloudwatch_utils.CloudWatchMetricsHandler(
