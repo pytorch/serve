@@ -9,7 +9,6 @@ phases:
       - apt-get install sudo -y
       - git clone https://www.github.com/pytorch/serve.git
       - cd serve
-      - git checkout cw_metrics
       - pip install -r benchmarks/automated/requirements.txt
 
   build:
