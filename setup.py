@@ -142,12 +142,15 @@ class BuildPlugins(Command):
 
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
-    parser = ArgumentParser()
-    parser.add_argument("--override-name", default='torchserve')
-    args = parser.parse_args()
-    name = args.override_name
     # Get nightly version if nightly in name
+    name = 'torchserve'
+
+    # Clever code to figure out if setup.py was trigger by ts_scripts/push_nightly.sh
+    NAME_ARG = "--override-name"
+    if NAME_ARG in sys.argv:
+        idx = sys.argv.index(NAME_ARG)
+        name = sys.argv.pop(idx + 1)
+        sys.argv.pop(idx)
     is_nightly = "nightly" in name
 
     version = get_nightly_version() if is_nightly else detect_model_server_version()
