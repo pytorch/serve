@@ -35,7 +35,7 @@ NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
 model_store=/mnt/models/model-store
-model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"bert":{"1.0":{"defaultVersion":true,"marName":"BERTSeqClassification.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"BERTSeqClassification":{"1.0":{"defaultVersion":true,"marName":"BERTSeqClassification.mar","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
 ```
 
 ## Preparing input
@@ -71,25 +71,10 @@ python __main__.py
 
 ## Sample request and response for bytes input
 
-Run the following command in local machine
-
-```
-curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/bert/infer -d @./bytes/bert_v2.json
-```
-
-and the sample response is as below
-
-```
-{"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "BERTSeqClassification", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [], "datatype": "BYTES", "data": ["Not Accepted"]}]}
-```
-
-
-## Sample request and response for tensor input
-
-For testing bytes input
+Run the following command
 
 ```bash
- curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./sequence_classification/bytes/bert_v2_bytes.json
+ curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./bert_v2_bytes.json
 ```
 
 Expected Output
@@ -98,10 +83,14 @@ Expected Output
 {"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "BERTSeqClassification", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [], "datatype": "BYTES", "data": ["Not Accepted"]}]}
 ```
 
-For tensor input
+
+## Sample request and response for tensor input
+
+
+Run the following command
 
 ```
-curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./sequence_classification/tensor/bert_tensor_v2.json
+curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./bert_tensor_v2.json
 ```
 
 Expected output
