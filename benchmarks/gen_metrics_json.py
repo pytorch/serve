@@ -27,7 +27,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Count/Second',
-                "Value": v})
+                "Value": float(v)})
         elif k == "TS latency P50":
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
@@ -36,7 +36,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Milliseconds',
-                "Value": v})
+                "Value": float(v)})
         elif k == "TS latency P90":
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
@@ -45,7 +45,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Milliseconds',
-                "Value": v})
+                "Value": float(v)})
         elif k == "TS latency P99":
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
@@ -54,7 +54,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Milliseconds',
-                "Value": v})
+                "Value": float(v)})
         elif k == "Model_p50":
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
@@ -63,7 +63,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Milliseconds',
-                "Value": v})
+                "Value": float(v)})
         elif k == "Model_p90":
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
@@ -72,7 +72,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Milliseconds',
-                "Value": v})
+                "Value": float(v)})
         elif k == "Model_p99":
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
@@ -81,7 +81,7 @@ def gen_metrics_json(csv_dict):
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
                 "Unit": 'Milliseconds',
-                "Value": v})
+                "Value": float(v)})
 
     print(json.dumps(metrics_dict_list, indent = 4))
 
