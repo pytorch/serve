@@ -7,7 +7,12 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 ### 🚀 Quick start with TorchServe
 ```
+# Latest release
 pip install torchserve torch-model-archiver torch-workflow-archiver
+
+# Nightly build
+pip install torchserve-nightly
+
 ```
 
 [Getting started guide](docs/getting_started.md)
