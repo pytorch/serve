@@ -89,7 +89,7 @@ and the sample response is as below
 For testing bytes input
 
 ```bash
- curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/bert/infer -d @./sequence_classification/bytes/bert_v2.json
+ curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./sequence_classification/bytes/bert_v2_bytes.json
 ```
 
 Expected Output
@@ -101,7 +101,7 @@ Expected Output
 For tensor input
 
 ```
-curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/bert/infer -d @./sequence_classification/tensor/bert_v2.json
+curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./sequence_classification/tensor/bert_tensor_v2.json
 ```
 
 Expected output
