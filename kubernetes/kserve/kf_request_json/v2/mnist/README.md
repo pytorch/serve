@@ -10,9 +10,9 @@ navigate to `examples/image_classifier/mnist`
   
 ```bash
 torch-model-archiver --model-name mnist --version 1.0 \
---model-file examples/image_classifier/mnist/mnist.py \
---serialized-file examples/image_classifier/mnist/mnist_cnn.pt \
---handler  examples/image_classifier/mnist/mnist_handler.py
+--model-file mnist.py \
+--serialized-file mnist_cnn.pt \
+--handler mnist_handler.py
 ```
 
 The command will create `mnist.mar` file in current directory
@@ -38,6 +38,12 @@ model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist":{"1.0":{"d
 ```
 
 ## Preparing input
+
+[mnist_v2_bytes](mnist_v2_bytes.json) or [mnist_v2_tensor](mnist_v2_tensor.json) can be used.
+
+For generating input for a new image follow the instructions given below
+
+Move to `kubernetes/kserve/kf_request_json/v2/mnist`
 
 For bytes input, use [tobytes](tobytes.py) utility. 
 
