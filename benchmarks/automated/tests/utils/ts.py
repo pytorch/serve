@@ -154,6 +154,7 @@ class TorchServeHandler(object):
         self.connection.run("ps axl|grep -e '--no-stream'| grep -v color | awk '{print $3}' | xargs kill -9", warn=True)
         self.connection.run(f"cp nohup.out nohup.{model_name}.{num_workers}.{batch_size}", warn=True)
         self.connection.run(f"rm nohup.out", warn=True)
+        time.sleep(3)
 
     def plot_stats_graph(self, model_name, mode_name, num_workers, batch_size):
         """
@@ -162,6 +163,9 @@ class TorchServeHandler(object):
         import matplotlib.pyplot as plt
 
         LOGGER.info(f"Generating graphs")
+
+        if not self.is_local_execution:
+            self.connection.get(f"free.{model_name}.{num_workers}.{batch_size}", f"free.{model_name}.{num_workers}.{batch_size}")
 
         # plot graphs from the utility 'free'
         with open(f"free.{model_name}.{num_workers}.{batch_size}") as f:
