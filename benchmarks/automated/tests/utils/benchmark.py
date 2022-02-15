@@ -168,7 +168,7 @@ class BenchmarkHandler:
 
                     # Generate report (note: needs to happen after torchserve has stopped)
                     apacheBenchHandler.generate_report(
-                        requests=requests, concurrency=concurrency, connection=self.connection
+                        requests=requests, concurrency=concurrency, batch_size=batch_size, mode=mode,connection=self.connection
                     )
 
                     # Move artifacts into a common folder.
