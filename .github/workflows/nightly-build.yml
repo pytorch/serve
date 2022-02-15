@@ -1,0 +1,33 @@
+name: Push Nightly
+
+on:
+  # run every day at 11:15am
+  schedule:
+    - cron:  '15 11 * * *'
+
+jobs:
+  nightly:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchSeve
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          set -eux
+          pip install twine
+          apt-get update
+          apt-get install sudo -y
+          python ts_scripts/install_dependencies.py --cuda=cu102 --environment=dev
+          pip install -e .
+
+
+      - name: Push nightly
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: ts_scripts/push_nightly.sh
+        
