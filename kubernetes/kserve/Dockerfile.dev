@@ -1,13 +1,13 @@
 # syntax = docker/dockerfile:experimental
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
-# 
+#
 # NOTE: To build this you will need a docker version > 18.06 with
 #       experimental enabled and DOCKER_BUILDKIT=1
 #
 #       If you do not use buildkit you are not going to have a good time
 #
-#       For reference: 
+#       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements
 
 ARG BASE_IMAGE=ubuntu:18.04
@@ -28,21 +28,20 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
   dpkg-dev \
   g++ \
   git \
-  python3-dev \
+  python3.8-dev \
+  python3-pip \
   build-essential \
   openjdk-11-jdk \
   curl \
   vim \
   && rm -rf /var/lib/apt/lists/* \
   && cd /tmp \
-  && curl -O https://bootstrap.pypa.io/get-pip.py \
-  && python3 get-pip.py
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
-  && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+RUN update-alternatives --remove python /usr/bin/python \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
 
 #ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-RUN pip install -U pip setuptools
+RUN python -m pip install -U pip setuptools
 
 # Build Dev Image
 FROM compile-image AS dev-image
@@ -54,8 +53,8 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
   && git checkout ${BRANCH_NAME} \
   && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
   && python ts_scripts/install_from_src.py \
-  && pip install captum transformers kserve \
-  && pip install . \
+  && python -m pip install captum transformers kserve \
+  && python -m pip install . \
   && useradd -m model-server \
   && mkdir -p /home/model-server/tmp \
   && cp kubernetes/kserve/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
