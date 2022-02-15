@@ -51,6 +51,9 @@ def pypi_description():
     with open('PyPiDescription.rst') as df:
         return df.read()
 
+def get_nightly_version():
+    today = date.today()
+    return today.strftime("%Y.%m.%d")
 
 def detect_model_server_version():
     sys.path.append(os.path.abspath("ts"))
@@ -139,12 +142,25 @@ class BuildPlugins(Command):
 
 
 if __name__ == '__main__':
-    version = detect_model_server_version()
+    # Get nightly version if nightly in name
+    name = 'torchserve'
+
+    # Clever code to figure out if setup.py was trigger by ts_scripts/push_nightly.sh
+    NAME_ARG = "--override-name"
+    if NAME_ARG in sys.argv:
+        idx = sys.argv.index(NAME_ARG)
+        name = sys.argv.pop(idx + 1)
+        sys.argv.pop(idx)
+    is_nightly = "nightly" in name
+
+    version = get_nightly_version() if is_nightly else detect_model_server_version()
+
+    print(f"-- {name} building version: {version}")
 
     requirements = ['Pillow', 'psutil', 'future', 'packaging']
 
     setup(
-        name='torchserve',
+        name=name,
         version=version,
         description=
         'TorchServe is a tool for serving neural net models for inference',
