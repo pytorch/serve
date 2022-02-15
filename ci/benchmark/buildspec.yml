@@ -1,0 +1,16 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install sudo -y
+      - git clone https://www.github.com/pytorch/serve.git
+      - cd serve
+      - pip install -r benchmarks/automated/requirements.txt
+
+  build:
+    commands:
+      - python benchmarks/automated/run_benchmark.py --run-only ${MODEL_NAME}
