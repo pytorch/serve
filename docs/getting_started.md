@@ -170,27 +170,6 @@ All the logs you've seen as output to stdout related to model registration, mana
 
 High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](benchmark/README.md) and visualized in a report.
 
-### Understanding model handlers
-
-Showcase
-1. `initialize()`
-2. `preprocess()`
-3. `inference()`
-4. `postprocess()`
-
-
-### Developer guide
-## Why TorchServe
-
-Add lots of links
-
-* Multi model management with optimized worker to model allocation
-* Default way to serve PyTorch models in Kubeflow, Sagemaker, Vertex AI
-* Large coverage for model optimization runtimes like Torchscript, ORT, IPEX, TensorRT, FasterTransformer
-* Easy to use, extensible and expressive model handler based design 
-* Support for dynamic batching
-* Support for workflows to chain models
-
 
 ### Install TorchServe for development
 
