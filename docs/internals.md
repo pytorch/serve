@@ -12,7 +12,25 @@ TorchServe was designed a multi model inferencing framework. A production grade 
 * **Plugins**: These are custom endpoints or authz/authn or batching algorithms that can be dropped into TorchServe at startup time.
 * **Model Store**: This is a directory in which all the loadable models exist.
 
-## Main code
+## pytorch/serve directories and what they do
+* `.github`: CI for docs and nightly builds
+* `benchmarks`: tools to benchmark torchserve on reference models
+* `binaries`: utilities to create binaries for pypi, conda and docker
+* `docker`: user and dev dockerfiles to use torchserve
+* `docs`: documentation for pytorch.org/serve
+* `examples`: reference examples
+* `experimental`: projects with no support or backwards compatibility guarantees
+* `frontend`: Core Java engine for TorchServe
+* `kubernetes`: how to deploy TorchServe in a K8 cluster
+* `model-archiver`: model package CLI
+* `plugins`: extend core TorchServe
+* `requirements`: requirements.txt
+* `serving_sdk`: SDK to support TorchServe in sagemaker
+* `test`: tests
+* `ts_scripts`: useful utility filees that don't fit in any other folder
+* `workflow-archiver`: workflow package CLI
+
+## Important files for the core TorchServe engine
 
 Frontend means the Java part of the code (potentially C++)
 
