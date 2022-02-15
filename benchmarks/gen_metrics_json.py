@@ -21,44 +21,65 @@ def gen_metrics_json(csv_dict):
     for k, v in csv_dict.items():
         if k == "TS throughput":
             metrics_dict_list.append({
-                "MetricName" : 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "throughput"),
+                "MetricName" : '{}_{}'.
+                    format(csv_dict["Model"], "throughput"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Count/Second',
                 "Value": v})
         elif k == "TS latency P50":
             metrics_dict_list.append({
-                "MetricName": 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "all_latency_P50"),
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "total_latency_P50"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Milliseconds',
                 "Value": v})
         elif k == "TS latency P90":
             metrics_dict_list.append({
-                "MetricName": 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "all_latency_P90"),
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "total_latency_P90"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Milliseconds',
                 "Value": v})
         elif k == "TS latency P99":
             metrics_dict_list.append({
-                "MetricName": 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "all_latency_P99"),
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "total_latency_P99"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Milliseconds',
                 "Value": v})
         elif k == "Model_p50":
             metrics_dict_list.append({
-                "MetricName": 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "model_latency_P50"),
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "model_latency_P50"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Milliseconds',
                 "Value": v})
         elif k == "Model_p90":
             metrics_dict_list.append({
-                "MetricName": 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "model_latency_P90"),
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "model_latency_P90"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Milliseconds',
                 "Value": v})
         elif k == "Model_p99":
             metrics_dict_list.append({
-                "MetricName": 'ts_{}_b{}_{}'.
-                    format(csv_dict["Model"], csv_dict["Batch size"], "model_latency_P99"),
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "model_latency_P99"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
                 "Unit": 'Milliseconds',
                 "Value": v})
 

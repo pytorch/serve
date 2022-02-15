@@ -6,9 +6,9 @@ def iterate_subdir(benchmark_report_dir):
     if not os.path.isdir(benchmark_report_dir):
         return None
 
-    for root, subdirs, files in os.walk(benchmark_report_dir):
-        for file in files:
-            if file == "ab_report.csv":
+    #for root, subdirs, files in os.walk(benchmark_report_dir):
+    #    for file in files:
+    #        if file == "ab_report.csv":
 
 
 def main():
