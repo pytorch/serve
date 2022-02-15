@@ -1,4 +1,4 @@
-# TorchServe example with Huggingface bert model
+# TorchServe example with MNIST model
 
 In this example we will show how to serve [MNIST image classification](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist)
 model locally using kserve.
@@ -75,6 +75,8 @@ python __main__.py
 ```
 
 ## Sample request and response for bytes input
+
+Navigate to `kubernetes/kserve/kf_request_json/v2/mnist`
 
 Run the following command
 

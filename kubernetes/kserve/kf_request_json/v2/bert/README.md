@@ -5,10 +5,20 @@ model locally using kserve.
 
 ## Model archive file creation
 
-Clone [pytorch/serve](https://github.com/pytorch/serve) repository
-Copy the `Transformer_handler_generalized_v2.py` handler file to `examples/Huggingface_Transformers` folder
-navigate to `examples/Huggingface_Transformers`
-  
+Clone [pytorch/serve](https://github.com/pytorch/serve) repository.
+
+Copy the [Transformer_handler_generalized_v2.py](Transformer_handler_generalized_v2.py) handler file to `examples/Huggingface_Transformers` folder
+
+Navigate to `examples/Huggingface_Transformers`
+
+Run the following command to download the model
+
+```
+python Download_Transformer_models.py
+```
+ 
+ Generate mar file
+ 
 ```bash
 torch-model-archiver --model-name BERTSeqClassification --version 1.0 \
 --serialized-file Transformer_model/pytorch_model.bin \
@@ -39,6 +49,10 @@ model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"BERTSeqClassifica
 ```
 
 ## Preparing input
+
+Use [bert_bytes_v2.json](bert_bytes_v2.json) or [bert_tensor_v2](bert_tensor_v2.json).
+
+For new sample text, follow the instructions below
 
 For bytes input, use [tobytes](tobytes.py) utility. 
 
@@ -71,10 +85,12 @@ python __main__.py
 
 ## Sample request and response for bytes input
 
+Navigate to `kubernetes/kserve/kf_request_json/v2/bert`
+
 Run the following command
 
 ```bash
- curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./bert_v2_bytes.json
+curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/BERTSeqClassification/infer -d @./bert_bytes_v2.json
 ```
 
 Expected Output
