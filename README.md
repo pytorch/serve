@@ -12,7 +12,6 @@ pip install torchserve torch-model-archiver torch-workflow-archiver
 
 # Nightly build
 pip install torchserve-nightly
-
 ```
 
 [Getting started guide](docs/getting_started.md)
