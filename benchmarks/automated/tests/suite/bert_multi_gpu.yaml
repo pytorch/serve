@@ -20,4 +20,3 @@ bert:
             - "gpus": "all"
 instance_types: #special keyword not recognized as a 'model', define instance types per yaml file.
     - "p3.8xlarge"
-    - "c5.4xlarge"
