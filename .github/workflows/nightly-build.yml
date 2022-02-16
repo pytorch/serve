@@ -20,6 +20,8 @@ jobs:
         run: |
           set -eux
           pip install twine
+          sudo apt-get update
+          sudo apt-get install sudo -y
           python ts_scripts/install_dependencies.py --cuda=cu102 --environment=dev
           pip install -e .
 
