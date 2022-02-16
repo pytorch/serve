@@ -72,19 +72,21 @@ class Linux(Common):
 
     def __init__(self):
         super().__init__()
-        # os.system(f"{self.sudo_cmd}apt-get update")
+        if args.reinstall_dependencies == "yes":
+            os.system(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
-        os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
+        if os.system("javac --version") != 0 or args.reinstall_dependencies == "yes":
+            os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        if os.system("node") != 0:
+        if os.system("node") != 0 or args.reinstall_dependencies == "yes":
             # os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
 
     def install_wget(self):
-        if os.system("wget --version") != 0:
+        if os.system("wget --version") != 0 or args.reinstall_dependencies == "yes":
             os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
     def install_libgit2(self):
@@ -123,15 +125,16 @@ class Darwin(Common):
         super().__init__()
 
     def install_java(self):
-        out = get_brew_version()
-        if out == "N/A":
-            sys.exit("**Error: Homebrew not installed...")
+        if os.system("javac -version") != 0 or args.reinstall_dependencies == "yes":
+            out = get_brew_version()
+            if out == "N/A":
+                sys.exit("**Error: Homebrew not installed...")
 
-        os.system("brew tap AdoptOpenJDK/openjdk")
-        if out >= "2.7":
-            os.system("brew install --cask adoptopenjdk11")
-        else:
-            os.system("brew cask install adoptopenjdk11")
+            os.system("brew tap AdoptOpenJDK/openjdk")
+            if out >= "2.7":
+                os.system("brew install --cask adoptopenjdk11")
+            else:
+                os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
         os.system("brew unlink node")
@@ -174,20 +177,11 @@ def get_brew_version():
 
 if __name__ == "__main__":
     check_python_version()
-    parser = argparse.ArgumentParser(
-        description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda',
-                        default=None,
-                        choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'],
-                        help="CUDA version for torch")
-    parser.add_argument(
-        '--environment',
-        default='prod',
-        choices=['prod', 'dev'],
-        help=
-        "environment(production or developer) on which dependencies will be installed"
-    )
-
+    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
+    parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
+                        help="environment(production or developer) on which dependencies will be installed")
+    parser.add_argument("--reinstall_dependencies", default='no', choices=['yes', 'no'], help="force reinstall dependencies")
     args = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)
