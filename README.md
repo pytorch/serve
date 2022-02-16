@@ -6,7 +6,12 @@ TorchServe is a flexible and easy to use tool for serving and scaling PyTorch mo
 curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 ### 🚀 Quick start with TorchServe
+
 ```
+# Install dependencies
+# cuda is optional
+python ./ts_scripts/install_dependencies.py --cuda=cu111
+
 # Latest release
 pip install torchserve torch-model-archiver torch-workflow-archiver
 
