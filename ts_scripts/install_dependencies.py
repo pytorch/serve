@@ -59,18 +59,20 @@ class Common():
 class Linux(Common):
     def __init__(self):
         super().__init__()
-        os.system(f"{self.sudo_cmd}apt-get update")
+        # os.system(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
         os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
         python_path = Path(sys.executable).resolve()
-        os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
-        os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
+        if os.system("node") != 0:
+            # os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+            os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
     def install_wget(self):
-        os.system(f"{self.sudo_cmd}apt-get install -y wget")
+        if os.system("wget --version") != 0:
+            os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
 class Windows(Common):
     def __init__(self):
@@ -110,7 +112,8 @@ class Darwin(Common):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
     def install_wget(self):
-        os.system("brew install wget")
+        if os.system("wget --version") != 0:
+            os.system("brew install wget")
 
 
 def install_dependencies(cuda_version=None):
