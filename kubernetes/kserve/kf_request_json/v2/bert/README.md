@@ -22,14 +22,18 @@ python Download_Transformer_models.py
 ```bash
 torch-model-archiver --model-name BERTSeqClassification --version 1.0 \
 --serialized-file Transformer_model/pytorch_model.bin \
---handler ./Transformer_handler_generalized_v2.py \
+--handler ./Transformer_kserve_handler.py \
 --extra-files "Transformer_model/config.json,./setup_config.json,./Seq_classification_artifacts/index_to_name.json,./Transformer_handler_generalized.py"
 ```
 
 The command will create `BERTSeqClassification.mar` file in current directory
 
-Move the mar file to model-store(`/mnt/models/model-store`) folder 
+Move the mar file to model-store
 
+```
+mv BERTSeqClassification.mar /mnt/models/model-store
+```
+ 
 and use the following config properties (`/mnt/models/config`)
 
 ```

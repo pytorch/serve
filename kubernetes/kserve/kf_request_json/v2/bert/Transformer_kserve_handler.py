@@ -7,10 +7,10 @@ logger = logging.getLogger(__name__)
 # TODO Extend the example for token classification, question answering and batch inputs
 
 
-class TransformersSeqClassifierHandlerV2(TransformersSeqClassifierHandler):
+class Transformer_kserve_handler(TransformersSeqClassifierHandler):
     
     def __init__(self):
-        super(TransformersSeqClassifierHandlerV2, self).__init__()
+        super(Transformer_kserve_handler, self).__init__()
     
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.

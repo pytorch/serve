@@ -17,7 +17,11 @@ torch-model-archiver --model-name mnist --version 1.0 \
 
 The command will create `mnist.mar` file in current directory
 
-Move the mar file to model-store(`/mnt/models/model-store`) folder 
+Move the mar file to model-store 
+
+```
+mv mnist.mar /mnt/models/model-store
+```
 
 and use the following config properties (`/mnt/models/config`)
 
@@ -87,7 +91,7 @@ curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/mnist
 Expected Output
 
 ```bash
-{"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [1]}]}
+{"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [0]}]}
 ```
 
 
@@ -97,12 +101,12 @@ Expected Output
 Run the following command
 
 ```
-curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/mnist/infer -d @./mnist_v2_tensor.py
+curl -v -H "ContentType: application/json" http://localhost:8080/v2/models/mnist/infer -d @./mnist_v2_tensor.json
 ```
 
 Expected output
 ```bash
-{"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [1]}]}
+{"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [0]}]}
 ```
 
 
