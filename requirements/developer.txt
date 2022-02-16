@@ -9,5 +9,7 @@ nvgpu==0.8.0; sys_platform == 'win32'
 grpcio
 protobuf
 grpcio-tools
-transformers==4.6.0
-pygit2
+transformers==4.11.0
+pyspelling
+pygit2==1.6.1
+pyspelling

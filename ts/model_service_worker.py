@@ -65,6 +65,7 @@ class TorchModelServiceWorker(object):
             "handler" : service handler entry point if provided, string
             "envelope" : name of wrapper/unwrapper of request data if provided, string
             "batchSize" : batch size, int
+            "limitMaxImagePixels": limit pillow image max_image_pixels, bool
         }
 
         :param load_model_request:
@@ -86,8 +87,13 @@ class TorchModelServiceWorker(object):
             if "gpu" in load_model_request:
                 gpu = int(load_model_request["gpu"])
 
+            limit_max_image_pixels = True
+            if "limitMaxImagePixels" in load_model_request:
+                limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
+
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu, batch_size, envelope)
+            service = model_loader.load(model_name, model_dir, handler, gpu,
+                                        batch_size, envelope, limit_max_image_pixels)
 
             logging.debug("Model %s loaded.", model_name)
 

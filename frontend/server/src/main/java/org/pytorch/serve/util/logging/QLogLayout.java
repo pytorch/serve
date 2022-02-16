@@ -1,11 +1,23 @@
 package org.pytorch.serve.util.logging;
 
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.config.Node;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.message.Message;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 
-public class QLogLayout extends PatternLayout {
+@Plugin(
+        name = "QLogLayout",
+        category = Node.CATEGORY,
+        elementType = Layout.ELEMENT_TYPE,
+        printObject = true)
+public class QLogLayout extends AbstractStringLayout {
+    public QLogLayout() {
+        super(null, null, null);
+    }
 
     /**
      * Model server also supports query log formatting.
@@ -61,67 +73,68 @@ public class QLogLayout extends PatternLayout {
      * @return
      */
     @Override
-    public String format(LoggingEvent event) {
-        Object eventMessage = event.getMessage();
+    public String toSerializable(LogEvent event) {
+        Message eventMessage = event.getMessage();
+        if (eventMessage == null || eventMessage.getParameters() == null) {
+            return null;
+        }
         String programName =
                 getStringOrDefault(System.getenv("MXNETMODELSERVER_PROGRAM"), "MXNetModelServer");
         String domain = getStringOrDefault(System.getenv("DOMAIN"), "Unknown");
 
         long currentTimeInSec = System.currentTimeMillis() / 1000;
+        Object[] parameters = eventMessage.getParameters();
 
-        if (eventMessage == null) {
-            return null;
-        }
-        if (eventMessage instanceof Metric) {
-            String marketPlace = System.getenv("REALM");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Object obj : parameters) {
+            if (obj instanceof Metric) {
+                Metric metric = (Metric) obj;
+                String marketPlace = System.getenv("REALM");
 
-            StringBuilder stringBuilder = new StringBuilder();
-            Metric metric = (Metric) eventMessage;
-            stringBuilder.append("HostName=").append(metric.getHostName());
+                stringBuilder.append("HostName=").append(metric.getHostName());
 
-            if (metric.getRequestId() != null && !metric.getRequestId().isEmpty()) {
-                stringBuilder.append("\nRequestId=").append(metric.getRequestId());
-            }
+                if (metric.getRequestId() != null && !metric.getRequestId().isEmpty()) {
+                    stringBuilder.append("\nRequestId=").append(metric.getRequestId());
+                }
 
-            // Marketplace format should be : <programName>:<domain>:<realm>
-            if (marketPlace != null && !marketPlace.isEmpty()) {
+                // Marketplace format should be : <programName>:<domain>:<realm>
+                if (marketPlace != null && !marketPlace.isEmpty()) {
+                    stringBuilder
+                            .append("\nMarketplace=")
+                            .append(programName)
+                            .append(':')
+                            .append(domain)
+                            .append(':')
+                            .append(marketPlace);
+                }
+
                 stringBuilder
-                        .append("\nMarketplace=")
+                        .append("\nStartTime=")
+                        .append(
+                                getStringOrDefault(
+                                        metric.getTimestamp(), Long.toString(currentTimeInSec)));
+
+                stringBuilder
+                        .append("\nProgram=")
                         .append(programName)
-                        .append(':')
-                        .append(domain)
-                        .append(':')
-                        .append(marketPlace);
-            }
-
-            stringBuilder
-                    .append("\nStartTime=")
-                    .append(
-                            getStringOrDefault(
-                                    metric.getTimestamp(), Long.toString(currentTimeInSec)));
-
-            stringBuilder
-                    .append("\nProgram=")
-                    .append(programName)
-                    .append("\nMetrics=")
-                    .append(metric.getMetricName())
-                    .append('=')
-                    .append(metric.getValue())
-                    .append(' ')
-                    .append(metric.getUnit());
-            for (Dimension dimension : metric.getDimensions()) {
-                stringBuilder
+                        .append("\nMetrics=")
+                        .append(metric.getMetricName())
+                        .append('=')
+                        .append(metric.getValue())
                         .append(' ')
-                        .append(dimension.getName())
-                        .append('|')
-                        .append(dimension.getValue())
-                        .append(' ');
+                        .append(metric.getUnit());
+                for (Dimension dimension : metric.getDimensions()) {
+                    stringBuilder
+                            .append(' ')
+                            .append(dimension.getName())
+                            .append('|')
+                            .append(dimension.getValue())
+                            .append(' ');
+                }
+                stringBuilder.append("\nEOE\n");
             }
-            stringBuilder.append("\nEOE\n");
-
-            return stringBuilder.toString();
         }
-        return eventMessage.toString();
+        return stringBuilder.toString();
     }
 
     private static String getStringOrDefault(String val, String defVal) {

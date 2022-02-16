@@ -22,12 +22,12 @@ If you're finetuning an existing model then you need to save your model and toke
 
 ```
 mkdir Transformer_model
-mv pytorch_model_bin vocab.txt config.json Transformer_model/
+mv pytorch_model.bin vocab.txt config.json Transformer_model/
 ```
 
 If you'd like to download a pretrained model without fine tuning we've provided a simple helper script which will do the above for you. All you need to do is change [setup.config.json](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/setup_config.json) to your liking and run
 
-`python Download_transformer.models.py`
+`python Download_Transformer_models.py`
 
 For Torchscript support, check out [torchscript.md](torchscript.md)
 
@@ -62,7 +62,7 @@ This produces all the required files for packaging using a huggingface transform
 
 There are few files that are used for model packaging and at the inference time. 
 * `index_to_name.json`: maps predictions to labels
-* `sample_text.txt`: input text for ifnerence
+* `sample_text.txt`: input text for inference
 * `vocab.txt`: by default will use the tokenizer from the pretrained model
 
 For custom vocabs, it is required to pass all other tokenizer related files such `tokenizer_config.json`, `special_tokens_map.json`, `config.json` and if available `merges.txt`. 
@@ -198,7 +198,7 @@ For batch inference the main difference is that you need set the batch size whil
     ```
     mkdir model_store
     mv BERTSeqClassification.mar model_store/
-    torchserve --start --model-store model_store 
+    torchserve --start --model-store model_store --ncs
 
     curl -X POST "localhost:8081/models?model_name=BERTSeqClassification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
     ```
@@ -229,9 +229,9 @@ For batch inference the main difference is that you need set the batch size whil
 Now to run the batch inference following command can be used:
 
 ```
-curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text1.txt
-& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification  -T ./Seq_classification_artifacts/sample_text2.txt
-& curl -X POST http://127.0.0.1:8080/predictions/BERT_seq_Classification -T ./Seq_classification_artifacts/sample_text3.txt &
+curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification  -T ./Seq_classification_artifacts/sample_text1.txt
+& curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification  -T ./Seq_classification_artifacts/sample_text2.txt
+& curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification -T ./Seq_classification_artifacts/sample_text3.txt &
 ```
 
 ## More information
@@ -254,8 +254,7 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
-### Running KFServing 
+### Running KServe
 
-[BERT Readme for KFServing](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/Huggingface_readme.md) to run it locally.
-[End to End KFServing document](https://github.com/pytorch/serve/blob/master/kubernetes/kfserving/README.md) to run it in the cluster.
-
+[BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/bert/README.md).
+[End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md).

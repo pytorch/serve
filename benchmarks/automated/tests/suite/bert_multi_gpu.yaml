@@ -1,0 +1,22 @@
+---
+bert:
+    scripted_mode:
+        benchmark_engine: "ab"
+        url: https://bert-torchscript-multi-gpu.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar 
+        workers: 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "docker"
+        processors:
+            - "cpu"
+            - "gpus": "all"
+instance_types: #special keyword not recognized as a 'model', define instance types per yaml file.
+    - "p3.8xlarge"
