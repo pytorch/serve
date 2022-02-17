@@ -2,6 +2,8 @@
 
 TorchServe is a flexible and easy to use tool for serving and scaling PyTorch models in production.
 
+Requires python > 3.8
+
 ```bash
 curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
