@@ -1,23 +1,36 @@
 #!/usr/bin/env bash
 
+# inputs:
+# $1: branch name
+# $2: model yaml files.
+#     - all: all yaml files in config;
+#     - a list of files separated by comma: bert_multi_gpu.yaml,fastrcnn.yaml
+# $3: (optional) nightly: save reports in S3
+#
+# cmd examples:
+# - sh benchmark_ts.sh master all nightly
+# - sh benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml nightly
+
 sudo apt install -y apache2-utils
 
 set -ex
 
 BRANCH=$1
-if [[ "$BRANCH" == "" ]]; then
+if [ "$BRANCH" == "" ]; then
     BRANCH=master
 fi
 
 CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "CUR_DIR=$CUR_DIR"
 
-date
-
 if nvidia-smi -L; then
     hw_type=GPU
     RUNTIME="--runtime=nvidia"
-    declare -a models=("bert_multi_gpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml")
+    if [ "$2" == "all" ]; then
+        declare -a models=("bert_multi_gpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml")
+    else
+        IFS="," read -a models <<< $2
+    fi
 
     echo "switch to CUDA 10.2"
     sudo rm -rf /usr/local/cuda
@@ -26,7 +39,10 @@ if nvidia-smi -L; then
     export LD_LIBRARY_PATH=/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 else
     hw_type=CPU
-    declare -a models=("vgg16.yaml")
+    if [ "$2" == "all" ]; then
+        declare -a models=("vgg16.yaml")
+    else
+        IFS="," read -a models <<< $2
 fi
 
 # directory to store execution log
@@ -42,7 +58,7 @@ mkdir -p /tmp/benchmark
 #cd serve || exit 1
 
 # install TorchServe
-if [[ "$2" == "nightly" ]]; then
+if [[ "$3" == "nightly" ]]; then
     git reset --hard
     git clean -dffx .
     git pull --rebase
@@ -88,7 +104,7 @@ for config_file in "$config_dir"/*; do
 	      model_name=`echo $config_file |cut -d'/' -f 3|cut -d'.' -f 1`
 
 	      serving_metrics=`python ./benchmarks/utils/gen_metrics_json.py --input /tmp/benchmark/ab_report.csv`
-	      if [ "$2" == "nightly" ]; then
+	      if [ "$3" == "nightly" ]; then
             aws cloudwatch put-metric-data --namespace "torchserve_benchmark_${hw_type}" --region "us-west-2" --metric-data "$serving_metrics"
         fi
 
