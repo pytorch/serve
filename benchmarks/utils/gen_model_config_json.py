@@ -22,7 +22,7 @@ def main():
     convert_yaml_to_json(arguments.input, arguments.output)
 
 def convert_yaml_to_json(yaml_file_path, output_dir):
-    with open(yaml_file_path) as f:
+    with open(yaml_file_path, 'r') as f:
         yaml_dict = yaml.safe_load(f)
 
         for model, config in yaml_dict.items():
