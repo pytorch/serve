@@ -43,6 +43,7 @@ else
         declare -a models=("bert_cpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml" )
     else
         IFS="," read -a models <<< $2
+    fi
 fi
 
 # directory to store execution log
