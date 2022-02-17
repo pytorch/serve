@@ -35,11 +35,11 @@ rm -rf /tmp/benchmark
 mkdir -p /tmp/benchmark
 
 # clone TorchServe 
-if [ ! -d "serve" ]; then
-    git clone --quie https://github.com/pytorch/serve.git > /dev/null
-fi
+#if [ ! -d "serve" ]; then
+#    git clone --quie https://github.com/pytorch/serve.git > /dev/null
+#fi
 
-cd serve || exit 1
+#cd serve || exit 1
 
 # install TorchServe
 if [[ "$2" == "nightly" ]]; then
