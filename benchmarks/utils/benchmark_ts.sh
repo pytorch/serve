@@ -82,6 +82,7 @@ fi
 for config_file in "$config_dir"/*; do
     echo "config_file=$config_file"
     if [ -f "$config_file" ]; then
+        rm -rf ./logs
         python ./benchmarks/benchmark-ab.py --config_properties ./benchmarks/config.properties --config $config_file
 
 	      model_name=`echo $config_file |cut -d'/' -f 3|cut -d'.' -f 1`
