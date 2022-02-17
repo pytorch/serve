@@ -181,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
-    parser.add_argument("--force", action='store_false', help="force reinstall dependencies wget, node, java and apt-update")
+    parser.add_argument("--force", action='store_true', help="force reinstall dependencies wget, node, java and apt-update")
     args = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)
