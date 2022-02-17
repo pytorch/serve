@@ -8,8 +8,9 @@
 # $3: (optional) nightly: save reports in S3
 #
 # cmd examples:
-# - ./benchmark_ts.sh master all nightly
-# - ./benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml nightly
+# - cd serve
+# - ./benchmarks/utils/benchmark_ts.sh master all nightly
+# - ./benchmarks/utils/benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml nightly
 
 sudo apt install -y apache2-utils
 
