@@ -104,6 +104,12 @@ for config_file in "$config_dir"/*; do
 	      if [ -f /tmp/benchmark/logs/model_metrics.log ]; then
             mv /tmp/benchmark/logs/model_metrics.log /tmp/ts_benchmark/${model_name}/model_metrics.log
         fi
+        if [ -f ./logs/model_log.log ]; then
+            mv ./logs/model_log.log /tmp/ts_benchmark/${model_name}/model_log.log
+        fi
+        if [ -f ./logs/ts_log.log ]; then
+            mv ./logs/ts_log.log /tmp/ts_benchmark/${model_name}/ts_log.log
+        fi
 
     fi
 done
