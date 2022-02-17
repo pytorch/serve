@@ -105,10 +105,15 @@ for config_file in "$config_dir"/*; do
 
 	      serving_metrics=`python ./benchmarks/utils/gen_metrics_json.py --input /tmp/benchmark/ab_report.csv`
 	      if [ "$3" == "nightly" ]; then
-            aws cloudwatch put-metric-data --namespace "torchserve_benchmark_${hw_type}" --region "us-west-2" --metric-data "$serving_metrics"
+            aws cloudwatch put-metric-data \
+            --namespace "torchserve_benchmark_${hw_type}" \
+            --region "us-west-2" \
+            --metric-data \
+            "$serving_metrics"
         fi
 
 	      mkdir -p /tmp/ts_benchmark/${model_name}
+	      echo $serving_metrics > /tmp/ts_benchmark/${model_name}/metrics.json
 	      if [ -f /tmp/benchmark/ab_report.csv ]; then
             mv /tmp/benchmark/ab_report.csv /tmp/ts_benchmark/${model_name}/ab_report.csv
         fi
