@@ -72,21 +72,21 @@ class Linux(Common):
 
     def __init__(self):
         super().__init__()
-        if args.reinstall_dependencies == "yes":
+        if args.force:
             os.system(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
-        if os.system("javac --version") != 0 or args.reinstall_dependencies == "yes":
+        if os.system("javac --version") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        if os.system("node") != 0 or args.reinstall_dependencies == "yes":
+        if os.system("node") != 0 or args.force:
             # os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
 
     def install_wget(self):
-        if os.system("wget --version") != 0 or args.reinstall_dependencies == "yes":
+        if os.system("wget --version") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
     def install_libgit2(self):
@@ -125,7 +125,7 @@ class Darwin(Common):
         super().__init__()
 
     def install_java(self):
-        if os.system("javac -version") != 0 or args.reinstall_dependencies == "yes":
+        if os.system("javac -version") != 0 or args.force:
             out = get_brew_version()
             if out == "N/A":
                 sys.exit("**Error: Homebrew not installed...")
@@ -145,7 +145,7 @@ class Darwin(Common):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
     def install_wget(self):
-        if os.system("wget --version") != 0:
+        if os.system("wget --version") != 0 or args.force:
             os.system("brew install wget")
 
 
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
-    parser.add_argument("--reinstall_dependencies", default='no', choices=['yes', 'no'], help="force reinstall dependencies")
+    parser.add_argument("--force", action='store_false', help="force reinstall dependencies wget, node, java and apt-update")
     args = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)
