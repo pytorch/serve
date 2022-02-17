@@ -69,7 +69,7 @@ if [ "$hw_type" == "GPU" ]; then
 fi
 
 if [ ! -d $config_dir ]; then
-    mkdir -p config_dir
+    mkdir -p ${config_dir}
 fi
 
 for model in "${models[@]}"; do
