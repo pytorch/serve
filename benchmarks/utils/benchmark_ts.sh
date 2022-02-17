@@ -27,7 +27,7 @@ if nvidia-smi -L; then
     hw_type=GPU
     RUNTIME="--runtime=nvidia"
     if [ "$2" == "all" ]; then
-        declare -a models=("bert_multi_gpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml")
+        declare -a models=("bert_multi_gpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml" )
     else
         IFS="," read -a models <<< $2
     fi
@@ -40,7 +40,7 @@ if nvidia-smi -L; then
 else
     hw_type=CPU
     if [ "$2" == "all" ]; then
-        declare -a models=("vgg16.yaml")
+        declare -a models=("bert_cpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml" )
     else
         IFS="," read -a models <<< $2
 fi
