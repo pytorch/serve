@@ -9,7 +9,7 @@ The core team developed a single handler to deal with question answering, token 
 
 If you have another use case we'd love to merge it!
 
-As simple as they seem handlers let you do complex stuff like exporting to various runtimes and various people in open source have managed to support [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [TensorRT](https://github.com/pytorch/serve/issues/1243) and [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch) support without much of the core team's involvement.
+As simple as they seem handlers let you do complex stuff like exporting to various runtimes and various people in open source have managed to support [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [TensorRT](https://github.com/pytorch/serve/issues/1243) and [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch) without much of the core team's involvement.
 
 ```python
 class CustomHandler(BaseHandler):
