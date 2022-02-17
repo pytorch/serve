@@ -145,6 +145,6 @@ git checkout master
 # save to S3
 if [[ "$3" == "nightly" ]]; then
     dt=$(date +'%Y-%m-%d')
-    aws s3 cp --recursive /tmp/ts_benchmark/ "s3://torchserve-model-serving/benchmark/${dt}/${hw_type,,}/"
+    aws s3 cp --recursive /tmp/ts_benchmark/ s3://torchserve-model-serving/benchmark/${dt}/${hw_type,,}/
 fi
 date && echo "benchmark_serving.sh finished successfully."
