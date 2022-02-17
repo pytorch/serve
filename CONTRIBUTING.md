@@ -38,7 +38,7 @@ Your contributions will fall into two categories:
 1. You want to propose a new feature and implement it.
     - Post about your intended feature as an issue, and we will discuss the design and implementation. Once we agree that the plan looks good, go ahead and implement it.
 2. You want to implement a feature or bug-fix for an outstanding issue.
-    - Search for your issue here: https://github.com/pytorch/serve/issues (look for the good first issue tag if you're a first time contributor)
+    - Search for your issue here: https://github.com/pytorch/serve/issues (look for the "good first issue" tag if you're a first time contributor)
     - Pick an issue and comment on the task that you want to work on this feature.
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
         - Install dependencies (if not already installed)
