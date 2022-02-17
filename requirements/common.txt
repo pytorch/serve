@@ -2,7 +2,6 @@ future
 psutil
 wheel
 requests
-sentencepiece
 pillow==9.0.0
 captum
 packaging
