@@ -130,7 +130,11 @@ def check_torchserve_health():
 def warm_up():
     register_model()
 
+    if execution_params['url'].endswith('.war'):
+        execution_params['inference_model_url'] = 'wfpredict/benchmark'
+
     click.secho("\n\nExecuting warm-up ...", fg='green')
+
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
@@ -138,6 +142,9 @@ def warm_up():
 
 
 def run_benchmark():
+    if execution_params['url'].endswith('.war'):
+        execution_params['inference_model_url'] = 'wfpredict/benchmark'
+
     click.secho("\n\nExecuting inference performance tests ...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
@@ -150,7 +157,10 @@ def run_benchmark():
 
 def register_model():
     click.secho("*Registering model...", fg='green')
-    url = execution_params['management_url'] + "/models"
+    if execution_params['url'].endswith('.war'):
+        url = execution_params['management_url'] + "/workflows"
+    else:
+        url = execution_params['management_url'] + "/models"
     data = {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
             'batch_size': execution_params['batch_size'], 'initial_workers': execution_params['workers'],
             'synchronous': 'true'}
@@ -162,7 +172,10 @@ def register_model():
 
 def unregister_model():
     click.secho("*Unregistering model ...", fg='green')
-    resp = requests.delete(execution_params['management_url'] + "/models/benchmark")
+    if execution_params['url'].endswith('.war'):
+        resp = requests.delete(execution_params['management_url'] + "/workflows/benchmark")
+    else:
+        resp = requests.delete(execution_params['management_url'] + "/models/benchmark")
     if not resp.status_code == 200:
         failure_exit(f"Failed to unregister model. \n {resp.text}")
     click.secho(resp.text)
@@ -188,6 +201,7 @@ def local_torserve_start():
     prepare_local_dependency()
     click.secho("*Starting local Torchserve instance...", fg='green')
     execute(f"torchserve --start --model-store {TMP_DIR}/model_store "
+            f"--workflow-store {TMP_DIR}/wf_store "
             f"--ts-config {TMP_DIR}/benchmark/conf/{execution_params['config_properties_name']} > {TMP_DIR}/benchmark/logs/model_metrics.log")
     time.sleep(3)
 
@@ -221,7 +235,8 @@ def docker_torchserve_start():
     docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p {inference_port}:{inference_port} -p {management_port}:{management_port} " \
                      f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
-                         f"--ts-config /tmp/benchmark/conf/{execution_params['config_properties_name']} > /tmp/benchmark/logs/model_metrics.log\""
+                     f"\--workflow-store /home/model-server/wf-store " \
+                     f"--ts-config /tmp/benchmark/conf/{execution_params['config_properties_name']} > /tmp/benchmark/logs/model_metrics.log\""
     execute(docker_run_cmd, wait=True)
     time.sleep(5)
 
@@ -229,6 +244,8 @@ def docker_torchserve_start():
 def prepare_local_dependency():
     shutil.rmtree(os.path.join(TMP_DIR, 'model_store/'), ignore_errors=True)
     os.makedirs(os.path.join(TMP_DIR, "model_store/"), exist_ok=True)
+    shutil.rmtree(os.path.join(TMP_DIR, 'wf_store/'), ignore_errors=True)
+    os.makedirs(os.path.join(TMP_DIR, "wf_store/"), exist_ok=True)
     prepare_common_dependency()
 
 
