@@ -79,6 +79,7 @@ To file a bug or request a feature, please file a GitHub issue. For filing pull 
 * [How to deploy PyTorch models on Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
 * [How to Serve PyTorch Models with TorchServe](https://www.youtube.com/watch?v=XlO7iQMV3Ik)
 * [Model Serving in PyTorch](https://www.youtube.com/watch?v=2A17ZtycsPw)
+* [![Explain Like I’m 5: TorchServe](https://img.youtube.com/vi/NEdZbkfHQCk/0.jpg)](https://www.youtube.com/watch?v=NEdZbkfHQCk)
 
 ## 💖 All Contributors
 
