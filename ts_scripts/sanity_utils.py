@@ -1,9 +1,14 @@
 import os
 import sys
-import nvgpu
+
 import glob
 from ts_scripts import marsgen as mg
 
+
+try:
+    import nvgpu
+except:
+    pass
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
@@ -29,14 +34,19 @@ def run_markdown_link_checker():
 def validate_model_on_gpu():
     # A quick \ crude way of checking if model is loaded in GPU
     # Assumption is -
-    # 1. GPUs on test setup are only utlizied by torchserve
+    # 1. GPUs on test setup are only utilized by torchserve
     # 2. Models are successfully UNregistered between subsequent calls
     model_loaded = False
-    for info in nvgpu.gpu_info():
-        if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:
-            model_loaded = True
-            break
-    return model_loaded
+    try:
+        gpu_info = nvgpu_info()
+        for info in gpu_info:
+            if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:
+                model_loaded = True
+        return model_loaded
+    except:
+        pass
+
+
 
 
 def test_sanity():
