@@ -70,6 +70,8 @@ def json_provider(file_path, cmd_name):
 
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
+@click.option('--report_location', '-rl', default=TMP_DIR,
+              help='benchmark report output location')
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
               content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url, report_location):
     input_params = {'url': url,
