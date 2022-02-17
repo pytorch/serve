@@ -63,13 +63,9 @@ if [[ "$2" == "nightly" ]]; then
 fi
 
 # generate benchmark json config files
-config_dir="json/cpu"
-if [ "$hw_type" == "GPU" ]; then
-    config_dir="json/gpu"
-fi
-
-rm -rf ${config_dir}
-mkdir -p ${config_dir}
+rm -rf json
+mkdir -p json/cpu
+mkdir -p json/gpu
 
 for model in "${models[@]}"; do
     input_file="./benchmarks/automated/tests/suite/${model}"
@@ -78,6 +74,11 @@ for model in "${models[@]}"; do
 done
 
 # run benchmark
+config_dir="json/cpu"
+if [ "$hw_type" == "GPU" ]; then
+    config_dir="json/gpu"
+fi
+
 for config_file in "$config_dir"/*; do
     echo "config_file=$config_file"
     if [ -f "$config_file" ]; then
