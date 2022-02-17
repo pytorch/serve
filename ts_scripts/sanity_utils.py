@@ -38,7 +38,7 @@ def validate_model_on_gpu():
     # 2. Models are successfully UNregistered between subsequent calls
     model_loaded = False
     try:
-        gpu_info = nvgpu_info()
+        gpu_info = nvgpu.gpu_info()
         for info in gpu_info:
             if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:
                 model_loaded = True
