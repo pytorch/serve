@@ -68,9 +68,8 @@ if [ "$hw_type" == "GPU" ]; then
     config_dir="json/gpu"
 fi
 
-if [ ! -d $config_dir ]; then
-    mkdir -p ${config_dir}
-fi
+rm -rf ${config_dir}
+mkdir -p ${config_dir}
 
 for model in "${models[@]}"; do
     input_file="./benchmarks/automated/tests/suite/${model}"
