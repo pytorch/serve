@@ -1,174 +1,12 @@
 # Torchserve Model Server Benchmarking
 
-The benchmarks measure the performance of TorchServe on various models and benchmarks. It supports either a number of built-in models or a custom model passed in as a path or URL to the .mar file. It also runs various benchmarks using these models (see benchmarks section below). The benchmarks are executed in the user machine through a python3 script in case of jmeter and a shell script in case of apache benchmark. TorchServe is run on the same machine in a docker instance to avoid network latencies. The benchmark must be run from within the context of the full TorchServe repo(i.e. the benchmark tests reside inside serve/benchmarks folder).
+The benchmarks measure the performance of TorchServe on various models and benchmarks. It supports either a number of built-in models or a custom model passed in as a path or URL to the .mar file. It also runs various benchmarks using these models (see benchmarks section below). The benchmarks are executed in the user machine through a shell script in case of apache benchmark. TorchServe is run on the same machine in a docker instance to avoid network latencies. The benchmark must be run from within the context of the full TorchServe repo(i.e. the benchmark tests reside inside serve/benchmarks folder).
 
-We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
+We currently support benchmarking with Apache Bench. You can also profile backend code with snakeviz.
 
-* [Benchmarking with JMeter](#benchmarking-with-jmeter)
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
 * [AutoBenchmarking Apachage Bench on AWS](#benchmarking-apache-bench-aws)
 * [Profiling](#profiling)
-
-# Benchmarking with JMeter
-
-## Installation
-
-It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../README.md) for setup.
-
-### Ubuntu
-
-We have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on user's Ubuntu environment. First clone the TorchServe repository:
-
-```bash
-git clone https://github.com/pytorch/serve.git
-```
-Now execute this script as below.
-On CPU based instance, use `./install_dependencies.sh`.
-On GPU based instance, use `./install_dependencies.sh True`.
-
-### MacOS
-
-For mac, you should have python3 and java installed. If you wish to run the default benchmarks featuring a docker-based instance of TorchServe, you will need to install docker as well. Finally, you will need to install jmeter with plugins which can be accomplished by running `mac_install_dependencies.sh`.
-
-The benchmarking script requires the following to run:
-- python3
-- JDK or OpenJDK
-- jmeter installed through homebrew or linuxbrew with the plugin manager and the following plugins: jpgc-synthesis=2.1,jpgc-filterresults=2.1,jpgc-mergeresults=2.1,jpgc-cmd=2.1,jpgc-perfmon=2.1
-- nvidia-docker
-
-### Windows
-
-For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
-```bash
-python3 windows_install_dependencies.py "C:\\Program Files"
-```
-
-## Models
-
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](../docs/model_zoo.md). We currently support the following:
-- [resnet: ResNet-18 (Default)](https://torchserve.pytorch.org/mar_files/resnet-18.mar)
-- [squeezenet: SqueezeNet V1.1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar)
-
-## Benchmarks
-
-We support several basic benchmarks:
-- throughput: Run inference with enough threads to occupy all workers and ensure full saturation of resources to find the throughput. The number of threads defaults to 100.
-- latency: Run inference with a single thread to determine the latency
-- ping: Test the throughput of pinging against the frontend
-- load: Loads the same model many times in parallel. The number of loads is given by the "count" option and defaults to 16.
-- repeated_scale_calls: Will scale the model up to "scale_up_workers"=16 then down to "scale_down_workers"=1 then up and down repeatedly.
-- multiple_models: Loads and scales up three models (1. squeeze-net and 2. resnet), at the same time, runs inferences on them, and then scales them down. Use the options "urlN", "modelN_name", "dataN" to specify the model url, model name, and the data to pass to the model respectively. data1 and data2 are of the format "&apos;Some garbage data being passed here&apos;" and data3 is the filesystem path to a file to upload.
-
-We also support compound benchmarks:
-- concurrent_inference: Runs the basic benchmark with different numbers of threads
-
-#### Using pre-build docker image
-
-* You can specify, docker image using --docker option. You must create docker by following steps given [here](../docker/README.md).
-
-```bash
-cd serve/benchmarks
-./benchmark.py latency -l 1 --docker pytorch/torchserve:0.1.1-cpu
-```
-
-* If you don't specify --ts or --docker then it will use latest image for torchserve on dockerhub and start container by the name of 'ts_benchmark_gpu' or 'ts_benchmark_cpu' depending on whether you have selected --gpus or not
-
-```bash
-cd serve/benchmarks
-./benchmark.py latency -l 1
-```
-
-NOTE - '--docker' and '--ts' are mutually exclusive options
-
-#### Using local TorchServe instance:
-
-* Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
-* Start TorchServe using following command :
-
-```bash
-torchserve --start --model-store <path_to_your_model_store>
-```
-* To start benchmarking execute following commands
-
-```bash
-cd serve/benchmarks
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
-
-#### By using external docker container for TorchServe:
-
-* Create and start a [docker container for TorchServe](../docker/README.md).
-* To start benchmarking execute following commands
-
-```bash
-cd serve/benchmarks
-python benchmark.py throughput --ts http://127.0.0.1:8080
-```
-
-Note:
-1) Refer the examples below to run different benchmarking suites on TorchServe.
-
-## Accessing benchmark reports :
-
-The benchmark reports are available at /tmp/TSBenchmark/
-
-## Examples
-
-Run basic latency test on default resnet-18 model\
-```./benchmark.py latency```
-
-
-Run basic throughput test on default resnet-18 model.\
-```./benchmark.py throughput```
-
-
-Run all benchmarks\
-```./benchmark.py --all```
-
-
-Run using the squeeze-net model\
-```./benchmark.py latency -m squeezenet1_1```
-
-
-Run on GPU (4 gpus)\
-```./benchmark.py latency -g 4```
-
-
-Run with a custom image\
-```./benchmark.py latency -i {imageFilePath}```
-
-
-Run with a custom model (works only for CNN based models, which accept image as an input for now. We will add support for more input types in future to this command. )\
-```./benchmark.py latency -c {modelUrl} -i {imageFilePath}```
-
-
-Run with custom options\
-```./benchmark.py repeated_scale_calls --options scale_up_workers 100 scale_down_workers 10```
-
-
-Run against an already running instance of TorchServe\
-```./benchmark.py latency --ts 127.0.0.1``` (defaults to http, port 80, management port = port + 1)\
-```./benchmark.py latency --ts 127.0.0.1:8080 --management-port 8081```
-
-
-Run with multiple models \
-```./benchmark.py multiple_models```
-
-Run verbose with only a single loop\
-```./benchmark.py latency -v -l 1```
-
-## Known Issues(Running with SSL):
-Using ```https``` instead of ```http``` as the choice of protocol might not work properly currently. This is not a tested option.
-```./benchmark.py latency --ts https://127.0.0.1:8443```
-
-
-## Benchmark options
-
-The full list of options can be found by running with the -h or --help flags.
-
-## Adding test plans
-Refer [adding a new jmeter](add_jmeter_test.md) test plan for torchserve.
-
 # Benchmarking with Apache Bench
 
 ## Installation
@@ -320,7 +158,14 @@ The reports are generated at location "/tmp/benchmark/"
 If you're making a large change to TorchServe it's best to run an [automated benchmarking suite on AWS](https://github.com/pytorch/serve/tree/master/test/benchmark) so that you can test multiple CUDA versions and EC2 hardware configurations easily.
 
 # Profiling
+## PyTorch
+To profile your PyTorch model you can use TorchServe as is but enable an environment variable first.
 
+```
+export ENABLE_TORCH_PROFILER=TRUE
+```
+
+To learn more about the PyTorch profiler https://github.com/pytorch/kineto/tree/main/tb_plugin
 ## Frontend
 
 The benchmarks can be used in conjunction with standard profiling tools such as JProfiler to analyze the system performance. JProfiler can be downloaded from their [website](https://www.ej-technologies.com/products/jprofiler/overview.html).  Once downloaded, open up JProfiler and follow these steps:
