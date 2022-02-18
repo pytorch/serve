@@ -161,9 +161,14 @@ def register_model():
     click.secho("*Registering model...", fg='green')
     if execution_params['url'].endswith('.war'):
         url = execution_params['management_url'] + "/workflows"
+        data = \
+            {'workflow_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
+             'batch_size': execution_params['batch_size'], 'initial_workers': execution_params['workers'],
+             'synchronous': 'true'}
     else:
         url = execution_params['management_url'] + "/models"
-    data = {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
+        data = \
+            {'model_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
             'batch_size': execution_params['batch_size'], 'initial_workers': execution_params['workers'],
             'synchronous': 'true'}
     resp = requests.post(url, params=data)
