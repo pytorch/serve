@@ -37,11 +37,11 @@ class Common():
                 sys.exit(1)
             else:
                 os.system(
-                    f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
+                    f"python -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
         else:
             os.system(
-                f"pip install -U -r requirements/torch_{platform.system().lower()}.txt"
+                f"python -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
     def install_python_packages(self, cuda_version, requirements_file_path):
@@ -51,9 +51,9 @@ class Common():
             os.system("conda install -y conda-build")
 
         self.install_torch_packages(cuda_version)
-        os.system("pip install -U pip setuptools wheel")
+        os.system("python -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
-        os.system("pip install -U -r {0}".format(requirements_file_path))
+        os.system("python -m pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package
 
     def install_node_packages(self):
