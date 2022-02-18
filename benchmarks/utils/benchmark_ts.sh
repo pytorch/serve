@@ -77,7 +77,6 @@ if [[ "$3" == "nightly" ]]; then
     python ts_scripts/install_dependencies.py --environment dev 
 
     pip install -r benchmarks/requirements-ab.txt
-    pip install -r benchmarks/automated/requirements.txt
 fi
 
 # generate benchmark json config files
