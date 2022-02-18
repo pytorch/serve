@@ -128,14 +128,15 @@ def launch_ec2_instance(region, instance_type, ami_id):
             else:
                 ec2_connection.run(f"cd serve && git fetch origin {github_pull_request_number}")
 
-            ec2_connection.run(f"sudo apt-get install -y python3-venv")
+            # Pinning to py38
+            ec2_connection.run(f"sudo apt-get install -y python3.8-venv")
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
             # This will NOT fail for other AMI where default python is python3
             ec2_connection.run(
                 f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip", warn=True
             )
             ec2_connection.run(
-                f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1", warn=True
+                f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1", warn=True
             )
 
         is_gpu = True if instance_type[:2] in GPU_INSTANCES else False
