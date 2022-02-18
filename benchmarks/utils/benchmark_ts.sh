@@ -2,10 +2,10 @@
 
 # inputs:
 # $1: branch name
-# $2: model yaml files.
+# $2: model yaml files predefined in benchmarks/models_config/
 #     - all: all yaml files in config;
 #     - a list of files separated by comma: bert_multi_gpu.yaml,fastrcnn.yaml
-# $3: (optional) nightly: save reports in S3
+# $3: (optional) nightly: trigger to save reports in AWS S3
 #
 # cmd examples:
 # - cd serve
@@ -86,7 +86,7 @@ mkdir -p json/cpu
 mkdir -p json/gpu
 
 for model in "${models[@]}"; do
-    input_file="./benchmarks/automated/tests/suite/${model}"
+    input_file="./benchmarks/models_config/${model}"
     echo "input_file=$input_file"
     python ./benchmarks/utils/gen_model_config_json.py --input $input_file --output json
 done
