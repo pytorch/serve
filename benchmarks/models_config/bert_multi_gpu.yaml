@@ -14,7 +14,7 @@ bert:
         requests: 10000
         concurrency: 100
         backend_profiling: False
-        exec_env: "docker"
+        exec_env: "local"
         processors:
             - "cpu"
             - "gpus": "all"
