@@ -1,7 +1,6 @@
 ---
 nmt_re_translation:
     workflow:
-        url: "https://torchserve.pytorch.org/war_files/nmt_wf_re.war"
         benchmark_engine: "ab"
         workflow_name: "nmt_wf_re"
         models:

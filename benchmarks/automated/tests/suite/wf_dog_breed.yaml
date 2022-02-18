@@ -1,7 +1,6 @@
 ---
 dog_breed:
     workflow:
-        url: "https://torchserve.pytorch.org/war_files/dog_breed_wf.war"
         benchmark_engine: "ab"
         workflow_name: "dog_breed_wf"
         models:
@@ -18,7 +17,7 @@ dog_breed:
             - 2
         requests: 1000
         concurrency: 10
-        input: "./docs/images/kitten_small.jpg"
+        input: "https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg"
         backend_profiling: False
         exec_env: "docker"
         processors:
