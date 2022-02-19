@@ -64,6 +64,7 @@ def gpu_utilization():
         system_metrics.append(Metric('GPUUtilization', gpu_memory[0], 'percent', dimension_gpu))
         system_metrics.append(Metric('GPUMemoryUtilization', gpu_memory[1], 'percent', dimension_gpu))
 
+num_of_gpu = -1
 def collect_all(mod, gpu):
     """
     Collect all system metrics.
