@@ -1,4 +1,5 @@
 # pip install torch torchvision
+cython
 wheel
 pillow==9.0.0
 torch==1.10.0; sys_platform == 'linux'

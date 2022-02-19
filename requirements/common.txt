@@ -1,5 +1,6 @@
 future
 psutil
+cython
 wheel
 requests
 pillow==9.0.0

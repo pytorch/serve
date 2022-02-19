@@ -1,5 +1,6 @@
 #pip install torch==1.8.1+cu92 torchvision==0.9.1+cu92 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 --find-links https://download.pytorch.org/whl/torch_stable.html
+cython
 wheel
 pillow==9.0.0
 torch==1.8.1+cu92; sys_platform == 'linux'
