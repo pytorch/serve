@@ -295,7 +295,10 @@ def generate_report(warm_up_lines):
 metrics = {"predict.txt": "PredictionTime",
            "handler_time.txt": "HandlerTime",
            "waiting_time.txt": "QueueTime",
-           "worker_thread.txt": "WorkerThreadTime"}
+           "worker_thread.txt": "WorkerThreadTime",
+           "cpu_percentage.txt": "CPUUtilization",
+           "memory_percentage.txt": "MemoryUtilization"
+           }
 
 
 def extract_metrics(warm_up_lines):
