@@ -34,7 +34,9 @@ public class MetricCollector implements Runnable {
             // Collect System level Metrics
             String[] args = new String[2];
             args[0] = configManager.getPythonExecutable();
-            args[1] = "ts/metrics/metric_collector.py";
+            args[1] = String.format(
+                    "ts/metrics/metric_collector.py --gpu %d",
+                    ConfigManager.getInstance().getNumberOfGpu());
             File workingDir = new File(configManager.getModelServerHome());
 
             String[] envp = EnvironmentUtils.getEnvString(workingDir.getAbsolutePath(), null, null);
