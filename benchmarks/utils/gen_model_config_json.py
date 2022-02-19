@@ -66,8 +66,8 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                                 json.dump(bConfig, outfile, indent=4)
                         elif type(processors[i]) is dict:
                             bConfig["gpus"] = processors[i]["gpus"]
-                            benchmark_config_file = '{}/gpu/{}_b{}_g{}.json'\
-                                .format(output_dir, model_name, bConfig["batch_size"], processors[i]["gpus"])
+                            benchmark_config_file = '{}/gpu/{}_b{}.json'\
+                                .format(output_dir, model_name, bConfig["batch_size"])
                             with open(benchmark_config_file, "w") as outfile:
                                 json.dump(bConfig, outfile, indent=4)
                             del bConfig["gpus"]
