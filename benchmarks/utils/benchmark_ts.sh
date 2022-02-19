@@ -72,9 +72,7 @@ if [[ "$3" == "nightly" ]]; then
         python ts_scripts/install_dependencies.py --environment dev
     fi
 
-    python ts_scripts/install_from_src.py	    
-
-    python ts_scripts/install_dependencies.py --environment dev 
+    python ts_scripts/install_from_src.py
 
     pip install -r benchmarks/requirements-ab.txt
 fi
