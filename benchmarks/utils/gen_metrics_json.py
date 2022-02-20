@@ -82,6 +82,42 @@ def gen_metrics_json(csv_dict):
                 ],
                 "Unit": 'Milliseconds',
                 "Value": float(v)})
+        elif k == "memory_percentage_mean":
+            metrics_dict_list.append({
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "memory_percentage_mean"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
+                "Unit": 'Milliseconds',
+                "Value": float(v)})
+        elif k == "cpu_percentage_mean":
+            metrics_dict_list.append({
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "cpu_percentage_mean"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
+                "Unit": 'Milliseconds',
+                "Value": float(v)})
+        elif k == "gpu_percentage_mean":
+            metrics_dict_list.append({
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "gpu_percentage_mean"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
+                "Unit": 'Milliseconds',
+                "Value": float(v)})
+        elif k == "gpu_memory_used_mean":
+            metrics_dict_list.append({
+                "MetricName": '{}_{}'.
+                    format(csv_dict["Model"], "gpu_memory_used_mean"),
+                "Dimensions": [
+                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
+                ],
+                "Unit": 'MB',
+                "Value": float(v)})
 
     print(json.dumps(metrics_dict_list, indent = 4))
 
