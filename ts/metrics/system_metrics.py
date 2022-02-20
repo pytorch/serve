@@ -54,7 +54,7 @@ def gpu_utilization():
         return
 
     result = subprocess.run(
-        ["nvidia-smi", "--query-gpu=utilization.gpu,utilization.memory", "--format=csv,nounits,noheader", ],
+        ["nvidia-smi", "--query-gpu=utilization.gpu,utilization.memory,memory.used", "--format=csv,nounits,noheader", ],
         encoding="utf-8",
         capture_output=True,  # valid for python version >=3.7
         check=True,
@@ -64,6 +64,8 @@ def gpu_utilization():
         dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", idx)]
         system_metrics.append(Metric('GPUUtilization', gpu_memory[0], 'percent', dimension_gpu))
         system_metrics.append(Metric('GPUMemoryUtilization', gpu_memory[1], 'percent', dimension_gpu))
+        system_metrics.append(Metric('GPUMemoryUsed', gpu_memory[2], 'MB', dimension_gpu))
+
 
 num_of_gpu = -1
 def collect_all(mod, gpu):
