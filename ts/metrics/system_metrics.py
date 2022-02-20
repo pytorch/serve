@@ -52,6 +52,7 @@ def disk_available():
 def gpu_utilization():
     if num_of_gpu <= 0:
         return
+
     result = subprocess.run(
         ["nvidia-smi", "--query-gpu=utilization.gpu,utilization.memory", "--format=csv,nounits,noheader", ],
         encoding="utf-8",
@@ -72,7 +73,8 @@ def collect_all(mod, gpu):
     :param mod:
     :return:
     """
-    global num_of_gpu = gpu
+    global num_of_gpu
+    num_of_gpu = gpu
     members = dir(mod)
     for i in members:
         value = getattr(mod, i)
