@@ -48,7 +48,7 @@ Run the below command inside the serve folder
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
 
-For BERT and Text Classifier models, to generate a .mar file refer to the ".mar file creation" section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md#mar-file-creation) and [Text Classifier Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/text_classifier_readme.md#mar-file-creation).
+For BERT and Text Classifier models, to generate a .mar file refer to the "Generate mar file" section of [BERT Readme file](kf_request_json/v2/bert/README.md)
 
 - Step - 2 : Create a config.properties file and place the contents like below:
 
@@ -95,6 +95,14 @@ DEPLOYMENT_NAME=torch-pred
 SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
  -n KServe-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 ```
+
+* Step - 5 : Generating input files
+
+Use the following utilities to generate input files for prediction/explanation
+
+1. Preparing input Section - [MNIST](kf_request_json/v2/mnist/README.md) 
+2. Preparing input Section - [Bert input generation](kf_request_json/v2/bert/README.md)
+
 
 * Step - 5 : Hit the Curl Request to make a prediction as below :
 

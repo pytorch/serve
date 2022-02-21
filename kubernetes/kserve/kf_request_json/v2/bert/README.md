@@ -17,7 +17,7 @@ Run the following command to download the model
 python Download_Transformer_models.py
 ```
  
- Generate mar file
+### Generate mar file
  
 ```bash
 torch-model-archiver --model-name BERTSeqClassification --version 1.0 \
