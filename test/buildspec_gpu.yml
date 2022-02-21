@@ -3,8 +3,8 @@
 version: 0.2
 
 phases:
-    runtime-versions:
-      - python: 3.8
+  runtime-versions:
+    python: 3.8
   install:
     commands:
       - apt-get update
