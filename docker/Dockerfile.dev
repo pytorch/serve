@@ -30,7 +30,11 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     sudo \
     g++ \
     git \
-    python3-dev \
+    python3.8 \
+    python3.8-dev \
+    python3.8-venv \
+    python3.8-distutils \
+   # python3-venv \
     build-essential \
     openjdk-11-jdk \
     curl \
@@ -38,12 +42,15 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python3 get-pip.py
+    && python3.8 get-pip.py
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
-    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
+    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
 
-RUN pip install -U pip setuptools
+RUN python3.8 -m venv /home/venv
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN python -m pip install -U pip setuptools
 
 # Build Dev Image
 FROM compile-image AS dev-image
