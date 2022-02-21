@@ -87,7 +87,9 @@ Start Kserve
 python __main__.py
 ```
 
-## Sample request and response for bytes input
+## Request and response
+
+### Sample request and response for bytes input
 
 Navigate to `kubernetes/kserve/kf_request_json/v2/bert`
 
@@ -104,7 +106,7 @@ Expected Output
 ```
 
 
-## Sample request and response for tensor input
+### Sample request and response for tensor input
 
 
 Run the following command

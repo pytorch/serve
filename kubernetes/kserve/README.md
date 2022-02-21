@@ -100,11 +100,11 @@ SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
 
 Use the following utilities to generate input files for prediction/explanation
 
-1. Preparing input Section - [MNIST](kf_request_json/v2/mnist/README.md) 
+1. Preparing input Section - [MNIST input generation](kf_request_json/v2/mnist/README.md) 
 2. Preparing input Section - [Bert input generation](kf_request_json/v2/bert/README.md)
 
 
-* Step - 5 : Hit the Curl Request to make a prediction as below :
+* Step - 6 : Hit the Curl Request to make a prediction as below :
 
 For v1 protocol
 
@@ -118,7 +118,7 @@ For v2 protocol
 curl -v -H "Host: ${SERVICE_HOSTNAME}" http://<instance>.<region>amazonaws.com/v2/models/<model-name>/infer -d @<path-to-input-file>
 ```
 
-* Step - 6 : Hit the Curl Request to make an explanation as below:
+* Step - 7 : Hit the Curl Request to make an explanation as below:
 
 For v1 protocol
 
@@ -136,8 +136,6 @@ Refer the individual Readmes for KServe :
 
 * [BERT](https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/torchserve/bert#readme)
 * [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
-
-KServe supports static batching for prediction - Refer the [mnist batching](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/mnist_readme.md#Static-batching) for an example
 
 Sample input JSON file for v1 and v2 protocols 
 
@@ -157,26 +155,17 @@ For v2 protocol
 
 ```json
 {
-  "inputs": [
-    {
-      "name": "a5c32978-fe42-4af0-a1c6-7dded82d12aa",
-      "shape": [37],
-      "datatype": "INT64",
-      "data": [
-        66, 108, 111, 111, 109, 98, 101, 114, 103, 32, 104, 97, 115, 32, 114,
-        101, 112, 111, 114, 116, 101, 100, 
-        .................
-        .................
-        .................
-        32, 111, 110, 32, 116, 104, 101, 32,
-        101, 99, 111, 110, 111, 109, 121
-      ]
-    }
-  ]
+  "id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298",
+  "inputs": [{
+    "name": "4b7c7d4a-51e4-43c8-af61-04639f6ef4bc",
+    "shape": -1,
+    "datatype": "BYTES",
+    "data": "this year business is good"
+  }]
 }
 ```
 
-For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/Huggingface_readme.md#request-and-response).
+For the request and response of BERT and Text Classifier models, refer the "Request and Response" section of section of [BERT Readme file](kf_request_json/v2/bert/README.md).
 
 ### Troubleshooting guide for KServe :
 
