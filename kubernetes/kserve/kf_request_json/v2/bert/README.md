@@ -31,7 +31,7 @@ The command will create `BERTSeqClassification.mar` file in current directory
 Move the mar file to model-store
 
 ```
-mv BERTSeqClassification.mar /mnt/models/model-store
+sudo mv BERTSeqClassification.mar /mnt/models/model-store
 ```
  
 and use the following config properties (`/mnt/models/config`)

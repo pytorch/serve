@@ -20,7 +20,7 @@ The command will create `mnist.mar` file in current directory
 Move the mar file to model-store 
 
 ```
-mv mnist.mar /mnt/models/model-store
+sudo mv mnist.mar /mnt/models/model-store
 ```
 
 and use the following config properties (`/mnt/models/config`)
