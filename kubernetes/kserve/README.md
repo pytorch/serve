@@ -98,7 +98,7 @@ SERVICE_HOSTNAME=$(kubectl get inferenceservice ${DEPLOYMENT_NAME}
 
 * Step - 5 : Generating input files
 
-Use the following utilities to generate input files for prediction/explanation
+KServe supports different types of inputs (ex: tensor, bytes). Use the following instructions to generate input files based on its type.
 
 1. Preparing input Section - [MNIST input generation](kf_request_json/v2/mnist/README.md) 
 2. Preparing input Section - [Bert input generation](kf_request_json/v2/bert/README.md)
