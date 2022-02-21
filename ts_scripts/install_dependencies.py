@@ -37,11 +37,11 @@ class Common():
                 sys.exit(1)
             else:
                 os.system(
-                    f"pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
+                    f"python -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
         else:
             os.system(
-                f"pip install -U -r requirements/torch_{platform.system().lower()}.txt"
+                f"python -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
     def install_python_packages(self, cuda_version, requirements_file_path):
@@ -51,9 +51,9 @@ class Common():
             os.system("conda install -y conda-build")
 
         self.install_torch_packages(cuda_version)
-        os.system("pip install -U pip setuptools")
+        os.system("python -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
-        os.system("pip install -U -r {0}".format(requirements_file_path))
+        os.system("python -m pip install -U -r {0}".format(requirements_file_path))
         # If conda is available install conda-build package
 
     def install_node_packages(self):
@@ -72,22 +72,22 @@ class Linux(Common):
 
     def __init__(self):
         super().__init__()
-        os.system(f"{self.sudo_cmd}apt-get update")
+        if args.force:
+            os.system(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
-        os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
+        if os.system("javac --version") != 0 or args.force:
+            os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        python_path = Path(sys.executable).resolve()
-        os.system(
-            f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
-        )
-        os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
-        os.system(f"{self.sudo_cmd}ln -sf {python_path} /usr/bin/python")
-        os.system(f"{self.sudo_cmd}ln -sf /usr/bin/pip3 /usr/bin/pip")
+        if os.system("node") != 0 or args.force:
+            # os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+            os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
+
 
     def install_wget(self):
-        os.system(f"{self.sudo_cmd}apt-get install -y wget")
+        if os.system("wget --version") != 0 or args.force:
+            os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
     def install_libgit2(self):
         os.system(
@@ -125,15 +125,16 @@ class Darwin(Common):
         super().__init__()
 
     def install_java(self):
-        out = get_brew_version()
-        if out == "N/A":
-            sys.exit("**Error: Homebrew not installed...")
+        if os.system("javac -version") != 0 or args.force:
+            out = get_brew_version()
+            if out == "N/A":
+                sys.exit("**Error: Homebrew not installed...")
 
-        os.system("brew tap AdoptOpenJDK/openjdk")
-        if out >= "2.7":
-            os.system("brew install --cask adoptopenjdk11")
-        else:
-            os.system("brew cask install adoptopenjdk11")
+            os.system("brew tap AdoptOpenJDK/openjdk")
+            if out >= "2.7":
+                os.system("brew install --cask adoptopenjdk11")
+            else:
+                os.system("brew cask install adoptopenjdk11")
 
     def install_nodejs(self):
         os.system("brew unlink node")
@@ -144,7 +145,8 @@ class Darwin(Common):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
     def install_wget(self):
-        os.system("brew install wget")
+        if os.system("wget --version") != 0 or args.force:
+            os.system("brew install wget")
 
 
 def install_dependencies(cuda_version=None):
@@ -175,20 +177,11 @@ def get_brew_version():
 
 if __name__ == "__main__":
     check_python_version()
-    parser = argparse.ArgumentParser(
-        description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda',
-                        default=None,
-                        choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'],
-                        help="CUDA version for torch")
-    parser.add_argument(
-        '--environment',
-        default='prod',
-        choices=['prod', 'dev'],
-        help=
-        "environment(production or developer) on which dependencies will be installed"
-    )
-
+    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
+    parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
+                        help="environment(production or developer) on which dependencies will be installed")
+    parser.add_argument("--force", action='store_true', help="force reinstall dependencies wget, node, java and apt-update")
     args = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)
