@@ -48,6 +48,9 @@ def extract_metrics_from_csv(csv_file_path):
     return None
 
 def gen_metrics_from_log(csv_dict, metrics_log_file_path, raw_metrics_file_path):
+    if metrics_log_file_path is None:
+        return
+
     with open(metrics_log_file_path, 'r') as logfile:
         lines = logfile.readlines()
 
