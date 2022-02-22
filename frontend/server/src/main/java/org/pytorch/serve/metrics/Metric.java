@@ -48,7 +48,8 @@ public class Metric {
         this.unit = unit;
         this.hostName = hostName;
         this.dimensions = Arrays.asList(dimensions);
-        this.timestamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        this.timestamp =
+                String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
     }
 
     public String getHostName() {
