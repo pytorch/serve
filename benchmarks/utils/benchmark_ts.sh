@@ -5,12 +5,14 @@
 # $2: model yaml files predefined in benchmarks/models_config/
 #     - all: all yaml files in config;
 #     - a list of files separated by comma: bert_multi_gpu.yaml,fastrcnn.yaml
-# $3: (optional) nightly: trigger to save reports in AWS S3
+# $3: (optional) "nightly" trigger branch installation and reports saved in AWS S3
+#     Note: aws cloudwatch or s3 destination can be adjusted based on user's AWS setting.
 #
 # cmd examples:
 # - cd serve
-# - ./benchmarks/utils/benchmark_ts.sh master all nightly
-# - ./benchmarks/utils/benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml nightly
+# - ./benchmarks/utils/benchmark_ts.sh master all nightly or ./benchmarks/utils/benchmark_ts.sh master all
+# - ./benchmarks/utils/benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml nightly or
+#   ./benchmarks/utils/benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml
 
 sudo apt install -y apache2-utils
 
@@ -107,10 +109,10 @@ for config_file in "$config_dir"/*; do
 
 	      if [ "$3" == "nightly" ]; then
             aws cloudwatch put-metric-data \
-            --namespace "torchserve_benchmark_${hw_type}" \
+            --namespace torchserve_benchmark_${hw_type} \
             --region "us-west-2" \
             --metric-data \
-            file:///tmp/benchmark/model_metrics.json
+            file:///tmp/benchmark/logs/model_metrics.json
         fi
 
 	      mkdir -p /tmp/ts_benchmark/${model_name}
