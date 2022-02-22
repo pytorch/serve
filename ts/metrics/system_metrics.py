@@ -2,10 +2,10 @@
 Module to collect system metrics for front-end
 """
 import logging
-import nvgpu
 import types
 from builtins import str
 import psutil
+import nvgpu
 
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
