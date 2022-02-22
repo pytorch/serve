@@ -319,8 +319,4 @@ class BaseHandler(abc.ABC):
         Returns:
             dict : A dictionary response.
         """
-        output_describe = None
-
-        logger.info("Collect customized metadata")
-
-        return output_describe
+        pass
