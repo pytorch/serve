@@ -6,7 +6,7 @@ import types
 from builtins import str
 import psutil
 import nvgpu
-
+from nvgpu.list_gpus import device_statuses
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 
@@ -49,6 +49,12 @@ def disk_available():
     system_metrics.append(Metric('DiskAvailable', data, 'GB', dimension))
 
 def gpu_utilization(num_of_gpu):
+    """
+        Collect gpu metrics.
+
+        :param num_of_gpu:
+        :return:
+        """
     if num_of_gpu <= 0:
         return
 
@@ -57,6 +63,11 @@ def gpu_utilization(num_of_gpu):
         dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", value['index'])]
         system_metrics.append(Metric('GPUMemoryUtilization', value['mem_used_percent'], 'percent', dimension_gpu))
         system_metrics.append(Metric('GPUMemoryUsed', value['mem_used'], 'MB', dimension_gpu))
+
+    statuses = device_statuses()
+    for idx, status in statuses:
+        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", idx)]
+        system_metrics.append(Metric('GPUUtilization', status['utilization'], 'percent', dimension_gpu))
 
 def collect_all(mod, num_of_gpu):
     """

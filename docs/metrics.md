@@ -32,6 +32,7 @@ The location of log files and metric files can be configured in the [log4j2.xml]
 | MemoryAvailable | host | MB | memory available on host |
 | MemoryUsed | host | MB | memory used on host |
 | MemoryUtilization | host | percentage | memory utilization on host |
+| GPUUtilization | host,device_id | percentage | GPU utilization on host,device_id |
 | GPUMemoryUtilization | host,device_id | percentage | GPU memory utilization on host,device_id |
 | GPUMemoryUsed | host,device_id | MB | GPU memory used on host,device_id |
 | Requests2XX | host | count | logged for every request responded in 200-300 status code range |
