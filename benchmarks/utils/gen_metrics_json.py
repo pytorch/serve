@@ -66,7 +66,7 @@ def extract_metrics_from_log(csv_dict, metrics_log_file_path):
                 "Dimensions": dimensions,
                 "Unit": unit,
                 "Value": float(value),
-                "timestamp": timestamp
+                "Timestamp": timestamp
             })
 
     return metrics_dict_list
