@@ -30,7 +30,7 @@ def extract_metrics_from_csv(csv_file_path):
 
     return None
 
-def extract_metrics_from_log(csv_dict, metrics_log_file_path, json_file_path):
+def extract_metrics_from_log(csv_dict, metrics_log_file_path):
     with open(metrics_log_file_path, 'r') as logfile:
         lines = logfile.readlines()
 
