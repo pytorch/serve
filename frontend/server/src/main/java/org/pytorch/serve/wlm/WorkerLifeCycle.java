@@ -71,8 +71,8 @@ public class WorkerLifeCycle {
             String[] cmdList = new String[cmd.size()];
             cmdList = cmd.toArray(cmdList);
 
-            Process process = Runtime.getRuntime().exec(cmdList);
-            int ret = process.waitFor();
+            Process processLauncher = Runtime.getRuntime().exec(cmdList);
+            int ret = processLauncher.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
             throw new WorkerInitializationException("Failed to start launcher", e);
