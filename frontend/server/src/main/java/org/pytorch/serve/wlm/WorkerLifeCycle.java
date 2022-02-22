@@ -68,10 +68,10 @@ public class WorkerLifeCycle {
             String dummyCmd = "hostname";
             cmd.add(dummyCmd);
 
-            String[] cmd_ = new String[cmd.size()];
-            cmd_ = cmd.toArray(cmd_);
+            String[] cmdList = new String[cmd.size()];
+            cmdList = cmd.toArray(cmdList);
 
-            Process process = Runtime.getRuntime().exec(cmd_);
+            Process process = Runtime.getRuntime().exec(cmdList);
             int ret = process.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
