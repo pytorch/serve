@@ -207,10 +207,10 @@ def gen_metrics_json(csv_dict, log_file_path, json_file_path):
                 "Unit": 'Megabytes',
                 "Value": float(v)})
 
-    metrics_dict_list.append(extract_metrics_from_log(csv_dict, log_file_path))
+    result = metrics_dict_list + (extract_metrics_from_log(csv_dict, log_file_path))
 
     with open(json_file_path, 'w') as json_file:
-        json.dump(metrics_dict_list, json_file, indent = 4)
+        json.dump(result, json_file, indent = 4)
 
 def main():
     parser = argparse.ArgumentParser()
