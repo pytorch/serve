@@ -103,7 +103,7 @@ for config_file in "$config_dir"/*; do
 	      model_name=`echo $config_file |cut -d'/' -f 3|cut -d'.' -f 1`
 
 	      python ./benchmarks/utils/gen_metrics_json.py --csv /tmp/benchmark/ab_report.csv \
-	      --log /tmp/benchmark/model_metrics.log --json /tmp/benchmark/model_metrics.json
+	      --log /tmp/benchmark/logs/model_metrics.log --json /tmp/benchmark/logs/model_metrics.json
 
 	      if [ "$3" == "nightly" ]; then
             aws cloudwatch put-metric-data \
@@ -114,7 +114,6 @@ for config_file in "$config_dir"/*; do
         fi
 
 	      mkdir -p /tmp/ts_benchmark/${model_name}
-	      echo $serving_metrics > /tmp/ts_benchmark/${model_name}/metrics.json
 	      if [ -f /tmp/benchmark/ab_report.csv ]; then
             mv /tmp/benchmark/ab_report.csv /tmp/ts_benchmark/${model_name}/ab_report.csv
         fi

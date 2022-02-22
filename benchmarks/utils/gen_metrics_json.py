@@ -185,7 +185,8 @@ def gen_metrics_json(csv_dict, log_file_path, json_file_path):
 
     metrics_dict_list.append(extract_metrics_from_log(csv_dict, log_file_path))
 
-    json.dumps(metrics_dict_list, log_file_path, indent = 4)
+    with open(json_file_path, 'w') as json_file:
+        json.dumps(metrics_dict_list, json_file, indent = 4)
 
 def main():
     parser = argparse.ArgumentParser()
