@@ -19,6 +19,23 @@ UNIT_MAP = {
     "s" : 'Seconds'
 }
 
+METRICS_NAME_SET = {
+    "GPUUtilization",
+    "GPUMemoryUtilization",
+    "GPUMemoryUsed",
+    "CPUUtilization",
+    "DiskAvailable",
+    "DiskUsed",
+    "DiskUtilization",
+    "MemoryUsed",
+    "MemoryUtilization",
+    "Requests2XX",
+    "Requests4XX",
+    "Requests5XX",
+    "PredictionTime",
+    "HandlerTime",
+}
+
 def extract_metrics_from_csv(csv_file_path):
     with open(csv_file_path, 'r') as csvfile:
         csv_reader = csv.DictReader(csvfile, delimiter=',')
@@ -40,6 +57,8 @@ def extract_metrics_from_log(csv_dict, metrics_log_file_path):
         if pattern.search(line):
             segments = line.split("|")
             name, unit, value = parse_segments_0(segments[0])
+            if name is None:
+                continue
             dimensions = parse_segments_1(csv_dict, segments[1])
             timestamp = parse_segments_2(segments[2])
             metrics_dict_list.append({
@@ -57,8 +76,13 @@ def parse_segments_0(segment):
     data = segment[index:].split(":")
     value = data[1]
     name_unit = data[0].split('.')
-    name = name_unit[0]
-    unit = UNIT_MAP[name_unit[1]]
+    if name_unit[0] in METRICS_NAME_SET:
+        name = name_unit[0]
+        unit = UNIT_MAP[name_unit[1]]
+    else:
+        name = None
+        unit = None
+
     return name, unit, value
 
 def parse_segments_1(csv_dict, segment):
