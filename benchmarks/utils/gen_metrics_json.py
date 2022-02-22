@@ -30,7 +30,7 @@ def extract_metrics_from_csv(csv_file_path):
 
     return None
 
-def extract_metrics_from_log(model_name, metrics_log_file_path, json_file_path):
+def extract_metrics_from_log(csv_dict, metrics_log_file_path, json_file_path):
     with open(metrics_log_file_path, 'r') as logfile:
         lines = logfile.readlines()
 
@@ -43,7 +43,7 @@ def extract_metrics_from_log(model_name, metrics_log_file_path, json_file_path):
             dimensions = parse_segments_1(segments[1])
             timestamp = parse_segments_2(segments[2])
             metrics_dict_list.append({
-                "MetricName": '{}_{}'.format(model_name, name),
+                "MetricName": '{}_{}'.format(csv_dict["Model"], name),
                 "Dimensions": dimensions,
                 "Unit": unit,
                 "Value": float(value),
@@ -61,12 +61,12 @@ def parse_segments_0(segment):
     unit = UNIT_MAP[name_unit[1]]
     return name, unit, value
 
-def parse_segments_1(segment):
+def parse_segments_1(csv_dict, segment):
     data = segment[1:].split(',')
-    dimensions = []
+    dimensions = [{"Name": "batch_size", "Value": csv_dict["Batch size"]}]
     for d in data:
         dimension = d.split(':')
-        dimensions.append({dimension[0], dimension[1]})
+        dimensions.append({"Name": dimension[0], "Value": dimension[1]})
 
     return dimensions
 
@@ -77,7 +77,7 @@ def parse_segments_2(segment):
 
 # Ref metrics json format
 # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats-json.html
-def gen_metrics_json(csv_dict, log_file_path):
+def gen_metrics_json(csv_dict, log_file_path, json_file_path):
     if csv_dict is None:
         return
 
@@ -183,9 +183,9 @@ def gen_metrics_json(csv_dict, log_file_path):
                 "Unit": 'Megabytes',
                 "Value": float(v)})
 
-    metrics_dict_list.update(extract_metrics_from_log(csv_dict["Model"], log_file_path))
+    metrics_dict_list.update(extract_metrics_from_log(csv_dict, log_file_path))
 
-    print(json.dumps(metrics_dict_list, log_file_path, indent = 4))
+    json.dumps(metrics_dict_list, log_file_path, indent = 4)
 
 def main():
     parser = argparse.ArgumentParser()
