@@ -47,7 +47,7 @@ def extract_metrics_from_csv(csv_file_path):
 
     return None
 
-def extract_metrics_from_log(csv_dict, metrics_log_file_path):
+def gen_metrics_from_log(csv_dict, metrics_log_file_path, raw_metrics_file_path):
     with open(metrics_log_file_path, 'r') as logfile:
         lines = logfile.readlines()
 
@@ -69,7 +69,8 @@ def extract_metrics_from_log(csv_dict, metrics_log_file_path):
                 "Timestamp": timestamp
             })
 
-    return metrics_dict_list
+    with open(raw_metrics_file_path, 'w') as json_file:
+        json.dump(metrics_dict_list, json_file, indent=4)
 
 def parse_segments_0(segment):
     index = segment.rfind(" ") + 1
@@ -101,7 +102,7 @@ def parse_segments_2(segment):
 
 # Ref metrics json format
 # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats-json.html
-def gen_metrics_json(csv_dict, log_file_path, json_file_path):
+def gen_metrics_json(csv_dict, json_file_path):
     if csv_dict is None:
         return
 
@@ -207,10 +208,9 @@ def gen_metrics_json(csv_dict, log_file_path, json_file_path):
                 "Unit": 'Megabytes',
                 "Value": float(v)})
 
-    result = metrics_dict_list + (extract_metrics_from_log(csv_dict, log_file_path))
-
     with open(json_file_path, 'w') as json_file:
-        json.dump(result, json_file, indent = 4)
+        json.dump(metrics_dict_list, json_file, indent = 4)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -228,14 +228,21 @@ def main():
     )
 
     parser.add_argument(
-        "--json",
+        "--stats",
         action="store",
-        help="metrics json file path",
+        help="output stats metrics json file path",
+    )
+
+    parser.add_argument(
+        "--raw",
+        action="store",
+        help="output raw metrics json file path",
     )
 
     arguments = parser.parse_args()
     csv_dict = extract_metrics_from_csv(arguments.csv)
-    gen_metrics_json(csv_dict, arguments.log, arguments.json)
+    gen_metrics_json(csv_dict, arguments.stats)
+    gen_metrics_from_log(csv_dict, arguments.log, arguments.raw)
 
 if __name__ == "__main__":
     main()

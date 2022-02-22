@@ -6,7 +6,9 @@
 #     - all: all yaml files in config;
 #     - a list of files separated by comma: bert_multi_gpu.yaml,fastrcnn.yaml
 # $3: (optional) "nightly" trigger branch installation and reports saved in AWS S3
-#     Note: aws cloudwatch or s3 destination can be adjusted based on user's AWS setting.
+# Note:
+# - aws cloudwatch or s3 destination can be adjusted based on user's AWS setting.
+# - aws cloudwatch metric-data max size 40kb
 #
 # cmd examples:
 # - cd serve
@@ -112,7 +114,7 @@ for config_file in "$config_dir"/*; do
             --namespace torchserve_benchmark_${hw_type} \
             --region "us-west-2" \
             --metric-data \
-            file:///tmp/benchmark/logs/model_metrics.json
+            file:///tmp/benchmark/logs/stats_metrics.json
         fi
 
 	      mkdir -p /tmp/ts_benchmark/${model_name}
@@ -129,7 +131,7 @@ for config_file in "$config_dir"/*; do
             mv /tmp/benchmark/logs/model_metrics.log /tmp/ts_benchmark/${model_name}/model_metrics.log
         fi
         if [ -f /tmp/benchmark/logs/model_metrics.json ]; then
-            mv /tmp/benchmark/logs/model_metrics.json /tmp/ts_benchmark/${model_name}/model_metrics.json
+            mv /tmp/benchmark/logs/stats_metrics.json /tmp/ts_benchmark/${model_name}/stats_metrics.json
         fi
         if [ -f ./logs/model_log.log ]; then
             mv ./logs/model_log.log /tmp/ts_benchmark/${model_name}/model_log.log
