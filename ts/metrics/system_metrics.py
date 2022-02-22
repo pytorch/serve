@@ -5,9 +5,7 @@ import logging
 import nvgpu
 import types
 from builtins import str
-import os
 import psutil
-import subprocess
 
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
