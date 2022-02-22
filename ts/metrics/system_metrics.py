@@ -2,6 +2,7 @@
 Module to collect system metrics for front-end
 """
 import logging
+import nvgpu
 import types
 from builtins import str
 import os
@@ -49,39 +50,33 @@ def disk_available():
     data = psutil.disk_usage('/').free / (1024 * 1024 * 1024)  # in GB
     system_metrics.append(Metric('DiskAvailable', data, 'GB', dimension))
 
-def gpu_utilization():
+def gpu_utilization(num_of_gpu):
     if num_of_gpu <= 0:
         return
 
-    result = subprocess.run(
-        ["nvidia-smi", "--query-gpu=utilization.gpu,utilization.memory,memory.used", "--format=csv,nounits,noheader", ],
-        encoding="utf-8",
-        capture_output=True,  # valid for python version >=3.7
-        check=True,
-    )
-    for idx, values in enumerate(result.stdout.strip().split(os.linesep)):
-        gpu_memory = values.split(", ")
-        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", idx)]
-        system_metrics.append(Metric('GPUUtilization', gpu_memory[0], 'percent', dimension_gpu))
-        system_metrics.append(Metric('GPUMemoryUtilization', gpu_memory[1], 'percent', dimension_gpu))
-        system_metrics.append(Metric('GPUMemoryUsed', gpu_memory[2], 'MB', dimension_gpu))
+    info = nvgpu.gpu_info()
+    for value in info:
+        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", value['index'])]
+        system_metrics.append(Metric('GPUMemoryUtilization', value['mem_used_percent'], 'percent', dimension_gpu))
+        system_metrics.append(Metric('GPUMemoryUsed', value['mem_used'], 'MB', dimension_gpu))
 
-
-num_of_gpu = -1
-def collect_all(mod, gpu):
+def collect_all(mod, num_of_gpu):
     """
     Collect all system metrics.
 
     :param mod:
+    :param num_of_gpu:
     :return:
     """
-    global num_of_gpu
-    num_of_gpu = gpu
+
     members = dir(mod)
     for i in members:
         value = getattr(mod, i)
         if isinstance(value, types.FunctionType) and value.__name__ not in ('collect_all', 'log_msg'):
-            value()
+            if value.__name__ == "gpu_utilization":
+                value(num_of_gpu)
+            else:
+                value()
 
     for met in system_metrics:
         logging.info(str(met))
