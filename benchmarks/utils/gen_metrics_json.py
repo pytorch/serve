@@ -40,7 +40,7 @@ def extract_metrics_from_log(csv_dict, metrics_log_file_path):
         if pattern.search(line):
             segments = line.split("|")
             name, unit, value = parse_segments_0(segments[0])
-            dimensions = parse_segments_1(segments[1])
+            dimensions = parse_segments_1(csv_dict, segments[1])
             timestamp = parse_segments_2(segments[2])
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.format(csv_dict["Model"], name),
