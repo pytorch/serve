@@ -298,7 +298,7 @@ metrics = {"predict.txt": "PredictionTime",
            "worker_thread.txt": "WorkerThreadTime",
            "cpu_percentage.txt": "CPUUtilization",
            "memory_percentage.txt": "MemoryUtilization",
-           "gpu__percentage.txt": "GPUUtilization",
+           "gpu_percentage.txt": "GPUUtilization",
            "gpu_memory_percentage.txt": "GPUMemoryUtilization",
            "gpu_memory_used.txt": "GPUMemoryUsed"
            }
