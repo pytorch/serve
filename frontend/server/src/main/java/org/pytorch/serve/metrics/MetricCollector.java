@@ -32,9 +32,11 @@ public class MetricCollector implements Runnable {
     public void run() {
         try {
             // Collect System level Metrics
-            String[] args = new String[2];
+            String[] args = new String[4];
             args[0] = configManager.getPythonExecutable();
             args[1] = "ts/metrics/metric_collector.py";
+            args[2] = "--gpu";
+            args[3] = String.valueOf(ConfigManager.getInstance().getNumberOfGpu());
             File workingDir = new File(configManager.getModelServerHome());
 
             String[] envp = EnvironmentUtils.getEnvString(workingDir.getAbsolutePath(), null, null);
