@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -ex
 
 rm -r dist || true

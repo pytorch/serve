@@ -15,14 +15,14 @@ from utils import LOGGER, GPU_INSTANCES
 from utils import ec2 as ec2_utils
 
 CPU_INSTANCE_COMMANDS_LIST = [
-    "python3 ts_scripts/install_dependencies.py --environment=dev",
-    "python3 torchserve_sanity.py",
+    "python ts_scripts/install_dependencies.py --environment=dev",
+    "python torchserve_sanity.py",
     "cd serving-sdk/ && mvn clean install -q && cd ../",
 ]
 
 GPU_INSTANCE_COMMANDS_LIST = [
-    "python3 ts_scripts/install_dependencies.py --environment=dev --cuda=cu102",
-    "python3 torchserve_sanity.py",
+    "python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102",
+    "python torchserve_sanity.py",
     "cd serving-sdk/ && mvn clean install -q && cd ../",
 ]
 
@@ -38,7 +38,7 @@ def run_commands_on_ec2_instance(ec2_connection, is_gpu):
     virtual_env_name = "venv"
 
     with ec2_connection.cd(f"/home/ubuntu/serve"):
-        ec2_connection.run(f"python3 -m venv {virtual_env_name}")
+        ec2_connection.run(f"python -m venv {virtual_env_name}")
         with ec2_connection.prefix(f"source {virtual_env_name}/bin/activate"):
             commands_list = GPU_INSTANCE_COMMANDS_LIST if is_gpu else CPU_INSTANCE_COMMANDS_LIST
 
@@ -128,14 +128,13 @@ def launch_ec2_instance(region, instance_type, ami_id):
             else:
                 ec2_connection.run(f"cd serve && git fetch origin {github_pull_request_number}")
 
-            ec2_connection.run(f"sudo apt-get install -y python3-venv")
+            ec2_connection.run(f"sudo apt-get install -y python3.8-dev python3.8-distutils python3.8-venv")
+            # update alternatives doesn't seem to work
+            ec2_connection.run(f"sudo ln -fs /usr/bin/python3.8 /usr/bin/python")
             # Following is necessary on Base Ubuntu DLAMI because the default python is python2
             # This will NOT fail for other AMI where default python is python3
             ec2_connection.run(
-                f"sudo cp /usr/local/bin/pip3 /usr/local/bin/pip && pip install --upgrade pip", warn=True
-            )
-            ec2_connection.run(
-                f"sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1", warn=True
+                f"curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py", warn=True
             )
 
         is_gpu = True if instance_type[:2] in GPU_INSTANCES else False
@@ -197,3 +196,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
