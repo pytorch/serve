@@ -36,6 +36,58 @@ METRICS_NAME_SET = {
     "HandlerTime",
 }
 
+STATS_METRICS_CONFIG = {
+    "TS throughput" : {
+        "name" : "throughput",
+        "unit" : 'Count/Second'
+    },
+    "TS latency P50" : {
+        "name" : "total_latency_P50",
+        "unit" : 'Milliseconds'
+    },
+    "TS latency P90" : {
+        "name" : "total_latency_P90",
+        "unit" : 'Milliseconds'
+    },
+    "TS latency P99": {
+        "name": "total_latency_P99",
+        "unit": 'Milliseconds'
+    },
+    "Model_p50" : {
+        "name": "model_latency_P50",
+        "unit": 'Milliseconds'
+    },
+    "Model_p90" : {
+        "name": "model_latency_P90",
+        "unit": 'Milliseconds'
+    },
+    "Model_p99" : {
+        "name": "model_latency_P99",
+        "unit": 'Milliseconds'
+    },
+    "memory_percentage_mean" : {
+        "name": "memory_percentage_mean",
+        "unit": 'Percent'
+    },
+    "cpu_percentage_mean" : {
+        "name": "cpu_percentage_mean",
+        "unit": 'Percent'
+    },
+    "gpu_percentage_mean" : {
+        "name": "gpu_percentage_mean",
+        "unit": 'Percent'
+    },
+    "gpu_percentage_mean" : {
+        "name": "gpu_percentage_mean",
+        "unit": 'Percent'
+    },
+    "gpu_memory_used_mean" : {
+        "name": "gpu_memory_used_mean",
+        "unit": 'Megabytes'
+    }
+}
+
+
 # Ref metrics json format
 # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats-json.html
 def gen_metrics_from_csv(csv_dict, stats_file_path):
@@ -44,104 +96,15 @@ def gen_metrics_from_csv(csv_dict, stats_file_path):
 
     metrics_dict_list = []
     for k, v in csv_dict.items():
-        if k == "TS throughput":
-            metrics_dict_list.append({
-                "MetricName" : '{}_{}'.
-                    format(csv_dict["Model"], "throughput"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Count/Second',
-                "Value": float(v)})
-        elif k == "TS latency P50":
+        if k in STATS_METRICS_CONFIG:
+            metric_config = STATS_METRICS_CONFIG[k]
             metrics_dict_list.append({
                 "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "total_latency_P50"),
+                    format(csv_dict["Model"], metric_config["name"]),
                 "Dimensions": [
                     {"Name": "batch_size", "Value": csv_dict["Batch size"]}
                 ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "TS latency P90":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "total_latency_P90"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "TS latency P99":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "total_latency_P99"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "Model_p50":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "model_latency_P50"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "Model_p90":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "model_latency_P90"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "Model_p99":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "model_latency_P99"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "memory_percentage_mean":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "memory_percentage_mean"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "cpu_percentage_mean":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "cpu_percentage_mean"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "gpu_percentage_mean":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "gpu_percentage_mean"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Milliseconds',
-                "Value": float(v)})
-        elif k == "gpu_memory_used_mean":
-            metrics_dict_list.append({
-                "MetricName": '{}_{}'.
-                    format(csv_dict["Model"], "gpu_memory_used_mean"),
-                "Dimensions": [
-                    {"Name": "batch_size", "Value": csv_dict["Batch size"]}
-                ],
-                "Unit": 'Megabytes',
+                "Unit": metric_config['unit'],
                 "Value": float(v)})
 
     with open(stats_file_path, 'w') as stats_file:

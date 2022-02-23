@@ -21,13 +21,22 @@ def main():
     arguments = parser.parse_args()
     convert_yaml_to_json(arguments.input, arguments.output)
 
+MODEL_CONFIG_KEY = {
+    "batch_size",
+    "batch_delay",
+    "url",
+    "requests",
+    "concurrency",
+    "workers",
+    "input",
+    "processors"
+}
+
 def convert_yaml_to_json(yaml_file_path, output_dir):
     with open(yaml_file_path, 'r') as f:
         yaml_dict = yaml.safe_load(f)
 
         for model, config in yaml_dict.items():
-            if model == "instance_types":
-                continue
 
             for mode, mode_config in config.items():
                 model_name = mode + "_" + model
@@ -37,20 +46,10 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                 for key, value in mode_config.items():
                     if key == "batch_size":
                         batch_size_list = value
-                    elif key == "url":
-                        benchmark_config["url"] = value
-                    elif key == "requests":
-                        benchmark_config["requests"] = value
-                    elif key == "concurrency":
-                        benchmark_config["concurrency"] = value
-                    elif key == "batch_delay":
-                        benchmark_config["batch_delay"] = value
-                    elif key == "workers":
-                        benchmark_config["workers"] = value
-                    elif key == "input":
-                        benchmark_config["input"] = value
                     elif key == "processors":
                         processors = value
+                    elif key in MODEL_CONFIG_KEY:
+                        benchmark_config[key] = value
 
                 benchmark_configs = []
                 for batch_size in batch_size_list:
