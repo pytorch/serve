@@ -30,13 +30,13 @@ default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.
                      'backend_profiling': False,
                      'config_properties': 'config.properties',
                      'inference_model_url': 'predictions/benchmark',
-                     'report_location': tempfile.gettempdir()
+                     'report_location': tempfile.gettempdir(),
+                     'tmp_dir': tempfile.gettempdir(),
                      }
                      
-TMP_DIR = default_ab_params['report_location']
 execution_params = default_ab_params.copy()
-result_file = os.path.join(TMP_DIR, "benchmark/result.txt")
-metric_log = os.path.join(TMP_DIR, "benchmark/logs/model_metrics.log")
+result_file = os.path.join(execution_params['tmp_dir'], "benchmark/result.txt")
+metric_log = os.path.join(execution_params['tmp_dir'], "benchmark/logs/model_metrics.log")
 
 
 def json_provider(file_path, cmd_name):
@@ -67,13 +67,17 @@ def json_provider(file_path, cmd_name):
               help='config.properties path, Default config.properties')
 @click.option('--inference_model_url', '-imu', default='predictions/benchmark',
               help='Inference function url - can be either for predictions or explanations. Default predictions/benchmark')
+@click.option('--report_location', '-rl', default=tempfile.gettempdir(),
+              help=f'Target location of benchmark report. Default {tempfile.gettempdir()}')
+@click.option('--tmp_dir', '-td', default=tempfile.gettempdir(),
+              help=f'Location for temporal files. Default {tempfile.gettempdir()}')
 
 @click_config_file.configuration_option(provider=json_provider, implicit=False,
                                         help="Read configuration from a JSON file")
 @click.option('--report_location', '-rl', default=TMP_DIR,
               help='benchmark report output location')
 def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size, batch_delay, input, workers,
-              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url, report_location):
+              content_type, image, docker_runtime, backend_profiling, config_properties, inference_model_url, report_location, tmp_dir):
     input_params = {'url': url,
                     'gpus': gpus,
                     'exec_env': exec_env,
@@ -89,7 +93,8 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
                     'backend_profiling': backend_profiling,
                     'config_properties': config_properties,
                     'inference_model_url': inference_model_url,
-                    'report_location': report_location
+                    'report_location': report_location,
+                    'tmp_dir': tmp_dir,
                     }
 
     # set ab params
@@ -109,9 +114,9 @@ def benchmark(test_plan, url, gpus, exec_env, concurrency, requests, batch_size,
         docker_torchserve_start()
 
     check_torchserve_health()
-    warm_up()
+    warm_up_lines = warm_up()
     run_benchmark()
-    generate_report()
+    generate_report(warm_up_lines=warm_up_lines)
 
 
 def check_torchserve_health():
@@ -132,23 +137,27 @@ def check_torchserve_health():
 def warm_up():
     register_model()
 
-    if execution_params['url'].endswith('.war'):
+    if is_workflow(execution_params['url']):
         execution_params['inference_model_url'] = 'wfpredict/benchmark'
 
     click.secho("\n\nExecuting warm-up ...", fg='green')
 
-    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p {TMP_DIR}/benchmark/input -T " \
+    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p {execution_params['tmp_dir']}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
     execute(ab_cmd, wait=True)
 
+    warm_up_lines = sum(1 for _ in open(metric_log))
+
+    return warm_up_lines
+
 
 def run_benchmark():
-    if execution_params['url'].endswith('.war'):
+    if is_workflow(execution_params['url']):
         execution_params['inference_model_url'] = 'wfpredict/benchmark'
 
     click.secho("\n\nExecuting inference performance tests ...", fg='green')
-    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {TMP_DIR}/benchmark/input -T " \
+    ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {execution_params['tmp_dir']}/benchmark/input -T " \
              f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
     
     execute(ab_cmd, wait=True)
@@ -159,7 +168,7 @@ def run_benchmark():
 
 def register_model():
     click.secho("*Registering model...", fg='green')
-    if execution_params['url'].endswith('.war'):
+    if is_workflow(execution_params['url']):
         url = execution_params['management_url'] + "/workflows"
         data = \
             {'workflow_name': 'benchmark', 'url': execution_params['url'], 'batch_delay': execution_params['batch_delay'],
@@ -179,7 +188,7 @@ def register_model():
 
 def unregister_model():
     click.secho("*Unregistering model ...", fg='green')
-    if execution_params['url'].endswith('.war'):
+    if is_workflow(execution_params['url']):
         resp = requests.delete(execution_params['management_url'] + "/workflows/benchmark")
     else:
         resp = requests.delete(execution_params['management_url'] + "/models/benchmark")
@@ -207,9 +216,11 @@ def local_torserve_start():
     click.secho("*Setting up model store...", fg='green')
     prepare_local_dependency()
     click.secho("*Starting local Torchserve instance...", fg='green')
-    execute(f"torchserve --start --model-store {TMP_DIR}/model_store "
-            f"--workflow-store {TMP_DIR}/wf_store "
-            f"--ts-config {TMP_DIR}/benchmark/conf/{execution_params['config_properties_name']} > {TMP_DIR}/benchmark/logs/model_metrics.log")
+
+    execute(f"torchserve --start --model-store {execution_params['tmp_dir']}/model_store "
+            f"--workflow-store {execution_params['tmp_dir']}/wf_store "
+            f"--ts-config {execution_params['tmp_dir']}/benchmark/conf/{execution_params['config_properties_name']} > {execution_params['tmp_dir']}/benchmark/logs/model_metrics.log")
+
     time.sleep(3)
 
 
@@ -240,7 +251,7 @@ def docker_torchserve_start():
     inference_port = urlparse(execution_params['inference_url']).port
     management_port = urlparse(execution_params['management_url']).port
     docker_run_cmd = f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p {inference_port}:{inference_port} -p {management_port}:{management_port} " \
-                     f"-v {TMP_DIR}:/tmp {enable_gpu} -itd {docker_image} " \
+                     f"-v {execution_params['tmp_dir']}:/tmp {enable_gpu} -itd {docker_image} " \
                      f"\"torchserve --start --model-store /home/model-server/model-store " \
                      f"\--workflow-store /home/model-server/wf-store " \
                      f"--ts-config /tmp/benchmark/conf/{execution_params['config_properties_name']} > /tmp/benchmark/logs/model_metrics.log\""
@@ -249,10 +260,10 @@ def docker_torchserve_start():
 
 
 def prepare_local_dependency():
-    shutil.rmtree(os.path.join(TMP_DIR, 'model_store/'), ignore_errors=True)
-    os.makedirs(os.path.join(TMP_DIR, "model_store/"), exist_ok=True)
-    shutil.rmtree(os.path.join(TMP_DIR, 'wf_store/'), ignore_errors=True)
-    os.makedirs(os.path.join(TMP_DIR, "wf_store/"), exist_ok=True)
+    shutil.rmtree(os.path.join(execution_params['tmp_dir'], 'model_store/'), ignore_errors=True)
+    os.makedirs(os.path.join(execution_params['tmp_dir'], "model_store/"), exist_ok=True)
+    shutil.rmtree(os.path.join(execution_params['tmp_dir'], 'wf_store/'), ignore_errors=True)
+    os.makedirs(os.path.join(execution_params['tmp_dir'], "wf_store/"), exist_ok=True)
     prepare_common_dependency()
 
 
@@ -262,12 +273,14 @@ def prepare_docker_dependency():
 
 def prepare_common_dependency():
     input = execution_params['input']
-    shutil.rmtree(os.path.join(TMP_DIR, "benchmark"), ignore_errors=True)
-    os.makedirs(os.path.join(TMP_DIR, "benchmark/conf"), exist_ok=True)
-    os.makedirs(os.path.join(TMP_DIR, "benchmark/logs"), exist_ok=True)
+    shutil.rmtree(os.path.join(execution_params['tmp_dir'], "benchmark"), ignore_errors=True)
+    shutil.rmtree(os.path.join(execution_params['report_location'], "benchmark"), ignore_errors=True)
+    os.makedirs(os.path.join(execution_params['tmp_dir'], "benchmark/conf"), exist_ok=True)
+    os.makedirs(os.path.join(execution_params['tmp_dir'], "benchmark/logs"), exist_ok=True)
+    os.makedirs(os.path.join(execution_params['report_location'], "benchmark"), exist_ok=True)
 
-    shutil.copy(execution_params['config_properties'], os.path.join(TMP_DIR, 'benchmark/conf/'))
-    shutil.copyfile(input, os.path.join(TMP_DIR, 'benchmark/input'))
+    shutil.copy(execution_params['config_properties'], os.path.join(execution_params['tmp_dir'], 'benchmark/conf/'))
+    shutil.copyfile(input, os.path.join(execution_params['tmp_dir'], 'benchmark/input'))
 
 
 
@@ -296,9 +309,9 @@ def update_exec_params(input_param):
     getAPIS()
 
             
-def generate_report():
+def generate_report(warm_up_lines):
     click.secho("\n\nGenerating Reports...", fg='green')
-    extract_metrics()
+    extract_metrics(warm_up_lines=warm_up_lines)
     generate_csv_output()
     generate_latency_graph()
     generate_profile_graph()
@@ -308,12 +321,21 @@ def generate_report():
 metrics = {"predict.txt": "PredictionTime",
            "handler_time.txt": "HandlerTime",
            "waiting_time.txt": "QueueTime",
-           "worker_thread.txt": "WorkerThreadTime"}
+           "worker_thread.txt": "WorkerThreadTime",
+           "cpu_percentage.txt": "CPUUtilization",
+           "memory_percentage.txt": "MemoryUtilization",
+           "gpu_percentage.txt": "GPUUtilization",
+           "gpu_memory_percentage.txt": "GPUMemoryUtilization",
+           "gpu_memory_used.txt": "GPUMemoryUsed"
+           }
 
 
-def extract_metrics():
+def extract_metrics(warm_up_lines):
     with open(metric_log) as f:
         lines = f.readlines()
+
+    click.secho(f'Dropping {warm_up_lines} warmup lines from log', fg='green')
+    lines = lines[warm_up_lines:]
 
     for k, v in metrics.items():
         all_lines = []
@@ -322,7 +344,7 @@ def extract_metrics():
             if pattern.search(line):
                 all_lines.append(line.split("|")[0].split(':')[3].strip())
 
-        out_fname = f'{TMP_DIR}/benchmark/{k}'
+        out_fname = os.path.join(*(execution_params['tmp_dir'], 'benchmark', k))
         click.secho(f"\nWriting extracted {v} metrics to {out_fname} ", fg='green')
         with open(out_fname, 'w') as outf:
             all_lines = map(lambda x: x + '\n', all_lines)
@@ -339,7 +361,7 @@ def generate_csv_output():
     click.secho(f"Saving benchmark results to {execution_params['report_location']}")
 
     artifacts = {}
-    with open(f"{execution_params['report_location']}/benchmark/result.txt") as f:
+    with open(result_file) as f:
         data = f.readlines()
 
     artifacts['Benchmark'] = "AB"
@@ -357,7 +379,7 @@ def generate_csv_output():
     artifacts['TS latency mean'] = extract_entity(data, 'Time per request:.*mean\)', -3)
     artifacts['TS error rate'] = int(artifacts['TS failed requests']) / execution_params['requests'] * 100
 
-    with open(os.path.join(execution_params['report_location'], 'benchmark/predict.txt')) as f:
+    with open(os.path.join(execution_params['tmp_dir'], 'benchmark/predict.txt')) as f:
         lines = f.readlines()
         lines.sort(key=float)
         artifacts['Model_p50'] = lines[line50].strip()
@@ -365,7 +387,7 @@ def generate_csv_output():
         artifacts['Model_p99'] = lines[line99].strip()
 
     for m in metrics:
-        df = pd.read_csv(f"{execution_params['report_location']}/benchmark/{m}", header=None, names=['data'])
+        df = pd.read_csv(os.path.join(*(execution_params['tmp_dir'], 'benchmark', m)), header=None, names=['data'])
         artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
 
     with open(os.path.join(execution_params['report_location'], 'benchmark/ab_report.csv'), 'w') as csv_file:
@@ -385,7 +407,7 @@ def extract_entity(data, pattern, index, delim=" "):
 
 def generate_latency_graph():
     click.secho("*Preparing graphs...", fg='green')
-    df = pd.read_csv(os.path.join(execution_params['report_location'], 'benchmark/predict.txt'), header=None, names=['latency'])
+    df = pd.read_csv(os.path.join(execution_params['tmp_dir'], 'benchmark/predict.txt'), header=None, names=['latency'])
     iteration = df.index
     latency = df.latency
     a4_dims = (11.7, 8.27)
@@ -402,7 +424,7 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f"{execution_params['report_location']}/benchmark/{m}", header=None)
+        df = pd.read_csv(f"{execution_params['tmp_dir']}/benchmark/{m}", header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
@@ -529,6 +551,8 @@ def failure_exit(msg):
     click.secho(f"Test suite terminated due to above failure", fg='red')
     sys.exit()
 
+def is_workflow(model_url):
+    return model_url.endswith('.war')
 
 if __name__ == '__main__':
     benchmark()

@@ -15,19 +15,16 @@ Please delete options that are not relevant.
 
 ## Feature/Issue validation/testing
 
-Please describe the tests [UT/IT] that you ran to verify your changes and relevent result summary. Provide instructions so it can be reproduced. 
+Please describe the tests [UT/IT] that you ran to verify your changes and relevant result summary. Provide instructions so it can be reproduced. 
 Please also list any relevant details for your test configuration.
 
 - [ ] Test A
 - [ ] Test B
-
-- UT/IT execution results
 
 - Logs
 
 ## Checklist:
 
 - [ ] Have you added tests that prove your fix is effective or that this feature works?
-- [ ] New and existing unit tests pass locally with these changes?
 - [ ] Has code been commented, particularly in hard-to-understand areas?
 - [ ] Have you made corresponding changes to the documentation?
