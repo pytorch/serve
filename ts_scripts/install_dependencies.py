@@ -80,8 +80,8 @@ class Linux(Common):
             os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        if os.system("node") != 0 or args.force:
-            # os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+        if os.system("node -v") != 0 or args.force:
+            os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
 
@@ -153,6 +153,11 @@ def install_dependencies(cuda_version=None):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
     system = os_map[platform.system()]()
 
+    if args.environment == "dev":
+        system.install_wget()
+        system.install_nodejs()
+        system.install_node_packages()
+
     if platform.system() == "Linux" and args.environment == "dev":
         system.install_libgit2()
         system.install_maven()
@@ -162,11 +167,6 @@ def install_dependencies(cuda_version=None):
     requirements_file_path = "requirements/" + (
         "production.txt" if args.environment == "prod" else "developer.txt")
     system.install_python_packages(cuda_version, requirements_file_path)
-
-    if args.environment == "dev":
-        system.install_nodejs()
-        system.install_node_packages()
-        system.install_wget()
 
 
 def get_brew_version():
