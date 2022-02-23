@@ -319,4 +319,6 @@ class BaseHandler(abc.ABC):
         Returns:
             dict : A dictionary response.
         """
+        # pylint: disable=unnecessary-pass
         pass
+        # pylint: enable=unnecessary-pass
