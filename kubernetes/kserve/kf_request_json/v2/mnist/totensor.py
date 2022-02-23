@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """
-The script takes text or image file as input and generates json input with 
-tensor inputs for kserve v2 protocol.
+The script takes text or image file as input and generates json input with
+tensor inputs for KServe v2 protocol.
 """
 import json
 import uuid
