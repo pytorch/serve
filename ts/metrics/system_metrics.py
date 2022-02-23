@@ -5,6 +5,7 @@ import logging
 import types
 from builtins import str
 import psutil
+import nvgpu
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 
@@ -56,16 +57,13 @@ def gpu_utilization(num_of_gpu):
     if num_of_gpu <= 0:
         return
 
-    import nvgpu
-    from nvgpu import list_gpus
-
     info = nvgpu.gpu_info()
     for value in info:
         dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", value['index'])]
         system_metrics.append(Metric('GPUMemoryUtilization', value['mem_used_percent'], 'percent', dimension_gpu))
         system_metrics.append(Metric('GPUMemoryUsed', value['mem_used'], 'MB', dimension_gpu))
 
-    statuses = list_gpus.device_statuses()
+    statuses = nvgpu.list_gpus.device_statuses()
     for idx, status in enumerate(statuses):
         dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", idx)]
         system_metrics.append(Metric('GPUUtilization', status['utilization'], 'percent', dimension_gpu))
