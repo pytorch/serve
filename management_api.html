@@ -609,6 +609,133 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 <span class="o">]</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models/{model_name}/{model_version}?customized=true</span></code>
+or
+<code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models/{model_name}?customized=true</span></code></p>
+<p>Use the Describe Model API to get detail runtime status and customized metadata of a version of a model:</p>
+<ul class="simple">
+<li><p>Implement function describe_handle. Eg.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">describe_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Customized describe handler</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict : A dictionary response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output_describe</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Collect customized metadata&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output_describe</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Implement function _is_describe if handler is not inherited from BaseHandler. And then, call _is_describe and describe_handle in handle.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">_is_describe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;describe&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;describe&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_describe</span><span class="p">():</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">describe_handle</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_preprocess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explain</span><span class="p">():</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">)</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explain_handle</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Call function _is_describe and describe_handle in handle. Eg.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Entry point for default handler. It takes the data from the input request and returns</span>
+<span class="sd">           the predicted outcome for the input.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (list): The input data that needs to be made a prediction request on.</span>
+<span class="sd">            context (Context): It is a JSON Object containing information pertaining to</span>
+<span class="sd">                               the model artefacts parameters.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list : Returns a list of dictionary with the predicted response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># It can be used for pre or post processing if needed as additional request</span>
+        <span class="c1"># information is available in context</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">metrics</span>
+
+        <span class="n">is_profiler_enabled</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENABLE_TORCH_PROFILER&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_profiler_enabled</span><span class="p">:</span>
+            <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_with_profiler</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_describe</span><span class="p">():</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">describe_handle</span><span class="p">()]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_preprocess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explain</span><span class="p">():</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">)</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explain_handle</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="n">stop_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_time</span><span class="p">(</span><span class="s1">&#39;HandlerTime&#39;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">stop_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Here is an example. “customizedMetadata” shows the metadata from user’s model. These metadata can be decoded into a dictionary.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/noop-customized/1.0?customized<span class="o">=</span><span class="nb">true</span>
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">&quot;modelName&quot;</span>: <span class="s2">&quot;noop-customized&quot;</span>,
+        <span class="s2">&quot;modelVersion&quot;</span>: <span class="s2">&quot;1.0&quot;</span>,
+        <span class="s2">&quot;modelUrl&quot;</span>: <span class="s2">&quot;noop-customized.mar&quot;</span>,
+        <span class="s2">&quot;runtime&quot;</span>: <span class="s2">&quot;python&quot;</span>,
+        <span class="s2">&quot;minWorkers&quot;</span>: <span class="m">1</span>,
+        <span class="s2">&quot;maxWorkers&quot;</span>: <span class="m">1</span>,
+        <span class="s2">&quot;batchSize&quot;</span>: <span class="m">1</span>,
+        <span class="s2">&quot;maxBatchDelay&quot;</span>: <span class="m">100</span>,
+        <span class="s2">&quot;loadedAtStartup&quot;</span>: false,
+        <span class="s2">&quot;workers&quot;</span>: <span class="o">[</span>
+          <span class="o">{</span>
+            <span class="s2">&quot;id&quot;</span>: <span class="s2">&quot;9010&quot;</span>,
+            <span class="s2">&quot;startTime&quot;</span>: <span class="s2">&quot;2022-02-08T11:03:20.974Z&quot;</span>,
+            <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;READY&quot;</span>,
+            <span class="s2">&quot;memoryUsage&quot;</span>: <span class="m">0</span>,
+            <span class="s2">&quot;pid&quot;</span>: <span class="m">98972</span>,
+            <span class="s2">&quot;gpu&quot;</span>: false,
+            <span class="s2">&quot;gpuUsage&quot;</span>: <span class="s2">&quot;N/A&quot;</span>
+          <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">&quot;customizedMetadata&quot;</span>: <span class="s2">&quot;{\n  \&quot;data1\&quot;: \&quot;1\&quot;,\n  \&quot;data2\&quot;: \&quot;2\&quot;\n}&quot;</span>
+     <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Decode customizedMetadata on client side. For example:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://localhost:8081/models/noop-customized/?customized=true&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="n">customizedMetadata</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;customizedMetadata&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">customizedMetadata</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="unregister-a-model">
 <h2>Unregister a model<a class="headerlink" href="#unregister-a-model" title="Permalink to this headline">¶</a></h2>
