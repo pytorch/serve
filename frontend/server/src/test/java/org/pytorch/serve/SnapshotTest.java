@@ -136,7 +136,7 @@ public class SnapshotTest {
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, "noop_v1.0", null);
+        TestUtils.describeModel(channel, "noop_v1.0", null, false);
         TestUtils.getLatch().await();
         validateNoSnapshot();
     }

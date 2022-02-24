@@ -10,7 +10,9 @@ public enum WorkerCommands {
     @SerializedName("unload")
     UNLOAD("unload"),
     @SerializedName("stats")
-    STATS("stats");
+    STATS("stats"),
+    @SerializedName("describe")
+    DESCRIBE("describe");
 
     private String command;
 

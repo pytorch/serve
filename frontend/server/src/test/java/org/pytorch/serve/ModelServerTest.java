@@ -196,7 +196,7 @@ public class ModelServerTest {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, "noop", null);
+        TestUtils.describeModel(channel, "noop", null, false);
         TestUtils.getLatch().await();
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
@@ -222,7 +222,7 @@ public class ModelServerTest {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, "noop_v1.0", null);
+        TestUtils.describeModel(channel, "noop_v1.0", null, false);
         TestUtils.getLatch().await();
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
@@ -234,6 +234,23 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopModel"})
+    public void testDescribeModelCustomizedNoWorker() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/models/noop_v1.0?customized=true");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.SERVICE_UNAVAILABLE.code());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeModelCustomizedNoWorker"})
     public void testSyncScaleNoopModel() throws InterruptedException {
         testSyncScaleModel("noop_v1.0", null);
     }
@@ -264,7 +281,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testListModels"})
     public void testDescribeNoopModel() throws InterruptedException {
-        testDescribeModel("noop_v1.0", null, "1.11");
+        testDescribeModel("noop_v1.0", null, false, "1.11");
     }
 
     @Test(
@@ -292,21 +309,22 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopV2ModelWithInitialWorkers"})
     public void testDescribeDefaultModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", null, "1.11");
+        testDescribeModel("noopversioned", null, false, "1.11");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeDefaultModelVersion"})
     public void testDescribeAllModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "all", "1.2.1");
+        testDescribeModel("noopversioned", "all", false, "1.2.1");
+        testDescribeModel("noopversioned", "all", true, "1.2.1");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeAllModelVersion"})
     public void testDescribeSpecificModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "1.11", "1.11");
+        testDescribeModel("noopversioned", "1.11", false, "1.11");
     }
 
     @Test(
@@ -785,6 +803,25 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsDecodeRequest"})
+    public void testNoopCustomized() throws InterruptedException {
+        testLoadModelWithInitialWorkers("noop-customized.mar", "noop-customized", "1.0");
+
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop-customized", "1.0", true);
+        TestUtils.getLatch().await();
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(
+                resp[0].getCustomizedMetadata(), "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}");
+
+        testUnregisterModel("noop-customized", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopCustomized"})
     public void testPredictionsDoNotDecodeRequest()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
@@ -954,7 +991,7 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
 
-        TestUtils.describeModel(mgmtChannel, "noop_default_model_workers", null);
+        TestUtils.describeModel(mgmtChannel, "noop_default_model_workers", null, false);
         TestUtils.getLatch().await();
 
         DescribeModelResponse[] resp =
@@ -2008,12 +2045,13 @@ public class ModelServerTest {
         }
     }
 
-    private void testDescribeModel(String modelName, String requestVersion, String expectedVersion)
+    private void testDescribeModel(
+            String modelName, String requestVersion, boolean customized, String expectedVersion)
             throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, modelName, requestVersion);
+        TestUtils.describeModel(channel, modelName, requestVersion, customized);
         TestUtils.getLatch().await();
 
         DescribeModelResponse[] resp =

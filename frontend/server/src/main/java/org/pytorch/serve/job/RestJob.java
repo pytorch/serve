@@ -1,19 +1,28 @@
 package org.pytorch.serve.job;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.InternalServerException;
+import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.api.MetricAggregator;
+import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -42,6 +51,62 @@ public class RestJob extends Job {
 
     @Override
     public void response(
+            byte[] body,
+            CharSequence contentType,
+            int statusCode,
+            String statusPhrase,
+            Map<String, String> responseHeaders) {
+        if (this.getCmd() == WorkerCommands.PREDICT) {
+            responseInference(body, contentType, statusCode, statusPhrase, responseHeaders);
+        } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
+            responseDescribe(body, contentType, statusCode, statusPhrase, responseHeaders);
+        }
+    }
+
+    private void responseDescribe(
+            byte[] body,
+            CharSequence contentType,
+            int statusCode,
+            String statusPhrase,
+            Map<String, String> responseHeaders) {
+        try {
+            ArrayList<DescribeModelResponse> respList =
+                    ApiUtils.getModelDescription(this.getModelName(), this.getModelVersion());
+
+            if ((body != null && body.length != 0) && respList != null && respList.size() == 1) {
+                respList.get(0).setCustomizedMetadata(body);
+            }
+
+            HttpResponseStatus status =
+                    (statusPhrase == null)
+                            ? HttpResponseStatus.valueOf(statusCode)
+                            : new HttpResponseStatus(statusCode, statusPhrase);
+            FullHttpResponse resp =
+                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+
+            if (contentType != null && contentType.length() > 0) {
+                resp.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+            } else {
+                resp.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+            }
+
+            if (responseHeaders != null) {
+                for (Map.Entry<String, String> e : responseHeaders.entrySet()) {
+                    resp.headers().set(e.getKey(), e.getValue());
+                }
+            }
+
+            ByteBuf content = resp.content();
+            content.writeCharSequence(JsonUtils.GSON_PRETTY.toJson(respList), CharsetUtil.UTF_8);
+            content.writeByte('\n');
+            NettyUtils.sendHttpResponse(ctx, resp, true);
+        } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+            logger.trace("", e);
+            NettyUtils.sendError(ctx, HttpResponseStatus.NOT_FOUND, e);
+        }
+    }
+
+    private void responseInference(
             byte[] body,
             CharSequence contentType,
             int statusCode,
@@ -113,10 +178,12 @@ public class RestJob extends Job {
             responsePromise.completeExceptionally(new InternalServerException(error));
         }
 
-        logger.debug(
-                "Waiting time ns: {}, Inference time ns: {}",
-                getScheduled() - getBegin(),
-                System.nanoTime() - getBegin());
+        if (this.getCmd() == WorkerCommands.PREDICT) {
+            logger.debug(
+                    "Waiting time ns: {}, Inference time ns: {}",
+                    getScheduled() - getBegin(),
+                    System.nanoTime() - getBegin());
+        }
     }
 
     public CompletableFuture<byte[]> getResponsePromise() {
