@@ -7,6 +7,7 @@ from functools import wraps
 from typing import List
 import os
 import logging 
+import grequest #add this to requirements.txt
 
 logger = logging.getLogger()
 
@@ -27,6 +28,7 @@ def serve(func):
 # TODO: Create decorator for model archiver as well?
 @serve
 def handle_test():
+    # Need to figure out how to pick up the handler and replace it by the inference function that exists in the base handler
     return NotImplemented
 
 
@@ -81,10 +83,12 @@ def archive_model(serialized_file : str, model_file : str = None, model_name : s
     
     return 0
 
-def torchserve_request(endpoint : str= "", extra_params : str = ""):
+def torchserve_request(endpoint : str= "", tasks : List[str] = [], extra_params : str = ""):
     """
     Make an inference or management request using async library
-    request is synchronous so won't work well with dynamic batching
+    request is synchronous so won't work well with dynamic batching and will be like setting batch size = 1 always
     Maybe don't need this function and can just make things clearer in documentation
     """
-    return NotImplemented
+    rs = (grequest.get(task) for task in tasks)
+    return [tasks, rs]
+    
