@@ -9,7 +9,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
 snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
 data_file_mnist = os.path.join(REPO_ROOT, 'examples/image_classifier/mnist/test_data/1.png')
-input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kserve/kf_request_json/v1/mnist.json")
+input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kserve/kf_request_json/mnist.json")
 input_json_mmf = os.path.join(REPO_ROOT, "examples/MMF-activity-recognition/372CC.info.json")
 
 def getAPIS(snapshot_file):
@@ -202,7 +202,7 @@ def test_kserve_mnist_model_register_scale_inference_with_non_existent_handler(
         data = json.loads(s)
 
     response = run_inference_using_url_with_data_json(KF_INFERENCE_API + '/v1/models/mnist:predict', data)
-
+    
     if response is None:
         assert True, "Inference failed as the handler is non existent"
     else:
@@ -240,7 +240,7 @@ def test_huggingface_bert_batch_inference():
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)
     input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
-
+    
     # Make 2 curl requests in parallel with &
     # curl --header \"X-Forwarded-For: 1.2.3.4\" won't work since you can't access local host anymore
     response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
@@ -253,7 +253,7 @@ def test_huggingface_bert_batch_inference():
 
 @pytest.mark.skip(reason="MMF doesn't support PT 1.10 yet")
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
-
+  
     test_utils.start_torchserve(snapshot_file = snapshot_file_tf)
     test_utils.register_model('MMF_activity_recognition_v2', 'https://torchserve.pytorch.org/mar_files/MMF_activity_recognition_v2.mar')
     os.system('wget https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4 -P ../../examples/MMF-activity-recognition')
