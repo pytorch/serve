@@ -6,7 +6,7 @@ Run the commands given in following steps from the parent directory of the root 
 wget https://download.pytorch.org/models/alexnet-owt-7be5be79.pth
 torch-model-archiver --model-name alexnet --version 1.0 --model-file ./serve/examples/image_classifier/alexnet/model.py --serialized-file alexnet-owt-7be5be79.pth --handler image_classifier --extra-files ./serve/examples/image_classifier/index_to_name.json
 mkdir model_store
-mv alexnet model_store/
+mv alexnet.mar model_store/
 torchserve --start --model-store model_store --models alexnet=alexnet.mar
 curl http://127.0.0.1:8080/predictions/alexnet -T ./serve/examples/image_classifier/kitten.jpg
 ```
