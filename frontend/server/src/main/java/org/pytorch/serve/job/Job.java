@@ -39,7 +39,7 @@ public abstract class Job {
     }
 
     public boolean isControlCmd() {
-        return !WorkerCommands.PREDICT.equals(cmd);
+        return !WorkerCommands.PREDICT.equals(cmd) && !WorkerCommands.DESCRIBE.equals(cmd);
     }
 
     public RequestInput getPayload() {
