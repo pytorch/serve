@@ -423,7 +423,11 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f"{execution_params['tmp_dir']}/benchmark/{m}", header=None)
+        file_path = f"{execution_params['tmp_dir']}/benchmark/{m}"
+        if is_file_empty(file_path):
+            continue
+        else:
+            df = pd.read_csv(file_path, header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
@@ -552,6 +556,12 @@ def failure_exit(msg):
 
 def is_workflow(model_url):
     return model_url.endswith('.war')
+
+
+def is_file_empty(file_path):
+    """ Check if file is empty by confirming if its size is 0 bytes"""
+    # Check if file exist and it is empty
+    return os.path.exists(file_path) and os.stat(file_path).st_size == 0
 
 if __name__ == '__main__':
     benchmark()
