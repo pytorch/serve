@@ -134,7 +134,7 @@ The request first comes to the image transformer at port 8080 and in turn reques
 - The curl request for inference is as below:
 
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
 ```
 
 output:
