@@ -10,6 +10,7 @@ from transformers import (
     AutoTokenizer,
     AutoModelForQuestionAnswering,
     AutoModelForTokenClassification,
+    AutoModelForCausalLM
 )
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
@@ -70,6 +71,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
             elif self.setup_config["mode"] == "token_classification":
                 self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
+            elif self.setup_config["mode"] == "text_generation":
+                self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
             self.model.to(self.device)
@@ -96,7 +99,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
         # Question answering does not need the index_to_name.json file.
-        if not self.setup_config["mode"] == "question_answering":
+        if not (self.setup_config["mode"] == "question_answering" or self.setup_config["mode"] == "text_generation"):
             if os.path.isfile(mapping_file_path):
                 with open(mapping_file_path) as f:
                     self.mapping = json.load(f)
@@ -126,7 +129,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
             # preprocessing text for sequence_classification and token_classification.
-            if self.setup_config["mode"] == "sequence_classification" or self.setup_config["mode"] == "token_classification":
+            if self.setup_config["mode"] == "sequence_classification" or self.setup_config["mode"] == "token_classification" or self.setup_config["mode"] == "text_generation":
                 inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors='pt')
             # preprocessing text for question_answering.
             elif self.setup_config["mode"] == "question_answering":
@@ -219,6 +222,16 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 prediction = [(token, label_list[prediction]) for token, prediction in zip(tokens, predictions[0].tolist())]
                 inferences.append(prediction)
             logger.info("Model predicted: '%s'", prediction)
+            
+        # Handling inference for text_generation.
+        if self.setup_config["mode"] == "text_generation":
+            
+            for input in input_ids_batch:
+                prompt_length = len(self.tokenizer.decode(input[0]))
+                outputs = self.model.generate(input, max_length=150, do_sample=True, top_p=0.95, top_k=60)
+                generated = self.tokenizer.decode(input) + self.tokenizer.decode(outputs[0])[prompt_length + 1 :]
+            
+                inferences.append(generated)
 
         return inferences
 
