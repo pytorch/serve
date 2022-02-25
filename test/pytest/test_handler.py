@@ -232,7 +232,8 @@ def test_huggingface_bert_batch_inference():
     batch_delay = 10000 # 10 seconds
     params = (
         ('model_name', 'BERTSeqClassification'),
-        ('url', 'https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar'),
+        #('url', 'https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar'),
+        ('url', 'https://bert-torchscript-multi-gpu.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar'),
         ('initial_workers', '1'),
         ('batch_size', str(batch_size)),
         ('max_batch_delay', str(batch_delay))
