@@ -230,9 +230,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 prompt_length = len(self.tokenizer.decode(input[0]))
                 outputs = self.model.generate(input, max_length=150, do_sample=True, top_p=0.95, top_k=60)
                 generated = self.tokenizer.decode(input) + self.tokenizer.decode(outputs[0])[prompt_length + 1 :]
-            
+                print("Generated text: " + generated)
                 inferences.append(generated)
-
+            logger.info("Generated text: '%s'", generated)
         return inferences
 
     def postprocess(self, inference_output):
