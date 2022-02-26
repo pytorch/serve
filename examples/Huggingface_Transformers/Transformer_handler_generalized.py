@@ -128,8 +128,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 input_text = input_text_target["text"]
             max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
-            # preprocessing text for sequence_classification and token_classification.
-            if self.setup_config["mode"] == "sequence_classification" or self.setup_config["mode"] == "token_classification" or self.setup_config["mode"] == "text_generation":
+            # preprocessing text for sequence_classification, token_classification or text_generation
+            if self.setup_config["mode"] in {"sequence_classification", "token_classification", "text_generation"}:
                 inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors='pt')
             # preprocessing text for question_answering.
             elif self.setup_config["mode"] == "question_answering":
