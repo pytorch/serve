@@ -22,15 +22,19 @@ import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.MethodNotAllowedException;
 import org.pytorch.serve.http.RequestTimeoutException;
 import org.pytorch.serve.http.ResourceNotFoundException;
+import org.pytorch.serve.http.ServiceUnavailableException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.http.messages.KFV1ModelReadyResponse;
 import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerThread;
@@ -79,7 +83,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     modelVersion = segments[3];
                 }
                 if (HttpMethod.GET.equals(method)) {
-                    handleDescribeModel(ctx, segments[2], modelVersion);
+                    handleDescribeModel(ctx, req, segments[2], modelVersion, decoder);
                 } else if (HttpMethod.PUT.equals(method)) {
                     if (segments.length == 5 && "set-default".equals(segments[4])) {
                         setDefaultModelVersion(ctx, segments[2], segments[3]);
@@ -127,12 +131,31 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     private void handleDescribeModel(
-            ChannelHandlerContext ctx, String modelName, String modelVersion)
+            ChannelHandlerContext ctx,
+            FullHttpRequest req,
+            String modelName,
+            String modelVersion,
+            QueryStringDecoder decoder)
             throws ModelNotFoundException, ModelVersionNotFoundException {
-
-        ArrayList<DescribeModelResponse> resp =
-                ApiUtils.getModelDescription(modelName, modelVersion);
-        NettyUtils.sendJsonResponse(ctx, resp);
+        boolean customizedMetadata =
+                Boolean.parseBoolean(NettyUtils.getParameter(decoder, "customized", "false"));
+        if ("all".equals(modelVersion) || !customizedMetadata) {
+            ArrayList<DescribeModelResponse> resp =
+                    ApiUtils.getModelDescription(modelName, modelVersion);
+            NettyUtils.sendJsonResponse(ctx, resp);
+        } else {
+            String requestId = NettyUtils.getRequestId(ctx.channel());
+            RequestInput input = new RequestInput(requestId);
+            for (Map.Entry<String, String> entry : req.headers().entries()) {
+                input.updateHeaders(entry.getKey(), entry.getValue());
+            }
+            input.updateHeaders("describe", "True");
+            RestJob job = new RestJob(ctx, modelName, modelVersion, WorkerCommands.DESCRIBE, input);
+            if (!ModelManager.getInstance().addJob(job)) {
+                String responseMessage = ApiUtils.getDescribeErrorResponseMessage(modelName);
+                throw new ServiceUnavailableException(responseMessage);
+            }
+        }
     }
 
     private void handleKF1ModelReady(

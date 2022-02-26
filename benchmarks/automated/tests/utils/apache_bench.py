@@ -19,6 +19,7 @@ from invoke import run, sudo
 from invoke.context import Context
 
 from . import DEFAULT_REGION, IAM_INSTANCE_PROFILE, AMI_ID, LOGGER, S3_BUCKET_BENCHMARK_ARTIFACTS
+from . import cloudwatch as cloudwatch_utils
 
 TMP_DIR = "/home/ubuntu"
 LOCAL_TMP_DIR = "/tmp"
@@ -65,7 +66,7 @@ class ApacheBenchHandler(object):
             self.connection.run(f"cp {file_name} {os.path.join(TMP_DIR, 'benchmark/input')}")
         else:
             self.connection.run(f"cp {input_file} {os.path.join(TMP_DIR, 'benchmark/input')}")
-        
+
         predict_flag = "predictions"
         model_name = "benchmark"
         if is_workflow:
@@ -100,7 +101,7 @@ class ApacheBenchHandler(object):
         temp_uuid = uuid.uuid4()
 
         time.sleep(5)
-        
+
         # Upload to s3 and fetch back to local instance: more reliable than using self.connection.get()
         connection.run(f"aws s3 cp {self.result_file} {S3_BUCKET_BENCHMARK_ARTIFACTS}/{temp_uuid}/result.txt")
         time.sleep(2)
@@ -136,7 +137,7 @@ class ApacheBenchHandler(object):
             if pattern.search(line):
                 return line.split(delim)[index].strip()
 
-    def generate_csv_output(self, requests, concurrency, connection=None):
+    def generate_csv_output(self, requests, concurrency, batch_size, mode, connection=None):
         LOGGER.info("*Generating CSV output...")
 
         batched_requests = requests / concurrency
@@ -147,6 +148,8 @@ class ApacheBenchHandler(object):
         with open(f"{self.local_tmp_dir}/result.txt") as f:
             data = f.readlines()
         artifacts["Benchmark"] = "AB"
+        artifacts["Batch Size"] = batch_size
+        artifacts["Mode"] = mode # This is the pytorch mode i.e. eager or scripted, as specified in <model>.yaml
         artifacts["Model"] = self.model_name
         artifacts["Concurrency"] = concurrency
         artifacts["Requests"] = requests
@@ -178,6 +181,28 @@ class ApacheBenchHandler(object):
 
         return artifacts
 
-    def generate_report(self, requests, concurrency, connection=None):
+    def push_benchmark_metrics(self, artifacts, connection=None):
+        curr_instance_type = connection.run(
+            f"curl http://169.254.169.254/latest/meta-data/instance-type", warn=True
+        ).stdout
+
+        artifacts["instance_type"] = curr_instance_type
+
+        # 'BENCHMARK_CONTEXT' is set internally at AWS for certain benchmark jobs.
+        # When it's not available, 'DevTest' is used.
+        dashboard_context = os.getenv("BENCHMARK_CONTEXT", "DevTest")
+
+        cloudwatchMetricsHandler = cloudwatch_utils.CloudWatchMetricsHandler(
+            context=dashboard_context, sub_namespace=f"{self.model_name}/{artifacts.get('Mode')}"
+        )
+
+        cloudwatchMetricsHandler.push_benchmark_metrics(artifacts)
+
+    def generate_report(self, requests, concurrency, batch_size, mode, connection=None):
         self.extract_metrics(connection=connection)
-        self.generate_csv_output(requests, concurrency, connection=connection)
+        artifacts = self.generate_csv_output(
+            requests, concurrency, batch_size=batch_size, mode=mode, connection=connection
+        )
+
+        # Push metrics to cloudwatch
+        self.push_benchmark_metrics(artifacts, connection=connection)

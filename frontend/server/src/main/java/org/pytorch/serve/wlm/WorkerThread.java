@@ -193,12 +193,13 @@ public class WorkerThread implements Runnable {
 
                 if (reply != null) {
                     aggregator.sendResponse(reply);
-                } else {
+                } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
                     int val = model.incrFailedInfReqs();
                     logger.error("Number or consecutive unsuccessful inference {}", val);
                     throw new WorkerInitializationException(
                             "Backend worker did not respond in given time");
                 }
+
                 switch (req.getCommand()) {
                     case PREDICT:
                         model.resetFailedInfReqs();
@@ -210,6 +211,14 @@ public class WorkerThread implements Runnable {
                         } else {
                             setState(WorkerState.WORKER_ERROR, reply.getCode());
                             status = reply.getCode();
+                        }
+                        break;
+                    case DESCRIBE:
+                        if (reply == null) {
+                            aggregator.sendError(
+                                    req,
+                                    "Failed to get customized model matadata.",
+                                    HttpURLConnection.HTTP_INTERNAL_ERROR);
                         }
                         break;
                     case UNLOAD:
