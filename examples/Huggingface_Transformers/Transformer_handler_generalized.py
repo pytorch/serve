@@ -225,9 +225,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             
         # Handling inference for text_generation.
         if self.setup_config["mode"] == "text_generation":
-            
             for input in input_ids_batch:
                 prompt_length = len(self.tokenizer.decode(input[0]))
+                # for each text example from the batch, there is one instance of generated text 
+                # generated text is added at the starting text example  
+                # the output has a max length and is decoded in text
                 outputs = self.model.generate(input, max_length=150, do_sample=True, top_p=0.95, top_k=60)
                 generated = self.tokenizer.decode(input[0]) + self.tokenizer.decode(outputs[0])[prompt_length + 1 :]
                 print("Generated text length: " + len(generated))
