@@ -45,12 +45,35 @@ def detect_model_archiver_version():
     return model_archiver.__version__.strip() + 'b' + str(date.today()).replace('-', '')
 
 
+def get_nightly_version():
+    today = date.today()
+    return today.strftime("%Y.%m.%d")
+
+
+
+
+    version = get_nightly_version() if is_nightly else detect_workflow_archiver_version()
+
+
 if __name__ == '__main__':
-    version = detect_model_archiver_version()
+    name='torch-model-archiver'
+    
+    # Clever code to figure out if setup.py was trigger by ts_scripts/push_nightly.sh
+    NAME_ARG = "--override-name"
+    if NAME_ARG in sys.argv:
+        idx = sys.argv.index(NAME_ARG)
+        name = sys.argv.pop(idx + 1)
+        sys.argv.pop(idx)
+
+    is_nightly = "nightly" in name
+    version = get_nightly_version() if is_nightly else detect_model_archiver_version()
     requirements = ['future', 'enum-compat']
 
+    print(f"-- {name} building version: {version}")
+
+
     setup(
-        name='torch-model-archiver',
+        name=name,
         version=version,
         description='Torch Model Archiver is used for creating archives of trained neural net models '
                     'that can be consumed by TorchServe inference',
