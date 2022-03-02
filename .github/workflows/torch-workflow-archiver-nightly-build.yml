@@ -18,9 +18,9 @@ jobs:
       - name: Install dependencies
         run: |
           set -eux
-          cd workflow-archiver
           pip install twine wheel
       - name: Push nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: ../ts_scripts/push_nightly.sh torch-workflow-archiver-nightly
+        working-directory: workflow-archiver
+        run: ../ts_scripts/push_nightly.sh torch-model-workflow-nightly

@@ -15,4 +15,4 @@ fi
 python3 -m twine upload \
     --username __token__ \
     --password "$PYPI_TOKEN" \
-    dist/$1-*
+    dist/torch*
