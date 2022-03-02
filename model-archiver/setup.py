@@ -49,12 +49,6 @@ def get_nightly_version():
     today = date.today()
     return today.strftime("%Y.%m.%d")
 
-
-
-
-    version = get_nightly_version() if is_nightly else detect_workflow_archiver_version()
-
-
 if __name__ == '__main__':
     name='torch-model-archiver'
     
