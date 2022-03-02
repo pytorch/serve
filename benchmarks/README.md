@@ -198,6 +198,10 @@ Apache Bench is installed in Mac by default. You can test by running ```ab -h```
     NOTE - You may need to  install Visual C++ Redistributable for Visual Studio 2015-2019.
 
 ## Benchmark
+
+## Github Actions benchmarking
+
+
 ### Run benchmark
 This command will run the AB benchmark with default parameters. It will start a Torchserve instance locally, register Resnet-18 model, and run 100 inference requests with a concurrency of 10.
 Refer [parameters section](#benchmark-parameters) for more details on configurable parameters.
