@@ -352,7 +352,7 @@
 <p>Base class for all RequestEnvelope.</p>
 <p>A request envelope reformats the inputs/outputs of a call to a handler.
 It translates from formats specific to a model orchestrator like Seldon or
-KFServing to a set of flat Python items, and vice versa.</p>
+KServe to a set of flat Python items, and vice versa.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.torch_handler.request_envelope.base.BaseEnvelope">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.request_envelope.base.</span></span><span class="sig-name descname"><span class="pre">BaseEnvelope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle_fn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/request_envelope/base.html#BaseEnvelope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.request_envelope.base.BaseEnvelope" title="Permalink to this definition">¶</a></dt>
@@ -422,8 +422,51 @@ also in JSON format.</p>
 </dd></dl>
 
 </section>
-<section id="ts-torch-handler-request-envelope-kserve-module">
-<h2>ts.torch_handler.request_envelope.kserve module<a class="headerlink" href="#ts-torch-handler-request-envelope-kserve-module" title="Permalink to this headline">¶</a></h2>
+<section id="module-ts.torch_handler.request_envelope.kserve">
+<span id="ts-torch-handler-request-envelope-kserve-module"></span><h2>ts.torch_handler.request_envelope.kserve module<a class="headerlink" href="#module-ts.torch_handler.request_envelope.kserve" title="Permalink to this headline">¶</a></h2>
+<p>The KServe Envelope is used to handle the KServe
+Input Request inside Torchserve.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.torch_handler.request_envelope.kserve.KServeEnvelope">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.request_envelope.kserve.</span></span><span class="sig-name descname"><span class="pre">KServeEnvelope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle_fn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/request_envelope/kserve.html#KServeEnvelope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.request_envelope.kserve.KServeEnvelope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ts.torch_handler.request_envelope.base.BaseEnvelope" title="ts.torch_handler.request_envelope.base.BaseEnvelope"><code class="xref py py-class docutils literal notranslate"><span class="pre">ts.torch_handler.request_envelope.base.BaseEnvelope</span></code></a></p>
+<p>This function is used to handle the input request specified in kserve
+format and converts it into a Torchserve readable format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Format</strong> (<em>data - List of Input Request in kserve</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the list of the Input Request in Torchserve Format</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>]</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.request_envelope.kserve.KServeEnvelope.format_output">
+<span class="sig-name descname"><span class="pre">format_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/request_envelope/kserve.html#KServeEnvelope.format_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.request_envelope.kserve.KServeEnvelope.format_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the prediction response and captum explanation response of the input request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>outputs</strong> (<em>List</em>) – The outputs arguments is in the form of a list of dictionaries.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The response is returned as a list of predictions and explanations</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.request_envelope.kserve.KServeEnvelope.parse_input">
+<span class="sig-name descname"><span class="pre">parse_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/request_envelope/kserve.html#KServeEnvelope.parse_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.request_envelope.kserve.KServeEnvelope.parse_input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="ts-torch-handler-request-envelope-kservev2-module">
 <h2>ts.torch_handler.request_envelope.kservev2 module<a class="headerlink" href="#ts-torch-handler-request-envelope-kservev2-module" title="Permalink to this headline">¶</a></h2>
@@ -481,7 +524,7 @@ also in JSON format.</p>
 <li><a class="reference internal" href="#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
 <li><a class="reference internal" href="#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
 <li><a class="reference internal" href="#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
-<li><a class="reference internal" href="#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li><a class="reference internal" href="#module-ts.torch_handler.request_envelope.kserve">ts.torch_handler.request_envelope.kserve module</a></li>
 <li><a class="reference internal" href="#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
 <li><a class="reference internal" href="#module-ts.torch_handler.request_envelope">Module contents</a></li>
 </ul>

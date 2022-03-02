@@ -351,7 +351,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.base">ts.torch_handler.request_envelope.base module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kserve-module">ts.torch_handler.request_envelope.kserve module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.kserve">ts.torch_handler.request_envelope.kserve module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
 </ul>
@@ -398,6 +398,20 @@ Also, provides handle method per torch serve custom model specification</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.describe_handle">
+<span class="sig-name descname"><span class="pre">describe_handle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.describe_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.describe_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customized describe handler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary response.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.explain_handle">
 <span class="sig-name descname"><span class="pre">explain_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.explain_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.explain_handle" title="Permalink to this definition">¶</a></dt>

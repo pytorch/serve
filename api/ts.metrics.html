@@ -548,11 +548,14 @@ Pass a json, collection of pids and gpuID</p>
 <p>Module to collect system metrics for front-end</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ts.metrics.system_metrics.collect_all">
-<span class="sig-prename descclassname"><span class="pre">ts.metrics.system_metrics.</span></span><span class="sig-name descname"><span class="pre">collect_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/system_metrics.html#collect_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.system_metrics.collect_all" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ts.metrics.system_metrics.</span></span><span class="sig-name descname"><span class="pre">collect_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_gpu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/system_metrics.html#collect_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.system_metrics.collect_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect all system metrics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mod</strong> – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mod</strong> – </p></li>
+<li><p><strong>num_of_gpu</strong> – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
@@ -579,6 +582,20 @@ Pass a json, collection of pids and gpuID</p>
 <dt class="sig sig-object py" id="ts.metrics.system_metrics.disk_utilization">
 <span class="sig-prename descclassname"><span class="pre">ts.metrics.system_metrics.</span></span><span class="sig-name descname"><span class="pre">disk_utilization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/system_metrics.html#disk_utilization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.system_metrics.disk_utilization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ts.metrics.system_metrics.gpu_utilization">
+<span class="sig-prename descclassname"><span class="pre">ts.metrics.system_metrics.</span></span><span class="sig-name descname"><span class="pre">gpu_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_of_gpu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/system_metrics.html#gpu_utilization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.system_metrics.gpu_utilization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect gpu metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num_of_gpu</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ts.metrics.system_metrics.memory_available">

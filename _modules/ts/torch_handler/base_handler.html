@@ -547,13 +547,16 @@
         <span class="k">if</span> <span class="n">is_profiler_enabled</span><span class="p">:</span>
             <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_with_profiler</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">data_preprocess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explain</span><span class="p">():</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">)</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_describe</span><span class="p">():</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">describe_handle</span><span class="p">()]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explain_handle</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="n">data_preprocess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explain</span><span class="p">():</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">)</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explain_handle</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="n">stop_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add_time</span><span class="p">(</span><span class="s1">&#39;HandlerTime&#39;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span>
@@ -636,7 +639,23 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;explain&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">explain</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_is_describe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;describe&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;describe&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="BaseHandler.describe_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.describe_handle">[docs]</a>    <span class="k">def</span> <span class="nf">describe_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Customized describe handler</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict : A dictionary response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=unnecessary-pass</span>
+        <span class="k">pass</span></div></div>
+        <span class="c1"># pylint: enable=unnecessary-pass</span>
 </pre></div>
 
              </article>
