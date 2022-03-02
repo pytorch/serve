@@ -23,4 +23,4 @@ jobs:
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         working-directory: workflow-archiver
-        run: ../ts_scripts/push_nightly.sh torch-model-workflow-nightly
+        run: ../ts_scripts/push_nightly.sh torch-workflow-archiver-nightly
