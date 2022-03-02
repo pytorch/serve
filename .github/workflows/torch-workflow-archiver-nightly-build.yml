@@ -23,4 +23,4 @@ jobs:
       - name: Push nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: ts_scripts/push_nightly.sh torch-workflow-archiver-nightly
+        run: ../ts_scripts/push_nightly.sh torch-workflow-archiver-nightly
