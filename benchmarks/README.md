@@ -200,7 +200,12 @@ Apache Bench is installed in Mac by default. You can test by running ```ab -h```
 ## Benchmark
 
 ## Github Actions benchmarking
+If you need to run your benchmarks on a specific cloud or hardware infrastructure. We highly recommend you fork this repo and leverage the benchmarks in `.github/workflows/benchmark-automation.yml` which will run the benchmarks on a custom instance of your choice and save the results as a github artifact. To learn more about how to create your own custom runner by following instructions from Github here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
 
+The high level approach
+1. Create a cloud instance
+2. Configure it so it can talk to github actions by running some shell commands. You should then see your custom runner in Github settings
+3. In the `.yml` file make sure it's your runner that's selected
 
 ### Run benchmark
 This command will run the AB benchmark with default parameters. It will start a Torchserve instance locally, register Resnet-18 model, and run 100 inference requests with a concurrency of 10.
