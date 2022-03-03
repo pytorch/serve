@@ -4,7 +4,7 @@ import os
 import json
 import torch
 from transformers import (AutoModelForSequenceClassification, AutoTokenizer, AutoModelForQuestionAnswering,
- AutoModelForTokenClassification, AutoConfig)
+ AutoModelForTokenClassification, AutoModelForCausalLM, AutoConfig)
 from transformers import set_seed
 """ This function, save the checkpoint, config file along with tokenizer config and vocab files
     of a transformer model of your choice.
@@ -28,7 +28,11 @@ def transformers_model_dowloader(mode,pretrained_model_name,num_labels,do_lower_
         config= AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
         model = AutoModelForTokenClassification.from_pretrained(pretrained_model_name, config=config)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
-
+    elif mode== "text_generation":
+        config= AutoConfig.from_pretrained(pretrained_model_name,num_labels=num_labels,torchscript=torchscript)
+        model = AutoModelForCausalLM.from_pretrained(pretrained_model_name, config=config)
+        tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name,do_lower_case=do_lower_case)
+        
         # NOTE : for demonstration purposes, we do not go through the fine-tune processing here.
         # A Fine_tunining process based on your needs can be added.
         # An example of  Fine_tuned model has been provided in the README.
