@@ -1,4 +1,4 @@
-name: Push Nightly
+name: Push torchserve nightly
 
 on:
   # run every day at 11:15am
@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: 3.8
           architecture: x64
-      - name: Checkout TorchSeve
+      - name: Checkout TorchServe
         uses: actions/checkout@v2
       - name: Install dependencies
         run: |
@@ -33,4 +33,4 @@ jobs:
       - name: Push nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: ts_scripts/push_nightly.sh
+        run: ts_scripts/push_nightly.sh torchserve-nightly
