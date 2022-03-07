@@ -36,7 +36,7 @@ public class JSONPatternLayout extends AbstractStringLayout {
         for (Object obj : parameters) {
             if (obj instanceof Metric) {
                 Metric metric = (Metric) obj;
-                return JsonUtils.GSON_NO_PRETTY.toJson(metric) + "\n";
+                return JsonUtils.GSON_PRETTY.toJson(metric) + "\n";
             }
         }
 
