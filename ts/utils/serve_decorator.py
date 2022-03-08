@@ -103,14 +103,42 @@ def create_torchserve_config(inference_http_port : int = 8080, management_http_p
     Currently this only supports inference and management port setting but 
     eventually should support everything in config manager
     """
-    config = {
+    
+    ## Torchserve specific configs
+    ts_config = {
         f"inference_address": "http://0.0.0.0:{inference_http_port}",
         f"management_address": "http://0.0.0.0:{management_http_port}",
+        f"number_of_netty_threads" :"32",
+        f"job_queue_size" : "1000",
+        f"vmargs" : "-Xmx4g -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError",
+        f"prefer_direct_buffer" : "True",
+        f"default_response_timeout" : "300",
+        f"unregister_model_timeout" : "300",
+        f"install_py_dep_per_model" : "true"
     }
 
-    logger.info(config)
+    ## Model specific configs
 
-    for key, value in config.items():
+#     model_config = {"
+#         models={\
+#   "model": {\
+#     "1.0": {\
+#         "defaultVersion": true,\
+#         "marName": "model.mar",\
+#         "minWorkers": 1,\
+#         "maxWorkers": 1,\
+#         "batchSize": 8,\
+#         "maxBatchDelay": 50,\
+#         "responseTimeout": 120\
+#     }\
+#   }\
+# }
+
+#     }"
+
+    logger.info(ts_config)
+
+    for key, value in ts_config.items():
         with open("config.properties", "w") as f:
             f.write(f"{key}={value}\n")
     
@@ -121,11 +149,14 @@ def archive_model(serialized_file : str, model_file : str = None, model_name : s
     """
     wrapper on top of torch-model-archiver
     model_file is only needed for eager mode execution
+    TODO: Plug this into writetofile() decorator so people can write their model.py to disk
     """
 
-    # Need to hook this up to archive decorator as well that takes in the existing class and writes it to disk
+    # Eager mode model
     if model_file:
         arch_command = f"torch-model-archiver --model_file {model_file} --serialized_file {serialized_file} --model-name {model_name} --handler {handler} --version {version} --extra-files {extra_files}"
+    
+    # Torchscripted model
     else:
         arch_command = f"torch-model-archiver --serialized_file {serialized_file} --model-name {model_name} --handler {handler} --version {version} --extra-files {extra_files}"
     os.system(arch_command)
