@@ -140,7 +140,7 @@ To get predictions from the loaded model, make a REST call to `/v1/models/{model
 
 ### curl example
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
 ```
 
 The result is a json that gives you the predictions for the input json
@@ -162,7 +162,7 @@ To get explanations from the loaded model, make a REST call to `/v1/models/{mode
 
 ### curl example
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
 ```
 
 The result is a json that gives you the explanations for the input json
