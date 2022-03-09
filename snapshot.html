@@ -347,8 +347,8 @@
 </ul>
 <p>The snapshot is taken at following instances -</p>
 <ul class="simple">
-<li><p>After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/configs/<yyyyMMddHHmmssSSS>-startup.cfg</p></li>
-<li><p>If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-snapshot.cfg</p></li>
+<li><p>After successful startup, the server stores its current configuration in a timestamped snapshot file ./logs/config/<yyyyMMddHHmmssSSS>-startup.cfg</p></li>
+<li><p>If a user calls the Management API in a way that changes the server runtime config, snapshot is saved to ./logs/config/<yyyyMMddHHmmssSSS>-snapshot.cfg</p></li>
 <li><p>When the server is shut down intentionally with <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--stop</span></code>, snapshot is saved to ./logs/configs/<yyyyMMddHHmmssSSS>-shutdown.cfg</p></li>
 </ul>
 <p>User can use snapshots to restore the TorchServe’s state as follows :</p>
