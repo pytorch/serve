@@ -18,7 +18,7 @@ python ./ts_scripts/install_dependencies.py --cuda=cu111
 pip install torchserve torch-model-archiver torch-workflow-archiver
 
 # Nightly build
-pip install torchserve-nightly
+pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly
 ```
 
 [Getting started guide](docs/getting_started.md)
