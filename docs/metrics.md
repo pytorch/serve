@@ -85,10 +85,10 @@ After you enable JSON log formatting, logs will look as follows:
 
 To enable metric logging in QLog format, set "patternlayout" as "QLogLayout" in [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) (See sample [log4j2-qlog.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-qlog.xml)). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md). 
 
-After you enable QLog formatting, logs will look as follows:
+After you enable QLogsetupModelDependencies formatting, logs will look as follows:
 
 ```qlog
-HostName=147dda19895c.ant.amazon.com
+HostName=abc.com
 StartTime=1646686978
 Program=MXNetModelServer
 Metrics=MemoryUsed=5790.98046875 Megabytes Level|Host
