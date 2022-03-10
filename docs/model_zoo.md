@@ -30,5 +30,7 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | Text classifier Scripted | Text Classification | AG_NEWS | 169 MB | [.mar](https://torchserve.pytorch.org/mar_files/my_text_classifier_scripted_v3.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt) |Torchscripted |
 | FCN ResNet 101 Scripted | Image Segmentation | COCO | 193 MB | [.mar](https://torchserve.pytorch.org/mar_files/fcn_resnet_101_scripted.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg?raw=true) |Torchscripted |
 | DeepLabV3 ResNet 101 Scripted | Image Segmentation | COCO | 217 MB | [.mar](https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_scripted.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg) |Torchscripted |
+| MMF activity recognition | Activity Recognition | Charades | 549 MB | [.mar](https://torchserve.pytorch.org/mar_files/MMF_activity_recognition_v2.mar) | [372CC.mp4](https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4) | Torchscripted |
+| dog breed classification | Image Classification | ImageNet | 1.1 KB | [.war](https://torchserve.s3.amazonaws.com/war_files/dog_breed_wf.war) | [kitten_small.jpg](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg) | Workflow |
 
 Refer [example](https://github.com/pytorch/serve/tree/master/examples) for more details on above models.
