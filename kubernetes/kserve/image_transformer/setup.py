@@ -27,7 +27,7 @@ setup(
     install_requires=[
         "kserve>=0.2.1", "argparse>=1.4.0", "requests>=2.22.0",
         "joblib>=0.13.2", "pandas>=0.24.2", "numpy>=1.16.3",
-        "kubernetes >= 9.0.0", "torchvision>=0.4.0", "pillow==9.0.0"
+        "kubernetes >= 9.0.0", "torchvision>=0.4.0", "pillow==9.0.1"
     ],
     tests_require=tests_require,
     extras_require={'test': tests_require})
