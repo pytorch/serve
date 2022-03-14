@@ -130,7 +130,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Received text: '%s'", input_text)
             # preprocessing text for sequence_classification, token_classification or text_generation
             if self.setup_config["mode"] in {"sequence_classification", "token_classification", "text_generation"}:
-                inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors='pt')
+                inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), padding="max_length", add_special_tokens=True, return_tensors='pt')
             # preprocessing text for question_answering.
             elif self.setup_config["mode"] == "question_answering":
                 # TODO Reading the context from a pickeled file or other fromats that
@@ -145,7 +145,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 question_context = ast.literal_eval(input_text)
                 question = question_context["question"]
                 context = question_context["context"]
-                inputs = self.tokenizer.encode_plus(question, context, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors="pt")
+                inputs = self.tokenizer.encode_plus(question, context, max_length=int(max_length), padding="max_length", add_special_tokens=True, return_tensors="pt")
             input_ids = inputs["input_ids"].to(self.device)
             attention_mask = inputs["attention_mask"].to(self.device)
             # making a batch out of the recieved requests
