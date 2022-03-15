@@ -442,7 +442,6 @@ public class ModelServerTest {
 
             StatusResponse resp =
                     JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
-            System.out.println("resp="+resp.getStatus());
             Assert.assertEquals(
                     resp.getStatus(),
                     "Model \"noop\" Version: 1.0 registered with 1 initial workers");
@@ -480,7 +479,6 @@ public class ModelServerTest {
                     "Model \"noop\" Version: 1.11 registered with 1 initial workers");
         }
     }
-
 
     @Test(
             alwaysRun = true,
