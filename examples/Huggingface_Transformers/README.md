@@ -304,6 +304,57 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
+## Model Paralellism 
+
+[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports.
+
+Change `setup_config.json` to
+
+```
+{
+ "model_name":"gpt2",
+ "mode":"text_generation",
+ "do_lower_case":true,
+ "num_labels":"0",
+ "save_mode":"pretrained",
+ "max_length":"150",
+ "captum_explanation":true,
+ "embedding_name": "gpt2",
+ "model_parallel":true
+}
+```
+```
+rm -r Transformer_model
+python Download_Transformer_models.py
+```
+
+### Create model archive eager mode
+
+```
+torch-model-archiver --model-name Textgeneration --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
+```
+
+### Create model archive Torchscript mode
+
+```
+torch-model-archiver --model-name Textgeneration --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json"
+```
+
+### Register the model
+
+To register the model on TorchServe using the above model archive file, we run the following commands:
+
+```
+mkdir model_store
+mv Textgeneration.mar model_store/
+torchserve --start --model-store model_store --models my_tc=Textgeneration.mar --ncs
+```
+
+### Run an inference
+
+To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Text_gen_artifacts/sample_text.txt`
+To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Text_gen_artifacts/sample_text.tx`
+
 ### Running KServe
 
 [BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/bert/README.md).
