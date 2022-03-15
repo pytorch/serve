@@ -306,7 +306,7 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 ## Model Paralellism 
 
-[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports.
+[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports. Make sure that you register your model with one worker using this feature. 
 
 Change `setup_config.json` to
 
@@ -347,7 +347,8 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv Textgeneration.mar model_store/
-torchserve --start --model-store model_store --models my_tc=Textgeneration.mar --ncs
+torchserve --start --model-store model_store 
+curl -X POST "localhost:8081/models?model_name=Textgeneration&url=Textgeneration.mar&batch_size=1&max_batch_delay=5000&initial_workers=1&synchronous=true"
 ```
 
 ### Run an inference
