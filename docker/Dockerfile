@@ -65,7 +65,8 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
         # Install the binary with the latest CUDA version support
         else \
             python -m pip install --no-cache-dir torch torchvision; \
-        fi \
+        fi; \
+        python -m pip install --no-cache-dir nvgpu; \
     # Install the CPU binary
     else \
         python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
