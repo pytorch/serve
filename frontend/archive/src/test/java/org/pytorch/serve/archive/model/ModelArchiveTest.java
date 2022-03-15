@@ -143,7 +143,7 @@ public class ModelArchiveTest {
                 ModelNotFoundException.class,
                 () ->
                         ModelArchive.downloadModel(
-                                ALLOWED_URLS_LIST, "src/test/resources/", "models"));
+                                ALLOWED_URLS_LIST, "src/test/resources", "noop_no_archive"));
 
         archive.clean();
     }

@@ -70,6 +70,11 @@ public class ModelArchive {
 
         if (new File(url).isDirectory()) {
             return load(url, new File(url), false);
+        } else if (modelLocation.exists()) {
+            // handle the case that "/xxx/model_store/modelXXX" is directory
+            // the input of url is modelXXX when torchserve is started
+            // with snapshot or with parameter --models modelXXX
+            return load(url, modelLocation, false);
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
