@@ -446,8 +446,6 @@ public class ModelServerTest {
             Assert.assertEquals(
                     resp.getStatus(),
                     "Model \"noop\" Version: 1.0 registered with 1 initial workers");
-
-            testUnregisterModel("noop", null);
         }
     }
 
@@ -458,7 +456,7 @@ public class ModelServerTest {
         String operatingSystem = System.getProperty("os.name").toLowerCase();
         if (!operatingSystem.contains("win")) {
             Channel channel = TestUtils.getManagementChannel(configManager);
-            testUnregisterModel("noop", null);
+            testUnregisterModel("noop", "1.0");
             TestUtils.setResult(null);
             TestUtils.setLatch(new CountDownLatch(1));
             DefaultFullHttpRequest req =
