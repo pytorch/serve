@@ -78,7 +78,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
-
+            # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
+            # this basically palce different model blocks on different devices,
+            # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L962
             if self.setup_config["model_parallel"] and "gpt2" in self.setup_config["model_name"]:
                 self.model.parallelize() 
             else:
@@ -236,6 +238,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Handling inference for text_generation.
         if self.setup_config["mode"] == "text_generation":
             if self.setup_config["model_parallel"]:
+                # Need to move the first device, as the trasnformer model has been placed there
+                #https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L970
                 input_ids_batch = input_ids_batch.to("cuda:0")
             outputs = self.model.generate(input_ids_batch, max_length=50, do_sample=True, top_p=0.95, top_k=60)
             for i, x in enumerate(outputs):
