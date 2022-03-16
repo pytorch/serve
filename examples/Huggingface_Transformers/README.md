@@ -306,7 +306,7 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 ## Model Paralellism 
 
-[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports. Make sure that you register your model with one worker using this feature. 
+[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. GPT2 model choices based on their size are gpt2-medium, gpt2-large, gpt2-xl. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports. Make sure that you register your model with one worker using this feature. 
 
 Change `setup_config.json` to
 
@@ -332,12 +332,6 @@ python Download_Transformer_models.py
 
 ```
 torch-model-archiver --model-name Textgeneration --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler ./Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./setup_config.json"
-```
-
-### Create model archive Torchscript mode
-
-```
-torch-model-archiver --model-name Textgeneration --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json"
 ```
 
 ### Register the model
