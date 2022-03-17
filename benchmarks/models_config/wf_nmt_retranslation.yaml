@@ -1,0 +1,22 @@
+---
+nmt_re_translation:
+    workflow:
+        url: "https://torchserve.pytorch.org/war_files/nmt_wf_re.war"
+        workers:
+            - 2
+        batch_delay: 100
+        retry_attempts: 5
+        timeout_ms: 300000
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        requests: 10000
+        concurrency: 10
+        input: "./examples/Workflows/nmt_transformers_pipeline/model_input/sample.txt"
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "cpu"
+            - "gpus": "all"
