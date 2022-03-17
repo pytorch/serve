@@ -523,7 +523,7 @@ def resnet152_batch_docker():
     execution_params['exec_env'] = 'docker'
 
 def bert_batch():
-    execution_params['url'] = 'https://bert-mar-file.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar'
+    execution_params['url'] = 'https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar'
     execution_params['requests'] = 1000
     execution_params['concurrency'] = 10
     execution_params['batch_size'] = 4
