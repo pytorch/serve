@@ -2,7 +2,8 @@
 dog_breed:
     workflow:
         url: "https://torchserve.pytorch.org/war_files/dog_breed_wf.war"
-        workers: 2
+        workers:
+            - 2
         batch_delay: 100
         retry_attempts: 5
         timeout_ms: 300000

@@ -3,7 +3,8 @@ bert_inf1:
     scripted_mode:
         benchmark_engine: "ab"
         compile_per_batch_size: True
-        workers: 4
+        workers:
+            - 4
         batch_delay: 100
         batch_size:
             - 1

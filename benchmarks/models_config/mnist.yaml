@@ -3,7 +3,8 @@ mnist:
     eager_mode:
         benchmark_engine: "ab"
         url: "https://torchserve.pytorch.org/mar_files/mnist_v2.mar"
-        workers: 4
+        workers:
+            - 4
         batch_delay: 100
         batch_size:
             - 1

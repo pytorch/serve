@@ -207,7 +207,7 @@ def main():
     arguments = parser.parse_args()
     csv_dict = extract_metrics_from_csv(arguments.csv)
     gen_metrics_from_csv(csv_dict, arguments.stats)
-    gen_metrics_from_log(csv_dict, arguments.log, arguments.raw)
+    #gen_metrics_from_log(csv_dict, arguments.log, arguments.raw)
 
 if __name__ == "__main__":
     main()

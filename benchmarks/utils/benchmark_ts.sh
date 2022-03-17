@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 
 # inputs:
-# $1: branch name
+# $1: branch name or nightly build
+#     - nightly: install torchserve-nightly
+#     - branch name: install the branch
+#     - skip: skip installation
 # $2: model yaml files predefined in benchmarks/models_config/
 #     - all: all yaml files in config;
 #     - a list of files separated by comma: bert_multi_gpu.yaml,fastrcnn.yaml
-# $3: (optional) "nightly" trigger branch installation and reports saved in AWS S3
+# $3: (optional) "S3" trigger reports and metrics0 saved in AWS S3
+#
 # Note:
 # - aws cloudwatch or s3 destination can be adjusted based on user's AWS setting.
 # - aws cloudwatch metric-data max size 40kb
 #
 # cmd examples:
 # - cd serve
-# - ./benchmarks/utils/benchmark_ts.sh master all nightly or ./benchmarks/utils/benchmark_ts.sh master all
-# - ./benchmarks/utils/benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml nightly or
-#   ./benchmarks/utils/benchmark_ts.sh master bert_multi_gpu.yaml,fastrcnn.yaml
+# - ./benchmarks/utils/benchmark_ts.sh master all s3 or ./benchmarks/utils/benchmark_ts.sh master all
+# - ./benchmarks/utils/benchmark_ts.sh nightly bert_multi_gpu.yaml,fastrcnn.yaml s3 or
+#   ./benchmarks/utils/benchmark_ts.sh skip bert_multi_gpu.yaml,fastrcnn.yaml
 
 sudo apt install -y apache2-utils
 
@@ -28,27 +32,21 @@ fi
 CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "CUR_DIR=$CUR_DIR"
 
+if [ "$2" == "all" ]; then
+    declare -a models=`ls benchmarks/models_config/ | tr "\n" " "`
+else
+    IFS="," read -a models <<< $2
+fi
+
 if nvidia-smi -L; then
     hw_type=GPU
-    RUNTIME="--runtime=nvidia"
-    if [ "$2" == "all" ]; then
-        declare -a models=("bert_multi_gpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml" )
-    else
-        IFS="," read -a models <<< $2
-    fi
 
     echo "switch to CUDA 10.2"
     sudo rm -rf /usr/local/cuda
     sudo ln -s /usr/local/cuda-10.2 /usr/local/cuda
     export PATH=/usr/local/cuda-10.2/bin${PATH:+:${PATH}}$
-    export LD_LIBRARY_PATH=/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 else
     hw_type=CPU
-    if [ "$2" == "all" ]; then
-        declare -a models=("bert_cpu.yaml" "fastrcnn.yaml" "mnist.yaml" "vgg16.yaml" )
-    else
-        IFS="," read -a models <<< $2
-    fi
 fi
 
 # directory to store execution log
@@ -58,25 +56,27 @@ mkdir -p /tmp/benchmark
 
 # clone TorchServe 
 #if [ ! -d "serve" ]; then
-#    git clone --quie https://github.com/pytorch/serve.git > /dev/null
+#    git clone --quiet https://github.com/pytorch/serve.git > /dev/null
 #fi
 
 #cd serve || exit 1
 
 # install TorchServe
-if [[ "$3" == "nightly" ]]; then
-    git reset --hard
-    git clean -dffx .
-    git pull --rebase
-    git checkout $BENCH
-
+if [[ "$BENCH" != "skip" ]]; then
     if [[ "$hw_type" == "GPU" ]]; then
         python ts_scripts/install_dependencies.py --environment dev --cuda cu102
     else
         python ts_scripts/install_dependencies.py --environment dev
     fi
 
-    python ts_scripts/install_from_src.py
+    if [[ "$BENCH" == "nightly" ]]; then
+        pip install torchserve-nightly
+    else
+        git reset --hard
+        git clean -dffx .
+        git pull --rebase
+        git checkout $BENCH
+        python ts_scripts/install_from_src.py
 
     pip install -r benchmarks/requirements-ab.txt
 fi
@@ -98,6 +98,8 @@ if [ "$hw_type" == "GPU" ]; then
     config_dir="json/gpu"
 fi
 
+declare -a result_files=("ab_report.csv" "predict_latency.png")
+declare -a log_files=("model_log.log" "ts_log.log")
 for config_file in "$config_dir"/*; do
     echo "config_file=$config_file"
     if [ -f "$config_file" ]; then
@@ -111,7 +113,7 @@ for config_file in "$config_dir"/*; do
 	      --stats /tmp/benchmark/logs/stats_metrics.json \
 	      --raw /tmp/benchmark/logs/model_metrics.json
 
-	      if [ "$3" == "nightly" ]; then
+	      if [ "$3" == "s3" ]; then
             aws cloudwatch put-metric-data \
             --namespace torchserve_benchmark_${hw_type} \
             --region "us-west-2" \
@@ -120,28 +122,17 @@ for config_file in "$config_dir"/*; do
         fi
 
 	      mkdir -p /tmp/ts_benchmark/${model_name}
-	      if [ -f /tmp/benchmark/ab_report.csv ]; then
-            mv /tmp/benchmark/ab_report.csv /tmp/ts_benchmark/${model_name}/ab_report.csv
-        fi
-	      if [ -f /tmp/benchmark/predict_latency.png ]; then
-            mv /tmp/benchmark/predict_latency.png /tmp/ts_benchmark/${model_name}/predict_latency.png
-        fi
-	      if [ -f /tmp/benchmark/result.txt ]; then
-            mv /tmp/benchmark/result.txt /tmp/ts_benchmark/${model_name}/result.txt
-        fi
-	      if [ -f /tmp/benchmark/logs/model_metrics.log ]; then
-            mv /tmp/benchmark/logs/model_metrics.log /tmp/ts_benchmark/${model_name}/model_metrics.log
-        fi
-        if [ -f /tmp/benchmark/logs/model_metrics.json ]; then
-            mv /tmp/benchmark/logs/stats_metrics.json /tmp/ts_benchmark/${model_name}/stats_metrics.json
-        fi
-        if [ -f ./logs/model_log.log ]; then
-            mv ./logs/model_log.log /tmp/ts_benchmark/${model_name}/model_log.log
-        fi
-        if [ -f ./logs/ts_log.log ]; then
-            mv ./logs/ts_log.log /tmp/ts_benchmark/${model_name}/ts_log.log
-        fi
+	      for resulte_file in $result_files; do
+	          if [ -f /tmp/benchmark/"$resulte_file" ]; then
+	              mv /tmp/benchmark/"$resulte_file" /tmp/ts_benchmark/"${model_name}"/"$resulte_file"
+	          fi
+	      done
 
+	      for log_file in $log_files; do
+	          if [ -f ./logs/"$log_file" ]; then
+	              mv ./logs/"$log_file" /tmp/ts_benchmark/"${model_name}"/"$log_file"
+	          fi
+	      done
     fi
 done
 
@@ -157,7 +148,7 @@ rm -rf json
 git checkout master
 
 # save to S3
-if [[ "$3" == "nightly" ]]; then
+if [[ "$3" == "s3" ]]; then
     dt=$(date +'%Y-%m-%d')
     aws s3 cp --recursive /tmp/ts_benchmark/ s3://torchserve-model-serving/benchmark/${dt}/${hw_type,,}/
 fi

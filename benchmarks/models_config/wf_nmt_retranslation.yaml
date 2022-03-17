@@ -2,7 +2,8 @@
 nmt_re_translation:
     workflow:
         url: "https://torchserve.pytorch.org/war_files/nmt_wf_re.war"
-        workers: 2
+        workers:
+            - 2
         batch_delay: 100
         retry_attempts: 5
         timeout_ms: 300000
