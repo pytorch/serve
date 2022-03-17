@@ -33,7 +33,9 @@ CUR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "CUR_DIR=$CUR_DIR"
 
 if [ "$2" == "all" ]; then
-    declare -a models=`ls benchmarks/models_config/ | tr "\n" " "`
+    declare -a models=("bert_cpu.yaml" "mnist.yaml")
+    #declare -a models=`ls ./benchmarks/models_config | sed 's,\(.*\),"\1",' |  tr '\n' ' '`
+    #declare -a models=`ls ./benchmarks/models_config | tr '\n' ' '`
 else
     IFS="," read -a models <<< $2
 fi
@@ -62,24 +64,27 @@ mkdir -p /tmp/benchmark
 #cd serve || exit 1
 
 # install TorchServe
-if [[ "$BENCH" != "skip" ]]; then
+if [[ "$BRANCH" != "skip" ]]; then
+    echo "not skip\n"
     if [[ "$hw_type" == "GPU" ]]; then
         python ts_scripts/install_dependencies.py --environment dev --cuda cu102
     else
         python ts_scripts/install_dependencies.py --environment dev
     fi
 
-    if [[ "$BENCH" == "nightly" ]]; then
+    if [[ "$BRANCH" == "nightly" ]]; then
         pip install torchserve-nightly
     else
         git reset --hard
         git clean -dffx .
         git pull --rebase
-        git checkout $BENCH
+        git checkout $BRANCH
         python ts_scripts/install_from_src.py
+    fi
 
     pip install -r benchmarks/requirements-ab.txt
 fi
+
 
 # generate benchmark json config files
 rm -rf json
@@ -121,14 +126,14 @@ for config_file in "$config_dir"/*; do
             file:///tmp/benchmark/logs/stats_metrics.json
         fi
 
-	      mkdir -p /tmp/ts_benchmark/${model_name}
-	      for resulte_file in $result_files; do
+        mkdir -p /tmp/ts_benchmark/${model_name}
+	      for resulte_file in ${result_files[@]}; do
 	          if [ -f /tmp/benchmark/"$resulte_file" ]; then
 	              mv /tmp/benchmark/"$resulte_file" /tmp/ts_benchmark/"${model_name}"/"$resulte_file"
 	          fi
 	      done
 
-	      for log_file in $log_files; do
+	      for log_file in ${$log_files[@]}; do
 	          if [ -f ./logs/"$log_file" ]; then
 	              mv ./logs/"$log_file" /tmp/ts_benchmark/"${model_name}"/"$log_file"
 	          fi
@@ -144,8 +149,8 @@ python ./benchmarks/utils/gen_md_report.py \
   --branch ${BRANCH}
 
 # clean up
-rm -rf json
-git checkout master
+#rm -rf json
+#git checkout master
 
 # save to S3
 if [[ "$3" == "s3" ]]; then
