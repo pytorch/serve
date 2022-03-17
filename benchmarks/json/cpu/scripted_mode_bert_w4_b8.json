@@ -1,9 +1,0 @@
-{
-    "url": "https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar",
-    "batch_delay": 100,
-    "input": "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt",
-    "requests": 10000,
-    "concurrency": 100,
-    "batch_size": 8,
-    "workers": 4
-}
