@@ -11,6 +11,7 @@ Here we show how to use TorchServe with IPEX.
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
+* [Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning](#boosting-performance-of-torchserve-multi-worker-inference-with-launcher-core-pinning)
 * [Performance Boost with IPEX and Launcher](#performance-boost-with-ipex-and-launcher)
 
 
@@ -56,25 +57,15 @@ cpu_launcher_enable=true
 cpu_launcher_args=--use_logical_core --disable_numactl 
 ```
 
-Some useful `cpu_launcher_args` to note are:
+Below is some useful `cpu_launcher_args` to note. Italic values are default if applicable.
 1. Memory Allocator: [ PTMalloc `--use_default_allocator` | *TCMalloc `--enable_tcmalloc`* | JeMalloc `--enable_jemalloc`]
    * PyTorch by defualt uses PTMalloc. TCMalloc/JeMalloc generally gives better performance.
 2. OpenMP library: [GNU OpenMP `--disable_iomp` | *Intel OpenMP*]
    * PyTorch by default uses GNU OpenMP. Launcher by default uses Intel OpenMP. Intel OpenMP library generally gives better performance.
-3. Socket id: [`--socket_id`]
-   * Launcher by default uses all physical cores. Limit memory access to local memories on the Nth socket to avoid Non-Uniform Memory Access (NUMA).
+3. Node id: [`--node_id`]
+   * Launcher by default uses all NUMA nodes. Limit memory access to local memories on the Nth Numa node to avoid Non-Uniform Memory Access (NUMA).
 
 Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. 
-
-Some notable launcher configurations are:
-1. `--ninstances`: Number of instances for multi-instance inference/training.  
-2. `--instance_idx`: Launcher by default runs all `ninstances` when running multiple instances. Specifying `instance_idx` runs a single instance among `ninstances`. This is useful when running each instance independently. 
-3. `--ncore_per_instance`: Number of cores per instance.
-
-When running multi-worker inference with Torchserve, launcher's `--ninstances`, `--instance_idx`, and `--ncore_per_instance` boost the performance of Torchserve.
-Launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which generally improves performance. 
-For example, assume running four workers (4 `ninstances`) on 16 cores (i.e., 4 `ncore_per_instance`). Launcher will bind worker 0 (`instance_idx` 0) to cores 0-3, worker 1 (`instance_idx` 1) to cores 4-7, worker 2 (`instance_idx` 2) to cores 8-11, and worker 3 (`instance_idx` 3) to cores 12-15.
-Note that core pinning is taken care internally by launcher such that users don't have to manually set `ninstances`, `instance_idx`, nor `ncore_per_instance` in `config.properties`.
 
 Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for more details. 
 
@@ -236,16 +227,40 @@ $ cat logs/model_log.log
 
 ```
 
+## Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning
+When running multi-worker inference with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which can signficantly boost performance for TorchServe multi-worker inference.
+
+For example assume running 4 workers 
+```
+python benchmark-ab.py --workers 4
+```
+on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
+
+All it needs to be done to use TorchServe with launcher's core pinning is to enable launcher in `config.properties`.
+
+Add the following lines to `config.properties` in the benchmark directory to use launcher's core pinning:
+```
+cpu_launcher_enable=true
+```
+
+CPU usage is shown as below:
+![launcher_core_pinning](https://user-images.githubusercontent.com/93151422/159063975-e7e8d4b0-e083-4733-bdb6-4d92bdc10556.gif)
+
+
+4 main worker threads were launched, then each launched a num_physical_cores/num_workers number of threads (14) affinitized to the assigned physical cores (as a reminder, launcher by default uses physical cores only if hyperthreading is enabled). 
+
+
 ## Performance Boost with IPEX and Launcher
 
-![pdt_perf](https://github.com/min-jean-cho/frameworks.ai.pytorch.ipex-cpu-1/assets/93151422/a158ba6c-a151-4115-befb-39acb7545936)
+![pdt_perf](https://user-images.githubusercontent.com/93151422/159067306-dfd604e3-8c66-4365-91ae-c99f68d972d5.png)
 
-Above shows performance improvement of Torchserve with IPEX and launcher on ResNet50 and BERT-base-uncased. Torchserve official [apache-bench benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#benchmarking-with-apache-bench) on Amazon EC2 m6i.24xlarge was used to collect the results. Add the following lines in ```config.properties``` to reproduce the results. Notice that launcher is configured such that a single instance uses all physical cores on a single socket to avoid cross socket communication and core overlap. 
+
+Above shows performance improvement of Torchserve with IPEX and launcher on ResNet50 and BERT-base-uncased. Torchserve official [apache-bench benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#benchmarking-with-apache-bench) on Amazon EC2 m6i.24xlarge was used to collect the results<sup>2</sup>. Add the following lines in ```config.properties``` to reproduce the results. Notice that launcher is configured such that a single instance uses all physical cores on a single socket to avoid cross socket communication and core overlap. 
 
 ```
 ipex_enable=true
 cpu_launcher_enable=true
-cpu_launcher_args=--socket_id 0 --ninstance 1 --enable_jemalloc
+cpu_launcher_args=--node_id 0 --enable_jemalloc
 ```
 Use the following command to reproduce the results. 
 ```
@@ -261,3 +276,5 @@ For example, run the following command to reproduce latency performance of BERT 
 ```
 python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```
+
+<sup>2. Amazon EC2 m6i.24xlarge was used for benchmarking purpose only. For multi-core instances, ipex optimizations automatically scale and leverage full instance resources.</sup>
