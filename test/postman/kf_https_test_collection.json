@@ -303,7 +303,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../kubernetes/kserve/kf_request_json/mnist.json"
+						"src": "../kubernetes/kserve/kf_request_json/v1/mnist.json"
 					},
 					"options": {
 						"raw": {
@@ -355,7 +355,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../kubernetes/kserve/kf_request_json/mnist.json"
+						"src": "../kubernetes/kserve/kf_request_json/v1/mnist.json"
 					},
 					"options": {
 						"raw": {

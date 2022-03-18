@@ -276,13 +276,13 @@ python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar 
 * KSERVE SERVING PREDICTIONS
 
 ```
-python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:predict --input ../kubernetes/kserve/kf_request_json/mnist.json
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:predict --input ../kubernetes/kserve/kf_request_json/v1/mnist.json
 ```
 
 - KSERVE SERVING EXPLANATIONS
 
 ```
-python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:explain --input ../kubernetes/kserve/kf_request_json/mnist.json
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/json --config_properties config_kf.properties --inference_model_url v1/models/benchmark:explain --input ../kubernetes/kserve/kf_request_json/v1/mnist.json
 ```
 
 * TORCHSERVE SERVING PREDICTIONS WITH DOCKER

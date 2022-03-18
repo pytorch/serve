@@ -3,8 +3,14 @@
 import json
 from typing import Dict
 import logging
+from importlib.metadata import version
 import kserve
 import tornado.web
+
+if version('kserve') >= '0.8.0':
+    from kserve.model import Model as Model
+else:
+    from kserve.kfmodel import KFModel as Model
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -15,7 +21,7 @@ PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
-class TorchserveModel(kserve.KFModel):
+class TorchserveModel(Model):
     """The torchserve side inference and explain end-points requests are handled to
     return a KServe side response
 

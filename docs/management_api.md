@@ -285,6 +285,127 @@ curl http://localhost:8081/models/noop/all
 ]
 ```
 
+`GET /models/{model_name}/{model_version}?customized=true`
+or 
+`GET /models/{model_name}?customized=true`
+
+Use the Describe Model API to get detail runtime status and customized metadata of a version of a model:
+* Implement function describe_handle. Eg.
+```
+    def describe_handle(self):
+        """Customized describe handler
+        Returns:
+            dict : A dictionary response.
+        """
+        output_describe = None
+
+        logger.info("Collect customized metadata")
+
+        return output_describe
+```
+
+* Implement function _is_describe if handler is not inherited from BaseHandler. And then, call _is_describe and describe_handle in handle.
+```
+    def _is_describe(self):
+        if self.context and self.context.get_request_header(0, "describe"):
+            if self.context.get_request_header(0, "describe") == "True":
+                return True
+        return False
+
+    def handle(self, data, context):
+        if self._is_describe():
+            output = [self.describe_handle()]
+        else:
+            data_preprocess = self.preprocess(data)
+
+            if not self._is_explain():
+                output = self.inference(data_preprocess)
+                output = self.postprocess(output)
+            else:
+                output = self.explain_handle(data_preprocess, data)
+
+        return output
+```
+
+* Call function _is_describe and describe_handle in handle. Eg.
+```
+def handle(self, data, context):
+        """Entry point for default handler. It takes the data from the input request and returns
+           the predicted outcome for the input.
+        Args:
+            data (list): The input data that needs to be made a prediction request on.
+            context (Context): It is a JSON Object containing information pertaining to
+                               the model artefacts parameters.
+        Returns:
+            list : Returns a list of dictionary with the predicted response.
+        """
+
+        # It can be used for pre or post processing if needed as additional request
+        # information is available in context
+        start_time = time.time()
+
+        self.context = context
+        metrics = self.context.metrics
+
+        is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
+        if is_profiler_enabled:
+            output, _ = self._infer_with_profiler(data=data)
+        else:
+            if self._is_describe():
+                output = [self.describe_handle()]
+            else:
+                data_preprocess = self.preprocess(data)
+
+                if not self._is_explain():
+                    output = self.inference(data_preprocess)
+                    output = self.postprocess(output)
+                else:
+                    output = self.explain_handle(data_preprocess, data)
+
+        stop_time = time.time()
+        metrics.add_time('HandlerTime', round(
+            (stop_time - start_time) * 1000, 2), None, 'ms')
+        return output
+```
+* Here is an example. "customizedMetadata" shows the metadata from user's model. These metadata can be decoded into a dictionary.
+```bash
+curl http://localhost:8081/models/noop-customized/1.0?customized=true
+[
+    {
+        "modelName": "noop-customized",
+        "modelVersion": "1.0",
+        "modelUrl": "noop-customized.mar",
+        "runtime": "python",
+        "minWorkers": 1,
+        "maxWorkers": 1,
+        "batchSize": 1,
+        "maxBatchDelay": 100,
+        "loadedAtStartup": false,
+        "workers": [
+          {
+            "id": "9010",
+            "startTime": "2022-02-08T11:03:20.974Z",
+            "status": "READY",
+            "memoryUsage": 0,
+            "pid": 98972,
+            "gpu": false,
+            "gpuUsage": "N/A"
+          }
+        ],
+        "customizedMetadata": "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}"
+     }
+]
+```
+* Decode customizedMetadata on client side. For example:
+```
+import requests
+import json
+
+response = requests.get('http://localhost:8081/models/noop-customized/?customized=true').json()
+customizedMetadata = response[0]['customizedMetadata']
+print(customizedMetadata)
+```
+
 ## Unregister a model
 
 This API follows the [ManagementAPIsService.UnregisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
