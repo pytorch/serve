@@ -1,0 +1,15 @@
+# Torchserve version can be one of the options
+#  - branch : "master"
+#  - nightly: "2022.3.16"
+#  - release: "0.5.3"
+ts_version:
+    branch: &ts_version "master"
+
+# a list of model configure yaml files defined in benchmarks/models_config
+models:
+    - "bert_cpu.yaml"
+    - "mnist.yaml"
+
+# benchmark on "cpu" or "gpu"
+hardware: &hardware "gpu"
+

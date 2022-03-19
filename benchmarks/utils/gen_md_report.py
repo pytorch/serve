@@ -27,6 +27,10 @@ def iterate_subdir(input_dir, output, hw, ts_version):
         files = glob.glob(files)
         files.sort()
         df = pd.concat(map(pd.read_csv, files), ignore_index=True)
+        version_col = []
+        for i in range(len(df.values.tolist())):
+            version_col.append(ts_version)
+        df.insert(0, "version", version_col, True)
 
         list_of_strings = list(df.columns)
 

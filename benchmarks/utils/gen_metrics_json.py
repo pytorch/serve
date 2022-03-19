@@ -177,6 +177,10 @@ def parse_segments_2(segment):
     data = segment[index:].split(':')
     return int(data[1])
 
+def gen_metric(csv_file, stats_metrics_file):
+    csv_dict = extract_metrics_from_csv(csv_file)
+    gen_metrics_from_csv(csv_dict, stats_metrics_file)
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -207,7 +211,7 @@ def main():
     arguments = parser.parse_args()
     csv_dict = extract_metrics_from_csv(arguments.csv)
     gen_metrics_from_csv(csv_dict, arguments.stats)
-    #gen_metrics_from_log(csv_dict, arguments.log, arguments.raw)
+    gen_metrics_from_log(csv_dict, arguments.log, arguments.raw)
 
 if __name__ == "__main__":
     main()
