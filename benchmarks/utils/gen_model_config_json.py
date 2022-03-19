@@ -34,11 +34,11 @@ MODEL_CONFIG_KEY = {
 }
 
 def convert_yaml_to_json(yaml_file_path, output_dir):
+    print("convert_yaml_to_json yaml_file_path={}, output_dir={}".format(yaml_file_path, output_dir))
     with open(yaml_file_path, 'r') as f:
         yaml_dict = yaml.safe_load(f)
 
         for model, config in yaml_dict.items():
-
             for mode, mode_config in config.items():
                 model_name = mode + "_" + model
                 benchmark_config = {}
@@ -73,9 +73,9 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                     for i in range(len(processors)):
                         if type(processors[i]) is str:
                             path = '{}/{}'.format(output_dir, processors[i])
-                            print(path)
                             if not os.path.isdir(path):
                                 continue
+
                             benchmark_config_file = '{}/{}_w{}_b{}.json'\
                                 .format(path, model_name, bConfig["workers"], bConfig["batch_size"])
                             with open(benchmark_config_file, "w") as outfile:
@@ -84,6 +84,7 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                             path = '{}/gpu'.format(output_dir)
                             if not os.path.isdir(path):
                                 continue
+
                             bConfig["gpus"] = processors[i]["gpus"]
                             benchmark_config_file = '{}/{}_w{}_b{}.json'\
                                 .format(path, model_name, bConfig["workers"], bConfig["batch_size"])
