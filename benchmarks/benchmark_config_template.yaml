@@ -13,3 +13,20 @@ models:
 # benchmark on "cpu" or "gpu"
 hardware: &hardware "gpu"
 
+# load promethusis metrics report to remote storage if metrics_cmd is set
+# the command line to load promethusis metrics report to remote storage
+# Note: keep the values order as the same as the command
+metrics_cmd:
+    - "cmd": "aws cloudwatch put-metric-data"
+    - "--namespace": ["torchserve_benchmark_", *hardware]
+    - "--region": "us-west-2"
+    - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
+
+# load report to remote storage if report_cmd is set
+# the command line to load report to remote storage
+# Note: keep the values order as the same as the command
+report_cmd:
+    - "cmd": "aws s3 cp --recursive"
+    - "source": '/tmp/ts_benchmark/'
+    - "dest": ['s3://torchserve-model-serving/benchmark', "today()", *hardware]
+

@@ -251,7 +251,7 @@ def main():
     )
 
     arguments = parser.parse_args()
-    skip_ts_config = True if arguments.skip.lower() == "true" else False
+    skip_ts_config = True if arguments.skip is not None and arguments.skip.lower() == "true" else False
     bm_config = load_benchmark_config(arguments.input, skip_ts_config)
     benchmark_env_setup(bm_config, skip_ts_config)
     run_benchmark(bm_config)
