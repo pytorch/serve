@@ -145,6 +145,14 @@ public class ModelArchiveTest {
                         ModelArchive.downloadModel(
                                 ALLOWED_URLS_LIST, "src/test/resources", "noop_no_archive"));
 
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel(ALLOWED_URLS_LIST, "src/test/resources", ""));
+
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel(ALLOWED_URLS_LIST, "src/test/resources", null));
+
         archive.clean();
     }
 

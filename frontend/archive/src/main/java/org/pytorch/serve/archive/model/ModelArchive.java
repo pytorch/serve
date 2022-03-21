@@ -48,6 +48,10 @@ public class ModelArchive {
             throw new ModelNotFoundException("Model store has not been configured.");
         }
 
+        if (url == null || url.isEmpty()) {
+            throw new ModelNotFoundException("empty url");
+        }
+
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
         try {
