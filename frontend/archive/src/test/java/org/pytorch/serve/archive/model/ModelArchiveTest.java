@@ -149,6 +149,10 @@ public class ModelArchiveTest {
                 ModelNotFoundException.class,
                 () -> ModelArchive.downloadModel(ALLOWED_URLS_LIST, "src/test/resources", ""));
 
+        Assert.assertThrows(
+                ModelNotFoundException.class,
+                () -> ModelArchive.downloadModel(ALLOWED_URLS_LIST, "src/test/resources", null));
+
         archive.clean();
     }
 
