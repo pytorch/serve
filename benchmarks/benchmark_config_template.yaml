@@ -1,19 +1,21 @@
-# Torchserve version can be one of the options
+# Torchserve version is to be installed. It can be one of the options
 #  - branch : "master"
 #  - nightly: "2022.3.16"
 #  - release: "0.5.3"
+# Nightly build will be installed if "ts_version" is not specifiged
 ts_version:
     branch: &ts_version "master"
 
 # a list of model configure yaml files defined in benchmarks/models_config
 models:
-    - "bert_cpu.yaml"
+    - "vgg16.yaml"
     - "mnist.yaml"
 
-# benchmark on "cpu" or "gpu"
-hardware: &hardware "gpu"
+# benchmark on "cpu" or "gpu".
+# "cpu" is set if "hardware" is not specified
+hardware: &hardware "cpu"
 
-# load promethusis metrics report to remote storage if metrics_cmd is set
+# load promethusis metrics report to remote storage if "metrics_cmd" is set
 # the command line to load promethusis metrics report to remote storage
 # Note: keep the values order as the same as the command
 metrics_cmd:
@@ -22,7 +24,7 @@ metrics_cmd:
     - "--region": "us-west-2"
     - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
 
-# load report to remote storage if report_cmd is set
+# load report to remote storage if "report_cmd" is set
 # the command line to load report to remote storage
 # Note: keep the values order as the same as the command
 report_cmd:

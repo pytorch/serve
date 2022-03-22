@@ -2,8 +2,7 @@
 bert:
     scripted_mode:
         benchmark_engine: "ab"
-        # should be "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar
-        url: https://bert-torchscript-multi-gpu.s3.us-west-2.amazonaws.com/BERTSeqClassification.mar 
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_mgpu.mar
         workers:
             - 4
         batch_delay: 100

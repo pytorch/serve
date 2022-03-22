@@ -11,7 +11,7 @@ vgg16:
             - 2
             - 4
             - 8
-        input: "/home/ubuntu/serve/examples/image_classifier/kitten.jpg"
+        input: "./examples/image_classifier/kitten.jpg"
         requests: 10000
         concurrency: 100
         backend_profiling: False
@@ -22,7 +22,8 @@ vgg16:
     scripted_mode:
         benchmark_engine: "ab"
         url:  "https://torchserve.pytorch.org/mar_files/vgg16_scripted.mar"
-        workers: 4
+        workers:
+            - 4
         batch_delay: 100
         batch_size:
             - 1

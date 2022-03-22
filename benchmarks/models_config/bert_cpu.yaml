@@ -2,8 +2,7 @@
 bert:
     scripted_mode:
         benchmark_engine: "ab"
-        # should be "https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript.mar"
-        url: https://s3.us-west-2.amazonaws.com/ts0.4.1-marfiles/BERTSeqClassification_torchscript.mar
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript.mar
         workers:
             - 4
         batch_delay: 100

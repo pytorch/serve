@@ -316,8 +316,30 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample latency graph
 ![](predict_latency.png)
 
-# Benchmarking Apache Bench AWS
-If you're making a large change to TorchServe it's best to run an [automated benchmarking suite on AWS](https://github.com/pytorch/serve/tree/master/test/benchmark) so that you can test multiple CUDA versions and EC2 hardware configurations easily.
+## Automation
+auto_benchmark.py runs Apache Bench on a set of models and generates report.md.
+```
+cd serve
+
+python benchmarks/auto_benchmark.py -h
+usage: auto_benchmark.py [-h] [--input INPUT] [--skip SKIP]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --input INPUT  benchmark config yaml file path
+  --skip SKIP    true: skip torchserve installation. default: false
+
+python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template.yaml --skip true
+```
+
+[benchmark_config_template.yaml](https://github.com/pytorch/serve/blob/master/benchmarks/benchmark_config_template.yaml) is a sample config yaml file for benchmark automation.
+
+### Output
+Benchmark automation results are stored in local /tmp/ts_benchmark. /tmp/ts_benchmark/report.md is the final report. For example:
+
+
+
+### Outputs
 
 # Profiling
 

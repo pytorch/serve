@@ -247,7 +247,7 @@ def main():
     parser.add_argument(
         "--skip",
         action="store",
-        help="true: skip torchserve installation",
+        help="true: skip torchserve installation. default: false",
     )
 
     arguments = parser.parse_args()
