@@ -13,7 +13,7 @@ def iterate_subdir(input_dir, output, hw, ts_version):
 
     models = defaultdict(list)
     for subdir in sorted(os.listdir(input_dir)):
-        index = subdir.rfind('_')
+        index = subdir.rfind('_', 0, subdir.rfind('_') - 1)
         models[subdir[0:index]].append(subdir)
 
     mdFile = MdUtils(file_name=output, title='TorchServe Benchmark on {}'.format(hw))

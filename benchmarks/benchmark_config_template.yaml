@@ -13,7 +13,7 @@ models:
 
 # benchmark on "cpu" or "gpu".
 # "cpu" is set if "hardware" is not specified
-hardware: &hardware "cpu"
+hardware: &hardware "gpu"
 
 # load promethusis metrics report to remote storage if "metrics_cmd" is set
 # the command line to load promethusis metrics report to remote storage

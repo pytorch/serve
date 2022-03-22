@@ -121,10 +121,6 @@ def benchmark_env_setup(bm_config, skip_ts_install):
     build_model_json_config(bm_config["models"])
 
 def install_torchserve(skip_ts_install, hw, ts_version):
-    cmd = 'pip install -r benchmarks/requirements-ab.txt'
-    execute(cmd, wait=True)
-    print("successfully install requirements-ab.txt")
-
     if skip_ts_install:
         return
 

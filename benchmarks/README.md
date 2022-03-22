@@ -317,7 +317,7 @@ The reports are generated at location "/tmp/benchmark/"
 ![](predict_latency.png)
 
 ## Automation
-auto_benchmark.py runs Apache Bench on a set of models and generates report.md.
+auto_benchmark.py runs Apache Bench on a set of models and generates report.md once [Apach bench installation](https://github.com/pytorch/serve/tree/master/benchmarks#installation-1) is done.
 ```
 cd serve
 
@@ -335,11 +335,7 @@ python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template
 [benchmark_config_template.yaml](https://github.com/pytorch/serve/blob/master/benchmarks/benchmark_config_template.yaml) is a sample config yaml file for benchmark automation.
 
 ### Output
-Benchmark automation results are stored in local /tmp/ts_benchmark. /tmp/ts_benchmark/report.md is the final report. For example:
-
-
-
-### Outputs
+Benchmark automation results are stored in local /tmp/ts_benchmark. /tmp/ts_benchmark/report.md is the final report. [Here](https://github.com/pytorch/serve/blob/master/benchmarks/report.md) is a sample final report.
 
 # Profiling
 
