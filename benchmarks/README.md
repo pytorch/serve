@@ -6,7 +6,7 @@ We currently support benchmarking with JMeter & Apache Bench. One can also profi
 
 * [Benchmarking with JMeter](#benchmarking-with-jmeter)
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
-* [AutoBenchmarking Apachage Bench on AWS](#benchmarking-apache-bench-aws)
+* [Auto Benchmarking with Apache Bench](#Auto-Benchmarking-with-Apache-Bench)
 * [Profiling](#profiling)
 
 # Benchmarking with JMeter
@@ -316,7 +316,7 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample latency graph
 ![](predict_latency.png)
 
-## Automation
+# Auto Benchmarking with Apache Bench
 auto_benchmark.py runs Apache Bench on a set of models and generates report.md once [Apach bench installation](https://github.com/pytorch/serve/tree/master/benchmarks#installation-1) is done.
 ```
 cd serve
@@ -332,10 +332,9 @@ optional arguments:
 python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template.yaml --skip true
 ```
 
-[benchmark_config_template.yaml](https://github.com/pytorch/serve/blob/master/benchmarks/benchmark_config_template.yaml) is a sample config yaml file for benchmark automation.
+- [benchmark_config_template.yaml](https://github.com/pytorch/serve/blob/master/benchmarks/benchmark_config_template.yaml) is a config template yaml file for benchmark automation.
 
-### Output
-Benchmark automation results are stored in local /tmp/ts_benchmark. /tmp/ts_benchmark/report.md is the final report. [Here](https://github.com/pytorch/serve/blob/master/benchmarks/report.md) is a sample final report.
+- Benchmark automation results are stored in local /tmp/ts_benchmark. /tmp/ts_benchmark/report.md is the final report. [Here](https://github.com/pytorch/serve/blob/master/benchmarks/report.md) is a sample final report.
 
 # Profiling
 
