@@ -48,6 +48,10 @@ public class ModelArchive {
             throw new ModelNotFoundException("Model store has not been configured.");
         }
 
+        if (url == null || url.isEmpty()) {
+            throw new ModelNotFoundException("empty url");
+        }
+
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
         try {
@@ -69,7 +73,15 @@ public class ModelArchive {
         }
 
         if (new File(url).isDirectory()) {
+            // handle the case that the input url is a directory.
+            // the input of url is "/xxx/model_store/modelXXX" or
+            // "xxxx/yyyyy/modelXXX".
             return load(url, new File(url), false);
+        } else if (modelLocation.exists()) {
+            // handle the case that "/xxx/model_store/modelXXX" is directory.
+            // the input of url is modelXXX when torchserve is started
+            // with snapshot or with parameter --models modelXXX
+            return load(url, modelLocation, false);
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
