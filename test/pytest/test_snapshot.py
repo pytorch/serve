@@ -199,12 +199,14 @@ def test_replace_mar_file_with_dummy():
         response = requests.get('http://127.0.0.1:8081/models/')
         assert json.loads(response.content)['models'][0]['modelName'] == "densenet161"
     except:
-        assert True, "Correct Model mar file not found"
+        assert False, "Default manifest does not work"
     else:
-        assert False, "Something is not right!! Successfully started Torchserve with a dummy mar file"
+        assert True, "Successfully started Torchserve with a dummy mar file (ie. default manifest)"
     finally:
+        test_utils.unregister_model("densenet161")
         test_utils.delete_all_snapshots()
         test_utils.delete_model_store()
+        test_utils.stop_torchserve()
 
 
 def test_restart_torchserve_with_one_of_model_mar_removed():
