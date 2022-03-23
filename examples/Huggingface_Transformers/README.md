@@ -117,6 +117,7 @@ Change `setup_config.json` to
  "save_mode":"pretrained",
  "max_length":"150",
  "captum_explanation":true,
+ "FasterTransformer":false,
  "embedding_name": "bert"
 }
 ```
@@ -160,6 +161,7 @@ Change `setup_config.json` to
  "save_mode":"pretrained",
  "max_length":"128",
  "captum_explanation":true,
+ "FasterTransformer":false,
  "embedding_name": "distilbert"
 }
 ```
@@ -203,6 +205,7 @@ Change `setup_config.json` to
  "save_mode":"pretrained",
  "max_length":"150",
  "captum_explanation":true,
+ "FasterTransformer":false,
  "embedding_name": "gpt2"
 }
 ```
@@ -320,6 +323,7 @@ Change `setup_config.json` to
  "max_length":"150",
  "captum_explanation":true,
  "embedding_name": "gpt2",
+ "FasterTransformer":false,
  "model_parallel":true
 }
 ```
@@ -347,8 +351,8 @@ curl -X POST "localhost:8081/models?model_name=Textgeneration&url=Textgeneration
 
 ### Run an inference
 
-To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Text_gen_artifacts/sample_text.txt`
-To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Text_gen_artifacts/sample_text.tx`
+To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/Textgeneration -T Text_gen_artifacts/sample_text.txt`
+To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/Textgeneration -T Text_gen_artifacts/sample_text.tx`
 
 ### Running KServe
 
