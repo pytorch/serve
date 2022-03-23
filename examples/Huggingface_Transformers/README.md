@@ -117,6 +117,7 @@ Change `setup_config.json` to
  "save_mode":"pretrained",
  "max_length":"150",
  "captum_explanation":true,
+ "FasterTransformer":false,
  "embedding_name": "bert"
 }
 ```
@@ -160,6 +161,7 @@ Change `setup_config.json` to
  "save_mode":"pretrained",
  "max_length":"128",
  "captum_explanation":true,
+ "FasterTransformer":false,
  "embedding_name": "distilbert"
 }
 ```
@@ -203,6 +205,7 @@ Change `setup_config.json` to
  "save_mode":"pretrained",
  "max_length":"150",
  "captum_explanation":true,
+ "FasterTransformer":false,
  "embedding_name": "gpt2"
 }
 ```
@@ -306,7 +309,7 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 ## Model Paralellism 
 
-[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. GPT2 model choices based on their size are gpt2-medium, gpt2-large, gpt2-xl. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports. Make sure that you register your model with one worker using this feature. 
+[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. GPT2 model choices based on their size are gpt2-medium, gpt2-large, gpt2-xl. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and applications it supports. Make sure that you register your model with one worker using this feature. To run this example, a machine with #gpus > 1 is required. The number of required gpus depends on the size of the model. 
 
 Change `setup_config.json` to
 
@@ -320,6 +323,7 @@ Change `setup_config.json` to
  "max_length":"150",
  "captum_explanation":true,
  "embedding_name": "gpt2",
+ "FasterTransformer":false,
  "model_parallel":true
 }
 ```
@@ -347,8 +351,8 @@ curl -X POST "localhost:8081/models?model_name=Textgeneration&url=Textgeneration
 
 ### Run an inference
 
-To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Text_gen_artifacts/sample_text.txt`
-To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Text_gen_artifacts/sample_text.tx`
+To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/Textgeneration -T Text_gen_artifacts/sample_text.txt`
+To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/Textgeneration -T Text_gen_artifacts/sample_text.tx`
 
 ### Running KServe
 
