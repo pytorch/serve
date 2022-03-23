@@ -249,6 +249,10 @@ CPU usage is shown as below:
 
 4 main worker threads were launched, then each launched a num_physical_cores/num_workers number of threads (14) affinitized to the assigned physical cores (as a reminder, launcher by default uses physical cores only if hyperthreading is enabled). 
 
+### Scale workers
+Additionally when dynamically [scaling workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
+
+For example, let us continue with the above example with 4 workers - binding worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. Assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55.
 
 ## Performance Boost with IPEX and Launcher
 
