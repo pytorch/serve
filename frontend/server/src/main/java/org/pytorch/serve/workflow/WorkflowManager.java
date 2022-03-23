@@ -366,7 +366,7 @@ public final class WorkflowManager {
     }
 
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input)
-            throws WorkflowNotFoundException {
+            throws WorkflowException {
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
             DagExecutor dagExecutor = new DagExecutor(wf.getDag());
@@ -420,6 +420,11 @@ public final class WorkflowManager {
                                                 error[error.length - 1].strip()));
                                 return null;
                             });
+            try {
+                predictionFuture.get();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new WorkflowException("Workflow failed ", e);
+            }
         } else {
             throw new WorkflowNotFoundException("Workflow not found: " + wfName);
         }

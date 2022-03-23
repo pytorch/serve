@@ -16,6 +16,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.InternalServerException;
@@ -41,8 +43,11 @@ public class DagExecutor {
     public ArrayList<NodeOutput> execute(RequestInput input, ArrayList<String> topoSortedList) {
 
         CompletionService<NodeOutput> executorCompletionService = null;
+        ExecutorService executorService = null;
         if (topoSortedList == null) {
-            ExecutorService executorService = Executors.newFixedThreadPool(4);
+            ThreadFactory namedThreadFactory =
+                    new ThreadFactoryBuilder().setNameFormat("wf-execute-thread-%d").build();
+            executorService = Executors.newFixedThreadPool(4, namedThreadFactory);
             executorCompletionService = new ExecutorCompletionService<>(executorService);
         }
 
@@ -140,6 +145,9 @@ public class DagExecutor {
                 }
             }
         }
+        if (executorService != null) {
+            executorService.shutdown();
+        }
 
         return leafOutputs;
     }
@@ -150,7 +158,7 @@ public class DagExecutor {
                     InterruptedException {
         try {
 
-            logger.error(String.format("Invoking -  %s for attempt %d", nodeName, retryAttempt));
+            logger.info(String.format("Invoking -  %s for attempt %d", nodeName, retryAttempt));
             CompletableFuture<byte[]> respFuture = new CompletableFuture<>();
             RestJob job = ApiUtils.addRESTInferenceJob(null, workflowModel.getName(), null, input);
             job.setResponsePromise(respFuture);

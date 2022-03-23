@@ -13,7 +13,6 @@ import java.util.Map;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.workflow.WorkflowException;
-import org.pytorch.serve.archive.workflow.WorkflowNotFoundException;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.ResourceNotFoundException;
@@ -58,7 +57,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
 
     private void handlePredictions(
             ChannelHandlerContext ctx, FullHttpRequest req, String[] segments)
-            throws WorkflowNotFoundException {
+            throws WorkflowException {
         RequestInput input = parseRequest(ctx, req);
         logger.info(input.toString());
         String wfName = segments[2];
