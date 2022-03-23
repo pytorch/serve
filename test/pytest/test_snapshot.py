@@ -201,10 +201,12 @@ def test_replace_mar_file_with_dummy():
     except:
         assert False, "Default manifest does not work"
     else:
-        assert True, "Successfully started Torchserve with a dummy mar file (ie. default manifest"
+        assert True, "Successfully started Torchserve with a dummy mar file (ie. default manifest)"
     finally:
+        test_utils.unregister_model("densenet161")
         test_utils.delete_all_snapshots()
         test_utils.delete_model_store()
+        test_utils.stop_torchserve()
 
 
 def test_restart_torchserve_with_one_of_model_mar_removed():
