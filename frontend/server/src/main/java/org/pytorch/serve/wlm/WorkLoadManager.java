@@ -87,10 +87,10 @@ public class WorkLoadManager {
 
     /**
      * Checks if cpu_launcher is enabled and currentWorkers > 0 (i.e., not initializing workers).
-     * Workers are restarted so that when dynamically scaling the number of workers,
-     * cores that were pinned to killed workers by the launcher are not left unutilizied. 
-     * If isRestart, workers are restarted to re-distribute cores that were pinned to killed workers
-     * to the remaining, alive workers. 
+     * Workers are restarted so that when dynamically scaling the number of workers, cores that were
+     * pinned to killed workers by the launcher are not left unutilizied. If isRestart, workers are
+     * restarted to re-distribute cores that were pinned to killed workers to the remaining, alive
+     * workers.
      */
     public boolean isLauncherRestartWorkers(int currentWorkers) {
         boolean isRestart;
@@ -109,7 +109,7 @@ public class WorkLoadManager {
             CompletableFuture<Integer> future = new CompletableFuture<>();
             int minWorker = model.getMinWorkers();
             int maxWorker = model.getMaxWorkers();
-            // Sets restartNumWorkers to the updated minWorker after scale up/down 
+            // Sets restartNumWorkers to the updated minWorker after scale up/down
             int restartNumWorkers = minWorker;
             List<WorkerThread> threads;
             if (minWorker == 0) {
