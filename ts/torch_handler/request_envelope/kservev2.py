@@ -34,6 +34,8 @@ _NumpyToDatatype["object"] = "BYTES"
 # Ref: https://numpy.org/doc/stable/reference/arrays.dtypes.html
 _NumpyToDatatype["U"] = "BYTES"
 
+_WorkflowRequestTypeHeader = "Workflow-Request-Type"
+
 
 def _to_dtype(datatype: str) -> "np.dtype":
     dtype = _DatatypeToNumpy[datatype]
@@ -87,11 +89,38 @@ class KServev2Envelope(BaseEnvelope):
         Joins the instances of a batch of JSON objects
         """
         logger.debug("Parse input data %s", rows)
-        body_list = [body_list.get("data") or body_list.get("body") for body_list in rows]
-        data_list = self._from_json(body_list)
+        data_list = []
+        for i, row in enumerate(rows):
+            extra_kwargs = {}
+            workflow_req_type = self.context.get_request_header(
+                i, _WorkflowRequestTypeHeader
+            )
+            if workflow_req_type:
+                # If this is an internal workflow intermediate request
+                # between nodes, the inputs will be the outputs from the
+                # previous node(s)
+                logger.debug("Workflow request type: %s", workflow_req_type)
+                extra_kwargs["inputs_key"] = "outputs"
+                if workflow_req_type.lower() == "nested":
+                    # If the node has more than one parent nodes,
+                    # the data is in nested form, with the key being the node name
+                    # and the data in KserveV2 format.
+                    data_list.append(
+                        {
+                            node_name: self._from_json([body], **extra_kwargs)[0].get(
+                                "data"
+                            )
+                            for node_name, body in row.items()
+                        }
+                    )
+                    continue
+            # if the request is not an internal workflow intermediate requests
+            # or the request is not a nested request
+            body_list = [row.get("data") or row.get("body")]
+            data_list.append(self._from_json(body_list, **extra_kwargs)[0])
         return data_list
 
-    def _from_json(self, body_list):
+    def _from_json(self, body_list, inputs_key="inputs"):
         """
         Extracts the data from the JSON object
         """
@@ -101,7 +130,7 @@ class KServev2Envelope(BaseEnvelope):
             logger.debug("Bytes array is %s", body_list)
         if "id" in body_list[0]:
             setattr(self.context, "input_request_id", body_list[0]["id"])
-        data_list = [inputs_list.get("inputs") for inputs_list in body_list][0]
+        data_list = [inputs_list.get(inputs_key) for inputs_list in body_list][0]
         return data_list
 
     def format_output(self, data):
