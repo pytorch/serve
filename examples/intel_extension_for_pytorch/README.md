@@ -10,7 +10,6 @@ Here we show how to use TorchServe with IPEX.
 * [Serving model with Intel Extension for PyTorch](#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
-* [Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning](#boosting-performance-of-torchserve-multi-worker-inference-with-launcher-core-pinning)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Performance Boost with IPEX and Launcher](#performance-boost-with-ipex-and-launcher)
 
@@ -26,7 +25,7 @@ ipex_enable=true
 Once IPEX is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). TorchServe with IPEX can deploy any model and do inference. 
 
 ## TorchServe with Launcher
-Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher. 
+Launcher is a script to automate the process of tunining configuration setting on intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affininty, memory allocator can have a dramatic effect on performance. Please refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher. 
 
 All it needs to be done to use TorchServe with launcher is to set its configuration in `config.properties`.
 
@@ -65,9 +64,23 @@ Below is some useful `cpu_launcher_args` to note. Italic values are default if a
 3. Node id: [`--node_id`]
    * Launcher by default uses all NUMA nodes. Limit memory access to local memories on the Nth Numa node to avoid Non-Uniform Memory Access (NUMA).
 
-Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. 
+Please refer to [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. And please refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) for more details.
 
-Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for more details. 
+### Launcher Core Pinning to Boost Performance of TorchServe Multi Worker Inference 
+When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which can signficantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
+
+#### Scaling workers
+Additionally when dynamically [scaling the number of workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
+
+Continuing with the above example with 4 workers, assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55.
+
+
+Again, all it needs to be done to use TorchServe with launcher core pinning for multiple workers as well as scaling workers is to set its configuration in `config.properties`.
+
+Add the following lines in `config.properties` to use launcher with its default configuration. 
+```
+cpu_launcher_enable=true
+```
 
 ## Creating and Exporting INT8 model for IPEX
 Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. 
@@ -183,35 +196,6 @@ torchserve --start --ncs --model-store model_store --ts-config config.properties
 ### 4. Registering and Deploying model 
 Registering and deploying the model follows the same steps shown [here](https://pytorch.org/serve/use_cases.html). 
 
-## Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning
-When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which can signficantly boost performance for TorchServe multi-worker inference.
-
-We'll use TorchServe official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to demonstrate this, but keep in mind that this is a generic feature applicable to any TorchServe multi-worker inference use casese. 
-
-For example, assume running 4 workers 
-```
-python benchmark-ab.py --workers 4
-```
-on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
-
-All it needs to be done to use TorchServe with launcher's core pinning is to enable launcher in `config.properties`.
-
-Add the following lines to `config.properties` in the benchmark directory to use launcher's core pinning:
-```
-cpu_launcher_enable=true
-```
-
-CPU usage is shown as below:
-![launcher_core_pinning](https://user-images.githubusercontent.com/93151422/159063975-e7e8d4b0-e083-4733-bdb6-4d92bdc10556.gif)
-
-
-4 main worker threads were launched, then each launched a num_physical_cores/num_workers number (14) of threads affinitized to the assigned physical cores. 
-
-#### Scale workers
-Additionally when dynamically [scaling workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
-
-For example, let us continue with the above example with 4 workers - binding worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. Assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55.
-
 ## Benchmarking with Launcher 
 Launcher can be used with TorchServe official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
 
@@ -255,6 +239,62 @@ $ cat logs/model_log.log
 2021-12-02 06:15:03,982 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so
 
 ```
+
+### Benchmarking with Launcher Core Pinning
+As described previously in [TorchServe with Launcher](#torchserve-with-launcher), launcher core pinning boosts performance of multi-worker inference. We'll demonstrate launcher core pinning with TorchServe benchmark, but keep in mind that launcher core pinning is a generic feature applicable to any TorchServe multi-worker inference use casese.
+
+For example, assume running 4 workers 
+```
+python benchmark-ab.py --workers 4
+```
+on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
+
+All it needs to be done to use TorchServe with launcher's core pinning is to enable launcher in `config.properties`.
+
+Add the following lines to `config.properties` in the benchmark directory to use launcher's core pinning:
+```
+cpu_launcher_enable=true
+```
+
+CPU usage is shown as below:
+![launcher_core_pinning](https://user-images.githubusercontent.com/93151422/159063975-e7e8d4b0-e083-4733-bdb6-4d92bdc10556.gif)
+
+4 main worker threads were launched, then each launched a num_physical_cores/num_workers number (14) of threads affinitized to the assigned physical cores. 
+
+<pre><code>
+$ cat logs/model_log.log
+2022-03-24 10:41:32,223 - __main__ - INFO - Use TCMalloc memory allocator
+2022-03-24 10:41:32,223 - __main__ - INFO - OMP_NUM_THREADS=14
+2022-03-24 10:41:32,223 - __main__ - INFO - Using Intel OpenMP
+2022-03-24 10:41:32,223 - __main__ - INFO - KMP_AFFINITY=granularity=fine,compact,1,0
+2022-03-24 10:41:32,223 - __main__ - INFO - KMP_BLOCKTIME=1
+2022-03-24 10:41:32,223 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so:<VIRTUAL_ENV>/lib/libtcmalloc.so
+2022-03-24 10:41:32,223 - __main__ - INFO - <b>numactl -C 0-13 -m 0</b> <VIRTUAL_ENV>/bin/python -u <VIRTUAL_ENV>/lib/python/site-packages/ts/model_service_worker.py --sock-type unix --sock-name /tmp/.ts.sock.9000
+
+2022-03-24 10:49:03,760 - __main__ - INFO - Use TCMalloc memory allocator
+2022-03-24 10:49:03,761 - __main__ - INFO - OMP_NUM_THREADS=14
+2022-03-24 10:49:03,762 - __main__ - INFO - Using Intel OpenMP
+2022-03-24 10:49:03,762 - __main__ - INFO - KMP_AFFINITY=granularity=fine,compact,1,0
+2022-03-24 10:49:03,762 - __main__ - INFO - KMP_BLOCKTIME=1
+2022-03-24 10:49:03,762 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so:<VIRTUAL_ENV>/lib/libtcmalloc.so
+2022-03-24 10:49:03,763 - __main__ - INFO - <b>numactl -C 14-27 -m 0</b> <VIRTUAL_ENV>/bin/python -u <VIRTUAL_ENV>/lib/python/site-packages/ts/model_service_worker.py --sock-type unix --sock-name /tmp/.ts.sock.9001
+
+2022-03-24 10:49:26,274 - __main__ - INFO - Use TCMalloc memory allocator
+2022-03-24 10:49:26,274 - __main__ - INFO - OMP_NUM_THREADS=14
+2022-03-24 10:49:26,274 - __main__ - INFO - Using Intel OpenMP
+2022-03-24 10:49:26,274 - __main__ - INFO - KMP_AFFINITY=granularity=fine,compact,1,0
+2022-03-24 10:49:26,274 - __main__ - INFO - KMP_BLOCKTIME=1
+2022-03-24 10:49:26,274 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so:<VIRTUAL_ENV>/lib/libtcmalloc.so
+2022-03-24 10:49:26,274 - __main__ - INFO - <b>numactl -C 28-41 -m 1</b> <VIRTUAL_ENV>/bin/python -u <VIRTUAL_ENV>/lib/python/site-packages/ts/model_service_worker.py --sock-type unix --sock-name /tmp/.ts.sock.9002
+
+2022-03-24 10:49:42,975 - __main__ - INFO - Use TCMalloc memory allocator
+2022-03-24 10:49:42,975 - __main__ - INFO - OMP_NUM_THREADS=14
+2022-03-24 10:49:42,975 - __main__ - INFO - Using Intel OpenMP
+2022-03-24 10:49:42,975 - __main__ - INFO - KMP_AFFINITY=granularity=fine,compact,1,0
+2022-03-24 10:49:42,975 - __main__ - INFO - KMP_BLOCKTIME=1
+2022-03-24 10:49:42,975 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so:<VIRTUAL_ENV>/lib/libtcmalloc.so
+2022-03-24 10:49:42,975 - __main__ - INFO - <b>numactl -C 42-55 -m 1</b> <VIRTUAL_ENV>/bin/python -u <VIRTUAL_ENV>/lib/python/site-packages/ts/model_service_worker.py --sock-type unix --sock-name /tmp/.ts.sock.9003
+</code></pre>
 
 ## Performance Boost with IPEX and Launcher
 
