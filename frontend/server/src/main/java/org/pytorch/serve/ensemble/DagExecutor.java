@@ -2,6 +2,7 @@ package org.pytorch.serve.ensemble;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -123,14 +124,18 @@ public class DagExecutor {
                             RequestInput newInput = this.inputRequestMap.get(newNodeName);
                             if (newInput == null) {
                                 List<InputParameter> params = new ArrayList<>();
+                                Map<String, String> headers = new HashMap<String, String>();
+                                headers.putAll(input.getHeaders());
                                 newInput = new RequestInput(UUID.randomUUID().toString());
                                 if (inDegreeMap.get(newNodeName) == 1) {
                                     params.add(new InputParameter("body", response));
+                                    headers.put("Workflow-Request-Type", "Flat");
                                 } else {
                                     params.add(new InputParameter(nodeName, response));
+                                    headers.put("Workflow-Request-Type", "Nested");
                                 }
                                 newInput.setParameters(params);
-                                newInput.setHeaders(input.getHeaders());
+                                newInput.setHeaders(headers);
                             } else {
                                 newInput.addParameter(new InputParameter(nodeName, response));
                             }
