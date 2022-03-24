@@ -10,8 +10,7 @@ from transformers import (
     AutoTokenizer,
     AutoModelForQuestionAnswering,
     AutoModelForTokenClassification,
-    AutoModelForCausalLM,
-    AutoModel
+    AutoModelForCausalLM
 )
 from transformers import GPT2TokenizerFast 
 
