@@ -157,5 +157,7 @@ class KServev2Envelope(BaseEnvelope):
             0, "explain") == "True" else "predict")
         output_data["shape"] = list(data_ndarray.shape)
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
-        output_data["data"] = data_ndarray.flatten().tolist()
+        if output_data["shape"]:
+            data_ndarray = data_ndarray.flatten()
+        output_data["data"] = data_ndarray.tolist()
         return output_data
