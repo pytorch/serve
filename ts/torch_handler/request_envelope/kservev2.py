@@ -131,10 +131,14 @@ class KServev2Envelope(BaseEnvelope):
             delattr(self.context, "input_request_id")
         else:
             response["id"] = self.context.get_request_id(0)
-        response["model_name"] = self.context.manifest.get("model").get(
-            "modelName")
-        response["model_version"] = self.context.manifest.get("model").get(
-            "modelVersion")
+        if self.context.manifest:
+            response["model_name"] = self.context.manifest.get("model").get("modelName")
+            response["model_version"] = self.context.manifest.get("model").get(
+                "modelVersion"
+            )
+        else:
+            # workflow function node's context.manifest is None
+            response["model_name"] = self.context.model_name
         response["outputs"] = self._batch_to_json(data)
         return [response]
 
