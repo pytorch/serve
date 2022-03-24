@@ -10,8 +10,8 @@ Here we show how to use TorchServe with IPEX.
 * [Serving model with Intel Extension for PyTorch](#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
-* [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning](#boosting-performance-of-torchserve-multi-worker-inference-with-launcher-core-pinning)
+* [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Performance Boost with IPEX and Launcher](#performance-boost-with-ipex-and-launcher)
 
 
@@ -183,6 +183,35 @@ torchserve --start --ncs --model-store model_store --ts-config config.properties
 ### 4. Registering and Deploying model 
 Registering and deploying the model follows the same steps shown [here](https://pytorch.org/serve/use_cases.html). 
 
+## Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning
+When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which can signficantly boost performance for TorchServe multi-worker inference.
+
+We'll use TorchServe official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to demonstrate this, but keep in mind that this is a generic feature applicable to any TorchServe multi-worker inference use casese. 
+
+For example, assume running 4 workers 
+```
+python benchmark-ab.py --workers 4
+```
+on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
+
+All it needs to be done to use TorchServe with launcher's core pinning is to enable launcher in `config.properties`.
+
+Add the following lines to `config.properties` in the benchmark directory to use launcher's core pinning:
+```
+cpu_launcher_enable=true
+```
+
+CPU usage is shown as below:
+![launcher_core_pinning](https://user-images.githubusercontent.com/93151422/159063975-e7e8d4b0-e083-4733-bdb6-4d92bdc10556.gif)
+
+
+4 main worker threads were launched, then each launched a num_physical_cores/num_workers number (14) of threads affinitized to the assigned physical cores. 
+
+#### Scale workers
+Additionally when dynamically [scaling workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
+
+For example, let us continue with the above example with 4 workers - binding worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. Assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55.
+
 ## Benchmarking with Launcher 
 Launcher can be used with TorchServe official [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) to launch server and benchmark requests with optimal configuration on Intel hardware.
 
@@ -226,33 +255,6 @@ $ cat logs/model_log.log
 2021-12-02 06:15:03,982 - __main__ - INFO - LD_PRELOAD=<VIRTUAL_ENV>/lib/libiomp5.so
 
 ```
-
-## Boosting Performance of TorchServe Multi Worker Inference with Launcher Core Pinning
-When running multi-worker inference with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap between workers which can signficantly boost performance for TorchServe multi-worker inference.
-
-For example assume running 4 workers 
-```
-python benchmark-ab.py --workers 4
-```
-on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
-
-All it needs to be done to use TorchServe with launcher's core pinning is to enable launcher in `config.properties`.
-
-Add the following lines to `config.properties` in the benchmark directory to use launcher's core pinning:
-```
-cpu_launcher_enable=true
-```
-
-CPU usage is shown as below:
-![launcher_core_pinning](https://user-images.githubusercontent.com/93151422/159063975-e7e8d4b0-e083-4733-bdb6-4d92bdc10556.gif)
-
-
-4 main worker threads were launched, then each launched a num_physical_cores/num_workers number of threads (14) affinitized to the assigned physical cores (as a reminder, launcher by default uses physical cores only if hyperthreading is enabled). 
-
-### Scale workers
-Additionally when dynamically [scaling workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
-
-For example, let us continue with the above example with 4 workers - binding worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. Assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55.
 
 ## Performance Boost with IPEX and Launcher
 
