@@ -21,6 +21,13 @@ def serve(func):
     def inference():
         perform_inference..
 
+    The goal of @serve is to simplify the handler authoring experience in torchserve
+
+    inference() can be as complex as you like and call other functions 
+
+    If you already have a handler you can manually call create_torchserve_config(), archive_model() 
+    and start_torchserve()
+
     What this will do is
     1. Override the base handler with a new handler with the inference function overloaded
     2. Create a new torchserve config 
@@ -39,7 +46,7 @@ def serve(func):
         
         model = archive_model(serialized_file="model.pt")
 
-        start_torchserve(handler= handler, models=model, config=config)
+        torchserve_start(handler= handler, models=model, config=config)
         
         # Error handle and
         # Return some error code
@@ -81,7 +88,7 @@ def handle_test():
     return NotImplemented
 
 
-def start_torchserve(handler="base_handler", model_store="model_store", ts_config="config.properties", model_mar="model.mar"):
+def torchserve_start(handler : str, model_store : str ="model_store", ts_config : str ="config.properties", model_mar : str ="model.mar"):
     """
     Wrapper on top of torchserve --start args
     If you already have your own model packaged
@@ -100,7 +107,7 @@ def start_torchserve(handler="base_handler", model_store="model_store", ts_confi
 
 
 
-def create_torchserve_config(inference_http_port : int = 8080, management_http_port : int = 8081, batch_size : int = 1, config_properties="config.properties"):
+def create_torchserve_config(inference_http_port : int = 8080, management_http_port : int = 8081, batch_size : int = 1, config_properties : str ="config.properties"):
     """"
     Create a torchserve config.properties
     Currently this only supports inference and management port setting but 
