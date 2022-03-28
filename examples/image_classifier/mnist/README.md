@@ -14,7 +14,7 @@ https://github.com/pytorch/examples/tree/master/mnist
 
 # Serve a custom model on TorchServe
 
-Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
+Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 
  * Step - 1: Create a new model architecture file which contains model class extended from torch.nn.modules. In this example we have created [mnist model file](mnist.py).
  * Step - 2: Train a MNIST digit recognition model using https://github.com/pytorch/examples/blob/master/mnist/main.py and save the state dict of model. We have added the pre-created [state dict](mnist_cnn.pt) of this model.
