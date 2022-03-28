@@ -66,7 +66,7 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
         else \
             python -m pip install --no-cache-dir torch torchvision; \
         fi; \
-        python -m pip install --no-cache-dir nvgpu; \
+        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt
     # Install the CPU binary
     else \
         python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
