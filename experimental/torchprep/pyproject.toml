@@ -13,6 +13,7 @@ python = "^3.8"
 typer = {extras = ["all"], version = "^0.4.0"}
 torch = "^1.9.1"
 tqdm = "^4.62.3"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
