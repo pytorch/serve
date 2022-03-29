@@ -1,0 +1,9 @@
+# Each model can have multiple inputs
+# Each input has a dtype, device and shape
+# Some shapes can be arbitrary like a positive integer for batch size
+
+# Resnet model
+input:
+  dtype: "float16" # Extend this to a list later, will need to print all permutations
+  device: "cpu"
+  shape: [-1, 3, 7, 7] # the first element is the batch size
