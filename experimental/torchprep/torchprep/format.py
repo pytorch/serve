@@ -58,6 +58,16 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
                     dtype = input_value
                 elif input_key == "device":
                     device = input_value
+                elif input_key == "mode":
+                    mode = input_value
+
+            for idx, dimension in enumerate(shape):
+                if dimension == -1:
+                    if mode == "latency":
+                        shape[idx] = 1
+                    elif mode == "throughput":
+                        shape[idx] = 1024
+
 
             x = torch.randn(*shape, dtype=dtype_map[dtype], device=device_map[device])
             tensor_list.append(x)
