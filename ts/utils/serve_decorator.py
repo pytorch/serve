@@ -34,6 +34,8 @@ def serve(func):
     2. Create a new torchserve config 
     3. Archive a model assuming weights are in disk
     4. Start torchserve
+
+    # TODO: Put everything in a temporary directory so user files don't get overwritten
     """
     @wraps(func)
     def serve_model(*args, **kwargs):
@@ -118,7 +120,15 @@ def torchserve_start(handler : str, model_store : str ="model_store", ts_config 
 
 
 
-def create_torchserve_config(inference_http_port : int = 8080, management_http_port : int = 8081, batch_size : int = 1, config_properties : str ="config.properties"):
+def create_torchserve_config(inference_http_port : int = 8080,
+                             management_http_port : int = 8081,
+                             model_mar : str = "model.mar",
+                             netty_threads : int = 32,
+                             batch_size : int = 1, 
+                             batch_delay : int = 50,
+                             num_workers : int = 1,
+                             response_timeout : int = 150,
+                             config_properties : str ="config.properties"):
     """"
     Create a torchserve config.properties
     Currently this only supports inference and management port setting but 
@@ -129,7 +139,7 @@ def create_torchserve_config(inference_http_port : int = 8080, management_http_p
     ts_config = {
         f"inference_address": "http://0.0.0.0:{inference_http_port}",
         f"management_address": "http://0.0.0.0:{management_http_port}",
-        f"number_of_netty_threads" :"32",
+        f"number_of_netty_threads" :"{netty_threads}",
         f"job_queue_size" : "1000",
         f"vmargs" : "-Xmx4g -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError",
         f"prefer_direct_buffer" : "True",
@@ -140,28 +150,27 @@ def create_torchserve_config(inference_http_port : int = 8080, management_http_p
 
     ## Model specific configs
 
-#     model_config = {"
-#         models={\
-#   "model": {\
-#     "1.0": {\
-#         "defaultVersion": true,\
-#         "marName": "model.mar",\
-#         "minWorkers": 1,\
-#         "maxWorkers": 1,\
-#         "batchSize": 8,\
-#         "maxBatchDelay": 50,\
-#         "responseTimeout": 120\
-#     }\
-#   }\
-# }
-
-#     }"
+    model_config = {
+            "defaultVersion": "true",
+            f"marName": {model_mar},
+            f"minWorkers": {num_workers},\
+            f"maxWorkers": {num_workers},\
+            f"batchSize": {batch_size},\
+            f"maxBatchDelay": {batch_delay},\
+            f"responseTimeout": {response_timeout},\
+    }
 
     logger.info(ts_config)
 
+    logger.info(model.config)
+
+    # Torchserve configurations
     for key, value in ts_config.items():
         with open("config.properties", "w") as f:
             f.write(f"{key}={value}\n")
+    
+
+
     
     return config_properties
     
