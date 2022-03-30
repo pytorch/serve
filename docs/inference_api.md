@@ -37,7 +37,7 @@ If the server is running, the response is:
 
 ```json
 {
-  "health": "healthy!"
+  "status": "Healthy"
 }
 ```
 
