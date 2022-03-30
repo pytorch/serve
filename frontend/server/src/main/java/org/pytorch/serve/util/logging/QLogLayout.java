@@ -4,6 +4,7 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Node;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.message.Message;
 import org.pytorch.serve.metrics.Dimension;
@@ -17,6 +18,11 @@ import org.pytorch.serve.metrics.Metric;
 public class QLogLayout extends AbstractStringLayout {
     public QLogLayout() {
         super(null, null, null);
+    }
+
+    @PluginFactory
+    public static QLogLayout createLayout() {
+        return new QLogLayout();
     }
 
     /**
