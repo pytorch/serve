@@ -199,12 +199,12 @@ def run_benchmark(bm_config):
 
             cmd = 'tar -cvzf {}/logs.tar.gz {}'.format(bm_model_log_path, TS_LOGS_PATH)
             execute(cmd, wait=True)
-            print("finish benchmar {}".format(bm_model))
+            print("finish benchmark {}".format(bm_model))
 
     # generate final report
     gen_md_report.iterate_subdir(
         BENCHMARK_REPORT_PATH,
-        '{}/repord.md'.format(BENCHMARK_REPORT_PATH),
+        '{}/report.md'.format(BENCHMARK_REPORT_PATH),
         bm_config["hardware"],
         bm_config["version"])
     print("report.md is generated")
@@ -243,11 +243,11 @@ def main():
     parser.add_argument(
         "--skip",
         action="store",
-        help="true: skip torchserve installation. default: false",
+        help="true: skip torchserve installation. default: true",
     )
 
     arguments = parser.parse_args()
-    skip_ts_config = True if arguments.skip is not None and arguments.skip.lower() == "true" else False
+    skip_ts_config = False if arguments.skip is not None and arguments.skip.lower() == "false" else True
     bm_config = load_benchmark_config(arguments.input, skip_ts_config)
     benchmark_env_setup(bm_config, skip_ts_config)
     run_benchmark(bm_config)
