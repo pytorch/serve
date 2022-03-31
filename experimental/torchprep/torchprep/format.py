@@ -4,6 +4,7 @@ from typing import Dict, List, Union
 
 
 dtype_map = {
+    # randn
     "float32" : torch.float32,
     "float"     : torch.float,
     "float64" : torch.float64,
@@ -13,6 +14,8 @@ dtype_map = {
     "complex64" : torch.complex64,
     "complex128" : torch.complex128,
     "cdouble"    : torch.cdouble,
+
+    # randint
     "uint8" : torch.uint8, 
     "int8" : torch.int8,
     "int16" : torch.int16,
@@ -25,7 +28,7 @@ dtype_map = {
     "quint8" : torch.qint8,
     "qint8" : torch.qint8,
     # "qfint32" : torch.qfint32,
-    "qint4x2" : torch.quint4x2,
+    # "qint4x2" : torch.quint4x2,
 }
 
 device_map = {
@@ -60,7 +63,10 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
                     device = input_value
                 elif input_key == "mode":
                     mode = input_value
+                elif input_key == "high":
+                    high = input_value
 
+            # Mode is optional, users can just hard code a batch size
             for idx, dimension in enumerate(shape):
                 if dimension == -1:
                     if mode == "latency":
@@ -68,11 +74,18 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
                     elif mode == "throughput":
                         shape[idx] = 1024
 
+            if dtype in ["float32", "float", "float64", "half", "float16", "bfloat16", "complex64", "complex128", "cdouble"]:
+                x = torch.randn(*shape, dtype=dtype_map[dtype], device=device_map[device]) * high
 
-            x = torch.randn(*shape, dtype=dtype_map[dtype], device=device_map[device])
+            elif dtype in ["uint8", "int8", "int16", "short", "int32", "int", "int64", "long", "bool", "quint8", "qint8"]:
+                torch.randint(low=0, high=high, size = tuple(shape), dtype=dtype_map[dtype])
+            else:
+                print("dtype {dtype} is no supported")
+                return
+
             tensor_list.append(x)
 
-            return tensor_list
+        return tensor_list
 
 
 

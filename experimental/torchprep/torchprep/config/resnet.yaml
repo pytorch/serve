@@ -7,3 +7,4 @@ input:
   dtype: "float16" # Extend this to a list later, will need to print all permutations
   device: "cpu"
   shape: [-1, 3, 7, 7] # the first element is the batch size
+  high : 10 # max value
