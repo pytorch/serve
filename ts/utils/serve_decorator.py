@@ -151,7 +151,7 @@ def create_torchserve_config(inference_http_port : int = 8080,
     ## Model specific configs
 
     model_config = {
-            "defaultVersion": "true",
+            f"defaultVersion": "true",
             f"marName": {model_mar},
             f"minWorkers": {num_workers},\
             f"maxWorkers": {num_workers},\
@@ -162,7 +162,7 @@ def create_torchserve_config(inference_http_port : int = 8080,
 
     logger.info(ts_config)
 
-    logger.info(model.config)
+    logger.info(model_config)
 
     # Torchserve configurations
     for key, value in ts_config.items():
