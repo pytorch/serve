@@ -164,10 +164,18 @@ def create_torchserve_config(inference_http_port : int = 8080,
 
     logger.info(model_config)
 
-    # Torchserve configurations
-    for key, value in ts_config.items():
-        with open("config.properties", "w") as f:
+    # Torchserve configuration
+    with open("config.properties", "w") as f:
+        for key, value in ts_config.items():
             f.write(f"{key}={value}\n")
+    
+    # Model configuration
+    with open("config.properties", "a") as f:
+        f.write("models={ \n \"model\" : { \n \"1.0\ : { \n")
+        for key, value in model_config.items():
+            f.write(f"\"{key}\":{value},\n")
+        
+        f.write("}\n}\n}")
     
 
 
