@@ -9,4 +9,4 @@
 
 ## Reporting a Vulnerability
 
-If you find a serious vulnerability please report it toopensource@fb.com and torchserve@amazon.com
+If you find a serious vulnerability please report it to opensource@fb.com and torchserve@amazon.com
