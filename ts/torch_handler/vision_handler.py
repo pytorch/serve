@@ -8,8 +8,21 @@ import io
 import base64
 import torch
 from PIL import Image
+import logging
+import os
 from captum.attr import IntegratedGradients
 from .base_handler import BaseHandler
+
+logger = logging.getLogger(__name__)
+
+ipex_enabled = False
+if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
+    ipex_enabled = True
+    try:
+        import accimage
+        ipex_enabled = True
+    except ImportError as error:
+        logger.warning("Please instlal accimage for optimized preprocessing")
 
 
 class VisionHandler(BaseHandler, ABC):
@@ -33,27 +46,43 @@ class VisionHandler(BaseHandler, ABC):
         Returns:
             list : The preprocess function returns the input image as a list of float tensors.
         """
-        images = []
-
-        for row in data:
-            # Compat layer: normally the envelope should just return the data
-            # directly, but older versions of Torchserve didn't have envelope.
-            image = row.get("data") or row.get("body")
-            if isinstance(image, str):
-                # if the image is a string of bytesarray.
-                image = base64.b64decode(image)
-
-            # If the image is sent as bytesarray
-            if isinstance(image, (bytearray, bytes)):
-                image = Image.open(io.BytesIO(image))
+        
+        if not ipex_enabled:
+            images = []
+    
+            for row in data:
+                # Compat layer: normally the envelope should just return the data
+                # directly, but older versions of Torchserve didn't have envelope.
+                image = row.get("data") or row.get("body")
+                if isinstance(image, str):
+                    # if the image is a string of bytesarray.
+                    image = base64.b64decode(image)
+    
+                # If the image is sent as bytesarray
+                if isinstance(image, (bytearray, bytes)):
+                    image = Image.open(io.BytesIO(image))
+                    image = self.image_processing(image)
+                else:
+                    # if the image is a list
+                    image = torch.FloatTensor(image)
+    
+                images.append(image)
+                
+            return torch.stack(images).to(self.device)
+        else:
+            batch_size = len(data)
+            images = torch.empty(batch_size, 3, 224, 224)
+            
+            for i in range(len(data)):
+                row = data[i]
+                image = row.get("data") or row.get("body")
+                image = accimage.Image(image)
+                image = image.resize((256,256))
+                image.crop((16,16,240,240))
                 image = self.image_processing(image)
-            else:
-                # if the image is a list
-                image = torch.FloatTensor(image)
-
-            images.append(image)
-
-        return torch.stack(images).to(self.device)
+                images[i] = image
+                
+            return images
 
     def get_insights(self, tensor_data, _, target=0):
         print("input shape", tensor_data.shape)
