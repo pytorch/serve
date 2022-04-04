@@ -19,7 +19,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
         import accimage
         ipex_enabled = True
     except ImportError as error:
-        logger.warning("Please instlal accimage for optimized preprocessing")
+        logger.warning("Please install accimage for optimized preprocessing")
  
 
 
