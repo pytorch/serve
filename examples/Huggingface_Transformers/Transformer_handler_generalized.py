@@ -12,6 +12,8 @@ from transformers import (
     AutoModelForTokenClassification,
     AutoModelForCausalLM
 )
+from transformers import GPT2TokenizerFast 
+
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
 
@@ -75,12 +77,21 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
-            self.model.to(self.device)
+            # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
+            # this basically palce different model blocks on different devices,
+            # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L962
+            if self.setup_config["model_parallel"] and "gpt2" in self.setup_config["model_name"]:
+                self.model.parallelize() 
+            else:
+                self.model.to(self.device)
             
         else:
             logger.warning("Missing the checkpoint or state_dict.")
+        
+        if "gpt2" in self.setup_config["model_name"]:
+            self.tokenizer = GPT2TokenizerFast.from_pretrained('gpt2', pad_token='<|endoftext|>')
 
-        if any(fname for fname in os.listdir(model_dir) if fname.startswith("vocab.") and os.path.isfile(fname)):
+        elif any(fname for fname in os.listdir(model_dir) if fname.startswith("vocab.") and os.path.isfile(fname)):
             self.tokenizer = AutoTokenizer.from_pretrained(
                 model_dir, do_lower_case=self.setup_config["do_lower_case"]
             )
@@ -91,7 +102,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             )
 
         self.model.eval()
-
         logger.info(
             "Transformer model from path %s loaded successfully", model_dir
         )
@@ -131,6 +141,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # preprocessing text for sequence_classification, token_classification or text_generation
             if self.setup_config["mode"] in {"sequence_classification", "token_classification", "text_generation"}:
                 inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors='pt')
+                
             # preprocessing text for question_answering.
             elif self.setup_config["mode"] == "question_answering":
                 # TODO Reading the context from a pickeled file or other fromats that
@@ -225,18 +236,17 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             
         # Handling inference for text_generation.
         if self.setup_config["mode"] == "text_generation":
-            for input in input_ids_batch:
-                prompt_length = len(self.tokenizer.decode(input[0]))
-                # for each text example from the batch, there is one instance of generated text 
-                # generated text is added at the starting text example  
-                # the output has a max length and is decoded in text
-                outputs = self.model.generate(input, max_length=150, do_sample=True, top_p=0.95, top_k=60)
-                generated = self.tokenizer.decode(input[0]) + self.tokenizer.decode(outputs[0])[prompt_length + 1 :]
-                
-                print("Generated text: " + generated)
-                
-                inferences.append(generated)
-            logger.info("Generated text: '%s'", generated)
+            if self.setup_config["model_parallel"]:
+                # Need to move the first device, as the trasnformer model has been placed there
+                #https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L970
+                input_ids_batch = input_ids_batch.to("cuda:0")
+            outputs = self.model.generate(input_ids_batch, max_length=50, do_sample=True, top_p=0.95, top_k=60)
+            for i, x in enumerate(outputs):
+                inferences.append(self.tokenizer.decode(outputs[i], skip_special_tokens=True))
+
+            logger.info("Generated text: '%s'", inferences)
+
+        print("Generated text", inferences)
         return inferences
 
     def postprocess(self, inference_output):
