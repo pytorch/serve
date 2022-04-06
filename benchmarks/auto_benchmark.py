@@ -160,7 +160,10 @@ def setup_benchmark_path(model_config_path):
 
 def build_model_json_config(models):
     for model in models:
-        input_file = CWD + '/benchmarks/models_config/{}'.format(model)
+        if model.startswith('/'):
+            input_file = model
+        else:
+            input_file = CWD + '/benchmarks/models_config/{}'.format(model)
         gen_model_config_json.convert_yaml_to_json(input_file, MODEL_JSON_CONFIG_PATH)
 
 def run_benchmark(bm_config):

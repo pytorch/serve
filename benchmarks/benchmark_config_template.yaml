@@ -7,6 +7,7 @@ ts_version:
     branch: &ts_version "master"
 
 # a list of model configure yaml files defined in benchmarks/models_config
+# or a list of model configure yaml files with full path
 models:
     - "vgg16.yaml"
     - "mnist.yaml"
