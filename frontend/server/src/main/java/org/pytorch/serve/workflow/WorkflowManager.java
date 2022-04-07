@@ -1,5 +1,6 @@
 package org.pytorch.serve.workflow;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
@@ -50,10 +52,6 @@ import org.slf4j.LoggerFactory;
 
 public final class WorkflowManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
-
-    private final ExecutorService inferenceExecutorService =
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
     private static WorkflowManager workflowManager;
     private final ConfigManager configManager;
     private final ConcurrentHashMap<String, WorkFlow> workflowMap;
@@ -366,9 +364,15 @@ public final class WorkflowManager {
     }
 
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input)
-            throws WorkflowException {
+            throws WorkflowNotFoundException {
+
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
+            ThreadFactory namedThreadFactory =
+                    new ThreadFactoryBuilder().setNameFormat("wf-manager-thread-%d").build();
+            ExecutorService inferenceExecutorService =
+                    Executors.newFixedThreadPool(
+                            Runtime.getRuntime().availableProcessors(), namedThreadFactory);
             DagExecutor dagExecutor = new DagExecutor(wf.getDag());
             CompletableFuture<ArrayList<NodeOutput>> predictionFuture =
                     CompletableFuture.supplyAsync(() -> dagExecutor.execute(input, null));
@@ -419,12 +423,8 @@ public final class WorkflowManager {
                                         new InternalServerException(
                                                 error[error.length - 1].strip()));
                                 return null;
-                            });
-            try {
-                predictionFuture.get();
-            } catch (ExecutionException | InterruptedException e) {
-                throw new WorkflowException("Workflow failed ", e);
-            }
+                            })
+                    .thenRun(inferenceExecutorService::shutdown);
         } else {
             throw new WorkflowNotFoundException("Workflow not found: " + wfName);
         }
