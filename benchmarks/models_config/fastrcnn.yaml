@@ -1,0 +1,21 @@
+---
+fastrcnn:
+    eager_mode:
+        benchmark_engine: "ab"
+        url: "https://torchserve.pytorch.org/mar_files/fastrcnn.mar"
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+        input: "./examples/image_classifier/kitten.jpg"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "cpu"
+            - "gpus": "all"

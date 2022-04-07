@@ -6,7 +6,7 @@ We currently support benchmarking with JMeter & Apache Bench. One can also profi
 
 * [Benchmarking with JMeter](#benchmarking-with-jmeter)
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
-* [AutoBenchmarking Apachage Bench on AWS](#benchmarking-apache-bench-aws)
+* [Auto Benchmarking with Apache Bench](#Auto-Benchmarking-with-Apache-Bench)
 * [Profiling](#profiling)
 
 # Benchmarking with JMeter
@@ -316,8 +316,58 @@ The reports are generated at location "/tmp/benchmark/"
 ### Sample latency graph
 ![](predict_latency.png)
 
-# Benchmarking Apache Bench AWS
-If you're making a large change to TorchServe it's best to run an [automated benchmarking suite on AWS](https://github.com/pytorch/serve/tree/master/test/benchmark) so that you can test multiple CUDA versions and EC2 hardware configurations easily.
+# Auto Benchmarking with Apache Bench
+`auto_benchmark.py` runs Apache Bench on a set of models and generates an easy to read `report.md` once [Apach bench installation](https://github.com/pytorch/serve/tree/master/benchmarks#installation-1) is done.
+
+## What is its internal?
+Auto Benchmarking is tool to allow users to run multiple test cases together and generates final report. Internally, the workflow is:
+- read input `benchmark_config.yaml` file
+- install TorchServe and its dependencies if input parameter `--skip false`
+- generate models' json files for benchmark-ab.py
+- run `benchmark-ab.py` on each test case and generate stats metrics in json format
+- save each test case logs in local /tmp/ts_benchmark/
+- generates final `report.md`
+- upload all test results to remote storage or local different paths if it is enabled in `benchmark_config.yaml`
+
+## How to Run?
+```
+cd serve
+
+python benchmarks/auto_benchmark.py -h
+usage: auto_benchmark.py [-h] [--input INPUT] [--skip SKIP]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --input INPUT  benchmark config yaml file path
+  --skip SKIP    true: skip torchserve installation. default: true
+
+python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template.yaml --skip true
+```
+
+- [benchmark_config_template.yaml](https://github.com/pytorch/serve/blob/master/benchmarks/benchmark_config_template.yaml) is a config template yaml file for benchmark automation. Users can add test plans in "models" and create their own benchmark_config.yaml.
+
+- Benchmark automation results are stored in local `/tmp/ts_benchmark`. `/tmp/ts_benchmark/report.md` is the final report. [Here](https://github.com/pytorch/serve/blob/master/benchmarks/sample_report.md) is a sample final report. Each test case's logs are store in separate directory under /tmp/ts_benchmark. For example:
+```
+ tree /tmp/ts_benchmark/
+/tmp/ts_benchmark/
+├── eager_mode_mnist_w4_b1
+│   ├── ab_report.csv
+│   ├── benchmark.tar.gz
+│   └── logs.tar.gz
+├── eager_mode_mnist_w4_b2
+│   ├── ab_report.csv
+│   ├── benchmark.tar.gz
+│   └── logs.tar.gz
+├── eager_mode_mnist_w8_b1
+│   ├── ab_report.csv
+│   ├── benchmark.tar.gz
+│   └── logs.tar.gz
+├── eager_mode_mnist_w8_b2
+│   ├── ab_report.csv
+│   ├── benchmark.tar.gz
+│   └── logs.tar.gz
+├── report.md
+```
 
 # Profiling
 
