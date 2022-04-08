@@ -52,6 +52,13 @@ import org.slf4j.LoggerFactory;
 
 public final class WorkflowManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
+
+    private final ThreadFactory namedThreadFactory =
+            new ThreadFactoryBuilder().setNameFormat("wf-manager-thread-%d").build();
+    private final ExecutorService inferenceExecutorService =
+            Executors.newFixedThreadPool(
+                    Runtime.getRuntime().availableProcessors(), namedThreadFactory);
+
     private static WorkflowManager workflowManager;
     private final ConfigManager configManager;
     private final ConcurrentHashMap<String, WorkFlow> workflowMap;
@@ -365,14 +372,8 @@ public final class WorkflowManager {
 
     public void predict(ChannelHandlerContext ctx, String wfName, RequestInput input)
             throws WorkflowNotFoundException {
-
         WorkFlow wf = workflowMap.get(wfName);
         if (wf != null) {
-            ThreadFactory namedThreadFactory =
-                    new ThreadFactoryBuilder().setNameFormat("wf-manager-thread-%d").build();
-            ExecutorService inferenceExecutorService =
-                    Executors.newFixedThreadPool(
-                            Runtime.getRuntime().availableProcessors(), namedThreadFactory);
             DagExecutor dagExecutor = new DagExecutor(wf.getDag());
             CompletableFuture<ArrayList<NodeOutput>> predictionFuture =
                     CompletableFuture.supplyAsync(() -> dagExecutor.execute(input, null));
@@ -423,8 +424,7 @@ public final class WorkflowManager {
                                         new InternalServerException(
                                                 error[error.length - 1].strip()));
                                 return null;
-                            })
-                    .thenRun(inferenceExecutorService::shutdown);
+                            });
         } else {
             throw new WorkflowNotFoundException("Workflow not found: " + wfName);
         }
