@@ -72,6 +72,9 @@ class Linux(Common):
 
     def __init__(self):
         super().__init__()
+        # Skip 'sudo ' when the user is root
+        self.sudo_cmd = '' if os.geteuid() == 0 else self.sudo_cmd
+
         if args.force:
             os.system(f"{self.sudo_cmd}apt-get update")
 
