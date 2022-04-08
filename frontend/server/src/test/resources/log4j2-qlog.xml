@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration packages="org.pytorch.serve.util.logging">
+	<Appenders>
+		<RollingFile
+				name="access_log"
+				fileName="${env:LOG_LOCATION:-logs}/access_log.log"
+				filePattern="${env:LOG_LOCATION:-logs}/access_log.%d{dd-MMM}.log.gz">
+			<PatternLayout pattern="%d{ISO8601} - %m%n"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
+		</Console>
+		<RollingFile
+				name="model_log"
+				fileName="${env:LOG_LOCATION:-logs}/model_log.log"
+		        filePattern="${env:LOG_LOCATION:-logs}/model_log.%d{dd-MMM}.log.gz">
+			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
+		<RollingFile name="model_metrics"
+					 fileName="${env:METRICS_LOCATION:-logs}/model_metrics.log"
+					 filePattern="${env:METRICS_LOCATION:-logs}/model_metrics.%d{dd-MMM}.log.gz">
+			<QLogLayout/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
+		<RollingFile
+				name="ts_log"
+				fileName="${env:LOG_LOCATION:-logs}/ts_log.log"
+				filePattern="${env:LOG_LOCATION:-logs}/ts_log.%d{dd-MMM}.log.gz">
+			<PatternLayout pattern="%d{ISO8601} [%-5p] %t %c - %m%n"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
+		<RollingFile
+				name="ts_metrics"
+				fileName="${env:METRICS_LOCATION:-logs}/ts_metrics.log"
+		        filePattern="${env:METRICS_LOCATION:-logs}/ts_metrics.%d{dd-MMM}.log.gz">
+			<QLogLayout/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+				<TimeBasedTriggeringPolicy/>
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="ACCESS_LOG" level="info">
+			<AppenderRef ref="access_log"/>
+		</Logger>
+		<Logger name="io.netty" level="error" />
+		<Logger name="MODEL_LOG" level="all">
+			<AppenderRef ref="model_log"/>
+		</Logger>
+		<Logger name="MODEL_METRICS" level="all">
+			<AppenderRef ref="model_metrics"/>
+		</Logger>
+		<Logger name="org.apache" level="off" />
+		<Logger name="org.pytorch.serve" level="debug">
+			<AppenderRef ref="ts_log"/>
+		</Logger>
+		<Logger name="TS_METRICS" level="all">
+			<AppenderRef ref="ts_metrics"/>
+		</Logger>
+		<Root level="info">
+			<AppenderRef ref="STDOUT"/>
+			<AppenderRef ref="ts_log"/>
+		</Root>
+	</Loggers>
+</Configuration>
