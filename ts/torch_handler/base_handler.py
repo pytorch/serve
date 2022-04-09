@@ -6,17 +6,17 @@ Also, provides handle method per torch serve custom model specification
 import abc
 import logging
 import os
-from pkg_resources import packaging
 import importlib.util
 import time
 import torch
+from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import profile, record_function, ProfilerActivity
     PROFILER_AVAILABLE = True
 else:
-    PROFILER_AVAILABLE = False 
+    PROFILER_AVAILABLE = False
 
 
 logger = logging.getLogger(__name__)
