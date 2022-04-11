@@ -183,10 +183,18 @@ torch.jit.save(model, 'rn50_int8_jit.pt')
 ```
 
 ### 2. Creating a Model Archive 
-Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as ususal. Use the following command to package the model.  
+Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as ususal. 
+
+Use the following command to package `rn50_int8_jit.pt` into `rn50_ipex_int8.mar`.  
 ```
 torch-model-archiver --model-name rn50_ipex_int8 --version 1.0 --serialized-file rn50_int8_jit.pt --handler image_classifier 
 ```
+Similarly, use the following command in the [Huggingface_Transformers directory](https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers) to package `bert_int8_jit.pt` into `bert_ipex_int8.mar`.   
+
+```
+torch-model-archiver --model-name bert_ipex_int8 --version 1.0 --serialized-file bert_int8_jit.pt --handler ./Transformer_handler_generalized.py --extra-files "./setup_config.json,./Seq_classification_artifacts/index_to_name.json"
+```
+
 ### 3. Start TorchServe to serve the model 
 Make sure to set `ipex_enable=true` in `config.properties`. Use the following command to start TorchServe with IPEX. 
 ```
