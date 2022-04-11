@@ -83,7 +83,7 @@ cpu_launcher_enable=true
 ```
 
 ## Creating and Exporting INT8 model for IPEX
-Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. 
+Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
 
 ### 1. Creating a serialized file 
 First create `.pt` serialized file using IPEX INT8 inference. Here we show two examples with BERT and ResNet50. 
@@ -313,12 +313,12 @@ Use the following command to reproduce the results.
 python benchmark-ab.py --url {modelUrl} --input {inputPath} --concurrency 1 
 ```
 
-For example, run the following command to reproduce latency performance of ResNet50 with data type of IPEX int8 and batch size of 1. 
+For example, run the following command to reproduce latency performance of ResNet50 with data type of IPEX int8 and batch size of 1. Please refer to [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex) for steps to creating ResNet50 ```mar``` file using Intel® Extension for PyTorch* int8. 
 ```
 python benchmark-ab.py --url 'file:///model_store/rn50_ipex_int8.mar' --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of BERT with data type of IPEX int8 and batch size of 1. 
+For example, run the following command to reproduce latency performance of BERT with data type of IPEX int8 and batch size of 1. Please refer to [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex) for steps to creating BERT ```.mar``` file using Intel® Extension for PyTorch* int8. 
 ```
 python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```
