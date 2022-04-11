@@ -313,12 +313,12 @@ Use the following command to reproduce the results.
 python benchmark-ab.py --url {modelUrl} --input {inputPath} --concurrency 1 
 ```
 
-For example, run the following command to reproduce latency performance of ResNet50 with data type of IPEX int8 and batch size of 1. Please refer to [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex) for steps to creating ResNet50 ```mar``` file using Intel® Extension for PyTorch* int8. 
+For example, run the following command to reproduce latency performance of ResNet50 with data type of IPEX int8 and batch size of 1. Please refer to [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with IPEX int8 data type. 
 ```
 python benchmark-ab.py --url 'file:///model_store/rn50_ipex_int8.mar' --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of BERT with data type of IPEX int8 and batch size of 1. Please refer to [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex) for steps to creating BERT ```.mar``` file using Intel® Extension for PyTorch* int8. 
+For example, run the following command to reproduce latency performance of BERT with data type of IPEX int8 and batch size of 1. Please refer to [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex) for steps to creating ```bert_ipex_int8.mar``` file for BERT with IPEX int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```
