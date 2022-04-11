@@ -6,18 +6,18 @@ Here we show how to use TorchServe with IPEX.
 <sup>1. While IPEX benefits all platforms, platforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document 
-* [Install Intel Extension for PyTorch](#install-intel-extension-for-pytorch)
-* [Serving model with Intel Extension for PyTorch](#serving-model-with-intel-extension-for-pytorch)
+* [Install Intel® Extension for PyTorch*](#install-intel-extension-for-pytorch)
+* [Serving model with Intel® Extension for PyTorch*](#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for IPEX](#creating-and-exporting-int8-model-for-ipex)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Performance Boost with IPEX and Launcher](#performance-boost-with-ipex-and-launcher)
 
 
-## Install Intel Extension for PyTorch 
+## Install Intel® Extension for PyTorch* 
 Refer to the documentation [here](https://github.com/intel/intel-extension-for-pytorch#installation). 
 
-## Serving model with Intel Extension for PyTorch  
+## Serving model with Intel® Extension for PyTorch*  
 After installation, all it needs to be done to use TorchServe with IPEX is to enable it in `config.properties`. 
 ```
 ipex_enable=true
@@ -83,7 +83,7 @@ cpu_launcher_enable=true
 ```
 
 ## Creating and Exporting INT8 model for IPEX
-Intel Extension for PyTorch supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
+Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for IPEX. Please refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
 
 ### 1. Creating a serialized file 
 First create `.pt` serialized file using IPEX INT8 inference. Here we show two examples with BERT and ResNet50. 
