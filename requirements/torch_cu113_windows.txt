@@ -1,6 +1,4 @@
-#pip3 install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu113/torch_stable.html
---find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.11.0; sys_platform == 'win32'
-torchvision==0.12; sys_platform == 'win32'
+torchvision==0.12.0; sys_platform == 'win32'
 torchtext==0.12.0; sys_platform == 'win32'
 torchaudio==0.11.0; sys_platform == 'win32'
