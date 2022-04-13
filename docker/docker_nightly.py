@@ -22,5 +22,5 @@ if __name__ == "__main__":
     os.system(f"docker tag pytorch/{cpu_version} pytorch/{project}:latest-cpu")
     os.system(f"docker tag pytorch/{gpu_version} pytorch/{project}:latest-gpu")
 
-    for version in ["latest-cpu", "latest_gpu"]:
+    for version in ["latest-cpu", "latest-gpu"]:
         os.system(f"docker push pytorch/{project}:{version}")
