@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v2.10.0
         with:
           python-version: 3.8
           architecture: x64
@@ -22,7 +20,7 @@ jobs:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
       - name: Push Docker Nightly
-        run:
+        run: |
           cd docker
           python docker_nightly.py
           
