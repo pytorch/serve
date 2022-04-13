@@ -46,5 +46,5 @@ metrics_cmd:
 report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-model-serving/benchmark', "today()", *hardware]
+    - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
 
