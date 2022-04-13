@@ -1,0 +1,17 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install sudo -y
+      - sudo apt-get install apache2-utils
+      - git clone https://www.github.com/pytorch/serve.git
+      - cd serve
+      - pip install -r benchmarks/requirements-ab.txt
+
+  build:
+    commands:
+      - python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
