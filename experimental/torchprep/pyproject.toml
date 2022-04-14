@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "torchprep"
-version = "0.1.0"
+version = "0.2.0"
 description = "The easiest way to prepare Pytorch models for inference"
 authors = ["Mark Saroufim <marksaroufim@fb.com>"]
 readme = "README.md"

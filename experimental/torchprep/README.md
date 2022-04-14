@@ -51,10 +51,10 @@ pip install torchvision transformers
 python example.py
 
 # quantize a cpu model with int8 on cpu and profile with a float tensor of shape [64,3,7,7]
-torchprep quantize models/resnet152.pt int8 --input-shape 64,3,7,7
+torchprep quantize models/resnet152.pt int8 --input-shape config/resnet.yaml
 
 # profile a model for a 100 iterations
-torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shape 64,3,7,7
+torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shape config/resnet.yaml
 
 # set omp threads to 1 to optimize cpu inference
 torchprep env --device cpu
@@ -101,7 +101,7 @@ Arguments:
 
 Options:
   --device [cpu|gpu]  [default: Device.cpu]
-  --input-shape TEXT  Comma seperated input tensor shape
+  --input-shape TEXT  Comma separated input tensor shape
   --help              Show this message and exit.
 ```
 
@@ -122,14 +122,17 @@ poetry publish --build
 ```
 
 ## Roadmap
-* [ ] Supporting add custom model names and output paths
+* [x] Supporting add custom model names and output paths
 * [x] Support multiple input tensors for models like BERT that expect a batch size and sequence length
 * [x] Support multiple input tensor types
-* [ ] Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
-* [ ] Automated release with github actions - low priority for now
-* [ ] TensorRT, IPEX, AMP and autocast support
-* [ ] Training aware optimizations
-* [ ] Get model input shape using fx instead of asking user for it - [solution exists in Python 3.11 only](https://github.com/pytorch/serve/issues/1505)
-* [ ] Refactor profiling, loading and saving into seperate functions
-* [ ] More environment variable setting and a way to reverse environment variables (e.g: save current ones in user file) - in progress
+* [x] Print environment variables
+
+### Short term
 * [ ] Integrate into universal benchmark tool `serve/benchmarks`
+* [ ] Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
+* [ ] TensorRT, IPEX, AMP and autocast support
+
+### Medium term
+* [ ] Get model input shape with type annotations - [solution exists in Python 3.11 only](https://github.com/pytorch/serve/issues/1505)
+* [ ] Automated release with github actions - low priority for now
+* [ ] Training aware optimizations
