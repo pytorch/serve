@@ -9,6 +9,7 @@ import math
 from tqdm import tqdm
 import torch.fx as fx
 import torch.nn.utils.prune
+from .format import parse_input_format, materialize_tensors
 
 
 app = typer.Typer()
@@ -58,7 +59,7 @@ def prune(model_path : Path, output_name : str = "pruned_model.pt", prune_amount
 
 
 @app.command()
-def fuse(model_path : Path, output_name : str = "fused_model.pt", device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
+def fuse(model_path : Path, input_shape : Path, output_name : str = "fused_model.pt", device : Device = Device.cpu) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Works only for models that are scriptable
@@ -80,8 +81,7 @@ def fuse(model_path : Path, output_name : str = "fused_model.pt", device : Devic
     return optimized_model
 
 @app.command()
-def profile(model_path : Path, iterations : int = 100, device : Device = Device.cpu,
- input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> List[float]:
+def profile(model_path : Path, input_shape : Path, iterations : int = 100, device : Device = Device.cpu) -> List[float]:
     """
     Profile model latency 
     """
@@ -89,13 +89,10 @@ def profile(model_path : Path, iterations : int = 100, device : Device = Device.
         print("Please set iterations > 100")
         return 
     model = load_model(model_path, device)
-    profile = map(int,input_shape.split(','))
 
-    input_tensor = torch.randn(*profile)
+    input_tensors = materialize_tensors(parse_input_format(input_shape))
 
-    if device == Device.cuda:
-        input_tensor.to(torch.device("cuda"))
-    return profile_model(model, input_tensor, iterations)
+    return profile_model(model, input_tensors, iterations)
 
 @app.command()
 def env(device : Device = Device.cpu, omp_num_threads : int = 1, kmp_blocktime : int = 1) -> None:
@@ -137,31 +134,26 @@ def quantize(model_path : Path, precision : Precision ,
     print_size_of_model(model, label = "base model")
     print_size_of_model(quantized_model, label = "quantized_model")
     
-    if input_shape:
-        profile = map(int,input_shape.split(','))
-        input_tensor = torch.randn(*profile)
-
-        if device == Device.cuda:
-            input_tensor.to(torch.device("cuda"))
-        profile_model(model, input_tensor, label = "base model")
-        profile_model(quantized_model, input_tensor, label = "quantized_model")
+    input_tensors = materialize_tensors(parse_input_format(input_shape))
+    profile_model(model, input_tensors, label = "base model")
+    profile_model(quantized_model, input_tensors, label = "quantized_model")
     
     torch.save(quantized_model, output_name)
     print(f"model {output_name} was saved")
     return quantized_model
 
 
-def profile_model(model :torch.nn.Module, input_tensor, label : str = "model", iterations : int = 100) -> List[float]:
+def profile_model(model :torch.nn.Module, input_tensors, label : str = "model", iterations : int = 100) -> List[float]:
     print("Starting profile")
 
     warmup_iterations = iterations // 10
     for step in range(warmup_iterations):
-        model(input_tensor)
+        model(*input_tensors)
 
     durations = []
     for step in tqdm(range(iterations)):
         tic = time.time()
-        model(input_tensor)
+        model(*input_tensors)
         toc = time.time()
         duration = toc - tic
         duration = math.trunc(duration * 1000)

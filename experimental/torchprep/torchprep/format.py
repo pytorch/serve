@@ -39,7 +39,7 @@ device_map = {
     "cuda" : torch.device("cuda")
 }
 
-def read_yaml(filename : str = "example.yaml") -> Dict[str, Union[int, List[int]]]: 
+def parse_input_format(filename : str = "example.yaml") -> Dict[str, Union[int, List[int]]]: 
     with open(filename, 'r') as f:
         try:
             parsed_yaml=yaml.safe_load(f)
@@ -86,8 +86,3 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
             tensor_list.append(x)
 
         return tensor_list
-
-
-
-if __name__ == "__main__":
-    read_yaml()
