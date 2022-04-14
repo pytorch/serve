@@ -1,6 +1,6 @@
 import typer
 import torch
-from typing import List, Union
+from typing import List, Union, Dict
 import time
 import os
 from enum import Enum
@@ -41,7 +41,7 @@ def distill(model_path : Path, device : Device = Device.cpu, parameter_scaling :
     print("See this notebook for more information https://colab.research.google.com/drive/1RzQtprrHx8PokLQsFiQPAKzfn_DiTpDN?usp=sharing")
 
 @app.command()
-def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
+def prune(model_path : Path, output_name : str = "pruned_model.pt", prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
     """
     Zero out small model weights using l1 norm
     """
@@ -51,14 +51,14 @@ def prune(model_path : Path, prune_amount : float = typer.Option(default=0.3, he
         if isinstance(module, torch.nn.Conv2d) or isinstance(module, torch.nn.Linear) or isinstance(module, torch.nn.LSTM):
             torch.nn.utils.prune.l1_unstructured(module, "weight", prune_amount)
     
-    torch.save(model, 'pruned_model.pt')
+    torch.save(model, output_name)
     print("Saved prune model pruned_model.pt")
     return model
 
 
 
 @app.command()
-def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
+def fuse(model_path : Path, output_name : str = "fused_model.pt", device : Device = Device.cpu,input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Works only for models that are scriptable
@@ -76,7 +76,7 @@ def fuse(model_path : Path, device : Device = Device.cpu,input_shape : str = typ
 
     optimized_model = torch.jit.optimize_for_inference(model)
 
-    torch.save(optimized_model, 'optimized_model.pt') 
+    torch.save(optimized_model, output_name) 
     return optimized_model
 
 @app.command()
@@ -111,9 +111,8 @@ def env(device : Device = Device.cpu, omp_num_threads : int = 1, kmp_blocktime :
 
 @app.command()
 def quantize(model_path : Path, precision : Precision ,
+ output_name : str = "quantized_model.pt",
  device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
-    # TODO: define model output path
-    # TODO: Support multiple input tensors
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
     """
@@ -147,8 +146,8 @@ def quantize(model_path : Path, precision : Precision ,
         profile_model(model, input_tensor, label = "base model")
         profile_model(quantized_model, input_tensor, label = "quantized_model")
     
-    torch.save(quantized_model, 'quantized_model.pt')
-    print(f"model quantized_model.pt was saved")
+    torch.save(quantized_model, output_name)
+    print(f"model {output_name} was saved")
     return quantized_model
 
 
@@ -186,3 +185,6 @@ def print_size_of_model(model : torch.nn.Module, label : str = ""):
     print("model: ",label,':','Size (MB):', size/1e6)
     os.remove('temp.p')
     return size
+
+def print_environment_variables() -> Dict[str, str]:
+    print(os.environ)

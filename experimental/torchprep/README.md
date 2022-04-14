@@ -29,7 +29,7 @@ cd torchprep
 poetry install
 ```
 
-## Install from Pypi (Coming soon)
+## Install from Pypi
 
 ```sh
 pip install torchprep
@@ -122,13 +122,14 @@ poetry publish --build
 ```
 
 ## Roadmap
-* Supporting add custom model names and output paths
-* Support multiple input tensors for models like BERT that expect a batch size and sequence length
-* Support multiple input tensor types
-* Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
-* Automated release with github actions
-* TensorRT, IPEX, AMP and autocast support
-* Training aware optimizations
-* Get model input shape using fx instead of asking user for it
-* Refactor profiling, loading and saving into seperate functions
-* More environment variable setting and a way to reverse environment variables (e.g: save current ones in user file)
+* [ ] Supporting add custom model names and output paths
+* [x] Support multiple input tensors for models like BERT that expect a batch size and sequence length
+* [x] Support multiple input tensor types
+* [ ] Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
+* [ ] Automated release with github actions - low priority for now
+* [ ] TensorRT, IPEX, AMP and autocast support
+* [ ] Training aware optimizations
+* [ ] Get model input shape using fx instead of asking user for it - [solution exists in Python 3.11 only](https://github.com/pytorch/serve/issues/1505)
+* [ ] Refactor profiling, loading and saving into seperate functions
+* [ ] More environment variable setting and a way to reverse environment variables (e.g: save current ones in user file) - in progress
+* [ ] Integrate into universal benchmark tool `serve/benchmarks`
