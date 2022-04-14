@@ -126,13 +126,14 @@ poetry publish --build
 * [x] Support multiple input tensors for models like BERT that expect a batch size and sequence length
 * [x] Support multiple input tensor types
 * [x] Print environment variables
+* [x] TensorRT
+* [x] IPEX
 
 ### Short term
 * [ ] Integrate into universal benchmark tool `serve/benchmarks`
 * [ ] Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
-* [ ] TensorRT, IPEX, AMP and autocast support
+* [ ] Training aware optimizations
 
 ### Medium term
 * [ ] Get model input shape with type annotations - [solution exists in Python 3.11 only](https://github.com/pytorch/serve/issues/1505)
 * [ ] Automated release with github actions - low priority for now
-* [ ] Training aware optimizations
