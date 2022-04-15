@@ -1,7 +1,6 @@
 import os
 import platform
 import argparse
-from shutil import which
 import sys
 from pathlib import Path
 from print_env_info import run_and_parse_first_match
