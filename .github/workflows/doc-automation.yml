@@ -20,7 +20,7 @@ jobs:
         python3 -m pip install setuptools
         python3 -m pip install torch
         git clone https://github.com/pytorch/pytorch_sphinx_theme
-        python3 pytorch_sphinx_theme/setup.py
+        python3 pytorch_sphinx_theme/setup.py install --user
         python3 -m pip install recommonmark
         python3 -m pip install katex
         python3 -m pip install sphinxcontrib.katex
