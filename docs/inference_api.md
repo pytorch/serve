@@ -69,7 +69,7 @@ or:
 
 import requests
 
-res = requests.post("http://localhost:8080/predictions/squeezenet1_1", files=[('data', open('docs/images/dogs-before.jpg', 'rb')), ('data', open('docs/images/kitten_small.jpg', 'rb'))])
+res = requests.post("http://localhost:8080/predictions/squeezenet1_1", files={'data': open('docs/images/dogs-before.jpg', 'rb'), 'data': open('docs/images/kitten_small.jpg', 'rb')})
 ```
 To get predictions from a specific version of each loaded model, make a REST call to `/predictions/{model_name}/{version}`:
 
