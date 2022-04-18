@@ -1,0 +1,26 @@
+name: Push Docker Nightly
+
+on:
+  # run every day at 11:15am
+  schedule:
+    - cron:  '15 11 * * *'
+jobs:
+  nightly:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Login to Docker
+        env:
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
+      - name: Push Docker Nightly
+        run: |
+          cd docker
+          python docker_nightly.py
+          
