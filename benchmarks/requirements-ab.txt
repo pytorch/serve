@@ -3,3 +3,6 @@ Click
 click-config-file
 matplotlib
 requests
+pyyaml
+mdutils
+ruamel.yaml
