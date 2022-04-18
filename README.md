@@ -26,7 +26,11 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 ### 🐳 Quick Start with Docker
 
 ```
+# Latest release
 docker pull pytorch/torchserve
+
+# Nightly build
+docker pull pytorch/torchserve-nightly
 ```
 
 Refer to [torchserve docker](docker/README.md) for details.
