@@ -9,8 +9,14 @@ import os
 import importlib.util
 import time
 import torch
-from torch.profiler import profile, record_function, ProfilerActivity
+from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
+
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
+    from torch.profiler import profile, record_function, ProfilerActivity
+    PROFILER_AVAILABLE = True
+else:
+    PROFILER_AVAILABLE = False
 
 
 logger = logging.getLogger(__name__)
@@ -211,7 +217,11 @@ class BaseHandler(abc.ABC):
 
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
-            output, _ = self._infer_with_profiler(data=data)
+            if PROFILER_AVAILABLE:
+                output, _ = self._infer_with_profiler(data=data)
+            else:
+                raise RuntimeError("Profiler is enabled but current version of torch does not support."
+                                   "Install torch>=1.8.1 to use profiler.")
         else:
             if self._is_describe():
                 output = [self.describe_handle()]
