@@ -16,7 +16,7 @@ jobs:
       - name: Checkout TorchServe
         uses: actions/checkout@v2
       - name: Install dependencies
-          run: |
+        run: |
             apt-get update
             apt-get install sudo -y
             sudo apt-get install apache2-utils
