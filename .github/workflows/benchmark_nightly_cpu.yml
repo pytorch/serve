@@ -17,9 +17,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install dependencies
         run: |
-            apt-get update
-            apt-get install sudo -y
-            sudo apt-get install apache2-utils
+            sudo apt-get install -y apache2-utils
             pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark cpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
