@@ -5,7 +5,7 @@ on:
     - cron:  '30 11 * * *'
 jobs:
   nightly:
-    runs-on: self-hosted
+    runs-on: [self-hosted, cpu]
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
