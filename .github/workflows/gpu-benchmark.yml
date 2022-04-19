@@ -1,9 +1,8 @@
-name: Benchmark Automation
-
+name: GPU Nightly Benchmark
 on:
-  # run every day at 11:15am
-  schedule:
-    - cron:  '30 11 * * *'
+  push:
+    branches:
+      - ghactionbench
 jobs:
   nightly:
     runs-on: self-hosted
@@ -32,9 +31,9 @@ jobs:
           sudo apt-get install apache2-utils
           cd benchmarks
           pip install -r requirements-ab.txt
-          python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
+          python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template.yaml    
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:
           name: nightly artifact
-          path: /tmp/benchmark/
+          path: /tmp/ts_benchmark

@@ -1,0 +1,39 @@
+name: GPU Nightly Benchmark
+on:
+  # run every day at 11:45am
+  schedule:
+    - cron:  '30 11 * * *'
+jobs:
+  nightly:
+    runs-on: self-hosted
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          set -eux
+          pip install twine
+          sudo apt-get update
+          python ts_scripts/install_dependencies.py --environment=dev
+          pip install torchserve-nightly
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - name: Run benchmarks
+        run: |
+          sudo apt-get install apache2-utils
+          cd benchmarks
+          pip install -r requirements-ab.txt
+          python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png
+      - name: Save benchmark artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nightly artifact
+          path: /tmp/ts_benchmark
