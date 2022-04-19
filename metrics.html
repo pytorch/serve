@@ -460,7 +460,7 @@ Metrics are collected by default at:</p>
 MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
 </pre></div>
 </div>
-<p>To enable metric logging in JSON format, modify the log formatter in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a>. For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
+<p>To enable metric logging in JSON format, set “patternlayout” as “JSONPatternLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml">log4j2-json.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
 <p>After you enable JSON log formatting, logs will look as follows:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;MetricName&quot;</span><span class="p">:</span> <span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span>
@@ -488,6 +488,20 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
   <span class="p">],</span>
   <span class="nt">&quot;HostName&quot;</span><span class="p">:</span> <span class="s2">&quot;my_machine_name&quot;</span>
 <span class="p">}</span>
+</pre></div>
+</div>
+<p>To enable metric logging in QLog format, set “patternlayout” as “QLogLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-qlog.xml">log4j2-qlog.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
+<p>After you enable QLogsetupModelDependencies formatting, logs will look as follows:</p>
+<div class="highlight-qlog notranslate"><div class="highlight"><pre><span></span>HostName=abc.com
+StartTime=1646686978
+Program=MXNetModelServer
+Metrics=MemoryUsed=5790.98046875 Megabytes Level|Host
+EOE
+HostName=147dda19895c.ant.amazon.com
+StartTime=1646686978
+Program=MXNetModelServer
+Metrics=MemoryUtilization=46.2 Percent Level|Host
+EOE
 </pre></div>
 </div>
 </section>
@@ -847,37 +861,6 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">
