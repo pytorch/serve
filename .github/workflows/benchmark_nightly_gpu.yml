@@ -18,8 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
             apt-get update
-            apt-get install sudo -y
-            sudo apt-get install apache2-utils
+            apt-get install apache2-utils
             pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark gpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
