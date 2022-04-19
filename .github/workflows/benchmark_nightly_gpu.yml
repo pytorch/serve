@@ -26,5 +26,5 @@ jobs:
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: nightly artifact
+          name: nightly gpu artifact
           path: /tmp/ts_benchmark 
