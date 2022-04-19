@@ -1,9 +1,9 @@
 name: Benchmark torchserve gpu nightly
 
 on:
-  # run every day at 2:15am
-  schedule:
-    - cron:  '15 02 * * *'
+  push:
+    branches:
+      - issue_1454
 jobs:
   nightly:
     runs-on: [self-hosted, gpu]
