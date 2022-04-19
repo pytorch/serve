@@ -23,3 +23,8 @@ jobs:
             pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark cpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
+      - name: Save benchmark artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nightly artifact
+          path: /tmp/ts_benchmark 
