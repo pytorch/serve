@@ -1,0 +1,24 @@
+name: CI CPU
+
+on: push
+jobs:
+  nightly:
+    runs-on: [self-hosted, cpu]
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
+          python torchserve_sanity.py
+      - name: Torchserve Sanity
+        run: python torchserve_sanity.py
+      - name: mvn install
+        run: cd serving-sdk/ && mvn clean install -q && cd ../
+
+
