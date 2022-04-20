@@ -15,7 +15,6 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
-          python torchserve_sanity.py
       - name: Torchserve Sanity
         run: python torchserve_sanity.py
       - name: mvn install
