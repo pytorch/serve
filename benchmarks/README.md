@@ -369,6 +369,16 @@ python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template
 ├── report.md
 ```
 
+## Github Actions benchmarking
+If you need to run your benchmarks on a specific cloud or hardware infrastructure. We highly recommend you fork this repo and leverage the benchmarks in `.github/workflows/benchmark-nightly_cpu*.yml` which will run the benchmarks on a custom instance of your choice and save the results as a github artifact. To learn more about how to create your own custom runner by following instructions from Github here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
+
+The high level approach
+1. Create a cloud instance in your favorite cloud provider
+2. Configure it so it can talk to github actions by running some shell commands listed here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
+3. Tag your instances in https://github.com/pytorch/serve/settings/actions/runners
+3. In the `.yml` make sure to use `runs-on [self-hosted, your_tag]`
+4. Inspect the results in https://github.com/pytorch/serve/actions and download the artifacts for further analysis
+
 # Profiling
 
 ## Frontend
