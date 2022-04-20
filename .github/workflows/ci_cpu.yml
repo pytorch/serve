@@ -17,9 +17,7 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Torchserve Sanity
         run: | 
-          cd ..
-          python serve/torchserve_sanity.py
-          cd serve
+          python torchserve_sanity.py
       - name: mvn install
         run: cd serving-sdk/ && mvn clean install -q && cd ../
 
