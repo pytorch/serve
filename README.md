@@ -91,7 +91,6 @@ To file a bug or request a feature, please file a GitHub issue. For filing pull 
 * [Deploy PyTorch models with TorchServe in Azure Machine Learning online endpoints
 ](https://techcommunity.microsoft.com/t5/ai-machine-learning-blog/deploy-pytorch-models-with-torchserve-in-azure-machine-learning/ba-p/2466459)
 * [Efficient Serverless deployment of PyTorch models on Azure](https://medium.com/pytorch/efficient-serverless-deployment-of-pytorch-models-on-azure-dc9c2b6bfee7)
-* 
 * [How to Serve PyTorch Models with TorchServe](https://www.youtube.com/watch?v=XlO7iQMV3Ik)
 * [Model Serving in PyTorch](https://www.youtube.com/watch?v=2A17ZtycsPw)
 * [Explain Like I’m 5: TorchServe](https://www.youtube.com/watch?v=NEdZbkfHQCk)
@@ -99,7 +98,6 @@ To file a bug or request a feature, please file a GitHub issue. For filing pull 
 * [A MLOps Tale about operationalising MLFlow and PyTorch](https://medium.com/mlops-community/engineering-lab-1-team-1-a-mlops-tale-about-operationalising-mlflow-and-pytorch-62193b55dc19)
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)
 * [Evolution of Cresta’s machine learning architecture: Migration to AWS and PyTorch](https://aws.amazon.com/blogs/machine-learning/evolution-of-crestas-machine-learning-architecture-migration-to-aws-and-pytorch/)
-* 
 
 ## 💖 All Contributors
 
