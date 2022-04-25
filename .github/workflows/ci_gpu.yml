@@ -5,6 +5,9 @@ jobs:
   nightly:
     runs-on: [self-hosted, ci-gpu]
     steps:
+      - name: Clean up previous run
+        run: |
+          rm -rf "${{ github.workspace }}"
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
