@@ -3,7 +3,7 @@ name: CI GPU
 on: push
 jobs:
   nightly:
-    runs-on: [self-hosted, gpu]
+    runs-on: [self-hosted, ci-gpu]
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
