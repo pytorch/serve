@@ -9,6 +9,10 @@ jobs:
     runs-on: [self-hosted, gpu]
     timeout-minutes: 1320 
     steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          rm -rf "${{ github.workspace }}"
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
