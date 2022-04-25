@@ -3,7 +3,12 @@ name: CI CPU
 on: push
 jobs:
   nightly:
-    runs-on: [self-hosted, cpu]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
