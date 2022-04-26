@@ -8,6 +8,14 @@ jobs:
   ci-gpu:
     runs-on: [self-hosted, ci-gpu]
     steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          pwd
+          cd ..
+          pwd
+          rm -rf _tool
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
