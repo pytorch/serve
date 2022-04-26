@@ -2,8 +2,11 @@ name: Benchmark torchserve gpu nightly
 
 on:
   # run every day at 2:15am
-  schedule:
-    - cron:  '15 02 * * *'
+  #schedule:
+  #  - cron:  '15 02 * * *'
+  push:
+    branches:
+      - clean
 jobs:
   nightly:
     runs-on: [self-hosted, gpu]
@@ -12,7 +15,9 @@ jobs:
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
-          rm -rf "${{ github.workspace }}"
+          pwd
+          cd $RUNNER_WORKSPACE
+          pwd
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
