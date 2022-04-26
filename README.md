@@ -2,7 +2,7 @@
 
 TorchServe is a flexible and easy to use tool for serving and scaling PyTorch models in production.
 
-Requires python > 3.8
+Requires python >= 3.8
 
 ```bash
 curl http://127.0.0.1:8080/predictions/bert -T input.txt
@@ -26,7 +26,11 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 ### 🐳 Quick Start with Docker
 
 ```
+# Latest release
 docker pull pytorch/torchserve
+
+# Nightly build
+docker pull pytorch/torchserve-nightly
 ```
 
 Refer to [torchserve docker](docker/README.md) for details.
@@ -39,13 +43,9 @@ Refer to [torchserve docker](docker/README.md) for details.
   * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/)
   * [MLflow](https://github.com/mlflow/mlflow-torchserve)
   * [Sagemaker](https://aws.amazon.com/blogs/machine-learning/serving-pytorch-models-in-production-with-the-amazon-sagemaker-native-torchserve-integration/)
+  * [Kserve](https://kserve.github.io/website/modelserving/v1beta1/torchserve/)
   * [Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
-* Export your model for optimized inference
-  * Torchscript out of the box
-  * [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2)
-  * [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch)
-  * [TensorRT](https://github.com/pytorch/serve/issues/1243)
-  * [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
+* Export your model for optimized inference. Torchscript out of the box, [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](https://github.com/pytorch/serve/issues/1243), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
 * [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
 * [Expressive handlers](CONTRIBUTING.md): An expressive handler architecture that makes it trivial to support inferencing for your usecase with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
 * [Metrics API](docs/metrics.md): out of box support for system level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics and PyTorch profiler support
@@ -59,8 +59,10 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 ## 🏆 Highlighted Examples
 * [🤗 HuggingFace Transformers](examples/Huggingface_Transformers)
+* [Model parallel inference](examples/Huggingface_Transformers#model-paralellism)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
 * [Dual Neural Machine Translation](examples/Workflows/nmt_transformers_pipeline) for a complex workflow DAG
+
 
 For [more examples](examples/README.md)
 
@@ -77,11 +79,25 @@ To learn more about how to contribute, see the contributor guide [here](https://
 To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md).
 
 ## 📰 News
-* [Announcing TorchServe](https://aws.amazon.com/blogs/aws/announcing-torchserve-an-open-source-model-server-for-pytorch/)
+* [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)
+* [Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing](https://pytorch.org/blog/amazon-ads-case-study/)
+* [Optimize your inference jobs using dynamic batch inference with TorchServe on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/optimize-your-inference-jobs-using-dynamic-batch-inference-with-torchserve-on-amazon-sagemaker/)
+* [Using AI to bring children's drawings to life](https://ai.facebook.com/blog/using-ai-to-bring-childrens-drawings-to-life/)
+* [🎥 Model Serving in PyTorch](https://www.youtube.com/watch?v=2A17ZtycsPw)
+* [Evolution of Cresta’s machine learning architecture: Migration to AWS and PyTorch](https://aws.amazon.com/blogs/machine-learning/evolution-of-crestas-machine-learning-architecture-migration-to-aws-and-pytorch/)
+* [🎥 Explain Like I’m 5: TorchServe](https://www.youtube.com/watch?v=NEdZbkfHQCk)
+* [🎥 How to Serve PyTorch Models with TorchServe](https://www.youtube.com/watch?v=XlO7iQMV3Ik)
 * [How to deploy PyTorch models on Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
-* [How to Serve PyTorch Models with TorchServe](https://www.youtube.com/watch?v=XlO7iQMV3Ik)
-* [Model Serving in PyTorch](https://www.youtube.com/watch?v=2A17ZtycsPw)
-* [Explain Like I’m 5: TorchServe](https://www.youtube.com/watch?v=NEdZbkfHQCk)
+* [Quantitative Comparison of Serving Platforms](https://biano-ai.github.io/research/2021/08/16/quantitative-comparison-of-serving-platforms-for-neural-networks.html)
+* [Efficient Serverless deployment of PyTorch models on Azure](https://medium.com/pytorch/efficient-serverless-deployment-of-pytorch-models-on-azure-dc9c2b6bfee7)
+* [Deploy PyTorch models with TorchServe in Azure Machine Learning online endpoints](https://techcommunity.microsoft.com/t5/ai-machine-learning-blog/deploy-pytorch-models-with-torchserve-in-azure-machine-learning/ba-p/2466459)
+* [Dynaboard moving beyond accuracy to holistic model evaluation in NLP](https://ai.facebook.com/blog/dynaboard-moving-beyond-accuracy-to-holistic-model-evaluation-in-nlp/)
+* [A MLOps Tale about operationalising MLFlow and PyTorch](https://medium.com/mlops-community/engineering-lab-1-team-1-a-mlops-tale-about-operationalising-mlflow-and-pytorch-62193b55dc19)
+* [Operationalize, Scale and Infuse Trust in AI Models using KFServing](https://blog.kubeflow.org/release/official/2021/03/08/kfserving-0.5.html)
+* [How Wadhwani AI Uses PyTorch To Empower Cotton Farmers](https://medium.com/pytorch/how-wadhwani-ai-uses-pytorch-to-empower-cotton-farmers-14397f4c9f2b)
+* [TorchServe Streamlit Integration](https://cceyda.github.io/blog/huggingface/torchserve/streamlit/ner/2020/10/09/huggingface_streamlit_serve.html)
+* [Dynabench aims to make AI models more robust through distributed human workers](https://venturebeat.com/2020/09/24/facebooks-dynabench-aims-to-make-ai-models-more-robust-through-distributed-human-workers/)
+* [Announcing TorchServe](https://aws.amazon.com/blogs/aws/announcing-torchserve-an-open-source-model-server-for-pytorch/)
 
 ## 💖 All Contributors
 

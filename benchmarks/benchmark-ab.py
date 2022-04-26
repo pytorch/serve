@@ -35,9 +35,6 @@ default_ab_params = {'url': "https://torchserve.pytorch.org/mar_files/resnet-18.
                      }
                      
 execution_params = default_ab_params.copy()
-result_file = os.path.join(execution_params['tmp_dir'], "benchmark/result.txt")
-metric_log = os.path.join(execution_params['tmp_dir'], "benchmark/logs/model_metrics.log")
-
 
 def json_provider(file_path, cmd_name):
     with open(file_path) as config_data:
@@ -142,11 +139,10 @@ def warm_up():
     click.secho("\n\nExecuting warm-up ...", fg='green')
 
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p {execution_params['tmp_dir']}/benchmark/input -T " \
-             f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
-    
+             f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {execution_params['result_file']}"
     execute(ab_cmd, wait=True)
 
-    warm_up_lines = sum(1 for _ in open(metric_log))
+    warm_up_lines = sum(1 for _ in open(execution_params['metric_log']))
 
     return warm_up_lines
 
@@ -157,8 +153,7 @@ def run_benchmark():
 
     click.secho("\n\nExecuting inference performance tests ...", fg='green')
     ab_cmd = f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p {execution_params['tmp_dir']}/benchmark/input -T " \
-             f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {result_file}"
-    
+             f"{execution_params['content_type']} {execution_params['inference_url']}/{execution_params['inference_model_url']} > {execution_params['result_file']}"
     execute(ab_cmd, wait=True)
 
     unregister_model()
@@ -305,6 +300,9 @@ def update_exec_params(input_param):
     for k, v in input_param.items():
         if default_ab_params[k] != input_param[k]:
             execution_params[k] = input_param[k]
+    execution_params["result_file"] = os.path.join(execution_params['tmp_dir'], "benchmark/result.txt")
+    execution_params["metric_log"] = os.path.join(execution_params['tmp_dir'], "benchmark/logs/model_metrics.log")
+
     getAPIS()
 
             
@@ -330,7 +328,7 @@ metrics = {"predict.txt": "PredictionTime",
 
 
 def extract_metrics(warm_up_lines):
-    with open(metric_log) as f:
+    with open(execution_params['metric_log']) as f:
         lines = f.readlines()
 
     click.secho(f'Dropping {warm_up_lines} warmup lines from log', fg='green')
@@ -360,16 +358,16 @@ def generate_csv_output():
     click.secho(f"Saving benchmark results to {execution_params['report_location']}")
 
     artifacts = {}
-    with open(result_file) as f:
+    with open(execution_params['result_file']) as f:
         data = f.readlines()
 
     artifacts['Benchmark'] = "AB"
     artifacts['Batch size'] = execution_params['batch_size']
     artifacts['Batch delay'] = execution_params['batch_delay']
     artifacts['Workers'] = execution_params['workers']
-    artifacts['Model'] = execution_params['url']
+    artifacts['Model'] = '[.mar]({})'.format(execution_params['url'])
     artifacts['Concurrency'] = execution_params['concurrency']
-    artifacts['Requests'] = execution_params['requests']
+    artifacts['Requests'] = '[input]({})'.format(execution_params['requests'])
     artifacts['TS failed requests'] = extract_entity(data, 'Failed requests:', -1)
     artifacts['TS throughput'] = extract_entity(data, 'Requests per second:', -3)
     artifacts['TS latency P50'] = extract_entity(data, '50%', -1)
@@ -387,7 +385,10 @@ def generate_csv_output():
 
     for m in metrics:
         df = pd.read_csv(os.path.join(*(execution_params['tmp_dir'], 'benchmark', m)), header=None, names=['data'])
-        artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
+        if df.empty:
+            artifacts[m.split('.txt')[0] + "_mean"] = 0.0
+        else:
+            artifacts[m.split('.txt')[0] + "_mean"] = df['data'].values.mean().round(2)
 
     with open(os.path.join(execution_params['report_location'], 'benchmark/ab_report.csv'), 'w') as csv_file:
         csvwriter = csv.writer(csv_file)
@@ -423,7 +424,11 @@ def generate_profile_graph():
 
     plot_data = {}
     for m in metrics:
-        df = pd.read_csv(f"{execution_params['tmp_dir']}/benchmark/{m}", header=None)
+        file_path = f"{execution_params['tmp_dir']}/benchmark/{m}"
+        if is_file_empty(file_path):
+            continue
+        else:
+            df = pd.read_csv(file_path, header=None)
         m = m.split('.txt')[0]
         plot_data[f"{m}_index"] = df.index
         plot_data[f"{m}_values"] = df.values
@@ -552,6 +557,12 @@ def failure_exit(msg):
 
 def is_workflow(model_url):
     return model_url.endswith('.war')
+
+
+def is_file_empty(file_path):
+    """ Check if file is empty by confirming if its size is 0 bytes"""
+    # Check if file exist and it is empty
+    return os.path.exists(file_path) and os.stat(file_path).st_size == 0
 
 if __name__ == '__main__':
     benchmark()
