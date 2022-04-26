@@ -168,7 +168,7 @@ torchserve --stop
 ### Inspect the logs
 All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
 
-High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](benchmark/README.md) and visualized in a report.
+High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](../benchmarks/README.md) and visualized in a report.
 
 
 ### Install TorchServe for development
