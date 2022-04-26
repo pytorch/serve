@@ -15,9 +15,10 @@ jobs:
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
-          pwd
           cd $RUNNER_WORKSPACE
           pwd
+          cd ..
+          rm -rf *
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
