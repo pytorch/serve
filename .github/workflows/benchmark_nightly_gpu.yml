@@ -18,7 +18,8 @@ jobs:
           cd $RUNNER_WORKSPACE
           pwd
           cd ../..
-          rm -rf _work
+          pwd
+          
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
