@@ -1,0 +1,37 @@
+name: Benchmark torchserve cpu nightly
+
+on:
+  # run every day at 2:15am
+  schedule:
+    - cron:  '15 02 * * *'
+jobs:
+  nightly:
+    runs-on: [self-hosted, cpu]
+    timeout-minutes: 1320 
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          pwd
+          cd ..
+          pwd
+          rm -rf _tool
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+            sudo apt-get install -y apache2-utils
+            pip install -r benchmarks/requirements-ab.txt
+      - name: Benchmark cpu nightly
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
+      - name: Save benchmark artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nightly cpu artifact
+          path: /tmp/ts_benchmark 

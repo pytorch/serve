@@ -125,7 +125,7 @@ public final class ModelManager {
             manifest.getModel().setModelVersion("1.0");
             manifest.getModel().setModelName(modelName);
             manifest.getModel().setHandler(new File(handler).getName());
-
+            manifest.getModel().setEnvelope(configManager.getTsServiceEnvelope());
             File f = new File(handler.substring(0, handler.lastIndexOf(':')));
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         } else {
