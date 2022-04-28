@@ -1,9 +1,6 @@
 name: CI CPU
 
 on: push
-concurrency: 
-  group: ${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   ci-cpu:
     runs-on: ${{ matrix.os }}
