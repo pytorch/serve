@@ -1,6 +1,9 @@
 name: CI GPU
 
 on: push
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ci-gpu:
     runs-on: [self-hosted, ci-gpu]
