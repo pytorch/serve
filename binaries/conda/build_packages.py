@@ -70,7 +70,7 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
 
     os.environ["PYTHON"] = "python"
 
-    python_versions = ["3.6", "3.7", "3.8", "3.9"]
+    python_versions = ["3.8", "3.9"]
     packages = [
         os.path.join(conda_build_dir, pkg)
         for pkg in ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]

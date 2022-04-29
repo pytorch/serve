@@ -9,8 +9,14 @@ import os
 import importlib.util
 import time
 import torch
-from torch.profiler import profile, record_function, ProfilerActivity
+from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
+
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
+    from torch.profiler import profile, record_function, ProfilerActivity
+    PROFILER_AVAILABLE = True
+else:
+    PROFILER_AVAILABLE = False
 
 
 logger = logging.getLogger(__name__)
@@ -211,15 +217,22 @@ class BaseHandler(abc.ABC):
 
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
-            output, _ = self._infer_with_profiler(data=data)
-        else:
-            data_preprocess = self.preprocess(data)
-
-            if not self._is_explain():
-                output = self.inference(data_preprocess)
-                output = self.postprocess(output)
+            if PROFILER_AVAILABLE:
+                output, _ = self._infer_with_profiler(data=data)
             else:
-                output = self.explain_handle(data_preprocess, data)
+                raise RuntimeError("Profiler is enabled but current version of torch does not support."
+                                   "Install torch>=1.8.1 to use profiler.")
+        else:
+            if self._is_describe():
+                output = [self.describe_handle()]
+            else:
+                data_preprocess = self.preprocess(data)
+
+                if not self._is_explain():
+                    output = self.inference(data_preprocess)
+                    output = self.postprocess(output)
+                else:
+                    output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round(
@@ -303,3 +316,19 @@ class BaseHandler(abc.ABC):
                 self.explain = True
                 return True
         return False
+
+    def _is_describe(self):
+        if self.context and self.context.get_request_header(0, "describe"):
+            if self.context.get_request_header(0, "describe") == "True":
+                return True
+        return False
+
+    def describe_handle(self):
+        """Customized describe handler
+
+        Returns:
+            dict : A dictionary response.
+        """
+        # pylint: disable=unnecessary-pass
+        pass
+        # pylint: enable=unnecessary-pass

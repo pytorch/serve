@@ -37,23 +37,24 @@ class Common():
                 sys.exit(1)
             else:
                 os.system(
-                    f"python -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
+                    f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
         else:
             os.system(
-                f"python -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
+                f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
     def install_python_packages(self, cuda_version, requirements_file_path):
-        if os.system("conda") == 0:
+        check = "where" if platform.system() == "Windows" else "which"
+        if os.system(f"{check} conda") == 0:
             # conda install command should run before the pip install commands
             # as it may reinstall the packages with different versions
             os.system("conda install -y conda-build")
 
         self.install_torch_packages(cuda_version)
-        os.system("python -m pip install -U pip setuptools")
+        os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
-        os.system("python -m pip install -U -r {0}".format(requirements_file_path))
+        os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
         # If conda is available install conda-build package
 
     def install_node_packages(self):
@@ -80,8 +81,8 @@ class Linux(Common):
             os.system(f"{self.sudo_cmd}apt-get install -y openjdk-11-jdk")
 
     def install_nodejs(self):
-        if os.system("node") != 0 or args.force:
-            # os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+        if os.system("node -v") != 0 or args.force:
+            os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
 
@@ -153,6 +154,11 @@ def install_dependencies(cuda_version=None):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
     system = os_map[platform.system()]()
 
+    if args.environment == "dev":
+        system.install_wget()
+        system.install_nodejs()
+        system.install_node_packages()
+
     if platform.system() == "Linux" and args.environment == "dev":
         system.install_libgit2()
         system.install_maven()
@@ -162,11 +168,6 @@ def install_dependencies(cuda_version=None):
     requirements_file_path = "requirements/" + (
         "production.txt" if args.environment == "prod" else "developer.txt")
     system.install_python_packages(cuda_version, requirements_file_path)
-
-    if args.environment == "dev":
-        system.install_nodejs()
-        system.install_node_packages()
-        system.install_wget()
 
 
 def get_brew_version():

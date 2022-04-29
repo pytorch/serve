@@ -32,6 +32,9 @@ The location of log files and metric files can be configured in the [log4j2.xml]
 | MemoryAvailable | host | MB | memory available on host |
 | MemoryUsed | host | MB | memory used on host |
 | MemoryUtilization | host | percentage | memory utilization on host |
+| GPUUtilization | host,device_id | percentage | GPU utilization on host,device_id |
+| GPUMemoryUtilization | host,device_id | percentage | GPU memory utilization on host,device_id |
+| GPUMemoryUsed | host,device_id | MB | GPU memory used on host,device_id |
 | Requests2XX | host | count | logged for every request responded in 200-300 status code range |
 | Requests4XX | host |count | logged for every request responded in 400-500 status code range |
 | Requests5XX | host | count | logged for every request responded with status code above 500 |
@@ -45,7 +48,7 @@ CPUUtilization.Percent:0.0|#Level:Host|#hostname:my_machine_name
 MemoryUsed.Megabytes:13840.328125|#Level:Host|#hostname:my_machine_name   
 ```
 
-To enable metric logging in JSON format, modify the log formatter in [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md). 
+To enable metric logging in JSON format, set "patternlayout" as "JSONPatternLayout" in [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) (See sample [log4j2-json.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml)). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md). 
 
 After you enable JSON log formatting, logs will look as follows:
 
@@ -79,6 +82,25 @@ After you enable JSON log formatting, logs will look as follows:
 }
 
 ```
+
+To enable metric logging in QLog format, set "patternlayout" as "QLogLayout" in [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) (See sample [log4j2-qlog.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-qlog.xml)). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md). 
+
+After you enable QLogsetupModelDependencies formatting, logs will look as follows:
+
+```qlog
+HostName=abc.com
+StartTime=1646686978
+Program=MXNetModelServer
+Metrics=MemoryUsed=5790.98046875 Megabytes Level|Host
+EOE
+HostName=147dda19895c.ant.amazon.com
+StartTime=1646686978
+Program=MXNetModelServer
+Metrics=MemoryUtilization=46.2 Percent Level|Host
+EOE
+
+```
+
 
 ## Custom Metrics API
 

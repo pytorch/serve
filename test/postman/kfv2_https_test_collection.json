@@ -295,7 +295,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../kubernetes/kserve/kf_request_json/mnist_v2.json"
+						"src": "../kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json"
 					},
 					"options": {
 						"raw": {
@@ -347,7 +347,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../kubernetes/kserve/kf_request_json/mnist_v2.json"
+						"src": "../kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json"
 					},
 					"options": {
 						"raw": {

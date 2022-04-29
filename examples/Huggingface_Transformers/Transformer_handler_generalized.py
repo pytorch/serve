@@ -10,7 +10,10 @@ from transformers import (
     AutoTokenizer,
     AutoModelForQuestionAnswering,
     AutoModelForTokenClassification,
+    AutoModelForCausalLM
 )
+from transformers import GPT2TokenizerFast 
+
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
 
@@ -70,14 +73,25 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForQuestionAnswering.from_pretrained(model_dir)
             elif self.setup_config["mode"] == "token_classification":
                 self.model = AutoModelForTokenClassification.from_pretrained(model_dir)
+            elif self.setup_config["mode"] == "text_generation":
+                self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
-            self.model.to(self.device)
+            # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
+            # this basically palce different model blocks on different devices,
+            # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L962
+            if self.setup_config["model_parallel"] and "gpt2" in self.setup_config["model_name"]:
+                self.model.parallelize() 
+            else:
+                self.model.to(self.device)
             
         else:
             logger.warning("Missing the checkpoint or state_dict.")
+        
+        if "gpt2" in self.setup_config["model_name"]:
+            self.tokenizer = GPT2TokenizerFast.from_pretrained('gpt2', pad_token='<|endoftext|>')
 
-        if any(fname for fname in os.listdir(model_dir) if fname.startswith("vocab.") and os.path.isfile(fname)):
+        elif any(fname for fname in os.listdir(model_dir) if fname.startswith("vocab.") and os.path.isfile(fname)):
             self.tokenizer = AutoTokenizer.from_pretrained(
                 model_dir, do_lower_case=self.setup_config["do_lower_case"]
             )
@@ -88,7 +102,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             )
 
         self.model.eval()
-
         logger.info(
             "Transformer model from path %s loaded successfully", model_dir
         )
@@ -96,7 +109,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Read the mapping file, index to object name
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
         # Question answering does not need the index_to_name.json file.
-        if not self.setup_config["mode"] == "question_answering":
+        if not (self.setup_config["mode"] == "question_answering" or self.setup_config["mode"] == "text_generation"):
             if os.path.isfile(mapping_file_path):
                 with open(mapping_file_path) as f:
                     self.mapping = json.load(f)
@@ -125,9 +138,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 input_text = input_text_target["text"]
             max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
-            # preprocessing text for sequence_classification and token_classification.
-            if self.setup_config["mode"] == "sequence_classification" or self.setup_config["mode"] == "token_classification":
+            # preprocessing text for sequence_classification, token_classification or text_generation
+            if self.setup_config["mode"] in {"sequence_classification", "token_classification", "text_generation"}:
                 inputs = self.tokenizer.encode_plus(input_text, max_length=int(max_length), pad_to_max_length=True, add_special_tokens=True, return_tensors='pt')
+                
             # preprocessing text for question_answering.
             elif self.setup_config["mode"] == "question_answering":
                 # TODO Reading the context from a pickeled file or other fromats that
@@ -219,7 +233,20 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 prediction = [(token, label_list[prediction]) for token, prediction in zip(tokens, predictions[0].tolist())]
                 inferences.append(prediction)
             logger.info("Model predicted: '%s'", prediction)
+            
+        # Handling inference for text_generation.
+        if self.setup_config["mode"] == "text_generation":
+            if self.setup_config["model_parallel"]:
+                # Need to move the first device, as the trasnformer model has been placed there
+                #https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L970
+                input_ids_batch = input_ids_batch.to("cuda:0")
+            outputs = self.model.generate(input_ids_batch, max_length=50, do_sample=True, top_p=0.95, top_k=60)
+            for i, x in enumerate(outputs):
+                inferences.append(self.tokenizer.decode(outputs[i], skip_special_tokens=True))
 
+            logger.info("Generated text: '%s'", inferences)
+
+        print("Generated text", inferences)
         return inferences
 
     def postprocess(self, inference_output):

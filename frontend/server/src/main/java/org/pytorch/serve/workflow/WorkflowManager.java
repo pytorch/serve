@@ -1,5 +1,6 @@
 package org.pytorch.serve.workflow;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
@@ -51,8 +53,11 @@ import org.slf4j.LoggerFactory;
 public final class WorkflowManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowManager.class);
 
+    private final ThreadFactory namedThreadFactory =
+            new ThreadFactoryBuilder().setNameFormat("wf-manager-thread-%d").build();
     private final ExecutorService inferenceExecutorService =
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            Executors.newFixedThreadPool(
+                    Runtime.getRuntime().availableProcessors(), namedThreadFactory);
 
     private static WorkflowManager workflowManager;
     private final ConfigManager configManager;
