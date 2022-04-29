@@ -7,6 +7,8 @@ jobs:
     steps:
       - name: Skip Duplicate Actions
         uses: fkirc/skip-duplicate-actions@v4.0.0
+        with:
+          cancel_others: 'true'
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
