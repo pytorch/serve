@@ -19,6 +19,10 @@ ARG BRANCH_NAME=master
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
 
+ARG BUILD_WITH_IPEX
+ARG IPEX_VERSION=1.11.0
+ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
+
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -44,6 +48,8 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3.8 get-pip.py
 
+RUN if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libomp-dev && rm -rf /var/lib/apt/lists/*; fi 
+
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
 
@@ -58,6 +64,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && python3.8 -m venv /home/venv \
     && python -m pip install -U pip setuptools \
     && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
+    && if [ "$BUILD_WITH_IPEX" = "true" ]; then python -m pip install --no-cache-dir intel_extension_for_pytorch==${IPEX_VERSION} -f ${IPEX_URL}; fi \
     && python ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
@@ -95,6 +102,8 @@ RUN set -ex \
   && tar xzvf /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz -C $MAVEN_HOME --strip-components=1 \
   && update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 10000 \
   && mkdir -p $MAVEN_CONFIG
+  
+RUN if [ "$BUILD_WITH_IPEX" = "true" ]; then ENV LD_PRELOAD "/usr/lib/x86_64-linux-gnu/libjemalloc.so"; fi 
 
 FROM ${BUILD_TYPE}-image AS final-image
 ARG BUILD_TYPE
