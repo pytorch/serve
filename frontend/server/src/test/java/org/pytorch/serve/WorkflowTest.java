@@ -100,7 +100,7 @@ public class WorkflowTest {
     }
 
     @Test(
-            alwaysRun = true,
+            enabled = false,
             dependsOnMethods = {"testDescribeWorkflow"})
     public void testWorkflowPrediction() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
@@ -350,7 +350,7 @@ public class WorkflowTest {
     }
 
     @Test(
-            alwaysRun = true,
+            enabled = false,
             dependsOnMethods = {"testDescribeWorkflowNotFound"})
     public void testPredictionWorkflowNotFound() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
