@@ -98,9 +98,9 @@ public class WorkflowTest {
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeWorkflowResponse[].class);
         Assert.assertEquals(resp.length, 1);
     }
-
+    @Disabled("Flaky test https://github.com/pytorch/serve/issues/1574")
     @Test(
-            enabled = false,
+            alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflow"})
     public void testWorkflowPrediction() throws InterruptedException {
         Channel channel = TestUtils.getInferenceChannel(configManager);
@@ -348,9 +348,10 @@ public class WorkflowTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.NOT_FOUND.code());
         Assert.assertEquals(resp.getMessage(), "Workflow not found: fake");
     }
-
+    
+    @Disabled("Flaky test https://github.com/pytorch/serve/issues/1574")
     @Test(
-            enabled = false,
+            alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflowNotFound"})
     public void testPredictionWorkflowNotFound() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
