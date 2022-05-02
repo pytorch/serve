@@ -11,11 +11,10 @@ sys.path.append(REPO_ROOT)
 from ts_scripts.utils import check_python_version
 
 
-class Common():
-
+class Common:
     def __init__(self):
         self.torch_stable_url = "https://download.pytorch.org/whl/torch_stable.html"
-        self.sudo_cmd = 'sudo '
+        self.sudo_cmd = "sudo "
 
     def install_java(self):
         pass
@@ -70,7 +69,6 @@ class Common():
 
 
 class Linux(Common):
-
     def __init__(self):
         super().__init__()
         if args.force:
@@ -82,9 +80,10 @@ class Linux(Common):
 
     def install_nodejs(self):
         if os.system("node -v") != 0 or args.force:
-            os.system(f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -")
+            os.system(
+                f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
+            )
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
-
 
     def install_wget(self):
         if os.system("wget --version") != 0 or args.force:
@@ -95,9 +94,7 @@ class Linux(Common):
             f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz"
         )
         os.system(f"tar xzf libgit2-1.3.0.tar.gz")
-        os.system(
-            f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd .."
-        )
+        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
         os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
 
     def install_maven(self):
@@ -105,10 +102,9 @@ class Linux(Common):
 
 
 class Windows(Common):
-
     def __init__(self):
         super().__init__()
-        self.sudo_cmd = ''
+        self.sudo_cmd = ""
 
     def install_java(self):
         pass
@@ -121,7 +117,6 @@ class Windows(Common):
 
 
 class Darwin(Common):
-
     def __init__(self):
         super().__init__()
 
@@ -166,23 +161,39 @@ def install_dependencies(cuda_version=None):
     # Sequence of installation to be maintained
     system.install_java()
     requirements_file_path = "requirements/" + (
-        "production.txt" if args.environment == "prod" else "developer.txt")
+        "production.txt" if args.environment == "prod" else "developer.txt"
+    )
     system.install_python_packages(cuda_version, requirements_file_path)
 
 
 def get_brew_version():
-    """Returns `brew --version` output. """
+    """Returns `brew --version` output."""
 
-    return run_and_parse_first_match("brew --version", r'Homebrew (.*)')
+    return run_and_parse_first_match("brew --version", r"Homebrew (.*)")
 
 
 if __name__ == "__main__":
     check_python_version()
-    parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'], help="CUDA version for torch")
-    parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
-                        help="environment(production or developer) on which dependencies will be installed")
-    parser.add_argument("--force", action='store_true', help="force reinstall dependencies wget, node, java and apt-update")
+    parser = argparse.ArgumentParser(
+        description="Install various build and test dependencies of TorchServe"
+    )
+    parser.add_argument(
+        "--cuda",
+        default=None,
+        choices=["cu92", "cu101", "cu102", "cu111", "cu113"],
+        help="CUDA version for torch",
+    )
+    parser.add_argument(
+        "--environment",
+        default="prod",
+        choices=["prod", "dev"],
+        help="environment(production or developer) on which dependencies will be installed",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="force reinstall dependencies wget, node, java and apt-update",
+    )
     args = parser.parse_args()
 
     install_dependencies(cuda_version=args.cuda)
