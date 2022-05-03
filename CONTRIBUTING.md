@@ -14,9 +14,9 @@ As simple as they seem handlers let you do complex stuff like exporting to vario
 ```python
 class CustomHandler(BaseHandler):
   def initialize(self, ctx):
-  
+
   def preprocess(self, requests) -> List[]:
-    
+
   def inference(self, input_batch : Tensor) -> Tensor:
 
   def postprocess(self, inference_output : Tensor) -> List[]:
@@ -43,24 +43,27 @@ Your contributions will fall into two categories:
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
         - Install dependencies (if not already installed)
           For CPU
-          
+
           ```bash
           python ts_scripts/install_dependencies.py --environment=dev
           ```
-          
+
          For GPU
            ```bash
            python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
            ```
             > Supported cuda versions as cu111, cu102, cu101, cu92
-       
+        - Install `pre-commit` to your Git flow:
+            ```bash
+            pre-commit install
+            ```
         - Run sanity suite
           ```bash
           python torchserve_sanity.py
           ```
     - Run Regression test `python test/regression_tests.py`
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
-    - If you are updating an existing model make sure that performance hasn't degraded by running [benchmarks](https://github.com/pytorch/serve/tree/master/benchmarks) on the master branch and your branch and verify there is no performance regression 
+    - If you are updating an existing model make sure that performance hasn't degraded by running [benchmarks](https://github.com/pytorch/serve/tree/master/benchmarks) on the master branch and your branch and verify there is no performance regression
     - Run `ts_scripts/spellcheck.sh` to fix any typos in your documentation
     - For large changes make sure to run the [automated benchmark suite](https://github.com/pytorch/serve/tree/master/test/benchmark) which will run the apache bench tests on several configurations of CUDA and EC2 instances
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
@@ -93,4 +96,3 @@ Use `--cuda` flag with `install_dependencies.py` for installing cuda version spe
 Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
-
