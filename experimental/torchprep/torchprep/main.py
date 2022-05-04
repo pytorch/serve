@@ -3,7 +3,6 @@ from pathlib import Path
 import torch
 from .format import Device, Profiler, Precision 
 from typing import List, Optional
-import torchprep
 
 from .distillation import _distill
 from .fusion import _fuse
@@ -24,6 +23,7 @@ def fuse(model_path : Path, input_shape : Path, output_name : str = "fused_model
 @app.command()
 def prune(model_path : Path, output_name : str = "pruned_model.pt", prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
     return _prune(model_path, output_name, prune_amount, device)
+
 @app.command()
 def quantize(model_path : Path, precision : Precision ,output_name : str = "quantized_model.pt", device : Device = Device.cpu) -> torch.nn.Module:
     return _quantize(model_path, precision, output_name, device)
