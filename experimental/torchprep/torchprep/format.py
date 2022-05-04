@@ -1,7 +1,19 @@
 import yaml
 import torch
 from typing import Dict, List, Union
+from enum import Enum
+class Precision(Enum):
+    int8 = "int8"
+    float16 = "float16"
 
+class Device(str, Enum):
+    cpu = "cpu"
+    cuda = "cuda"
+
+class Profiler(str, Enum):
+    nothing = "nothing"
+    torchtbprofiler = "torchtbprofiler"
+    scalene = "scalene"
 
 dtype_map = {
     # randn
@@ -39,11 +51,19 @@ device_map = {
     "cuda" : torch.device("cuda")
 }
 
+# Helper function to serialize a dictionary
+# def freeze(d):
+#     if isinstance(d, dict):
+#         return frozenset((key, freeze(value)) for key, value in d.items())
+#     elif isinstance(d, list):
+#         return tuple(freeze(value) for value in d)
+#     return d
+
 def parse_input_format(filename : str = "example.yaml") -> Dict[str, Union[int, List[int]]]: 
     with open(filename, 'r') as f:
         try:
             parsed_yaml=yaml.safe_load(f)
-            print(parsed_yaml)
+            return parsed_yaml
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -52,9 +72,10 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
         tensor_list = []
         # If a new input is found
         if key.startswith("input"):
-            input_params = yaml_dict[value]
+            print(value)
+            input_params = value
 
-            for input_key, input_value in input_params:
+            for input_key, input_value in input_params.items():
                 if input_key == "shape":
                     shape = input_value     
                 elif input_key == "dtype":
@@ -68,7 +89,7 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
 
             # Mode is optional, users can just hard code a batch size
             for idx, dimension in enumerate(shape):
-                if dimension == -1:
+                if dimension == -1 and mode is not None:
                     if mode == "latency":
                         shape[idx] = 1
                     elif mode == "throughput":

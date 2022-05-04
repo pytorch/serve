@@ -47,8 +47,8 @@ torchprep quantize --help
 # Install example dependencies
 pip install torchvision transformers
 
-# Download resnet example
-python example.py
+# Download resnet and bert example
+python tests/download_example.py
 
 # quantize a cpu model with int8 on cpu and profile with a float tensor of shape [64,3,7,7]
 torchprep quantize models/resnet152.pt int8 --input-shape config/resnet.yaml
@@ -103,6 +103,14 @@ Options:
   --device [cpu|gpu]  [default: Device.cpu]
   --input-shape TEXT  Comma separated input tensor shape
   --help              Show this message and exit.
+```
+
+## Dev instructions
+
+### Run tests
+
+```sh
+pytest .
 ```
 
 ### Create binaries

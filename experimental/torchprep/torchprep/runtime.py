@@ -18,6 +18,7 @@ class Runtime(str, Enum):
 @app.command()
 def export_to_runtime(model_path : Path, runtime : Runtime, input_shape : Path, device : Device, output_name : str = "optimized_model.pt"):
     """
+    [Not Tested]: Do not use
     Export your model to an optimized runtime for accelerated inference
     """
     model = load_model(model_path)

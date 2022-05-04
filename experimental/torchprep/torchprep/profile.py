@@ -1,13 +1,14 @@
 from pathlib import Path 
 from typing import List
-from .main import app, Device
-from .format import materialize_tensors, parse_input_format
+from .main import app
+from .format import materialize_tensors, parse_input_format, Device, Profiler
 from .utils import profile_model, load_model 
+from enum import Enum
 
-#TODO: Add other profilers like torch profiler or scalene
+
 
 @app.command()
-def profile(model_path : Path, input_shape : Path, iterations : int = 100, device : Device = Device.cpu) -> List[float]:
+def profile(model_path : Path, input_shape : Path, profiler : Profiler = Profiler.nothing, iterations : int = 100, device : Device = Device.cpu) -> List[float]:
     """
     Profile model latency 
     """
@@ -18,4 +19,4 @@ def profile(model_path : Path, input_shape : Path, iterations : int = 100, devic
 
     input_tensors = materialize_tensors(parse_input_format(input_shape))
 
-    return profile_model(model, input_tensors, iterations)
+    return profile_model(model,profiler, input_tensors,model_path,iterations)

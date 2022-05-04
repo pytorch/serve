@@ -1,16 +1,15 @@
 import torch 
 import typer
 from pathlib import Path
-from .utils import print_environment_variables, print_size_of_model
-from .main import app, Precision, Device
+from .main import app
 
-from .format import materialize_tensors, parse_input_format
-from .utils import profile_model, load_model
+from .utils import load_model
+from .format import Precision, Device
 
 @app.command()
 def quantize(model_path : Path, precision : Precision ,
  output_name : str = "quantized_model.pt",
- device : Device = Device.cpu, input_shape : str = typer.Option(default=None, help="Comma seperated input tensor shape e.g 64,3,7,7")) -> torch.nn.Module:
+ device : Device = Device.cpu) -> torch.nn.Module:
     """
     Quantize a saved torch model to a lower precision float format to reduce its size and latency
     """
@@ -35,14 +34,7 @@ def quantize(model_path : Path, precision : Precision ,
         quantized_model = model.half()
     
     print("Model successfully quantized")
-
-    print_size_of_model(model, label = "base model")
-    print_size_of_model(quantized_model, label = "quantized_model")
-    
-    input_tensors = materialize_tensors(parse_input_format(input_shape))
-    profile_model(model, input_tensors, label = "base model")
-    profile_model(quantized_model, input_tensors, label = "quantized_model")
     
     torch.save(quantized_model, output_name)
-    print(f"model {output_name} was saved")
+    # print(f"model {output_name} was saved")
     return quantized_model

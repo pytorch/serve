@@ -1,0 +1,20 @@
+# Each model can have multiple inputs
+# Each input has a dtype, device and shape
+# Some shapes can be arbitrary like a positive integer for batch size
+
+#TODO: Untested
+
+# BERT model
+input1:
+  dtype: "int32" # Extend this to a list later, will need to print all permutations
+  device: "cpu"
+  shape: [1] # the first element is the batch size
+  high : 10 # max value
+  mode : "latency"
+
+input2:
+  dtype: "float32" # Extend this to a list later, will need to print all permutations
+  device: "cpu"
+  shape: [1] # the first element is the batch size
+  high : 10 # max value
+  mode : "latency"
