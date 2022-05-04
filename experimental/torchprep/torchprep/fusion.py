@@ -7,10 +7,6 @@ from .format import Device, materialize_tensors, parse_input_format
 
 
 def _fuse(model_path : Path, input_shape : Path, output_name : str = "fused_model.pt", device : Device = Device.cpu) -> Optional[torch.nn.Module]:
-    """
-    Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
-    Works only for models that are scriptable
-    """
     model = load_model(model_path, device)
     input_tensors = materialize_tensors(parse_input_format(input_shape))
 

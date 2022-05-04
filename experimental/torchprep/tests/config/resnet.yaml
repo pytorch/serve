@@ -2,7 +2,7 @@
 # Each input has a dtype, device and shape
 # Some shapes can be arbitrary like a positive integer for batch size
 
-# Resnet model
+# restnet.yaml
 input:
   dtype: "float16" # Extend this to a list later, will need to print all permutations
   device: "cpu"

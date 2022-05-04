@@ -51,8 +51,24 @@ pip install torchvision transformers
 python tests/download_example.py
 
 # quantize a cpu model with int8 on cpu and profile with a float tensor of shape [64,3,7,7]
-torchprep quantize models/resnet152.pt int8 --input-shape config/resnet.yaml
+torchprep quantize models/resnet152.pt int8
+```
 
+### Profile
+
+To profile a model you need to create a `yaml` file describing your model input shape. The YAML can accept multiple inputs
+
+```yaml
+# restnet.yaml
+input:
+  dtype: "int8"
+  device: "cpu"
+  shape: [16, 3, 7, 7] # the first element is the batch size
+```
+
+Then you can pass in the `yaml` file to `torchprep`
+
+```sh
 # profile a model for a 100 iterations
 torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shape config/resnet.yaml
 

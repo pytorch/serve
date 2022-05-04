@@ -5,9 +5,6 @@ from .utils import profile_model, load_model
 from enum import Enum
 
 def _profile(model_path : Path, input_shape : Path, profiler : Profiler = Profiler.nothing, iterations : int = 100, device : Device = Device.cpu) -> List[float]:
-    """
-    Profile model latency 
-    """
     if iterations < 100:
         print("Please set iterations > 100")
         return 
