@@ -1,13 +1,11 @@
 import torch
 import typer
 from pathlib import Path
-from .main import app 
 from .utils import load_model
 from .format import Device
 import torch.nn.utils.prune
 
-@app.command()
-def prune(model_path : Path, output_name : str = "pruned_model.pt", prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
+def _prune(model_path : Path, output_name : str = "pruned_model.pt", prune_amount : float = typer.Option(default=0.3, help=" 0 < prune_amount < 1 Percentage of connections to prune"), device : Device = Device.cpu) -> torch.nn.Module:
     """
     Zero out small model weights using l1 norm
     """

@@ -1,13 +1,12 @@
 #TODO: Add helpers with triton for optimized fused ops
 import torch
 from pathlib import Path
-from .main import app
+from typing import Optional
 from .utils import load_model
 from .format import Device, materialize_tensors, parse_input_format
 
 
-@app.command()
-def fuse(model_path : Path, input_shape : Path, output_name : str = "fused_model.pt", device : Device = Device.cpu) -> torch.nn.Module:
+def _fuse(model_path : Path, input_shape : Path, output_name : str = "fused_model.pt", device : Device = Device.cpu) -> Optional[torch.nn.Module]:
     """
     Supports optimizations including conv/bn fusion, dropout removal and mkl layout optimizations
     Works only for models that are scriptable

@@ -1,10 +1,9 @@
 import torch
 from pathlib import Path 
 from typing import List 
-from .main import app, Device
+from .format import Device
  
-@app.command()
-def distill(model_path : Path, device : Device = Device.cpu, parameter_scaling : int = 2, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
+def _distill(model_path : Path, device : Device = Device.cpu, parameter_scaling : int = 2, layer_scaling : int = None, profile : List[int] = None) -> torch.nn.Module:
     """
     [Coming soon]: Create a smaller student model by setting a distillation ratio and teach it how to behave exactly like your existing model
     """

@@ -1,13 +1,10 @@
 import torch 
 import typer
 from pathlib import Path
-from .main import app
-
 from .utils import load_model
 from .format import Precision, Device
 
-@app.command()
-def quantize(model_path : Path, precision : Precision ,
+def _quantize(model_path : Path, precision : Precision ,
  output_name : str = "quantized_model.pt",
  device : Device = Device.cpu) -> torch.nn.Module:
     """
@@ -16,12 +13,12 @@ def quantize(model_path : Path, precision : Precision ,
     model = load_model(model_path, device)
 
     if device == Device.cpu:
-        if precision == "int8":
+        if precision == Precision.int8:
             dtype = torch.qint8
-        elif precision == "float16":
+        elif precision == Precision.float16:
             dtype = torch.float16
         else:
-            print("unsupported {dtype}")
+            print("unsupported {precision}")
             return 
 
     quantized_model = torch.quantization.quantize_dynamic(

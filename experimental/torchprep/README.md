@@ -110,7 +110,7 @@ Options:
 ### Run tests
 
 ```sh
-pytest .
+pytest --disable-pytest-warnings
 ```
 
 ### Create binaries

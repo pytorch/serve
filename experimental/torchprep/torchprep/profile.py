@@ -1,14 +1,10 @@
 from pathlib import Path 
 from typing import List
-from .main import app
 from .format import materialize_tensors, parse_input_format, Device, Profiler
 from .utils import profile_model, load_model 
 from enum import Enum
 
-
-
-@app.command()
-def profile(model_path : Path, input_shape : Path, profiler : Profiler = Profiler.nothing, iterations : int = 100, device : Device = Device.cpu) -> List[float]:
+def _profile(model_path : Path, input_shape : Path, profiler : Profiler = Profiler.nothing, iterations : int = 100, device : Device = Device.cpu) -> List[float]:
     """
     Profile model latency 
     """
