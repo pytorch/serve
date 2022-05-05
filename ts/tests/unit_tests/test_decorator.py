@@ -1,4 +1,3 @@
-from pyexpat import model
 from ts.utils.serve_decorator import serve, torchserve_start, torchserve_stop, archive_model, create_handler, create_torchserve_config
 from ts.torch_handler.base_handler import BaseHandler
 import os
@@ -15,8 +14,9 @@ def test_create_handler():
 def test_archive_model():
     with open("model.pt", "w") as f:
         pass
-    archive_model(model_file="model.pt", handler="handler.py")
     assert os.path.exists("model.pt")
+    archive_model(model_file="model.pt", handler="handler.py")
+    assert os.path.exists(os.path.join("model_store", "model.mar"))
 
 def test_create_torchserve_config():
     create_torchserve_config()
@@ -33,3 +33,5 @@ def test_integration():
     Create a handler, config, archive and then serve
     """
     serve(ToyHandler)
+    output =os.system("curl http://127.0.0.1:8080/predictions/model")
+    assert output
