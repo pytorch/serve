@@ -3,19 +3,15 @@ from ts.utils.serve_decorator import serve, torchserve_start, torchserve_stop, a
 from ts.torch_handler.base_handler import BaseHandler
 import os
 
-
-
-
 class ToyHandler(BaseHandler):
     def inference(self):
         return "42"
-
-
 
 def test_create_handler():
     create_handler(ToyHandler)
     assert os.path.exists("handler.py")
 
+# TODO: Check if mar file exists as well
 def test_archive_model():
     with open("model.pt", "w") as f:
         pass
