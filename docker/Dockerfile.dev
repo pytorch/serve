@@ -48,8 +48,6 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3.8 get-pip.py
 
-RUN if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libomp-dev && rm -rf /var/lib/apt/lists/*; fi 
-
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
 
@@ -102,8 +100,6 @@ RUN set -ex \
   && tar xzvf /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz -C $MAVEN_HOME --strip-components=1 \
   && update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 10000 \
   && mkdir -p $MAVEN_CONFIG
-  
-RUN if [ "$BUILD_WITH_IPEX" = "true" ]; then ENV LD_PRELOAD "/usr/lib/x86_64-linux-gnu/libjemalloc.so"; fi 
 
 FROM ${BUILD_TYPE}-image AS final-image
 ARG BUILD_TYPE
