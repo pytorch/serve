@@ -152,15 +152,15 @@ def create_torchserve_config(inference_http_port : int = 8080,
 
     ## Model specific configs
 
-    # model_config = {
-    #         f"defaultVersion": "true",
-    #         f"marName": f"{model_mar},"
-    #         f"minWorkers": f"{num_workers},\"
-    #         f"maxWorkers": f"{num_workers},\"
-    #         f"batchSize": f"{batch_size},\"
-    #         f"maxBatchDelay": f"{batch_delay},\"
-    #         f"responseTimeout": f"{response_timeout},\"
-    # }
+    model_config = {
+            f"defaultVersion": "true",
+            f"marName": model_mar,
+            f"minWorkers": num_workers,
+            f"maxWorkers": num_workers,
+            f"batchSize": batch_size,
+            f"maxBatchDelay": batch_delay,
+            f"responseTimeout": response_timeout,
+    }
 
     logger.info(ts_config)
 
@@ -172,12 +172,12 @@ def create_torchserve_config(inference_http_port : int = 8080,
             f.write(f"{key}={value}\n")
     
     # Model configuration
-    # with open("config.properties", "a") as f:
-    #     f.write("models={ \n \"model\" : { \n \"1.0\ : { \n")
-    #     for key, value in model_config.items():
-    #         f.write(f"\"{key}\":{value},\n")
+    with open("config.properties", "a") as f:
+        f.write("models={\ \n \"model\" : { \n \"1.0\" : {\ \n")
+        for key, value in model_config.items():
+            f.write(f"\"{key}\":{value},\\\n")
         
-    #     f.write("}\n}\n}")
+        f.write("}\\\n}\\\n}")
     
 
 
