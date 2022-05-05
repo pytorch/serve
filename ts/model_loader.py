@@ -1,5 +1,3 @@
-
-
 """
 Model loader.
 """
@@ -31,10 +29,20 @@ class ModelLoader(object):
     """
     Base Model Loader class.
     """
+
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
+    def load(
+        self,
+        model_name,
+        model_dir,
+        handler,
+        gpu_id,
+        batch_size,
+        envelope=None,
+        limit_max_image_pixels=True,
+    ):
         """
         Load model from file.
 
@@ -56,7 +64,16 @@ class TsModelLoader(ModelLoader):
     TorchServe 1.0 Model Loader
     """
 
-    def load(self, model_name, model_dir, handler, gpu_id, batch_size, envelope=None, limit_max_image_pixels=True):
+    def load(
+        self,
+        model_name,
+        model_dir,
+        handler,
+        gpu_id,
+        batch_size,
+        envelope=None,
+        limit_max_image_pixels=True,
+    ):
         """
         Load TorchServe 1.0 model from file.
 
@@ -85,13 +102,25 @@ class TsModelLoader(ModelLoader):
             module = self._load_default_handler(handler)
 
         if module is None:
-            raise ValueError("Unable to load module {}, make sure it is added to python path".format(handler))
+            raise ValueError(
+                "Unable to load module {}, make sure it is added to python path".format(
+                    handler
+                )
+            )
         if function_name is None:
             function_name = "handle"
 
         if hasattr(module, function_name):
             entry_point = getattr(module, function_name)
-            service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, limit_max_image_pixels)
+            service = Service(
+                model_name,
+                model_dir,
+                manifest,
+                entry_point,
+                gpu_id,
+                batch_size,
+                limit_max_image_pixels,
+            )
 
         envelope_class = None
         if envelope is not None:
@@ -99,7 +128,9 @@ class TsModelLoader(ModelLoader):
 
         function_name = function_name or "handle"
         if hasattr(module, function_name):
-            entry_point, initialize_fn = self._get_function_entry_point(module, function_name)
+            entry_point, initialize_fn = self._get_function_entry_point(
+                module, function_name
+            )
         else:
             entry_point, initialize_fn = self._get_class_entry_point(module)
 
@@ -107,7 +138,15 @@ class TsModelLoader(ModelLoader):
             envelope_instance = envelope_class(entry_point)
             entry_point = envelope_instance.handle
 
-        service = Service(model_name, model_dir, manifest, entry_point, gpu_id, batch_size, limit_max_image_pixels)
+        service = Service(
+            model_name,
+            model_dir,
+            manifest,
+            entry_point,
+            gpu_id,
+            batch_size,
+            limit_max_image_pixels,
+        )
         service.context.metrics = metrics
         initialize_fn(service.context)
 
@@ -125,12 +164,14 @@ class TsModelLoader(ModelLoader):
 
     def _load_default_handler(self, handler):
         module_name = ".{0}".format(handler)
-        module = importlib.import_module(module_name, 'ts.torch_handler')
+        module = importlib.import_module(module_name, "ts.torch_handler")
         return module
 
     def _load_default_envelope(self, envelope):
         module_name = ".{0}".format(envelope)
-        module = importlib.import_module(module_name, 'ts.torch_handler.request_envelope')
+        module = importlib.import_module(
+            module_name, "ts.torch_handler.request_envelope"
+        )
         envelope_class = list_classes_from_module(module)[0]
         return envelope_class
 
@@ -142,13 +183,18 @@ class TsModelLoader(ModelLoader):
     def _get_class_entry_point(self, module):
         model_class_definitions = list_classes_from_module(module)
         if len(model_class_definitions) != 1:
-            raise ValueError("Expected only one class in custom service code or a function entry point {}".format(
-                model_class_definitions))
+            raise ValueError(
+                "Expected only one class in custom service code or a function entry point {}".format(
+                    model_class_definitions
+                )
+            )
 
         model_class = model_class_definitions[0]
         model_service = model_class()
 
         if not hasattr(model_service, "handle"):
-            raise ValueError("Expect handle method in class {}".format(str(model_class)))
+            raise ValueError(
+                "Expect handle method in class {}".format(str(model_class))
+            )
 
         return model_service.handle, model_service.initialize
