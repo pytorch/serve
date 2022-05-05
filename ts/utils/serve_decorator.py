@@ -164,7 +164,7 @@ def create_torchserve_config(inference_http_port : int = 8080,
 
     logger.info(ts_config)
 
-    # logger.info(model_config)
+    logger.info(model_config)
 
     # Torchserve configuration
     with open("config.properties", "w") as f:
@@ -195,11 +195,11 @@ def archive_model(serialized_file : str = None, model_file : str = None, model_n
 
     # Eager mode model
     if model_file:
-        arch_command = f"torch-model-archiver --model_file {model_file} --serialized_file {serialized_file} --model-name {model_name} --handler {handler} --version {version} --extra-files {extra_files}"
+        arch_command = f"torch-model-archiver --model-file {model_file} --serialized_file {serialized_file} --model-name {model_name} --handler {handler} --version {version} --extra-files {extra_files}"
     
     # Torchscripted model
     else:
-        arch_command = f"torch-model-archiver --serialized_file {serialized_file} --model-name {model_name} --handler {handler} --version {version} --extra-files {extra_files}"
+        arch_command = f"torch-model-archiver --serialized-file {serialized_file} --model-name {model_name} --handler {handler} --version {version} --extra-files {extra_files}"
     
     logger.info(arch_command)
 

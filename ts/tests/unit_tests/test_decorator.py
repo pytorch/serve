@@ -10,12 +10,12 @@ def test_create_handler():
     create_handler(ToyHandler)
     assert os.path.exists("handler.py")
 
-# TODO: Check if mar file exists as well
 def test_archive_model():
+    # TODO: Use a real model.pt
     with open("model.pt", "w") as f:
         pass
     assert os.path.exists("model.pt")
-    archive_model(model_file="model.pt", handler="handler.py")
+    archive_model(serialized_file="model.pt", handler="handler.py")
     assert os.path.exists(os.path.join("model_store", "model.mar"))
 
 def test_create_torchserve_config():
