@@ -73,6 +73,9 @@ class Linux(Common):
 
     def __init__(self):
         super().__init__()
+        # Skip 'sudo ' when the user is root
+        self.sudo_cmd = '' if os.geteuid() == 0 else self.sudo_cmd
+
         if args.force:
             os.system(f"{self.sudo_cmd}apt-get update")
 
@@ -179,7 +182,7 @@ def get_brew_version():
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
     parser.add_argument("--force", action='store_true', help="force reinstall dependencies wget, node, java and apt-update")
