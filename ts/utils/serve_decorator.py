@@ -105,6 +105,9 @@ def torchserve_start(handler : str, model_store : str ="model_store", ts_config 
     If you already have your own model packaged
     """
 
+    if not os.path.exists(model_store):
+        os.makedirs(model_store)
+
     ts_command = f'torchserve --start --foreground'
     f'--model_store {model_store}'
     f'--ts_config_file {ts_config}'
@@ -117,7 +120,6 @@ def torchserve_start(handler : str, model_store : str ="model_store", ts_config 
     os.system(ts_command)
 
     print("torchserve has started")
-
 
 
 def create_torchserve_config(inference_http_port : int = 8080,
@@ -137,9 +139,9 @@ def create_torchserve_config(inference_http_port : int = 8080,
     
     ## Torchserve specific configs
     ts_config = {
-        f"inference_address": "http://0.0.0.0:{inference_http_port}",
-        f"management_address": "http://0.0.0.0:{management_http_port}",
-        f"number_of_netty_threads" :"{netty_threads}",
+        f"inference_address": f"http://0.0.0.0:{inference_http_port}",
+        f"management_address": f"http://0.0.0.0:{management_http_port}",
+        f"number_of_netty_threads" : f"{netty_threads}",
         f"job_queue_size" : "1000",
         f"vmargs" : "-Xmx4g -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError",
         f"prefer_direct_buffer" : "True",
@@ -150,19 +152,19 @@ def create_torchserve_config(inference_http_port : int = 8080,
 
     ## Model specific configs
 
-    model_config = {
-            f"defaultVersion": "true",
-            f"marName": {model_mar},
-            f"minWorkers": {num_workers},\
-            f"maxWorkers": {num_workers},\
-            f"batchSize": {batch_size},\
-            f"maxBatchDelay": {batch_delay},\
-            f"responseTimeout": {response_timeout},\
-    }
+    # model_config = {
+    #         f"defaultVersion": "true",
+    #         f"marName": f"{model_mar},"
+    #         f"minWorkers": f"{num_workers},\"
+    #         f"maxWorkers": f"{num_workers},\"
+    #         f"batchSize": f"{batch_size},\"
+    #         f"maxBatchDelay": f"{batch_delay},\"
+    #         f"responseTimeout": f"{response_timeout},\"
+    # }
 
     logger.info(ts_config)
 
-    logger.info(model_config)
+    # logger.info(model_config)
 
     # Torchserve configuration
     with open("config.properties", "w") as f:
@@ -170,12 +172,12 @@ def create_torchserve_config(inference_http_port : int = 8080,
             f.write(f"{key}={value}\n")
     
     # Model configuration
-    with open("config.properties", "a") as f:
-        f.write("models={ \n \"model\" : { \n \"1.0\ : { \n")
-        for key, value in model_config.items():
-            f.write(f"\"{key}\":{value},\n")
+    # with open("config.properties", "a") as f:
+    #     f.write("models={ \n \"model\" : { \n \"1.0\ : { \n")
+    #     for key, value in model_config.items():
+    #         f.write(f"\"{key}\":{value},\n")
         
-        f.write("}\n}\n}")
+    #     f.write("}\n}\n}")
     
 
 
@@ -183,7 +185,7 @@ def create_torchserve_config(inference_http_port : int = 8080,
     return config_properties
     
 
-def archive_model(serialized_file : str, model_file : str = None, model_name : str = "model", handler : str = "base_handler", version : int = 1, extra_files : List[str] = []):
+def archive_model(serialized_file : str = None, model_file : str = None, model_name : str = "model", handler : str = "base_handler", version : int = 1, extra_files : List[str] = []):
     """
     wrapper on top of torch-model-archiver
     model_file is only needed for eager mode execution
@@ -209,4 +211,5 @@ def archive_model(serialized_file : str, model_file : str = None, model_name : s
 
 def torchserve_stop():
     os.system("torchserve --stop")
+    return 0
     
