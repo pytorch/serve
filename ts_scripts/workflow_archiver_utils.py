@@ -33,7 +33,6 @@ def test_workflow_archiver():
     print(f"## In directory: {os.getcwd()} | Executing command: {py_integ_cmd}")
     py_integ_exit_code = os.system(py_integ_cmd)
 
-    # If any one of the steps fail, exit with error
     if py_lint_exit_code != 0:
         print("## Workflow archiver Linting Failed !")
     if py_units_exit_code != 0:
