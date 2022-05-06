@@ -37,23 +37,24 @@ class Common():
                 sys.exit(1)
             else:
                 os.system(
-                    f"python -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
+                    f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
         else:
             os.system(
-                f"python -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
+                f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
     def install_python_packages(self, cuda_version, requirements_file_path):
-        if os.system("conda") == 0:
+        check = "where" if platform.system() == "Windows" else "which"
+        if os.system(f"{check} conda") == 0:
             # conda install command should run before the pip install commands
             # as it may reinstall the packages with different versions
             os.system("conda install -y conda-build")
 
         self.install_torch_packages(cuda_version)
-        os.system("python -m pip install -U pip setuptools")
+        os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
-        os.system("python -m pip install -U -r {0}".format(requirements_file_path))
+        os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
         # If conda is available install conda-build package
 
     def install_node_packages(self):
@@ -72,6 +73,9 @@ class Linux(Common):
 
     def __init__(self):
         super().__init__()
+        # Skip 'sudo ' when the user is root
+        self.sudo_cmd = '' if os.geteuid() == 0 else self.sudo_cmd
+
         if args.force:
             os.system(f"{self.sudo_cmd}apt-get update")
 
@@ -178,7 +182,7 @@ def get_brew_version():
 if __name__ == "__main__":
     check_python_version()
     parser = argparse.ArgumentParser(description="Install various build and test dependencies of TorchServe")
-    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111'], help="CUDA version for torch")
+    parser.add_argument('--cuda', default=None, choices=['cu92', 'cu101', 'cu102', 'cu111', 'cu113'], help="CUDA version for torch")
     parser.add_argument('--environment', default='prod', choices=['prod', 'dev'],
                         help="environment(production or developer) on which dependencies will be installed")
     parser.add_argument("--force", action='store_true', help="force reinstall dependencies wget, node, java and apt-update")

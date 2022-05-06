@@ -1,5 +1,3 @@
-
-
 """
 ModelServiceWorker is the worker that is started by the MMS front-end.
 Communication message format: binary encoding
@@ -21,14 +19,15 @@ from ts.service import emit_metrics
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
-BENCHMARK = os.getenv('TS_BENCHMARK')
-BENCHMARK = BENCHMARK in ['True', 'true', 'TRUE']
+BENCHMARK = os.getenv("TS_BENCHMARK")
+BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
 
 
 class TorchModelServiceWorker(object):
     """
     Backend worker to handle Model Server's python service code
     """
+
     def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
         self.sock_type = s_type
         if s_type == "unix":
@@ -39,7 +38,9 @@ class TorchModelServiceWorker(object):
                 os.remove(s_name)
             except OSError as e:
                 if os.path.exists(s_name):
-                    raise RuntimeError("socket already in use: {}.".format(s_name)) from e
+                    raise RuntimeError(
+                        "socket already in use: {}.".format(s_name)
+                    ) from e
 
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
@@ -74,8 +75,16 @@ class TorchModelServiceWorker(object):
         try:
             model_dir = load_model_request["modelPath"].decode("utf-8")
             model_name = load_model_request["modelName"].decode("utf-8")
-            handler = load_model_request["handler"].decode("utf-8") if load_model_request["handler"] else None
-            envelope = load_model_request["envelope"].decode("utf-8") if "envelope" in load_model_request else None
+            handler = (
+                load_model_request["handler"].decode("utf-8")
+                if load_model_request["handler"]
+                else None
+            )
+            envelope = (
+                load_model_request["envelope"].decode("utf-8")
+                if "envelope" in load_model_request
+                else None
+            )
             envelope = envelope if envelope is not None and len(envelope) > 0 else None
 
             batch_size = None
@@ -92,8 +101,15 @@ class TorchModelServiceWorker(object):
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
             model_loader = ModelLoaderFactory.get_model_loader()
-            service = model_loader.load(model_name, model_dir, handler, gpu,
-                                        batch_size, envelope, limit_max_image_pixels)
+            service = model_loader.load(
+                model_name,
+                model_dir,
+                handler,
+                gpu,
+                batch_size,
+                envelope,
+                limit_max_image_pixels,
+            )
 
             logging.debug("Model %s loaded.", model_name)
 
@@ -112,14 +128,14 @@ class TorchModelServiceWorker(object):
         while True:
             if BENCHMARK:
                 pr.disable()
-                pr.dump_stats('/tmp/tsPythonProfile.prof')
+                pr.dump_stats("/tmp/tsPythonProfile.prof")
             cmd, msg = retrieve_msg(cl_socket)
             if BENCHMARK:
                 pr.enable()
-            if cmd == b'I':
+            if cmd == b"I":
                 resp = service.predict(msg)
                 cl_socket.sendall(resp)
-            elif cmd == b'L':
+            elif cmd == b"L":
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
                 resp += create_load_model_response(code, result)
@@ -129,7 +145,11 @@ class TorchModelServiceWorker(object):
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 
-            if service is not None and service.context is not None and service.context.metrics is not None:
+            if (
+                service is not None
+                and service.context is not None
+                and service.context.metrics is not None
+            ):
                 emit_metrics(service.context.metrics.store)
 
     def run_server(self):
@@ -181,22 +201,25 @@ if __name__ == "__main__":
 
         if BENCHMARK:
             import cProfile
+
             pr = cProfile.Profile()
             pr.disable()
-            pr.dump_stats('/tmp/tsPythonProfile.prof')
+            pr.dump_stats("/tmp/tsPythonProfile.prof")
 
         worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
         worker.run_server()
         if BENCHMARK:
             pr.disable()
-            pr.dump_stats('/tmp/tsPythonProfile.prof')
+            pr.dump_stats("/tmp/tsPythonProfile.prof")
 
     except socket.timeout:
-        logging.error("Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT)
+        logging.error(
+            "Backend worker did not receive connection in: %d", SOCKET_ACCEPT_TIMEOUT
+        )
     except Exception:  # pylint: disable=broad-except
         logging.error("Backend worker process died.", exc_info=True)
     finally:
-        if sock_type == 'unix' and os.path.exists(socket_name):
+        if sock_type == "unix" and os.path.exists(socket_name):
             os.remove(socket_name)
 
     sys.exit(1)

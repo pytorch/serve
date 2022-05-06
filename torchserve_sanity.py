@@ -55,8 +55,4 @@ def cleanup():
 
 
 if __name__ == '__main__':
-    from pygit2 import Repository
-    git_branch = Repository('.').head.shorthand
-    build_hdr_printer.main(git_branch)
-
     torchserve_sanity()
