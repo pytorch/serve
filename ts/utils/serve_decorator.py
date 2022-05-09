@@ -15,7 +15,7 @@ from ts.torch_handler.base_handler import BaseHandler
 logger = logging.getLogger()
 
 
-def serve(func):
+def serve(func, *args, **kwargs):
     """
     @serve is a decorator meant to be used on top of an inference function
     @serve
