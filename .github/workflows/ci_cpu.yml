@@ -1,6 +1,9 @@
 name: CI CPU
 
 on: push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci-cpu:
@@ -9,12 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-
     steps:
-      - name: Skip Duplicate Actions
-        uses: fkirc/skip-duplicate-actions@v4.0.0
-        with:
-          cancel_others: 'true'
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
