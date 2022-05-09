@@ -90,18 +90,8 @@ def materialize_tensors(yaml_dict) -> List[torch.Tensor]:
                     dtype = input_value
                 elif input_key == "device":
                     device = input_value
-                elif input_key == "mode":
-                    mode = input_value
                 elif input_key == "high":
                     high = input_value
-
-            # Mode is optional, users can just hard code a batch size
-            for idx, dimension in enumerate(shape):
-                if dimension == -1 and mode is not None:
-                    if mode == "latency":
-                        shape[idx] = 1
-                    elif mode == "throughput":
-                        shape[idx] = 1024
 
             if dtype in [
                 "float32",
