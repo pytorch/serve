@@ -1,14 +1,14 @@
 name: CI GPU
 
 on: push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
+  
 jobs:
   ci-gpu:
     runs-on: [self-hosted, ci-gpu]
     steps:
-      - name: Skip Duplicate Actions
-        uses: fkirc/skip-duplicate-actions@v4.0.0
-        with:
-          cancel_others: 'true'
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
