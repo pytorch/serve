@@ -43,6 +43,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     openjdk-11-jdk \
     curl \
     vim \
+    && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && cp /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/ && cp /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/ && cp /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/; fi \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \

@@ -23,7 +23,7 @@ do
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
-          echo "-i, --build-with-ipex specify to build with intel_extension_for_pytorch"
+          echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
           exit 0
           ;;
         -b|--branch_name)
@@ -59,7 +59,7 @@ do
           USE_LOCAL_SERVE_FOLDER=true        
           shift
           ;;
-        -i|--build-with-ipex)
+        -ipex|--build-with-ipex)
           BUILD_WITH_IPEX=true
           shift
           ;;
@@ -89,6 +89,8 @@ do
           ;;
     esac
 done
+
+echo $BUILD_WITH_IPEX
 
 if [ "${BUILD_TYPE}" == "dev" ] && ! $CUSTOM_TAG ;
 then
