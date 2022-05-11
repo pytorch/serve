@@ -34,7 +34,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`. Default `cu102`|
-|-i, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
+|-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
 
 
@@ -126,7 +126,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
  - For creating image with Intel® Extension for PyTorch*:
 
 ```bash
-./build_image.sh -bt dev -i -t torchserve-ipex:1.0
+./build_image.sh -bt dev -ipex -t torchserve-ipex:1.0
 ```
 
 **CODEBUILD ENVIRONMENT IMAGES**
