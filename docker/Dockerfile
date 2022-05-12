@@ -22,9 +22,23 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:18.04
 ENV PYTHONUNBUFFERED TRUE
 
+# workaround 
+RUN 
+
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     #apt --fix-broken -y install && \
+
+    #####################################
+    # workaround for https://github.com/NVIDIA/nvidia-docker/issues/1631
+    # revert this section after NVIDIA pushes a proper fix
+    rm /etc/apt/sources.list.d/cuda.list && \
     apt-get update && \
+    apt-get install -y wget && \
+    apt-key del 7fa2af80 && \
+    wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb" && \
+    dpkg -i cuda-keyring_1.0-1_all.deb && \
+    ####################################
+
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
@@ -40,6 +54,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3.8 get-pip.py
+
 
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \ 
