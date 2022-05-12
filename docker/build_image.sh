@@ -10,6 +10,12 @@ CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 
+
+# apt-key del "7fa2af80" \
+# && export this_distro="$(cat /etc/os-release | grep '^ID=' | awk -F'=' '{print $2}')" \
+# && export this_version="$(cat /etc/os-release | grep '^VERSION_ID=' | awk -F'=' '{print $2}' | sed 's/[^0-9]*//g')" \
+# && apt-key adv --fetch-keys "https://developer.download.nvidia.com/compute/cuda/repos/${this_distro}${this_version}/x86_64/3bf863cc.pub"
+
 for arg in "$@"
 do
     case $arg in
@@ -38,7 +44,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
+          BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
           CUDA_VERSION="cu102"
           shift
           ;;

@@ -22,8 +22,6 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:18.04
 ENV PYTHONUNBUFFERED TRUE
 
-# workaround 
-RUN 
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     #apt --fix-broken -y install && \
