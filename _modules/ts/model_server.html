@@ -384,7 +384,9 @@
         <span class="k">if</span> <span class="n">pid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TorchServe is already running, please use torchserve --stop to stop TorchServe.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;TorchServe is already running, please use torchserve --stop to stop TorchServe.&quot;</span>
+                <span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removing orphan pid file.&quot;</span><span class="p">)</span>
@@ -406,7 +408,11 @@
         <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TEMP&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tmp_dir</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid temp directory: </span><span class="si">{}</span><span class="s2">, please check TEMP environment variable.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid temp directory: </span><span class="si">{}</span><span class="s2">, please check TEMP environment variable.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">tmp_dir</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-Djava.io.tmpdir=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">))</span>
@@ -422,13 +428,20 @@
             <span class="n">ts_conf_file</span> <span class="o">=</span> <span class="n">ts_config</span>
 
         <span class="n">platform_path_separator</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Windows&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span> <span class="s2">&quot;.:&quot;</span><span class="p">,</span> <span class="s2">&quot;Linux&quot;</span><span class="p">:</span> <span class="s2">&quot;.:&quot;</span><span class="p">}</span>
-        <span class="n">class_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">platform_path_separator</span><span class="p">[</span><span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()],</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ts_home</span><span class="p">,</span> <span class="s2">&quot;ts/frontend/*&quot;</span><span class="p">))</span>
+        <span class="n">class_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">platform_path_separator</span><span class="p">[</span><span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()],</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ts_home</span><span class="p">,</span> <span class="s2">&quot;ts/frontend/*&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ts_conf_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">ts_conf_file</span><span class="p">):</span>
             <span class="n">props</span> <span class="o">=</span> <span class="n">load_properties</span><span class="p">(</span><span class="n">ts_conf_file</span><span class="p">)</span>
             <span class="n">vm_args</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vmargs&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">vm_args</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: TorchServe is using non-default JVM parameters: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vm_args</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Warning: TorchServe is using non-default JVM parameters: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">vm_args</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">arg_list</span> <span class="o">=</span> <span class="n">vm_args</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">log_config</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">arg_list</span><span class="p">[:]:</span>
@@ -437,13 +450,19 @@
                 <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">arg_list</span><span class="p">)</span>
             <span class="n">plugins</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plugins_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">plugins</span><span class="p">:</span>
-                <span class="n">class_path</span> <span class="o">+=</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">plugins</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span> <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plugins</span> <span class="k">else</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">plugins</span>
+                <span class="n">class_path</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">plugins</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span> <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plugins</span> <span class="k">else</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">plugins</span>
+                <span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">model_store</span> <span class="ow">and</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_store&#39;</span><span class="p">):</span>
-                <span class="n">args</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_store&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">model_store</span> <span class="ow">and</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_store&quot;</span><span class="p">):</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_store&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span><span class="p">:</span>
-            <span class="n">class_path</span> <span class="o">+=</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span> <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span> <span class="k">else</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span>
+            <span class="n">class_path</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span>
+                <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span>
+                <span class="k">else</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">plugins_path</span>
+            <span class="p">)</span>
 
         <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-cp&quot;</span><span class="p">)</span>
         <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_path</span><span class="p">)</span>
@@ -471,7 +490,11 @@
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">workflow_store</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">workflow_store</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--workflow-store directory not found: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">workflow_store</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;--workflow-store directory not found: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">args</span><span class="o">.</span><span class="n">workflow_store</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">)</span>
@@ -492,7 +515,6 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">model_url</span><span class="p">)</span> <span class="ow">and</span> <span class="n">model_url</span> <span class="o">!=</span> <span class="s2">&quot;ALL&quot;</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--model-store is required to load model locally.&quot;</span><span class="p">)</span>
                         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
