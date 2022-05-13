@@ -15,12 +15,14 @@ if __name__ == "__main__":
     os.system(f"./build_image.sh -bt dev -g -cv cu102 -t pytorch/{gpu_version}")
 
     # Push Nightly images to official PyTorch Dockerhub account
-    for version in [cpu_version, gpu_version]:
-        os.system(f"docker push pytorch/{version}")
+    os.system(f"docker push pytorch/{cpu_version}")
+    os.system(f"docker push pytorch/{gpu_version}")
+
     
-    # Tag images with latest and push those as well
+    # Tag nightly images with latest
     os.system(f"docker tag pytorch/{cpu_version} pytorch/{project}:latest-cpu")
     os.system(f"docker tag pytorch/{gpu_version} pytorch/{project}:latest-gpu")
 
-    for version in ["latest-cpu", "latest-gpu"]:
-        os.system(f"docker push pytorch/{project}:{version}")
+    # Push images with latest
+    os.system(f"docker push pytorch/{project}:{latest-cpu}")
+    os.system(f"docker push pytorch/{project}:{latest-gpu}")
