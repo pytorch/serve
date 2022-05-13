@@ -266,7 +266,7 @@ class BaseHandler(abc.ABC):
 
             result_path = os.path.join(result_path, dir_name)
             self.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(result_path)
-            logger.info("Saving chrome trace to : ", result_path) # pylint: disable=logging-too-many-args
+            logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:
             with record_function("preprocess"):
