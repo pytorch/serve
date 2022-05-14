@@ -73,7 +73,7 @@ do
             BASE_IMAGE="nvidia/cuda:10.1-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu92" ];
           then
-            BASE_IMAGE="nvidia/cuda:9.2-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04"
           else
             echo "CUDA version not supported"
             exit 1
