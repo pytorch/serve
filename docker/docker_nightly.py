@@ -35,5 +35,5 @@ if __name__ == "__main__":
     try_and_handle(f"docker push pytorch/{project}:{latest-gpu}")
     
     # If there are any errors raise them but don't block commands that succeeded
-    if errors:
+    if failed_commands:
         raise Exception(f"failed commands: {failed_commands})
