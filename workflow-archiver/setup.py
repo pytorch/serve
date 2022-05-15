@@ -49,7 +49,7 @@ def get_nightly_version():
     return today.strftime("%Y.%m.%d")
 
 if __name__ == '__main__':
-    version = detect_workflow_archiver_version()
+    #version = detect_workflow_archiver_version()
     name = 'torch-workflow-archiver'
 
     # Clever code to figure out if setup.py was trigger by ts_scripts/push_nightly.sh
