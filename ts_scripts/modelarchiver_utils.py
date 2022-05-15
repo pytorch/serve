@@ -33,9 +33,8 @@ def test_modelarchiver():
     print(f"## In directory: {os.getcwd()} | Executing command: {py_integ_cmd}")
     py_integ_exit_code = os.system(py_integ_cmd)
 
-    # If any one of the steps fail, exit with error
     if py_lint_exit_code != 0:
-        sys.exit("## Model archiver Linting Failed !")
+        print("## Model archiver Linting Failed !")
     if py_units_exit_code != 0:
         sys.exit("## Model archiver Unit Pytests Failed !")
     if py_integ_exit_code != 0:
