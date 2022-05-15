@@ -1,9 +1,10 @@
 name: CI CPU
 
 on: push
-concurrency: 
-  group: ${{ github.ref }}
+concurrency:
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
+
 jobs:
   ci-cpu:
     runs-on: ${{ matrix.os }}
@@ -11,7 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
