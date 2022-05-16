@@ -64,13 +64,18 @@ do
             BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu111" ];
           then
+            # No solution for cuda 11.1 yet
+            # for updates follow https://github.com/NVIDIA/nvidia-docker/issues/1631 
             BASE_IMAGE="nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu102" ];
           then
             BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu101" ]
           then
-            BASE_IMAGE="nvidia/cuda:10.1-cudnn8-runtime-ubuntu18.04"
+
+            # No solution for cuda 10.1 yet
+            # for updates follow https://github.com/NVIDIA/nvidia-docker/issues/1631 
+            BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu92" ];
           then
             BASE_IMAGE="nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04"
