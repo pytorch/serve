@@ -1,13 +1,13 @@
 from datetime import date
 import os
 import sys
+import argparse
 
 def get_nightly_version():
     today = date.today()
     return today.strftime("%Y.%m.%d")
 
 if __name__ == "__main__":
-    failed_commands = []
 
     def try_and_handle(cmd, dry_run = False):
         if dry_run:
@@ -17,29 +17,36 @@ if __name__ == "__main__":
             if code != 0:
                 failed_commands.append(cmd)
     
-    dry_run = sys.argv
+    failed_commands = []
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--organization", type=str, default="pytorch", help="The name of the Dockerhub organization where the images will be pushed")
+    parser.add_argument("--dry_run", action="store_true", help="dry_run will print the commands that will be run without running them")
+    args = parser.parse_args()
+    dry_run = args.dry_run
+    organization = args.organization
     
     project = "torchserve-nightly"
     cpu_version = f"{project}:cpu-{get_nightly_version()}"
     gpu_version = f"{project}:gpu-{get_nightly_version()}"
 
     # Build Nightly images and append the date in the name
-    try_and_handle(f"./build_image.sh -bt dev -t pytorch/{cpu_version}", dry_run)
-    try_and_handle(f"./build_image.sh -bt dev -g -cv cu102 -t pytorch/{gpu_version}", dry_run)
+    try_and_handle(f"./build_image.sh -bt dev -t {organization}/{cpu_version}", dry_run)
+    try_and_handle(f"./build_image.sh -bt dev -g -cv cu102 -t {organization}/{gpu_version}", dry_run)
 
     # Push Nightly images to official PyTorch Dockerhub account
-    try_and_handle(f"docker push pytorch/{cpu_version}", dry_run)
-    try_and_handle(f"docker push pytorch/{gpu_version}", dry_run)
+    try_and_handle(f"docker push {organization}/{cpu_version}", dry_run)
+    try_and_handle(f"docker push {organization}/{gpu_version}", dry_run)
 
     
     # Tag nightly images with latest
-    try_and_handle(f"docker tag pytorch/{cpu_version} pytorch/{project}:latest-cpu", dry_run)
-    try_and_handle(f"docker tag pytorch/{gpu_version} pytorch/{project}:latest-gpu", dry_run)
+    try_and_handle(f"docker tag {organization}/{cpu_version} pytorch/{project}:latest-cpu", dry_run)
+    try_and_handle(f"docker tag {organization}/{gpu_version} pytorch/{project}:latest-gpu", dry_run)
 
     # Push images with latest
-    try_and_handle(f"docker push pytorch/{project}:{latest-cpu}", dry_run)
-    try_and_handle(f"docker push pytorch/{project}:{latest-gpu}", dry_run)
+    try_and_handle(f"docker push {organization}/{project}:latest-cpu", dry_run)
+    try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
     
-    # If there are any errors raise them but don't block commands that succeeded
+    # If there are any errors raise them at the very end but don't block commands that succeeded
+    # This ensures that if a CI pipeline calls this file and fails, that the status will show as red
     if failed_commands:
-        raise Exception(f"failed commands: {failed_commands})
+        raise Exception(f"failed commands: {failed_commands}")
