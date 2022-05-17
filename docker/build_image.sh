@@ -70,9 +70,6 @@ do
             BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu101" ]
           then
-
-            # No solution for cuda 10.1 yet
-            # for updates follow https://github.com/NVIDIA/nvidia-docker/issues/1631 
             BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu92" ];
           then
