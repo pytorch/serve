@@ -6,7 +6,7 @@ To build `TorchServe` wheel use the following command
 ./build_wheels.sh
 ```
 
-Produced `TorchServe` and `torch-model-archiver` wheel is then stored in the `output` directory
+Produced `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` wheel is then stored in the `output` directory
 
 ## Retag
 
