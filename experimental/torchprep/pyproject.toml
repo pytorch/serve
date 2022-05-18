@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "torchprep"
-version = "0.1.0"
-description = "The easiest way to prepare Pytorch models for inference"
+version = "0.2.0"
+description = "The easiest way to prepare Pytorch models for efficient inference"
 authors = ["Mark Saroufim <marksaroufim@fb.com>"]
 readme = "README.md"
 
@@ -13,9 +13,15 @@ python = "^3.8"
 typer = {extras = ["all"], version = "^0.4.0"}
 torch = "^1.9.1"
 tqdm = "^4.62.3"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+torchvision = "^0.12.0"
+transformers = "^4.18.0"
+scalene = "^1.5.8"
+torch-tb-profiler = "^0.4.0"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

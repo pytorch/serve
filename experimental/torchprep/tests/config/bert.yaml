@@ -1,0 +1,11 @@
+# Each model can have multiple inputs
+# Each input has a dtype, device and shape
+# Some shapes can be arbitrary like a positive integer for batch size
+
+# HuggingFace BERT model
+input1: # batch size
+  dtype: "int32"
+  device: "cpu"
+  shape: [1,1] # the first element is the batch size and second element is the sequence length
+  high : 10 # max value
+  mode : "latency"

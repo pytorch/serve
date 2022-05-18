@@ -15,10 +15,16 @@ def download_resnet():
     torch.save(model, "models/resnet152.pt")
 
 
-if __name__ == "__main__":
-    if not os.path.exists("models/"):
+def main():
+    if not os.path.exists("models"):
         os.makedirs("models")
-    download_resnet()
-    download_bert()
 
-    
+    if len(os.listdir("models")) == 0:
+        download_resnet()
+        download_bert()
+    else:
+        print("models directory is not empty")
+
+
+if __name__ == "__main__":
+    main()

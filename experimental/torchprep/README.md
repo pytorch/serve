@@ -29,7 +29,7 @@ cd torchprep
 poetry install
 ```
 
-## Install from Pypi (Coming soon)
+## Install from Pypi
 
 ```sh
 pip install torchprep
@@ -47,14 +47,30 @@ torchprep quantize --help
 # Install example dependencies
 pip install torchvision transformers
 
-# Download resnet example
-python example.py
+# Download resnet and bert example
+python tests/download_example.py
 
 # quantize a cpu model with int8 on cpu and profile with a float tensor of shape [64,3,7,7]
-torchprep quantize models/resnet152.pt int8 --input-shape 64,3,7,7
+torchprep quantize models/resnet152.pt int8
+```
 
+### Profile
+
+To profile a model you need to create a `yaml` file describing your model input shape. The YAML can accept multiple inputs
+
+```yaml
+# restnet.yaml
+input:
+  dtype: "int8"
+  device: "cpu"
+  shape: [16, 3, 7, 7] # the first element is the batch size
+```
+
+Then you can pass in the `yaml` file to `torchprep`
+
+```sh
 # profile a model for a 100 iterations
-torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shape 64,3,7,7
+torchprep profile models/resnet152.pt --iterations 100 --device cpu --input-shape config/resnet.yaml
 
 # set omp threads to 1 to optimize cpu inference
 torchprep env --device cpu
@@ -101,8 +117,16 @@ Arguments:
 
 Options:
   --device [cpu|gpu]  [default: Device.cpu]
-  --input-shape TEXT  Comma seperated input tensor shape
+  --input-shape TEXT  Comma separated input tensor shape
   --help              Show this message and exit.
+```
+
+## Dev instructions
+
+### Run tests
+
+```sh
+pytest --disable-pytest-warnings
 ```
 
 ### Create binaries
@@ -122,13 +146,18 @@ poetry publish --build
 ```
 
 ## Roadmap
-* Supporting add custom model names and output paths
-* Support multiple input tensors for models like BERT that expect a batch size and sequence length
-* Support multiple input tensor types
-* Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
-* Automated release with github actions
-* TensorRT, IPEX, AMP and autocast support
-* Training aware optimizations
-* Get model input shape using fx instead of asking user for it
-* Refactor profiling, loading and saving into seperate functions
-* More environment variable setting and a way to reverse environment variables (e.g: save current ones in user file)
+* [x] Supporting add custom model names and output paths
+* [x] Support multiple input tensors for models like BERT that expect a batch size and sequence length
+* [x] Support multiple input tensor types
+* [x] Print environment variables
+* [x] TensorRT
+* [x] IPEX
+
+### Short term
+* [ ] Integrate into universal benchmark tool `serve/benchmarks`
+* [ ] Automatic distillation example: Reduce parameter count by 1/3 `torchprep distill model.pt 1/3`
+* [ ] Training aware optimizations
+
+### Medium term
+* [ ] Get model input shape with type annotations - [solution exists in Python 3.11 only](https://github.com/pytorch/serve/issues/1505)
+* [ ] Automated release with github actions - low priority for now
