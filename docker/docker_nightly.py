@@ -1,7 +1,6 @@
 from datetime import date
-import os
-import sys
 import argparse
+import subprocess
 
 def get_nightly_version():
     today = date.today()
@@ -13,9 +12,10 @@ if __name__ == "__main__":
         if dry_run:
             print(f"Executing command: {cmd}")
         else:
-            code = os.system(cmd)
-            if code != 0:
-                failed_commands.append(cmd)
+            try:
+                subprocess.run([cmd], shell=True, check = True)
+            except subprocess.CalledProcessError as e:
+                raise(e)
     
     failed_commands = []
     parser = argparse.ArgumentParser()
@@ -31,10 +31,10 @@ if __name__ == "__main__":
 
     # Build Nightly images and append the date in the name
     try_and_handle(f"./build_image.sh -bt dev -t {organization}/{cpu_version}", dry_run)
-    try_and_handle(f"./build_image.sh -bt dev -g -cv cu102 -t {organization}/{gpu_version}", dry_run)
+    try_and_handle(f"./build_image.sh -bt dev -g -cv 102 -t {organization}/{gpu_version}", dry_run)
 
     # Push Nightly images to official PyTorch Dockerhub account
-    # try_and_handle(f"docker push {organization}/{cpu_version}", dry_run)
+    try_and_handle(f"docker push {organization}/{cpu_version}", dry_run)
     try_and_handle(f"docker push {organization}/{gpu_version}", dry_run)
 
     
@@ -45,8 +45,3 @@ if __name__ == "__main__":
     # Push images with latest tag
     try_and_handle(f"docker push {organization}/{project}:latest-cpu", dry_run)
     try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
-    
-    # If there are any errors raise them at the very end but don't block commands that succeeded
-    # This ensures that if a CI pipeline calls this file and fails, that the status will show as red
-    if failed_commands:
-        raise Exception(f"failed commands: {failed_commands}")
