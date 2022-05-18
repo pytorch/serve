@@ -90,7 +90,11 @@ do
     esac
 done
 
-echo $BUILD_WITH_IPEX
+if [ "${MACHINE}" == "gpu" ] && $BUILD_WITH_IPEX ;
+then
+  echo "--gpu and --ipex are mutually exclusive. Please select one of them."
+  exit 1
+fi
 
 if [ "${BUILD_TYPE}" == "dev" ] && ! $CUSTOM_TAG ;
 then
