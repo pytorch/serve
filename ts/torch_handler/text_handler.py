@@ -12,8 +12,8 @@ import torch
 import torch.nn.functional as F
 from torchtext.data.utils import get_tokenizer
 from captum.attr import LayerIntegratedGradients
-from .base_handler import BaseHandler
-from .contractions import CONTRACTION_MAP
+from ts.torch_handler.base_handler import BaseHandler
+from ts.torch_handler import CONTRACTION_MAP
 
 logger = logging.getLogger(__name__)
 
