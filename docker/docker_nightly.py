@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     # Build Nightly images and append the date in the name
     try_and_handle(f"./build_image.sh -bt dev -t {organization}/{cpu_version}", dry_run)
-    try_and_handle(f"./build_image.sh -bt dev -g -cv 102 -t {organization}/{gpu_version}", dry_run)
+    try_and_handle(f"./build_image.sh -bt dev -g -cv cu102 -t {organization}/{gpu_version}", dry_run)
 
     # Push Nightly images to official PyTorch Dockerhub account
     try_and_handle(f"docker push {organization}/{cpu_version}", dry_run)
