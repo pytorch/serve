@@ -18,16 +18,12 @@ class ImageClassifier(VisionHandler):
     topk = 5
     # These are the standard Imagenet dimensions
     # and statistics
-    mean_ = [[[0.4850]],[[0.4560]],[[0.4060]]]
-    mean_ = torch.as_tensor(mean_)
-
-    std_ = [[[0.229]],[[0.224]],[[0.225]]]
-    std_ = torch.as_tensor(std_)
-
-
     image_processing = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
-        transforms.Normalize(mean=mean_,std=std_, inplace=True)
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
     ])
 
     def set_max_result_classes(self, topk):
