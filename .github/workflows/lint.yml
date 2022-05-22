@@ -20,19 +20,22 @@ jobs:
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v20.1
-
-      - name: List all changed files
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
-          done
+      
       - name: Install lint utilities
         run: |
           pip install pre-commit
           pre-commit install-hooks
-      - name: Lint Python code and config files
-        run: pre-commit run --all-files
+
+      - name: Lint all changed files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo pre-commit run $file
+          done
+          
       - name: Required modifications
         if: ${{ failure() }}
         run: git --no-pager diff
+        
+
+
       
