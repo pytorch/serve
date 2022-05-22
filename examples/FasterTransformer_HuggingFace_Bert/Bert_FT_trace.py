@@ -8,7 +8,7 @@ import timeit
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, SequentialSampler, TensorDataset
+from torch.utils.data import SequentialSampler, TensorDataset
 from tqdm import tqdm, trange
 
 from transformers import (
