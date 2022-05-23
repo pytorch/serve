@@ -21,13 +21,14 @@ Please describe the Unit or Integration tests that you ran to verify your change
 Please also list any relevant details for your test configuration.
 
 - [ ] Test A
-- [ ] Test B
+Logs for Test A
 
-- Logs
+- [ ] Test B
+Logs for Test B
+
 
 ## Checklist:
 
 - [ ] Have you added tests that prove your fix is effective or that this feature works?
 - [ ] Has code been commented, particularly in hard-to-understand areas?
 - [ ] Have you made corresponding changes to the documentation?
-- [ ] Did you enable `pre-commit` to check and format your changes before pushing your changes?
