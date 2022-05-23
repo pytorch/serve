@@ -22,14 +22,14 @@ jobs:
           pip install pre-commit
           pre-commit install
           
-      - name: Get changed files
-        id: changed-files
+
+      - name: Get specific changed files
+        id: changed-files-specific
         uses: tj-actions/changed-files@v20.1
         with:
-          files: |
-            *.py
-
-        
+          files: | 
+            **/*.py
+  
       - name: Lint all changed files
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
