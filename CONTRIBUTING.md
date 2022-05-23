@@ -69,8 +69,11 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 ### What to Contribute?
 
-### Good first issue
+### A good first issue
 If you've never contributed to TorchServe or OSS before then a great place to start is issues labeled as [`good first issue`](https://github.com/pytorch/serve/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). Bonus points if you personally care about this issue or if it's an issue you filed.
+
+### A good project
+If you've used TorchServe in an interesting way, we'd love to feature it in https://github.com/pytorch/serve#-news
 
 #### A new example
 The easiest area to contribute a new change to TorchServe is https://github.com/pytorch/serve/tree/master/examples by creating a new handler. Handlers are a simple but powerful paradigm that let you execute arbitrary Python code while serving a model.
@@ -87,11 +90,11 @@ As simple as they seem handlers let you do complex stuff like exporting to vario
 class CustomHandler(BaseHandler):
   def initialize(self, ctx):
 
-  def preprocess(self, requests) -> List[]:
+  def preprocess(self, requests) -> List[Any]:
 
-  def inference(self, input_batch : Tensor) -> Tensor:
+  def inference(self, input_batch : List[torch.Tensor]) -> List[torch.Tensor]:
 
-  def postprocess(self, inference_output : Tensor) -> List[]:
+  def postprocess(self, inference_output : List[torch.Tensor]) -> List[Any]:
 
 ```
 
@@ -103,4 +106,12 @@ If you are interested in contributing to the internals, we suggest you start her
 
 
 ### New configurations
-TODO: Add mention for how IPEX was integrated here
+To have your custom configurations available in `config.properties` this is a [good educational PR](https://github.com/pytorch/serve/pull/1319) to follow as an example.
+
+All available configurations are set in [ConfigManager.java](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/util/ConfigManager.java) and then can be accessed from handler using [`properties = context.system_properties`](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). You can also access environment variables directly using `os.environ.get()` and gate behavior based on what that environment variable is.
+
+All of our model optimization work ranging from IPEX to TensorRT work in a similar manner.
+
+
+### Something more complicated
+For something more complicated please open an issue and discuss it with the core team, you can see what our general priorities are here https://github.com/pytorch/serve/projects but if you need a feature urgently we are happy to guide you so you can get it done.
