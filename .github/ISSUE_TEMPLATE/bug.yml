@@ -44,15 +44,15 @@ body:
     validations:
       required: true
     
-    - type: textarea
-    attributes:
-      label: handler information
-      description: |
-        Please describe how you packaged your model
-      placeholder:
-        Link to builtin handler or example you used or link to a repo or gist with your custom handler or step by step instructions with torch-model-archiver
-    validations:
-      required: true
+  - type: textarea
+  attributes:
+    label: handler information
+    description: |
+      Please describe how you packaged your model
+    placeholder:
+      Link to builtin handler or example you used or link to a repo or gist with your custom handler or step by step instructions with torch-model-archiver
+  validations:
+    required: true
   
   - type: textarea
     attributes:
