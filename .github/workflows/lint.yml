@@ -32,7 +32,7 @@ jobs:
   
       - name: Lint all changed files
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
             pre-commit run --files $file
           done
           
