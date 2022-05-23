@@ -69,6 +69,9 @@ For information about the model archiver, see [detailed documentation](model-arc
 
 ### What to Contribute?
 
+### Good first issue
+If you've never contributed to torchserve or OSS before then a great place to start is issues labeled as [`good first issue`](https://github.com/pytorch/serve/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+
 #### A new example
 The easiest area to contribute a new change to TorchServe is https://github.com/pytorch/serve/tree/master/examples by creating a new handler. Handlers are a simple but powerful paradigm that let you execute arbitrary Python code while serving a model.
 
