@@ -20,8 +20,7 @@ jobs:
       - name: Install lint utilities
         run: |
           pip install pre-commit
-          pre-commit install
-          
+          pre-commit install      
 
       - name: Get specific changed files
         id: changed-files-specific
@@ -39,7 +38,3 @@ jobs:
       - name: Required modifications
         if: ${{ failure() }}
         run: git --no-pager diff
-        
-
-
-      
