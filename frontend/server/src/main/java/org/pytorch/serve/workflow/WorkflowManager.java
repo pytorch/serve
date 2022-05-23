@@ -404,7 +404,7 @@ public final class WorkflowManager {
                                                             StandardCharsets.UTF_8);
                                             result.add(
                                                     prediction.getNodeName(),
-                                                    new JsonParser().parse(val).getAsJsonObject());
+                                                    JsonParser.parseString(val).getAsJsonObject());
                                         }
                                         NettyUtils.sendJsonResponse(ctx, result);
                                     }
