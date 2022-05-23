@@ -1,34 +1,4 @@
 ## Contributing to TorchServe
-
-### What to contribute?
-The easiest area to contribute a new change to TorchServe is https://github.com/pytorch/serve/tree/master/examples by creating a new handler. Handlers are a simple but powerful paradigm that let you execute arbitrary Python code while serving a model.
-
-For example
-
-The core team developed a single handler to deal with question answering, token classification and sequence classification for HuggingFace models https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py
-
-If you have another use case we'd love to merge it!
-
-As simple as they seem handlers let you do complex stuff like exporting to various runtimes and various people in open source have managed to support [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [TensorRT](https://github.com/pytorch/serve/issues/1243) and [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch) without much of the core team's involvement.
-
-```python
-class CustomHandler(BaseHandler):
-  def initialize(self, ctx):
-
-  def preprocess(self, requests) -> List[]:
-
-  def inference(self, input_batch : Tensor) -> Tensor:
-
-  def postprocess(self, inference_output : Tensor) -> List[]:
-
-```
-
-The key thing to observe here is that `CustomHandler` is a class so it can hold state that you can save from any of the relevant handler functions. For example you can setup a runtime configuration in `initialize()` and then use it in an `inference()` function. `postprocess()` can return a list of outputs alongside some debug information stored in arbitrary data-structure. `requests` can be anything, video, text or sound data and we've it to this effect in our [multi modal MMF example](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition)
-
-Handlers are incredibly powerful and will let you build meaningful contributions to TorchServe without having to dive deep into the Java internals.
-
-If you are interested in contributing to the internals, we suggest you start here [Internals Guide](docs/internals.md)
-
 ### Merging your code
 
 If you are interested in contributing to TorchServe you'll often need to install it from source and follow some of our guidelines to merge your PRs easily.
@@ -68,7 +38,7 @@ Your contributions will fall into two categories:
     - For large changes make sure to run the [automated benchmark suite](https://github.com/pytorch/serve/tree/master/test/benchmark) which will run the apache bench tests on several configurations of CUDA and EC2 instances
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
-Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve. Use this [template](pull_request_template.md) when creating a Pull Request.
+Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve.
 
 For more non-technical guidance about how to contribute to PyTorch, see the Contributing Guide.
 
@@ -96,3 +66,38 @@ Use `--cuda` flag with `install_dependencies.py` for installing cuda version spe
 Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+
+### What to Contribute?
+
+#### A new example
+The easiest area to contribute a new change to TorchServe is https://github.com/pytorch/serve/tree/master/examples by creating a new handler. Handlers are a simple but powerful paradigm that let you execute arbitrary Python code while serving a model.
+
+For example
+
+The core team developed a single handler to deal with question answering, token classification and sequence classification for HuggingFace models https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py
+
+If you have another use case we'd love to merge it!
+
+As simple as they seem handlers let you do complex stuff like exporting to various runtimes and various people in open source have managed to support [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [TensorRT](https://github.com/pytorch/serve/issues/1243) and [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch) without much of the core team's involvement.
+
+```python
+class CustomHandler(BaseHandler):
+  def initialize(self, ctx):
+
+  def preprocess(self, requests) -> List[]:
+
+  def inference(self, input_batch : Tensor) -> Tensor:
+
+  def postprocess(self, inference_output : Tensor) -> List[]:
+
+```
+
+The key thing to observe here is that `CustomHandler` is a class so it can hold state that you can save from any of the relevant handler functions. For example you can setup a runtime configuration in `initialize()` and then use it in an `inference()` function. `postprocess()` can return a list of outputs alongside some debug information stored in arbitrary data-structure. `requests` can be anything, video, text or sound data and we've it to this effect in our [multi modal MMF example](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition)
+
+Handlers are incredibly powerful and will let you build meaningful contributions to TorchServe without having to dive deep into the Java internals.
+
+If you are interested in contributing to the internals, we suggest you start here [Internals Guide](docs/internals.md)
+
+
+### New configurations
+TODO: Add mention for how IPEX was integrated here

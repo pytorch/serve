@@ -51,3 +51,6 @@ Please search on the [issue tracker](https://github.com/pytorch/serve/issues) be
 ## Failure Logs [if any]
 <!--- Provide any relevant log snippets or files here. -->
 
+## Print environment info
+<!-- Run python serve/ts_scripts/print_env_info.py and paste the output below -->
+
