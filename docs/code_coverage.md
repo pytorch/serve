@@ -52,7 +52,7 @@ pylint -rn --rcfile=./ts/tests/pylintrc ts/.
 
 ```bash
 cd model-archiver
-python -m pytest --cov-report html:htmlcov_ut --cov=model_archiver/ model_archiver/tests/unit_tests/
+python -m pytest --cov-report html:htmlcov_ut --cov=model-archiver/ model_archiver/tests/unit_tests/
 ```
 
 The reports are generated at following path : `model-archiver/htmlcov_ut/`
@@ -67,7 +67,22 @@ python -m pytest --cov-report html:htmlcov_it --cov=model_archiver/ model_archiv
 
 The reports are generated at following path : `model-archiver/htmlcov_it/`
 
+## To run pytest suite on workflow-archiver run following command
+
+```bash
+cd workflow-archiver
+python -m pytest --cov-report html:htmlcov_ut --cov=workflow-archiver/ workflow_archiver/tests/unit_tests/
+```
+
+The reports are generated at following path : `workflow-archiver/htmlcov_ut/`
+
 **Note**: All the above commands needs to be excuted from serve home
+
+## To run pytest suite on main tests
+```
+cd test
+python -m pytest --cov-report html:htmlcov_ut --cov=pytest/
+```
 
 ## To run the markdown link check run following command
 
