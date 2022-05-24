@@ -130,7 +130,11 @@ public class Manifest {
         @SerializedName("python2")
         PYTHON2("python2"),
         @SerializedName("python3")
-        PYTHON3("python3");
+        PYTHON3("python3"),
+        @SerializedName("libtorch_scripted_process")
+        LSP("libtorch_scripted_process"),
+        @SerializedName("libtorch_deploy_process")
+        LDP("libtorch_deploy_process");
 
         String value;
 
