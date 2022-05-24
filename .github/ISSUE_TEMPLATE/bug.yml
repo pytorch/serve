@@ -1,0 +1,100 @@
+name: 🐛 Bug Report
+description: Create a report to help us reproduce and fix the bug
+
+body:
+  - type: markdown
+    attributes:
+      value: >
+        #### Before submitting a bug, please make sure the issue hasn't been already addressed by searching through [the
+        existing and past issues](https://github.com/pytorch/seve/issues), the [FAQ](https://github.com/pytorch/serve/blob/master/docs/FAQs.md) or [Troubleshooting Guide](https://github.com/pytorch/serve/blob/master/docs/Troubleshooting.md)
+
+  - type: textarea
+    attributes:
+      label: 🐛 Describe the bug
+      description: |
+        Please provide a clear and concise description of what the bug is.
+
+        If relevant, add a minimal example so that we can reproduce the error by running the code. It is very important for the snippet to be as succinct (minimal) as possible, so please take time to trim down any irrelevant code to help us debug efficiently. We are going to copy-paste your code and we expect to get the same result as you did: avoid any external data, and include the relevant imports and make sure that your model works before you integrate it into TorchServe
+
+      placeholder: |
+        A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Error logs
+      description: |
+       Paste the error logs that indicate there's a problem
+
+      placeholder: |
+        Error...
+
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Installation instructions
+      description: |
+        Did you install torchserve from source? Are you using Docker?
+      placeholder: |
+        Install torchserve from source: No
+        Are you using Docker: Yes I ran ./build_image.sh     
+    validations:
+      required: true
+    
+  - type: textarea
+    attributes:
+      label: Model Packaing
+      description: |
+        Please describe how you packaged your model
+      placeholder: |
+        Link to builtin handler or example you used or link to a repo or gist with your custom handler or step by step instructions with torch-model-archiver
+    validations:
+      required: true
+  
+  - type: textarea
+    attributes:
+      label: config.properties
+      description: |
+        Please paste your `config.properties`
+      placeholder:
+        inference_address=
+        management_address=
+
+  - type: textarea
+    attributes:
+      label: Versions
+      description: |
+        Please run the following and paste the output below. Make sure the version numbers of all relevant packages (e.g. torch, torchserve, torchvision other domain packages) are included.
+        ```sh
+        # For security purposes, please check the contents of print_env_info.py before running it.
+        python serve/ts_scripts/print_env_info.py
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Repro instructions
+      description: |
+        Step by step instructions you followed to get this error
+        ```sh
+        wget http://mar_file.mar
+        torch-model-archiver ...
+        torchserve --start
+        ```
+    validations:
+      required: true 
+
+  - type: textarea
+    attributes:
+      label: Possible Solution
+      description: |
+        Possible fix for them the problem
+
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for contributing 🎉!

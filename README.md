@@ -76,8 +76,6 @@ We welcome all contributions!
 
 To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
 
-To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md).
-
 ## 📰 News
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)
 * [Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing](https://pytorch.org/blog/amazon-ads-case-study/)
