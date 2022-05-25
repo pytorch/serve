@@ -1,6 +1,6 @@
 # TorchServe with Intel® Extension for PyTorch*
 
-TorchServe can be used with Intel® Extension for PyTorch* (IPEX) to give performance boost on Intel hardware<sup>1</sup>. 
+TorchServe can be used with Intel® Extension for PyTorch* (IPEX) to give performance boost on Intel hardware.<sup>1</sup> 
 Here we show how to use TorchServe with IPEX.
 
 <sup>1. While IPEX benefits all platforms, platforms with AVX512 benefit the most. </sup>
@@ -76,10 +76,12 @@ CPU usage is shown below. 4 main worker threads were launched, each launching 14
 #### Scaling workers
 Additionally when dynamically [scaling the number of workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
 
-Continuing with the above example with 4 workers, assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55. 
+Continuing with the above example with 4 workers, assume killing workers 2 and 3. If cores were not re-distributed after the scale down, cores 28-55 would be left unutilized. Instead, launcher re-distributes cores 28-55 to workers 0 and 1 such that now worker 0 binds to cores 0-27 and worker 1 binds to cores 28-55.<sup>2</sup> 
 
 CPU usage is shown below. 4 main worker threads were initially launched. Then after scaling down the number of workers from 4 to 2, 2 main worker threads were launched, each launching 28 threads affinitized to the assigned physical cores.
 ![worker_scaling](https://user-images.githubusercontent.com/93151422/170374697-7497c2d5-4c17-421b-9993-1434d1f722f6.gif)
+
+<sup>2. Serving is interrupted for few seconds while re-distributing cores to scaled workers.</sup>
 
 Again, all it needs to be done to use TorchServe with launcher core pinning for multiple workers as well as scaling workers is to set its configuration in `config.properties`.
 
