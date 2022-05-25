@@ -29,3 +29,6 @@ test/config.properties
 # Custom benchmark artifacts
 instances.yaml
 instances.yaml.backup
+
+## Models 
+*.pt

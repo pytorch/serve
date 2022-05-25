@@ -9,6 +9,7 @@ BASE_IMAGE="ubuntu:18.04"
 CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
+BUILD_WITH_IPEX=false
 
 for arg in "$@"
 do
@@ -22,6 +23,7 @@ do
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
+          echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
           exit 0
           ;;
         -b|--branch_name)
@@ -38,7 +40,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
+          BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
           CUDA_VERSION="cu102"
           shift
           ;;
@@ -54,7 +56,11 @@ do
           shift
           ;;
         -lf|--use-local-serve-folder)
-          USE_LOCAL_SERVE_FOLDER=true
+          USE_LOCAL_SERVE_FOLDER=true        
+          shift
+          ;;
+        -ipex|--build-with-ipex)
+          BUILD_WITH_IPEX=true
           shift
           ;;
         -cv|--cudaversion)
@@ -67,7 +73,7 @@ do
             BASE_IMAGE="nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu102" ];
           then
-            BASE_IMAGE="nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu101" ]
           then
             BASE_IMAGE="nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04"
@@ -83,6 +89,12 @@ do
           ;;
     esac
 done
+
+if [ "${MACHINE}" == "gpu" ] && $BUILD_WITH_IPEX ;
+then
+  echo "--gpu and --ipex are mutually exclusive. Please select one of them."
+  exit 1
+fi
 
 if [ "${BUILD_TYPE}" == "dev" ] && ! $CUSTOM_TAG ;
 then
@@ -101,5 +113,5 @@ elif [ $BUILD_TYPE == "benchmark" ]
 then
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE -t $DOCKER_TAG .
 else
-  DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE .
+  DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE --build-arg BUILD_WITH_IPEX=$BUILD_WITH_IPEX .
 fi

@@ -1,0 +1,10 @@
+# Each model can have multiple inputs
+# Each input has a dtype, device and shape
+# Some shapes can be arbitrary like a positive integer for batch size
+
+# restnet.yaml
+input:
+  dtype: "float16" # Extend this to a list later, will need to print all permutations
+  device: "cpu"
+  shape: [16, 3, 7, 7] # the first element is the batch size
+  high : 10 # max value

@@ -130,6 +130,23 @@ Binaries should show up here: https://hub.docker.com/r/pytorch/torchserve
 
 Change the staging org to your personal docker or test docker account https://github.com/pytorch/serve/blob/master/docker/promote-docker.sh#L8
 
+
+### Direct upload
+
+To build a docker image follow instructionss from [docker/README.md](../docker/README.md)
+
+Once the image is built make sure you give it the correct name with
+`docker tag <your_repository:your_image_name/> pytorch/torchserve:<tag>`
+
+For an official release our tags include `pytorch/torchserve/<version_number>-cpu`, `pytorch/torchserve/<version_number>-gpu`, `pytorch/torchserve/latest-cpu`, `pytorch/torchserve/latest-gpu`
+
+## Direct upload Kserve
+To build the Kserve docker image follow instructions from [kubernetes/kserve](../kubernetes/kserve/README.md)
+
+When tagging images for an official release make sure to tag with the following format `pytorch/torchserve-kfs/<version_number>-cpu` and `pytorch/torchserve-kfs/<version_number>-gpu`. 
+
+### Uploading from staging account
+
 ```
 # authenticate to docker with pytorchbot credentials
 docker login
@@ -138,4 +155,4 @@ docker login
 ./docker/promote-docker.sh
 ```
 
-If everything looks good make sure to `export $DRY_RUN=disabled` or remove that line from the code
+If everything looks good then run `$DRY_RUN=disabled ./docker/promote-docker.sh`

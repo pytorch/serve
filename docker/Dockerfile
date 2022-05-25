@@ -22,6 +22,11 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:18.04
 ENV PYTHONUNBUFFERED TRUE
 
+# Workaround from https://github.com/NVIDIA/nvidia-docker/issues/1632
+RUN apt-key del 7fa2af80
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/7fa2af80.pub
+
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     #apt --fix-broken -y install && \
     apt-get update && \
@@ -66,7 +71,7 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
         else \
             python -m pip install --no-cache-dir torch torchvision; \
         fi; \
-        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt \
+        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt; \
     # Install the CPU binary
     else \
         python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
