@@ -157,8 +157,8 @@ public class Model {
         return this.runtimeType;
     }
 
-    public void setRuntimeType(String runtimeType) {
-        this.runtimeType = Manifest.RuntimeType.fromValue(runtimeType);
+    public void setRuntimeType(Manifest.RuntimeType runtimeType) {
+        this.runtimeType = runtimeType;
     }
 
     public void addJob(String threadId, Job job) {

@@ -43,6 +43,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.ensemble.WorkflowManifest;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.LoggerFactory;
@@ -813,6 +815,32 @@ public final class ConfigManager {
                         value = defaultVal;
                     }
                 } catch (ClassCastException | IllegalStateException e) {
+                    LoggerFactory.getLogger(ConfigManager.class)
+                            .error(
+                                    "Invalid value for model: {}:{}, parameter: {}",
+                                    modelName,
+                                    version,
+                                    element);
+                    return defaultVal;
+                }
+            }
+        }
+        return value;
+    }
+
+    public Manifest.RuntimeType getJsonRuntimeTypeValue(String modelName,
+                                                        String version,
+                                                        String element,
+                                                        Manifest.RuntimeType defaultVal) {
+        Manifest.RuntimeType value = defaultVal;
+        if (this.modelConfig.containsKey(modelName)) {
+            Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
+            JsonObject jsonObject = versionModel.getOrDefault(version, null);
+
+            if (jsonObject != null && jsonObject.get(element) != null) {
+                try {
+                    value = Manifest.RuntimeType.fromValue(jsonObject.get(element).getAsString());
+                } catch (ClassCastException | IllegalStateException | IllegalArgumentException e) {
                     LoggerFactory.getLogger(ConfigManager.class)
                             .error(
                                     "Invalid value for model: {}:{}, parameter: {}",
