@@ -367,7 +367,8 @@ def generate_csv_output():
     artifacts['Workers'] = execution_params['workers']
     artifacts['Model'] = '[.mar]({})'.format(execution_params['url'])
     artifacts['Concurrency'] = execution_params['concurrency']
-    artifacts['Requests'] = '[input]({})'.format(execution_params['requests'])
+    artifacts['Input'] = '[input]({})'.format(execution_params['input'])
+    artifacts['Requests'] = execution_params['requests']
     artifacts['TS failed requests'] = extract_entity(data, 'Failed requests:', -1)
     artifacts['TS throughput'] = extract_entity(data, 'Requests per second:', -3)
     artifacts['TS latency P50'] = extract_entity(data, '50%', -1)
