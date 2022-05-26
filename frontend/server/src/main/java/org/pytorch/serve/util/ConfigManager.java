@@ -827,10 +827,8 @@ public final class ConfigManager {
         return value;
     }
 
-    public Manifest.RuntimeType getJsonRuntimeTypeValue(String modelName,
-                                                        String version,
-                                                        String element,
-                                                        Manifest.RuntimeType defaultVal) {
+    public Manifest.RuntimeType getJsonRuntimeTypeValue(
+            String modelName, String version, String element, Manifest.RuntimeType defaultVal) {
         Manifest.RuntimeType value = defaultVal;
         if (this.modelConfig.containsKey(modelName)) {
             Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
