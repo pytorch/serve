@@ -7,10 +7,6 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
-      # Workaround from https://github.com/NVIDIA/nvidia-docker/issues/1632
-      - apt-key del 7fa2af80
-      - apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-      - apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/7fa2af80.pub
       - apt-get update
       - apt-get install sudo -y
       - curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
