@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -81,6 +82,20 @@ public class WorkerLifeCycle {
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
+        switch (model.getRuntimeType()) {
+            case LSP:
+                logger.info("LSP startWorker");
+                break;
+            case LDP:
+                logger.info("LDP startWorker");
+                break;
+            default:
+                startWorkerPython(port);
+                break;
+        }
+    }
+
+    private void startWorkerPython(int port) throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
         setPort(port);

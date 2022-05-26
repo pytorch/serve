@@ -63,6 +63,7 @@ public class Model {
         modelVersionName =
                 new ModelVersionName(
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
+        runtimeType = modelArchive.getManifest().getRuntime();
     }
 
     public JsonObject getModelState(boolean isDefaultVersion) {

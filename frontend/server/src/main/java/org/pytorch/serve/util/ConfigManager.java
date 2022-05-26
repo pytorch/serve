@@ -44,7 +44,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.Manifest;
-import org.pytorch.serve.ensemble.WorkflowManifest;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.LoggerFactory;
