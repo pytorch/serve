@@ -116,7 +116,7 @@ Refer [default handlers](default_handlers.md#torchserve-default-inference-handle
 
 ### Is it possible to deploy Hugging Face models?
 Yes, you can deploy Hugging Face models using a custom handler.
-Refer [HuggingFace_Transformers](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md) for example. 
+Refer [HuggingFace_Transformers](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md) for example.
 
 ## Model-archiver
  Relevant documents
@@ -152,3 +152,25 @@ A mar file can be used either locally or be publicly available via http. An S3 U
 
 ### How to set a model's batch size on SageMaker?  Key parameters for TorchServe performance tuning.
 [TorchServe performance tuning example](https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb)
+
+### How to debug `Backend worker monitoring thread interrupted or backend worker process died`
+
+The easiest to debug this kind of issues is to look at the generated `logs/model_log.log` and see if there's anything suspicious there. Usually this is some bug in your `handler.py` code so you could in principle fix the bug, repackage into a new `.mar` file and try again but for interactive debugging this isn't ideal and instead we recommend you run handlers as standalone python files.
+
+For example let's say you wanted to run `ts/torch_handler/base_handler.py`, this is just a regular `python` file you can run it if you create a `if __name__ == "__main__"` function and this is often the fastest way to spot issues in your `handler.py` or run more extensive profiling to find issues with a slow model.
+
+So for example you would add the following code to `base_handler.py`
+
+```python
+# ...
+# Rest of handler code up here
+
+if __name__ == "__main__":
+    handler = BaseHandler()
+    handler.initialize()
+    x = torch.randn()
+    x = handler.preprocess(x)
+    x = handler.inference(x)
+    x = handler.postprocess(x)
+    print(x)
+```
