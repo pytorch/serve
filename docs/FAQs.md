@@ -174,3 +174,5 @@ if __name__ == "__main__":
     x = handler.postprocess(x)
     print(x)
 ```
+
+And then you can just run `python base_handler.py`
