@@ -11,6 +11,7 @@ import time
 import torch
 from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
+from ..utils.optimization import OPTIMIZATIONS
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import profile, record_function, ProfilerActivity
@@ -33,6 +34,9 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
 
+onednn_graph_fusion_enabled = False 
+if os.environ.get("TS_ONEDNN_GRAPH_FUSION_ENABLE", "false") == "true":
+    onednn_graph_fusion_enabled = True
 
 class BaseHandler(abc.ABC):
     """
@@ -51,6 +55,7 @@ class BaseHandler(abc.ABC):
         self.explain = False
         self.target = 0
         self.profiler_args = {}
+        self.optimization = None
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
@@ -98,9 +103,10 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
-        if ipex_enabled:
-            self.model = self.model.to(memory_format=torch.channels_last)
-            self.model = ipex.optimize(self.model)
+        
+        if ipex_enabled or onednn_graph_fusion_enabled:
+            self.optimization = OPTIMIZATIONS["ipex"](self.model, ipex_enabled, onednn_graph_fusion_enabled)
+            self.model = self.optimization.optimize()
 
         logger.debug("Model file %s loaded successfully", model_pt_path)
 
@@ -238,7 +244,17 @@ class BaseHandler(abc.ABC):
                 data_preprocess = self.preprocess(data)
 
                 if not self._is_explain():
-                    output = self.inference(data_preprocess)
+                    if ipex_enabled:
+                        if self.optimization.channel_last == "true":
+                            data_preprocess = data_preprocess.contiguous(memory_format=torch.channels_last)
+                        if self.optimization.dtype == "bfloat16":
+                            with torch.cpu.amp.autocast():
+                                output = self.inference(data_preprocess)
+                        else: # float32 or int8
+                            output = self.inference(data_preprocess)
+                    else:
+                        output = self.inference(data_preprocess)
+                        
                     output = self.postprocess(output)
                 else:
                     output = self.explain_handle(data_preprocess, data)
@@ -290,7 +306,16 @@ class BaseHandler(abc.ABC):
                 data_preprocess = self.preprocess(data)
             if not self._is_explain():
                 with record_function("inference"):
-                    output = self.inference(data_preprocess)
+                    if ipex_enabled:
+                        if self.optimization.channel_last == "true":
+                            data_preprocess = data_preprocess.contiguous(memory_format=torch.channels_last)
+                        if self.optimization.dtype == "bfloat16":
+                            with torch.cpu.amp.autocast():
+                                output = self.inference(data_preprocess)
+                        else: # float32 or int8
+                            output = self.inference(data_preprocess)
+                    else:
+                        output = self.inference(data_preprocess)
                 with record_function("postprocess"):
                     output = self.postprocess(output)
             else:
