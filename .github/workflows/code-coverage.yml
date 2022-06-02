@@ -19,6 +19,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
+      - name: Install codecov
+        run : |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov
       - name: Checkout TorchServe
         uses: actions/checkout@v2
       - name: Install dependencies
