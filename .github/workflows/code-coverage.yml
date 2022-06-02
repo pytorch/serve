@@ -1,0 +1,38 @@
+name: Code Coverage
+
+on: [push, pull_request]
+concurrency:
+  group: codecov-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-cpu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
+      - name: Torchserve Sanity
+        run: | 
+          python torchserve_sanity.py
+      - name: mvn install
+        run: cd serving-sdk/ && mvn clean install -q && cd ../
+      - name: Upload coverage to Codecov (script)
+        uses: ./
+        with:
+          files: ./coverage/script/coverage-final.json
+          flags: script,${{ matrix.os }}
+          name: codecov-script
+          verbose: true
