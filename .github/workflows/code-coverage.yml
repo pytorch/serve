@@ -6,7 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci-cpu:
+  codecov:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Python 3.8
