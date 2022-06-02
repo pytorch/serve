@@ -30,11 +30,14 @@ jobs:
           python torchserve_sanity.py
       - name: Run Python Unit Tests
         run: |
-          python -m pytest --cov-report=xml --cov=./ ts/tests/unit_tests/
-          python -m pytest --cov-report=xml --cov=./ model-archiver/model_archiver/tests/unit_tests/
-          python -m pytest --cov-report=xml --cov=./ model-archiver/model_archiver/tests/integ_tests/
-          python -m pytest --cov-report=xml --cov=./ workflow-archiver/workflow_archiver/tests/unit_tests/
-          python -m pytest --cov-report=xml --cov=./ workflow-archiver/workflow_archiver/tests/integ_tests/
+          python -m pytest --cov-report=xml:coveragetsut.xml --cov=./ ts/tests/unit_tests/
+          cd model-archiver
+          python -m pytest --cov-report=xml:coveragemaut.xml --cov=./ model_archiver/tests/unit_tests/
+          python -m pytest --cov-report=xml:coveragemaint.xml --cov=./ model_archiver/tests/integ_tests/
+          cd ../workflow-archiver
+          python -m pytest --cov-report=xml:coveragewaut.xml --cov=./ workflow_archiver/tests/unit_tests/
+          python -m pytest --cov-report=xml:coveragewaint.xml --cov=./ workflow_archiver/tests/integ_tests/
+          cd ..
       - name: mvn install
         run: cd serving-sdk/ && mvn clean install -q && cd ../
       - name: Install codecov
