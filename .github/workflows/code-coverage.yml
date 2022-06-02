@@ -26,10 +26,17 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Torchserve Sanity
-        run: | 
+        run: |
           python torchserve_sanity.py
+      - name: Run Python Unit Tests
+        run: |
+          python -m pytest --cov-report=xml --cov=./ ts/tests/unit_tests/
+          python -m pytest --cov-report=xml --cov=./ model-archiver/model_archiver/tests/unit_tests/
+          python -m pytest --cov-report=xml --cov=./ model-archiver/model_archiver/tests/integ_tests/
+          python -m pytest --cov-report=xml --cov=./ workflow-archiver/workflow_archiver/tests/unit_tests/
+          python -m pytest --cov-report=xml --cov=./ workflow-archiver/workflow_archiver/tests/integ_tests/
       - name: mvn install
-        run: cd serving-sdk/ && mvn clean install -q && cd ../       
+        run: cd serving-sdk/ && mvn clean install -q && cd ../
       - name: Install codecov
         run : |
           curl -Os https://uploader.codecov.io/latest/linux/codecov
