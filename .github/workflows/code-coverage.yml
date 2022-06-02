@@ -1,6 +1,6 @@
 name: Code Coverage
 
-on: [push, pull_request]
+on: push
 concurrency:
   group: codecov-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
