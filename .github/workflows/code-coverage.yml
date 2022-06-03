@@ -1,3 +1,4 @@
+# Any coverage.xml will be picked up by this Github Action
 name: Code Coverage
 
 on: push
