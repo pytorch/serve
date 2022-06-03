@@ -1,4 +1,5 @@
 # Any coverage.xml will be picked up by this Github Action
+# Just make sure each coverage.xml is in a different folder
 name: Code Coverage
 
 on: push
