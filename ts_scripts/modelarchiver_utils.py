@@ -12,14 +12,18 @@ def test_modelarchiver():
     print("## Started model archiver pytests - unit tests")
     ut_dir = os.path.join("model_archiver", "tests", "unit_tests")
     coverage_dir = os.path.join(".")
-    py_units_cmd = f"python -m pytest --cov-report xml:coverage-{ut_dir}.xml --cov={coverage_dir} {ut_dir}"
+    report_output_dir = os.path.join(ut_dir, "coverage.xml")
+
+    py_units_cmd = f"python -m pytest --cov-report {report_output_dir} --cov={coverage_dir} {ut_dir}"
     print(f"## In directory: {os.getcwd()} | Executing command: {py_units_cmd}")
     py_units_exit_code = os.system(py_units_cmd)
 
     # Execute integration tests
     print("## Started model archiver pytests - integration tests")
     it_dir = os.path.join("model_archiver", "tests", "integ_tests")
-    py_integ_cmd = f"python -m pytest --cov-report xml:coverage-{it_dir}.xml --cov={coverage_dir} {it_dir}"
+    report_output_dir = os.path.join(it_dir, "coverage.xml")
+
+    py_integ_cmd = f"python -m pytest --cov-report xml:{report_output_dir} --cov={coverage_dir} {it_dir}"
     print(f"## In directory: {os.getcwd()} | Executing command: {py_integ_cmd}")
     py_integ_exit_code = os.system(py_integ_cmd)
 

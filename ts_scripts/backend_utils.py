@@ -11,7 +11,9 @@ def test_torchserve():
     print("## Started torchserve pytests")
     test_dir = os.path.join("ts", "tests", "unit_tests")
     coverage_dir = os.path.join("ts")
-    ts_test_cmd = f"python -m pytest --cov-report xml:coverage-{test_dir}.xml --cov={coverage_dir} {test_dir}"
+    report_output_dir = os.path.join(test_dir, "coverage.xml")
+
+    ts_test_cmd = f"python -m pytest --cov-report xml:{report_output_dir} --cov={coverage_dir} {test_dir}"
     print(f"## In directory: {os.getcwd()} | Executing command: {ts_test_cmd}")
     ts_test_cmd = os.system(ts_test_cmd)
 
