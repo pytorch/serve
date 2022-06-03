@@ -14,7 +14,7 @@ def test_modelarchiver():
     coverage_dir = os.path.join(".")
     report_output_dir = os.path.join(ut_dir, "coverage.xml")
 
-    py_units_cmd = f"python -m pytest --cov-report {report_output_dir} --cov={coverage_dir} {ut_dir}"
+    py_units_cmd = f"python -m pytest --cov-report xml:{report_output_dir} --cov={coverage_dir} {ut_dir}"
     print(f"## In directory: {os.getcwd()} | Executing command: {py_units_cmd}")
     py_units_exit_code = os.system(py_units_cmd)
 
