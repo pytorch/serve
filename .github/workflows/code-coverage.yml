@@ -35,10 +35,3 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov
-      - name: Upload coverage to Codecov (script)
-        uses: ./
-        with:
-          files: ./coverage/script/coverage-final.json
-          flags: script,${{ matrix.os }}
-          name: codecov-script
-          verbose: true
