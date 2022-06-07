@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 TEST_DIR=./ts/torch_handler/unit_tests
 case $PWD/ in
