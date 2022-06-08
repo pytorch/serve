@@ -20,18 +20,24 @@ def handle_fn():
     return handler.handle
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(autouse=True, scope="class")
 def setup_directories():
-    TEST_DIR = os.path.join("ts", "torch", "torch_handler", "unit_tests")
+    TEST_DIR = os.path.join(
+        "ts", "torch", "torch_handler", "unit_tests", "models", "tmp"
+    )
 
-    os.system(f"mkdir -p {TEST_DIR}/models/tmp")
+    os.system(f"mkdir -p {TEST_DIR}")
     yield
-    os.system(f"rm -rf {TEST_DIR}/models/tmp")
+    os.system(f"rm -rf {TEST_DIR}")
+
+
+# Function for create, download or move model
 
 
 @pytest.fixture()
 def model_setup():
     context = MockContext(model_name="object_detector")
-    with open("examples/image_segmenter/persons.jpg", "rb") as fin:
+    persons_path = os.path.join("examples", "image_segmenter", "persons.jpg")
+    with open(persons_path, "rb") as fin:
         image_bytes = fin.read()
     return (context, image_bytes)

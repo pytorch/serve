@@ -5,6 +5,7 @@ Basic unit test for BaseHandler class.
 Ensures it can load and execute an example model
 """
 
+import os
 import sys
 
 from ts.torch_handler.base_handler import BaseHandler
@@ -14,6 +15,11 @@ sys.path.append("ts/torch_handler/unit_tests/models/tmp")
 
 class TestBaseHandler:
     def test_initialize(self, model_context):
+        TEST_DIR = "./ts/torch_handler/unit_tests"
+
+        os.system(f"python {TEST_DIR}/models/base_model.py")
+        os.system(f"mv base_model.pt {TEST_DIR}/models/tmp/model.pt")
+        os.system(f"cp {TEST_DIR}/models/base_model.py {TEST_DIR}/models/tmp/model.py")
         handler = BaseHandler()
         handler.initialize(model_context)
 
