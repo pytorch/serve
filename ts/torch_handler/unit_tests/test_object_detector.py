@@ -5,6 +5,7 @@ Basic unit test for ObjectDetector class.
 Ensures it can load and execute an example model
 """
 
+import os
 import sys
 
 import pytest
@@ -19,8 +20,14 @@ sys.path.append("ts/torch_handler/unit_tests/models/tmp")
 class TestObjectDetector:
     @pytest.fixture()
     def model_setup(self):
+        TEST_DIR = "./ts/torch_handler/unit_tests"
+
+        os.system(
+            f"wget -nc -q -O {TEST_DIR}/models/tmp/model.pt https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth"
+        )
+        os.system(f"cp -r examples/object_detector/fast-rcnn/* {TEST_DIR}/models/tmp")
         context = MockContext(model_name="object_detector")
-        with open("ts/torch_handler/unit_tests/models/tmp/persons.jpg", "rb") as fin:
+        with open("./ts/torch_handler/unit_tests/models/tmp/persons.jpg", "rb") as fin:
             image_bytes = fin.read()
         return (context, image_bytes)
 
@@ -35,7 +42,6 @@ class TestObjectDetector:
     def test_handle(self, model_setup):
         context, image_bytes = model_setup
         handler = self.test_initialize(model_setup)
-        test_data = [{"data": image_bytes}] * 2
+        test_data = [{"data": image_bytes}]
         results = handler.handle(test_data, context)
-        assert len(results) == 2
-        assert any("bench" in d for d in results[0])
+        assert len(results) == 1

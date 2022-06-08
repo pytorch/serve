@@ -6,6 +6,7 @@ Ensures it can load and execute an example model
 """
 
 import io
+import os
 import sys
 
 import pytest
@@ -30,6 +31,9 @@ image_processing = transforms.Compose(
 class TestMnistKF:
     @pytest.fixture()
     def model_setup(self):
+        TEST_DIR = "./ts/torch_handler/unit_tests"
+        os.system(f"cp -r examples/image_classifier/mnist/* {TEST_DIR}/models/tmp")
+
         context = MockContext(model_pt_file="mnist_cnn.pt", model_file="mnist.py")
         with open(
             "ts/torch_handler/unit_tests/models/tmp/test_data/0.png", "rb"

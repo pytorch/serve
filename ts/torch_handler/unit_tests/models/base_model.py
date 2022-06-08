@@ -6,10 +6,12 @@ Simple feed-forward model used only to test BaseHandler
 
 import torch
 
+
 class ArgmaxModel(torch.nn.Module):
     def forward(self, *input):
-        return torch.argmax(input[0], 1)
+        return torch.argmax(input[0], 1).to(dtype=torch.float)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     model = ArgmaxModel()
-    torch.save(model.state_dict(), 'base_model.pt')
+    torch.save(model.state_dict(), "base_model.pt")
