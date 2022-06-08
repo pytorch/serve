@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from ts.torch_handler.base_handler import BaseHandler
@@ -16,6 +18,15 @@ def handle_fn():
     handler = BaseHandler()
     handler.initialize(ctx)
     return handler.handle
+
+
+@pytest.fixture(autouse=True, scope="module")
+def setup_directories():
+    TEST_DIR = os.path.join("ts", "torch", "torch_handler", "unit_tests")
+
+    os.system(f"mkdir -p {TEST_DIR}/models/tmp")
+    yield
+    os.system(f"rm -rf {TEST_DIR}/models/tmp")
 
 
 @pytest.fixture()
