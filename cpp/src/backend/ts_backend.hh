@@ -1,30 +1,18 @@
 #pragma once
 
-#include "src/util/runtime_type.hh"
+#include "src/util/config.hh"
+#include "src/util/message.hh"
 
 namespace torchserve {
-class TorchServeBackend {
-  public:
-  TorchServeBackend(const std::string &ts_lib_path, RuntimeType runtimeType);
+  class TorchServeBackend {
+    public:
+    TorchServeBackend(torchserve::ModelConfig &modelConfig);
 
-  virtual ~TorchServeBackend();
+    virtual ~TorchServeBackend();
 
-  virtual void load_model() = 0;
+    torchserve::Status load_model();
 
-  virtual void predict(std::shared_ptr<BatchJob> job) = 0;
-
-  void ping();
-
-  void handleConnection(uint32_t port);
-
-  void runServer();
-
-};
-
-class BackendModel {
-  public:
-  virtual ~BackendModel() = 0;
-
-  virtual void predict(std::shared_ptr<BatchJob> job) = 0;
-};
+    torchserve::InferenceResponse predict(
+      const torchserve::InferenceRequest &inferenceRequest);
+  };
 }  // namespace torchserve
